@@ -275,7 +275,7 @@ function clearCustomAccentProps(): void {
 export function setAccent(name: string): string {
   clearCustomAccentProps();
   store.remove('ax:accent-custom');
-  if (name === 'fptecnologi') {
+  if (name === 'azul-oscuro') {
     D.removeAttribute('data-ax-accent');
     store.remove('ax:accent');
   } else {
@@ -392,7 +392,7 @@ export function currentValueOf(name: string): string {
   if (name === 'theme' || name === 'mode') return store.get('ax:theme') || 'system';
   if (name === 'dir') return D.getAttribute('dir') === 'rtl' ? 'rtl' : 'ltr';
   if (name === 'lang') return store.get('ax:lang') || 'EN';
-  if (name === 'accent') return D.getAttribute('data-ax-accent') || 'fptecnologi';
+  if (name === 'accent') return D.getAttribute('data-ax-accent') || 'azul-oscuro';
   const r = REGISTRY[name];
   return r ? D.getAttribute(r.attr) || r.def : '';
 }
