@@ -1,5 +1,5 @@
 /*
- * Vireo Next.js — runtime theme/customizer logic (the pure DOM+storage layer).
+ * FPTecnologi-HUB · Dashboard — runtime theme/customizer logic (the pure DOM+storage layer).
  *
  * Consolidates src/js/core/theme-restore.js + customizer.js. Every mutation:
  *   - sets a data-ax-* attribute on <html>,

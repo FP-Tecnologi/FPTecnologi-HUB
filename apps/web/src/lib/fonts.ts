@@ -1,5 +1,5 @@
 /*
- * Vireo — customizer FONT control: Google Fonts catalog search + on-demand load.
+ * FPTecnologi-HUB — customizer FONT control: Google Fonts catalog search + on-demand load.
  *
  * The template ships one designed pairing (Inter body + Space Grotesk display,
  * requested statically in app/layout.tsx <head>). The customizer can swap the

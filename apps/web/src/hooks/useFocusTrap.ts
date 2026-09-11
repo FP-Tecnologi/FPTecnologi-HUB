@@ -1,5 +1,5 @@
 /*
- * Vireo React — focus trap for dialogs/offcanvas (mirrors core/focus-trap.js).
+ * FPTecnologi-HUB · Dashboard — focus trap for dialogs/offcanvas (mirrors core/focus-trap.js).
  * Traps Tab within the container while active, restores focus on close, and
  * focuses the first focusable on open. Portable.
  */

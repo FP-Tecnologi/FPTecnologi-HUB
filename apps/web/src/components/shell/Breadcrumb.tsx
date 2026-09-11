@@ -1,5 +1,5 @@
 /*
- * Vireo Next.js — breadcrumb (manifest-driven, mirrors core/nav.js §6).
+ * FPTecnologi-HUB · Dashboard — breadcrumb (manifest-driven, mirrors core/nav.js §6).
  *
  * Resolves the current route slug to its manifest node, then renders Home →
  * ancestor trail → current page, using the .ax-breadcrumb DOM contract. The

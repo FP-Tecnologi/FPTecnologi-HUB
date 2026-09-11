@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — full-screen APP BAR (1:1 with partials/app-bar.html).
+ * FPTecnologi-HUB · Dashboard — full-screen APP BAR (1:1 with partials/app-bar.html).
  *
  * The only chrome the 13 standalone app routes (apps/**) get: brand (which
  * doubles as the way out, back to the dashboard), an app switcher, the ⌘K

@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — Sign in (basic).
+ * FPTecnologi-HUB · Dashboard — Sign in (basic).
  * 1:1 re-expression of src/html/auth/sign-in-basic.html: standalone centered
  * card with social row, email/password form, reveal toggle and a demo submit
  * that always flashes the "incorrect credentials" alert (never hits network).

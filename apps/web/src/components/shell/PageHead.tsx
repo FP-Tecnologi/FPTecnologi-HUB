@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — page head (breadcrumb + title + subtitle + actions).
+ * FPTecnologi-HUB · Dashboard — page head (breadcrumb + title + subtitle + actions).
  * Mirrors the .ax-page-head block at the top of every reference page. The
  * breadcrumb resolves from the current route via next/navigation usePathname().
  */

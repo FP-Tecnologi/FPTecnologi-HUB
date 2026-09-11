@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — Two-step verification (cover split).
+ * FPTecnologi-HUB · Dashboard — Two-step verification (cover split).
  * 1:1 re-expression of src/html/auth/two-step-cover.html: a duotone material
  * panel (lg+) beside the OTP card (label + 6 cells, resend/trust, error banner).
  * Demo code "123456" passes → redirects to "/". Cooldown starts at 30s.

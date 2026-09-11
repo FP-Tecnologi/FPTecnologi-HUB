@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — HeaderUtils (the shared right-hand utility cluster).
+ * FPTecnologi-HUB · Dashboard — HeaderUtils (the shared right-hand utility cluster).
  *
  * 1:1 with partials/header-utils.html: language menu, fullscreen, light/dark
  * quick-toggle, app grid, cart, notifications, profile, customizer trigger

@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — Header (dashboard top bar).
+ * FPTecnologi-HUB · Dashboard — Header (dashboard top bar).
  *
  * Faithful re-expression of partials/header.html: sidebar toggle + ⌘K command
  * search, then the SHARED right-hand utility cluster (<HeaderUtils>) — language

@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — Crear cuenta (cliente / ecommerce).
+ * FPTecnologi-HUB · Dashboard — Crear cuenta (cliente / ecommerce).
  * Auto-registro real: siempre cae en el rol "cliente" (POST /auth/register),
  * nunca crea cuentas de staff — eso es admin-only (RolesController).
  * marcaId se resuelve solo desde GET /public/marcas (primer resultado; no

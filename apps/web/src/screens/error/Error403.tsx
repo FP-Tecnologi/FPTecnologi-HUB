@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — 403 Access denied.
+ * FPTecnologi-HUB · Dashboard — 403 Access denied.
  * 1:1 re-expression of src/html/error/403.html: standalone status screen with a
  * shield + lock illustration (accent highlight on the lock dot), dashboard /
  * request-access actions and a switch-user helper link.

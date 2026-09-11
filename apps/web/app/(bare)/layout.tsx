@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — (bare) route-group layout.
+ * FPTecnologi-HUB · Dashboard — (bare) route-group layout.
  *
  * Standalone screens that render WITHOUT the app shell (landing, logout,
  * coming-soon) live in this group. Per CONVENTIONS.md §5, shell-less pages go in

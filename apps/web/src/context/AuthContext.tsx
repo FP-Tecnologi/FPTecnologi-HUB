@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — AuthContext.
+ * FPTecnologi-HUB · Dashboard — AuthContext.
  *
  * Wraps the NestJS backend's 2-step auth flow (login -> requiresOtp -> verify)
  * and exposes the authenticated user's brands (`marcas`) plus the currently

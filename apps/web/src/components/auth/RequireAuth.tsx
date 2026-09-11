@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — RequireAuth guard.
+ * FPTecnologi-HUB · Dashboard — RequireAuth guard.
  *
  * Wraps the (shell) route group: redirects to the sign-in screen when there is
  * no authenticated user once the AuthContext has finished its bootstrap check

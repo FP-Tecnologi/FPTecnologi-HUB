@@ -3,7 +3,7 @@
  * FPTecnologi-HUB · Dashboard — Sidebar (manifest-driven nav tree).
  *
  * Renders the reference .ax-sidebar DOM contract from nav-manifest.json:
- * brand → menu filter → role="tree" nav with section headers, L1 parent groups
+ * brand → marca switcher → role="tree" nav with section headers, L1 parent groups
  * (collapsible) and child leaves. The active leaf (matched against the router
  * path) gets `ax-nav__item--active is-active aria-current="page"`, its ancestor
  * group opens (`is-open`, panel un-hidden), and the parent button gets
@@ -51,18 +51,78 @@ const CARET = (
   </svg>
 );
 
+function MarcaSwitcher() {
+  const { marcas, activeMarcaId, setActiveMarcaId } = useAuth();
+  const [open, setOpen] = useState(false);
+  const active = marcas.find((m) => m.marcaId === activeMarcaId) ?? marcas[0] ?? null;
+
+  return (
+    <div className="ax-marcaswitch" style={{ padding: 'var(--ax-space-3) var(--ax-space-4)', borderBottom: '1px solid var(--ax-border)' }}>
+      <p style={{ margin: '0 0 var(--ax-space-2)', fontSize: 'var(--ax-text-2xs)', fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--ax-text-subtle)' }}>
+        Marca / Proyecto
+      </p>
+      {active && marcas.length <= 1 && (
+        <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', alignItems: 'center' }}>
+          <span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--ax-accent)' }} />
+          <b style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-strong)' }}>{active.marca.nombre}</b>
+        </div>
+      )}
+      {marcas.length > 1 && active && (
+        <div style={{ position: 'relative' }}>
+          <button
+            type="button"
+            className="ax-marcaswitch__trigger ax-btn ax-btn--secondary ax-btn--block"
+            aria-haspopup="listbox"
+            aria-expanded={open}
+            onClick={() => setOpen((o) => !o)}
+            onKeyDown={(e) => { if (e.key === 'Escape') setOpen(false); }}
+            style={{ justifyContent: 'space-between' }}
+          >
+            <span className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
+              <span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--ax-accent)' }} />
+              <span className="ax-btn__label" style={{ fontWeight: 600 }}>{active.marca.nombre}</span>
+            </span>
+            {CARET}
+          </button>
+          {open && (
+            <ul role="listbox" aria-label="Elegir marca" style={{ listStyle: 'none', margin: 'var(--ax-space-2) 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {marcas.map((m) => (
+                <li key={m.marcaId}>
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={m.marcaId === active.marcaId}
+                    onClick={() => { setActiveMarcaId(m.marcaId); setOpen(false); }}
+                    className="ax-btn ax-btn--ghost ax-btn--block"
+                    style={{ justifyContent: 'flex-start', fontWeight: m.marcaId === active.marcaId ? 600 : 400 }}
+                  >
+                    <span>{m.marca.nombre}</span>
+                    <span style={{ marginLeft: 'auto', fontSize: 'var(--ax-text-2xs)', color: 'var(--ax-text-subtle)' }}>{m.rol.nombre}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+      {marcas.length === 0 && (
+        <p style={{ margin: 0, fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Sin marcas asignadas.</p>
+      )}
+    </div>
+  );
+}
+
 interface LeafProps {
   node: NavNode;
   level: number;
   activeSlug: string;
-  filter: string;
   roleName: string | null;
 }
 
-function Leaf({ node, level, activeSlug, filter, roleName }: LeafProps) {
+function Leaf({ node, level, activeSlug, roleName }: LeafProps) {
   const resolved = manifest.resolve(node)!;
   const isActive = resolved.slug === activeSlug;
-  const hidden = (filter && !matches(node, filter)) || !visibleForRole(node, roleName);
+  const hidden = !visibleForRole(node, roleName);
   const cls = ['ax-nav__item', 'ax-nav__item--child'];
   if (isActive) cls.push('ax-nav__item--active', 'is-active');
   if (hidden) cls.push('is-hidden');
@@ -86,19 +146,17 @@ interface GroupProps {
   node: NavNode;
   level: number;
   activeSlug: string;
-  filter: string;
   roleName: string | null;
 }
 
-function Group({ node, level, activeSlug, filter, roleName }: GroupProps) {
+function Group({ node, level, activeSlug, roleName }: GroupProps) {
   const children = manifest.childrenOf(node.id).filter((c) => c.inMenu && visibleForRole(c, roleName));
   const containsActive = useMemo(
     () => subtreeContainsSlug(node, activeSlug),
     [node, activeSlug],
   );
   const [open, setOpen] = useState(containsActive || level === 1 && node.section === 'MAIN');
-  const isOpen = filter ? true : open || containsActive;
-  const groupHidden = filter && !subtreeMatches(node, filter);
+  const isOpen = open || containsActive;
 
   const parentCls = ['ax-nav__item', 'ax-nav__item--parent'];
   if (level > 1) parentCls.push('ax-nav__item--child');
@@ -106,7 +164,7 @@ function Group({ node, level, activeSlug, filter, roleName }: GroupProps) {
 
   return (
     <div
-      className={`ax-nav__group${isOpen ? ' is-open' : ''}${groupHidden ? ' is-hidden' : ''}`}
+      className={`ax-nav__group${isOpen ? ' is-open' : ''}`}
       data-ax-collapse
     >
       <button
@@ -137,7 +195,6 @@ function Group({ node, level, activeSlug, filter, roleName }: GroupProps) {
               node={child}
               level={level + 1}
               activeSlug={activeSlug}
-              filter={filter}
               roleName={roleName}
             />
           ) : (
@@ -146,7 +203,6 @@ function Group({ node, level, activeSlug, filter, roleName }: GroupProps) {
               node={child}
               level={level + 1}
               activeSlug={activeSlug}
-              filter={filter}
               roleName={roleName}
             />
           ),
@@ -158,13 +214,10 @@ function Group({ node, level, activeSlug, filter, roleName }: GroupProps) {
 
 export function Sidebar({ drawerOpen = false }: { drawerOpen?: boolean }) {
   const activeSlug = slugFromPath(usePathname() || '/');
-  const [filter, setFilter] = useState('');
   const rootRef = useRef<HTMLElement>(null);
   const { marcas, activeMarcaId } = useAuth();
   const roleName = marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre ?? null;
-  // While the rail is an open off-canvas drawer it is a modal surface: trap Tab
-  // inside it and open on the menu filter (core/sidebar.js openDrawer()).
-  useFocusTrap(rootRef, drawerOpen, '.ax-sidebar__filter');
+  useFocusTrap(rootRef, drawerOpen, '.ax-marcaswitch__trigger');
 
   return (
     <aside className="ax-sidebar" role="navigation" aria-label="Primary" ref={rootRef}>
@@ -176,57 +229,8 @@ export function Sidebar({ drawerOpen = false }: { drawerOpen?: boolean }) {
         </Link>
       </div>
 
-      {/* ===== MENU FILTER ===== */}
-      <div className="ax-sidebar__search">
-        <svg
-          className="ax-icon ax-sidebar__search-icon"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth={1.75}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          width={24}
-          height={24}
-          aria-hidden="true"
-        >
-          <path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
-          <path d="M21 21l-6 -6" />
-        </svg>
-        <input
-          type="search"
-          className="ax-sidebar__filter"
-          placeholder="Filter menu…"
-          aria-label="Filter menu"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          onKeyDown={(e) => e.key === 'Escape' && setFilter('')}
-        />
-        {filter && (
-          <button
-            type="button"
-            className="ax-sidebar__filter-clear"
-            onClick={() => setFilter('')}
-            aria-label="Clear filter"
-          >
-            <svg
-              className="ax-icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.75}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              width={24}
-              height={24}
-              aria-hidden="true"
-            >
-              <path d="M18 6l-12 12" />
-              <path d="M6 6l12 12" />
-            </svg>
-          </button>
-        )}
-      </div>
+      {/* ===== MARCA SWITCHER ===== */}
+      <MarcaSwitcher />
 
       {/* ===== NAV TREE ===== */}
       <nav className="ax-sidebar__nav" role="tree" aria-label="Main menu">
@@ -244,7 +248,6 @@ export function Sidebar({ drawerOpen = false }: { drawerOpen?: boolean }) {
                   node={g}
                   level={1}
                   activeSlug={activeSlug}
-                  filter={filter.trim().toLowerCase()}
                   roleName={roleName}
                 />
               ))}
@@ -270,17 +273,6 @@ function sectionLabel(s: string): string {
   return map[s] || s;
 }
 
-function matches(node: NavNode, q: string): boolean {
-  if (!q) return true;
-  return (
-    node.title.toLowerCase().includes(q) ||
-    (node.keywords || []).some((k) => k.toLowerCase().includes(q))
-  );
-}
-function subtreeMatches(node: NavNode, q: string): boolean {
-  if (matches(node, q)) return true;
-  return manifest.childrenOf(node.id).some((c) => subtreeMatches(c, q));
-}
 function subtreeContainsSlug(node: NavNode, slug: string): boolean {
   const kids = manifest.childrenOf(node.id);
   return kids.some((c) => {

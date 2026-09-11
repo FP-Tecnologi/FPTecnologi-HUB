@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — 500 Something went wrong.
+ * FPTecnologi-HUB · Dashboard — 500 Something went wrong.
  * 1:1 re-expression of src/html/error/500.html: standalone status screen with a
  * tools/wrench illustration (danger-tinted ring), retry (reload) / go-home actions
  * and a copy-on-click error reference id.

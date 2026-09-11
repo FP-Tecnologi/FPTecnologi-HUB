@@ -1,5 +1,5 @@
 /*
- * Vireo React — ApexCharts token bridge (logic port of src/js/plugins/charts.js).
+ * FPTecnologi-HUB · Dashboard — ApexCharts token bridge (logic port of src/js/plugins/charts.js).
  *
  * Pure helpers shared by <ApexChart>: read the live --ax-* palette, build the
  * Aurora base option object, deep-merge, and resolve a color token to a literal.

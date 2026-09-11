@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — Reset password (cover split).
+ * FPTecnologi-HUB · Dashboard — Reset password (cover split).
  * 1:1 re-expression of src/html/auth/reset-password-cover.html: a reassurance
  * panel with a lock card (lg+) beside the request→success reset flow. Demo always
  * succeeds (anti-enumeration); 30s resend cooldown on the success state.

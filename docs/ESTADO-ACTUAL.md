@@ -233,3 +233,11 @@ sobre este mismo repo. Estado real hoy:
   aplicado en los 7 métodos de `AuthService` que buscan por email y en
   `RolesService.crearUsuarioEnMarca`; fila existente `Dev@fptecnologi.com`
   corregida a minúsculas en Supabase. 3 tests nuevos (41/41 OK).
+- **Barrido total Vireo→FPTecnologi** (63 archivos, build OK): headers,
+  textos y placeholders restantes; favicon nuevo (cuadro azul `#008DC5` con
+  "FP"); título/meta ya estaban. Solo quedan menciones factuales
+  (licencia, referencia a plantilla, nota histórica del manifest).
+- **Sidebar: fuera el buscador, dentro el switch de marca**: eliminado
+  `Filter menu…` + toda su lógica de filtrado; en su lugar bloque
+  `Marca / Proyecto` (misma fuente que el header: `useAuth` + `x-marca-id`).
+  Con 1 marca muestra etiqueta fija, con varias despliega lista con rol.

@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — 503 Service unavailable.
+ * FPTecnologi-HUB · Dashboard — 503 Service unavailable.
  * 1:1 re-expression of src/html/error/503.html: standalone status screen with a
  * tools + paused-service illustration (warning-tinted ring), try-again (reload) /
  * maintenance-status actions, an estimated back-online time and a copy-on-click

@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — page loader (1:1 with partials/loader.html).
+ * FPTecnologi-HUB · Dashboard — page loader (1:1 with partials/loader.html).
  *
  * Full-screen overlay shown on first boot, hidden once the app mounts. The
  * customizer "Page loader" toggle writes data-ax-loader="off" which the shared

@@ -1,5 +1,5 @@
 /*
- * Vireo Next.js — per-route <title> resolved from the nav manifest.
+ * FPTecnologi-HUB · Dashboard — per-route <title> resolved from the nav manifest.
  *
  * The manifest is the single source of truth for page names, so acronym casing
  * ("CRM", "NFT Marketplace", "HR & Payroll") always matches the sidebar and

@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — effect-guarded ApexCharts component.
+ * FPTecnologi-HUB · Dashboard — effect-guarded ApexCharts component.
  *
  * Lazy-imports apexcharts, renders into a ref'd <div>, and re-themes live on the
  * `ax:change` event (light↔dark, 12 accents, RTL) by re-reading the --ax-* token

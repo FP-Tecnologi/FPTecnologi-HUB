@@ -1,5 +1,5 @@
 /*
- * Vireo React — nav manifest loader + index (TS port of src/js/core/manifest.js).
+ * FPTecnologi-HUB · Dashboard — nav manifest loader + index (TS port of src/js/core/manifest.js).
  *
  * The manifest is imported directly (bundled JSON) rather than fetched, so the
  * sidebar, breadcrumb, sidebar filter and command palette all share ONE indexed

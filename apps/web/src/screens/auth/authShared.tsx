@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — shared auth helpers (non-route).
+ * FPTecnologi-HUB · Dashboard — shared auth helpers (non-route).
  *
  * The auth section is a set of STANDALONE pages (no app shell). Each page is a
  * full-viewport screen with: the page loader, ambient glow, the fixed top-right

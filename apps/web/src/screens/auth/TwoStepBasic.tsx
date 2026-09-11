@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — Two-step verification (basic).
+ * FPTecnologi-HUB · Dashboard — Two-step verification (basic).
  * 1:1 re-expression of src/html/auth/two-step-basic.html: a 6-cell OTP group
  * with auto-advance / backspace / arrow-key nav / paste, a trust-device check
  * and a 30s resend cooldown. Demo code "111111" passes → redirects to "/".

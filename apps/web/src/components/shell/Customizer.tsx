@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — Theme Customizer offcanvas (re-expression of partials/customizer.html).
+ * FPTecnologi-HUB · Dashboard — Theme Customizer offcanvas (re-expression of partials/customizer.html).
  *
  * Native React drawer (Alpine axCustomizer re-implementation): color mode,
  * direction, 12 accent presets, custom colors, navigation, shell style, sidebar,

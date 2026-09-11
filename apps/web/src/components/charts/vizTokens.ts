@@ -1,5 +1,5 @@
 /*
- * Vireo Next.js — SSR-safe token→literal resolver for chart pages.
+ * FPTecnologi-HUB · Dashboard — SSR-safe token→literal resolver for chart pages.
  *
  * ApexCharts needs concrete color literals in options like `apex.colors`; it does
  * not resolve CSS `var(--…)`. The chart pages in the reference call

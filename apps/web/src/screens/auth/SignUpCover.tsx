@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — Create your account (cover split).
+ * FPTecnologi-HUB · Dashboard — Create your account (cover split).
  * 1:1 re-expression of src/html/auth/sign-up-cover.html: a benefits-list gradient
  * panel (lg+) beside the same sign-up form (name/email/password+strength/confirm/
  * terms) on the right. Note: this variant's strength barClass uses score<=2=weak.

@@ -1,9 +1,9 @@
 /*
- * Vireo React — Tabler icon renderer.
+ * FPTecnologi-HUB · Dashboard — Tabler icon renderer.
  *
  * The shared CSS expects inline SVGs (24x24 viewBox, currentColor, stroke 1.75).
  * The nav-manifest references Tabler icon names; this registry maps the names
- * Vireo uses to their path data. Unknown names fall back to a neutral dot so
+ * to their Tabler path data. Unknown names fall back to a neutral dot so
  * the shell never breaks. Framework-portable (no router imports).
  */
 import type { SVGProps } from 'react';

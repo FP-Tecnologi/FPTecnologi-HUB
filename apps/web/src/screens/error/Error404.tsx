@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — 404 Page not found.
+ * FPTecnologi-HUB · Dashboard — 404 Page not found.
  * 1:1 re-expression of src/html/error/404.html: standalone status screen with a
  * broken-link illustration, an inline search form (demo, no network — routes to
  * search-results with the query), go-home / contact-support actions and a row of

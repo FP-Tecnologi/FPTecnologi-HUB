@@ -1,7 +1,7 @@
 'use client';
 /*
  * FPTecnologi-HUB — panel de inicio real (reemplaza el dashboard "Sales" de
- * muestra de Vireo). Sin datos de mentira: muestra sesión, marca activa y rol,
+ * muestra de la plantilla). Sin datos de mentira: muestra sesión, marca activa y rol,
  * y sirve de punto de partida hasta que cada módulo real (equipo, servicios,
  * pedidos, cotizaciones…) tenga su propia pantalla.
  */
