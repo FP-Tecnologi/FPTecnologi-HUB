@@ -110,13 +110,11 @@ const HEX_LOGO = (_size: number) => (
 );
 
 /** Centered brand lockup (sign-in/up/reset/two-step basic). */
-export function BrandCentered({ logoSize = 42, glyph = 24, textSize = 'var(--ax-text-xl)' }: { logoSize?: number; glyph?: number; textSize?: string }) {
+export function BrandCentered({ logoWidth = 190 }: { logoWidth?: number }) {
   return (
-    <Link href="/" className="ax-center" aria-label="Vireo home" style={{ gap: 'var(--ax-space-3)', textDecoration: 'none', flexDirection: 'row', justifyContent: 'center' }}>
-      <span className="ax-center" aria-hidden="true" style={{ inlineSize: logoSize, blockSize: logoSize, borderRadius: 'var(--ax-radius-md)', background: 'var(--ax-gradient-accent)', color: 'var(--ax-on-accent)', boxShadow: '0 8px 22px -8px rgba(var(--ax-accent-rgb),.7)' }}>
-        {HEX_LOGO(glyph)}
-      </span>
-      <span style={{ fontFamily: 'var(--ax-font-display)', fontWeight: 'var(--ax-weight-semibold)', fontSize: textSize, color: 'var(--ax-text-strong)', letterSpacing: '-.01em' }}>Vireo</span>
+    <Link href="/" className="ax-center" aria-label="FPTecnologi home" style={{ textDecoration: 'none', justifyContent: 'center' }}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logo-fptecnologi.svg" alt="FPTecnologi" width={logoWidth} style={{ height: 'auto' }} />
     </Link>
   );
 }
