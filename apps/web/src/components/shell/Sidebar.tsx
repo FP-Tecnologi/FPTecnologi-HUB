@@ -11,7 +11,7 @@
  */
 import { useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useAuth } from '../../context/AuthContext';
 import {
@@ -53,6 +53,7 @@ const CARET = (
 
 function MarcaSwitcher() {
   const { marcas, activeMarcaId, setActiveMarcaId } = useAuth();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const active = marcas.find((m) => m.marcaId === activeMarcaId) ?? marcas[0] ?? null;
 
@@ -92,7 +93,7 @@ function MarcaSwitcher() {
                     type="button"
                     role="option"
                     aria-selected={m.marcaId === active.marcaId}
-                    onClick={() => { setActiveMarcaId(m.marcaId); setOpen(false); }}
+                    onClick={() => { setActiveMarcaId(m.marcaId); setOpen(false); router.push('/'); }}
                     className="ax-btn ax-btn--ghost ax-btn--block"
                     style={{ justifyContent: 'flex-start', fontWeight: m.marcaId === active.marcaId ? 600 : 400 }}
                   >
@@ -263,7 +264,9 @@ export function Sidebar({ drawerOpen = false }: { drawerOpen?: boolean }) {
 function sectionLabel(s: string): string {
   // Manifest sections are upper-case; reference renders them title-ish.
   const map: Record<string, string> = {
-    MAIN: 'Main',
+    GENERAL: 'General',
+    MARCA: 'Marca activa',
+    MAIN: 'Principal',
     APPLICATIONS: 'Applications',
     MODULES: 'Modules',
     PAGES: 'Pages',

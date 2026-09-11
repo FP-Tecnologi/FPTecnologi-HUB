@@ -122,12 +122,12 @@ export function visibleForRole(node: NavNode, roleName: string | null): boolean 
 }
 
 /**
- * Normalise a router path to a manifest slug. The React edition routes by slug
- * (e.g. "/dashboards/sales"), and "/" maps to the Sales dashboard default.
+ * Normalise a router path to a manifest slug. "/" maps to the home slug
+ * "" (Panel general); anything else strips slashes verbatim.
  */
 export function slugFromPath(pathname: string): string {
-  let p = (pathname || '/').replace(/\/+$/, '').replace(/^\/+/, '');
-  if (!p || p === 'index') return 'dashboards/sales';
+  const p = (pathname || '/').replace(/\/+$/, '').replace(/^\/+/, '');
+  if (!p || p === 'index') return '';
   return p;
 }
 

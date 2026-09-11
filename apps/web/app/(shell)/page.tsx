@@ -1,6 +1,6 @@
 import { metadataForSlug } from '../../src/lib/pageMetadata';
 
-export const metadata = metadataForSlug('dashboards/sales');
+export const metadata = metadataForSlug('');
 
 /*
  * FPTecnologi-HUB — ruta "/" (panel de inicio real, ya no el dashboard de

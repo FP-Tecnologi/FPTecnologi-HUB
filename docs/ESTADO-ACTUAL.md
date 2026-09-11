@@ -241,3 +241,11 @@ sobre este mismo repo. Estado real hoy:
   `Filter menu…` + toda su lógica de filtrado; en su lugar bloque
   `Marca / Proyecto` (misma fuente que el header: `useAuth` + `x-marca-id`).
   Con 1 marca muestra etiqueta fija, con varias despliega lista con rol.
+- **Menú por proyecto + Panel general**: seed de las 4 marcas restantes
+  (`fimavperu`, `kelqa`, `imaninki`, `quamtu`, vacías, sin sitios todavía)
+  + admin de Jaime en todas → el switch ya muestra las 5 y al cambiar va a
+  `/`. Manifest con secciones GENERAL (Panel general, Usuarios y equipo y
+  Configuración solo-admin) y MARCA (Productos/Pedidos/Servicios/
+  Cotizaciones como placeholders hasta su CRUD). `/` ahora es Panel general
+  con tarjetas por marca. Nota: no correr `next build` con el dev abierto —
+  corrompe `.next` (error `317.js`); limpiar `.next` y reabrir.
