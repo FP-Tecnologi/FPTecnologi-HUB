@@ -26,10 +26,9 @@ export interface AuthUser {
   nombre: string;
 }
 
-interface LoginResult {
-  requiresOtp: boolean;
-  email: string;
-}
+type LoginResult =
+  | { requiresOtp: true; requiresTotp?: false; email: string }
+  | { requiresTotp: true; requiresOtp?: false; email: string };
 
 interface VerifyResult {
   accessToken: string;
@@ -44,6 +43,7 @@ interface AuthContextValue {
   loading: boolean;
   login: (email: string, password: string) => Promise<LoginResult>;
   verifyOtp: (email: string, codigo: string) => Promise<VerifyResult>;
+  verifyTotp: (email: string, code: string) => Promise<VerifyResult>;
   logout: () => Promise<void>;
   setActiveMarcaId: (marcaId: string) => void;
   refreshMarcas: () => Promise<void>;
@@ -118,6 +118,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return result;
   }, [refreshMarcas]);
 
+  const verifyTotp = useCallback(async (email: string, code: string) => {
+    const result = await api.post<VerifyResult>('/auth/totp/verify-login', { email, code }, { auth: false });
+    tokenStore.setTokens(result.accessToken, result.refreshToken);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(USER_KEY, JSON.stringify(result.usuario));
+    }
+    setUser(result.usuario);
+    await refreshMarcas();
+    return result;
+  }, [refreshMarcas]);
+
   const logout = useCallback(async () => {
     const refreshToken = tokenStore.getRefreshToken();
     try {
@@ -138,8 +149,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<AuthContextValue>(() => ({
-    user, marcas, activeMarcaId, loading, login, verifyOtp, logout, setActiveMarcaId, refreshMarcas,
-  }), [user, marcas, activeMarcaId, loading, login, verifyOtp, logout, setActiveMarcaId, refreshMarcas]);
+    user, marcas, activeMarcaId, loading, login, verifyOtp, verifyTotp, logout, setActiveMarcaId, refreshMarcas,
+  }), [user, marcas, activeMarcaId, loading, login, verifyOtp, verifyTotp, logout, setActiveMarcaId, refreshMarcas]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

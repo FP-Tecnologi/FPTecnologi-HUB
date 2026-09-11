@@ -17,6 +17,23 @@ const ACCESS_TOKEN_KEY = 'ax:auth:access';
 const REFRESH_TOKEN_KEY = 'ax:auth:refresh';
 const ACTIVE_MARCA_KEY = 'ax:auth:marcaId';
 
+// Non-httpOnly marker cookie — never carries the real token, just lets
+// middleware.ts (Edge runtime, can't read localStorage) know a session
+// exists so it can redirect. Every real request is still authorized by the
+// Bearer token from localStorage, not this cookie.
+const SESSION_COOKIE = 'ax_session';
+const SESSION_COOKIE_MAX_AGE_S = 60 * 60 * 24 * 7; // 7 days, matches refresh token lifetime
+
+function setSessionCookie(): void {
+  if (typeof document === 'undefined') return;
+  document.cookie = `${SESSION_COOKIE}=1; path=/; max-age=${SESSION_COOKIE_MAX_AGE_S}; SameSite=Lax`;
+}
+
+function clearSessionCookie(): void {
+  if (typeof document === 'undefined') return;
+  document.cookie = `${SESSION_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
+}
+
 export interface ApiEnvelope<T> {
   success: boolean;
   statusCode: number;
@@ -59,6 +76,7 @@ export const tokenStore = {
   setTokens(accessToken: string, refreshToken: string) {
     writeStorage(ACCESS_TOKEN_KEY, accessToken);
     writeStorage(REFRESH_TOKEN_KEY, refreshToken);
+    setSessionCookie();
   },
   setActiveMarcaId(marcaId: string | null) {
     writeStorage(ACTIVE_MARCA_KEY, marcaId);
@@ -67,6 +85,7 @@ export const tokenStore = {
     writeStorage(ACCESS_TOKEN_KEY, null);
     writeStorage(REFRESH_TOKEN_KEY, null);
     writeStorage(ACTIVE_MARCA_KEY, null);
+    clearSessionCookie();
   },
 };
 

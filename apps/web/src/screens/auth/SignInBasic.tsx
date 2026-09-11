@@ -48,7 +48,8 @@ export function SignInBasic() {
         if (remember && typeof window !== 'undefined') {
           window.localStorage.setItem('ax:auth:email', result.email);
         }
-        router.push(`/auth/two-step-basic?email=${encodeURIComponent(result.email)}`);
+        const nextStep = result.requiresTotp ? 'two-step-totp' : 'two-step-basic';
+        router.push(`/auth/${nextStep}?email=${encodeURIComponent(result.email)}`);
       })
       .catch((err: unknown) => {
         setLoading(false);
