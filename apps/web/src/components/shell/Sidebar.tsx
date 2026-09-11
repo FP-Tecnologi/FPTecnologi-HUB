@@ -61,9 +61,6 @@ function MarcaSwitcher() {
 
   return (
     <div className="ax-marcaswitch" style={{ padding: 'var(--ax-space-3) var(--ax-space-4)', borderBottom: '1px solid var(--ax-border)' }}>
-      <p style={{ margin: '0 0 var(--ax-space-2)', fontSize: 'var(--ax-text-2xs)', fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--ax-text-subtle)' }}>
-        Marca / Proyecto
-      </p>
       {active && !showCombo && (
         <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', alignItems: 'center' }}>
           <span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--ax-accent)' }} />
