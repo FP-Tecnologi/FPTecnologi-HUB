@@ -21,7 +21,7 @@ export function middleware(request: NextRequest) {
 
   if (!hasSession && !isPublicPath(pathname)) {
     const signInUrl = request.nextUrl.clone();
-    signInUrl.pathname = '/auth/sign-in-basic';
+    signInUrl.pathname = '/auth/sign-in';
     return NextResponse.redirect(signInUrl);
   }
 

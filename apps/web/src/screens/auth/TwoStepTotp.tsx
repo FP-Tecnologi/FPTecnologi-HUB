@@ -84,7 +84,7 @@ function TwoStepTotpInner() {
               </form>
 
               <div className="ax-center" style={{ flexDirection: 'column', gap: 'var(--ax-space-2)' }}>
-                <Link className="ax-link" href="/auth/sign-in-basic" style={{ fontSize: 'var(--ax-text-sm)' }}>Usar otro método</Link>
+                <Link className="ax-link" href="/auth/sign-in" style={{ fontSize: 'var(--ax-text-sm)' }}>Usar otro método</Link>
               </div>
             </div>
           </section>

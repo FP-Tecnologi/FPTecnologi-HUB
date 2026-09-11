@@ -84,7 +84,7 @@ export function SignUpBasic() {
     register(email.trim(), password, marcaId, name.trim())
       .then(() => {
         setLoading(false);
-        router.push('/auth/sign-in-basic?cuenta=creada');
+        router.push('/auth/sign-in?cuenta=creada');
       })
       .catch((err: unknown) => {
         setLoading(false);
@@ -177,7 +177,7 @@ export function SignUpBasic() {
               </form>
 
               <p style={{ textAlign: 'center', margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
-                ¿Ya tienes cuenta? <Link className="ax-link" href="/auth/sign-in-basic" style={{ fontWeight: 'var(--ax-weight-medium)' }}>Iniciar sesión</Link>
+                ¿Ya tienes cuenta? <Link className="ax-link" href="/auth/sign-in" style={{ fontWeight: 'var(--ax-weight-medium)' }}>Iniciar sesión</Link>
               </p>
             </div>
           </section>

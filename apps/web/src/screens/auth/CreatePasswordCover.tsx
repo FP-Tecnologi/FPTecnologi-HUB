@@ -64,7 +64,7 @@ export function CreatePasswordCover() {
     setTimeout(() => {
       setLoading(false);
       setDone(true);
-      setTimeout(() => router.push('/auth/sign-in-basic'), 1400);
+      setTimeout(() => router.push('/auth/sign-in'), 1400);
     }, 650);
   }
 
@@ -108,7 +108,7 @@ export function CreatePasswordCover() {
                         <p className="ax-alert__message">Reset links are valid for 60 minutes. Request a fresh one to continue.</p>
                       </div>
                     </div>
-                    <Link className="ax-btn ax-btn--primary ax-btn--block" href="/auth/reset-password-basic" style={{ minHeight: 44 }}><span className="ax-btn__label">Request a new link</span></Link>
+                    <Link className="ax-btn ax-btn--primary ax-btn--block" href="/auth/reset-password" style={{ minHeight: 44 }}><span className="ax-btn__label">Request a new link</span></Link>
                   </div>
                 ) : (
                   <div>
@@ -176,7 +176,7 @@ export function CreatePasswordCover() {
                     )}
 
                     <p style={{ marginBlockStart: 'var(--ax-space-5)', textAlign: 'center', fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
-                      Remembered it? <Link className="ax-link" href="/auth/sign-in-basic">Back to sign in</Link>
+                      Remembered it? <Link className="ax-link" href="/auth/sign-in">Back to sign in</Link>
                     </p>
                   </div>
                 )}

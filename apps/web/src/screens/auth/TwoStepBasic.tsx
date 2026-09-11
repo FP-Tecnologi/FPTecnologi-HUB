@@ -165,7 +165,7 @@ function TwoStepBasicInner() {
                     <span>{cooldown > 0 ? `Reenviar en ${cooldown}s` : 'Reenviar código'}</span>
                   </button>
                 </p>
-                <Link className="ax-link" href="/auth/sign-in-basic" style={{ fontSize: 'var(--ax-text-sm)' }}>Usar otro método</Link>
+                <Link className="ax-link" href="/auth/sign-in" style={{ fontSize: 'var(--ax-text-sm)' }}>Usar otro método</Link>
               </div>
             </div>
           </section>

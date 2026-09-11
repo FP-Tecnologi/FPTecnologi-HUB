@@ -48,7 +48,7 @@ export function SignInBasic() {
         if (remember && typeof window !== 'undefined') {
           window.localStorage.setItem('ax:auth:email', result.email);
         }
-        const nextStep = result.requiresTotp ? 'two-step-totp' : 'two-step-basic';
+        const nextStep = result.requiresTotp ? 'two-step-totp' : 'two-step';
         router.push(`/auth/${nextStep}?email=${encodeURIComponent(result.email)}`);
       })
       .catch((err: unknown) => {
@@ -99,7 +99,7 @@ export function SignInBasic() {
                 <div className="ax-field">
                   <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
                     <label className="ax-label" htmlFor="si-pass">Contraseña</label>
-                    <Link className="ax-link" href="/auth/reset-password-basic" style={{ fontSize: 'var(--ax-text-xs)' }}>¿Olvidaste tu contraseña?</Link>
+                    <Link className="ax-link" href="/auth/reset-password" style={{ fontSize: 'var(--ax-text-xs)' }}>¿Olvidaste tu contraseña?</Link>
                   </div>
                   <div className="ax-field__control">
                     <input id="si-pass" className={`ax-input ax-input--with-trailing${passErr ? ' is-invalid' : ''}`} autoComplete="current-password" placeholder="••••••••••"
@@ -123,7 +123,7 @@ export function SignInBasic() {
               </form>
 
               <p style={{ textAlign: 'center', margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
-                ¿Todavía no tienes cuenta? <Link className="ax-link" href="/auth/sign-up-basic" style={{ fontWeight: 'var(--ax-weight-medium)' }}>Crear cuenta</Link>
+                ¿Todavía no tienes cuenta? <Link className="ax-link" href="/auth/sign-up" style={{ fontWeight: 'var(--ax-weight-medium)' }}>Crear cuenta</Link>
               </p>
             </div>
           </section>

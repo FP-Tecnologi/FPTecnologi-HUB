@@ -180,9 +180,9 @@ export function TwoStepCover() {
                 </form>
 
                 <div style={{ marginBlockStart: 'var(--ax-space-5)', textAlign: 'center' }}>
-                  <Link className="ax-link" href="/auth/two-step-basic" style={{ fontSize: 'var(--ax-text-sm)' }}>Use a different method</Link>
+                  <Link className="ax-link" href="/auth/two-step" style={{ fontSize: 'var(--ax-text-sm)' }}>Use a different method</Link>
                   <span style={{ color: 'var(--ax-text-subtle)', marginInline: 'var(--ax-space-2)' }}>·</span>
-                  <Link className="ax-link" href="/auth/sign-in-basic" style={{ fontSize: 'var(--ax-text-sm)' }}>Back to sign in</Link>
+                  <Link className="ax-link" href="/auth/sign-in" style={{ fontSize: 'var(--ax-text-sm)' }}>Back to sign in</Link>
                 </div>
               </div>
             </div>

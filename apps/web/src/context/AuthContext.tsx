@@ -160,7 +160,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
     setMarcas([]);
     setActiveMarcaIdState(null);
-    router.push('/auth/sign-in-basic');
+    router.push('/auth/sign-in');
   }, [router]);
 
   useEffect(() => {

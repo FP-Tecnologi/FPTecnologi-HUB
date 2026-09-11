@@ -105,10 +105,6 @@ export function OffappToolsCompact({ style }: { style?: CSSProperties }) {
   );
 }
 
-const HEX_LOGO = (_size: number) => (
-  <svg viewBox="0 0 32 32" width={24} height={24} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="axmk0" x1={4} y1={4} x2={28} y2={28} gradientUnits="userSpaceOnUse"><stop stopColor="#2BC4B0" /><stop offset="0.55" stopColor="#1E9E96" /><stop offset="1" stopColor="#6D5CF0" /></linearGradient></defs><path d="M4 4 H16 A12 12 0 0 1 28 16 V28 A0 0 0 0 1 28 28 H16 A12 12 0 0 1 4 16 V4 Z" fill="url(#axmk0)" stroke="none" /><circle cx="20.5" cy="11.5" r="2.6" fill="#0A0C11" fillOpacity="0.92" stroke="none" /></svg>
-);
-
 /** Centered brand lockup (sign-in/up/reset/two-step basic). */
 export function BrandCentered({ logoWidth = 190 }: { logoWidth?: number }) {
   return (
@@ -120,13 +116,11 @@ export function BrandCentered({ logoWidth = 190 }: { logoWidth?: number }) {
 }
 
 /** Inline brand lockup (cover form pane). */
-export function BrandInline({ logoSize = 38, glyph = 22, textSize = 'var(--ax-text-lg)' }: { logoSize?: number; glyph?: number; textSize?: string }) {
+export function BrandInline({ logoWidth = 160 }: { logoWidth?: number }) {
   return (
-    <Link href="/" className="ax-cluster" aria-label="Vireo home" style={{ gap: 'var(--ax-space-3)', textDecoration: 'none' }}>
-      <span className="ax-center" aria-hidden="true" style={{ inlineSize: logoSize, blockSize: logoSize, borderRadius: 'var(--ax-radius-md)', background: 'var(--ax-gradient-accent)', color: 'var(--ax-on-accent)', boxShadow: '0 8px 22px -8px rgba(var(--ax-accent-rgb),.7)' }}>
-        {HEX_LOGO(glyph)}
-      </span>
-      <span style={{ fontFamily: 'var(--ax-font-display)', fontWeight: 'var(--ax-weight-semibold)', fontSize: textSize, color: 'var(--ax-text-strong)' }}>Vireo</span>
+    <Link href="/" className="ax-cluster" aria-label="FPTecnologi home" style={{ textDecoration: 'none' }}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logo-fptecnologi.svg" alt="FPTecnologi" width={logoWidth} style={{ height: 'auto' }} />
     </Link>
   );
 }

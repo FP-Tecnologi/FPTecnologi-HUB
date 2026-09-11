@@ -68,7 +68,7 @@ export function ResetPasswordBasic() {
     confirmPasswordReset(email.trim(), codigo.trim(), pw)
       .then(() => {
         setLoading(false);
-        router.push('/auth/sign-in-basic?password=actualizada');
+        router.push('/auth/sign-in?password=actualizada');
       })
       .catch((err: unknown) => {
         setLoading(false);
@@ -113,7 +113,7 @@ export function ResetPasswordBasic() {
                   </form>
 
                   <p style={{ textAlign: 'center', margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
-                    ¿La recordaste? <Link className="ax-link" href="/auth/sign-in-basic" style={{ fontWeight: 'var(--ax-weight-medium)' }}>Iniciar sesión</Link>
+                    ¿La recordaste? <Link className="ax-link" href="/auth/sign-in" style={{ fontWeight: 'var(--ax-weight-medium)' }}>Iniciar sesión</Link>
                   </p>
                 </div>
               ) : (

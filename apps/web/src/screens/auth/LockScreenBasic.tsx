@@ -105,7 +105,7 @@ export function LockScreenBasic() {
               </form>
 
               <p style={{ marginBlockStart: 'var(--ax-space-5)', textAlign: 'center', fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
-                Not Ava? <Link className="ax-link" href="/auth/sign-in-basic">Sign in as another user</Link>
+                Not Ava? <Link className="ax-link" href="/auth/sign-in">Sign in as another user</Link>
               </p>
             </div>
           </div>
