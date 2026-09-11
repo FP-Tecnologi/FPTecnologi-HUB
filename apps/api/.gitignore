@@ -6,3 +6,7 @@ coverage
 .env
 
 /src/generated/prisma
+
+# One-off manual seed scripts carry a real bcrypt hash tied to a specific
+# account - never meant to be shared history, generate a fresh one per need.
+prisma/seed-manual.sql

@@ -1,7 +1,6 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service.js';
-import { RegisterDto } from './dto/register.dto.js';
 import { LoginDto } from './dto/login.dto.js';
 import { VerifyOtpDto } from './dto/verify-otp.dto.js';
 import { RequestOtpDto } from './dto/request-otp.dto.js';
@@ -17,11 +16,9 @@ import type { AuthenticatedUser } from './types/authenticated-user.js';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Public()
-  @Post('register')
-  register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto.email, dto.password, dto.nombre);
-  }
+  // No hay auto-registro público — las cuentas las crea un admin desde
+  // POST /roles/equipo (ver RolesController). Evita altas sin dueño y sin
+  // marca/rol asignado.
 
   @Public()
   @Throttle({ default: { ttl: 60_000, limit: 5 } })

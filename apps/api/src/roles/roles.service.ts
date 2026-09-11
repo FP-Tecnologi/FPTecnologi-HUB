@@ -1,11 +1,42 @@
 import { Injectable } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateRolDto } from './dto/create-rol.dto.js';
 import { AsignarRolDto } from './dto/asignar-rol.dto.js';
+import { CrearUsuarioDto } from './dto/crear-usuario.dto.js';
+
+const SALT_ROUNDS = 10;
 
 @Injectable()
 export class RolesService {
   constructor(private readonly prisma: PrismaService) {}
+
+  /**
+   * Alta de un miembro del equipo: crea el usuario si el email es nuevo (con
+   * la contraseña que puso el admin — no hay invitación por correo todavía)
+   * o, si ya existe (persona que ya trabaja en otra marca), lo reutiliza
+   * ignorando password/nombre — solo se agrega la asignación a esta marca.
+   */
+  async crearUsuarioEnMarca(marcaId: string, dto: CrearUsuarioDto) {
+    let usuario = await this.prisma.usuario.findUnique({ where: { email: dto.email } });
+    let nuevo = false;
+
+    if (!usuario) {
+      const passwordHash = await bcrypt.hash(dto.password, SALT_ROUNDS);
+      usuario = await this.prisma.usuario.create({
+        data: { email: dto.email, passwordHash, nombre: dto.nombre },
+      });
+      nuevo = true;
+    }
+
+    await this.prisma.usuarioMarcaRol.upsert({
+      where: { usuarioId_marcaId_rolId: { usuarioId: usuario.id, marcaId, rolId: dto.rolId } },
+      create: { usuarioId: usuario.id, marcaId, rolId: dto.rolId },
+      update: {},
+    });
+
+    return { id: usuario.id, email: usuario.email, nombre: usuario.nombre, nuevo };
+  }
 
   createRol(dto: CreateRolDto) {
     return this.prisma.rol.create({ data: dto });

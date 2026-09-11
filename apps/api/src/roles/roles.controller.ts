@@ -2,10 +2,12 @@ import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/c
 import { RolesService } from './roles.service.js';
 import { CreateRolDto } from './dto/create-rol.dto.js';
 import { AsignarRolDto } from './dto/asignar-rol.dto.js';
+import { CrearUsuarioDto } from './dto/crear-usuario.dto.js';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import { MarcaRolGuard } from '../common/guards/marca-rol.guard.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
+import { MarcaActual } from '../common/decorators/marca-actual.decorator.js';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user.js';
 
 @UseGuards(JwtAuthGuard)
@@ -28,6 +30,15 @@ export class RolesController {
   @Post('roles/asignaciones')
   asignar(@Body() dto: AsignarRolDto) {
     return this.rolesService.asignar(dto);
+  }
+
+  // Alta de cuenta para un miembro nuevo del equipo — solo un admin de la
+  // marca activa puede crear cuentas, no hay auto-registro público.
+  @UseGuards(MarcaRolGuard)
+  @Roles('admin')
+  @Post('roles/equipo')
+  crearUsuarioEnMarca(@MarcaActual() marcaId: string, @Body() dto: CrearUsuarioDto) {
+    return this.rolesService.crearUsuarioEnMarca(marcaId, dto);
   }
 
   @UseGuards(MarcaRolGuard)

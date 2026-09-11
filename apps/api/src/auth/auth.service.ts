@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ConflictException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -30,20 +29,6 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly mailService: MailService,
   ) {}
-
-  async register(email: string, password: string, nombre?: string) {
-    const existing = await this.prisma.usuario.findUnique({ where: { email } });
-    if (existing) {
-      throw new ConflictException('Ya existe un usuario con ese correo');
-    }
-
-    const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-    const usuario = await this.prisma.usuario.create({
-      data: { email, passwordHash, nombre },
-    });
-
-    return { id: usuario.id, email: usuario.email, nombre: usuario.nombre };
-  }
 
   /**
    * Step 1 of login: validates credentials, then triggers whichever second
