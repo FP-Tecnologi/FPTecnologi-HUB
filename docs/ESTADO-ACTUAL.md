@@ -136,6 +136,10 @@ sobre este mismo repo. Estado real hoy:
       (`setTimeout` fake), sin endpoint real
 - [ ] CRUD real de productos/pedidos/usuarios conectado a la API —
       pendiente
+- [ ] `Confiar en este dispositivo por 30 días` — hoy es solo visual
+      (checkbox sin efecto, heredado de Vireo). Implementar de verdad:
+      token de dispositivo 30d en cookie HttpOnly + salto de OTP en ese
+      navegador + revocación al cambiar contraseña + tests
 
 ## Desviaciones del plan original (agregado / quitado / distinto)
 
