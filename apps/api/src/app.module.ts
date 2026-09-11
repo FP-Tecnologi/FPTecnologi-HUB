@@ -1,5 +1,6 @@
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { Module } from '@nestjs/common';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { HealthController } from './health.controller.js';
 import { ConfigModule } from './config/config.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
@@ -20,6 +21,9 @@ import { PublicApiModule } from './public/public.module.js';
 @Module({
   imports: [
     ConfigModule,
+    // Límite global; auth.controller pone uno más estricto en login/OTP
+    // (fuerza bruta de un código de 6 dígitos es factible sin esto).
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }]),
     PrismaModule,
     AuthModule,
     MarcasModule,
@@ -37,6 +41,7 @@ import { PublicApiModule } from './public/public.module.js';
     // Orden de ejecución de guards: JwtAuthGuard corre primero en todas las
     // rutas (salvo @Public()); MarcaRolGuard se aplica explícitamente por
     // módulo/ruta encima de este guard global.
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
     { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },

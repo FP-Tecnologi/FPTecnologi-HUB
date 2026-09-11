@@ -15,9 +15,14 @@ venta de soluciones/dispositivos TI (ecommerce con stock) + servicios TI
 para empresas (B2B, por cotización).
 
 Documentación de negocio completa (alcance, fases, roles, costos) en:
-- [`docs/documentacion-tecnica.md`](docs/documentacion-tecnica.md)
-- [`docs/plan-trabajo.md`](docs/plan-trabajo.md) (cronograma — las fechas son
-  estimadas, no tratarlas como compromiso fijo)
+- [`docs/documentacion-tecnica.md`](docs/documentacion-tecnica.md) y
+  [`docs/plan-trabajo.md`](docs/plan-trabajo.md) — **congelados**, son la
+  conversión literal de los docx originales del plan (fechas estimadas, no
+  compromiso fijo). No se editan para reflejar avance real.
+- [`docs/ESTADO-ACTUAL.md`](docs/ESTADO-ACTUAL.md) — **documento vivo**,
+  se actualiza en cada sesión con fecha real: qué se hizo, qué cambió
+  respecto al plan original (agregado/quitado/distinto). Léelo para saber
+  dónde está el proyecto hoy sin reconstruirlo desde el git log.
 
 Mapa navegable del código + docs (comunidades, nodos más conectados,
 conexiones no obvias entre la documentación y la implementación real) en
@@ -53,10 +58,15 @@ apps/
 docs/     Documentación de negocio y planificación
 ```
 
-No hay todavía `packages/shared-types` ni `turbo` — el repo usa npm
-workspaces (`package.json` raíz) como monorepo mínimo. Se agrega
-`shared-types` cuando exista una segunda app consumidora de los mismos DTOs
-(la futura web pública de fptecnologi).
+No hay `packages/shared-types`, `turbo` ni npm workspaces — cada app
+(`apps/api`, `apps/web`) es un proyecto npm independiente con su propio
+`node_modules`/`package-lock.json`. Se probó un `package.json` raíz con
+workspaces y se revirtió: npm hoisteaba paquetes de forma inconsistente
+(un paquete en `node_modules` raíz, su propia dependencia interna en la del
+app) y rompía el arranque en runtime — sin un paquete compartido real
+todavía, el workspace no aportaba nada y sí agregaba ese riesgo. Se
+reevalúa cuando exista `packages/shared-types` de verdad (la futura web
+pública de fptecnologi consumiendo los mismos DTOs que el dashboard).
 
 ## Stack
 
@@ -68,7 +78,12 @@ workspaces (`package.json` raíz) como monorepo mínimo. Se agrega
   [`VIREO-REFERENCE.md`](VIREO-REFERENCE.md) antes de construir una pantalla
   nueva — probablemente Vireo ya trae un patrón parecido.
 - **Testing**: Vitest (`*.spec.ts` junto al archivo que prueban).
-- **Package manager**: npm (no pnpm, no yarn) en todo el repo.
+- **Package manager**: npm (no pnpm, no yarn) — instalar dentro de cada
+  app (`cd apps/api && npm install`), no hay workspace raíz (ver arriba).
+- **Seguridad**: `helmet`, rate limiting (`@nestjs/throttler`, 5
+  intentos/min en login/OTP), validación de env al boot
+  (`assertRequiredEnv` en `main.ts` — la app no arranca si un secret
+  crítico quedó vacío o con el valor de ejemplo).
 
 ## Módulos de la API y rutas
 
@@ -132,15 +147,14 @@ sin rediseño — no construir nada de esto de forma anticipada.
 
 ## Estado actual / próximos pasos
 
-Backend (Fase 1 del plan) funcionalmente completo: auth+OTP, roles,
-marcas/sitios, productos/categorías, pedidos, servicios/cotizaciones,
-notificaciones, endpoints públicos, Swagger, tests de `AuthService` y
-`MarcaRolGuard`.
+Backend (Fase 1 del plan) funcionalmente completo y con hardening básico
+(índices DB, rate limiting, helmet, validación de env). Supabase real
+conectado y migrado.
 
-Pendiente:
-- Crear la web pública de fptecnologi.com (Next.js + shadcn/ui, sin login,
-  consume `/public/*`) — todavía no existe como app separada.
-- CI (GitHub Actions: build/lint/test) — delegado a otro proveedor/agente,
-  no lo asumas hecho.
-- Infra externa (Cloudflare, Hostinger, Sentry) — fuera del alcance de un
-  agente de código, requiere acceso a esas cuentas.
+Pendiente: crear la web pública de fptecnologi.com, CI (delegado a otro
+agente), infra externa (Cloudflare/Hostinger/Sentry).
+
+**Detalle real, fecha por fecha, y qué cambió respecto al plan original:
+[`docs/ESTADO-ACTUAL.md`](docs/ESTADO-ACTUAL.md) — es el documento vivo,
+actualízalo ahí, no acá.** Este archivo (`AGENTS.md`) solo cambia cuando
+cambia la arquitectura/convenciones en sí, no el progreso día a día.

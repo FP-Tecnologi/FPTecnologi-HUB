@@ -45,6 +45,8 @@ model Sitio {
   marcaId   String
   marca     Marca    @relation(fields: [marcaId], references: [id])
   createdAt DateTime @default(now())
+
+  @@index([marcaId])
 }
 
 // ---------------------------------------------------------------------------
@@ -75,6 +77,8 @@ model RefreshToken {
   expiresAt DateTime
   revoked   Boolean   @default(false)
   createdAt DateTime  @default(now())
+
+  @@index([usuarioId])
 }
 
 enum OtpProposito {
@@ -91,6 +95,8 @@ model OtpCode {
   expiresAt   DateTime
   consumedAt  DateTime?
   createdAt   DateTime     @default(now())
+
+  @@index([usuarioId])
 }
 
 // ---------------------------------------------------------------------------
@@ -113,6 +119,7 @@ model UsuarioMarcaRol {
   createdAt DateTime @default(now())
 
   @@id([usuarioId, marcaId, rolId])
+  @@index([marcaId])
 }
 
 // ---------------------------------------------------------------------------
@@ -126,6 +133,8 @@ model Categoria {
   nombre    String
   productos Producto[]
   createdAt DateTime   @default(now())
+
+  @@index([marcaId])
 }
 
 model Producto {
@@ -170,6 +179,8 @@ model Pedido {
   items     PedidoItem[]
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
+
+  @@index([marcaId])
 }
 
 model PedidoItem {
@@ -197,6 +208,8 @@ model Servicio {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   cotizaciones Cotizacion[]
+
+  @@index([marcaId])
 }
 
 enum EstadoCotizacion {
@@ -220,6 +233,8 @@ model Cotizacion {
   estado          EstadoCotizacion @default(PENDIENTE)
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
+
+  @@index([marcaId])
 }
 
 // ---------------------------------------------------------------------------
@@ -236,4 +251,7 @@ model Notificacion {
   mensaje   String
   leida     Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  @@index([usuarioId])
+  @@index([marcaId])
 }
