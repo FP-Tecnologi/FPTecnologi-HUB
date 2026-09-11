@@ -76,6 +76,25 @@ velocidad.
       el valor de ejemplo o vacíos (el `.env` real tenía los tres secrets
       JWT todavía en `"change-me-..."`, el mismo texto público del repo —
       se generaron secrets reales)
+- [x] **Tenant-guard a nivel Prisma** — `MarcaRolGuard` solo verifica que
+      el usuario tenga acceso al `marcaId` que declara, no que la query
+      que corre después lo haya usado. Se agregó una extensión de Prisma
+      (`$extends`, aplicada vía Proxy en `PrismaService` para no tocar los
+      12 services que ya lo usan) que tira error si una query sobre
+      `Sitio`/`Categoria`/`Producto`/`Pedido`/`Servicio`/`Cotizacion`/
+      `UsuarioMarcaRol` corre sin `marcaId` en el `where`/`data`.
+      Verificado contra Supabase real: query con `marcaId` pasa, query sin
+      `marcaId` se bloquea con error explícito. Ningún query actual viola
+      la regla (todas ya incluían `marcaId`) — esto es una red de
+      seguridad para código futuro, no un fix de un bug existente.
+- [x] `/docs` (Swagger) detrás de HTTP Basic Auth cuando
+      `NODE_ENV=production` (`SWAGGER_USER`/`SWAGGER_PASSWORD`) — antes
+      exponía el esquema completo de la API (todas las rutas, todos los
+      DTOs) sin auth a cualquiera que encontrara la URL, porque
+      `SwaggerModule.setup` monta sus rutas fuera del guard stack de Nest.
+      Abierto en desarrollo para no trabar el flujo local. Probado: 401
+      sin credenciales / con credenciales incorrectas, 200 con las
+      correctas, en `/docs` y `/docs-json`.
 
 ## Desviaciones del plan original (agregado / quitado / distinto)
 
@@ -117,5 +136,8 @@ velocidad.
   independiente; boot real contra Supabase verificado (`GET /health` OK).
 - Vista simplificada del grafo (`graphify-out/graph-simple.html`, 29
   nodos-comunidad en vez de 593) para lectura no técnica.
+- Tenant-guard a nivel Prisma (segundo candado de aislamiento multi-marca,
+  más allá de `MarcaRolGuard`) y `/docs` protegido con Basic Auth en
+  producción — ver checklist de Fase 1 arriba.
 - Este archivo (`ESTADO-ACTUAL.md`) creado para llevar el estado real del
   proyecto — se actualiza desde ahora en cada sesión con avance real.

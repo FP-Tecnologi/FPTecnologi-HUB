@@ -42,7 +42,18 @@ un `marcaId` que mande el cliente sin validar.
 
 `Marca` (entidad de negocio) y `Sitio` (dominio → `marcaId`) son conceptos
 distintos: hoy 1 marca = 1 sitio, pero el modelo permite que una marca tenga
-varios sitios sin migrar nada.
+varios sitios sin migrar nada. **El dashboard es único para todas las
+marcas** (selector de marca activa) — una web/landing nueva no necesita
+dashboard propio, solo una fila en `Sitio` apuntando a su `marcaId`.
+
+`MarcaRolGuard` verifica que el usuario tenga acceso al `marcaId` que
+*declara* (header/query) — no puede ver si el código que corre después
+realmente filtró la query por esa marca. Ese segundo nivel lo cubre el
+**tenant-guard** de Prisma (`src/prisma/tenant-guard.extension.ts`): tira
+error en cualquier query sobre un modelo con `marcaId` que no lo incluya en
+el `where`/`data`. Doble candado: guard de HTTP + guard de DB — un
+`findMany` sin `marcaId` en cualquier service nuevo falla ruidosamente en
+vez de filtrar datos de otra marca en silencio.
 
 Toda autenticación pasa por la API central (JWT + Refresh Token + OTP por
 correo) — no se usa NextAuth ni login independiente por sitio.
@@ -83,7 +94,11 @@ pública de fptecnologi consumiendo los mismos DTOs que el dashboard).
 - **Seguridad**: `helmet`, rate limiting (`@nestjs/throttler`, 5
   intentos/min en login/OTP), validación de env al boot
   (`assertRequiredEnv` en `main.ts` — la app no arranca si un secret
-  crítico quedó vacío o con el valor de ejemplo).
+  crítico quedó vacío o con el valor de ejemplo), `/docs` (Swagger) detrás
+  de Basic Auth cuando `NODE_ENV=production` (abierto en dev), y un
+  **tenant-guard** a nivel Prisma (`src/prisma/tenant-guard.extension.ts`)
+  que tira error si una query sobre un modelo con `marcaId` corre sin
+  `marcaId` en el `where`/`data` — ver principio de arquitectura abajo.
 
 ## Módulos de la API y rutas
 

@@ -1,4 +1,5 @@
 const REQUIRED = ['DATABASE_URL', 'JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET'] as const;
+const REQUIRED_IN_PRODUCTION = ['SWAGGER_USER', 'SWAGGER_PASSWORD'] as const;
 
 /**
  * Fails fast at boot instead of letting the app start with an empty or
@@ -6,7 +7,10 @@ const REQUIRED = ['DATABASE_URL', 'JWT_ACCESS_SECRET', 'JWT_REFRESH_SECRET'] as 
  * .env.example, which are public since that file is committed).
  */
 export function assertRequiredEnv(): void {
-  const missing = REQUIRED.filter((key) => {
+  const keys: readonly string[] =
+    process.env.NODE_ENV === 'production' ? [...REQUIRED, ...REQUIRED_IN_PRODUCTION] : REQUIRED;
+
+  const missing = keys.filter((key) => {
     const value = process.env[key];
     return !value || value.startsWith('change-me');
   });
