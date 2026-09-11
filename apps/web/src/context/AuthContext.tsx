@@ -49,21 +49,54 @@ interface AuthContextValue {
   confirmPasswordReset: (email: string, codigo: string, newPassword: string) => Promise<void>;
   logout: () => Promise<void>;
   setActiveMarcaId: (marcaId: string) => void;
+  /** Vista global de administración (Panel general + gestión): sin marca activa. */
+  adminMode: boolean;
+  setAdminMode: (on: boolean) => void;
   refreshMarcas: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 const USER_KEY = 'ax:auth:user';
+/** Persisted flag for the global admin view (no active marca). SSR-safe helpers. */
+const ADMIN_FLAG = 'ax:auth:adminmode';
+function readAdminFlag(): boolean {
+  try {
+    return typeof window !== 'undefined' && window.localStorage.getItem(ADMIN_FLAG) === '1';
+  } catch {
+    return false;
+  }
+}
+function writeAdminFlag(on: boolean): void {
+  try {
+    if (typeof window === 'undefined') return;
+    if (on) window.localStorage.setItem(ADMIN_FLAG, '1');
+    else window.localStorage.removeItem(ADMIN_FLAG);
+  } catch {
+    /* ignore */
+  }
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [marcas, setMarcas] = useState<MarcaAsignada[]>([]);
   const [activeMarcaId, setActiveMarcaIdState] = useState<string | null>(null);
+  const [adminMode, setAdminModeState] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const setAdminMode = useCallback((on: boolean) => {
+    if (on) {
+      tokenStore.setActiveMarcaId(null);
+      setActiveMarcaIdState(null);
+    }
+    writeAdminFlag(on);
+    setAdminModeState(on);
+  }, []);
+
   const setActiveMarcaId = useCallback((marcaId: string) => {
+    writeAdminFlag(false);
+    setAdminModeState(false);
     tokenStore.setActiveMarcaId(marcaId);
     setActiveMarcaIdState(marcaId);
   }, []);
@@ -72,6 +105,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const list = await api.get<MarcaAsignada[]>('/usuarios/me/marcas');
       setMarcas(list);
+      const isAdmin = list.some((m) => m.rol.nombre.toLowerCase() === 'admin');
+      if (readAdminFlag() && isAdmin) {
+        tokenStore.setActiveMarcaId(null);
+        setActiveMarcaIdState(null);
+        setAdminModeState(true);
+        return;
+      }
+      setAdminModeState(false);
       const current = tokenStore.getActiveMarcaId();
       const stillValid = current && list.some((m) => m.marcaId === current);
       if (!stillValid && list.length > 0) setActiveMarcaId(list[0].marcaId);
@@ -156,10 +197,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       /* best-effort revoke; proceed with local logout regardless */
     }
     tokenStore.clear();
+    writeAdminFlag(false);
     if (typeof window !== 'undefined') window.localStorage.removeItem(USER_KEY);
     setUser(null);
     setMarcas([]);
     setActiveMarcaIdState(null);
+    setAdminModeState(false);
     router.push('/auth/sign-in');
   }, [router]);
 
@@ -170,11 +213,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AuthContextValue>(() => ({
     user, marcas, activeMarcaId, loading, login, verifyOtp, verifyTotp,
     register, requestPasswordReset, confirmPasswordReset,
-    logout, setActiveMarcaId, refreshMarcas,
+    logout, setActiveMarcaId, adminMode, setAdminMode, refreshMarcas,
   }), [
     user, marcas, activeMarcaId, loading, login, verifyOtp, verifyTotp,
     register, requestPasswordReset, confirmPasswordReset,
-    logout, setActiveMarcaId, refreshMarcas,
+    logout, setActiveMarcaId, adminMode, setAdminMode, refreshMarcas,
   ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

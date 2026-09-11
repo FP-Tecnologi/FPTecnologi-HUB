@@ -249,3 +249,8 @@ sobre este mismo repo. Estado real hoy:
   Cotizaciones como placeholders hasta su CRUD). `/` ahora es Panel general
   con tarjetas por marca. Nota: no correr `next build` con el dev abierto —
   corrompe `.next` (error `317.js`); limpiar `.next` y reabrir.
+- **Combo con opción Administración**: primera opción del switch (solo si
+  eres admin en alguna marca) → vista global sin marca activa: solo sección
+  GENERAL (Panel general, Usuarios y Configuración), se oculta Marca activa
+  y no se manda `x-marca-id`. Persiste en `localStorage`, sobrevive
+  recargas y se limpia al salir.

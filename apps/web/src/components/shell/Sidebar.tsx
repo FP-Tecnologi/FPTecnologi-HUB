@@ -52,23 +52,25 @@ const CARET = (
 );
 
 function MarcaSwitcher() {
-  const { marcas, activeMarcaId, setActiveMarcaId } = useAuth();
+  const { marcas, activeMarcaId, setActiveMarcaId, adminMode, setAdminMode } = useAuth();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const active = marcas.find((m) => m.marcaId === activeMarcaId) ?? marcas[0] ?? null;
+  const isAdmin = marcas.some((m) => m.rol.nombre.toLowerCase() === 'admin');
+  const showCombo = marcas.length > 1 || isAdmin;
 
   return (
     <div className="ax-marcaswitch" style={{ padding: 'var(--ax-space-3) var(--ax-space-4)', borderBottom: '1px solid var(--ax-border)' }}>
       <p style={{ margin: '0 0 var(--ax-space-2)', fontSize: 'var(--ax-text-2xs)', fontWeight: 600, letterSpacing: '.08em', textTransform: 'uppercase', color: 'var(--ax-text-subtle)' }}>
         Marca / Proyecto
       </p>
-      {active && marcas.length <= 1 && (
+      {active && !showCombo && (
         <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', alignItems: 'center' }}>
           <span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--ax-accent)' }} />
           <b style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-strong)' }}>{active.marca.nombre}</b>
         </div>
       )}
-      {marcas.length > 1 && active && (
+      {showCombo && (
         <div style={{ position: 'relative' }}>
           <button
             type="button"
@@ -81,21 +83,36 @@ function MarcaSwitcher() {
           >
             <span className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
               <span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--ax-accent)' }} />
-              <span className="ax-btn__label" style={{ fontWeight: 600 }}>{active.marca.nombre}</span>
+              <span className="ax-btn__label" style={{ fontWeight: 600 }}>{adminMode ? 'Administración' : (active?.marca.nombre ?? 'Elegir')}</span>
             </span>
             {CARET}
           </button>
           {open && (
-            <ul role="listbox" aria-label="Elegir marca" style={{ listStyle: 'none', margin: 'var(--ax-space-2) 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <ul role="listbox" aria-label="Elegir vista: administración o marca" style={{ listStyle: 'none', margin: 'var(--ax-space-2) 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
+              {isAdmin && (
+                <li key="__admin__">
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={adminMode}
+                    onClick={() => { setAdminMode(true); setOpen(false); router.push('/'); }}
+                    className="ax-btn ax-btn--ghost ax-btn--block"
+                    style={{ justifyContent: 'flex-start', fontWeight: adminMode ? 600 : 400 }}
+                  >
+                    <span>Administración</span>
+                    <span style={{ marginLeft: 'auto', fontSize: 'var(--ax-text-2xs)', color: 'var(--ax-text-subtle)' }}>Global</span>
+                  </button>
+                </li>
+              )}
               {marcas.map((m) => (
                 <li key={m.marcaId}>
                   <button
                     type="button"
                     role="option"
-                    aria-selected={m.marcaId === active.marcaId}
+                    aria-selected={!adminMode && active !== null && m.marcaId === active.marcaId}
                     onClick={() => { setActiveMarcaId(m.marcaId); setOpen(false); router.push('/'); }}
                     className="ax-btn ax-btn--ghost ax-btn--block"
-                    style={{ justifyContent: 'flex-start', fontWeight: m.marcaId === active.marcaId ? 600 : 400 }}
+                    style={{ justifyContent: 'flex-start', fontWeight: !adminMode && active !== null && m.marcaId === active.marcaId ? 600 : 400 }}
                   >
                     <span>{m.marca.nombre}</span>
                     <span style={{ marginLeft: 'auto', fontSize: 'var(--ax-text-2xs)', color: 'var(--ax-text-subtle)' }}>{m.rol.nombre}</span>
@@ -216,8 +233,11 @@ function Group({ node, level, activeSlug, roleName }: GroupProps) {
 export function Sidebar({ drawerOpen = false }: { drawerOpen?: boolean }) {
   const activeSlug = slugFromPath(usePathname() || '/');
   const rootRef = useRef<HTMLElement>(null);
-  const { marcas, activeMarcaId } = useAuth();
-  const roleName = marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre ?? null;
+  const { marcas, activeMarcaId, adminMode } = useAuth();
+  const isAdmin = marcas.some((m) => m.rol.nombre.toLowerCase() === 'admin');
+  const roleName = adminMode
+    ? (isAdmin ? 'admin' : (marcas[0]?.rol.nombre ?? null))
+    : (marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre ?? null);
   useFocusTrap(rootRef, drawerOpen, '.ax-marcaswitch__trigger');
 
   return (
@@ -236,7 +256,7 @@ export function Sidebar({ drawerOpen = false }: { drawerOpen?: boolean }) {
       {/* ===== NAV TREE ===== */}
       <nav className="ax-sidebar__nav" role="tree" aria-label="Main menu">
         {sections().map((section) => {
-          const groups = groupsInSection(section).filter((g) => g.inMenu && visibleForRole(g, roleName));
+          const groups = groupsInSection(section).filter((g) => g.inMenu && visibleForRole(g, roleName) && (g.id !== 'grp.marca' || !adminMode));
           if (groups.length === 0) return null;
           return (
             <div key={section}>
