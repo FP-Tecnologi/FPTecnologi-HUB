@@ -82,7 +82,7 @@ const SSR_STATE: CustomizerState = {
   themeResolved: 'light',
   dir: 'ltr',
   lang: 'EN',
-  accent: 'verdigris',
+  accent: 'fptecnologi',
   customAccent: '',
   recentAccents: [],
   nav: 'vertical',

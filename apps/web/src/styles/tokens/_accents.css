@@ -188,3 +188,53 @@
   --ax-accent:#86857D; --ax-accent-hover:#A6A59F; --ax-accent-wash:#1E1E1C;
   --ax-link:#A6A59F; --ax-focus-ring:#A6A59F; --ax-on-accent:#0B1F1A; --ax-accent-rgb:134,133,125;
 }
+
+/* ════════════════ Marca FPTecnologi — paleta real del logo (Pantone) ════════════════
+   Ramp derivada con el mismo algoritmo que el picker de color custom
+   (src/lib/color.ts deriveRamp), para que se vea igual de correcta que
+   cualquier preset de fábrica. Es el default del proyecto (ver layout.tsx
+   / CustomizerContext.tsx) — las otras dos quedan como alternativas si el
+   principal no convence. */
+[data-ax-accent="fptecnologi"] {
+  --ax-accent-50:#EDF5F9; --ax-accent-100:#DBEBF2; --ax-accent-200:#B8D7E5;
+  --ax-accent-300:#90C0D7; --ax-accent-400:#59A1C3; --ax-accent-500:#2181AF;
+  --ax-accent-600:#1C6C93; --ax-accent-700:#165877; --ax-accent-800:#11435B; --ax-accent-900:#0D3143;
+  --ax-accent:var(--ax-accent-500); --ax-accent-hover:var(--ax-accent-600);
+  --ax-accent-wash:var(--ax-accent-50); --ax-on-accent:#FFFFFF;
+  --ax-focus-ring:var(--ax-accent-500); --ax-link:var(--ax-accent-700);
+  --ax-accent-rgb:33,129,175;
+}
+[data-ax-theme="dark"][data-ax-accent="fptecnologi"] {
+  --ax-accent:#59A1C3; --ax-accent-hover:#90C0D7; --ax-accent-wash:#05131A;
+  --ax-link:#90C0D7; --ax-focus-ring:#90C0D7; --ax-on-accent:#FFFFFF; --ax-accent-rgb:89,161,195;
+}
+
+/* Alternativa 1: Azul oscuro (Pantone 7692 C, #155382) */
+[data-ax-accent="azul-oscuro"] {
+  --ax-accent-50:#ECF1F5; --ax-accent-100:#DAE3EB; --ax-accent-200:#B4C8D7;
+  --ax-accent-300:#8AA9C1; --ax-accent-400:#507EA1; --ax-accent-500:#155382;
+  --ax-accent-600:#12466D; --ax-accent-700:#0E3858; --ax-accent-800:#0B2B44; --ax-accent-900:#082031;
+  --ax-accent:var(--ax-accent-500); --ax-accent-hover:var(--ax-accent-600);
+  --ax-accent-wash:var(--ax-accent-50); --ax-on-accent:#FFFFFF;
+  --ax-focus-ring:var(--ax-accent-500); --ax-link:var(--ax-accent-700);
+  --ax-accent-rgb:21,83,130;
+}
+[data-ax-theme="dark"][data-ax-accent="azul-oscuro"] {
+  --ax-accent:#507EA1; --ax-accent-hover:#8AA9C1; --ax-accent-wash:#030C14;
+  --ax-link:#8AA9C1; --ax-focus-ring:#8AA9C1; --ax-on-accent:#FFFFFF; --ax-accent-rgb:80,126,161;
+}
+
+/* Alternativa 2: Azul petróleo (Pantone 7698 C, #1C6587) */
+[data-ax-accent="azul-petroleo"] {
+  --ax-accent-50:#EDF3F5; --ax-accent-100:#DBE6EC; --ax-accent-200:#B6CED9;
+  --ax-accent-300:#8EB2C3; --ax-accent-400:#558CA5; --ax-accent-500:#1C6587;
+  --ax-accent-600:#185571; --ax-accent-700:#13455C; --ax-accent-800:#0F3546; --ax-accent-900:#0B2633;
+  --ax-accent:var(--ax-accent-500); --ax-accent-hover:var(--ax-accent-600);
+  --ax-accent-wash:var(--ax-accent-50); --ax-on-accent:#FFFFFF;
+  --ax-focus-ring:var(--ax-accent-500); --ax-link:var(--ax-accent-700);
+  --ax-accent-rgb:28,101,135;
+}
+[data-ax-theme="dark"][data-ax-accent="azul-petroleo"] {
+  --ax-accent:#558CA5; --ax-accent-hover:#8EB2C3; --ax-accent-wash:#040F14;
+  --ax-link:#8EB2C3; --ax-focus-ring:#8EB2C3; --ax-on-accent:#FFFFFF; --ax-accent-rgb:85,140,165;
+}
