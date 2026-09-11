@@ -238,3 +238,18 @@
   --ax-accent:#558CA5; --ax-accent-hover:#8EB2C3; --ax-accent-wash:#040F14;
   --ax-link:#8EB2C3; --ax-focus-ring:#8EB2C3; --ax-on-accent:#FFFFFF; --ax-accent-rgb:85,140,165;
 }
+
+/* Azul logo (#008DC5, tomado directo del isotipo FPTecnologi) */
+[data-ax-accent="azul-logo"] {
+  --ax-accent-50:#EBF6FA; --ax-accent-100:#D6EDF6; --ax-accent-200:#ADDBEC;
+  --ax-accent-300:#80C6E2; --ax-accent-400:#40AAD4; --ax-accent-500:#008DC5;
+  --ax-accent-600:#0076A5; --ax-accent-700:#006086; --ax-accent-800:#004966; --ax-accent-900:#00364B;
+  --ax-accent:var(--ax-accent-500); --ax-accent-hover:var(--ax-accent-600);
+  --ax-accent-wash:var(--ax-accent-50); --ax-on-accent:#FFFFFF;
+  --ax-focus-ring:var(--ax-accent-500); --ax-link:var(--ax-accent-700);
+  --ax-accent-rgb:0,141,197;
+}
+[data-ax-theme="dark"][data-ax-accent="azul-logo"] {
+  --ax-accent:#40AAD4; --ax-accent-hover:#80C6E2; --ax-accent-wash:#00151E;
+  --ax-link:#80C6E2; --ax-focus-ring:#80C6E2; --ax-on-accent:#FFFFFF; --ax-accent-rgb:64,170,212;
+}

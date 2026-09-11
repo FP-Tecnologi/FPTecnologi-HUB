@@ -68,6 +68,7 @@ export interface Preset {
   base: string;
 }
 export const PRESETS: Preset[] = [
+  { value: 'azul-logo', label: 'Azul logo', base: '#008DC5' },
   { value: 'fptecnologi', label: 'FPTecnologi', base: '#2181AF' },
   { value: 'azul-oscuro', label: 'Azul oscuro', base: '#155382' },
   { value: 'azul-petroleo', label: 'Azul petróleo', base: '#1C6587' },
@@ -275,7 +276,7 @@ function clearCustomAccentProps(): void {
 export function setAccent(name: string): string {
   clearCustomAccentProps();
   store.remove('ax:accent-custom');
-  if (name === 'azul-oscuro') {
+  if (name === 'azul-logo') {
     D.removeAttribute('data-ax-accent');
     store.remove('ax:accent');
   } else {
@@ -392,7 +393,7 @@ export function currentValueOf(name: string): string {
   if (name === 'theme' || name === 'mode') return store.get('ax:theme') || 'system';
   if (name === 'dir') return D.getAttribute('dir') === 'rtl' ? 'rtl' : 'ltr';
   if (name === 'lang') return store.get('ax:lang') || 'EN';
-  if (name === 'accent') return D.getAttribute('data-ax-accent') || 'azul-oscuro';
+  if (name === 'accent') return D.getAttribute('data-ax-accent') || 'azul-logo';
   const r = REGISTRY[name];
   return r ? D.getAttribute(r.attr) || r.def : '';
 }

@@ -44,8 +44,8 @@ const ANTI_FLASH = `
   D.setAttribute('data-ax-theme', resolved);
 
   /* ---- ACCENT ---- */
-  var accent = get('ax:accent') || 'azul-oscuro';
-  if (accent === 'azul-oscuro') D.removeAttribute('data-ax-accent');
+  var accent = get('ax:accent') || 'azul-logo';
+  if (accent === 'azul-logo') D.removeAttribute('data-ax-accent');
   else D.setAttribute('data-ax-accent', accent);
 
   /* ---- FONT (any Google family; the default, Inter, needs no attr + no link) ----

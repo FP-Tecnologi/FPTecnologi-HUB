@@ -43,23 +43,23 @@
   --ax-text-subtle:     var(--ax-neutral-500);     /* #6E7A92 tertiary, captions, idle icons */
   --ax-text-disabled:   var(--ax-neutral-400);     /* #94A0B8 */
 
-  /* ── accent (Azul oscuro brand default — LIGHT base) ── */
-  --ax-accent:          var(--ax-accent-500);     /* #155382 */
-  --ax-accent-hover:    var(--ax-accent-600);     /* #12466D */
-  --ax-accent-wash:     var(--ax-accent-50);      /* #ECF1F5 selected-row tint */
+  /* ── accent (Azul logo brand default — LIGHT base) ── */
+  --ax-accent:          var(--ax-accent-500);     /* #008DC5 */
+  --ax-accent-hover:    var(--ax-accent-600);     /* #0076A5 */
+  --ax-accent-wash:     var(--ax-accent-50);      /* #EBF6FA selected-row tint */
   --ax-on-accent:       #FFFFFF;
-  --ax-accent-rgb:      21, 83, 130;              /* #155382 → for glow shadows/alpha fills */
-  --ax-link:            var(--ax-accent-700);     /* #0E3858 */
-  --ax-focus-ring:      var(--ax-accent-500);     /* #155382 */
+  --ax-accent-rgb:      0, 141, 197;              /* #008DC5 → for glow shadows/alpha fills */
+  --ax-link:            var(--ax-accent-700);     /* #006086 */
+  --ax-focus-ring:      var(--ax-accent-500);     /* #008DC5 */
   /* soft translucent focus halo — blends over any surface (card/canvas/glass),
      replaces the old hard canvas-gap double-ring. Per-accent via --ax-accent-rgb. */
   --ax-focus-shadow:    0 0 0 3px rgba(var(--ax-accent-rgb), 0.18);
 
-  /* Azul oscuro default ramp (so :root w/o [data-ax-accent] resolves
+  /* Azul logo default ramp (so :root w/o [data-ax-accent] resolves
      the --ax-accent-* stops the role aliases above reference) */
-  --ax-accent-50:#ECF1F5; --ax-accent-100:#DAE3EB; --ax-accent-200:#B4C8D7;
-  --ax-accent-300:#8AA9C1; --ax-accent-400:#507EA1; --ax-accent-500:#155382;
-  --ax-accent-600:#12466D; --ax-accent-700:#0E3858; --ax-accent-800:#0B2B44; --ax-accent-900:#082031;
+  --ax-accent-50:#EBF6FA; --ax-accent-100:#D6EDF6; --ax-accent-200:#ADDBEC;
+  --ax-accent-300:#80C6E2; --ax-accent-400:#40AAD4; --ax-accent-500:#008DC5;
+  --ax-accent-600:#0076A5; --ax-accent-700:#006086; --ax-accent-800:#004966; --ax-accent-900:#00364B;
 
   /* ── ambient glow blob colors (light = pale/soft, see recipes §6) ── */
   --ax-glow-1: rgba(255, 176, 120, 0.16);   /* warm-amber, paler than dark */
@@ -94,14 +94,14 @@
   --ax-text-subtle:     var(--ax-dark-500);         /* #646E80 */
   --ax-text-disabled:   var(--ax-dark-600);         /* #3A4351 */
 
-  /* accent — Azul oscuro brand DARK lightened base */
-  --ax-accent:          #507EA1;
-  --ax-accent-hover:    #8AA9C1;
-  --ax-accent-wash:     #030C14;
+  /* accent — Azul logo brand DARK lightened base */
+  --ax-accent:          #40AAD4;
+  --ax-accent-hover:    #80C6E2;
+  --ax-accent-wash:     #00151E;
   --ax-on-accent:       #FFFFFF;
-  --ax-accent-rgb:      80, 126, 161;  /* #507EA1 */
-  --ax-link:            #8AA9C1;
-  --ax-focus-ring:      #8AA9C1;
+  --ax-accent-rgb:      64, 170, 212;  /* #40AAD4 */
+  --ax-link:            #80C6E2;
+  --ax-focus-ring:      #80C6E2;
   --ax-focus-shadow:    0 0 0 3px rgba(var(--ax-accent-rgb), 0.30);
 
   /* ambient glow blobs — Aurora preview verbatim opacities */
