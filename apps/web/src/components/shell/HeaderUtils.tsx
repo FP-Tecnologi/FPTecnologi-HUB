@@ -51,7 +51,13 @@ export function HeaderUtils({ onCustomizer }: { onCustomizer: () => void }) {
   const c = useCustomizer();
   const [full, setFull] = useState(false);
   const shed = useOverflowShed();
-  const { user, logout } = useAuth();
+  const { user, marcas, activeMarcaId, adminMode, logout } = useAuth();
+  const activeMarca = marcas.find((m) => m.marcaId === activeMarcaId) ?? marcas[0] ?? null;
+  const roleLabel = adminMode
+    ? 'Administración · Global'
+    : activeMarca
+      ? `${activeMarca.marca.nombre} · ${activeMarca.rol.nombre}`
+      : '';
 
   useEffect(() => {
     const onFs = () => setFull(!!document.fullscreenElement);
@@ -104,8 +110,12 @@ export function HeaderUtils({ onCustomizer }: { onCustomizer: () => void }) {
         className="ax-profile"
         panelClassName="ax-dropdown ax-profile__menu"
         trigger={({ open, triggerProps }) => (
-          <button type="button" className="ax-profile__trigger" aria-label="Account menu" {...triggerProps} aria-expanded={open}>
+          <button type="button" className="ax-profile__trigger has-meta" aria-label="Account menu" {...triggerProps} aria-expanded={open}>
             <img className="ax-avatar ax-profile__avatar" src="https://i.pravatar.cc/64?img=12" alt={user?.nombre || 'Account'} width={32} height={32} />
+            <span className="ax-profile__meta">
+              <b>{user?.nombre || user?.email || 'Cuenta'}</b>
+              {roleLabel && <small>{roleLabel}</small>}
+            </span>
           </button>
         )}
       >

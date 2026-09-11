@@ -684,6 +684,49 @@
   .ax-profile__card .ax-avatar {
     --_av-size: 40px;
   }
+  /* trigger with identity meta: avatar + name/role pill (text hides on phones) */
+  .ax-profile__trigger.has-meta {
+    inline-size: auto;
+    gap: var(--ax-space-2);
+    padding: 3px var(--ax-space-3) 3px 3px;
+    border-radius: var(--ax-radius-pill);
+  }
+  .ax-profile__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    min-inline-size: 0;
+    max-inline-size: 180px;
+    line-height: 1.25;
+    text-align: start;
+  }
+  .ax-profile__meta b {
+    font-size: var(--ax-text-sm);
+    font-weight: var(--ax-weight-semibold);
+    color: var(--ax-text-strong);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-inline-size: 100%;
+  }
+  .ax-profile__meta small {
+    font-size: var(--ax-text-2xs);
+    color: var(--ax-text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-inline-size: 100%;
+  }
+  @media (max-width: 767px) {
+    .ax-profile__meta {
+      display: none;
+    }
+    .ax-profile__trigger.has-meta {
+      inline-size: 38px;
+      padding: 0;
+    }
+  }
 
   /* ── OVERFLOW (mobile shed) — same panel system ── */
   .ax-overflow__menu {
