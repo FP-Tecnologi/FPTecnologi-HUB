@@ -51,8 +51,7 @@ export function HeaderUtils({ onCustomizer }: { onCustomizer: () => void }) {
   const c = useCustomizer();
   const [full, setFull] = useState(false);
   const shed = useOverflowShed();
-  const { user, marcas, activeMarcaId, setActiveMarcaId, logout } = useAuth();
-  const activeMarca = marcas.find((m) => m.marcaId === activeMarcaId);
+  const { user, logout } = useAuth();
 
   useEffect(() => {
     const onFs = () => setFull(!!document.fullscreenElement);
@@ -98,38 +97,7 @@ export function HeaderUtils({ onCustomizer }: { onCustomizer: () => void }) {
         )}
       </button>
 
-      {/* MARCA ACTIVA — dropdown para elegir cuando el usuario administra más de
-          una empresa; badge fijo (sin chrome de dropdown) cuando solo tiene una. */}
-      {marcas.length > 1 && (
-        <Dropdown
-          className="ax-lang"
-          panelClassName="ax-dropdown"
-          trigger={({ open, triggerProps }) => (
-            <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" aria-label="Cambiar de empresa" {...triggerProps} aria-expanded={open} style={{ whiteSpace: 'nowrap' }}>
-              <span style={{ fontSize: 'var(--ax-text-xs)', fontWeight: 600, whiteSpace: 'nowrap' }}>{activeMarca?.marca.nombre || 'Elegir empresa'}</span>
-            </button>
-          )}
-        >
-          {marcas.map((m) => (
-            <button
-              key={m.marcaId}
-              type="button"
-              className="ax-dropdown__item"
-              role="menuitem"
-              onClick={() => setActiveMarcaId(m.marcaId)}
-              aria-current={m.marcaId === activeMarcaId}
-            >
-              {m.marca.nombre}
-              <small style={{ display: 'block', color: 'var(--ax-text-subtle)' }}>{m.rol.nombre}</small>
-            </button>
-          ))}
-        </Dropdown>
-      )}
-      {marcas.length === 1 && (
-        <span style={{ fontSize: 'var(--ax-text-xs)', fontWeight: 600, color: 'var(--ax-text-muted)', whiteSpace: 'nowrap', padding: '0 var(--ax-space-2)' }}>
-          {activeMarca?.marca.nombre}
-        </span>
-      )}
+      {/* Switch de marca vive en el sidebar (MarcaSwitcher) — el header no lo repite. */}
 
       {/* 10 · PROFILE */}
       <Dropdown
