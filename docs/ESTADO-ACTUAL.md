@@ -158,3 +158,19 @@ velocidad.
   para cuando se construya.
 - Este archivo (`ESTADO-ACTUAL.md`) creado para llevar el estado real del
   proyecto — se actualiza desde ahora en cada sesión con avance real.
+- **CI/CD y seguridad del repo agregados** (PR #1, `jaimetr-ci-security-setup`,
+  creado con Copilot antes de todo el hardening de arriba): GitHub Actions
+  (build/lint/test), CodeQL, Dependabot, `npm audit` semanal, `SECURITY.md`.
+  El review automático de Copilot en el PR marcó como faltante todo lo de
+  seguridad de la API (CORS/helmet/rate limit/Swagger) — correcto en su
+  momento, porque el PR se había creado *antes* de que yo lo arreglara en
+  `main`. Actualicé el branch del PR con `main` (merge, sin romper nada —
+  27 tests, build y lint verificados post-merge) para que quede todo junto.
+  De paso encontré y arreglé un bug real de CI: `npm ci` (lo que corre en
+  cada push) fallaba porque `@nestjs/throttler` declara un rango de peer
+  dependency desactualizado que no incluye Nest 12 — agregado
+  `apps/api/.npmrc` con `legacy-peer-deps=true`.
+- Conectado el token real de Hostinger a los MCP servers (`~/.claude.json`)
+  — ya estaban configurados pero sin `HOSTINGER_API_TOKEN`, por eso nunca
+  conectaban. Van a estar disponibles recién en la próxima sesión (MCP se
+  carga al iniciar).
