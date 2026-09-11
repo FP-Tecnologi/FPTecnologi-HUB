@@ -19,6 +19,13 @@ Documentación de negocio completa (alcance, fases, roles, costos) en:
 - [`docs/plan-trabajo.md`](docs/plan-trabajo.md) (cronograma — las fechas son
   estimadas, no tratarlas como compromiso fijo)
 
+Mapa navegable del código + docs (comunidades, nodos más conectados,
+conexiones no obvias entre la documentación y la implementación real) en
+[`graphify-out/GRAPH_REPORT.md`](graphify-out/GRAPH_REPORT.md) — generado con
+`graphify` (ver `~/.claude/skills/graphify`), cubre hoy `apps/api` + los docs
+de contexto (no incluye `apps/web`, que es boilerplate de Vireo). Regenerar
+con `/graphify --update` cuando el código avance bastante.
+
 ## Principio de arquitectura (no romper esto)
 
 **Una sola API (NestJS), una sola base de datos (PostgreSQL/Supabase),
