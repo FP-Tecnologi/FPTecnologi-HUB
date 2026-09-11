@@ -232,14 +232,15 @@ export function Sidebar({ drawerOpen = false }: { drawerOpen?: boolean }) {
 
       {/* ===== NAV TREE ===== */}
       <nav className="ax-sidebar__nav" role="tree" aria-label="Main menu">
-        {sections().map((section) => (
-          <div key={section}>
-            <p className="ax-sidebar__section" role="presentation">
-              {sectionLabel(section)}
-            </p>
-            {groupsInSection(section)
-              .filter((g) => g.inMenu && visibleForRole(g, roleName))
-              .map((g) => (
+        {sections().map((section) => {
+          const groups = groupsInSection(section).filter((g) => g.inMenu && visibleForRole(g, roleName));
+          if (groups.length === 0) return null;
+          return (
+            <div key={section}>
+              <p className="ax-sidebar__section" role="presentation">
+                {sectionLabel(section)}
+              </p>
+              {groups.map((g) => (
                 <Group
                   key={g.id}
                   node={g}
@@ -249,8 +250,9 @@ export function Sidebar({ drawerOpen = false }: { drawerOpen?: boolean }) {
                   roleName={roleName}
                 />
               ))}
-          </div>
-        ))}
+            </div>
+          );
+        })}
       </nav>
     </aside>
   );
