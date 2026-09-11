@@ -223,3 +223,9 @@ sobre este mismo repo. Estado real hoy:
   `.env.example` actualizados. Los comentarios internos que citan a Vireo
   como origen del patrón se dejan a propósito (ver `VIREO-REFERENCE.md`).
   Build de API + Web verificado OK.
+- **Emails case-insensitive**: el login comparaba el email exacto y Postgres
+  distingue mayúsculas (`Dev@` ≠ `dev@`) — por eso fallaba el ingreso según
+  cómo se tecleaba. Nuevo helper `normalizeEmail()` (trim + lowercase)
+  aplicado en los 7 métodos de `AuthService` que buscan por email y en
+  `RolesService.crearUsuarioEnMarca`; fila existente `Dev@fptecnologi.com`
+  corregida a minúsculas en Supabase. 3 tests nuevos (41/41 OK).

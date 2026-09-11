@@ -13,6 +13,7 @@ import * as QRCode from 'qrcode';
 import { randomBytes, randomInt } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { MailService } from '../mail/mail.service.js';
+import { normalizeEmail } from '../common/utils/normalize-email.js';
 import type { AppConfig } from '../config/configuration.js';
 import { OtpProposito } from '../generated/prisma/enums.js';
 
@@ -39,6 +40,7 @@ export class AuthService {
    * admin-only action (RolesService.crearUsuarioEnMarca), never this.
    */
   async register(email: string, password: string, marcaId: string, nombre?: string) {
+    email = normalizeEmail(email);
     const existing = await this.prisma.usuario.findUnique({ where: { email } });
     if (existing) {
       throw new ConflictException('Ya existe un usuario con ese correo');
@@ -70,6 +72,7 @@ export class AuthService {
 
   /** Step 1 of forgot-password: emails a reset code if the account exists (anti-enumeration: same response either way). */
   async requestPasswordReset(email: string): Promise<{ sent: true }> {
+    email = normalizeEmail(email);
     const usuario = await this.prisma.usuario.findUnique({ where: { email } });
     if (usuario && usuario.activo) {
       await this.issueOtp(usuario.id, usuario.email, OtpProposito.RESET_PASSWORD, (e, c) =>
@@ -81,6 +84,7 @@ export class AuthService {
 
   /** Step 2: validates the reset code, sets the new password, and revokes every existing session. */
   async confirmPasswordReset(email: string, codigo: string, newPassword: string): Promise<void> {
+    email = normalizeEmail(email);
     const usuario = await this.prisma.usuario.findUnique({ where: { email } });
     if (!usuario) {
       throw new UnauthorizedException('Código inválido o vencido');
@@ -120,6 +124,7 @@ export class AuthService {
     email: string,
     password: string,
   ): Promise<{ requiresOtp: true; email: string } | { requiresTotp: true; email: string }> {
+    email = normalizeEmail(email);
     const usuario = await this.prisma.usuario.findUnique({ where: { email } });
     if (!usuario || !usuario.activo) {
       throw new UnauthorizedException('Credenciales inválidas');
@@ -141,6 +146,7 @@ export class AuthService {
   }
 
   async requestOtp(email: string): Promise<{ requiresOtp: true }> {
+    email = normalizeEmail(email);
     const usuario = await this.prisma.usuario.findUnique({ where: { email } });
     // No revelamos si el correo existe o no para evitar enumeración de usuarios.
     if (usuario && usuario.activo) {
@@ -153,6 +159,7 @@ export class AuthService {
 
   /** Step 2 of login: validates the OTP code and issues access + refresh tokens. */
   async verifyOtp(email: string, codigo: string) {
+    email = normalizeEmail(email);
     const usuario = await this.prisma.usuario.findUnique({
       where: { email },
       include: { marcas: { include: { rol: true } } },
@@ -185,6 +192,7 @@ export class AuthService {
 
   /** Step 2 of login when TOTP is enabled: verifies the app code (or a backup code) and issues tokens. */
   async verifyTotpLogin(email: string, code: string) {
+    email = normalizeEmail(email);
     const usuario = await this.prisma.usuario.findUnique({
       where: { email },
       include: { marcas: { include: { rol: true } } },

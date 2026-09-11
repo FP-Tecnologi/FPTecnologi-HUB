@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { normalizeEmail } from '../common/utils/normalize-email.js';
 import { CreateRolDto } from './dto/create-rol.dto.js';
 import { AsignarRolDto } from './dto/asignar-rol.dto.js';
 import { CrearUsuarioDto } from './dto/crear-usuario.dto.js';
@@ -18,13 +19,14 @@ export class RolesService {
    * ignorando password/nombre — solo se agrega la asignación a esta marca.
    */
   async crearUsuarioEnMarca(marcaId: string, dto: CrearUsuarioDto) {
-    let usuario = await this.prisma.usuario.findUnique({ where: { email: dto.email } });
+    const email = normalizeEmail(dto.email);
+    let usuario = await this.prisma.usuario.findUnique({ where: { email } });
     let nuevo = false;
 
     if (!usuario) {
       const passwordHash = await bcrypt.hash(dto.password, SALT_ROUNDS);
       usuario = await this.prisma.usuario.create({
-        data: { email: dto.email, passwordHash, nombre: dto.nombre },
+        data: { email, passwordHash, nombre: dto.nombre },
       });
       nuevo = true;
     }
