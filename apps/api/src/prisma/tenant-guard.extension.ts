@@ -14,6 +14,12 @@ import { Prisma } from '../generated/prisma/client.js';
  * usuarioId instead. `upsert` is excluded too — its where/create/update
  * split isn't covered by the same shape check as the rest and no current
  * code uses it on a tenant model; add it deliberately if that changes.
+ *
+ * `UsuarioMarcaRol` gets one extra allowance: a query scoped by `usuarioId`
+ * (no `marcaId`) also passes. That's exactly how "which marcas does this
+ * user belong to" (the marca-switcher's `/usuarios/me/marcas`) has to be
+ * queried — it's deliberately cross-marca for that one user, and it can't
+ * leak another user's rows since it's still pinned to a single usuarioId.
  */
 const TENANT_MODELS = new Set([
   'Sitio',
@@ -43,12 +49,17 @@ const WHERE_OPS = new Set([
 const DATA_OPS = new Set(['create', 'createMany']);
 
 export function hasMarcaId(value: unknown, depth = 0): boolean {
+  return hasKey(value, 'marcaId', depth);
+}
+
+/** Same recursive-key search as hasMarcaId, generalized for the UsuarioMarcaRol usuarioId allowance. */
+export function hasKey(value: unknown, targetKey: string, depth = 0): boolean {
   if (!value || typeof value !== 'object' || depth > 1) return false;
   for (const [key, nested] of Object.entries(value as Record<string, unknown>)) {
-    if (key === 'marcaId') return true;
+    if (key === targetKey) return true;
     if ((key === 'AND' || key === 'OR') && Array.isArray(nested)) {
-      if (nested.some((item) => hasMarcaId(item, depth + 1))) return true;
-    } else if (hasMarcaId(nested, depth + 1)) {
+      if (nested.some((item) => hasKey(item, targetKey, depth + 1))) return true;
+    } else if (hasKey(nested, targetKey, depth + 1)) {
       return true;
     }
   }
@@ -63,7 +74,8 @@ export const tenantGuardExtension = Prisma.defineExtension({
         if (model && TENANT_MODELS.has(model)) {
           const typedArgs = args as { where?: unknown; data?: unknown };
 
-          if (WHERE_OPS.has(operation) && !hasMarcaId(typedArgs.where)) {
+          const usuarioScoped = model === 'UsuarioMarcaRol' && hasKey(typedArgs.where, 'usuarioId');
+          if (WHERE_OPS.has(operation) && !hasMarcaId(typedArgs.where) && !usuarioScoped) {
             throw new Error(
               `[tenant-guard] ${model}.${operation} sin marcaId en el where — ` +
                 'rompe el aislamiento multi-tenant. Agrega marcaId al filtro.',

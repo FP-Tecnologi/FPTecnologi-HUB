@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { hasMarcaId } from './tenant-guard.extension.js';
+import { hasMarcaId, hasKey } from './tenant-guard.extension.js';
 
 describe('hasMarcaId', () => {
   it('finds a top-level marcaId', () => {
@@ -28,5 +28,15 @@ describe('hasMarcaId', () => {
 
   it('does not recurse past the depth that real query shapes need', () => {
     expect(hasMarcaId({ AND: [{ OR: [{ marcaId: 'm1' }] }] })).toBe(false);
+  });
+});
+
+describe('hasKey', () => {
+  it('finds usuarioId — the UsuarioMarcaRol cross-marca allowance ("my own marcas") relies on this', () => {
+    expect(hasKey({ usuarioId: 'u1' }, 'usuarioId')).toBe(true);
+  });
+
+  it('returns false when the target key is absent', () => {
+    expect(hasKey({ marcaId: 'm1' }, 'usuarioId')).toBe(false);
   });
 });
