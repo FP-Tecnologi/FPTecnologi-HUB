@@ -1,0 +1,7 @@
+{
+  "name": "fptecnologi-hub",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ]
+}
