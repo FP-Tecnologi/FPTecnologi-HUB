@@ -33,7 +33,12 @@ describe('AuthService', () => {
     $transaction: ReturnType<typeof vi.fn>;
   };
   let jwtService: { signAsync: ReturnType<typeof vi.fn>; verifyAsync: ReturnType<typeof vi.fn> };
-  let mailService: { sendOtpCode: ReturnType<typeof vi.fn>; sendPasswordResetCode: ReturnType<typeof vi.fn> };
+  let mailService: {
+    sendOtpCode: ReturnType<typeof vi.fn>;
+    sendPasswordResetCode: ReturnType<typeof vi.fn>;
+    sendWelcome: ReturnType<typeof vi.fn>;
+    sendPasswordChanged: ReturnType<typeof vi.fn>;
+  };
   let passwordHash: string;
 
   beforeAll(async () => {
@@ -56,7 +61,12 @@ describe('AuthService', () => {
       $transaction: vi.fn((ops: unknown[]) => Promise.all(ops)),
     };
     jwtService = { signAsync: vi.fn().mockResolvedValue('signed-token'), verifyAsync: vi.fn() };
-    mailService = { sendOtpCode: vi.fn().mockResolvedValue(undefined), sendPasswordResetCode: vi.fn().mockResolvedValue(undefined) };
+    mailService = {
+      sendOtpCode: vi.fn().mockResolvedValue(undefined),
+      sendPasswordResetCode: vi.fn().mockResolvedValue(undefined),
+      sendWelcome: vi.fn().mockResolvedValue(undefined),
+      sendPasswordChanged: vi.fn().mockResolvedValue(undefined),
+    };
     const configService = {
       get: (key: string) => ({ jwt: JWT_CONFIG, otp: OTP_CONFIG })[key],
     };

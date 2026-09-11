@@ -63,6 +63,8 @@ export class AuthService {
       },
     });
 
+    await this.mailService.sendWelcome(usuario.email, usuario.nombre);
+
     return { id: usuario.id, email: usuario.email, nombre: usuario.nombre };
   }
 
@@ -105,6 +107,8 @@ export class AuthService {
       // a password reset meant to shut it out.
       this.prisma.refreshToken.updateMany({ where: { usuarioId: usuario.id, revoked: false }, data: { revoked: true } }),
     ]);
+
+    await this.mailService.sendPasswordChanged(usuario.email);
   }
 
   /**

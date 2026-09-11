@@ -3,6 +3,13 @@ import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
 import nodemailer, { type Transporter } from 'nodemailer';
 import type { AppConfig } from '../config/configuration.js';
+import {
+  otpCodeEmail,
+  passwordResetCodeEmail,
+  welcomeEmail,
+  passwordChangedEmail,
+  pedidoConfirmadoEmail,
+} from './templates.js';
 
 @Injectable()
 export class MailService {
@@ -11,11 +18,13 @@ export class MailService {
   private readonly fromEmail: string;
   private readonly resend?: Resend;
   private readonly smtpTransport?: Transporter;
+  private readonly otpExpiresInMinutes: number;
 
   constructor(private readonly configService: ConfigService) {
     const mailConfig = this.configService.get<AppConfig['mail']>('mail')!;
     this.driver = mailConfig.driver;
     this.fromEmail = mailConfig.fromEmail;
+    this.otpExpiresInMinutes = this.configService.get<AppConfig['otp']>('otp')!.expiresInMinutes;
 
     if (this.driver === 'resend') {
       const resendConfig = this.configService.get<AppConfig['resend']>('resend')!;
@@ -31,50 +40,36 @@ export class MailService {
   }
 
   async sendOtpCode(to: string, codigo: string): Promise<void> {
-    await this.send({
-      to,
-      subject: 'Tu código de verificación',
-      html: `<p>Tu código de verificación es <strong>${codigo}</strong>. Vence en pocos minutos.</p>`,
-    });
+    await this.send(to, otpCodeEmail(codigo, this.otpExpiresInMinutes));
   }
 
   async sendPasswordResetCode(to: string, codigo: string): Promise<void> {
-    await this.send({
-      to,
-      subject: 'Recuperar contraseña',
-      html: `<p>Tu código para restablecer la contraseña es <strong>${codigo}</strong>. Si no pediste esto, ignora este correo.</p>`,
-    });
+    await this.send(to, passwordResetCodeEmail(codigo, this.otpExpiresInMinutes));
+  }
+
+  async sendWelcome(to: string, nombre: string | null): Promise<void> {
+    await this.send(to, welcomeEmail(nombre));
+  }
+
+  async sendPasswordChanged(to: string): Promise<void> {
+    await this.send(to, passwordChangedEmail());
   }
 
   async sendPedidoConfirmado(to: string, pedidoId: string): Promise<void> {
-    await this.send({
-      to,
-      subject: 'Confirmación de pedido',
-      html: `<p>Tu pedido <strong>${pedidoId}</strong> fue recibido correctamente.</p>`,
-    });
+    await this.send(to, pedidoConfirmadoEmail(pedidoId));
   }
 
-  private async send(params: { to: string; subject: string; html: string }): Promise<void> {
+  private async send(to: string, { subject, html }: { subject: string; html: string }): Promise<void> {
     try {
       if (this.driver === 'resend') {
-        await this.resend!.emails.send({
-          from: this.fromEmail,
-          to: params.to,
-          subject: params.subject,
-          html: params.html,
-        });
+        await this.resend!.emails.send({ from: this.fromEmail, to, subject, html });
       } else {
-        await this.smtpTransport!.sendMail({
-          from: this.fromEmail,
-          to: params.to,
-          subject: params.subject,
-          html: params.html,
-        });
+        await this.smtpTransport!.sendMail({ from: this.fromEmail, to, subject, html });
       }
     } catch (error) {
       // No se interrumpe el flujo de negocio si el envío de correo falla;
       // se registra para poder reintentar/alertar.
-      this.logger.error(`No se pudo enviar el correo a ${params.to}`, error as Error);
+      this.logger.error(`No se pudo enviar el correo a ${to}`, error as Error);
     }
   }
 }
