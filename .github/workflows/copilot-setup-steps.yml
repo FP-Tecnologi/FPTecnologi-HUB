@@ -1,0 +1,41 @@
+name: "Copilot Setup Steps"
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+  pull_request:
+    paths:
+      - .github/workflows/copilot-setup-steps.yml
+
+jobs:
+  # El job DEBE llamarse `copilot-setup-steps` para que el agente lo use.
+  copilot-setup-steps:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install API dependencies
+        working-directory: apps/api
+        run: npm ci --no-workspaces
+
+      - name: Generate Prisma client
+        working-directory: apps/api
+        run: npx prisma generate
+        env:
+          # Solo para generar el cliente; no se conecta a una BD real.
+          DATABASE_URL: postgresql://user:pass@localhost:5432/db
+
+      - name: Install web dependencies
+        working-directory: apps/web
+        run: npm ci --no-workspaces

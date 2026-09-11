@@ -1,0 +1,50 @@
+name: Dependency Audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * 1' # semanal, lunes
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    name: npm audit (${{ matrix.app }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        app: [api, web]
+    defaults:
+      run:
+        working-directory: apps/${{ matrix.app }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: apps/${{ matrix.app }}/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci --no-workspaces
+
+      # Informativo por ahora: reporta vulnerabilidades en cada push/PR y
+      # semanalmente sin bloquear el merge, porque algunas dependencias de
+      # build (Prisma CLI, tooling de NestJS) solo tienen fix vía upgrades
+      # breaking que requieren revisión manual. Dependabot abre PRs para
+      # resolverlas de forma controlada.
+      - name: Audit production dependencies
+        run: npm audit --no-workspaces --omit=dev --audit-level=high || echo "::warning::Vulnerabilidades encontradas en dependencias de producción, revisar output arriba"
+
+      - name: Audit all dependencies (incluye devDependencies)
+        if: always()
+        run: npm audit --no-workspaces --audit-level=high || echo "::warning::Vulnerabilidades encontradas (incluye devDependencies), revisar output arriba"

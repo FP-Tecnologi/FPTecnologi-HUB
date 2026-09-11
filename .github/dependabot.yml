@@ -1,0 +1,47 @@
+version: 2
+updates:
+  # Dashboard (apps/web) — Next.js / React / Tailwind
+  - package-ecosystem: 'npm'
+    directory: '/apps/web'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    open-pull-requests-limit: 10
+    groups:
+      next-minor-patch:
+        update-types: ['minor', 'patch']
+    commit-message:
+      prefix: 'chore(web/deps)'
+    labels:
+      - 'dependencies'
+      - 'web'
+
+  # API (apps/api) — NestJS / Prisma
+  - package-ecosystem: 'npm'
+    directory: '/apps/api'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    open-pull-requests-limit: 10
+    groups:
+      nestjs:
+        patterns: ['@nestjs/*']
+      minor-patch:
+        update-types: ['minor', 'patch']
+    commit-message:
+      prefix: 'chore(api/deps)'
+    labels:
+      - 'dependencies'
+      - 'api'
+
+  # GitHub Actions usadas en los workflows del repo
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    commit-message:
+      prefix: 'chore(ci/deps)'
+    labels:
+      - 'dependencies'
+      - 'ci'
