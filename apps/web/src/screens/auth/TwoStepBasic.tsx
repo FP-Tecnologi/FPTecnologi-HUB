@@ -21,7 +21,7 @@ function TwoStepBasicInner() {
   const [trust, setTrust] = useState(false);
   const [loading, setLoading] = useState(false);
   const [invalid, setInvalid] = useState(false);
-  const [invalidMessage, setInvalidMessage] = useState('Incorrect code. Please check the code and try again.');
+  const [invalidMessage, setInvalidMessage] = useState('Código incorrecto. Verifícalo e intenta de nuevo.');
   const [cooldown, setCooldown] = useState(0);
   const cells = useRef<(HTMLInputElement | null)[]>([]);
   const raf = useRef(0);
@@ -97,7 +97,7 @@ function TwoStepBasicInner() {
       .catch((err: unknown) => {
         setLoading(false);
         setInvalid(true);
-        setInvalidMessage(err instanceof ApiError ? err.message : 'Incorrect code. Please check the code and try again.');
+        setInvalidMessage(err instanceof ApiError ? err.message : 'Código incorrecto. Verifícalo e intenta de nuevo.');
         setDigits(['', '', '', '', '', '']);
         focusCell(0);
       });
@@ -116,15 +116,15 @@ function TwoStepBasicInner() {
         <div style={{ inlineSize: '100%', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-5)' }}>
           <BrandCentered />
 
-          <section className="ax-card" role="region" aria-label="Two-step verification" style={{ borderRadius: 'var(--ax-radius-xl)' }}>
+          <section className="ax-card" role="region" aria-label="Verificación en dos pasos" style={{ borderRadius: 'var(--ax-radius-xl)' }}>
             <div className="ax-card__body" style={{ padding: 'var(--ax-space-8)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-5)' }}>
               <header style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)', alignItems: 'center' }}>
                 <span className="ax-center" aria-hidden="true" style={{ inlineSize: 56, blockSize: 56, borderRadius: 'var(--ax-radius-pill)', background: 'var(--ax-accent-wash)', color: 'var(--ax-accent)' }}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" width={26} height={26}><path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3" /><path d="M11 11a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M12 12l0 2.5" /></svg>
                 </span>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-1)' }}>
-                  <h1 style={{ margin: 0, fontFamily: 'var(--ax-font-display)', fontSize: 'var(--ax-text-2xl)', fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-strong)', letterSpacing: '-.015em' }}>Two-step verification</h1>
-                  <p style={{ margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>We sent a 6-digit code to <b style={{ color: 'var(--ax-text-strong)' }}>{email || 'your email'}</b>.</p>
+                  <h1 style={{ margin: 0, fontFamily: 'var(--ax-font-display)', fontSize: 'var(--ax-text-2xl)', fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-strong)', letterSpacing: '-.015em' }}>Verificación en dos pasos</h1>
+                  <p style={{ margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>Te mandamos un código de 6 dígitos a <b style={{ color: 'var(--ax-text-strong)' }}>{email || 'tu correo'}</b>.</p>
                 </div>
               </header>
 
@@ -149,23 +149,23 @@ function TwoStepBasicInner() {
 
                 <label className="ax-check" style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text)' }}>
                   <input type="checkbox" className="ax-checkbox" checked={trust} onChange={(e) => setTrust(e.target.checked)} />
-                  <span>Trust this device for 30 days</span>
+                  <span>Confiar en este dispositivo por 30 días</span>
                 </label>
 
                 <button type="submit" className={`ax-btn ax-btn--primary ax-btn--lg ax-btn--block${loading ? ' is-loading' : ''}`} disabled={!complete} aria-busy={loading}>
                   <span className="ax-btn__spinner" aria-hidden="true"></span>
-                  <span className="ax-btn__label">Verify</span>
+                  <span className="ax-btn__label">Verificar</span>
                 </button>
               </form>
 
               <div className="ax-center" style={{ flexDirection: 'column', gap: 'var(--ax-space-2)' }}>
                 <p style={{ margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
-                  Didn't get a code?{' '}
+                  ¿No te llegó el código?{' '}
                   <button type="button" className="ax-btn ax-btn--link" disabled={cooldown > 0} onClick={resend} style={{ fontSize: 'var(--ax-text-sm)', verticalAlign: 'baseline' }}>
-                    <span>{cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend code'}</span>
+                    <span>{cooldown > 0 ? `Reenviar en ${cooldown}s` : 'Reenviar código'}</span>
                   </button>
                 </p>
-                <Link className="ax-link" href="/auth/sign-in-basic" style={{ fontSize: 'var(--ax-text-sm)' }}>Use a different method</Link>
+                <Link className="ax-link" href="/auth/sign-in-basic" style={{ fontSize: 'var(--ax-text-sm)' }}>Usar otro método</Link>
               </div>
             </div>
           </section>

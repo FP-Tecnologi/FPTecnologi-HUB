@@ -44,6 +44,9 @@ interface AuthContextValue {
   login: (email: string, password: string) => Promise<LoginResult>;
   verifyOtp: (email: string, codigo: string) => Promise<VerifyResult>;
   verifyTotp: (email: string, code: string) => Promise<VerifyResult>;
+  register: (email: string, password: string, marcaId: string, nombre?: string) => Promise<{ id: string; email: string; nombre: string | null }>;
+  requestPasswordReset: (email: string) => Promise<{ sent: true }>;
+  confirmPasswordReset: (email: string, codigo: string, newPassword: string) => Promise<void>;
   logout: () => Promise<void>;
   setActiveMarcaId: (marcaId: string) => void;
   refreshMarcas: () => Promise<void>;
@@ -129,6 +132,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return result;
   }, [refreshMarcas]);
 
+  const register = useCallback(async (email: string, password: string, marcaId: string, nombre?: string) => {
+    return api.post<{ id: string; email: string; nombre: string | null }>(
+      '/auth/register',
+      { email, password, marcaId, nombre },
+      { auth: false },
+    );
+  }, []);
+
+  const requestPasswordReset = useCallback(async (email: string) => {
+    return api.post<{ sent: true }>('/auth/password-reset/request', { email }, { auth: false });
+  }, []);
+
+  const confirmPasswordReset = useCallback(async (email: string, codigo: string, newPassword: string) => {
+    await api.post<void>('/auth/password-reset/confirm', { email, codigo, newPassword }, { auth: false });
+  }, []);
+
   const logout = useCallback(async () => {
     const refreshToken = tokenStore.getRefreshToken();
     try {
@@ -149,8 +168,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<AuthContextValue>(() => ({
-    user, marcas, activeMarcaId, loading, login, verifyOtp, verifyTotp, logout, setActiveMarcaId, refreshMarcas,
-  }), [user, marcas, activeMarcaId, loading, login, verifyOtp, verifyTotp, logout, setActiveMarcaId, refreshMarcas]);
+    user, marcas, activeMarcaId, loading, login, verifyOtp, verifyTotp,
+    register, requestPasswordReset, confirmPasswordReset,
+    logout, setActiveMarcaId, refreshMarcas,
+  }), [
+    user, marcas, activeMarcaId, loading, login, verifyOtp, verifyTotp,
+    register, requestPasswordReset, confirmPasswordReset,
+    logout, setActiveMarcaId, refreshMarcas,
+  ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

@@ -23,16 +23,16 @@ export function SignInBasic() {
   const [emailErr, setEmailErr] = useState('');
   const [passErr, setPassErr] = useState('');
   const [error, setError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('Incorrect email or password. Please try again.');
+  const [errorMessage, setErrorMessage] = useState('Correo o contraseña incorrectos. Intenta de nuevo.');
   const [loading, setLoading] = useState(false);
 
   function validate() {
     const e = !email.trim()
-      ? 'Enter your email or username.'
+      ? 'Ingresa tu correo o usuario.'
       : email.includes('@') && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.trim())
-        ? 'Enter a valid email address.'
+        ? 'Ingresa un correo válido.'
         : '';
-    const p = !password ? 'Enter your password.' : '';
+    const p = !password ? 'Ingresa tu contraseña.' : '';
     setEmailErr(e);
     setPassErr(p);
     return !e && !p;
@@ -54,7 +54,7 @@ export function SignInBasic() {
       .catch((err: unknown) => {
         setLoading(false);
         setError(true);
-        setErrorMessage(err instanceof ApiError ? err.message : 'Incorrect email or password. Please try again.');
+        setErrorMessage(err instanceof ApiError ? err.message : 'Correo o contraseña incorrectos. Intenta de nuevo.');
       });
   }
 
@@ -66,18 +66,18 @@ export function SignInBasic() {
         <div style={{ inlineSize: '100%', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-5)' }}>
           <BrandCentered />
 
-          <section className="ax-card" role="region" aria-label="Sign in" style={{ borderRadius: 'var(--ax-radius-xl)' }}>
+          <section className="ax-card" role="region" aria-label="Iniciar sesión" style={{ borderRadius: 'var(--ax-radius-xl)' }}>
             <div className="ax-card__body" style={{ padding: 'var(--ax-space-8)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-5)' }}>
               <header style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-1)' }}>
-                <h1 style={{ margin: 0, fontFamily: 'var(--ax-font-display)', fontSize: 'var(--ax-text-2xl)', fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-strong)', letterSpacing: '-.015em' }}>Sign in</h1>
-                <p style={{ margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>Welcome back — sign in to your workspace.</p>
+                <h1 style={{ margin: 0, fontFamily: 'var(--ax-font-display)', fontSize: 'var(--ax-text-2xl)', fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-strong)', letterSpacing: '-.015em' }}>Iniciar sesión</h1>
+                <p style={{ margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>Bienvenido de nuevo — ingresa a tu cuenta.</p>
               </header>
 
               <SocialButtons verb="Continue" />
 
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'nowrap' }}>
                 <hr className="ax-divider" style={{ flex: '1 1 auto' }} aria-hidden="true" />
-                <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)', whiteSpace: 'nowrap' }}>or continue with email</span>
+                <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)', whiteSpace: 'nowrap' }}>o continúa con tu correo</span>
                 <hr className="ax-divider" style={{ flex: '1 1 auto' }} aria-hidden="true" />
               </div>
 
@@ -90,21 +90,21 @@ export function SignInBasic() {
 
               <form className="ax-stack" onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }} noValidate>
                 <div className="ax-field">
-                  <label className="ax-label" htmlFor="si-email">Email or username</label>
-                  <input id="si-email" type="text" className={`ax-input${emailErr ? ' is-invalid' : ''}`} autoComplete="username" placeholder="you@vireo.io"
+                  <label className="ax-label" htmlFor="si-email">Correo o usuario</label>
+                  <input id="si-email" type="text" className={`ax-input${emailErr ? ' is-invalid' : ''}`} autoComplete="username" placeholder="tu@correo.com"
                     value={email} onChange={(e) => setEmail(e.target.value)} aria-invalid={emailErr ? 'true' : 'false'} aria-describedby="si-email-msg" required />
                   {emailErr && <p id="si-email-msg" className="ax-field__message ax-field__message--error">{emailErr}</p>}
                 </div>
 
                 <div className="ax-field">
                   <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
-                    <label className="ax-label" htmlFor="si-pass">Password</label>
-                    <Link className="ax-link" href="/auth/reset-password-basic" style={{ fontSize: 'var(--ax-text-xs)' }}>Forgot password?</Link>
+                    <label className="ax-label" htmlFor="si-pass">Contraseña</label>
+                    <Link className="ax-link" href="/auth/reset-password-basic" style={{ fontSize: 'var(--ax-text-xs)' }}>¿Olvidaste tu contraseña?</Link>
                   </div>
                   <div className="ax-field__control">
                     <input id="si-pass" className={`ax-input ax-input--with-trailing${passErr ? ' is-invalid' : ''}`} autoComplete="current-password" placeholder="••••••••••"
                       type={reveal ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} aria-invalid={passErr ? 'true' : 'false'} aria-describedby="si-pass-msg" required />
-                    <button type="button" className="ax-field__affix ax-field__affix--trailing ax-field__affix--button" onClick={() => setReveal((v) => !v)} aria-pressed={reveal} aria-label={reveal ? 'Hide password' : 'Show password'}>
+                    <button type="button" className="ax-field__affix ax-field__affix--trailing ax-field__affix--button" onClick={() => setReveal((v) => !v)} aria-pressed={reveal} aria-label={reveal ? 'Ocultar contraseña' : 'Mostrar contraseña'}>
                       {reveal ? EYE_OFF : EYE}
                     </button>
                   </div>
@@ -113,23 +113,23 @@ export function SignInBasic() {
 
                 <label className="ax-check" style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text)' }}>
                   <input type="checkbox" className="ax-checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} />
-                  <span>Keep me signed in</span>
+                  <span>Mantener sesión iniciada</span>
                 </label>
 
                 <button type="submit" className={`ax-btn ax-btn--primary ax-btn--lg ax-btn--block${loading ? ' is-loading' : ''}`} aria-busy={loading}>
                   <span className="ax-btn__spinner" aria-hidden="true"></span>
-                  <span className="ax-btn__label">Sign in</span>
+                  <span className="ax-btn__label">Iniciar sesión</span>
                 </button>
               </form>
 
               <p style={{ textAlign: 'center', margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
-                New to Vireo? <Link className="ax-link" href="/auth/sign-up-basic" style={{ fontWeight: 'var(--ax-weight-medium)' }}>Create an account</Link>
+                ¿Todavía no tienes cuenta? <Link className="ax-link" href="/auth/sign-up-basic" style={{ fontWeight: 'var(--ax-weight-medium)' }}>Crear cuenta</Link>
               </p>
             </div>
           </section>
 
           <p style={{ textAlign: 'center', margin: 0, fontSize: 'var(--ax-text-2xs)', color: 'var(--ax-text-subtle)' }}>
-            By continuing you agree to the <Link className="ax-link" href="/pages/terms">Terms</Link> and <Link className="ax-link" href="/pages/privacy">Privacy Policy</Link>.
+            Al continuar aceptas los <Link className="ax-link" href="/pages/terms">Términos</Link> y la <Link className="ax-link" href="/pages/privacy">Política de privacidad</Link>.
           </p>
         </div>
       </main>
