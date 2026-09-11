@@ -254,3 +254,9 @@ sobre este mismo repo. Estado real hoy:
   GENERAL (Panel general, Usuarios y Configuración), se oculta Marca activa
   y no se manda `x-marca-id`. Persiste en `localStorage`, sobrevive
   recargas y se limpia al salir.
+- **Header: fuera el idioma (EN) + fix choque de marca**: eliminado el
+  selector de idioma del encabezado (quedaba de la plantilla; el dashboard
+  es en español). Bug real: el switch de marca del header reusaba la clase
+  `ax-icon-btn` (caja cuadrada de 38px) con el nombre de la marca dentro →
+  el texto se desbordaba y se incrustaba con el toggle de tema/perfil.
+  Ahora usa `ax-btn ghost sm` de ancho automático.

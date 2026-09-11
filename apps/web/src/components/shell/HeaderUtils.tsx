@@ -2,7 +2,7 @@
 /*
  * FPTecnologi-HUB · Dashboard — HeaderUtils (the shared right-hand utility cluster).
  *
- * 1:1 with partials/header-utils.html: language menu, fullscreen, light/dark
+ * 1:1 with partials/header-utils.html: fullscreen, light/dark
  * quick-toggle, app grid, cart, notifications, profile, customizer trigger
  * (items 4–11 of the reference header).
  *
@@ -18,7 +18,7 @@
  * shell.css §18 hides .ax-lang/.ax-fullscreen/.ax-apps below 992px and
  * .ax-cart/.ax-cog below 768px, and reveals the matching `[data-ax-shed]` rows
  * inside the "More" menu at the end of the run. The rows are STATIC and live in
- * this same component, so they reuse the identical setLang / toggleFullscreen /
+ * this same component, so they reuse the identical toggleFullscreen /
  * onCustomizer handlers as the bar copies — one behavior, two rendering sites.
  * CSS owns per-row visibility; `useOverflowShed()` only decides whether the
  * trigger exists at all (mirrors `$store.ax.overflow` in the reference).
@@ -34,9 +34,6 @@ const ICON = {
   cog: (
     <svg className="ax-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" width={24} height={24} aria-hidden="true"><path d="M4 10a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M6 4v4" /><path d="M6 12v8" /><path d="M10 16a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M12 4v10" /><path d="M12 18v2" /><path d="M16 7a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M18 4v1" /><path d="M18 9v11" /></svg>
   ),
-  check: (
-    <svg className="ax-dropdown__check ax-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" width={24} height={24} aria-hidden="true"><path d="M5 12l5 5l10 -10" /></svg>
-  ),
   /* the "More" trigger */
   dots: (
     <svg className="ax-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" width={24} height={24} aria-hidden="true"><path d="M11 12a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M11 19a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /><path d="M11 5a1 1 0 1 0 2 0a1 1 0 1 0 -2 0" /></svg>
@@ -49,17 +46,6 @@ const ICON = {
     <svg className="ax-icon ax-dropdown__lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" width={24} height={24} aria-hidden="true"><path d="M4 10a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M6 4v4" /><path d="M6 12v8" /><path d="M10 16a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M12 4v10" /><path d="M12 18v2" /><path d="M16 7a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" /><path d="M18 4v1" /><path d="M18 9v11" /></svg>
   ),
 };
-
-const LANGS: Array<[string, string]> = [
-  ['EN', 'English'],
-  ['ES', 'Español'],
-  ['FR', 'Français'],
-  ['AR', 'العربية'],
-  ['DE', 'Deutsch'],
-  ['ZH', '中文'],
-  ['IT', 'Italiano'],
-  ['RU', 'Русский'],
-];
 
 export function HeaderUtils({ onCustomizer }: { onCustomizer: () => void }) {
   const c = useCustomizer();
@@ -81,38 +67,6 @@ export function HeaderUtils({ onCustomizer }: { onCustomizer: () => void }) {
 
   return (
     <>
-      {/* 4 · LANGUAGE */}
-      <Dropdown
-        className="ax-lang"
-        panelClassName="ax-dropdown ax-lang__menu"
-        trigger={({ open, triggerProps }) => (
-          <button
-            type="button"
-            className="ax-icon-btn ax-lang__trigger"
-            aria-label="Change language"
-            {...triggerProps}
-            aria-expanded={open}
-          >
-            <span className="ax-lang__code">{c.lang}</span>
-          </button>
-        )}
-      >
-        {LANGS.map(([code, name]) => (
-          <button
-            key={code}
-            type="button"
-            className={`ax-dropdown__item${c.lang === code ? ' is-active' : ''}`}
-            role="menuitemradio"
-            aria-checked={c.lang === code}
-            onClick={() => c.setLang(code)}
-          >
-            <span className="ax-lang__code">{code}</span>
-            <span className="ax-lang__name">{name}</span>
-            {c.lang === code && ICON.check}
-          </button>
-        ))}
-      </Dropdown>
-
       {/* 5 · FULLSCREEN */}
       <button
         type="button"
@@ -151,7 +105,7 @@ export function HeaderUtils({ onCustomizer }: { onCustomizer: () => void }) {
           className="ax-lang"
           panelClassName="ax-dropdown"
           trigger={({ open, triggerProps }) => (
-            <button type="button" className="ax-icon-btn ax-lang__trigger" aria-label="Cambiar de empresa" {...triggerProps} aria-expanded={open}>
+            <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" aria-label="Cambiar de empresa" {...triggerProps} aria-expanded={open} style={{ whiteSpace: 'nowrap' }}>
               <span style={{ fontSize: 'var(--ax-text-xs)', fontWeight: 600, whiteSpace: 'nowrap' }}>{activeMarca?.marca.nombre || 'Elegir empresa'}</span>
             </button>
           )}
@@ -227,27 +181,6 @@ export function HeaderUtils({ onCustomizer }: { onCustomizer: () => void }) {
         >
           {({ close }) => (
             <>
-              {/* LANGUAGE (shed < lg) — the 8 codes as chips; the full names stay
-                  in the wide-viewport menu where there is room for them. */}
-              <div className="ax-overflow__group" data-ax-shed="lang" role="presentation">
-                <p className="ax-dropdown__head">Language</p>
-                <div className="ax-overflow__langs" role="group" aria-label="Change language">
-                  {LANGS.map(([code]) => (
-                    <button
-                      key={code}
-                      type="button"
-                      className={`ax-overflow__lang ax-lang__code${c.lang === code ? ' is-active' : ''}`}
-                      onClick={() => {
-                        c.setLang(code);
-                        close();
-                      }}
-                    >
-                      {code}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* FULLSCREEN (shed < lg) */}
               <button
                 type="button"
