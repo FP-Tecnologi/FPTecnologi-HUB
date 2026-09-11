@@ -178,8 +178,33 @@ Backend (Fase 1 del plan) funcionalmente completo y con hardening básico
 (índices DB, rate limiting, helmet, validación de env). Supabase real
 conectado y migrado.
 
-Pendiente: crear la web pública de fptecnologi.com, CI (delegado a otro
-agente), infra externa (Cloudflare/Hostinger/Sentry).
+CI/CD y seguridad del repo (ver `.github/`):
+- `workflows/ci.yml`: build + lint + test de `apps/api` y `apps/web` en
+  cada push/PR a `main`.
+- `workflows/codeql.yml`: análisis estático de seguridad (CodeQL) en
+  push/PR a `main` y semanal.
+- `workflows/dependency-audit.yml`: `npm audit` informativo en
+  push/PR y semanal (no bloquea el merge todavía).
+- `workflows/copilot-setup-steps.yml`: preinstala Node + deps + Prisma
+  client para el entorno del Copilot coding agent (cloud).
+- `dependabot.yml`: actualizaciones semanales de npm (`apps/api`,
+  `apps/web`) y de GitHub Actions.
+- `SECURITY.md`: política de reporte de vulnerabilidades y checklist de
+  configuración recomendada a nivel de repo (branch protection, secret
+  scanning, etc. — requieren rol admin, no se pueden setear por código).
+
+Pendiente:
+- Crear la web pública de fptecnologi.com (Next.js + shadcn/ui, sin login,
+  consume `/public/*`) — todavía no existe como app separada.
+- Activar en Settings → Code security: Dependabot alerts, secret scanning
+  + push protection, y una branch protection rule en `main` que exija los
+  checks de CI (ver `SECURITY.md`) — requiere rol admin, no se puede hacer
+  por código.
+- Revisar manualmente las vulnerabilidades de `devDependencies` reportadas
+  por `npm audit` en `apps/api` (tooling de NestJS/Prisma) — requieren
+  upgrades breaking, no se resolvieron automáticamente.
+- Infra externa (Cloudflare, Hostinger, Sentry) — fuera del alcance de un
+  agente de código, requiere acceso a esas cuentas.
 
 **Detalle real, fecha por fecha, y qué cambió respecto al plan original:
 [`docs/ESTADO-ACTUAL.md`](docs/ESTADO-ACTUAL.md) — es el documento vivo,

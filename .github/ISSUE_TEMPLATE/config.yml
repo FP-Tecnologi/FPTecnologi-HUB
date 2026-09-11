@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Reportar una vulnerabilidad de seguridad
+    url: https://github.com/FP-Tecnologi/FPTecnologi-HUB/security/advisories/new
+    about: No uses un issue público para vulnerabilidades de seguridad.
