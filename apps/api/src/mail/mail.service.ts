@@ -23,6 +23,14 @@ export class MailService {
     });
   }
 
+  async sendPasswordResetCode(to: string, codigo: string): Promise<void> {
+    await this.send({
+      to,
+      subject: 'Recuperar contraseña',
+      html: `<p>Tu código para restablecer la contraseña es <strong>${codigo}</strong>. Si no pediste esto, ignora este correo.</p>`,
+    });
+  }
+
   async sendPedidoConfirmado(to: string, pedidoId: string): Promise<void> {
     await this.send({
       to,

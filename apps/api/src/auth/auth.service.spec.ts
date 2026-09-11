@@ -1,5 +1,5 @@
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
-import { BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { generate as generateTotp, generateSecret } from 'otplib';
 import { AuthService } from './auth.service.js';
@@ -15,7 +15,9 @@ const OTP_CONFIG = { expiresInMinutes: 10 };
 describe('AuthService', () => {
   let service: AuthService;
   let prisma: {
-    usuario: { findUnique: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
+    usuario: { findUnique: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn>; create: ReturnType<typeof vi.fn> };
+    marca: { findUnique: ReturnType<typeof vi.fn> };
+    rol: { findUnique: ReturnType<typeof vi.fn> };
     otpCode: {
       create: ReturnType<typeof vi.fn>;
       findFirst: ReturnType<typeof vi.fn>;
@@ -27,11 +29,11 @@ describe('AuthService', () => {
       deleteMany: ReturnType<typeof vi.fn>;
       create: ReturnType<typeof vi.fn>;
     };
-    refreshToken: { create: ReturnType<typeof vi.fn> };
+    refreshToken: { create: ReturnType<typeof vi.fn>; updateMany: ReturnType<typeof vi.fn> };
     $transaction: ReturnType<typeof vi.fn>;
   };
   let jwtService: { signAsync: ReturnType<typeof vi.fn>; verifyAsync: ReturnType<typeof vi.fn> };
-  let mailService: { sendOtpCode: ReturnType<typeof vi.fn> };
+  let mailService: { sendOtpCode: ReturnType<typeof vi.fn>; sendPasswordResetCode: ReturnType<typeof vi.fn> };
   let passwordHash: string;
 
   beforeAll(async () => {
@@ -40,7 +42,9 @@ describe('AuthService', () => {
 
   beforeEach(() => {
     prisma = {
-      usuario: { findUnique: vi.fn(), update: vi.fn() },
+      usuario: { findUnique: vi.fn(), update: vi.fn(), create: vi.fn() },
+      marca: { findUnique: vi.fn() },
+      rol: { findUnique: vi.fn() },
       otpCode: { create: vi.fn(), findFirst: vi.fn(), update: vi.fn() },
       totpBackupCode: {
         findMany: vi.fn().mockResolvedValue([]),
@@ -48,11 +52,11 @@ describe('AuthService', () => {
         deleteMany: vi.fn(),
         create: vi.fn(),
       },
-      refreshToken: { create: vi.fn() },
+      refreshToken: { create: vi.fn(), updateMany: vi.fn() },
       $transaction: vi.fn((ops: unknown[]) => Promise.all(ops)),
     };
     jwtService = { signAsync: vi.fn().mockResolvedValue('signed-token'), verifyAsync: vi.fn() };
-    mailService = { sendOtpCode: vi.fn().mockResolvedValue(undefined) };
+    mailService = { sendOtpCode: vi.fn().mockResolvedValue(undefined), sendPasswordResetCode: vi.fn().mockResolvedValue(undefined) };
     const configService = {
       get: (key: string) => ({ jwt: JWT_CONFIG, otp: OTP_CONFIG })[key],
     };
@@ -293,6 +297,100 @@ describe('AuthService', () => {
       await service.disableTotp('u1', token);
 
       expect(prisma.$transaction).toHaveBeenCalledOnce();
+    });
+  });
+
+  describe('register', () => {
+    it('rejects a duplicate email', async () => {
+      prisma.usuario.findUnique.mockResolvedValue({ id: 'existing' });
+
+      await expect(service.register('a@b.com', 'correct-password', 'm1')).rejects.toThrow(
+        ConflictException,
+      );
+      expect(prisma.usuario.create).not.toHaveBeenCalled();
+    });
+
+    it('rejects an unknown marcaId', async () => {
+      prisma.usuario.findUnique.mockResolvedValue(null);
+      prisma.marca.findUnique.mockResolvedValue(null);
+
+      await expect(service.register('a@b.com', 'correct-password', 'bad-marca')).rejects.toThrow(
+        BadRequestException,
+      );
+    });
+
+    it('always lands on the "cliente" role, never an admin/staff one', async () => {
+      prisma.usuario.findUnique.mockResolvedValue(null);
+      prisma.marca.findUnique.mockResolvedValue({ id: 'm1', nombre: 'FPTecnologi' });
+      prisma.rol.findUnique.mockResolvedValue({ id: 'rol-cliente', nombre: 'cliente' });
+      prisma.usuario.create.mockResolvedValue({ id: 'u1', email: 'a@b.com', nombre: 'Ana' });
+
+      const result = await service.register('a@b.com', 'correct-password', 'm1', 'Ana');
+
+      expect(result).toEqual({ id: 'u1', email: 'a@b.com', nombre: 'Ana' });
+      expect(prisma.rol.findUnique).toHaveBeenCalledWith({ where: { nombre: 'cliente' } });
+      const createArgs = prisma.usuario.create.mock.calls[0][0];
+      expect(createArgs.data.marcas.create).toEqual({ marcaId: 'm1', rolId: 'rol-cliente' });
+      expect(await bcrypt.compare('correct-password', createArgs.data.passwordHash)).toBe(true);
+    });
+  });
+
+  describe('requestPasswordReset / confirmPasswordReset', () => {
+    it('emails a reset code for an existing active user', async () => {
+      prisma.usuario.findUnique.mockResolvedValue({ id: 'u1', email: 'a@b.com', activo: true });
+
+      await service.requestPasswordReset('a@b.com');
+
+      expect(prisma.otpCode.create).toHaveBeenCalledOnce();
+      expect(mailService.sendPasswordResetCode).toHaveBeenCalledWith('a@b.com', expect.any(String));
+    });
+
+    it('says nothing was sent differently for an unknown email (anti-enumeration)', async () => {
+      prisma.usuario.findUnique.mockResolvedValue(null);
+
+      const result = await service.requestPasswordReset('nobody@b.com');
+
+      expect(result).toEqual({ sent: true });
+      expect(mailService.sendPasswordResetCode).not.toHaveBeenCalled();
+    });
+
+    it('rejects an expired reset code', async () => {
+      const codigoHash = await bcrypt.hash('123456', 10);
+      prisma.usuario.findUnique.mockResolvedValue({ id: 'u1', email: 'a@b.com' });
+      prisma.otpCode.findFirst.mockResolvedValue({
+        id: 'otp1',
+        codigoHash,
+        expiresAt: new Date(Date.now() - 1000),
+      });
+
+      await expect(service.confirmPasswordReset('a@b.com', '123456', 'new-password')).rejects.toThrow(
+        UnauthorizedException,
+      );
+      expect(prisma.usuario.update).not.toHaveBeenCalled();
+    });
+
+    it('sets the new password and revokes every existing session on a valid code', async () => {
+      const codigoHash = await bcrypt.hash('123456', 10);
+      prisma.usuario.findUnique.mockResolvedValue({ id: 'u1', email: 'a@b.com' });
+      prisma.otpCode.findFirst.mockResolvedValue({
+        id: 'otp1',
+        codigoHash,
+        expiresAt: new Date(Date.now() + 60_000),
+      });
+
+      await service.confirmPasswordReset('a@b.com', '123456', 'new-password');
+
+      const updateArgs = prisma.usuario.update.mock.calls[0][0];
+      expect(updateArgs.where).toEqual({ id: 'u1' });
+      expect(await bcrypt.compare('new-password', updateArgs.data.passwordHash)).toBe(true);
+      expect(prisma.otpCode.update).toHaveBeenCalledWith({
+        where: { id: 'otp1' },
+        data: { consumedAt: expect.any(Date) },
+      });
+      expect(prisma.refreshToken.updateMany).toHaveBeenCalledWith({
+        where: { usuarioId: 'u1', revoked: false },
+        data: { revoked: true },
+      });
     });
   });
 });

@@ -2,6 +2,7 @@ import { Controller, Get, Param, Query } from '@nestjs/common';
 import { Public } from '../common/decorators/public.decorator.js';
 import { ProductosService } from '../productos/productos.service.js';
 import { ServiciosService } from '../servicios/servicios.service.js';
+import { MarcasService } from '../marcas/marcas.service.js';
 
 /**
  * Endpoints de solo lectura, sin autenticación, para la web pública
@@ -16,7 +17,17 @@ export class PublicController {
   constructor(
     private readonly productosService: ProductosService,
     private readonly serviciosService: ServiciosService,
+    private readonly marcasService: MarcasService,
   ) {}
+
+  // Solo id+nombre — lo que necesita un formulario público (registro,
+  // selector de tienda) para saber qué marcas existen, sin exponer nada
+  // más del modelo Marca.
+  @Get('marcas')
+  async marcas() {
+    const marcas = await this.marcasService.findAll();
+    return marcas.map((m) => ({ id: m.id, nombre: m.nombre }));
+  }
 
   @Get('productos')
   productos(@Query('marcaId') marcaId: string, @Query('categoriaId') categoriaId?: string) {

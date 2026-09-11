@@ -1,6 +1,8 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -16,6 +18,7 @@ import { OtpProposito } from '../generated/prisma/enums.js';
 
 const OTP_LENGTH = 6;
 const SALT_ROUNDS = 10;
+const ROL_CLIENTE = 'cliente';
 const TOTP_ISSUER = 'FPTecnologi';
 const BACKUP_CODE_COUNT = 8;
 /** Allows the code from 1 step before/after (30s each) to tolerate clock drift between phone and server. */
@@ -29,6 +32,80 @@ export class AuthService {
     private readonly configService: ConfigService,
     private readonly mailService: MailService,
   ) {}
+
+  /**
+   * Public self-registration — ecommerce customers only. Always lands on
+   * the "cliente" role for the given marca; creating staff accounts is an
+   * admin-only action (RolesService.crearUsuarioEnMarca), never this.
+   */
+  async register(email: string, password: string, marcaId: string, nombre?: string) {
+    const existing = await this.prisma.usuario.findUnique({ where: { email } });
+    if (existing) {
+      throw new ConflictException('Ya existe un usuario con ese correo');
+    }
+
+    const marca = await this.prisma.marca.findUnique({ where: { id: marcaId } });
+    if (!marca) {
+      throw new BadRequestException('Marca no encontrada');
+    }
+    const rolCliente = await this.prisma.rol.findUnique({ where: { nombre: ROL_CLIENTE } });
+    if (!rolCliente) {
+      throw new BadRequestException('El rol "cliente" no está configurado todavía');
+    }
+
+    const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
+    const usuario = await this.prisma.usuario.create({
+      data: {
+        email,
+        passwordHash,
+        nombre,
+        marcas: { create: { marcaId, rolId: rolCliente.id } },
+      },
+    });
+
+    return { id: usuario.id, email: usuario.email, nombre: usuario.nombre };
+  }
+
+  /** Step 1 of forgot-password: emails a reset code if the account exists (anti-enumeration: same response either way). */
+  async requestPasswordReset(email: string): Promise<{ sent: true }> {
+    const usuario = await this.prisma.usuario.findUnique({ where: { email } });
+    if (usuario && usuario.activo) {
+      await this.issueOtp(usuario.id, usuario.email, OtpProposito.RESET_PASSWORD, (e, c) =>
+        this.mailService.sendPasswordResetCode(e, c),
+      );
+    }
+    return { sent: true };
+  }
+
+  /** Step 2: validates the reset code, sets the new password, and revokes every existing session. */
+  async confirmPasswordReset(email: string, codigo: string, newPassword: string): Promise<void> {
+    const usuario = await this.prisma.usuario.findUnique({ where: { email } });
+    if (!usuario) {
+      throw new UnauthorizedException('Código inválido o vencido');
+    }
+
+    const otp = await this.prisma.otpCode.findFirst({
+      where: { usuarioId: usuario.id, consumedAt: null, proposito: OtpProposito.RESET_PASSWORD },
+      orderBy: { createdAt: 'desc' },
+    });
+    if (!otp || otp.expiresAt < new Date()) {
+      throw new UnauthorizedException('Código inválido o vencido');
+    }
+    const codigoOk = await bcrypt.compare(codigo, otp.codigoHash);
+    if (!codigoOk) {
+      throw new UnauthorizedException('Código inválido o vencido');
+    }
+
+    const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+    await this.prisma.$transaction([
+      this.prisma.usuario.update({ where: { id: usuario.id }, data: { passwordHash } }),
+      this.prisma.otpCode.update({ where: { id: otp.id }, data: { consumedAt: new Date() } }),
+      // Changing the password invalidates every session that was issued
+      // under the old one — otherwise a stolen refresh token would survive
+      // a password reset meant to shut it out.
+      this.prisma.refreshToken.updateMany({ where: { usuarioId: usuario.id, revoked: false }, data: { revoked: true } }),
+    ]);
+  }
 
   /**
    * Step 1 of login: validates credentials, then triggers whichever second
@@ -53,7 +130,9 @@ export class AuthService {
       return { requiresTotp: true, email: usuario.email };
     }
 
-    await this.issueOtp(usuario.id, usuario.email, OtpProposito.LOGIN_2FA);
+    await this.issueOtp(usuario.id, usuario.email, OtpProposito.LOGIN_2FA, (e, c) =>
+      this.mailService.sendOtpCode(e, c),
+    );
     return { requiresOtp: true, email: usuario.email };
   }
 
@@ -61,7 +140,9 @@ export class AuthService {
     const usuario = await this.prisma.usuario.findUnique({ where: { email } });
     // No revelamos si el correo existe o no para evitar enumeración de usuarios.
     if (usuario && usuario.activo) {
-      await this.issueOtp(usuario.id, usuario.email, OtpProposito.LOGIN_2FA);
+      await this.issueOtp(usuario.id, usuario.email, OtpProposito.LOGIN_2FA, (e, c) =>
+        this.mailService.sendOtpCode(e, c),
+      );
     }
     return { requiresOtp: true };
   }
@@ -260,7 +341,12 @@ export class AuthService {
     }
   }
 
-  private async issueOtp(usuarioId: string, email: string, proposito: OtpProposito): Promise<void> {
+  private async issueOtp(
+    usuarioId: string,
+    email: string,
+    proposito: OtpProposito,
+    sendMail: (email: string, codigo: string) => Promise<void>,
+  ): Promise<void> {
     const otpConfig = this.configService.get<AppConfig['otp']>('otp')!;
     const codigo = randomInt(0, 10 ** OTP_LENGTH).toString().padStart(OTP_LENGTH, '0');
     const codigoHash = await bcrypt.hash(codigo, SALT_ROUNDS);
@@ -270,7 +356,7 @@ export class AuthService {
       data: { usuarioId, codigoHash, proposito, expiresAt },
     });
 
-    await this.mailService.sendOtpCode(email, codigo);
+    await sendMail(email, codigo);
   }
 
   private async issueTokens(
