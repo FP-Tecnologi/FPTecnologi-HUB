@@ -1,7 +1,7 @@
 {
-  "name": "backend",
+  "name": "fptecnologi-api",
   "version": "0.0.1",
-  "description": "",
+  "description": "API central de FPTecnologi-HUB (NestJS + Prisma + PostgreSQL multi-marca).",
   "author": "",
   "private": true,
   "license": "UNLICENSED",

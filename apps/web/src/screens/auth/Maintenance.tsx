@@ -1,5 +1,5 @@
 /*
- * Vireo Next.js — Maintenance.
+ * FPTecnologi-HUB · Dashboard — Maintenance.
  * 1:1 re-expression of src/html/auth/maintenance.html: a two-tone slow-spinning
  * gear illustration with a warning wrench accent, an ETA card with an
  * indeterminate progress bar, and status/support actions. Static (no scripts) —
@@ -33,9 +33,9 @@ export function Maintenance() {
 
       <main id="ax-main" style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 560, textAlign: 'center' }}>
         <div className="ax-center" style={{ marginBlockEnd: 'var(--ax-space-6)' }}>
-          <Link href="/" className="ax-cluster" style={{ gap: 'var(--ax-space-3)', textDecoration: 'none' }} aria-label="Vireo home">
+          <Link href="/" className="ax-cluster" style={{ gap: 'var(--ax-space-3)', textDecoration: 'none' }} aria-label="FPTecnologi home">
             <span style={{ display: 'inline-grid', placeItems: 'center', width: 42, height: 42, borderRadius: 'var(--ax-radius-md)', background: 'var(--ax-gradient-accent)', color: 'var(--ax-on-accent)', boxShadow: '0 8px 22px -8px rgba(var(--ax-accent-rgb),.7)' }}>{HEX}</span>
-            <b style={{ fontFamily: 'var(--ax-font-display)', fontSize: 'var(--ax-text-lg)', color: 'var(--ax-text-strong)' }}>Vireo</b>
+            <b style={{ fontFamily: 'var(--ax-font-display)', fontSize: 'var(--ax-text-lg)', color: 'var(--ax-text-strong)' }}>FPTecnologi</b>
           </Link>
         </div>
 
@@ -54,7 +54,7 @@ export function Maintenance() {
 
         <h1 style={{ fontFamily: 'var(--ax-font-display)', fontSize: 'var(--ax-text-3xl)', fontWeight: 600, color: 'var(--ax-text-strong)', margin: '0 0 var(--ax-space-3)', letterSpacing: '-.02em', lineHeight: 1.1 }}>We'll be back shortly.</h1>
         <p style={{ fontSize: 'var(--ax-text-md)', color: 'var(--ax-text-muted)', margin: '0 auto var(--ax-space-6)', maxWidth: '48ch' }}>
-          Vireo is undergoing planned maintenance to ship database upgrades and faster dashboards. Your data is safe and nothing is lost — this is a routine, scheduled window.
+          FPTecnologi is undergoing planned maintenance to improve its services and dashboards. Your data is safe and nothing is lost — this is a routine, scheduled window.
         </p>
 
         <div className="ax-card" style={{ textAlign: 'start', maxWidth: 460, marginInline: 'auto', marginBlockEnd: 'var(--ax-space-6)' }}>
@@ -76,14 +76,14 @@ export function Maintenance() {
             <svg className="ax-btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 12h4.5l1.5 -6l4 12l2 -9l1.5 3h4.5" /></svg>
             <span className="ax-btn__label">View system status</span>
           </a>
-          <a className="ax-btn ax-btn--ghost" href="mailto:support@vireo.io">
+          <a className="ax-btn ax-btn--ghost" href="mailto:soporte@fptecnologi.com">
             <svg className="ax-btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10" /><path d="M3 7l9 6l9 -6" /></svg>
             <span className="ax-btn__label">Contact support</span>
           </a>
         </div>
 
         <p style={{ marginBlockStart: 'var(--ax-space-8)', fontSize: 'var(--ax-text-2xs)', color: 'var(--ax-text-subtle)' }}>
-          Need urgent help? Email <a className="ax-link" href="mailto:support@vireo.io">support@vireo.io</a> · Status code <span className="ax-num">503</span>
+          Need urgent help? Email <a className="ax-link" href="mailto:soporte@fptecnologi.com">soporte@fptecnologi.com</a> · Status code <span className="ax-num">503</span>
         </p>
       </main>
     </AuthStandalone>

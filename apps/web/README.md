@@ -1,39 +1,52 @@
-# Vireo — Next.js Edition
+# Dashboard — FPTecnologi-HUB (Next.js)
 
-Vireo is a modern admin dashboard template built with Next.js (App Router), React 19, and Tailwind CSS v4, featuring the Aurora design language.
+Dashboard administrativo único para las 5 marcas (`apps/web` en este repo).
+Next.js 15 (App Router) + React 19 + Tailwind v4, con el sistema visual
+`--ax-*` heredado de la plantilla comercial Vireo (ver
+[`VIREO-REFERENCE.md`](../../VIREO-REFERENCE.md) antes de construir una
+pantalla nueva — probablemente ya existe un patrón parecido).
 
-## Requirements
+## Requisitos
 
-- Node.js 18+ (LTS recommended)
+- Node.js 22+
+- La API central corriendo en `http://localhost:3001` (ver
+  [`../api/README.md`](../api/README.md))
 
-## Getting started
+## Puesta en marcha
 
-1. Install dependencies:
+1. Copiar variables de entorno:
 
-   ```bash
+   ```powershell
+   Copy-Item .env.local.example .env.local
+   ```
+
+   `NEXT_PUBLIC_API_URL` debe apuntar a la API
+   (`http://localhost:3001` en local).
+
+2. Instalar dependencias:
+
+   ```powershell
    npm install
    ```
 
-2. Start the development server:
+3. Levantar el servidor de desarrollo:
 
-   ```bash
+   ```powershell
    npm run dev
    ```
 
-   The app runs at http://localhost:3000.
+   El dashboard queda en http://localhost:3000
+   (la raíz `/` redirige a `/auth/sign-in` sin sesión).
 
-3. Create a production build:
+4. Build de producción:
 
-   ```bash
+   ```powershell
    npm run build
-   ```
-
-4. Run the production server:
-
-   ```bash
    npm run start
    ```
 
-## Documentation
+## Contexto del proyecto
 
-Full documentation is available at [../../Documentation/index.html](../../Documentation/index.html).
+- [`AGENTS.md`](../../AGENTS.md) — contexto técnico canónico del proyecto.
+- [`docs/ESTADO-ACTUAL.md`](../../docs/ESTADO-ACTUAL.md) — estado real y
+  bitácora (actualizar al cerrar cada bloque de trabajo).

@@ -8,7 +8,7 @@
  * initial paint all get the correct page name (a client-only document.title
  * would not do that).
  *
- * The root layout owns the "%s · Vireo" template, so each page supplies only
+ * The root layout owns the "%s · FPTecnologi" template, so each page supplies only
  * the bare page name.
  */
 import type { Metadata } from 'next';

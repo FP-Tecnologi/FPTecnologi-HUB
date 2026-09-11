@@ -1,8 +1,8 @@
 'use client';
 /*
- * Vireo Next.js — Lock screen (cover split).
+ * FPTecnologi-HUB · Dashboard — Lock screen (cover split).
  * 1:1 re-expression of src/html/auth/lock-screen-cover.html: a live mono clock /
- * date panel (lg+) beside the unlock card (Devon Okafor). Demo password "vireo"
+ * date panel (lg+) beside the unlock card (Devon Okafor). Demo password "fptecnologi"
  * → redirects to "/". Clock updates every 15s (skipped under reduced motion).
  */
 import { useEffect, useRef, useState } from 'react';
@@ -61,7 +61,7 @@ export function LockScreenCover() {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      if (pw === 'vireo') {
+      if (pw === 'fptecnologi') {
         router.push('/');
       } else {
         attempts.current++;
@@ -85,7 +85,7 @@ export function LockScreenCover() {
             <span aria-hidden="true" style={{ position: 'absolute', inset: 0, background: 'repeating-linear-gradient(135deg, transparent 0 24px, rgba(var(--ax-accent-rgb),.05) 24px 25px)' }} />
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', position: 'relative' }}>
               <span style={{ display: 'inline-grid', placeItems: 'center', width: 38, height: 38, borderRadius: 'var(--ax-radius-md)', background: 'var(--ax-gradient-accent)', color: 'var(--ax-on-accent)', boxShadow: '0 8px 22px -8px rgba(var(--ax-accent-rgb),.7)' }}>{HEX}</span>
-              <b style={{ fontFamily: 'var(--ax-font-display)', fontSize: 'var(--ax-text-lg)', color: 'var(--ax-text-strong)' }}>Vireo</b>
+              <b style={{ fontFamily: 'var(--ax-font-display)', fontSize: 'var(--ax-text-lg)', color: 'var(--ax-text-strong)' }}>FPTecnologi</b>
             </div>
             <div style={{ position: 'relative' }}>
               <div className="ax-num" style={{ fontFamily: 'var(--ax-font-mono)', fontSize: 64, fontWeight: 600, color: 'var(--ax-text-strong)', lineHeight: 1, letterSpacing: '-.02em' }}>{clock}</div>

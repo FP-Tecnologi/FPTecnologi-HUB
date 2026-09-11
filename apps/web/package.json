@@ -1,8 +1,8 @@
 {
-  "name": "vireo-next",
+  "name": "fptecnologi-dashboard",
   "private": true,
-  "version": "1.1.0",
-  "description": "Vireo — Next.js 15 edition (App Router + React 19 + Tailwind v4). Aurora design language on the shared --ax-* token core.",
+  "version": "0.1.0",
+  "description": "Dashboard administrativo de FPTecnologi-HUB (Next.js 15 + React 19 + Tailwind v4).",
   "license": "LicenseRef-Envato-Regular",
   "scripts": {
     "dev": "next dev",

@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — Sign in (cover split).
+ * FPTecnologi-HUB · Dashboard — Sign in (cover split).
  * 1:1 re-expression of src/html/auth/sign-in-cover.html: a 52/48 split — a
  * gradient testimonial panel (lg+) and the same sign-in form as the basic
  * variant on the right. The lg breakpoint rule lives in the injected <style>.
@@ -61,12 +61,12 @@ export function SignInCover() {
             <span className="ax-center" style={{ inlineSize: 40, blockSize: 40, borderRadius: 'var(--ax-radius-md)', background: 'var(--ax-gradient-accent)', color: 'var(--ax-on-accent)', boxShadow: '0 8px 22px -8px rgba(var(--ax-accent-rgb),.7)' }}>
               <svg viewBox="0 0 32 32" width={23} height={23} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="axmk0" x1={4} y1={4} x2={28} y2={28} gradientUnits="userSpaceOnUse"><stop stopColor="#2BC4B0" /><stop offset="0.55" stopColor="#1E9E96" /><stop offset="1" stopColor="#6D5CF0" /></linearGradient></defs><path d="M4 4 H16 A12 12 0 0 1 28 16 V28 A0 0 0 0 1 28 28 H16 A12 12 0 0 1 4 16 V4 Z" fill="url(#axmk0)" stroke="none" /><circle cx="20.5" cy="11.5" r="2.6" fill="#0A0C11" fillOpacity="0.92" stroke="none" /></svg>
             </span>
-            <span style={{ fontFamily: 'var(--ax-font-display)', fontWeight: 'var(--ax-weight-semibold)', fontSize: 'var(--ax-text-lg)', color: 'var(--ax-text-strong)' }}>Vireo</span>
+            <span style={{ fontFamily: 'var(--ax-font-display)', fontWeight: 'var(--ax-weight-semibold)', fontSize: 'var(--ax-text-lg)', color: 'var(--ax-text-strong)' }}>FPTecnologi</span>
           </div>
 
           <div style={{ position: 'relative', maxInlineSize: '30ch' }}>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" width={34} height={34} style={{ color: 'var(--ax-accent)', opacity: 0.55, marginBlockEnd: 'var(--ax-space-4)' }}><path d="M10 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5" /><path d="M19 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5" /></svg>
-            <p style={{ margin: 0, fontFamily: 'var(--ax-font-display)', fontSize: 'var(--ax-text-xl)', lineHeight: 1.4, fontWeight: 'var(--ax-weight-medium)', color: 'var(--ax-text-strong)' }}>Everything our team needs, finally in one calm surface. Vireo just gets out of the way.</p>
+            <p style={{ margin: 0, fontFamily: 'var(--ax-font-display)', fontSize: 'var(--ax-text-xl)', lineHeight: 1.4, fontWeight: 'var(--ax-weight-medium)', color: 'var(--ax-text-strong)' }}>Everything your team needs, finally in one calm surface. FPTecnologi just gets out of the way.</p>
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', marginBlockStart: 'var(--ax-space-5)' }}>
               <span className="ax-avatar ax-avatar--squircle" style={{ background: 'color-mix(in oklab, var(--ax-viz-violet) 18%, transparent)', color: 'var(--ax-viz-violet)' }}>
                 <svg className="ax-avatar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round"><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
@@ -111,7 +111,7 @@ export function SignInCover() {
             <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }} noValidate>
               <div className="ax-field">
                 <label className="ax-label" htmlFor="si-email">Email or username</label>
-                <input id="si-email" type="text" className={`ax-input${emailErr ? ' is-invalid' : ''}`} autoComplete="username" placeholder="you@vireo.io"
+                <input id="si-email" type="text" className={`ax-input${emailErr ? ' is-invalid' : ''}`} autoComplete="username" placeholder="tu@fptecnologi.com"
                   value={email} onChange={(e) => setEmail(e.target.value)} aria-invalid={emailErr ? 'true' : 'false'} aria-describedby="si-email-msg" required />
                 {emailErr && <p id="si-email-msg" className="ax-field__message ax-field__message--error">{emailErr}</p>}
               </div>
@@ -139,7 +139,7 @@ export function SignInCover() {
             </form>
 
             <p style={{ margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
-              New to Vireo? <Link className="ax-link" href="/auth/sign-up-cover" style={{ fontWeight: 'var(--ax-weight-medium)' }}>Create an account</Link>
+              New to FPTecnologi? <Link className="ax-link" href="/auth/sign-up-cover" style={{ fontWeight: 'var(--ax-weight-medium)' }}>Create an account</Link>
             </p>
           </div>
         </main>

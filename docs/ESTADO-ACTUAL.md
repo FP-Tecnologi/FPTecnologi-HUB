@@ -213,3 +213,13 @@ sobre este mismo repo. Estado real hoy:
   sin sesión), y un bug de backend donde `issueTokens` nunca devolvía
   `usuario` pese a que el dashboard ya lo esperaba. Ver checklist de
   Fase 3 arriba.
+- **Rebrand de plantilla a FPTecnologi-HUB**: `apps/web/package.json`
+  `vireo-next@1.1.0` → `fptecnologi-dashboard@0.1.0` (el terminal mostraba el
+  nombre viejo en `npm run dev`), `apps/api` `backend` → `fptecnologi-api`
+  (+ `package-lock.json` regenerados). Sidebar y AppBar usaban wordmark
+  "VIREO" — ahora usan `/logo-fptecnologi.svg`; metadata `<title>`/
+  descripción, footer (© + versión), emails/placeholders demo
+  (`you@vireo.io`/`support@vireo.io`), `$schema` del nav-manifest y READMEs/
+  `.env.example` actualizados. Los comentarios internos que citan a Vireo
+  como origen del patrón se dejan a propósito (ver `VIREO-REFERENCE.md`).
+  Build de API + Web verificado OK.

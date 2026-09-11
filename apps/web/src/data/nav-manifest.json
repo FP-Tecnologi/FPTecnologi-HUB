@@ -1,5 +1,5 @@
 {
-  "$schema": "vireo-nav-manifest/v1",
+  "$schema": "fptecnologi-nav-manifest/v1",
   "meta": {
     "comment": "Manifiesto recortado a los modulos reales de FPTecnologi-HUB (se elimino el catalogo demo de Vireo: apps, ecommerce, crm, projects, crypto, nft, jobs, blog, ui, forms, tables, charts, maps, icons, widgets, docs, paginas de ejemplo). Se van agregando nodos aqui a medida que cada modulo real se construye. Los nodos auth.*/error.* se mantienen solo para resolver el <title> de esas paginas via metadataForSlug — no aparecen en el sidebar (inMenu:false en sus grupos).",
     "sections": ["MAIN", "PAGES"]

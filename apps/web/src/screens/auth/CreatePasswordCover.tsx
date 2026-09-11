@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — Create / set new password (cover split).
+ * FPTecnologi-HUB · Dashboard — Create / set new password (cover split).
  * 1:1 re-expression of src/html/auth/create-password-cover.html: a material
  * "still" gradient panel (lg+) beside the new-password card (expired path /
  * strength meter / rules checklist / confirm / success-redirect).
@@ -82,7 +82,7 @@ export function CreatePasswordCover() {
             <span style={{ position: 'absolute', width: 300, height: 300, borderRadius: '50%', right: -70, top: '22%', border: '1px solid rgba(var(--ax-accent-rgb),.28)' }} />
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', position: 'relative' }}>
               <span style={{ display: 'inline-grid', placeItems: 'center', width: 38, height: 38, borderRadius: 'var(--ax-radius-md)', background: 'var(--ax-gradient-accent)', color: 'var(--ax-on-accent)', boxShadow: '0 8px 22px -8px rgba(var(--ax-accent-rgb),.7)' }}>{HEX(22)}</span>
-              <b style={{ fontFamily: 'var(--ax-font-display)', fontSize: 'var(--ax-text-lg)', color: 'var(--ax-text-strong)' }}>Vireo</b>
+              <b style={{ fontFamily: 'var(--ax-font-display)', fontSize: 'var(--ax-text-lg)', color: 'var(--ax-text-strong)' }}>FPTecnologi</b>
             </div>
             <div style={{ position: 'relative', maxWidth: '30ch' }}>
               <svg viewBox="0 0 24 24" width={40} height={40} fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--ax-accent)', marginBlockEnd: 'var(--ax-space-4)' }}><path d="M16.555 3.843l3.602 3.602a2.877 2.877 0 0 1 0 4.069l-2.643 2.643a2.877 2.877 0 0 1 -4.069 0l-.301 -.301l-6.558 6.558a2 2 0 0 1 -1.239 .578l-.175 .008h-1.172a1 1 0 0 1 -.993 -.883l-.007 -.117v-1.172a2 2 0 0 1 .467 -1.284l.119 -.13l.414 -.414h2v-2h2v-2l2.144 -2.144l-.301 -.301a2.877 2.877 0 0 1 0 -4.069l2.643 -2.643a2.877 2.877 0 0 1 4.069 0" /><path d="M15 9h.01" /></svg>
@@ -96,7 +96,7 @@ export function CreatePasswordCover() {
               <div className="ax-card__body" style={{ padding: 'var(--ax-space-8)' }}>
                 <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', marginBlockEnd: 'var(--ax-space-6)' }}>
                   <span style={{ display: 'inline-grid', placeItems: 'center', width: 40, height: 40, borderRadius: 'var(--ax-radius-md)', background: 'var(--ax-gradient-accent)', color: 'var(--ax-on-accent)', boxShadow: '0 8px 22px -8px rgba(var(--ax-accent-rgb),.7)' }}>{HEX(23)}</span>
-                  <b style={{ fontFamily: 'var(--ax-font-display)', fontSize: 'var(--ax-text-md)', color: 'var(--ax-text-strong)' }}>Vireo</b>
+                  <b style={{ fontFamily: 'var(--ax-font-display)', fontSize: 'var(--ax-text-md)', color: 'var(--ax-text-strong)' }}>FPTecnologi</b>
                 </div>
 
                 {expired ? (

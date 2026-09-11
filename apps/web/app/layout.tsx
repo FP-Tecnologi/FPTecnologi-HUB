@@ -1,5 +1,5 @@
 /*
- * Vireo Next.js — ROOT layout (App Router).
+ * FPTecnologi-HUB · Dashboard — ROOT layout (App Router).
  *
  * Replicates the reference document <head> contract (BUILD-CONVENTIONS §3):
  *   1. The anti-flash theme-restore IIFE is the FIRST executable thing in
@@ -116,11 +116,11 @@ export const metadata: Metadata = {
   // `default` covers routes that supply no title of their own; `template` wraps
   // the bare page name each route exports via metadataForSlug().
   title: {
-    default: 'Vireo · Next.js',
-    template: '%s · Vireo',
+    default: 'FPTecnologi · Dashboard',
+    template: '%s · FPTecnologi',
   },
   description:
-    'Vireo — premium multipurpose admin & dashboard template with an Aurora glass interface, 17 dashboards, 8 web apps and a full eCommerce suite.',
+    'Dashboard administrativo de FPTecnologi-HUB: gestión multi-marca de productos, pedidos, servicios y cotizaciones.',
   icons: { icon: '/favicon.svg' },
 };
 
