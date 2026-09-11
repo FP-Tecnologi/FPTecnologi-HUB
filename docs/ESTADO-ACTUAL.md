@@ -20,7 +20,7 @@ se actualiza junto con esto cuando cambia arquitectura/convenciones).
 | 0 — Planificación y setup | 07–18 sep 2026 | En curso (falta infra externa) | inició 2026-09-11 |
 | 1 — Backend / API central | 21 sep–16 oct 2026 | Prácticamente cerrada | 2026-09-11 |
 | 2 — fptecnologi.com (web pública) | 19 oct–13 nov 2026 | No iniciada | — |
-| 3 — Dashboard (núcleo) | 16 nov–11 dic 2026 | No iniciada (Vireo copiado, sin conectar a la API) | — |
+| 3 — Dashboard (núcleo) | 16 nov–11 dic 2026 | En curso — login+2FA+selector de marca reales, falta CRUD | inició 2026-09-11 |
 | 4 — QA y lanzamiento fptecnologi | 14–23 dic 2026 | No iniciada | — |
 | 5 — Réplica 4 marcas | 24 dic 2026–17 feb 2027 | No iniciada | — |
 | 6 — Multi-marca + pulido | 18 feb–03 mar 2027 | No iniciada | — |
@@ -109,6 +109,34 @@ velocidad.
       sin credenciales / con credenciales incorrectas, 200 con las
       correctas, en `/docs` y `/docs-json`.
 
+## Fase 3 — checklist real (arrancó antes de tiempo)
+
+Sorpresa al revisar `apps/web`: el login real (`AuthContext.tsx`,
+`api.ts`) y el selector de marca ya estaban construidos — no quedó
+registrado quién/cuándo, probablemente otra sesión trabajando en paralelo
+sobre este mismo repo. Estado real hoy:
+
+- [x] Login real (password → OTP/TOTP → tokens), refresh-on-401,
+      `SignInBasic`/`TwoStepBasic` reales
+- [x] Selector de marca activa + menú filtrado por rol
+      (`HeaderUtils.tsx`/`Sidebar.tsx`/`manifest.ts` → `GET /usuarios/me/marcas`)
+- [x] Pantalla de TOTP (`TwoStepTotp.tsx`) — agregada hoy, el backend TOTP
+      existía pero no había UI
+- [x] `SignInBasic` ahora bifurca `requiresOtp`/`requiresTotp` — antes
+      ignoraba la respuesta y siempre mandaba al flujo de correo
+- [x] `middleware.ts` — no existía, cualquier ruta era accesible sin
+      sesión. Cookie liviana `ax_session` (nunca el JWT) para que el
+      runtime Edge pueda redirigir
+- [x] Bug real encontrado y arreglado en el backend: `issueTokens` nunca
+      devolvía `usuario`, aunque el dashboard ya esperaba
+      `result.usuario` — `user` quedaba `undefined` después de cualquier
+      login
+- [ ] `SignInCover`/`TwoStepCover`/`SignUp*`/`ResetPassword*`/
+      `CreatePassword*`/`LockScreen*` — siguen siendo demo de Vireo
+      (`setTimeout` fake), sin endpoint real
+- [ ] CRUD real de productos/pedidos/usuarios conectado a la API —
+      pendiente
+
 ## Desviaciones del plan original (agregado / quitado / distinto)
 
 - **Agregado**: módulos `Servicio`/`Cotizacion` (cotizador B2B) — ver
@@ -174,3 +202,14 @@ velocidad.
   — ya estaban configurados pero sin `HOSTINGER_API_TOKEN`, por eso nunca
   conectaban. Van a estar disponibles recién en la próxima sesión (MCP se
   carga al iniciar).
+- 3 conceptos de homepage para fptecnologi.com (contenido real del sitio
+  actual: categorías, marcas Dell/HP/Lenovo, contacto, badges de
+  confianza) — quedan los 3 para que los dueños elijan, ninguno se
+  descartó.
+- Dashboard: se descubrió que el login real y el selector de marca ya
+  estaban construidos (no por mí, no quedó registrado quién). Cerré los
+  huecos reales: pantalla de TOTP, `SignInBasic` bifurcando
+  OTP/TOTP, `middleware.ts` (no existía — cualquier ruta era accesible
+  sin sesión), y un bug de backend donde `issueTokens` nunca devolvía
+  `usuario` pese a que el dashboard ya lo esperaba. Ver checklist de
+  Fase 3 arriba.

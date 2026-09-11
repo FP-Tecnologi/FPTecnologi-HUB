@@ -87,7 +87,19 @@ pública de fptecnologi consumiendo los mismos DTOs que el dashboard).
 - **Dashboard** (`apps/web`): Next.js 15 (App Router) + React 19 +
   Tailwind v4, plantilla comercial Vireo (Envato). Ver
   [`VIREO-REFERENCE.md`](VIREO-REFERENCE.md) antes de construir una pantalla
-  nueva — probablemente Vireo ya trae un patrón parecido.
+  nueva — probablemente Vireo ya trae un patrón parecido. **Auth ya está
+  conectado de verdad** (no mock): `src/context/AuthContext.tsx` +
+  `src/lib/api.ts` hablan con la API real (login → OTP/TOTP → tokens en
+  localStorage + refresh-on-401), y el selector de marca
+  (`HeaderUtils.tsx`/`Sidebar.tsx`/`manifest.ts`) ya filtra el menú por
+  rol vía `GET /usuarios/me/marcas`. `middleware.ts` (raíz de `apps/web`)
+  protege las rutas — lee una cookie liviana `ax_session` (nunca el JWT
+  real, que sigue solo en localStorage) porque el runtime Edge no puede
+  leer localStorage. De las 15 pantallas en `src/screens/auth/`, solo
+  `SignInBasic`, `TwoStepBasic` y `TwoStepTotp` son reales — el resto
+  (`*Cover`, `SignUp*`, `ResetPassword*`, `CreatePassword*`,
+  `LockScreen*`) siguen siendo demo de Vireo con `setTimeout` fake, sin
+  endpoint real detrás todavía.
 - **Testing**: Vitest (`*.spec.ts` junto al archivo que prueban).
 - **Package manager**: npm (no pnpm, no yarn) — instalar dentro de cada
   app (`cd apps/api && npm install`), no hay workspace raíz (ver arriba).
