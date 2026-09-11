@@ -1,0 +1,239 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Multi-tenant core: Marca (brand/tenant) + Sitio (domain -> brand)
+// ---------------------------------------------------------------------------
+
+model Marca {
+  id               String   @id @default(uuid())
+  nombre           String
+  logo             String?
+  colorPrimario    String?
+  colorSecundario  String?
+  contactoEmail    String?
+  contactoTelefono String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  sitios         Sitio[]
+  usuarios       UsuarioMarcaRol[]
+  categorias     Categoria[]
+  productos      Producto[]
+  pedidos        Pedido[]
+  servicios      Servicio[]
+  cotizaciones   Cotizacion[]
+  notificaciones Notificacion[]
+}
+
+model Sitio {
+  id        String   @id @default(uuid())
+  dominio   String   @unique
+  marcaId   String
+  marca     Marca    @relation(fields: [marcaId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Usuarios, autenticación (JWT + refresh token) y 2FA por OTP
+// ---------------------------------------------------------------------------
+
+model Usuario {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  nombre       String?
+  activo       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  marcas        UsuarioMarcaRol[]
+  refreshTokens RefreshToken[]
+  otpCodes      OtpCode[]
+  pedidos       Pedido[]
+  notificaciones Notificacion[]
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  tokenHash String
+  usuarioId String
+  usuario   Usuario   @relation(fields: [usuarioId], references: [id])
+  expiresAt DateTime
+  revoked   Boolean   @default(false)
+  createdAt DateTime  @default(now())
+}
+
+enum OtpProposito {
+  LOGIN_2FA
+  RESET_PASSWORD
+}
+
+model OtpCode {
+  id          String       @id @default(uuid())
+  usuarioId   String
+  usuario     Usuario      @relation(fields: [usuarioId], references: [id])
+  codigoHash  String
+  proposito   OtpProposito @default(LOGIN_2FA)
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  createdAt   DateTime     @default(now())
+}
+
+// ---------------------------------------------------------------------------
+// Roles y permisos por marca: un usuario puede tener un rol distinto en cada marca
+// ---------------------------------------------------------------------------
+
+model Rol {
+  id       String            @id @default(uuid())
+  nombre   String            @unique // admin, marketing, ventas, etc.
+  usuarios UsuarioMarcaRol[]
+}
+
+model UsuarioMarcaRol {
+  usuarioId String
+  marcaId   String
+  rolId     String
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+  marca     Marca    @relation(fields: [marcaId], references: [id])
+  rol       Rol      @relation(fields: [rolId], references: [id])
+  createdAt DateTime @default(now())
+
+  @@id([usuarioId, marcaId, rolId])
+}
+
+// ---------------------------------------------------------------------------
+// Catálogo: categorías y productos (siempre filtrados server-side por marcaId)
+// ---------------------------------------------------------------------------
+
+model Categoria {
+  id        String     @id @default(uuid())
+  marcaId   String
+  marca     Marca      @relation(fields: [marcaId], references: [id])
+  nombre    String
+  productos Producto[]
+  createdAt DateTime   @default(now())
+}
+
+model Producto {
+  id           String       @id @default(uuid())
+  marcaId      String
+  marca        Marca        @relation(fields: [marcaId], references: [id])
+  categoriaId  String?
+  categoria    Categoria?   @relation(fields: [categoriaId], references: [id])
+  nombre       String
+  descripcion  String?
+  sku          String
+  precio       Decimal
+  stock        Int          @default(0)
+  activo       Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  pedidoItems  PedidoItem[]
+
+  @@unique([marcaId, sku])
+}
+
+// ---------------------------------------------------------------------------
+// Pedidos (estructura base, sin pasarela de pago conectada todavía)
+// ---------------------------------------------------------------------------
+
+enum EstadoPedido {
+  PENDIENTE
+  PAGADO
+  ENVIADO
+  ENTREGADO
+  CANCELADO
+}
+
+model Pedido {
+  id        String       @id @default(uuid())
+  marcaId   String
+  marca     Marca        @relation(fields: [marcaId], references: [id])
+  clienteId String?
+  cliente   Usuario?     @relation(fields: [clienteId], references: [id])
+  estado    EstadoPedido @default(PENDIENTE)
+  total     Decimal      @default(0)
+  items     PedidoItem[]
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model PedidoItem {
+  id             String   @id @default(uuid())
+  pedidoId       String
+  pedido         Pedido   @relation(fields: [pedidoId], references: [id])
+  productoId     String
+  producto       Producto @relation(fields: [productoId], references: [id])
+  cantidad       Int
+  precioUnitario Decimal
+}
+
+// ---------------------------------------------------------------------------
+// Servicios IT (catálogo de soluciones) + Cotizaciones
+// ---------------------------------------------------------------------------
+
+model Servicio {
+  id           String       @id @default(uuid())
+  marcaId      String
+  marca        Marca        @relation(fields: [marcaId], references: [id])
+  nombre       String
+  descripcion  String?
+  precioDesde  Decimal?
+  activo       Boolean      @default(true)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  cotizaciones Cotizacion[]
+}
+
+enum EstadoCotizacion {
+  PENDIENTE
+  EN_REVISION
+  ENVIADA
+  ACEPTADA
+  RECHAZADA
+}
+
+model Cotizacion {
+  id              String           @id @default(uuid())
+  marcaId         String
+  marca           Marca            @relation(fields: [marcaId], references: [id])
+  servicioId      String
+  servicio        Servicio         @relation(fields: [servicioId], references: [id])
+  clienteNombre   String
+  clienteEmail    String
+  clienteTelefono String?
+  mensaje         String?
+  estado          EstadoCotizacion @default(PENDIENTE)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+// ---------------------------------------------------------------------------
+// Notificaciones internas (centro de notificaciones del dashboard)
+// ---------------------------------------------------------------------------
+
+model Notificacion {
+  id        String   @id @default(uuid())
+  marcaId   String?
+  marca     Marca?   @relation(fields: [marcaId], references: [id])
+  usuarioId String
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+  titulo    String
+  mensaje   String
+  leida     Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
