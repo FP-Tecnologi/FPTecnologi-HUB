@@ -104,7 +104,7 @@ pública de fptecnologi consumiendo los mismos DTOs que el dashboard).
 
 | Módulo | Rutas | Notas |
 | --- | --- | --- |
-| `auth` | `POST /auth/register`, `/login`, `/otp/request`, `/otp/verify`, `/refresh`, `/logout` | Login en 2 pasos: `login` valida credenciales y manda OTP; `otp/verify` recién devuelve JWT+refresh |
+| `auth` | `POST /auth/register`, `/login`, `/otp/request`, `/otp/verify`, `/refresh`, `/logout`, `/totp/setup`, `/totp/enable`, `/totp/disable`, `/totp/verify-login` | Login en 2 pasos: `login` valida credenciales y responde `requiresOtp` (correo) o `requiresTotp` (app autenticadora) según `usuario.totpEnabled`. `totp/setup`+`totp/enable` (autenticado) activan TOTP y devuelven 8 códigos de respaldo de un solo uso |
 | `marcas` | CRUD `/marcas` | Entidad de negocio |
 | `sitios` | CRUD `/sitios`, `GET /sitios/resolver/:dominio` | Dominio → marcaId |
 | `roles` | `/roles`, `/roles/asignaciones`, `/marcas/:marcaId/equipo`, `/usuarios/me/marcas` | Rol por usuario+marca (`UsuarioMarcaRol`) |

@@ -87,6 +87,19 @@ velocidad.
       `marcaId` se bloquea con error explícito. Ningún query actual viola
       la regla (todas ya incluían `marcaId`) — esto es una red de
       seguridad para código futuro, no un fix de un bug existente.
+- [x] **2FA por app autenticadora (TOTP)** — método alternativo al OTP por
+      correo (Google Authenticator/Authy/etc.). `POST /auth/totp/setup`
+      (autenticado) genera secreto + QR; `POST /auth/totp/enable` confirma
+      con un código real y activa, devolviendo 8 códigos de respaldo de un
+      solo uso; `POST /auth/totp/disable` requiere un código válido (no
+      alcanza con estar logueado, así un token robado no lo desactiva).
+      `login` ahora responde `requiresTotp` en vez de mandar OTP por correo
+      si el usuario lo tiene activado; `POST /auth/totp/verify-login` es el
+      segundo paso. 9 tests nuevos con criptografía real (otplib + bcrypt,
+      sin mockear). Encontré y arreglé un bug real en el camino: `otplib`
+      tira excepción (no `false`) si el código no mide 6 dígitos — un
+      código de respaldo (10 chars) rompía el request con 500 en vez de
+      fallar limpio; ahora `safeVerifyTotp()` lo atrapa.
 - [x] `/docs` (Swagger) detrás de HTTP Basic Auth cuando
       `NODE_ENV=production` (`SWAGGER_USER`/`SWAGGER_PASSWORD`) — antes
       exponía el esquema completo de la API (todas las rutas, todos los
@@ -139,5 +152,9 @@ velocidad.
 - Tenant-guard a nivel Prisma (segundo candado de aislamiento multi-marca,
   más allá de `MarcaRolGuard`) y `/docs` protegido con Basic Auth en
   producción — ver checklist de Fase 1 arriba.
+- 2FA por app (TOTP) — backend completo y probado (endpoints + tests). La
+  pantalla del dashboard para escanear el QR/activar 2FA todavía no existe
+  (Fase 3, dashboard sin conectar a la API) — el backend ya está listo
+  para cuando se construya.
 - Este archivo (`ESTADO-ACTUAL.md`) creado para llevar el estado real del
   proyecto — se actualiza desde ahora en cada sesión con avance real.
