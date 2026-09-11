@@ -141,6 +141,7 @@ describe('AuthService', () => {
       prisma.usuario.findUnique.mockResolvedValue({
         id: 'u1',
         email: 'a@b.com',
+        nombre: 'Ana',
         marcas: [{ marcaId: 'm1', rol: { nombre: 'admin' } }],
       });
       prisma.otpCode.findFirst.mockResolvedValue({
@@ -156,6 +157,9 @@ describe('AuthService', () => {
         data: { consumedAt: expect.any(Date) },
       });
       expect(result.marcas).toEqual([{ marcaId: 'm1', rol: 'admin' }]);
+      // Regression guard: issueTokens used to drop `usuario` entirely, so the
+      // dashboard's `result.usuario` (AuthContext.tsx) was always undefined.
+      expect(result.usuario).toEqual({ id: 'u1', email: 'a@b.com', nombre: 'Ana' });
       expect(jwtService.signAsync).toHaveBeenCalledTimes(2);
       expect(prisma.refreshToken.create).toHaveBeenCalledOnce();
     });

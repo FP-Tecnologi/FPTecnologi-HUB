@@ -110,7 +110,7 @@ export class AuthService {
       data: { consumedAt: new Date() },
     });
 
-    return this.issueTokens(usuario.id, usuario.email, usuario.marcas.map((m) => ({ marcaId: m.marcaId, rol: m.rol.nombre })));
+    return this.issueTokens(usuario, usuario.marcas.map((m) => ({ marcaId: m.marcaId, rol: m.rol.nombre })));
   }
 
   /** Step 2 of login when TOTP is enabled: verifies the app code (or a backup code) and issues tokens. */
@@ -128,7 +128,7 @@ export class AuthService {
       throw new UnauthorizedException('Código inválido');
     }
 
-    return this.issueTokens(usuario.id, usuario.email, usuario.marcas.map((m) => ({ marcaId: m.marcaId, rol: m.rol.nombre })));
+    return this.issueTokens(usuario, usuario.marcas.map((m) => ({ marcaId: m.marcaId, rol: m.rol.nombre })));
   }
 
   /** Generates a TOTP secret + QR for the user to scan. Not active until enableTotp() confirms a code. */
@@ -262,7 +262,7 @@ export class AuthService {
       throw new UnauthorizedException('Usuario no encontrado');
     }
 
-    return this.issueTokens(usuario.id, usuario.email, usuario.marcas.map((m) => ({ marcaId: m.marcaId, rol: m.rol.nombre })));
+    return this.issueTokens(usuario, usuario.marcas.map((m) => ({ marcaId: m.marcaId, rol: m.rol.nombre })));
   }
 
   async logout(usuarioId: string, refreshToken: string): Promise<void> {
@@ -289,29 +289,33 @@ export class AuthService {
   }
 
   private async issueTokens(
-    usuarioId: string,
-    email: string,
+    usuario: { id: string; email: string; nombre: string | null },
     marcas: { marcaId: string; rol: string }[],
   ) {
     const jwtConfig = this.configService.get<AppConfig['jwt']>('jwt')!;
-    const payload = { sub: usuarioId, email, marcas };
+    const payload = { sub: usuario.id, email: usuario.email, marcas };
 
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: jwtConfig.accessSecret,
       expiresIn: jwtConfig.accessExpiresIn,
     } as JwtSignOptions);
     const refreshToken = await this.jwtService.signAsync(
-      { sub: usuarioId, email },
+      { sub: usuario.id, email: usuario.email },
       { secret: jwtConfig.refreshSecret, expiresIn: jwtConfig.refreshExpiresIn } as JwtSignOptions,
     );
 
     const refreshTokenHash = await bcrypt.hash(refreshToken, SALT_ROUNDS);
     const expiresAt = this.parseExpiryToDate(jwtConfig.refreshExpiresIn);
     await this.prisma.refreshToken.create({
-      data: { usuarioId, tokenHash: refreshTokenHash, expiresAt },
+      data: { usuarioId: usuario.id, tokenHash: refreshTokenHash, expiresAt },
     });
 
-    return { accessToken, refreshToken, marcas };
+    return {
+      accessToken,
+      refreshToken,
+      marcas,
+      usuario: { id: usuario.id, email: usuario.email, nombre: usuario.nombre },
+    };
   }
 
   private async findMatchingToken<T extends { id: string; tokenHash: string }>(
