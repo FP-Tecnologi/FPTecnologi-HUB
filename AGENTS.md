@@ -15,9 +15,14 @@ venta de soluciones/dispositivos TI (ecommerce con stock) + servicios TI
 para empresas (B2B, por cotización).
 
 Documentación de negocio completa (alcance, fases, roles, costos) en:
-- [`docs/documentacion-tecnica.md`](docs/documentacion-tecnica.md)
-- [`docs/plan-trabajo.md`](docs/plan-trabajo.md) (cronograma — las fechas son
-  estimadas, no tratarlas como compromiso fijo)
+- [`docs/documentacion-tecnica.md`](docs/documentacion-tecnica.md) y
+  [`docs/plan-trabajo.md`](docs/plan-trabajo.md) — **congelados**, son la
+  conversión literal de los docx originales del plan (fechas estimadas, no
+  compromiso fijo). No se editan para reflejar avance real.
+- [`docs/ESTADO-ACTUAL.md`](docs/ESTADO-ACTUAL.md) — **documento vivo**,
+  se actualiza en cada sesión con fecha real: qué se hizo, qué cambió
+  respecto al plan original (agregado/quitado/distinto). Léelo para saber
+  dónde está el proyecto hoy sin reconstruirlo desde el git log.
 
 Mapa navegable del código + docs (comunidades, nodos más conectados,
 conexiones no obvias entre la documentación y la implementación real) en
@@ -37,7 +42,18 @@ un `marcaId` que mande el cliente sin validar.
 
 `Marca` (entidad de negocio) y `Sitio` (dominio → `marcaId`) son conceptos
 distintos: hoy 1 marca = 1 sitio, pero el modelo permite que una marca tenga
-varios sitios sin migrar nada.
+varios sitios sin migrar nada. **El dashboard es único para todas las
+marcas** (selector de marca activa) — una web/landing nueva no necesita
+dashboard propio, solo una fila en `Sitio` apuntando a su `marcaId`.
+
+`MarcaRolGuard` verifica que el usuario tenga acceso al `marcaId` que
+*declara* (header/query) — no puede ver si el código que corre después
+realmente filtró la query por esa marca. Ese segundo nivel lo cubre el
+**tenant-guard** de Prisma (`src/prisma/tenant-guard.extension.ts`): tira
+error en cualquier query sobre un modelo con `marcaId` que no lo incluya en
+el `where`/`data`. Doble candado: guard de HTTP + guard de DB — un
+`findMany` sin `marcaId` en cualquier service nuevo falla ruidosamente en
+vez de filtrar datos de otra marca en silencio.
 
 Toda autenticación pasa por la API central (JWT + Refresh Token + OTP por
 correo) — no se usa NextAuth ni login independiente por sitio.
@@ -53,10 +69,15 @@ apps/
 docs/     Documentación de negocio y planificación
 ```
 
-No hay todavía `packages/shared-types` ni `turbo` — el repo usa npm
-workspaces (`package.json` raíz) como monorepo mínimo. Se agrega
-`shared-types` cuando exista una segunda app consumidora de los mismos DTOs
-(la futura web pública de fptecnologi).
+No hay `packages/shared-types`, `turbo` ni npm workspaces — cada app
+(`apps/api`, `apps/web`) es un proyecto npm independiente con su propio
+`node_modules`/`package-lock.json`. Se probó un `package.json` raíz con
+workspaces y se revirtió: npm hoisteaba paquetes de forma inconsistente
+(un paquete en `node_modules` raíz, su propia dependencia interna en la del
+app) y rompía el arranque en runtime — sin un paquete compartido real
+todavía, el workspace no aportaba nada y sí agregaba ese riesgo. Se
+reevalúa cuando exista `packages/shared-types` de verdad (la futura web
+pública de fptecnologi consumiendo los mismos DTOs que el dashboard).
 
 ## Stack
 
@@ -68,13 +89,22 @@ workspaces (`package.json` raíz) como monorepo mínimo. Se agrega
   [`VIREO-REFERENCE.md`](VIREO-REFERENCE.md) antes de construir una pantalla
   nueva — probablemente Vireo ya trae un patrón parecido.
 - **Testing**: Vitest (`*.spec.ts` junto al archivo que prueban).
-- **Package manager**: npm (no pnpm, no yarn) en todo el repo.
+- **Package manager**: npm (no pnpm, no yarn) — instalar dentro de cada
+  app (`cd apps/api && npm install`), no hay workspace raíz (ver arriba).
+- **Seguridad**: `helmet`, rate limiting (`@nestjs/throttler`, 5
+  intentos/min en login/OTP), validación de env al boot
+  (`assertRequiredEnv` en `main.ts` — la app no arranca si un secret
+  crítico quedó vacío o con el valor de ejemplo), `/docs` (Swagger) detrás
+  de Basic Auth cuando `NODE_ENV=production` (abierto en dev), y un
+  **tenant-guard** a nivel Prisma (`src/prisma/tenant-guard.extension.ts`)
+  que tira error si una query sobre un modelo con `marcaId` corre sin
+  `marcaId` en el `where`/`data` — ver principio de arquitectura abajo.
 
 ## Módulos de la API y rutas
 
 | Módulo | Rutas | Notas |
 | --- | --- | --- |
-| `auth` | `POST /auth/register`, `/login`, `/otp/request`, `/otp/verify`, `/refresh`, `/logout` | Login en 2 pasos: `login` valida credenciales y manda OTP; `otp/verify` recién devuelve JWT+refresh |
+| `auth` | `POST /auth/register`, `/login`, `/otp/request`, `/otp/verify`, `/refresh`, `/logout`, `/totp/setup`, `/totp/enable`, `/totp/disable`, `/totp/verify-login` | Login en 2 pasos: `login` valida credenciales y responde `requiresOtp` (correo) o `requiresTotp` (app autenticadora) según `usuario.totpEnabled`. `totp/setup`+`totp/enable` (autenticado) activan TOTP y devuelven 8 códigos de respaldo de un solo uso |
 | `marcas` | CRUD `/marcas` | Entidad de negocio |
 | `sitios` | CRUD `/sitios`, `GET /sitios/resolver/:dominio` | Dominio → marcaId |
 | `roles` | `/roles`, `/roles/asignaciones`, `/marcas/:marcaId/equipo`, `/usuarios/me/marcas` | Rol por usuario+marca (`UsuarioMarcaRol`) |
@@ -132,12 +162,11 @@ sin rediseño — no construir nada de esto de forma anticipada.
 
 ## Estado actual / próximos pasos
 
-Backend (Fase 1 del plan) funcionalmente completo: auth+OTP, roles,
-marcas/sitios, productos/categorías, pedidos, servicios/cotizaciones,
-notificaciones, endpoints públicos, Swagger, tests de `AuthService` y
-`MarcaRolGuard`.
+Backend (Fase 1 del plan) funcionalmente completo y con hardening básico
+(índices DB, rate limiting, helmet, validación de env). Supabase real
+conectado y migrado.
 
-CI/CD y seguridad del repo (ya configurado, ver `.github/`):
+CI/CD y seguridad del repo (ver `.github/`):
 - `workflows/ci.yml`: build + lint + test de `apps/api` y `apps/web` en
   cada push/PR a `main`.
 - `workflows/codeql.yml`: análisis estático de seguridad (CodeQL) en
@@ -153,15 +182,19 @@ CI/CD y seguridad del repo (ya configurado, ver `.github/`):
   scanning, etc. — requieren rol admin, no se pueden setear por código).
 
 Pendiente:
-- Conectar `DATABASE_URL` a un proyecto Supabase real (hoy apunta a
-  Postgres local en `.env.example`).
 - Crear la web pública de fptecnologi.com (Next.js + shadcn/ui, sin login,
   consume `/public/*`) — todavía no existe como app separada.
 - Activar en Settings → Code security: Dependabot alerts, secret scanning
   + push protection, y una branch protection rule en `main` que exija los
-  checks de CI (ver `SECURITY.md`).
+  checks de CI (ver `SECURITY.md`) — requiere rol admin, no se puede hacer
+  por código.
 - Revisar manualmente las vulnerabilidades de `devDependencies` reportadas
   por `npm audit` en `apps/api` (tooling de NestJS/Prisma) — requieren
   upgrades breaking, no se resolvieron automáticamente.
 - Infra externa (Cloudflare, Hostinger, Sentry) — fuera del alcance de un
   agente de código, requiere acceso a esas cuentas.
+
+**Detalle real, fecha por fecha, y qué cambió respecto al plan original:
+[`docs/ESTADO-ACTUAL.md`](docs/ESTADO-ACTUAL.md) — es el documento vivo,
+actualízalo ahí, no acá.** Este archivo (`AGENTS.md`) solo cambia cuando
+cambia la arquitectura/convenciones en sí, no el progreso día a día.

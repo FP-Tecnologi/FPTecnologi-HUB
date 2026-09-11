@@ -45,6 +45,8 @@ model Sitio {
   marcaId   String
   marca     Marca    @relation(fields: [marcaId], references: [id])
   createdAt DateTime @default(now())
+
+  @@index([marcaId])
 }
 
 // ---------------------------------------------------------------------------
@@ -60,11 +62,29 @@ model Usuario {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  marcas        UsuarioMarcaRol[]
-  refreshTokens RefreshToken[]
-  otpCodes      OtpCode[]
-  pedidos       Pedido[]
-  notificaciones Notificacion[]
+  // TOTP (app autenticadora) — método de 2FA alternativo al OTP por
+  // correo. totpSecret se guarda desde /auth/totp/setup pero no habilita
+  // nada hasta que /auth/totp/enable confirma un código válido.
+  totpSecret  String?
+  totpEnabled Boolean @default(false)
+
+  marcas          UsuarioMarcaRol[]
+  refreshTokens   RefreshToken[]
+  otpCodes        OtpCode[]
+  totpBackupCodes TotpBackupCode[]
+  pedidos         Pedido[]
+  notificaciones  Notificacion[]
+}
+
+model TotpBackupCode {
+  id         String    @id @default(uuid())
+  usuarioId  String
+  usuario    Usuario   @relation(fields: [usuarioId], references: [id])
+  codigoHash String
+  usedAt     DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([usuarioId])
 }
 
 model RefreshToken {
@@ -75,6 +95,8 @@ model RefreshToken {
   expiresAt DateTime
   revoked   Boolean   @default(false)
   createdAt DateTime  @default(now())
+
+  @@index([usuarioId])
 }
 
 enum OtpProposito {
@@ -91,6 +113,8 @@ model OtpCode {
   expiresAt   DateTime
   consumedAt  DateTime?
   createdAt   DateTime     @default(now())
+
+  @@index([usuarioId])
 }
 
 // ---------------------------------------------------------------------------
@@ -113,6 +137,7 @@ model UsuarioMarcaRol {
   createdAt DateTime @default(now())
 
   @@id([usuarioId, marcaId, rolId])
+  @@index([marcaId])
 }
 
 // ---------------------------------------------------------------------------
@@ -126,6 +151,8 @@ model Categoria {
   nombre    String
   productos Producto[]
   createdAt DateTime   @default(now())
+
+  @@index([marcaId])
 }
 
 model Producto {
@@ -170,6 +197,8 @@ model Pedido {
   items     PedidoItem[]
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
+
+  @@index([marcaId])
 }
 
 model PedidoItem {
@@ -197,6 +226,8 @@ model Servicio {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   cotizaciones Cotizacion[]
+
+  @@index([marcaId])
 }
 
 enum EstadoCotizacion {
@@ -220,6 +251,8 @@ model Cotizacion {
   estado          EstadoCotizacion @default(PENDIENTE)
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
+
+  @@index([marcaId])
 }
 
 // ---------------------------------------------------------------------------
@@ -236,4 +269,7 @@ model Notificacion {
   mensaje   String
   leida     Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  @@index([usuarioId])
+  @@index([marcaId])
 }

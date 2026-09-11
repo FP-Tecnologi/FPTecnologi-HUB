@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   UnauthorizedException,
@@ -6,7 +7,9 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { JwtService, type JwtSignOptions } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { randomInt } from 'node:crypto';
+import { generateSecret, generateURI, verify as verifyTotp } from 'otplib';
+import * as QRCode from 'qrcode';
+import { randomBytes, randomInt } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { MailService } from '../mail/mail.service.js';
 import type { AppConfig } from '../config/configuration.js';
@@ -14,6 +17,10 @@ import { OtpProposito } from '../generated/prisma/enums.js';
 
 const OTP_LENGTH = 6;
 const SALT_ROUNDS = 10;
+const TOTP_ISSUER = 'FPTecnologi';
+const BACKUP_CODE_COUNT = 8;
+/** Allows the code from 1 step before/after (30s each) to tolerate clock drift between phone and server. */
+const TOTP_EPOCH_TOLERANCE = 30;
 
 @Injectable()
 export class AuthService {
@@ -38,8 +45,15 @@ export class AuthService {
     return { id: usuario.id, email: usuario.email, nombre: usuario.nombre };
   }
 
-  /** Step 1 of login: validates credentials, then issues + emails an OTP code (2FA). */
-  async login(email: string, password: string): Promise<{ requiresOtp: true; email: string }> {
+  /**
+   * Step 1 of login: validates credentials, then triggers whichever second
+   * factor the user has set up — TOTP (app autenticadora) if enabled,
+   * otherwise the email OTP code as before.
+   */
+  async login(
+    email: string,
+    password: string,
+  ): Promise<{ requiresOtp: true; email: string } | { requiresTotp: true; email: string }> {
     const usuario = await this.prisma.usuario.findUnique({ where: { email } });
     if (!usuario || !usuario.activo) {
       throw new UnauthorizedException('Credenciales inválidas');
@@ -48,6 +62,10 @@ export class AuthService {
     const passwordOk = await bcrypt.compare(password, usuario.passwordHash);
     if (!passwordOk) {
       throw new UnauthorizedException('Credenciales inválidas');
+    }
+
+    if (usuario.totpEnabled) {
+      return { requiresTotp: true, email: usuario.email };
     }
 
     await this.issueOtp(usuario.id, usuario.email, OtpProposito.LOGIN_2FA);
@@ -93,6 +111,128 @@ export class AuthService {
     });
 
     return this.issueTokens(usuario.id, usuario.email, usuario.marcas.map((m) => ({ marcaId: m.marcaId, rol: m.rol.nombre })));
+  }
+
+  /** Step 2 of login when TOTP is enabled: verifies the app code (or a backup code) and issues tokens. */
+  async verifyTotpLogin(email: string, code: string) {
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { email },
+      include: { marcas: { include: { rol: true } } },
+    });
+    if (!usuario || !usuario.totpEnabled || !usuario.totpSecret) {
+      throw new UnauthorizedException('Código inválido');
+    }
+
+    const valid = await this.verifyTotpOrBackupCode(usuario.id, usuario.totpSecret, code);
+    if (!valid) {
+      throw new UnauthorizedException('Código inválido');
+    }
+
+    return this.issueTokens(usuario.id, usuario.email, usuario.marcas.map((m) => ({ marcaId: m.marcaId, rol: m.rol.nombre })));
+  }
+
+  /** Generates a TOTP secret + QR for the user to scan. Not active until enableTotp() confirms a code. */
+  async setupTotp(usuarioId: string): Promise<{ secret: string; otpauthUrl: string; qrCodeDataUrl: string }> {
+    const usuario = await this.prisma.usuario.findUnique({ where: { id: usuarioId } });
+    if (!usuario) {
+      throw new UnauthorizedException('Usuario no encontrado');
+    }
+    if (usuario.totpEnabled) {
+      throw new BadRequestException('El 2FA por app ya está activado — desactívalo antes de reconfigurar');
+    }
+
+    const secret = generateSecret();
+    await this.prisma.usuario.update({ where: { id: usuarioId }, data: { totpSecret: secret } });
+
+    const otpauthUrl = generateURI({ issuer: TOTP_ISSUER, label: usuario.email, secret });
+    const qrCodeDataUrl = await QRCode.toDataURL(otpauthUrl);
+    return { secret, otpauthUrl, qrCodeDataUrl };
+  }
+
+  /** Confirms setupTotp() with a real code from the app, activates 2FA, and returns one-time backup codes. */
+  async enableTotp(usuarioId: string, code: string): Promise<{ backupCodes: string[] }> {
+    const usuario = await this.prisma.usuario.findUnique({ where: { id: usuarioId } });
+    if (!usuario?.totpSecret) {
+      throw new BadRequestException('Primero llama a /auth/totp/setup');
+    }
+
+    const valid = await this.safeVerifyTotp(usuario.totpSecret, code);
+    if (!valid) {
+      throw new UnauthorizedException('Código inválido');
+    }
+
+    // Hash all codes first (real async work) so the $transaction array below
+    // only holds un-awaited Prisma operation promises — awaiting each one
+    // individually before building that array would run it outside the
+    // transaction instead of as part of it.
+    const backupCodes = Array.from({ length: BACKUP_CODE_COUNT }, () =>
+      randomBytes(5).toString('hex').toUpperCase(),
+    );
+    const hashedCodes = await Promise.all(backupCodes.map((plain) => bcrypt.hash(plain, SALT_ROUNDS)));
+
+    await this.prisma.$transaction([
+      this.prisma.usuario.update({ where: { id: usuarioId }, data: { totpEnabled: true } }),
+      this.prisma.totpBackupCode.deleteMany({ where: { usuarioId } }),
+      ...hashedCodes.map((codigoHash) =>
+        this.prisma.totpBackupCode.create({ data: { usuarioId, codigoHash } }),
+      ),
+    ]);
+
+    return { backupCodes };
+  }
+
+  /** Requires a valid TOTP/backup code (not the password) so a stolen access token alone can't turn 2FA off. */
+  async disableTotp(usuarioId: string, code: string): Promise<void> {
+    const usuario = await this.prisma.usuario.findUnique({ where: { id: usuarioId } });
+    if (!usuario?.totpEnabled || !usuario.totpSecret) {
+      throw new BadRequestException('El 2FA por app no está activado');
+    }
+
+    const valid = await this.verifyTotpOrBackupCode(usuarioId, usuario.totpSecret, code);
+    if (!valid) {
+      throw new UnauthorizedException('Código inválido');
+    }
+
+    await this.prisma.$transaction([
+      this.prisma.usuario.update({
+        where: { id: usuarioId },
+        data: { totpEnabled: false, totpSecret: null },
+      }),
+      this.prisma.totpBackupCode.deleteMany({ where: { usuarioId } }),
+    ]);
+  }
+
+  /** Accepts either the live 6-digit app code or a one-time backup code (consumed on use). */
+  private async verifyTotpOrBackupCode(usuarioId: string, secret: string, code: string): Promise<boolean> {
+    if (await this.safeVerifyTotp(secret, code)) {
+      return true;
+    }
+
+    const backupCodes = await this.prisma.totpBackupCode.findMany({
+      where: { usuarioId, usedAt: null },
+    });
+    for (const backup of backupCodes) {
+      if (await bcrypt.compare(code, backup.codigoHash)) {
+        await this.prisma.totpBackupCode.update({ where: { id: backup.id }, data: { usedAt: new Date() } });
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * otplib's verify() throws (doesn't return false) for a malformed token —
+   * e.g. a 10-char backup code instead of a 6-digit TOTP would 500 the
+   * request instead of just failing validation. Swallow that and treat any
+   * non-TOTP-shaped input as simply invalid.
+   */
+  private async safeVerifyTotp(secret: string, code: string): Promise<boolean> {
+    try {
+      const { valid } = await verifyTotp({ secret, token: code, epochTolerance: TOTP_EPOCH_TOLERANCE });
+      return valid;
+    } catch {
+      return false;
+    }
   }
 
   async refresh(refreshToken: string) {
