@@ -1,18 +1,33 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Resend } from 'resend';
+import nodemailer, { type Transporter } from 'nodemailer';
 import type { AppConfig } from '../config/configuration.js';
 
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
-  private readonly resend: Resend;
+  private readonly driver: 'smtp' | 'resend';
   private readonly fromEmail: string;
+  private readonly resend?: Resend;
+  private readonly smtpTransport?: Transporter;
 
   constructor(private readonly configService: ConfigService) {
-    const resendConfig = this.configService.get<AppConfig['resend']>('resend')!;
-    this.resend = new Resend(resendConfig.apiKey);
-    this.fromEmail = resendConfig.fromEmail;
+    const mailConfig = this.configService.get<AppConfig['mail']>('mail')!;
+    this.driver = mailConfig.driver;
+    this.fromEmail = mailConfig.fromEmail;
+
+    if (this.driver === 'resend') {
+      const resendConfig = this.configService.get<AppConfig['resend']>('resend')!;
+      this.resend = new Resend(resendConfig.apiKey);
+    } else {
+      this.smtpTransport = nodemailer.createTransport({
+        host: mailConfig.smtp.host,
+        port: mailConfig.smtp.port,
+        secure: mailConfig.smtp.secure,
+        auth: { user: mailConfig.smtp.user, pass: mailConfig.smtp.pass },
+      });
+    }
   }
 
   async sendOtpCode(to: string, codigo: string): Promise<void> {
@@ -41,12 +56,21 @@ export class MailService {
 
   private async send(params: { to: string; subject: string; html: string }): Promise<void> {
     try {
-      await this.resend.emails.send({
-        from: this.fromEmail,
-        to: params.to,
-        subject: params.subject,
-        html: params.html,
-      });
+      if (this.driver === 'resend') {
+        await this.resend!.emails.send({
+          from: this.fromEmail,
+          to: params.to,
+          subject: params.subject,
+          html: params.html,
+        });
+      } else {
+        await this.smtpTransport!.sendMail({
+          from: this.fromEmail,
+          to: params.to,
+          subject: params.subject,
+          html: params.html,
+        });
+      }
     } catch (error) {
       // No se interrumpe el flujo de negocio si el envío de correo falla;
       // se registra para poder reintentar/alertar.
