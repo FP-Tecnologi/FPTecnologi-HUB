@@ -17,6 +17,7 @@ import { ServiciosModule } from './servicios/servicios.module.js';
 import { CotizacionesModule } from './cotizaciones/cotizaciones.module.js';
 import { NotificacionesModule } from './notificaciones/notificaciones.module.js';
 import { PublicApiModule } from './public/public.module.js';
+import { UsuariosModule } from './usuarios/usuarios.module.js';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { PublicApiModule } from './public/public.module.js';
     CotizacionesModule,
     NotificacionesModule,
     PublicApiModule,
+    UsuariosModule,
   ],
   controllers: [HealthController],
   providers: [

@@ -254,6 +254,13 @@ sobre este mismo repo. Estado real hoy:
   GENERAL (Panel general, Usuarios y Configuración), se oculta Marca activa
   y no se manda `x-marca-id`. Persiste en `localStorage`, sobrevive
   recargas y se limpia al salir.
+- **Identidad a la izquierda + Mi cuenta editable**: el header muestra
+  `Hola, {nombre}` + `{marca} · {rol}` (o `Administración`) a la izquierda,
+  junto al buscador; el avatar vuelve a ser solo icono. Nuevo módulo API
+  `usuarios` con `PATCH /usuarios/me` (nombre directo; correo exige
+  contraseña actual + normalización + unicidad; 8 tests, 49/49 OK) y
+  formulario real en Mi cuenta. La confirmación del correo nuevo por código
+  queda como mejora futura.
 - **Header: fuera el idioma (EN) + fix choque de marca**: eliminado el
   selector de idioma del encabezado (quedaba de la plantilla; el dashboard
   es en español). Bug real: el switch de marca del header reusaba la clase

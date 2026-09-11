@@ -14,6 +14,7 @@
  */
 import { HeaderUtils } from './HeaderUtils';
 import { useCustomizer } from '../../context/CustomizerContext';
+import { useAuth } from '../../context/AuthContext';
 
 const ICON = {
   burger: (
@@ -36,6 +37,13 @@ export function Header({
   onNavToggle: () => void;
 }) {
   const c = useCustomizer();
+  const { user, marcas, activeMarcaId, adminMode } = useAuth();
+  const activeMarca = marcas.find((m) => m.marcaId === activeMarcaId) ?? marcas[0] ?? null;
+  const roleLabel = adminMode
+    ? 'Administración'
+    : activeMarca
+      ? `${activeMarca.marca.nombre} · ${activeMarca.rol.nombre}`
+      : '';
 
   return (
     <header className="ax-header" role="banner">
@@ -63,6 +71,14 @@ export function Header({
         <span className="ax-search__placeholder">Search or jump to…</span>
         <kbd className="ax-search__keycap">⌘K</kbd>
       </button>
+
+      {/* Identidad: nombre + rol en contexto (izquierda) */}
+      {user && (
+        <div className="ax-header__user">
+          <b>Hola, {user.nombre || user.email}</b>
+          {roleLabel && <small>{roleLabel}</small>}
+        </div>
+      )}
 
       <span className="ax-header__spacer"></span>
 

@@ -49,6 +49,7 @@ interface AuthContextValue {
   confirmPasswordReset: (email: string, codigo: string, newPassword: string) => Promise<void>;
   logout: () => Promise<void>;
   setActiveMarcaId: (marcaId: string) => void;
+  updateProfile: (data: { nombre?: string; email?: string; currentPassword?: string }) => Promise<AuthUser>;
   /** Vista global de administración (Panel general + gestión): sin marca activa. */
   adminMode: boolean;
   setAdminMode: (on: boolean) => void;
@@ -189,6 +190,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await api.post<void>('/auth/password-reset/confirm', { email, codigo, newPassword }, { auth: false });
   }, []);
 
+  const updateProfile = useCallback(async (data: { nombre?: string; email?: string; currentPassword?: string }) => {
+    const updated = await api.patch<AuthUser>('/usuarios/me', data);
+    setUser(updated);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(USER_KEY, JSON.stringify(updated));
+    }
+    return updated;
+  }, []);
+
   const logout = useCallback(async () => {
     const refreshToken = tokenStore.getRefreshToken();
     try {
@@ -213,11 +223,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AuthContextValue>(() => ({
     user, marcas, activeMarcaId, loading, login, verifyOtp, verifyTotp,
     register, requestPasswordReset, confirmPasswordReset,
-    logout, setActiveMarcaId, adminMode, setAdminMode, refreshMarcas,
+    logout, setActiveMarcaId, adminMode, setAdminMode, refreshMarcas, updateProfile,
   }), [
     user, marcas, activeMarcaId, loading, login, verifyOtp, verifyTotp,
     register, requestPasswordReset, confirmPasswordReset,
-    logout, setActiveMarcaId, adminMode, setAdminMode, refreshMarcas,
+    logout, setActiveMarcaId, adminMode, setAdminMode, refreshMarcas, updateProfile,
   ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
