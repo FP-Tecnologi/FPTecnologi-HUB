@@ -138,8 +138,6 @@ notificaciones, endpoints públicos, Swagger, tests de `AuthService` y
 `MarcaRolGuard`.
 
 Pendiente:
-- Conectar `DATABASE_URL` a un proyecto Supabase real (hoy apunta a
-  Postgres local en `.env.example`).
 - Crear la web pública de fptecnologi.com (Next.js + shadcn/ui, sin login,
   consume `/public/*`) — todavía no existe como app separada.
 - CI (GitHub Actions: build/lint/test) — delegado a otro proveedor/agente,
