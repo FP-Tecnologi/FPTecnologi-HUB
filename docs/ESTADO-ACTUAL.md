@@ -258,6 +258,11 @@ sobre este mismo repo. Estado real hoy:
   marca + objetivo de esa marca; apaga TOTP, borra códigos, revoca
   sesiones; 3 tests, 52/52 OK) + tarjeta en Usuarios y equipo con correo
   y marca. Funciona como módulo dentro de esa página, sin módulo aparte.
+- **Notificaciones por tipo**: enum `TipoNotificacion` (SISTEMA/PEDIDO/
+  COTIZACION/EQUIPO/STOCK) + migración aplicada en Supabase (vía pooler de
+  sesión :5432 — el de transacciones :6543 cuelga los comandos migrate) +
+  `?tipo=` en GET /notificaciones + pestañas por tipo con contadores en la
+  pantalla. 5 avisos de ejemplo sembrados para ver cada tipo.
 - **4 módulos copiados de la plantilla y adaptados** (trabajo en paralelo):
   `Configuración` (/configuracion, ProfileSettings sin pestaña Billing:
   cuenta real vía PATCH /usuarios/me, seguridad con link a reset, avisos
