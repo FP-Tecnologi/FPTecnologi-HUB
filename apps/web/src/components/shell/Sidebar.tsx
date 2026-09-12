@@ -9,7 +9,7 @@
  * group opens (`is-open`, panel un-hidden), and the parent button gets
  * `ax-nav__item--trail` — exactly as core/nav.js does in the HTML edition.
  */
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
@@ -24,6 +24,7 @@ import {
   type NavNode,
 } from '../../lib/manifest';
 import { Icon } from '../ui/Icon';
+import { API_URL } from '../../lib/api';
 
 function Badge({ badge }: { badge: NavNode['badge'] }) {
   if (!badge) return null;
@@ -227,6 +228,58 @@ function Group({ node, level, activeSlug, roleName }: GroupProps) {
   );
 }
 
+function ApiStatus() {
+  const [state, setState] = useState<{ ok: boolean | null; ms: number | null }>({ ok: null, ms: null });
+
+  useEffect(() => {
+    let alive = true;
+    let current: AbortController | null = null;
+    async function check() {
+      const ac = new AbortController();
+      current = ac;
+      const t0 = Date.now();
+      const timeout = setTimeout(() => ac.abort(), 8000);
+      try {
+        const res = await fetch(`${API_URL}/health`, { signal: ac.signal });
+        if (!alive) return;
+        setState(res.ok ? { ok: true, ms: Date.now() - t0 } : { ok: false, ms: null });
+      } catch {
+        if (alive) setState({ ok: false, ms: null });
+      } finally {
+        clearTimeout(timeout);
+      }
+    }
+    check();
+    const t = setInterval(check, 30000);
+    return () => {
+      alive = false;
+      clearInterval(t);
+      current?.abort();
+    };
+  }, []);
+
+  const color =
+    state.ok === null ? 'var(--ax-warning-500)' : state.ok ? 'var(--ax-success-500)' : 'var(--ax-danger-500)';
+  const label =
+    state.ok === null ? 'Verificando…' : state.ok ? `En línea${state.ms !== null ? ` · ${state.ms}ms` : ''}` : 'Sin conexión';
+
+  return (
+    <div style={{ marginTop: 'auto', padding: 'var(--ax-space-3) var(--ax-space-4)', borderTop: '1px solid var(--ax-border)' }}>
+      <a
+        href={`${API_URL}/docs`}
+        target="_blank"
+        rel="noreferrer"
+        style={{ display: 'flex', alignItems: 'center', gap: 'var(--ax-space-2)', textDecoration: 'none' }}
+        aria-label={`Estado de la API: ${label}. Abrir documentación`}
+      >
+        <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: color }} />
+        <span style={{ fontSize: 'var(--ax-text-xs)', fontWeight: 600, color: 'var(--ax-text-strong)' }}>API</span>
+        <span style={{ fontSize: 'var(--ax-text-2xs)', color: 'var(--ax-text-muted)', marginLeft: 'auto' }}>{label}</span>
+      </a>
+    </div>
+  );
+}
+
 export function Sidebar({ drawerOpen = false }: { drawerOpen?: boolean }) {
   const activeSlug = slugFromPath(usePathname() || '/');
   const rootRef = useRef<HTMLElement>(null);
@@ -273,6 +326,7 @@ export function Sidebar({ drawerOpen = false }: { drawerOpen?: boolean }) {
           );
         })}
       </nav>
+      <ApiStatus />
     </aside>
   );
 }
