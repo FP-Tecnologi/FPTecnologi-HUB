@@ -166,10 +166,7 @@ interface GroupProps {
 }
 
 function Group({ node, level, activeSlug, roleName }: GroupProps) {
-  const router = useRouter();
-  const { marcas, activeMarcaId: activeId, adminMode: am } = useAuth();
   const children = manifest.childrenOf(node.id).filter((c) => c.inMenu && visibleForRole(c, roleName));
-  const showBrands = node.id === 'inicio.dashboards' && marcas.length > 0;
   const containsActive = useMemo(
     () => subtreeContainsSlug(node, activeSlug),
     [node, activeSlug],
@@ -226,26 +223,6 @@ function Group({ node, level, activeSlug, roleName }: GroupProps) {
             />
           ),
         )}
-        {showBrands && (am ? marcas : marcas.filter((m) => m.marcaId === activeId)).map((m) => {
-          const isActive = !am && m.marcaId === activeId;
-          const cls = ['ax-nav__item', 'ax-nav__item--child'];
-          if (isActive) cls.push('ax-nav__item--active', 'is-active');
-          return (
-            <button
-              key={`brand-${m.marcaId}`}
-              type="button"
-              className={cls.join(' ')}
-              role="treeitem"
-              aria-level={level + 1}
-              aria-current={isActive ? 'page' : undefined}
-              tabIndex={isActive ? 0 : -1}
-              onClick={() => { router.push(`/inicio/dashboard?marca=${m.marcaId}`); }}
-            >
-              <span className="ax-nav__bar" aria-hidden="true"></span>
-              <span className="ax-nav__label" style={{ textTransform: 'capitalize' }}>{m.marca.nombre}</span>
-            </button>
-          );
-        })}
       </div>
     </div>
   );

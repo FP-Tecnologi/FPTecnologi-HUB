@@ -13,14 +13,6 @@ import { PageHead } from '../components/shell/PageHead';
 import { Icon } from '../components/ui/Icon';
 import { useAuth } from '../context/AuthContext';
 
-const MODULOS_MARCA = [
-  { titulo: 'Web informativa', slug: 'web/home', icon: 'files', detalle: 'Título, datos y contenido de la web.' },
-  { titulo: 'Ecommerce', slug: 'ecommerce/productos', icon: 'shopping-bag', detalle: 'Tienda: productos, pedidos y clientes.' },
-  { titulo: 'Soluciones', slug: 'soluciones/servicios', icon: 'briefcase-2', detalle: 'Servicios y cotizaciones B2B.' },
-  { titulo: 'Campañas', slug: 'campanas/landings', icon: 'diamond', detalle: 'Landings y campañas de la marca.' },
-  { titulo: 'Blogs', slug: 'blogs/lista', icon: 'article', detalle: 'Artículos y novedades de la marca.' },
-] as const;
-
 export function Home() {
   const router = useRouter();
   const { user, marcas, activeMarcaId, adminMode, setAdminMode } = useAuth();
@@ -38,29 +30,21 @@ export function Home() {
   const fechaHoy = new Date().toLocaleDateString('es-PE', { weekday: 'long', day: 'numeric', month: 'long' });
   const marcaActiva = !adminMode ? (marcas.find((m) => m.marcaId === activeMarcaId) ?? null) : null;
 
-  // Modo marca: INICIO propio — solo su resumen y sus módulos, nada global.
+  // Modo marca: su Resumen es su dashboard (sin módulos, sin vista global).
   if (!adminMode && marcaActiva) {
     return (
       <>
-        <PageHead title={marcaActiva.marca.nombre} subtitle={`Resumen de ${marcaActiva.marca.nombre} · ${fechaHoy}.`} />
+        <PageHead title={marcaActiva.marca.nombre} subtitle={`Dashboard de ${marcaActiva.marca.nombre} · ${fechaHoy}.`} />
         <div className="ax-dash-grid">
-          <section className="ax-card ax-col--12" role="region" aria-label="Módulos de la marca">
+          <section className="ax-card ax-col--12" role="region" aria-label="Dashboard de la marca">
             <div className="ax-card__body">
-              <h2 className="ax-card__title" style={{ marginBottom: 'var(--ax-space-1)' }}>Módulos</h2>
-              <p style={{ margin: '0 0 var(--ax-space-4)', fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
-                Tu rol aquí: <b style={{ color: 'var(--ax-text-strong)' }}>{marcaActiva.rol.nombre}</b>. Los indicadores llegarán con cada módulo.
+              <h2 className="ax-card__title" style={{ marginBottom: 'var(--ax-space-1)' }}>Dashboard</h2>
+              <p style={{ margin: '0 0 var(--ax-space-2)', fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
+                Tu rol aquí: <b style={{ color: 'var(--ax-text-strong)' }}>{marcaActiva.rol.nombre}</b>.
               </p>
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 'var(--ax-space-3)' }}>
-                {MODULOS_MARCA.map((mod) => (
-                  <Link key={mod.slug} className="ax-btn ax-btn--glass" href={`/${mod.slug}`} style={{ justifyContent: 'flex-start', padding: 'var(--ax-space-4)' }}>
-                    <Icon name={mod.icon} className="ax-btn__icon" />
-                    <span style={{ textAlign: 'start' }}>
-                      <span className="ax-btn__label" style={{ display: 'block' }}>{mod.titulo}</span>
-                      <span style={{ display: 'block', fontSize: 'var(--ax-text-2xs)', color: 'var(--ax-text-muted)', fontWeight: 400 }}>{mod.detalle}</span>
-                    </span>
-                  </Link>
-                ))}
-              </div>
+              <p style={{ margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
+                Los indicadores, gráficos y accesos de la marca aparecerán aquí a medida que se construyan sus módulos.
+              </p>
             </div>
           </section>
         </div>
