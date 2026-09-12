@@ -166,7 +166,10 @@ interface GroupProps {
 }
 
 function Group({ node, level, activeSlug, roleName }: GroupProps) {
+  const router = useRouter();
+  const { marcas, activeMarcaId: activeId, adminMode: am, setActiveMarcaId } = useAuth();
   const children = manifest.childrenOf(node.id).filter((c) => c.inMenu && visibleForRole(c, roleName));
+  const showBrands = node.id === 'inicio.dashboards' && marcas.length > 0;
   const containsActive = useMemo(
     () => subtreeContainsSlug(node, activeSlug),
     [node, activeSlug],
@@ -223,6 +226,26 @@ function Group({ node, level, activeSlug, roleName }: GroupProps) {
             />
           ),
         )}
+        {showBrands && marcas.map((m) => {
+          const isActive = !am && m.marcaId === activeId;
+          const cls = ['ax-nav__item', 'ax-nav__item--child'];
+          if (isActive) cls.push('ax-nav__item--active', 'is-active');
+          return (
+            <button
+              key={`brand-${m.marcaId}`}
+              type="button"
+              className={cls.join(' ')}
+              role="treeitem"
+              aria-level={level + 1}
+              aria-current={isActive ? 'page' : undefined}
+              tabIndex={isActive ? 0 : -1}
+              onClick={() => { setActiveMarcaId(m.marcaId); router.push('/inicio/dashboard'); }}
+            >
+              <span className="ax-nav__bar" aria-hidden="true"></span>
+              <span className="ax-nav__label" style={{ textTransform: 'capitalize' }}>{m.marca.nombre}</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
@@ -307,7 +330,7 @@ export function Sidebar({ drawerOpen = false }: { drawerOpen?: boolean }) {
       {/* ===== NAV TREE ===== */}
       <nav className="ax-sidebar__nav" role="tree" aria-label="Main menu">
         {sections().map((section) => {
-          const groups = groupsInSection(section).filter((g) => g.inMenu && visibleForRole(g, roleName) && (g.section !== 'MARCA' && g.section !== 'INICIO' || !adminMode) && (g.id !== 'grp.general' || adminMode));
+          const groups = groupsInSection(section).filter((g) => g.inMenu && visibleForRole(g, roleName) && (g.section !== 'MARCA' || !adminMode) && (g.section !== 'GENERAL' || adminMode));
           if (groups.length === 0) return null;
           return (
             <div key={section}>
