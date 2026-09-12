@@ -254,6 +254,14 @@ sobre este mismo repo. Estado real hoy:
   GENERAL (Panel general, Usuarios y Configuración), se oculta Marca activa
   y no se manda `x-marca-id`. Persiste en `localStorage`, sobrevive
   recargas y se limpia al salir.
+- **4 módulos copiados de la plantilla y adaptados** (trabajo en paralelo):
+  `Configuración` (/configuracion, ProfileSettings sin pestaña Billing:
+  cuenta real vía PATCH /usuarios/me, seguridad con link a reset, avisos
+  locales), `Ver perfil` (/perfil, identidad + stats reales, sin datos
+  falsos), `Soporte y ayuda` (/soporte, traducido, formulario honesto sin
+  backend + mailto real) y `Notificaciones` (/notificaciones, cableada a
+  la API: listar, marcar una/todas como leídas). Iconos user/bell nuevos,
+  nodos en el manifest, rutas explícitas y footer → /soporte.
 - **Identidad a la izquierda + Mi cuenta editable**: el header muestra
   `Hola, {nombre}` + `{marca} · {rol}` (o `Administración`) a la izquierda,
   junto al buscador; el avatar vuelve a ser solo icono. Nuevo módulo API

@@ -14,7 +14,7 @@ export function Footer() {
       </div>
       <nav className="ax-footer__links" aria-label="Footer">
         <Link className="ax-footer__link" href="/pages/landing">About</Link>
-        <Link className="ax-footer__link" href="/pages/support">Support</Link>
+        <Link className="ax-footer__link" href="/soporte">Support</Link>
         <Link className="ax-footer__link" href="/pages/terms">Terms</Link>
         <Link className="ax-footer__link" href="/pages/privacy">Privacy</Link>
       </nav>
