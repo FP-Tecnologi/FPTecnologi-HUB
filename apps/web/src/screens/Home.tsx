@@ -63,6 +63,9 @@ export function Home() {
                 <Link className="ax-btn ax-btn--ghost ax-btn--sm" href="/notificaciones">
                   <span className="ax-btn__label">Notificaciones</span>
                 </Link>
+                <Link className="ax-btn ax-btn--ghost ax-btn--sm" href="/soporte">
+                  <span className="ax-btn__label">Soporte y ayuda</span>
+                </Link>
               </div>
             </div>
           </section>
