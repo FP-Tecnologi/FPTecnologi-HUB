@@ -68,7 +68,7 @@ const ANTI_FLASH = `
   } else { D.removeAttribute('data-ax-font'); }
 
   /* ---- LANG + DIR ---- */
-  var lang = (get('ax:lang') || 'EN').toUpperCase();
+  var lang = (get('ax:lang') || 'ES').toUpperCase();
   D.setAttribute('lang', lang.toLowerCase());
   var dirStored = get('ax:dir');
   var dir = dirStored ? dirStored : (lang === 'AR' ? 'rtl' : 'ltr');
@@ -136,7 +136,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="es" suppressHydrationWarning>
       <head>
         {/* Anti-flash theme-restore — FIRST in <head>, before app.css. */}
         <script dangerouslySetInnerHTML={{ __html: ANTI_FLASH }} />
