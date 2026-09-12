@@ -14,11 +14,24 @@ type Notificacion = {
   marcaId: string | null;
   titulo: string;
   mensaje: string;
+  tipo: string;
   leida: boolean;
   createdAt: string;
 };
 
-type Filter = 'all' | 'unread';
+const TIPOS = [
+  { id: 'SISTEMA', label: 'Sistema', color: 'var(--ax-text-subtle)' },
+  { id: 'PEDIDO', label: 'Pedidos', color: 'var(--ax-accent)' },
+  { id: 'COTIZACION', label: 'Cotizaciones', color: 'var(--ax-viz-violet)' },
+  { id: 'EQUIPO', label: 'Equipo', color: 'var(--ax-viz-cyan)' },
+  { id: 'STOCK', label: 'Stock', color: 'var(--ax-warning-500)' },
+] as const;
+
+type TipoId = (typeof TIPOS)[number]['id'];
+type Filter = 'all' | 'unread' | TipoId;
+
+const isTipo = (f: Filter): f is TipoId => f !== 'all' && f !== 'unread';
+const tipoDe = (id: string) => TIPOS.find((t) => t.id === id) ?? TIPOS[0];
 
 export function Notifications() {
   const [filter, setFilter] = useState<Filter>('all');
@@ -74,7 +87,10 @@ export function Notifications() {
   };
 
   const unreadCount = items.filter((n) => !n.leida).length;
-  const visible = filter === 'unread' ? items.filter((n) => !n.leida) : items;
+  const base = filter === 'unread' ? items.filter((n) => !n.leida) : items;
+  const visible = isTipo(filter) ? base.filter((n) => n.tipo === filter) : base;
+  const countFor = (f: Filter) =>
+    f === 'all' ? items.length : f === 'unread' ? unreadCount : items.filter((n) => n.tipo === f).length;
 
   const unreadRowStyle: React.CSSProperties = {
     borderInlineStart: '2px solid var(--ax-accent)',
@@ -113,6 +129,11 @@ export function Notifications() {
                   <button type="button" className="ax-tabs__tab" role="tab" aria-selected={filter === 'unread'} onClick={() => setFilter('unread')}>
                     No leídas<span className="ax-tabs__badge ax-badge ax-badge--soft ax-badge--accent ax-num">{unreadCount}</span>
                   </button>
+                  {TIPOS.map((t) => (
+                    <button key={t.id} type="button" className="ax-tabs__tab" role="tab" aria-selected={filter === t.id} onClick={() => setFilter(t.id)}>
+                      {t.label}<span className="ax-tabs__badge ax-badge ax-badge--soft ax-badge--neutral ax-num">{countFor(t.id)}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
@@ -155,6 +176,9 @@ export function Notifications() {
                     <span className="ax-list__content">
                       <span className="ax-list__title">
                         {n.titulo}{' '}
+                        <span className="ax-badge ax-badge--soft ax-badge--pill" style={{ color: tipoDe(n.tipo).color }}>
+                          {tipoDe(n.tipo).label}
+                        </span>{' '}
                         <span className={`ax-badge ax-badge--soft ax-badge--pill ${n.leida ? 'ax-badge--neutral' : 'ax-badge--accent'}`}>
                           {n.leida ? 'Leída' : 'No leída'}
                         </span>

@@ -66,4 +66,37 @@ export class UsuariosService {
     });
     return updated;
   }
+
+  /**
+   * Desbloqueo por admin: apaga el TOTP del usuario (secreto + códigos de
+   * respaldo) y revoca sus sesiones, para que vuelva a entrar con
+   * contraseña + OTP al correo. El controller exige rol admin en la marca
+   * activa y aquí se verifica además que el objetivo pertenezca a esa
+   * marca — un admin no puede resetear usuarios de otras marcas.
+   */
+  async reset2fa(marcaId: string, email: string) {
+    const usuario = await this.prisma.usuario.findUnique({
+      where: { email: normalizeEmail(email) },
+    });
+    if (!usuario) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+    const asignacion = await this.prisma.usuarioMarcaRol.findFirst({
+      where: { usuarioId: usuario.id, marcaId },
+    });
+    if (!asignacion) {
+      throw new NotFoundException('Ese usuario no pertenece a esta marca');
+    }
+
+    await this.prisma.usuario.update({
+      where: { id: usuario.id },
+      data: { totpEnabled: false, totpSecret: null },
+    });
+    await this.prisma.totpBackupCode.deleteMany({ where: { usuarioId: usuario.id } });
+    await this.prisma.refreshToken.updateMany({
+      where: { usuarioId: usuario.id, revoked: false },
+      data: { revoked: true },
+    });
+    return { reset: true, email: usuario.email };
+  }
 }

@@ -1,4 +1,5 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { TipoNotificacion } from '../../generated/prisma/enums.js';
 
 export class CreateNotificacionDto {
   @IsString()
@@ -13,4 +14,8 @@ export class CreateNotificacionDto {
 
   @IsString()
   mensaje!: string;
+
+  @IsOptional()
+  @IsEnum(TipoNotificacion)
+  tipo?: TipoNotificacion;
 }

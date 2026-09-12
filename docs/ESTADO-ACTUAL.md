@@ -254,6 +254,10 @@ sobre este mismo repo. Estado real hoy:
   GENERAL (Panel general, Usuarios y Configuración), se oculta Marca activa
   y no se manda `x-marca-id`. Persiste en `localStorage`, sobrevive
   recargas y se limpia al salir.
+- **Desbloqueo 2FA por admin**: `POST /usuarios/2fa/reset` (admin de la
+  marca + objetivo de esa marca; apaga TOTP, borra códigos, revoca
+  sesiones; 3 tests, 52/52 OK) + tarjeta en Usuarios y equipo con correo
+  y marca. Funciona como módulo dentro de esa página, sin módulo aparte.
 - **4 módulos copiados de la plantilla y adaptados** (trabajo en paralelo):
   `Configuración` (/configuracion, ProfileSettings sin pestaña Billing:
   cuenta real vía PATCH /usuarios/me, seguridad con link a reset, avisos

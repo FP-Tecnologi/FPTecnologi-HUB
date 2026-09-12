@@ -1,0 +1,56 @@
+- generic [active] [ref=e1]:
+  - status "Loading" [ref=e2]
+  - generic [ref=e5]:
+    - button "Change language" [ref=e6] [cursor=pointer]:
+      - generic [ref=e11]: EN
+    - button "Toggle dark mode" [ref=e12] [cursor=pointer]
+  - main [ref=e15]:
+    - generic [ref=e16]:
+      - link "FPTecnologi home" [ref=e17] [cursor=pointer]:
+        - /url: /
+        - img "FPTecnologi" [ref=e18]
+      - region "Iniciar sesión" [ref=e19]:
+        - generic [ref=e20]:
+          - generic [ref=e21]:
+            - heading "Iniciar sesión" [level=1] [ref=e22]
+            - paragraph [ref=e23]: Bienvenido de nuevo — ingresa a tu cuenta.
+          - generic [ref=e24]:
+            - button "Continue with Google" [ref=e25] [cursor=pointer]
+            - button "Continue with Apple" [ref=e31] [cursor=pointer]
+            - button "Continue with GitHub" [ref=e34] [cursor=pointer]
+          - generic [ref=e37]:
+            - separator [aria-hidden] [ref=e38]
+            - generic [ref=e39]: o continúa con tu correo
+            - separator [aria-hidden] [ref=e40]
+          - generic [ref=e41]:
+            - generic [ref=e42]:
+              - generic [ref=e43]: Correo o usuario
+              - textbox "Correo o usuario" [ref=e44]:
+                - /placeholder: tu@correo.com
+            - generic [ref=e45]:
+              - generic [ref=e46]:
+                - generic [ref=e47]: Contraseña
+                - link "¿Olvidaste tu contraseña?" [ref=e48] [cursor=pointer]:
+                  - /url: /auth/reset-password
+              - generic [ref=e49]:
+                - textbox "Contraseña" [ref=e50]:
+                  - /placeholder: ••••••••••
+                - button "Mostrar contraseña" [ref=e51] [cursor=pointer]
+            - generic [ref=e55] [cursor=pointer]:
+              - checkbox "Mantener sesión iniciada" [ref=e56]
+              - generic [ref=e57]: Mantener sesión iniciada
+            - button "Iniciar sesión" [ref=e58] [cursor=pointer]
+          - paragraph [ref=e61]:
+            - text: ¿Todavía no tienes cuenta?
+            - link "Crear cuenta" [ref=e62] [cursor=pointer]:
+              - /url: /auth/sign-up
+      - paragraph [ref=e63]:
+        - text: Al continuar aceptas los
+        - link "Términos" [ref=e64] [cursor=pointer]:
+          - /url: /pages/terms
+        - text: y la
+        - link "Política de privacidad" [ref=e65] [cursor=pointer]:
+          - /url: /pages/privacy
+        - text: .
+  - alert [ref=e66]
+  - button "Open Next.js Dev Tools" [ref=e72] [cursor=pointer]

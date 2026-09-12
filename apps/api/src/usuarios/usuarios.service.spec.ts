@@ -12,6 +12,9 @@ describe('UsuariosService.updatePerfil', () => {
   let service: UsuariosService;
   let prisma: {
     usuario: { findUnique: ReturnType<typeof vi.fn>; update: ReturnType<typeof vi.fn> };
+    usuarioMarcaRol: { findFirst: ReturnType<typeof vi.fn> };
+    totpBackupCode: { deleteMany: ReturnType<typeof vi.fn> };
+    refreshToken: { updateMany: ReturnType<typeof vi.fn> };
   };
   let passwordHash: string;
 
@@ -22,6 +25,9 @@ describe('UsuariosService.updatePerfil', () => {
   beforeEach(() => {
     prisma = {
       usuario: { findUnique: vi.fn(), update: vi.fn() },
+      usuarioMarcaRol: { findFirst: vi.fn() },
+      totpBackupCode: { deleteMany: vi.fn() },
+      refreshToken: { updateMany: vi.fn() },
     };
     service = new UsuariosService(prisma as never);
   });
@@ -112,5 +118,41 @@ describe('UsuariosService.updatePerfil', () => {
     prisma.usuario.findUnique.mockResolvedValue(null);
 
     await expect(service.updatePerfil('u1', { nombre: 'X' })).rejects.toThrow(NotFoundException);
+  });
+
+  describe('reset2fa (admin)', () => {
+    it('disables TOTP, clears backup codes and revokes sessions', async () => {
+      prisma.usuario.findUnique.mockResolvedValue({ id: 'u9', email: 'bloq@b.com' });
+      prisma.usuarioMarcaRol.findFirst.mockResolvedValue({ usuarioId: 'u9', marcaId: 'm1' });
+
+      const result = await service.reset2fa('m1', 'Bloq@B.com');
+
+      expect(prisma.usuario.findUnique).toHaveBeenCalledWith({ where: { email: 'bloq@b.com' } });
+      expect(prisma.usuario.update).toHaveBeenCalledWith({
+        where: { id: 'u9' },
+        data: { totpEnabled: false, totpSecret: null },
+      });
+      expect(prisma.totpBackupCode.deleteMany).toHaveBeenCalledWith({ where: { usuarioId: 'u9' } });
+      expect(prisma.refreshToken.updateMany).toHaveBeenCalledWith({
+        where: { usuarioId: 'u9', revoked: false },
+        data: { revoked: true },
+      });
+      expect(result).toEqual({ reset: true, email: 'bloq@b.com' });
+    });
+
+    it('rejects unknown users', async () => {
+      prisma.usuario.findUnique.mockResolvedValue(null);
+
+      await expect(service.reset2fa('m1', 'nadie@b.com')).rejects.toThrow(NotFoundException);
+      expect(prisma.usuario.update).not.toHaveBeenCalled();
+    });
+
+    it('rejects users from another marca', async () => {
+      prisma.usuario.findUnique.mockResolvedValue({ id: 'u9', email: 'bloq@b.com' });
+      prisma.usuarioMarcaRol.findFirst.mockResolvedValue(null);
+
+      await expect(service.reset2fa('otra', 'bloq@b.com')).rejects.toThrow(NotFoundException);
+      expect(prisma.usuario.update).not.toHaveBeenCalled();
+    });
   });
 });

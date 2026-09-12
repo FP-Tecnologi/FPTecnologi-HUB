@@ -7,6 +7,8 @@
  */
 import { useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
+import { useAuth, ApiError } from '../../context/AuthContext';
+import { api } from '../../lib/api';
 
 interface Miembro {
   id: string;
@@ -39,6 +41,7 @@ function initialsOf(nombre: string): string {
 }
 
 export function Team() {
+  const { marcas, activeMarcaId } = useAuth();
   const [q, setQ] = useState('');
   const [rol, setRol] = useState('Todos');
   const [inviteOpen, setInviteOpen] = useState(false);
@@ -59,6 +62,34 @@ export function Team() {
       );
     });
   }, [q, rol]);
+
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetMarcaId, setResetMarcaId] = useState<string | null>(null);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetOk, setResetOk] = useState('');
+  const [resetErr, setResetErr] = useState('');
+  const resetMarca = resetMarcaId ?? activeMarcaId ?? marcas[0]?.marcaId ?? null;
+
+  async function reset2fa(ev: React.FormEvent) {
+    ev.preventDefault();
+    if (!resetEmail.trim() || !resetMarca || resetLoading) return;
+    setResetOk('');
+    setResetErr('');
+    setResetLoading(true);
+    try {
+      const result = await api.post<{ reset: boolean; email: string }>(
+        '/usuarios/2fa/reset',
+        { email: resetEmail.trim() },
+        { marcaId: resetMarca },
+      );
+      setResetOk(`2FA restablecido para ${result.email}. Ya puede entrar con contraseña + código al correo.`);
+      setResetEmail('');
+    } catch (err: unknown) {
+      setResetErr(err instanceof ApiError ? err.message : 'No se pudo restablecer el 2FA.');
+    } finally {
+      setResetLoading(false);
+    }
+  }
 
   function sendInvite(ev: React.FormEvent) {
     ev.preventDefault();
@@ -87,6 +118,43 @@ export function Team() {
       />
 
       <div className="ax-dash-grid">
+        <section className="ax-card ax-col--12" role="region" aria-label="Desbloquear 2FA">
+          <div className="ax-card__body">
+            <h2 className="ax-card__title" style={{ marginBottom: 'var(--ax-space-1)' }}>Desbloquear 2FA</h2>
+            <p style={{ margin: '0 0 var(--ax-space-4)', fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
+              Si un usuario perdió su app o sus códigos, restablece su segundo factor: apaga su TOTP, borra sus códigos de respaldo y cierra sus sesiones. Luego entra con contraseña + código al correo.
+            </p>
+            {resetOk && (
+              <div role="status" className="ax-alert ax-alert--success" style={{ marginBlockEnd: 'var(--ax-space-4)', padding: 'var(--ax-space-3) var(--ax-space-4)' }}>
+                <div className="ax-alert__content"><p className="ax-alert__message">{resetOk}</p></div>
+              </div>
+            )}
+            {resetErr && (
+              <div role="alert" className="ax-alert ax-alert--danger" style={{ marginBlockEnd: 'var(--ax-space-4)', padding: 'var(--ax-space-3) var(--ax-space-4)' }}>
+                <div className="ax-alert__content"><p className="ax-alert__message" style={{ color: 'var(--ax-danger-500)' }}>{resetErr}</p></div>
+              </div>
+            )}
+            <form onSubmit={reset2fa} noValidate style={{ display: 'flex', gap: 'var(--ax-space-3)', flexWrap: 'wrap', alignItems: 'flex-end' }}>
+              <div className="ax-field" style={{ minInlineSize: 240, flex: '1 1 auto' }}>
+                <label className="ax-label" htmlFor="reset-email">Correo del usuario bloqueado</label>
+                <input id="reset-email" type="email" className="ax-input" placeholder="usuario@correo.com" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} required />
+              </div>
+              <div className="ax-field" style={{ minInlineSize: 180 }}>
+                <label className="ax-label" htmlFor="reset-marca">Marca</label>
+                <select id="reset-marca" className="ax-select" value={resetMarca ?? ''} onChange={(e) => setResetMarcaId(e.target.value || null)}>
+                  {marcas.map((m) => (
+                    <option key={m.marcaId} value={m.marcaId}>{m.marca.nombre}</option>
+                  ))}
+                </select>
+              </div>
+              <button type="submit" className={`ax-btn ax-btn--secondary${resetLoading ? ' is-loading' : ''}`} disabled={!resetEmail.trim() || !resetMarca || resetLoading} aria-busy={resetLoading}>
+                <span className="ax-btn__spinner" aria-hidden="true"></span>
+                <span className="ax-btn__label">{resetLoading ? 'Restableciendo…' : 'Restablecer 2FA'}</span>
+              </button>
+            </form>
+          </div>
+        </section>
+
         <section className="ax-card ax-col--12" role="region" aria-label="Directorio del equipo">
           <div className="ax-card__body">
             <p style={{ margin: '0 0 var(--ax-space-4)', fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>
