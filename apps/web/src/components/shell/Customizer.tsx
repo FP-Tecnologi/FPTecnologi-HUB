@@ -283,7 +283,7 @@ export function Customizer({ open, onClose }: { open: boolean; onClose: () => vo
       {/* HEADER */}
       <div className="ax-customizer__head">
         <div className="ax-customizer__head-text">
-          <h2 id="ax-customizer-title" className="ax-customizer__title">Personalizar tema</h2>
+          <h2 id="ax-customizer-title" className="ax-customizer__title">Personalización</h2>
           <p className="ax-customizer__sub">Vista previa en vivo — los cambios se guardan solos</p>
         </div>
         <button type="button" className="ax-icon-btn ax-customizer__close" onClick={onClose} aria-label="Cerrar personalizador">
