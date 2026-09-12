@@ -1,5 +1,5 @@
 /*
- * Vireo — Google Fonts CATALOG SNAPSHOT (lazy chunk, ~34 KB raw / ~12 KB gzip).
+ * FPTecnologi-HUB — Google Fonts CATALOG SNAPSHOT (lazy chunk, ~34 KB raw / ~12 KB gzip).
  *
  * The customizer's font search runs entirely offline against this list, so the
  * template never needs a Google Fonts API key — a static template has nowhere

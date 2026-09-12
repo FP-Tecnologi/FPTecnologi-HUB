@@ -1,5 +1,5 @@
 /*
- * Vireo Next.js — responsive header SHED signal (02-shell §4.12).
+ * FPTecnologi-HUB · Dashboard — responsive header SHED signal (02-shell §4.12).
  *
  * The header utility cluster is eleven controls wide; below `lg` it no longer
  * fits the bar, so shell.css §18 hides the narrow-band controls (.ax-lang /

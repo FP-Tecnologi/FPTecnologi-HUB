@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — Reset password (cover split).
+ * FPTecnologi-HUB · Dashboard — Reset password (cover split).
  * 1:1 re-expression of src/html/auth/reset-password-cover.html: a reassurance
  * panel with a lock card (lg+) beside the request→success reset flow. Demo always
  * succeeds (anti-enumeration); 30s resend cooldown on the success state.
@@ -67,7 +67,7 @@ export function ResetPasswordCover() {
             <span className="ax-center" style={{ inlineSize: 40, blockSize: 40, borderRadius: 'var(--ax-radius-md)', background: 'var(--ax-gradient-accent)', color: 'var(--ax-on-accent)', boxShadow: '0 8px 22px -8px rgba(var(--ax-accent-rgb),.7)' }}>
               <svg viewBox="0 0 32 32" width={23} height={23} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="axmk0" x1={4} y1={4} x2={28} y2={28} gradientUnits="userSpaceOnUse"><stop stopColor="#2BC4B0" /><stop offset="0.55" stopColor="#1E9E96" /><stop offset="1" stopColor="#6D5CF0" /></linearGradient></defs><path d="M4 4 H16 A12 12 0 0 1 28 16 V28 A0 0 0 0 1 28 28 H16 A12 12 0 0 1 4 16 V4 Z" fill="url(#axmk0)" stroke="none" /><circle cx="20.5" cy="11.5" r="2.6" fill="#0A0C11" fillOpacity="0.92" stroke="none" /></svg>
             </span>
-            <span style={{ fontFamily: 'var(--ax-font-display)', fontWeight: 'var(--ax-weight-semibold)', fontSize: 'var(--ax-text-lg)', color: 'var(--ax-text-strong)' }}>Vireo</span>
+            <span style={{ fontFamily: 'var(--ax-font-display)', fontWeight: 'var(--ax-weight-semibold)', fontSize: 'var(--ax-text-lg)', color: 'var(--ax-text-strong)' }}>FPTecnologi</span>
           </div>
 
           <div style={{ position: 'relative', maxInlineSize: '32ch' }}>
@@ -98,7 +98,7 @@ export function ResetPasswordCover() {
                     <label className="ax-label" htmlFor="rp-email">Email</label>
                     <div className="ax-field__control">
                       <span className="ax-field__affix ax-field__affix--leading" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round"><path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10" /><path d="M3 7l9 6l9 -6" /></svg></span>
-                      <input id="rp-email" type="email" className={`ax-input ax-input--with-leading-icon${emailErr ? ' is-invalid' : ''}`} autoComplete="email" placeholder="you@vireo.io"
+                      <input id="rp-email" type="email" className={`ax-input ax-input--with-leading-icon${emailErr ? ' is-invalid' : ''}`} autoComplete="email" placeholder="tu@fptecnologi.com"
                         value={email} onChange={(e) => setEmail(e.target.value)} aria-invalid={emailErr ? 'true' : 'false'} aria-describedby="rp-email-msg" required />
                     </div>
                     {emailErr && <p id="rp-email-msg" className="ax-field__message ax-field__message--error">{emailErr}</p>}

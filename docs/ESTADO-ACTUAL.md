@@ -136,6 +136,10 @@ sobre este mismo repo. Estado real hoy:
       (`setTimeout` fake), sin endpoint real
 - [ ] CRUD real de productos/pedidos/usuarios conectado a la API —
       pendiente
+- [ ] `Confiar en este dispositivo por 30 días` — hoy es solo visual
+      (checkbox sin efecto, heredado de Vireo). Implementar de verdad:
+      token de dispositivo 30d en cookie HttpOnly + salto de OTP en ese
+      navegador + revocación al cambiar contraseña + tests
 
 ## Desviaciones del plan original (agregado / quitado / distinto)
 
@@ -213,3 +217,88 @@ sobre este mismo repo. Estado real hoy:
   sin sesión), y un bug de backend donde `issueTokens` nunca devolvía
   `usuario` pese a que el dashboard ya lo esperaba. Ver checklist de
   Fase 3 arriba.
+- **Rebrand de plantilla a FPTecnologi-HUB**: `apps/web/package.json`
+  `vireo-next@1.1.0` → `fptecnologi-dashboard@0.1.0` (el terminal mostraba el
+  nombre viejo en `npm run dev`), `apps/api` `backend` → `fptecnologi-api`
+  (+ `package-lock.json` regenerados). Sidebar y AppBar usaban wordmark
+  "VIREO" — ahora usan `/logo-fptecnologi.svg`; metadata `<title>`/
+  descripción, footer (© + versión), emails/placeholders demo
+  (`you@vireo.io`/`support@vireo.io`), `$schema` del nav-manifest y READMEs/
+  `.env.example` actualizados. Los comentarios internos que citan a Vireo
+  como origen del patrón se dejan a propósito (ver `VIREO-REFERENCE.md`).
+  Build de API + Web verificado OK.
+- **Emails case-insensitive**: el login comparaba el email exacto y Postgres
+  distingue mayúsculas (`Dev@` ≠ `dev@`) — por eso fallaba el ingreso según
+  cómo se tecleaba. Nuevo helper `normalizeEmail()` (trim + lowercase)
+  aplicado en los 7 métodos de `AuthService` que buscan por email y en
+  `RolesService.crearUsuarioEnMarca`; fila existente `Dev@fptecnologi.com`
+  corregida a minúsculas en Supabase. 3 tests nuevos (41/41 OK).
+- **Barrido total Vireo→FPTecnologi** (63 archivos, build OK): headers,
+  textos y placeholders restantes; favicon nuevo (cuadro azul `#008DC5` con
+  "FP"); título/meta ya estaban. Solo quedan menciones factuales
+  (licencia, referencia a plantilla, nota histórica del manifest).
+- **Sidebar: fuera el buscador, dentro el switch de marca**: eliminado
+  `Filter menu…` + toda su lógica de filtrado; en su lugar bloque
+  `Marca / Proyecto` (misma fuente que el header: `useAuth` + `x-marca-id`).
+  Con 1 marca muestra etiqueta fija, con varias despliega lista con rol.
+- **Menú por proyecto + Panel general**: seed de las 4 marcas restantes
+  (`fimavperu`, `kelqa`, `imaninki`, `quamtu`, vacías, sin sitios todavía)
+  + admin de Jaime en todas → el switch ya muestra las 5 y al cambiar va a
+  `/`. Manifest con secciones GENERAL (Panel general, Usuarios y equipo y
+  Configuración solo-admin) y MARCA (Productos/Pedidos/Servicios/
+  Cotizaciones como placeholders hasta su CRUD). `/` ahora es Panel general
+  con tarjetas por marca. Nota: no correr `next build` con el dev abierto —
+  corrompe `.next` (error `317.js`); limpiar `.next` y reabrir.
+- **Combo con opción Administración**: primera opción del switch (solo si
+  eres admin en alguna marca) → vista global sin marca activa: solo sección
+  GENERAL (Panel general, Usuarios y Configuración), se oculta Marca activa
+  y no se manda `x-marca-id`. Persiste en `localStorage`, sobrevive
+  recargas y se limpia al salir.
+- **Grupo Mi cuenta con 3 módulos**: Mi perfil (/perfil: identidad, stats,
+  marcas), Configuración (/configuracion: editar, seguridad, avisos) y
+  Centro de ayuda (/ayuda: tickets locales por ahora). /cuenta redirige
+  a /perfil. Sección MAIN → 'Cuenta'.
+- **Desbloqueo 2FA por admin**: `POST /usuarios/2fa/reset` (admin de la
+  marca + objetivo de esa marca; apaga TOTP, borra códigos, revoca
+  sesiones; 3 tests, 52/52 OK) + tarjeta en Usuarios y equipo con correo
+  y marca. Funciona como módulo dentro de esa página, sin módulo aparte.
+- **Notificaciones por tipo**: enum `TipoNotificacion` (SISTEMA/PEDIDO/
+  COTIZACION/EQUIPO/STOCK) + migración aplicada en Supabase (vía pooler de
+  sesión :5432 — el de transacciones :6543 cuelga los comandos migrate) +
+  `?tipo=` en GET /notificaciones + pestañas por tipo con contadores en la
+  pantalla. 5 avisos de ejemplo sembrados para ver cada tipo.
+- **Menú por marca como `{Marca} Web`**: en modo marca se oculta General
+  (solo Mi cuenta + grupo de la marca); el grupo toma el nombre real
+  (`FPTecnologi Web`, nombres propios en DB) con submódulos Web
+  informativa, Ecommerce, Soluciones, Campañas y Blogs (placeholders por
+  ahora, rutas 200).
+- **4 módulos copiados de la plantilla y adaptados** (trabajo en paralelo):
+  `Configuración` (/configuracion, ProfileSettings sin pestaña Billing:
+  cuenta real vía PATCH /usuarios/me, seguridad con link a reset, avisos
+  locales), `Ver perfil` (/perfil, identidad + stats reales, sin datos
+  falsos), `Soporte y ayuda` (/soporte, traducido, formulario honesto sin
+  backend + mailto real) y `Notificaciones` (/notificaciones, cableada a
+  la API: listar, marcar una/todas como leídas). Iconos user/bell nuevos,
+  nodos en el manifest, rutas explícitas y footer → /soporte.
+- **Identidad a la izquierda + Mi cuenta editable**: el header muestra
+  `Hola, {nombre}` + `{marca} · {rol}` (o `Administración`) a la izquierda,
+  junto al buscador; el avatar vuelve a ser solo icono. Nuevo módulo API
+  `usuarios` con `PATCH /usuarios/me` (nombre directo; correo exige
+  contraseña actual + normalización + unicidad; 8 tests, 49/49 OK) y
+  formulario real en Mi cuenta. La confirmación del correo nuevo por código
+  queda como mejora futura.
+- **Header: fuera el idioma (EN) + fix choque de marca**: eliminado el
+  selector de idioma del encabezado (quedaba de la plantilla; el dashboard
+  es en español). Bug real: el switch de marca del header reusaba la clase
+  `ax-icon-btn` (caja cuadrada de 38px) con el nombre de la marca dentro →
+  el texto se desbordaba y se incrustaba con el toggle de tema/perfil.
+  Ahora usa `ax-btn ghost sm` de ancho automático.
+- **Mi cuenta unificada**: Mi cuenta + Ver perfil + Configuración eran la
+  misma cosa en 3 módulos → una sola página /cuenta con pestañas Perfil
+  (identidad, stats reales, marcas), Cuenta (editar), Seguridad y Avisos.
+  Eliminadas rutas /perfil y /configuracion, pantallas Profile.tsx y
+  ProfileSettings.tsx y sus nodos del manifest.
+- **Usuarios y equipo con relleno + español en el chrome**: pantalla Team
+  con 10 miembros de ejemplo (buscador, filtro por rol, invitar), ruta
+  /usuarios y nota de datos de ejemplo. Footer, buscador ⌘K, menú de perfil
+  y páginas de error en español. Regla: interfaz siempre en español.

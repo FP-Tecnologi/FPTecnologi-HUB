@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — Recuperar contraseña (real, 2 pasos).
+ * FPTecnologi-HUB · Dashboard — Recuperar contraseña (real, 2 pasos).
  * Paso 1: pide el email -> POST /auth/password-reset/request (respuesta
  * genérica siempre, anti-enumeración). Paso 2: código de 6 dígitos +
  * contraseña nueva -> POST /auth/password-reset/confirm. Un solo archivo

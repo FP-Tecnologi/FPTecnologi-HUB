@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — shared helpers for the STANDALONE error pages (401/403/404/500/503).
+ * FPTecnologi-HUB · Dashboard — shared helpers for the STANDALONE error pages (401/403/404/500/503).
  *
  * 1:1 re-expression of src/html/error/*.html. Each error screen is a full-viewport
  * standalone page (no app shell): the fixed top-right off-app tools (theme toggle
@@ -37,7 +37,7 @@ export function StatusTools() {
       </button>
       <Link className="ax-btn ax-btn--ghost ax-btn--sm" href="/">
         {ARROW_BACK}
-        <span className="ax-btn__label">Back to dashboard</span>
+        <span className="ax-btn__label">Volver al panel</span>
       </Link>
     </div>
   );
@@ -50,11 +50,11 @@ const HEX_LOGO = (
 /** Centered brand lockup (links home). */
 export function StatusBrand() {
   return (
-    <Link href="/" aria-label="Vireo home" style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--ax-space-3)', textDecoration: 'none' }}>
+    <Link href="/" aria-label="FPTecnologi home" style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--ax-space-3)', textDecoration: 'none' }}>
       <span aria-hidden="true" style={{ display: 'inline-grid', placeItems: 'center', width: 40, height: 40, borderRadius: 'var(--ax-radius-md)', background: 'var(--ax-gradient-accent)', color: 'var(--ax-on-accent)', boxShadow: '0 8px 22px -8px rgba(var(--ax-accent-rgb),.7)' }}>
         {HEX_LOGO}
       </span>
-      <span style={{ fontFamily: 'var(--ax-font-display)', fontWeight: 600, fontSize: 'var(--ax-text-lg)', color: 'var(--ax-text-strong)', letterSpacing: '.01em' }}>Vireo</span>
+      <span style={{ fontFamily: 'var(--ax-font-display)', fontWeight: 600, fontSize: 'var(--ax-text-lg)', color: 'var(--ax-text-strong)', letterSpacing: '.01em' }}>FPTecnologi</span>
     </Link>
   );
 }

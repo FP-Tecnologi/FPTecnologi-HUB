@@ -1,5 +1,5 @@
 /*
- * Vireo Next.js — (shell) route-group layout.
+ * FPTecnologi-HUB · Dashboard — (shell) route-group layout.
  *
  * Every route in this group renders inside the Aurora app shell. The shell
  * (sidebar / header / footer / customizer / command palette / loader) is the

@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — Coming soon.
+ * FPTecnologi-HUB · Dashboard — Coming soon.
  * 1:1 re-expression of src/html/auth/coming-soon.html: a live 30-day countdown,
  * a notify-me email form with a honeypot bot trap, and a social row. The countdown
  * stops updating under reduced motion; the heading flips to "We're live." at zero.
@@ -75,9 +75,9 @@ export function ComingSoon() {
 
       <main id="ax-main" style={{ position: 'relative', zIndex: 1, width: '100%', maxWidth: 680, textAlign: 'center' }}>
         <div className="ax-center" style={{ marginBlockEnd: 'var(--ax-space-6)' }}>
-          <Link href="/" className="ax-cluster" style={{ gap: 'var(--ax-space-3)', textDecoration: 'none' }} aria-label="Vireo home">
+          <Link href="/" className="ax-cluster" style={{ gap: 'var(--ax-space-3)', textDecoration: 'none' }} aria-label="FPTecnologi home">
             <span style={{ display: 'inline-grid', placeItems: 'center', width: 42, height: 42, borderRadius: 'var(--ax-radius-md)', background: 'var(--ax-gradient-accent)', color: 'var(--ax-on-accent)', boxShadow: '0 8px 22px -8px rgba(var(--ax-accent-rgb),.7)' }}>{HEX}</span>
-            <b style={{ fontFamily: 'var(--ax-font-display)', fontSize: 'var(--ax-text-lg)', color: 'var(--ax-text-strong)' }}>Vireo</b>
+            <b style={{ fontFamily: 'var(--ax-font-display)', fontSize: 'var(--ax-text-lg)', color: 'var(--ax-text-strong)' }}>FPTecnologi</b>
           </Link>
         </div>
 
@@ -87,7 +87,7 @@ export function ComingSoon() {
         </span>
 
         <h1 style={{ fontFamily: 'var(--ax-font-display)', fontSize: 'var(--ax-text-3xl)', fontWeight: 600, color: 'var(--ax-text-strong)', margin: '0 0 var(--ax-space-3)', letterSpacing: '-.02em', lineHeight: 1.1 }}>{live ? "We're live." : 'Something precise is on the way.'}</h1>
-        <p style={{ fontSize: 'var(--ax-text-md)', color: 'var(--ax-text-muted)', margin: '0 auto var(--ax-space-8)', maxWidth: '46ch' }}>The next Vireo release lands soon — 6 new dashboards, a refreshed Aurora theme, and a faster build. Leave your email and we'll tell you the moment it's ready.</p>
+        <p style={{ fontSize: 'var(--ax-text-md)', color: 'var(--ax-text-muted)', margin: '0 auto var(--ax-space-8)', maxWidth: '46ch' }}>Estamos preparando novedades en FPTecnologi — nuevos módulos, mejor experiencia y un dashboard más rápido. Deja tu correo y te avisamos en cuanto esté listo.</p>
 
         <div className="ax-card" style={{ display: 'inline-block', padding: 'var(--ax-space-6) var(--ax-space-8)', marginBlockEnd: 'var(--ax-space-8)' }}>
           <div className="ax-cluster" style={{ gap: 'var(--ax-space-4)', justifyContent: 'center', alignItems: 'flex-start' }} role="timer" aria-live="off" aria-label={`${cd.d} days, ${cd.h} hours, ${cd.m} minutes, ${cd.s} seconds remaining`}>
@@ -126,21 +126,21 @@ export function ComingSoon() {
         </form>
 
         <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'center' }}>
-          <a href="#" className="ax-btn ax-btn--ghost ax-btn--icon" aria-label="Vireo on X">
+          <a href="#" className="ax-btn ax-btn--ghost ax-btn--icon" aria-label="FPTecnologi on X">
             <svg className="ax-btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 4l11.733 16h4.267l-11.733 -16l-4.267 0" /><path d="M4 20l6.768 -6.768m2.46 -2.46l6.772 -6.772" /></svg>
           </a>
-          <a href="#" className="ax-btn ax-btn--ghost ax-btn--icon" aria-label="Vireo on GitHub">
+          <a href="#" className="ax-btn ax-btn--ghost ax-btn--icon" aria-label="FPTecnologi on GitHub">
             <svg className="ax-btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" /></svg>
           </a>
-          <a href="#" className="ax-btn ax-btn--ghost ax-btn--icon" aria-label="Vireo on LinkedIn">
+          <a href="#" className="ax-btn ax-btn--ghost ax-btn--icon" aria-label="FPTecnologi on LinkedIn">
             <svg className="ax-btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 11v5" /><path d="M8 8v.01" /><path d="M12 16v-5" /><path d="M16 16v-3a2 2 0 1 0 -4 0" /><path d="M3 7a4 4 0 0 1 4 -4h10a4 4 0 0 1 4 4v10a4 4 0 0 1 -4 4h-10a4 4 0 0 1 -4 -4l0 -10" /></svg>
           </a>
-          <a href="#" className="ax-btn ax-btn--ghost ax-btn--icon" aria-label="Vireo on Dribbble">
+          <a href="#" className="ax-btn ax-btn--ghost ax-btn--icon" aria-label="FPTecnologi on Dribbble">
             <svg className="ax-btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M9 3.6c5 6 7 10.5 7.5 16.2" /><path d="M6.4 19c3.5 -3.5 6 -6.5 14.5 -6.4" /><path d="M3.1 10.75c5 0 9.814 -.38 15.314 -5" /></svg>
           </a>
         </div>
 
-        <p style={{ marginBlockStart: 'var(--ax-space-8)', fontSize: 'var(--ax-text-2xs)', color: 'var(--ax-text-subtle)' }}>© 2026 Vireo · We'll only email you about the launch.</p>
+        <p style={{ marginBlockStart: 'var(--ax-space-8)', fontSize: 'var(--ax-text-2xs)', color: 'var(--ax-text-subtle)' }}>© 2026 FPTecnologi · Solo te escribiremos por este lanzamiento.</p>
       </main>
     </AuthStandalone>
   );

@@ -1,5 +1,5 @@
 /*
- * Vireo React — color utilities for the custom-accent picker.
+ * FPTecnologi-HUB · Dashboard — color utilities for the custom-accent picker.
  * Direct TS port of src/js/core/color.js. Pure functions: hex parsing, sRGB
  * luminance, lighten/darken, and the deterministic 50→900 ramp + Layer-2 accent
  * aliases the token system consumes.

@@ -1,7 +1,8 @@
 import type { NextConfig } from 'next';
 
 /*
- * Vireo Next.js 15 edition — App Router + React 19 + Tailwind v4.
+ * FPTecnologi-HUB · Dashboard (edición Next.js 15 — App Router + React 19 + Tailwind v4,
+ * basada en la plantilla Vireo).
  *
  * The shared --ax-* token core (src/styles/app.css) is imported once in
  * app/layout.tsx. Tailwind v4 compiles via the PostCSS plugin (postcss.config.mjs).

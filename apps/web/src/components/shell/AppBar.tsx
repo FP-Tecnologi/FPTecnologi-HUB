@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — full-screen APP BAR (1:1 with partials/app-bar.html).
+ * FPTecnologi-HUB · Dashboard — full-screen APP BAR (1:1 with partials/app-bar.html).
  *
  * The only chrome the 13 standalone app routes (apps/**) get: brand (which
  * doubles as the way out, back to the dashboard), an app switcher, the ⌘K
@@ -26,11 +26,7 @@ import { useClickOutside } from '../../hooks/useClickOutside';
 import { slugFromPath, hrefForSlug } from '../../lib/manifest';
 import { titleForSlug } from '../../lib/pageMetadata';
 
-/* ── The Notch brand mark. Its gradient id is app-bar-specific so it can never
-      collide with the sidebar's mark on a page that renders both. ── */
-const BRAND_MARK = (
-  <svg className="ax-icon" viewBox="0 0 32 32" width={24} height={24} fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><defs><linearGradient id="axmkapp" x1={4} y1={4} x2={28} y2={28} gradientUnits="userSpaceOnUse"><stop stopColor="#2BC4B0" /><stop offset="0.55" stopColor="#1E9E96" /><stop offset="1" stopColor="#6D5CF0" /></linearGradient></defs><path d="M4 4 H16 A12 12 0 0 1 28 16 V28 A0 0 0 0 1 28 28 H16 A12 12 0 0 1 4 16 V4 Z" fill="url(#axmkapp)" stroke="none" /><circle cx="20.5" cy="11.5" r="2.6" fill="#0A0C11" fillOpacity="0.92" stroke="none" /></svg>
-);
+/* ── Iconos de la barra: salir, caret del switcher y lupa de búsqueda ── */
 
 const ICON_EXIT = (
   <svg className="ax-icon ax-appbar__exit" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" width={24} height={24} aria-hidden="true"><path d="M9 6l-6 6l6 6" /><path d="M21 12h-18" /></svg>
@@ -117,8 +113,8 @@ export function AppBar({
     <header className="ax-appbar" role="banner">
       {/* 1 · BRAND — the way out of the app, back to the dashboard */}
       <Link className="ax-appbar__brand" href={DASHBOARD_ROOT} aria-label="Exit to dashboard">
-        <span className="ax-appbar__mark" aria-hidden="true">{BRAND_MARK}</span>
-        <span className="ax-appbar__wordmark">VIREO</span>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo-fptecnologi.svg" alt="FPTecnologi" width={130} style={{ height: 'auto', maxWidth: '100%' }} />
         {ICON_EXIT}
       </Link>
 

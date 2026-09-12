@@ -1,7 +1,7 @@
-# Backend — API central (NestJS)
+# API central — FPTecnologi-HUB (NestJS)
 
-API multi-marca (multi-tenant) para el dashboard administrativo (Vireo /
-`Templates\Next`) y la futura web pública (fptecnologi.com). Vende
+API multi-marca (multi-tenant) para el dashboard administrativo (`apps/web`)
+y la futura web pública (fptecnologi.com). Vende
 productos (ecommerce) y servicios de soluciones IT.
 
 ## Stack
@@ -24,7 +24,7 @@ productos (ecommerce) y servicios de soluciones IT.
 
 2. Levantar Postgres (opción rápida con Docker):
    ```powershell
-   docker run -d --name vireo-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=vireo -p 5432:5432 postgres:16-alpine
+   docker run -d --name fptecnologi-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=fptecnologi -p 5432:5432 postgres:16-alpine
    ```
 
 3. Instalar dependencias y generar el cliente Prisma:
@@ -100,6 +100,6 @@ cotización).
 ## Próximos pasos (fuera de este alcance inicial)
 
 - Conectar pasarela de pago a `Pedidos`.
-- Conectar el dashboard (`Templates\Next`) a esta API (login + OTP, selector
+- Conectar el dashboard (`apps/web`) a esta API (login + OTP, selector
   de marca, menú dinámico, gestión de productos/usuarios, notificaciones).
 - Publicar endpoints de esta API para consumo desde la web pública con ISR.

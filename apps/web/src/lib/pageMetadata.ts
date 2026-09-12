@@ -1,5 +1,5 @@
 /*
- * Vireo Next.js — per-route <title> resolved from the nav manifest.
+ * FPTecnologi-HUB · Dashboard — per-route <title> resolved from the nav manifest.
  *
  * The manifest is the single source of truth for page names, so acronym casing
  * ("CRM", "NFT Marketplace", "HR & Payroll") always matches the sidebar and
@@ -8,7 +8,7 @@
  * initial paint all get the correct page name (a client-only document.title
  * would not do that).
  *
- * The root layout owns the "%s · Vireo" template, so each page supplies only
+ * The root layout owns the "%s · FPTecnologi" template, so each page supplies only
  * the bare page name.
  */
 import type { Metadata } from 'next';

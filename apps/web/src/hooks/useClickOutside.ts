@@ -1,5 +1,5 @@
 /*
- * Vireo React — close-on-outside-click + close-on-Escape hook.
+ * FPTecnologi-HUB · Dashboard — close-on-outside-click + close-on-Escape hook.
  * Re-implements the Alpine @click.outside / @keydown.escape contract used by
  * every header dropdown. Portable (no router/UI imports).
  */

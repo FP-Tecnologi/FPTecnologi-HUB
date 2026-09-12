@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — generic placeholder for routes not yet ported.
+ * FPTecnologi-HUB · Dashboard — generic placeholder for routes not yet ported.
  *
  * The Phase A foundation ships ONE real page (Sales). Every other manifest slug
  * resolves to this starter shell so the sidebar, breadcrumb and command palette

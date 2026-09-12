@@ -122,6 +122,20 @@ describe('AuthService', () => {
       expect(mailService.sendOtpCode).toHaveBeenCalledWith('a@b.com', expect.any(String));
       expect(jwtService.signAsync).not.toHaveBeenCalled();
     });
+
+    it('looks users up case-insensitively (Dev@x == dev@x)', async () => {
+      prisma.usuario.findUnique.mockResolvedValue({
+        id: 'u1',
+        email: 'a@b.com',
+        passwordHash,
+        activo: true,
+      });
+
+      const result = await service.login('  A@B.com ', 'correct-password');
+
+      expect(prisma.usuario.findUnique).toHaveBeenCalledWith({ where: { email: 'a@b.com' } });
+      expect(result).toEqual({ requiresOtp: true, email: 'a@b.com' });
+    });
   });
 
   describe('verifyOtp', () => {
@@ -342,6 +356,18 @@ describe('AuthService', () => {
       const createArgs = prisma.usuario.create.mock.calls[0][0];
       expect(createArgs.data.marcas.create).toEqual({ marcaId: 'm1', rolId: 'rol-cliente' });
       expect(await bcrypt.compare('correct-password', createArgs.data.passwordHash)).toBe(true);
+    });
+
+    it('stores the email normalized (trimmed + lowercase)', async () => {
+      prisma.usuario.findUnique.mockResolvedValue(null);
+      prisma.marca.findUnique.mockResolvedValue({ id: 'm1', nombre: 'FPTecnologi' });
+      prisma.rol.findUnique.mockResolvedValue({ id: 'rol-cliente', nombre: 'cliente' });
+      prisma.usuario.create.mockResolvedValue({ id: 'u1', email: 'new@b.com', nombre: 'Ana' });
+
+      await service.register('  New@B.com ', 'correct-password', 'm1', 'Ana');
+
+      expect(prisma.usuario.findUnique).toHaveBeenCalledWith({ where: { email: 'new@b.com' } });
+      expect(prisma.usuario.create.mock.calls[0][0].data.email).toBe('new@b.com');
     });
   });
 

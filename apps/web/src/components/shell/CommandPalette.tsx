@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — Command palette (⌘K).
+ * FPTecnologi-HUB · Dashboard — Command palette (⌘K).
  *
  * Native re-implementation of core/command-palette.js rendering the reference
  * shell from partials/command.html: backdrop → panel → query row (search icon +

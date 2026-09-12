@@ -1,5 +1,5 @@
 /*
- * Vireo — Aurora token model · LAYER 1 PRIMITIVES
+ * FPTecnologi-HUB — Aurora token model · LAYER 1 PRIMITIVES
  * Source of truth: brief 01-tokens.md §1 (scales) + §2 (neutral ramps).
  * Mode-agnostic literals (one :root definition) EXCEPT shadows + semantic
  * ramps, which carry a [data-ax-theme="dark"] override. Verbatim values.

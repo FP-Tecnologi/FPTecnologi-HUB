@@ -1,5 +1,5 @@
 /*
- * Vireo Next.js — runtime theme/customizer logic (the pure DOM+storage layer).
+ * FPTecnologi-HUB · Dashboard — runtime theme/customizer logic (the pure DOM+storage layer).
  *
  * Consolidates src/js/core/theme-restore.js + customizer.js. Every mutation:
  *   - sets a data-ax-* attribute on <html>,
@@ -73,17 +73,17 @@ export const PRESETS: Preset[] = [
   { value: 'azul-oscuro', label: 'Azul oscuro', base: '#155382' },
   { value: 'azul-petroleo', label: 'Azul petróleo', base: '#1C6587' },
   { value: 'verdigris', label: 'Verdigris', base: '#1E856C' },
-  { value: 'cobalt', label: 'Cobalt', base: '#2A5FCC' },
-  { value: 'indigo', label: 'Indigo', base: '#4F46C9' },
-  { value: 'amethyst', label: 'Amethyst', base: '#8A46B5' },
+  { value: 'cobalt', label: 'Cobalto', base: '#2A5FCC' },
+  { value: 'indigo', label: 'Índigo', base: '#4F46C9' },
+  { value: 'amethyst', label: 'Amatista', base: '#8A46B5' },
   { value: 'magenta', label: 'Magenta', base: '#C13C84' },
-  { value: 'terracotta', label: 'Terracotta', base: '#C25339' },
-  { value: 'amber', label: 'Amber', base: '#C1820E' },
-  { value: 'olive', label: 'Olive', base: '#647F1C' },
-  { value: 'forest', label: 'Forest', base: '#2C7A4B' },
-  { value: 'teal', label: 'Teal', base: '#10808F' },
-  { value: 'slate', label: 'Slate', base: '#4A5A6B' },
-  { value: 'graphite', label: 'Graphite', base: '#52514C' },
+  { value: 'terracotta', label: 'Terracota', base: '#C25339' },
+  { value: 'amber', label: 'Ámbar', base: '#C1820E' },
+  { value: 'olive', label: 'Oliva', base: '#647F1C' },
+  { value: 'forest', label: 'Bosque', base: '#2C7A4B' },
+  { value: 'teal', label: 'Verde azulado', base: '#10808F' },
+  { value: 'slate', label: 'Pizarra', base: '#4A5A6B' },
+  { value: 'graphite', label: 'Grafito', base: '#52514C' },
 ];
 
 const ALL_KEYS = [

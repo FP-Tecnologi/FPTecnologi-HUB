@@ -1,5 +1,5 @@
 /*
- * Vireo Next.js — catch-all route for every NON-home manifest slug.
+ * FPTecnologi-HUB · Dashboard — catch-all route for every NON-home manifest slug.
  *
  * Phase A ships ONE real page (Sales at "/"). Every other slug in the nav
  * manifest (dashboards/*, apps/*, ecommerce/*, …) resolves here and renders the

@@ -56,4 +56,20 @@ describe('RolesService.crearUsuarioEnMarca', () => {
       update: {},
     });
   });
+
+  it('normalizes the email (trimmed + lowercase) before lookup and creation', async () => {
+    prisma.usuario.findUnique.mockResolvedValue(null);
+    prisma.usuario.create.mockResolvedValue({ id: 'u1', email: 'mix@b.com', nombre: 'Ana' });
+
+    const result = await service.crearUsuarioEnMarca('m1', {
+      email: '  Mix@B.com ',
+      password: 'correct-password',
+      nombre: 'Ana',
+      rolId: 'r1',
+    });
+
+    expect(prisma.usuario.findUnique).toHaveBeenCalledWith({ where: { email: 'mix@b.com' } });
+    expect(prisma.usuario.create.mock.calls[0][0].data.email).toBe('mix@b.com');
+    expect(result.nuevo).toBe(true);
+  });
 });

@@ -1,5 +1,5 @@
 /*
- * Vireo Next.js — API client for the NestJS backend (see ../../backend).
+ * FPTecnologi-HUB · Dashboard — cliente HTTP para la API central NestJS (ver apps/api).
  *
  * Responsibilities:
  *   - Attach `Authorization: Bearer <accessToken>` and `x-marca-id` headers.

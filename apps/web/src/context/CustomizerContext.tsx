@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — Customizer / theme state provider.
+ * FPTecnologi-HUB · Dashboard — Customizer / theme state provider.
  *
  * Single source of UI truth for the theme attribute contract. It mirrors the
  * current <html> data-ax-* attributes into React state and exposes setters that

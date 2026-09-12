@@ -1,5 +1,5 @@
 /*
- * Vireo React — storage helper (ax: prefix, schema-guarded, never throws).
+ * FPTecnologi-HUB · Dashboard — storage helper (ax: prefix, schema-guarded, never throws).
  * Direct TS port of src/js/core/storage.js. Single source of truth for the
  * customizer persistence keys; mirrors the blocking anti-flash head IIFE.
  */

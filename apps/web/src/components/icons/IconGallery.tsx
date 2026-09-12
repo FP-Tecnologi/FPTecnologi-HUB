@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — icon gallery (port of the reference `iconGallery()` Alpine
+ * FPTecnologi-HUB · Dashboard — icon gallery (port of the reference `iconGallery()` Alpine
  * component used by icons/tabler|line|solid|brands). Search + variant toggle
  * (Tabler outline↔filled) + size/color preview + click-to-copy toast. Icons are
  * inline SVG on a 24×24 grid using currentColor; paths come from the shared

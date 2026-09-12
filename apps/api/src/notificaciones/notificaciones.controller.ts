@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { NotificacionesService } from './notificaciones.service.js';
 import { CreateNotificacionDto } from './dto/create-notificacion.dto.js';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
@@ -18,8 +18,8 @@ export class NotificacionesController {
   }
 
   @Get()
-  findMine(@CurrentUser() user: AuthenticatedUser) {
-    return this.notificacionesService.findAllDeUsuario(user.sub);
+  findMine(@CurrentUser() user: AuthenticatedUser, @Query('tipo') tipo?: string) {
+    return this.notificacionesService.findAllDeUsuario(user.sub, tipo);
   }
 
   @Patch(':id/leida')

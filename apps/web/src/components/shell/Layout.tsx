@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — application shell layout (client component).
+ * FPTecnologi-HUB · Dashboard — application shell layout (client component).
  *
  * Reproduces the reference body structure (index.html): page loader, ambient
  * glow, .ax-layout → Sidebar + .ax-shell (Header + <main>{children} + Footer),
@@ -111,7 +111,7 @@ export function Layout({ children }: { children: ReactNode }) {
       <Loader />
       <div className="ax-ambient" aria-hidden="true"><i></i></div>
       <div className="ax-layout">
-        <Sidebar drawerOpen={drawerOpen} />
+        <Sidebar drawerOpen={drawerOpen} onNavToggle={onNavToggle} />
         <div
           className={`ax-backdrop${drawerOpen ? ' is-visible' : ''}`}
           data-ax-drawer-scrim

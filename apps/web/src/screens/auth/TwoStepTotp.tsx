@@ -1,6 +1,6 @@
 'use client';
 /*
- * Vireo Next.js — Two-step verification (app autenticadora / TOTP).
+ * FPTecnologi-HUB · Dashboard — Two-step verification (app autenticadora / TOTP).
  * Counterpart to TwoStepBasic for users who enabled 2FA via app instead of
  * email OTP. A single code field (not 6 auto-advancing cells) because it
  * must accept either a 6-digit TOTP or a 10-character backup code.

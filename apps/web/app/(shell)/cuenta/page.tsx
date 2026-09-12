@@ -1,5 +1,7 @@
-import { metadataForSlug } from '../../../src/lib/pageMetadata';
+import { redirect } from 'next/navigation';
 
-export const metadata = metadataForSlug('cuenta');
-
-export { Cuenta as default } from '../../../src/screens/Cuenta';
+/* /cuenta quedó absorbida por /perfil (grupo Mi cuenta): redirige para no
+   romper marcadores. */
+export default function CuentaRedirect() {
+  redirect('/perfil');
+}
