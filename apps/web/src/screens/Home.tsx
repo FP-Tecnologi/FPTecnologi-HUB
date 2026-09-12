@@ -57,13 +57,13 @@ export function Home() {
                 </button>
               )}
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
-                <Link className="ax-btn ax-btn--ghost ax-btn--sm" href="/usuarios">
+                <Link className="ax-btn ax-btn--glass ax-btn--sm" href="/usuarios">
                   <span className="ax-btn__label">Usuarios y equipo</span>
                 </Link>
-                <Link className="ax-btn ax-btn--ghost ax-btn--sm" href="/notificaciones">
+                <Link className="ax-btn ax-btn--glass ax-btn--sm" href="/notificaciones">
                   <span className="ax-btn__label">Notificaciones</span>
                 </Link>
-                <Link className="ax-btn ax-btn--ghost ax-btn--sm" href="/soporte">
+                <Link className="ax-btn ax-btn--glass ax-btn--sm" href="/soporte">
                   <span className="ax-btn__label">Soporte y ayuda</span>
                 </Link>
               </div>
