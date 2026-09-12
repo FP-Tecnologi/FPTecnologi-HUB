@@ -4,15 +4,12 @@
  *
  * The auth section is a set of STANDALONE pages (no app shell). Each page is a
  * full-viewport screen with: the page loader, ambient glow, the fixed top-right
- * off-app tools (theme + locale), and a brand mark. These bits are factored here
+ * theme toggle, and a brand mark. These bits are factored here
  * so every auth screen is a 1:1 re-expression of src/html/auth/*.html.
  *
- * Off-app tools mirror the reference axOffappTools(): toggle data-ax-theme and
- * cycle ax:lang locally (the customizer's full state isn't mounted here — these
- * pages live outside <Layout> / CustomizerProvider). Two variants exist in the
- * reference: a full "language pill + theme icon-btn" set (sign-in/up, reset,
- * two-step basic) and a compact "theme ghost icon-btn + static EN" set (create-
- * password, lock-screen, coming-soon, maintenance, *-cover).
+ * Off-app tools: just the theme toggle (las pantallas son solo en español).
+ * Two variants exist: full (sign-in/up, reset, two-step basic) and compact
+ * (create-password, lock-screen, coming-soon, maintenance, *-cover).
  *
  * Adapted verbatim from the React edition (editions/react/src/pages/auth/
  * authShared.tsx); the only differences are next/link (Link `href` not `to`) and
@@ -21,9 +18,6 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from 'react';
 import Link from 'next/link';
 
-const GLOBE = (
-  <svg className="ax-btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M3.6 9h16.8" /><path d="M3.6 15h16.8" /><path d="M11.5 3a17 17 0 0 0 0 18" /><path d="M12.5 3a17 17 0 0 1 0 18" /></svg>
-);
 const SUN = (
   <svg className="ax-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" width={22} height={22} aria-hidden="true"><path d="M8 12a4 4 0 1 0 8 0a4 4 0 1 0 -8 0" /><path d="M3 12h1m8 -9v1m8 8h1m-9 8v1m-6.4 -15.4l.7 .7m12.1 -.7l-.7 .7m0 11.4l.7 .7m-12.1 -.7l-.7 .7" /></svg>
 );
@@ -33,8 +27,6 @@ const MOON = (
 const MOON_BTN = (
   <svg className="ax-btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454l0 .008" /></svg>
 );
-
-const LOCALES = ['EN', 'FR', 'DE', 'ES', 'AR'];
 
 function useTheme() {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
@@ -55,33 +47,11 @@ function useTheme() {
   return { theme, toggle };
 }
 
-function useLocale() {
-  const [locale, setLocale] = useState('EN');
-  useEffect(() => {
-    setLocale((localStorage.getItem('ax:lang') || 'EN').toUpperCase());
-  }, []);
-  const cycle = () => {
-    const next = LOCALES[(LOCALES.indexOf(locale) + 1) % LOCALES.length];
-    setLocale(next);
-    try {
-      localStorage.setItem('ax:lang', next);
-    } catch {
-      /* ignore */
-    }
-  };
-  return { locale, cycle };
-}
-
-/** Full off-app tools: language pill + theme icon-btn (sign-in/up, reset, two-step basic). */
+/** Full off-app tools: theme icon-btn (sign-in/up, reset, two-step basic). */
 export function OffappTools({ style }: { style?: CSSProperties }) {
   const { theme, toggle } = useTheme();
-  const { locale, cycle } = useLocale();
   return (
     <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', ...style }}>
-      <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={cycle} aria-label="Change language">
-        {GLOBE}
-        <span className="ax-btn__label ax-num">{locale}</span>
-      </button>
       <button type="button" className="ax-icon-btn" onClick={toggle} aria-pressed={theme === 'dark'} aria-label="Toggle dark mode">
         {theme === 'dark' ? SUN : MOON}
       </button>
@@ -89,17 +59,13 @@ export function OffappTools({ style }: { style?: CSSProperties }) {
   );
 }
 
-/** Compact off-app tools: theme ghost icon-btn + static EN pill (create-password, lock, cover, etc.). */
+/** Compact off-app tools: theme ghost icon-btn (create-password, lock, cover, etc.). */
 export function OffappToolsCompact({ style }: { style?: CSSProperties }) {
   const { toggle } = useTheme();
   return (
     <div className="ax-cluster" style={{ position: 'fixed', insetBlockStart: 'var(--ax-space-5)', insetInlineEnd: 'var(--ax-space-6)', zIndex: 5, gap: 'var(--ax-space-2)', ...style }}>
       <button type="button" className="ax-btn ax-btn--ghost ax-btn--icon" aria-label="Toggle color theme" onClick={toggle}>
         {MOON_BTN}
-      </button>
-      <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm">
-        {GLOBE}
-        <span className="ax-btn__label">EN</span>
       </button>
     </div>
   );
