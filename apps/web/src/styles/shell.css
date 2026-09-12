@@ -684,35 +684,47 @@
   .ax-profile__card .ax-avatar {
     --_av-size: 40px;
   }
-  /* ── HEADER identity (name + role, left side) ── */
-  .ax-header__user {
+  /* ── PROFILE trigger con nombre + rol junto al avatar ── */
+  .ax-profile__trigger.has-meta {
+    inline-size: auto;
+    gap: var(--ax-space-2);
+    padding: 3px var(--ax-space-3) 3px 3px;
+    border-radius: var(--ax-radius-pill);
+  }
+  .ax-profile__meta {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    align-items: flex-start;
     gap: 0;
     min-inline-size: 0;
-    max-inline-size: 280px;
-    line-height: 1.3;
-    margin-inline-start: var(--ax-space-2);
+    max-inline-size: 180px;
+    line-height: 1.25;
+    text-align: start;
   }
-  .ax-header__user b {
+  .ax-profile__meta b {
     font-size: var(--ax-text-sm);
     font-weight: var(--ax-weight-semibold);
     color: var(--ax-text-strong);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    max-inline-size: 100%;
   }
-  .ax-header__user small {
+  .ax-profile__meta small {
     font-size: var(--ax-text-2xs);
     color: var(--ax-text-muted);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    max-inline-size: 100%;
   }
   @media (max-width: 767px) {
-    .ax-header__user {
+    .ax-profile__meta {
       display: none;
+    }
+    .ax-profile__trigger.has-meta {
+      inline-size: 38px;
+      padding: 0;
     }
   }
   /* ── GLASS button: ghost con borde y blur para que se note como botón ── */
