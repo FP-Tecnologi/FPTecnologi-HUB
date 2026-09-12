@@ -307,17 +307,17 @@ export function Sidebar({ drawerOpen = false }: { drawerOpen?: boolean }) {
       {/* ===== NAV TREE ===== */}
       <nav className="ax-sidebar__nav" role="tree" aria-label="Main menu">
         {sections().map((section) => {
-          const groups = groupsInSection(section).filter((g) => g.inMenu && visibleForRole(g, roleName) && (g.id !== 'grp.marca' || !adminMode) && (g.id !== 'grp.general' || adminMode));
+          const groups = groupsInSection(section).filter((g) => g.inMenu && visibleForRole(g, roleName) && (g.section !== 'MARCA' || !adminMode) && (g.id !== 'grp.general' || adminMode));
           if (groups.length === 0) return null;
           return (
             <div key={section}>
               <p className="ax-sidebar__section" role="presentation">
-                {sectionLabel(section)}
+                {sectionLabel(section, section === 'MARCA' ? (marcaActiva?.marca.nombre ?? undefined) : undefined)}
               </p>
               {groups.map((g) => (
                 <Group
                   key={g.id}
-                  node={g.id === 'grp.marca' && marcaActiva ? { ...g, title: `${marcaActiva.marca.nombre} Web` } : g}
+                  node={g}
                   level={1}
                   activeSlug={activeSlug}
                   roleName={roleName}
@@ -333,11 +333,12 @@ export function Sidebar({ drawerOpen = false }: { drawerOpen?: boolean }) {
 }
 
 /* ── helpers ── */
-function sectionLabel(s: string): string {
+function sectionLabel(s: string, marcaNombre?: string): string {
   // Manifest sections are upper-case; reference renders them title-ish.
+  // MARCA muestra la marca activa ("FPTecnologi Web").
+  if (s === 'MARCA') return marcaNombre ? `${marcaNombre} Web` : 'Marca activa';
   const map: Record<string, string> = {
     GENERAL: 'General',
-    MARCA: 'Marca activa',
     MAIN: 'Configuración',
     APPLICATIONS: 'Applications',
     MODULES: 'Modules',
