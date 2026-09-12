@@ -288,6 +288,7 @@ export function Sidebar({ drawerOpen = false }: { drawerOpen?: boolean }) {
   const roleName = adminMode
     ? (isAdmin ? 'admin' : (marcas[0]?.rol.nombre ?? null))
     : (marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre ?? null);
+  const marcaActiva = !adminMode ? (marcas.find((m) => m.marcaId === activeMarcaId) ?? null) : null;
   useFocusTrap(rootRef, drawerOpen, '.ax-marcaswitch__trigger');
 
   return (
@@ -306,7 +307,7 @@ export function Sidebar({ drawerOpen = false }: { drawerOpen?: boolean }) {
       {/* ===== NAV TREE ===== */}
       <nav className="ax-sidebar__nav" role="tree" aria-label="Main menu">
         {sections().map((section) => {
-          const groups = groupsInSection(section).filter((g) => g.inMenu && visibleForRole(g, roleName) && (g.id !== 'grp.marca' || !adminMode));
+          const groups = groupsInSection(section).filter((g) => g.inMenu && visibleForRole(g, roleName) && (g.id !== 'grp.marca' || !adminMode) && (g.id !== 'grp.general' || adminMode));
           if (groups.length === 0) return null;
           return (
             <div key={section}>
@@ -316,7 +317,7 @@ export function Sidebar({ drawerOpen = false }: { drawerOpen?: boolean }) {
               {groups.map((g) => (
                 <Group
                   key={g.id}
-                  node={g}
+                  node={g.id === 'grp.marca' && marcaActiva ? { ...g, title: `${marcaActiva.marca.nombre} Web` } : g}
                   level={1}
                   activeSlug={activeSlug}
                   roleName={roleName}
