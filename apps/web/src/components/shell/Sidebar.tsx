@@ -303,7 +303,7 @@ function ApiStatus() {
   );
 }
 
-export function Sidebar({ drawerOpen = false }: { drawerOpen?: boolean }) {
+export function Sidebar({ drawerOpen = false, onNavToggle }: { drawerOpen?: boolean; onNavToggle: () => void }) {
   const activeSlug = slugFromPath(usePathname() || '/');
   const rootRef = useRef<HTMLElement>(null);
   const { marcas, activeMarcaId, adminMode } = useAuth();
@@ -322,6 +322,9 @@ export function Sidebar({ drawerOpen = false }: { drawerOpen?: boolean }) {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo-fptecnologi.svg" alt="FPTecnologi" width={150} style={{ height: 'auto', maxWidth: '100%' }} />
         </Link>
+        <button type="button" className="ax-nav-toggle ax-icon-btn" onClick={onNavToggle} aria-label="Toggle menu">
+          <svg className="ax-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" width={24} height={24} aria-hidden="true"><path d="M4 6l16 0" /><path d="M4 12l16 0" /><path d="M4 18l16 0" /></svg>
+        </button>
       </div>
 
       {/* ===== MARCA SWITCHER ===== */}
