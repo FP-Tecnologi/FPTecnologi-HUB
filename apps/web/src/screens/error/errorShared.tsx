@@ -37,7 +37,7 @@ export function StatusTools() {
       </button>
       <Link className="ax-btn ax-btn--ghost ax-btn--sm" href="/">
         {ARROW_BACK}
-        <span className="ax-btn__label">Back to dashboard</span>
+        <span className="ax-btn__label">Volver al panel</span>
       </Link>
     </div>
   );

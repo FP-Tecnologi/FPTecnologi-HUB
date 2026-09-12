@@ -65,10 +65,10 @@ export function Header({
         onClick={onCommand}
         aria-haspopup="dialog"
         aria-controls="ax-command"
-        aria-label="Search or jump to"
+        aria-label="Buscar o ir a"
       >
         {ICON.search}
-        <span className="ax-search__placeholder">Search or jump to…</span>
+        <span className="ax-search__placeholder">Buscar o ir a…</span>
         <kbd className="ax-search__keycap">⌘K</kbd>
       </button>
 

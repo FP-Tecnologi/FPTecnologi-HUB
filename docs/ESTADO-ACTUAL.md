@@ -280,3 +280,7 @@ sobre este mismo repo. Estado real hoy:
   (identidad, stats reales, marcas), Cuenta (editar), Seguridad y Avisos.
   Eliminadas rutas /perfil y /configuracion, pantallas Profile.tsx y
   ProfileSettings.tsx y sus nodos del manifest.
+- **Usuarios y equipo con relleno + español en el chrome**: pantalla Team
+  con 10 miembros de ejemplo (buscador, filtro por rol, invitar), ruta
+  /usuarios y nota de datos de ejemplo. Footer, buscador ⌘K, menú de perfil
+  y páginas de error en español. Regla: interfaz siempre en español.

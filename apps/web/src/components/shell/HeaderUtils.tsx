@@ -111,11 +111,11 @@ export function HeaderUtils({ onCustomizer }: { onCustomizer: () => void }) {
       >
         <div className="ax-profile__card">
           <img className="ax-avatar" src="https://i.pravatar.cc/80?img=12" alt="" width={40} height={40} />
-          <span className="ax-profile__card-meta"><b>{user?.nombre || 'Account'}</b><small>{user?.email || ''}</small></span>
+          <span className="ax-profile__card-meta"><b>{user?.nombre || 'Cuenta'}</b><small>{user?.email || ''}</small></span>
         </div>
         <Link className="ax-dropdown__item" role="menuitem" href="/cuenta">Mi cuenta</Link>
         <div className="ax-dropdown__divider" role="separator"></div>
-        <button type="button" className="ax-dropdown__item ax-dropdown__item--danger" role="menuitem" onClick={() => logout()} style={{ width: '100%', textAlign: 'start', background: 'none', border: 'none', cursor: 'pointer' }}>Log Out</button>
+        <button type="button" className="ax-dropdown__item ax-dropdown__item--danger" role="menuitem" onClick={() => logout()} style={{ width: '100%', textAlign: 'start', background: 'none', border: 'none', cursor: 'pointer' }}>Cerrar sesión</button>
       </Dropdown>
 
       {/* 11 · CUSTOMIZER TRIGGER */}

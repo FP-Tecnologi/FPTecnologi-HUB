@@ -13,10 +13,10 @@ export function Footer() {
         <span className="ax-footer__version ax-mono">v0.1.0</span>
       </div>
       <nav className="ax-footer__links" aria-label="Footer">
-        <Link className="ax-footer__link" href="/pages/landing">About</Link>
-        <Link className="ax-footer__link" href="/soporte">Support</Link>
-        <Link className="ax-footer__link" href="/pages/terms">Terms</Link>
-        <Link className="ax-footer__link" href="/pages/privacy">Privacy</Link>
+        <Link className="ax-footer__link" href="/pages/landing">Nosotros</Link>
+        <Link className="ax-footer__link" href="/soporte">Soporte</Link>
+        <Link className="ax-footer__link" href="/pages/terms">Términos</Link>
+        <Link className="ax-footer__link" href="/pages/privacy">Privacidad</Link>
       </nav>
     </footer>
   );
