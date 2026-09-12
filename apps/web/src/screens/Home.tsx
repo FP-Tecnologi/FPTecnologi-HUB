@@ -1,9 +1,10 @@
 'use client';
 /*
  * FPTecnologi-HUB — Panel general (ruta "/"): une todas las marcas en un
- * solo lugar para el administrador. Tarjeta por marca (tu rol + botón para
- * gestionarla) y accesos a Usuarios y Configuración. Los módulos de cada
- * marca (productos, pedidos…) viven bajo "Marca activa" y muestran
+ * solo lugar para el administrador. Primero la tarjeta Administración
+ * (vista global, con estado seleccionado), luego una tarjeta por marca
+ * (tu rol + botón para gestionarla). Los módulos de cada marca
+ * (productos, pedidos…) viven bajo "Marca activa" y muestran
  * placeholders hasta que su CRUD real se construye.
  */
 import Link from 'next/link';
@@ -13,11 +14,16 @@ import { useAuth } from '../context/AuthContext';
 
 export function Home() {
   const router = useRouter();
-  const { user, marcas, activeMarcaId, setActiveMarcaId } = useAuth();
+  const { user, marcas, activeMarcaId, setActiveMarcaId, adminMode, setAdminMode } = useAuth();
   const esAdmin = marcas.some((m) => m.rol.nombre.toLowerCase() === 'admin');
 
   function gestionar(marcaId: string) {
     setActiveMarcaId(marcaId);
+    router.push('/');
+  }
+
+  function verAdmin() {
+    setAdminMode(true);
     router.push('/');
   }
 
@@ -26,10 +32,48 @@ export function Home() {
       <PageHead title="Panel general" subtitle={`Bienvenido${user?.nombre ? `, ${user.nombre}` : ''} — ${marcas.length} marca(s) a tu cargo.`} />
 
       <div className="ax-dash-grid">
+        {esAdmin && (
+          <section
+            className="ax-card ax-col--4"
+            role="region"
+            aria-label="Administración"
+            style={adminMode ? { border: '1px solid var(--ax-accent)', background: 'var(--ax-accent-wash)' } : undefined}
+          >
+            <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
+              <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', alignItems: 'center' }}>
+                <span aria-hidden="true" style={{ width: 12, height: 12, borderRadius: '50%', background: adminMode ? 'var(--ax-accent)' : 'var(--ax-fill-hover)' }} />
+                <h2 className="ax-card__title" style={{ margin: 0 }}>Administración</h2>
+                {adminMode && (
+                  <span className="ax-badge ax-badge--soft ax-badge--accent ax-badge--pill" style={{ marginLeft: 'auto' }}>Seleccionada</span>
+                )}
+              </div>
+              <p style={{ margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
+                Vista global: panel unido, usuarios, notificaciones y soporte de todas las marcas.
+              </p>
+              {adminMode ? (
+                <p style={{ margin: 0, fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>
+                  Estás viendo la administración global.
+                </p>
+              ) : (
+                <button type="button" className="ax-btn ax-btn--secondary" onClick={verAdmin}>
+                  <span className="ax-btn__label">Ver administración</span>
+                </button>
+              )}
+              <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
+                <Link className="ax-btn ax-btn--ghost ax-btn--sm" href="/usuarios">
+                  <span className="ax-btn__label">Usuarios y equipo</span>
+                </Link>
+                <Link className="ax-btn ax-btn--ghost ax-btn--sm" href="/notificaciones">
+                  <span className="ax-btn__label">Notificaciones</span>
+                </Link>
+              </div>
+            </div>
+          </section>
+        )}
         {marcas.map((m) => {
-          const activa = m.marcaId === activeMarcaId;
+          const activa = !adminMode && m.marcaId === activeMarcaId;
           return (
-            <section key={m.marcaId} className="ax-card ax-col--4" role="region" aria-label={m.marca.nombre}>
+            <section key={m.marcaId} className="ax-card ax-col--4" role="region" aria-label={m.marca.nombre} style={activa ? { border: '1px solid var(--ax-accent)', background: 'var(--ax-accent-wash)' } : undefined}>
               <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
                 <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', alignItems: 'center' }}>
                   <span aria-hidden="true" style={{ width: 12, height: 12, borderRadius: '50%', background: activa ? 'var(--ax-accent)' : 'var(--ax-fill-hover)' }} />
@@ -54,25 +98,6 @@ export function Home() {
             </section>
           );
         })}
-
-        {esAdmin && (
-          <section className="ax-card ax-col--4" role="region" aria-label="Administración">
-            <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
-              <h2 className="ax-card__title" style={{ margin: 0 }}>Administración</h2>
-              <p style={{ margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
-                Usuarios, roles y ajustes globales del HUB.
-              </p>
-              <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
-                <Link className="ax-btn ax-btn--ghost" href="/usuarios">
-                  <span className="ax-btn__label">Usuarios y equipo</span>
-                </Link>
-                <Link className="ax-btn ax-btn--ghost" href="/configuracion">
-                  <span className="ax-btn__label">Configuración</span>
-                </Link>
-              </div>
-            </div>
-          </section>
-        )}
 
         {marcas.length === 0 && (
           <section className="ax-card ax-col--12" role="region" aria-label="Sin marcas">
