@@ -226,7 +226,7 @@ function Group({ node, level, activeSlug, roleName }: GroupProps) {
             />
           ),
         )}
-        {showBrands && marcas.map((m) => {
+        {showBrands && (am ? marcas : marcas.filter((m) => m.marcaId === activeId)).map((m) => {
           const isActive = !am && m.marcaId === activeId;
           const cls = ['ax-nav__item', 'ax-nav__item--child'];
           if (isActive) cls.push('ax-nav__item--active', 'is-active');
