@@ -307,7 +307,7 @@ export function Sidebar({ drawerOpen = false }: { drawerOpen?: boolean }) {
       {/* ===== NAV TREE ===== */}
       <nav className="ax-sidebar__nav" role="tree" aria-label="Main menu">
         {sections().map((section) => {
-          const groups = groupsInSection(section).filter((g) => g.inMenu && visibleForRole(g, roleName) && (g.section !== 'MARCA' || !adminMode) && (g.id !== 'grp.general' || adminMode));
+          const groups = groupsInSection(section).filter((g) => g.inMenu && visibleForRole(g, roleName) && (g.section !== 'MARCA' && g.section !== 'INICIO' || !adminMode) && (g.id !== 'grp.general' || adminMode));
           if (groups.length === 0) return null;
           return (
             <div key={section}>
