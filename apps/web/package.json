@@ -2,7 +2,7 @@
   "name": "fptecnologi-dashboard",
   "private": true,
   "version": "0.1.0",
-  "description": "Dashboard administrativo de FPTecnologi-HUB (Next.js 15 + React 19 + Tailwind v4).",
+  "description": "Dashboard administrativo de FPTecnologi-HUB (Next.js 16 + React 19 + Tailwind v4).",
   "license": "LicenseRef-Envato-Regular",
   "scripts": {
     "dev": "next dev",
@@ -14,15 +14,15 @@
     "apexcharts": "^4.4.0",
     "leaflet": "^1.9.4",
     "next": "16.3.4",
-    "react": "^19.2.8",
-    "react-dom": "^19.2.8"
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.7",
     "@tailwindcss/postcss": "^4.3.3",
-    "@types/node": "^22.10.0",
-    "@types/react": "^19.2.18",
-    "@types/react-dom": "^19.2.7",
+    "@types/node": "^22.20.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "eslint": "^9.39.5",
     "eslint-config-next": "^15.3.9",
     "tailwindcss": "^4.1.0",
