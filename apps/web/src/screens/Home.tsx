@@ -27,9 +27,11 @@ export function Home() {
     router.push('/');
   }
 
+  const fechaHoy = new Date().toLocaleDateString('es-PE', { weekday: 'long', day: 'numeric', month: 'long' });
+
   return (
     <>
-      <PageHead title="Panel general" subtitle={`Bienvenido${user?.nombre ? `, ${user.nombre}` : ''} — ${marcas.length} marca(s) a tu cargo.`} />
+      <PageHead title={`¡Hola, ${user?.nombre || 'bienvenido'}! 👋`} subtitle={`Resumen general del estado de la plataforma hoy, ${fechaHoy}.`} />
 
       <div className="ax-dash-grid">
         {esAdmin && (
