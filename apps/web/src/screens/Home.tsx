@@ -10,6 +10,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PageHead } from '../components/shell/PageHead';
+import { Icon } from '../components/ui/Icon';
 import { useAuth } from '../context/AuthContext';
 
 export function Home() {
@@ -56,17 +57,17 @@ export function Home() {
                 </button>
               )}
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
-                <Link className="ax-btn ax-btn--glass ax-btn--sm" href="/usuarios">
-                  <span className="ax-btn__label">Usuarios y equipo</span>
-                </Link>
-                <Link className="ax-btn ax-btn--glass ax-btn--sm" href="/notificaciones">
-                  <span className="ax-btn__label">Notificaciones</span>
+                <Link className="ax-btn ax-btn--glass ax-btn--sm" href="/reportes/ventas">
+                  <Icon name="article" className="ax-btn__icon" />
+                  <span className="ax-btn__label">Reportes</span>
                 </Link>
                 <Link className="ax-btn ax-btn--glass ax-btn--sm" href="/soporte">
-                  <span className="ax-btn__label">Soporte y ayuda</span>
+                  <Icon name="files" className="ax-btn__icon" />
+                  <span className="ax-btn__label">Soporte</span>
                 </Link>
-                <Link className="ax-btn ax-btn--glass ax-btn--sm" href="/reportes/ventas">
-                  <span className="ax-btn__label">Reportes</span>
+                <Link className="ax-btn ax-btn--glass ax-btn--sm" href="/configuracion">
+                  <Icon name="components" className="ax-btn__icon" />
+                  <span className="ax-btn__label">Configuración</span>
                 </Link>
               </div>
             </div>
