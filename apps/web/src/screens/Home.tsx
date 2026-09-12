@@ -43,9 +43,6 @@ export function Home() {
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', alignItems: 'center' }}>
                 <span aria-hidden="true" style={{ width: 12, height: 12, borderRadius: '50%', background: adminMode ? 'var(--ax-accent)' : 'var(--ax-fill-hover)' }} />
                 <h2 className="ax-card__title" style={{ margin: 0 }}>Administración</h2>
-                {adminMode && (
-                  <span className="ax-badge ax-badge--soft ax-badge--accent ax-badge--pill" style={{ marginLeft: 'auto' }}>Seleccionada</span>
-                )}
               </div>
               <p style={{ margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
                 Vista global: panel unido, usuarios, notificaciones y soporte de todas las marcas.
