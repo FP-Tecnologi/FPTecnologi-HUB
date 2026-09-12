@@ -254,6 +254,14 @@ sobre este mismo repo. Estado real hoy:
   GENERAL (Panel general, Usuarios y Configuración), se oculta Marca activa
   y no se manda `x-marca-id`. Persiste en `localStorage`, sobrevive
   recargas y se limpia al salir.
+- **Limpieza de ramas + todo actualizado a main**: 14 ramas Dependabot
+  revisadas — 1 ya mergeada se borró, 2 grupos menores verificados y
+  mergeados a develop (react/tailwind/vite-tsconfig, build+tests OK),
+  11 majors prematuros cerrados. En paralelo se mergearon por web a main
+  Next 16 + TS 7 + types/node 26: se integraron a develop (único fix:
+  `baseUrl` eliminado del tsconfig, TS 7 lo retiró), todo verificado
+  (API 52/52, web build OK) y release develop→main pusheado. Ramas
+  restantes: solo develop/main.
 - **Grupo Mi cuenta con 3 módulos**: Mi perfil (/perfil: identidad, stats,
   marcas), Configuración (/configuracion: editar, seguridad, avisos) y
   Centro de ayuda (/ayuda: tickets locales por ahora). /cuenta redirige
