@@ -8,7 +8,6 @@
     { "id": "grp.general", "title": "General", "slug": "panel-general", "icon": "apps", "parent": null, "section": "GENERAL", "order": 1, "badge": null, "keywords": ["panel", "general", "resumen"], "inMenu": true, "alias": null },
     { "id": "panel.resumen", "title": "Panel general", "slug": "", "icon": "layout-dashboard", "parent": "grp.general", "section": null, "order": 1, "badge": null, "keywords": ["panel", "general", "inicio", "home", "resumen"], "inMenu": true, "alias": null },
     { "id": "general.usuarios", "title": "Usuarios y equipo", "slug": "usuarios", "icon": "users-group", "parent": "grp.general", "section": null, "order": 2, "badge": null, "keywords": ["usuarios", "equipo", "roles"], "inMenu": true, "alias": null, "roles": ["admin"] },
-    { "id": "general.configuracion", "title": "Configuración", "slug": "configuracion", "icon": "components", "parent": "grp.general", "section": null, "order": 3, "badge": null, "keywords": ["configuracion", "ajustes"], "inMenu": true, "alias": null, "roles": ["admin"] },
     { "id": "general.notificaciones", "title": "Notificaciones", "slug": "notificaciones", "icon": "bell", "parent": "grp.general", "section": null, "order": 4, "badge": null, "keywords": ["notificaciones", "avisos"], "inMenu": true, "alias": null },
     { "id": "general.soporte", "title": "Soporte y ayuda", "slug": "soporte", "icon": "files", "parent": "grp.general", "section": null, "order": 5, "badge": null, "keywords": ["soporte", "ayuda"], "inMenu": true, "alias": null },
     { "id": "grp.marca", "title": "Marca activa", "slug": "productos", "icon": "shopping-bag", "parent": null, "section": "MARCA", "order": 2, "badge": null, "keywords": ["marca", "productos", "pedidos"], "inMenu": true, "alias": null },
@@ -18,8 +17,7 @@
     { "id": "marca.cotizaciones", "title": "Cotizaciones", "slug": "cotizaciones", "icon": "article", "parent": "grp.marca", "section": null, "order": 4, "badge": null, "keywords": ["cotizaciones", "cotizar"], "inMenu": true, "alias": null },
 
     { "id": "grp.cuenta", "title": "Mi cuenta", "slug": "cuenta", "icon": "user", "parent": null, "section": "MAIN", "order": 2, "badge": null, "keywords": ["cuenta", "perfil", "marcas", "empresas"], "inMenu": true, "alias": null },
-    { "id": "cuenta.perfil", "title": "Mi cuenta", "slug": "cuenta", "icon": "user", "parent": "grp.cuenta", "section": null, "order": 1, "badge": null, "keywords": ["cuenta", "perfil"], "inMenu": true, "alias": null },
-    { "id": "cuenta.ver-perfil", "title": "Ver perfil", "slug": "perfil", "icon": "user", "parent": "grp.cuenta", "section": null, "order": 2, "badge": null, "keywords": ["perfil", "ver"], "inMenu": true, "alias": null },
+    { "id": "cuenta.perfil", "title": "Mi cuenta", "slug": "cuenta", "icon": "user", "parent": "grp.cuenta", "section": null, "order": 1, "badge": null, "keywords": ["cuenta", "perfil", "configuracion", "ajustes", "seguridad", "avisos"], "inMenu": true, "alias": null },
 
     { "id": "grp.auth", "title": "Authentication", "slug": "auth/sign-in", "icon": "lock", "parent": null, "section": "PAGES", "order": 10, "badge": null, "keywords": ["authentication", "auth", "login"], "inMenu": false, "alias": null },
     { "id": "auth.sign-in", "title": "Iniciar sesión", "slug": "auth/sign-in", "icon": "login", "parent": "grp.auth", "section": null, "order": 1, "badge": null, "keywords": ["sign in", "login"], "inMenu": false, "alias": null },

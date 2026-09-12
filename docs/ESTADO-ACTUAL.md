@@ -275,3 +275,8 @@ sobre este mismo repo. Estado real hoy:
   `ax-icon-btn` (caja cuadrada de 38px) con el nombre de la marca dentro →
   el texto se desbordaba y se incrustaba con el toggle de tema/perfil.
   Ahora usa `ax-btn ghost sm` de ancho automático.
+- **Mi cuenta unificada**: Mi cuenta + Ver perfil + Configuración eran la
+  misma cosa en 3 módulos → una sola página /cuenta con pestañas Perfil
+  (identidad, stats reales, marcas), Cuenta (editar), Seguridad y Avisos.
+  Eliminadas rutas /perfil y /configuracion, pantallas Profile.tsx y
+  ProfileSettings.tsx y sus nodos del manifest.
