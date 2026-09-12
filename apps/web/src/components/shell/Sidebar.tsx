@@ -167,7 +167,7 @@ interface GroupProps {
 
 function Group({ node, level, activeSlug, roleName }: GroupProps) {
   const router = useRouter();
-  const { marcas, activeMarcaId: activeId, adminMode: am, setActiveMarcaId } = useAuth();
+  const { marcas, activeMarcaId: activeId, adminMode: am } = useAuth();
   const children = manifest.childrenOf(node.id).filter((c) => c.inMenu && visibleForRole(c, roleName));
   const showBrands = node.id === 'inicio.dashboards' && marcas.length > 0;
   const containsActive = useMemo(
@@ -239,7 +239,7 @@ function Group({ node, level, activeSlug, roleName }: GroupProps) {
               aria-level={level + 1}
               aria-current={isActive ? 'page' : undefined}
               tabIndex={isActive ? 0 : -1}
-              onClick={() => { setActiveMarcaId(m.marcaId); router.push('/inicio/dashboard'); }}
+              onClick={() => { router.push(`/inicio/dashboard?marca=${m.marcaId}`); }}
             >
               <span className="ax-nav__bar" aria-hidden="true"></span>
               <span className="ax-nav__label" style={{ textTransform: 'capitalize' }}>{m.marca.nombre}</span>

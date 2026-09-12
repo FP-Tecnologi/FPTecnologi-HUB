@@ -14,12 +14,11 @@ import { useAuth } from '../context/AuthContext';
 
 export function Home() {
   const router = useRouter();
-  const { user, marcas, activeMarcaId, setActiveMarcaId, adminMode, setAdminMode } = useAuth();
+  const { user, marcas, activeMarcaId, adminMode, setAdminMode } = useAuth();
   const esAdmin = marcas.some((m) => m.rol.nombre.toLowerCase() === 'admin');
 
   function gestionar(marcaId: string) {
-    setActiveMarcaId(marcaId);
-    router.push('/');
+    router.push(`/inicio/dashboard?marca=${marcaId}`);
   }
 
   function verAdmin() {
@@ -91,7 +90,7 @@ export function Home() {
                   </p>
                 ) : (
                   <button type="button" className="ax-btn ax-btn--secondary" onClick={() => gestionar(m.marcaId)}>
-                    <span className="ax-btn__label">Gestionar esta marca</span>
+                    <span className="ax-btn__label">Ver dashboard</span>
                   </button>
                 )}
               </div>
