@@ -338,7 +338,7 @@ function sectionLabel(s: string): string {
   const map: Record<string, string> = {
     GENERAL: 'General',
     MARCA: 'Marca activa',
-    MAIN: 'Principal',
+    MAIN: 'Configuración',
     APPLICATIONS: 'Applications',
     MODULES: 'Modules',
     PAGES: 'Pages',
