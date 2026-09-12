@@ -65,6 +65,9 @@ export function Home() {
                 <Link className="ax-btn ax-btn--glass ax-btn--sm" href="/soporte">
                   <span className="ax-btn__label">Soporte y ayuda</span>
                 </Link>
+                <Link className="ax-btn ax-btn--glass ax-btn--sm" href="/reportes/ventas">
+                  <span className="ax-btn__label">Reportes</span>
+                </Link>
               </div>
             </div>
           </section>
