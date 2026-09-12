@@ -115,12 +115,6 @@ export function SignInBasic() {
                 </button>
               </form>
 
-              <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'nowrap' }}>
-                <hr className="ax-divider" style={{ flex: '1 1 auto' }} aria-hidden="true" />
-                <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)', whiteSpace: 'nowrap' }}>o</span>
-                <hr className="ax-divider" style={{ flex: '1 1 auto' }} aria-hidden="true" />
-              </div>
-
               <button
                 type="button"
                 className="ax-btn ax-btn--secondary ax-btn--lg ax-btn--block"
