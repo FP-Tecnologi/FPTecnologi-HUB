@@ -29,8 +29,10 @@
     { "id": "blogs.lista", "title": "Lista de blogs", "slug": "blogs/lista", "icon": "article", "parent": "marca.blogs", "section": null, "order": 1, "badge": null, "keywords": ["blogs", "lista", "articulos"], "inMenu": true, "alias": null },
     { "id": "blogs.nuevo", "title": "Nuevo artículo", "slug": "blogs/nuevo", "icon": "components", "parent": "marca.blogs", "section": null, "order": 2, "badge": null, "keywords": ["blog", "nuevo", "crear", "articulo"], "inMenu": true, "alias": null },
 
-    { "id": "grp.cuenta", "title": "Mi cuenta", "slug": "cuenta", "icon": "user", "parent": null, "section": "MAIN", "order": 2, "badge": null, "keywords": ["cuenta", "perfil", "marcas", "empresas"], "inMenu": true, "alias": null },
-    { "id": "cuenta.perfil", "title": "Mi cuenta", "slug": "cuenta", "icon": "user", "parent": "grp.cuenta", "section": null, "order": 1, "badge": null, "keywords": ["cuenta", "perfil", "configuracion", "ajustes", "seguridad", "avisos"], "inMenu": true, "alias": null },
+    { "id": "grp.cuenta", "title": "Mi cuenta", "slug": "perfil", "icon": "user", "parent": null, "section": "MAIN", "order": 2, "badge": null, "keywords": ["cuenta", "perfil", "mis datos"], "inMenu": true, "alias": null },
+    { "id": "cuenta.perfil", "title": "Mi perfil", "slug": "perfil", "icon": "user", "parent": "grp.cuenta", "section": null, "order": 1, "badge": null, "keywords": ["perfil", "ver", "identidad"], "inMenu": true, "alias": null },
+    { "id": "cuenta.config", "title": "Configuración", "slug": "configuracion", "icon": "components", "parent": "grp.cuenta", "section": null, "order": 2, "badge": null, "keywords": ["configuracion", "ajustes", "seguridad", "avisos", "editar"], "inMenu": true, "alias": null },
+    { "id": "cuenta.ayuda", "title": "Centro de ayuda", "slug": "ayuda", "icon": "files", "parent": "grp.cuenta", "section": null, "order": 3, "badge": null, "keywords": ["ayuda", "tickets", "soporte", "problemas"], "inMenu": true, "alias": null },
 
     { "id": "grp.auth", "title": "Authentication", "slug": "auth/sign-in", "icon": "lock", "parent": null, "section": "PAGES", "order": 10, "badge": null, "keywords": ["authentication", "auth", "login"], "inMenu": false, "alias": null },
     { "id": "auth.sign-in", "title": "Iniciar sesión", "slug": "auth/sign-in", "icon": "login", "parent": "grp.auth", "section": null, "order": 1, "badge": null, "keywords": ["sign in", "login"], "inMenu": false, "alias": null },

@@ -339,7 +339,7 @@ function sectionLabel(s: string, marcaNombre?: string): string {
   if (s === 'MARCA') return marcaNombre ? `${marcaNombre} Web` : 'Marca activa';
   const map: Record<string, string> = {
     GENERAL: 'General',
-    MAIN: 'Configuración',
+    MAIN: 'Cuenta',
     APPLICATIONS: 'Applications',
     MODULES: 'Modules',
     PAGES: 'Pages',

@@ -254,6 +254,10 @@ sobre este mismo repo. Estado real hoy:
   GENERAL (Panel general, Usuarios y Configuración), se oculta Marca activa
   y no se manda `x-marca-id`. Persiste en `localStorage`, sobrevive
   recargas y se limpia al salir.
+- **Grupo Mi cuenta con 3 módulos**: Mi perfil (/perfil: identidad, stats,
+  marcas), Configuración (/configuracion: editar, seguridad, avisos) y
+  Centro de ayuda (/ayuda: tickets locales por ahora). /cuenta redirige
+  a /perfil. Sección MAIN → 'Cuenta'.
 - **Desbloqueo 2FA por admin**: `POST /usuarios/2fa/reset` (admin de la
   marca + objetivo de esa marca; apaga TOTP, borra códigos, revoca
   sesiones; 3 tests, 52/52 OK) + tarjeta en Usuarios y equipo con correo
