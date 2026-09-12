@@ -284,7 +284,7 @@ export function Customizer({ open, onClose }: { open: boolean; onClose: () => vo
       <div className="ax-customizer__head">
         <div className="ax-customizer__head-text">
           <h2 id="ax-customizer-title" className="ax-customizer__title">Personalización</h2>
-          <p className="ax-customizer__sub">Vista previa en vivo — los cambios se guardan solos</p>
+          <p className="ax-customizer__sub">Opciones para elegir — los cambios se guardan solos según la vista previa en vivo</p>
         </div>
         <button type="button" className="ax-icon-btn ax-customizer__close" onClick={onClose} aria-label="Cerrar personalizador">
           <svg className="ax-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" width={24} height={24} aria-hidden="true"><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg>
