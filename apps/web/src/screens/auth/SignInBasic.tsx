@@ -82,7 +82,7 @@ export function SignInBasic() {
               )}
 
               <form className="ax-stack" onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }} noValidate>
-                <div className="ax-field">
+                <div className="ax-field" style={{ marginBlockStart: 'var(--ax-space-2)' }}>
                   <label className="ax-label" htmlFor="si-email">Correo o usuario</label>
                   <input id="si-email" type="text" className={`ax-input${emailErr ? ' is-invalid' : ''}`} autoComplete="username" placeholder="tu@correo.com"
                     value={email} onChange={(e) => setEmail(e.target.value)} aria-invalid={emailErr ? 'true' : 'false'} aria-describedby="si-email-msg" required />
