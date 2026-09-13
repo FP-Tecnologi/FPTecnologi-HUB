@@ -29,7 +29,8 @@ function GoogleCallbackInner() {
     }
     try {
       const usuario = JSON.parse(usuarioRaw);
-      completeGoogleLogin(accessToken, refreshToken, usuario).then(() => router.replace('/'));
+      const primeraVez = searchParams.get('primeraVez') === 'true';
+      completeGoogleLogin(accessToken, refreshToken, usuario, primeraVez).then(() => router.replace('/'));
     } catch {
       router.replace('/auth/sign-in?error=google');
     }

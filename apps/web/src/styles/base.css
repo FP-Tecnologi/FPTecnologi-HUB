@@ -635,6 +635,26 @@ hr {
   :is([data-ax-collapsed]:not([data-ax-sidebar-style]), [data-ax-sidebar-behavior='compact']) .ax-sidebar__foot {
     padding-inline: var(--ax-space-3);
   }
+
+  /* FPTecnologi-HUB: la barra propia de este proyecto (logo real + switch de
+     marca) no existía en la referencia de Vireo, así que el bloque de arriba
+     no la contempla. Logo y hamburguesa se apilan (antes quedaban lado a
+     lado, recortados en 76px) y el switch de marca se oculta -- es un botón
+     con texto largo (nombre de marca), no cabe en el riel de solo íconos;
+     para cambiar de marca hay que expandir el sidebar. */
+  :is([data-ax-collapsed]:not([data-ax-sidebar-style]), [data-ax-sidebar-behavior='compact']) .ax-sidebar__brand {
+    flex-direction: column;
+    block-size: auto;
+    gap: var(--ax-space-2);
+    padding-block: var(--ax-space-3);
+  }
+  :is([data-ax-collapsed]:not([data-ax-sidebar-style]), [data-ax-sidebar-behavior='compact']) .ax-sidebar__logo img {
+    inline-size: 40px;
+    block-size: auto;
+  }
+  :is([data-ax-collapsed]:not([data-ax-sidebar-style]), [data-ax-sidebar-behavior='compact']) .ax-marcaswitch {
+    display: none;
+  }
 }
 
 /* ── ICON-TEXT HOVER (rest 76px → 264px overlay on hover, no reflow) ──────
@@ -1127,6 +1147,15 @@ hr {
      to do (same as the expanded / compact behavior locks above). Remove it —
      the JS toggleSidebar() also no-ops via isAutoRail(). */
   :where(html):not([data-ax-shell-style='detached']):not([data-ax-sidebar-style]) .ax-nav-toggle {
+    display: none;
+  }
+  /* FPTecnologi-HUB: mismo fix de logo/switch de marca que §7b (ver ahí el
+     porqué) — acá no hace falta apilar nada porque el toggle ya está oculto. */
+  :where(html):not([data-ax-shell-style='detached']):not([data-ax-sidebar-style]) .ax-sidebar__logo img {
+    inline-size: 40px;
+    block-size: auto;
+  }
+  :where(html):not([data-ax-shell-style='detached']):not([data-ax-sidebar-style]) .ax-marcaswitch {
     display: none;
   }
 }

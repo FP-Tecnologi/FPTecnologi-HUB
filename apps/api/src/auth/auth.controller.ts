@@ -126,7 +126,7 @@ export class AuthController {
       const result = await this.authService.loginOrRegisterGoogle(profile.email, profile.nombre, profile.avatarUrl, marcaId);
       const usuario = encodeURIComponent(JSON.stringify(result.usuario));
       res.redirect(
-        `${webOrigin}/auth/google/callback?accessToken=${result.accessToken}&refreshToken=${result.refreshToken}&usuario=${usuario}`,
+        `${webOrigin}/auth/google/callback?accessToken=${result.accessToken}&refreshToken=${result.refreshToken}&usuario=${usuario}&primeraVez=${result.primeraVez}`,
       );
     } catch (error) {
       this.logger.error('Falló el login con Google', error as Error);

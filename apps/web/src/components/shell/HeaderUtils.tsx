@@ -112,11 +112,11 @@ export function HeaderUtils({ onCustomizer }: { onCustomizer: () => void }) {
         panelClassName="ax-dropdown ax-profile__menu"
         trigger={({ open, triggerProps }) => (
           <button type="button" className="ax-profile__trigger has-meta" aria-label="Account menu" {...triggerProps} aria-expanded={open}>
-            <Avatar className="ax-avatar ax-profile__avatar" nombre={user?.nombre} email={user?.email} avatarUrl={user?.avatarUrl} size={32} />
-            <span className="ax-profile__meta">
+            <span className="ax-profile__meta" style={{ textAlign: 'right' }}>
               <b>{user?.nombre || user?.email || 'Cuenta'}</b>
               {roleLabel && <small>{roleLabel}</small>}
             </span>
+            <Avatar className="ax-avatar ax-profile__avatar" nombre={user?.nombre} email={user?.email} avatarUrl={user?.avatarUrl} size={32} />
           </button>
         )}
       >

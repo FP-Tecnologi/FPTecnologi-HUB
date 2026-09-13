@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PageHead } from '../components/shell/PageHead';
 import { Icon } from '../components/ui/Icon';
+import { WelcomeModal } from '../components/ui/WelcomeModal';
 import { useAuth } from '../context/AuthContext';
 
 export function Home() {
@@ -34,6 +35,7 @@ export function Home() {
   if (!adminMode && marcaActiva) {
     return (
       <>
+        <WelcomeModal nombre={user?.nombre} />
         <PageHead title={marcaActiva.marca.nombre} subtitle={`Dashboard de ${marcaActiva.marca.nombre} · ${fechaHoy}.`} />
         <div className="ax-dash-grid">
           <section className="ax-card ax-col--12" role="region" aria-label="Dashboard de la marca">
@@ -54,6 +56,7 @@ export function Home() {
 
   return (
     <>
+      <WelcomeModal nombre={user?.nombre} />
       <PageHead title={`¡Hola, ${user?.nombre || 'bienvenido'}! 👋`} subtitle={`Resumen general del estado de la plataforma hoy, ${fechaHoy}.`} />
 
       <div className="ax-dash-grid">

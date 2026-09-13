@@ -62,6 +62,7 @@ export class AuthService {
         email,
         passwordHash,
         nombre,
+        bienvenidaVista: false,
         marcas: { create: { marcaId, rolId: rolCliente.id } },
       },
     });
@@ -146,7 +147,7 @@ export class AuthService {
     }
 
     if (deviceToken && (await this.isTrustedDevice(usuario.id, deviceToken))) {
-      return this.issueTokens(usuario, usuario.marcas.map((m) => ({ marcaId: m.marcaId, rol: m.rol.nombre })));
+      return this.issueTokens(usuario, usuario.marcas.map((m) => ({ marcaId: m.marcaId, rol: m.rol.nombre })), { markWelcome: true });
     }
 
     if (usuario.totpEnabled) {
@@ -201,7 +202,7 @@ export class AuthService {
       data: { consumedAt: new Date() },
     });
 
-    const tokens = await this.issueTokens(usuario, usuario.marcas.map((m) => ({ marcaId: m.marcaId, rol: m.rol.nombre })));
+    const tokens = await this.issueTokens(usuario, usuario.marcas.map((m) => ({ marcaId: m.marcaId, rol: m.rol.nombre })), { markWelcome: true });
     const deviceToken = trustDevice ? await this.issueTrustedDevice(usuario.id) : undefined;
     return { ...tokens, deviceToken };
   }
@@ -222,7 +223,7 @@ export class AuthService {
       throw new UnauthorizedException('Código inválido');
     }
 
-    const tokens = await this.issueTokens(usuario, usuario.marcas.map((m) => ({ marcaId: m.marcaId, rol: m.rol.nombre })));
+    const tokens = await this.issueTokens(usuario, usuario.marcas.map((m) => ({ marcaId: m.marcaId, rol: m.rol.nombre })), { markWelcome: true });
     const deviceToken = trustDevice ? await this.issueTrustedDevice(usuario.id) : undefined;
     return { ...tokens, deviceToken };
   }
@@ -251,7 +252,7 @@ export class AuthService {
       // pida "olvidé mi contraseña" y se ponga una real.
       const passwordHash = await bcrypt.hash(randomBytes(32).toString('hex'), SALT_ROUNDS);
       const created = await this.prisma.usuario.create({
-        data: { email, passwordHash, nombre, avatarUrl, marcas: { create: { marcaId, rolId: rolCliente.id } } },
+        data: { email, passwordHash, nombre, avatarUrl, bienvenidaVista: false, marcas: { create: { marcaId, rolId: rolCliente.id } } },
         include: { marcas: { include: { rol: true } } },
       });
       await this.mailService.sendWelcome(created.email, created.nombre);
@@ -268,7 +269,7 @@ export class AuthService {
       });
     }
 
-    return this.issueTokens(usuario, usuario.marcas.map((m) => ({ marcaId: m.marcaId, rol: m.rol.nombre })));
+    return this.issueTokens(usuario, usuario.marcas.map((m) => ({ marcaId: m.marcaId, rol: m.rol.nombre })), { markWelcome: true });
   }
 
   /** Generates a 30-day "trust this device" token, hashed at rest like refresh tokens. */
@@ -450,8 +451,9 @@ export class AuthService {
   }
 
   private async issueTokens(
-    usuario: { id: string; email: string; nombre: string | null; avatarUrl?: string | null },
+    usuario: { id: string; email: string; nombre: string | null; avatarUrl?: string | null; bienvenidaVista?: boolean },
     marcas: { marcaId: string; rol: string }[],
+    opts: { markWelcome?: boolean } = {},
   ) {
     const jwtConfig = this.configService.get<AppConfig['jwt']>('jwt')!;
     const payload = { sub: usuario.id, email: usuario.email, marcas };
@@ -471,11 +473,20 @@ export class AuthService {
       data: { usuarioId: usuario.id, tokenHash: refreshTokenHash, expiresAt },
     });
 
+    // Modal de bienvenida: solo la primera vez que se completa un login de
+    // verdad (nunca en refresh(), que corre en silencio cada pocos minutos).
+    let primeraVez = false;
+    if (opts.markWelcome && usuario.bienvenidaVista === false) {
+      await this.prisma.usuario.update({ where: { id: usuario.id }, data: { bienvenidaVista: true } });
+      primeraVez = true;
+    }
+
     return {
       accessToken,
       refreshToken,
       marcas,
       usuario: { id: usuario.id, email: usuario.email, nombre: usuario.nombre, avatarUrl: usuario.avatarUrl ?? null },
+      primeraVez,
     };
   }
 

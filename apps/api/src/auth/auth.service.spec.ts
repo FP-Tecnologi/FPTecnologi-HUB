@@ -29,7 +29,12 @@ describe('AuthService', () => {
       deleteMany: ReturnType<typeof vi.fn>;
       create: ReturnType<typeof vi.fn>;
     };
-    refreshToken: { create: ReturnType<typeof vi.fn>; updateMany: ReturnType<typeof vi.fn> };
+    refreshToken: {
+      create: ReturnType<typeof vi.fn>;
+      updateMany: ReturnType<typeof vi.fn>;
+      findMany: ReturnType<typeof vi.fn>;
+      update: ReturnType<typeof vi.fn>;
+    };
     dispositivoConfiable: {
       create: ReturnType<typeof vi.fn>;
       findMany: ReturnType<typeof vi.fn>;
@@ -62,7 +67,7 @@ describe('AuthService', () => {
         deleteMany: vi.fn(),
         create: vi.fn(),
       },
-      refreshToken: { create: vi.fn(), updateMany: vi.fn() },
+      refreshToken: { create: vi.fn(), updateMany: vi.fn(), findMany: vi.fn().mockResolvedValue([]), update: vi.fn() },
       dispositivoConfiable: { create: vi.fn(), findMany: vi.fn().mockResolvedValue([]), updateMany: vi.fn() },
       $transaction: vi.fn((ops: unknown[]) => Promise.all(ops)),
     };
@@ -238,6 +243,32 @@ describe('AuthService', () => {
       expect(prisma.refreshToken.create).toHaveBeenCalledOnce();
     });
 
+    it('flags primeraVez and flips bienvenidaVista on the account\'s first real login', async () => {
+      const codigoHash = await bcrypt.hash('123456', 10);
+      prisma.usuario.findUnique.mockResolvedValue({
+        id: 'u1', email: 'a@b.com', nombre: 'Ana', bienvenidaVista: false, marcas: [],
+      });
+      prisma.otpCode.findFirst.mockResolvedValue({ id: 'otp1', codigoHash, expiresAt: new Date(Date.now() + 60_000) });
+
+      const result = await service.verifyOtp('a@b.com', '123456');
+
+      expect(result.primeraVez).toBe(true);
+      expect(prisma.usuario.update).toHaveBeenCalledWith({ where: { id: 'u1' }, data: { bienvenidaVista: true } });
+    });
+
+    it('does not re-flag primeraVez on later logins once bienvenidaVista is already true', async () => {
+      const codigoHash = await bcrypt.hash('123456', 10);
+      prisma.usuario.findUnique.mockResolvedValue({
+        id: 'u1', email: 'a@b.com', nombre: 'Ana', bienvenidaVista: true, marcas: [],
+      });
+      prisma.otpCode.findFirst.mockResolvedValue({ id: 'otp1', codigoHash, expiresAt: new Date(Date.now() + 60_000) });
+
+      const result = await service.verifyOtp('a@b.com', '123456');
+
+      expect(result.primeraVez).toBe(false);
+      expect(prisma.usuario.update).not.toHaveBeenCalled();
+    });
+
     it('stores a hashed "trusted device" token and returns the raw one only when trustDevice is true', async () => {
       const codigoHash = await bcrypt.hash('123456', 10);
       prisma.usuario.findUnique.mockResolvedValue({
@@ -279,6 +310,20 @@ describe('AuthService', () => {
       jwtService.verifyAsync.mockRejectedValue(new Error('bad signature'));
 
       await expect(service.refresh('garbage')).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('never re-triggers the welcome modal — refresh runs silently every few minutes', async () => {
+      jwtService.verifyAsync.mockResolvedValue({ sub: 'u1', email: 'a@b.com' });
+      const tokenHash = await bcrypt.hash('the-refresh-token', 10);
+      prisma.refreshToken.findMany.mockResolvedValue([{ id: 'rt1', tokenHash }]);
+      prisma.usuario.findUnique.mockResolvedValue({
+        id: 'u1', email: 'a@b.com', nombre: 'Ana', activo: true, bienvenidaVista: false, marcas: [],
+      });
+
+      const result = await service.refresh('the-refresh-token');
+
+      expect(result.primeraVez).toBe(false);
+      expect(prisma.usuario.update).not.toHaveBeenCalled();
     });
   });
 

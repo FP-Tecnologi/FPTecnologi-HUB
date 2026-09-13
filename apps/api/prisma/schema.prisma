@@ -60,6 +60,11 @@ model Usuario {
   nombre       String?
   avatarUrl    String?
   activo       Boolean  @default(true)
+  // Default true a propósito: la migración marca a todos los usuarios ya
+  // existentes como "ya la vio" (nadie que ya usa el sistema debe recibir
+  // el modal de bienvenida). register()/loginOrRegisterGoogle() la ponen
+  // en false explícitamente al crear una cuenta nueva.
+  bienvenidaVista Boolean @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

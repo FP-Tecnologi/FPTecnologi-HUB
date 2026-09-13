@@ -31,6 +31,8 @@ interface VerifyResult {
   accessToken: string;
   refreshToken: string;
   usuario: AuthUser;
+  /** true solo la primerísima vez que la cuenta completa un login real — dispara el modal de bienvenida. */
+  primeraVez?: boolean;
 }
 
 type LoginResult =
@@ -47,7 +49,7 @@ interface AuthContextValue {
   login: (email: string, password: string) => Promise<LoginResult>;
   verifyOtp: (email: string, codigo: string, trustDevice?: boolean) => Promise<VerifyResult>;
   verifyTotp: (email: string, code: string, trustDevice?: boolean) => Promise<VerifyResult>;
-  completeGoogleLogin: (accessToken: string, refreshToken: string, usuario: AuthUser) => Promise<VerifyResult>;
+  completeGoogleLogin: (accessToken: string, refreshToken: string, usuario: AuthUser, primeraVez?: boolean) => Promise<VerifyResult>;
   register: (email: string, password: string, marcaId: string, nombre?: string) => Promise<{ id: string; email: string; nombre: string | null }>;
   requestPasswordReset: (email: string) => Promise<{ sent: true }>;
   confirmPasswordReset: (email: string, codigo: string, newPassword: string) => Promise<void>;
@@ -63,6 +65,7 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 const USER_KEY = 'ax:auth:user';
+export const WELCOME_FLAG = 'ax:welcome';
 /** Persisted flag for the global admin view (no active marca). SSR-safe helpers. */
 const ADMIN_FLAG = 'ax:auth:adminmode';
 function readAdminFlag(): boolean {
@@ -156,6 +159,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     tokenStore.setTokens(result.accessToken, result.refreshToken);
     if (typeof window !== 'undefined') {
       window.localStorage.setItem(USER_KEY, JSON.stringify(result.usuario));
+      // Leído una vez por <WelcomeModal> en Home y borrado ahí — sobrevive
+      // el router.push('/') que sigue a todo login real.
+      if (result.primeraVez) window.sessionStorage.setItem(WELCOME_FLAG, '1');
     }
     setUser(result.usuario);
     await refreshMarcas();
@@ -182,8 +188,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [completeSession]);
 
   /** Called by the /auth/google/callback page once the backend redirects back with tokens in the URL. */
-  const completeGoogleLogin = useCallback(async (accessToken: string, refreshToken: string, usuario: AuthUser) => {
-    return completeSession({ accessToken, refreshToken, usuario });
+  const completeGoogleLogin = useCallback(async (accessToken: string, refreshToken: string, usuario: AuthUser, primeraVez?: boolean) => {
+    return completeSession({ accessToken, refreshToken, usuario, primeraVez });
   }, [completeSession]);
 
   const register = useCallback(async (email: string, password: string, marcaId: string, nombre?: string) => {
