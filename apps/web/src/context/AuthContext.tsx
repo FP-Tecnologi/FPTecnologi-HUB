@@ -130,28 +130,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [setActiveMarcaId]);
 
   useEffect(() => {
-    let cancelled = false;
-    async function bootstrap() {
-      const accessToken = tokenStore.getAccessToken();
-      if (!accessToken) {
-        setLoading(false);
-        return;
-      }
-      try {
-        const storedUser = typeof window !== 'undefined' ? window.localStorage.getItem(USER_KEY) : null;
-        if (storedUser) setUser(JSON.parse(storedUser) as AuthUser);
-        await refreshMarcas();
-      } catch {
-        tokenStore.clear();
-        setUser(null);
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+    const accessToken = tokenStore.getAccessToken();
+    if (!accessToken) {
+      setLoading(false);
+      return;
     }
-    bootstrap();
-    return () => {
-      cancelled = true;
-    };
+    // El usuario ya está en localStorage (sync) — no hace falta esperar la
+    // respuesta de /usuarios/me/marcas para pintar el shell. Antes loading
+    // quedaba en true hasta que esa llamada de red resolvía, así que cada
+    // F5 mostraba el <Loader/> a pantalla completa durante todo ese round
+    // trip (perceptible con API fría o lenta). refreshMarcas sigue corriendo,
+    // solo que ya no bloquea el primer paint.
+    try {
+      const storedUser = typeof window !== 'undefined' ? window.localStorage.getItem(USER_KEY) : null;
+      if (storedUser) setUser(JSON.parse(storedUser) as AuthUser);
+    } catch {
+      tokenStore.clear();
+      setUser(null);
+    }
+    setLoading(false);
+    refreshMarcas();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
