@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { PageHead } from '../components/shell/PageHead';
 import { Icon } from '../components/ui/Icon';
 import { WelcomeModal } from '../components/ui/WelcomeModal';
+import { ResumenMarca } from '../components/dashboard/ResumenMarca';
 import { useAuth } from '../context/AuthContext';
 
 export function Home() {
@@ -38,17 +39,7 @@ export function Home() {
         <WelcomeModal nombre={user?.nombre} />
         <PageHead title={marcaActiva.marca.nombre} subtitle={`Dashboard de ${marcaActiva.marca.nombre} · ${fechaHoy}.`} />
         <div className="ax-dash-grid">
-          <section className="ax-card ax-col--12" role="region" aria-label="Dashboard de la marca">
-            <div className="ax-card__body">
-              <h2 className="ax-card__title" style={{ marginBottom: 'var(--ax-space-1)' }}>Dashboard</h2>
-              <p style={{ margin: '0 0 var(--ax-space-2)', fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
-                Tu rol aquí: <b style={{ color: 'var(--ax-text-strong)' }}>{marcaActiva.rol.nombre}</b>.
-              </p>
-              <p style={{ margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
-                Los indicadores, gráficos y accesos de la marca aparecerán aquí a medida que se construyan sus módulos.
-              </p>
-            </div>
-          </section>
+          <ResumenMarca marcaId={marcaActiva.marcaId} rol={marcaActiva.rol.nombre} />
         </div>
       </>
     );
