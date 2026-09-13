@@ -17,6 +17,7 @@ function TwoStepTotpInner() {
   const { verifyTotp } = useAuth();
   const email = searchParams.get('email') || (typeof window !== 'undefined' ? window.localStorage.getItem('ax:auth:email') : null) || '';
   const [code, setCode] = useState('');
+  const [trust, setTrust] = useState(false);
   const [loading, setLoading] = useState(false);
   const [invalid, setInvalid] = useState(false);
   const [invalidMessage, setInvalidMessage] = useState('Código inválido. Intenta de nuevo.');
@@ -26,7 +27,7 @@ function TwoStepTotpInner() {
     if (!code.trim() || !email) return;
     setLoading(true);
     setInvalid(false);
-    verifyTotp(email, code.trim())
+    verifyTotp(email, code.trim(), trust)
       .then(() => {
         setLoading(false);
         router.push('/');
@@ -76,6 +77,11 @@ function TwoStepTotpInner() {
                     className={`ax-input${invalid ? ' is-invalid' : ''}`} placeholder="123456"
                     value={code} onChange={(e) => { setInvalid(false); setCode(e.target.value); }} aria-invalid={invalid ? 'true' : 'false'} />
                 </div>
+
+                <label className="ax-check" style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text)' }}>
+                  <input type="checkbox" className="ax-checkbox" checked={trust} onChange={(e) => setTrust(e.target.checked)} />
+                  <span>Confiar en este dispositivo por 30 días</span>
+                </label>
 
                 <button type="submit" className={`ax-btn ax-btn--primary ax-btn--lg ax-btn--block${loading ? ' is-loading' : ''}`} disabled={!code.trim()} aria-busy={loading}>
                   <span className="ax-btn__spinner" aria-hidden="true"></span>

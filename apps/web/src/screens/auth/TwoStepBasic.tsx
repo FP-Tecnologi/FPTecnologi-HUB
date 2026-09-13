@@ -89,7 +89,7 @@ function TwoStepBasicInner() {
     if (!complete || !email) return;
     setLoading(true);
     setInvalid(false);
-    verifyOtp(email, digits.join(''))
+    verifyOtp(email, digits.join(''), trust)
       .then(() => {
         setLoading(false);
         router.push('/');

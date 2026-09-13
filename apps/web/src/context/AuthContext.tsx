@@ -26,15 +26,17 @@ export interface AuthUser {
   nombre: string;
 }
 
-type LoginResult =
-  | { requiresOtp: true; requiresTotp?: false; email: string }
-  | { requiresTotp: true; requiresOtp?: false; email: string };
-
 interface VerifyResult {
   accessToken: string;
   refreshToken: string;
   usuario: AuthUser;
 }
+
+type LoginResult =
+  | { requiresOtp: true; requiresTotp?: false; email: string }
+  | { requiresTotp: true; requiresOtp?: false; email: string }
+  // Dispositivo confiable: el backend saltea el 2FA y devuelve tokens de una.
+  | (VerifyResult & { requiresOtp?: false; requiresTotp?: false });
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -42,8 +44,9 @@ interface AuthContextValue {
   activeMarcaId: string | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<LoginResult>;
-  verifyOtp: (email: string, codigo: string) => Promise<VerifyResult>;
-  verifyTotp: (email: string, code: string) => Promise<VerifyResult>;
+  verifyOtp: (email: string, codigo: string, trustDevice?: boolean) => Promise<VerifyResult>;
+  verifyTotp: (email: string, code: string, trustDevice?: boolean) => Promise<VerifyResult>;
+  completeGoogleLogin: (accessToken: string, refreshToken: string, usuario: AuthUser) => Promise<VerifyResult>;
   register: (email: string, password: string, marcaId: string, nombre?: string) => Promise<{ id: string; email: string; nombre: string | null }>;
   requestPasswordReset: (email: string) => Promise<{ sent: true }>;
   confirmPasswordReset: (email: string, codigo: string, newPassword: string) => Promise<void>;
@@ -148,31 +151,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const completeSession = useCallback(async (result: VerifyResult) => {
+    tokenStore.setTokens(result.accessToken, result.refreshToken);
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(USER_KEY, JSON.stringify(result.usuario));
+    }
+    setUser(result.usuario);
+    await refreshMarcas();
+    return result;
+  }, [refreshMarcas]);
+
   const login = useCallback(async (email: string, password: string) => {
-    return api.post<LoginResult>('/auth/login', { email, password }, { auth: false });
-  }, []);
-
-  const verifyOtp = useCallback(async (email: string, codigo: string) => {
-    const result = await api.post<VerifyResult>('/auth/otp/verify', { email, codigo }, { auth: false });
-    tokenStore.setTokens(result.accessToken, result.refreshToken);
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(USER_KEY, JSON.stringify(result.usuario));
+    const result = await api.post<LoginResult>('/auth/login', { email, password }, { auth: false });
+    // Dispositivo confiable: el backend salteó el 2FA y ya mandó los tokens.
+    if (!result.requiresOtp && !result.requiresTotp) {
+      await completeSession(result);
     }
-    setUser(result.usuario);
-    await refreshMarcas();
     return result;
-  }, [refreshMarcas]);
+  }, [completeSession]);
 
-  const verifyTotp = useCallback(async (email: string, code: string) => {
-    const result = await api.post<VerifyResult>('/auth/totp/verify-login', { email, code }, { auth: false });
-    tokenStore.setTokens(result.accessToken, result.refreshToken);
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem(USER_KEY, JSON.stringify(result.usuario));
-    }
-    setUser(result.usuario);
-    await refreshMarcas();
-    return result;
-  }, [refreshMarcas]);
+  const verifyOtp = useCallback(async (email: string, codigo: string, trustDevice?: boolean) => {
+    const result = await api.post<VerifyResult>('/auth/otp/verify', { email, codigo, trustDevice }, { auth: false });
+    return completeSession(result);
+  }, [completeSession]);
+
+  const verifyTotp = useCallback(async (email: string, code: string, trustDevice?: boolean) => {
+    const result = await api.post<VerifyResult>('/auth/totp/verify-login', { email, code, trustDevice }, { auth: false });
+    return completeSession(result);
+  }, [completeSession]);
+
+  /** Called by the /auth/google/callback page once the backend redirects back with tokens in the URL. */
+  const completeGoogleLogin = useCallback(async (accessToken: string, refreshToken: string, usuario: AuthUser) => {
+    return completeSession({ accessToken, refreshToken, usuario });
+  }, [completeSession]);
 
   const register = useCallback(async (email: string, password: string, marcaId: string, nombre?: string) => {
     return api.post<{ id: string; email: string; nombre: string | null }>(
@@ -221,11 +232,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const value = useMemo<AuthContextValue>(() => ({
-    user, marcas, activeMarcaId, loading, login, verifyOtp, verifyTotp,
+    user, marcas, activeMarcaId, loading, login, verifyOtp, verifyTotp, completeGoogleLogin,
     register, requestPasswordReset, confirmPasswordReset,
     logout, setActiveMarcaId, adminMode, setAdminMode, refreshMarcas, updateProfile,
   }), [
-    user, marcas, activeMarcaId, loading, login, verifyOtp, verifyTotp,
+    user, marcas, activeMarcaId, loading, login, verifyOtp, verifyTotp, completeGoogleLogin,
     register, requestPasswordReset, confirmPasswordReset,
     logout, setActiveMarcaId, adminMode, setAdminMode, refreshMarcas, updateProfile,
   ]);

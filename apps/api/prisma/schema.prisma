@@ -68,12 +68,29 @@ model Usuario {
   totpSecret  String?
   totpEnabled Boolean @default(false)
 
-  marcas          UsuarioMarcaRol[]
-  refreshTokens   RefreshToken[]
-  otpCodes        OtpCode[]
-  totpBackupCodes TotpBackupCode[]
-  pedidos         Pedido[]
-  notificaciones  Notificacion[]
+  marcas             UsuarioMarcaRol[]
+  refreshTokens      RefreshToken[]
+  otpCodes           OtpCode[]
+  totpBackupCodes    TotpBackupCode[]
+  pedidos            Pedido[]
+  notificaciones     Notificacion[]
+  dispositivosConfiables DispositivoConfiable[]
+}
+
+// "Confiar en este dispositivo por 30 días": al confirmar el 2FA se guarda un
+// token (hasheado, nunca el valor crudo) atado a este usuario. login() lo
+// verifica antes de pedir OTP/TOTP de nuevo; cambiar la contraseña revoca
+// todos los de este usuario, igual que RefreshToken.
+model DispositivoConfiable {
+  id        String   @id @default(uuid())
+  usuarioId String
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+  tokenHash String
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([usuarioId])
 }
 
 model TotpBackupCode {

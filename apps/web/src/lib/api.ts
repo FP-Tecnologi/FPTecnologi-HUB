@@ -107,6 +107,7 @@ async function refreshAccessToken(): Promise<boolean> {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ refreshToken }),
+      credentials: 'include',
     })
       .then(async (res) => {
         if (!res.ok) return false;
@@ -141,6 +142,9 @@ async function request<T>(path: string, options: RequestOptions = {}, _retried =
     headers,
     body: body !== undefined ? JSON.stringify(body) : undefined,
     signal,
+    // Necesario para que el navegador guarde/envíe la cookie httpOnly de
+    // "dispositivo confiable" (ax_device) — la API está en otro origen.
+    credentials: 'include',
   });
 
   // Access token expired mid-session: refresh once, then retry the call.

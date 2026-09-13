@@ -30,6 +30,11 @@ describe('AuthService', () => {
       create: ReturnType<typeof vi.fn>;
     };
     refreshToken: { create: ReturnType<typeof vi.fn>; updateMany: ReturnType<typeof vi.fn> };
+    dispositivoConfiable: {
+      create: ReturnType<typeof vi.fn>;
+      findMany: ReturnType<typeof vi.fn>;
+      updateMany: ReturnType<typeof vi.fn>;
+    };
     $transaction: ReturnType<typeof vi.fn>;
   };
   let jwtService: { signAsync: ReturnType<typeof vi.fn>; verifyAsync: ReturnType<typeof vi.fn> };
@@ -58,6 +63,7 @@ describe('AuthService', () => {
         create: vi.fn(),
       },
       refreshToken: { create: vi.fn(), updateMany: vi.fn() },
+      dispositivoConfiable: { create: vi.fn(), findMany: vi.fn().mockResolvedValue([]), updateMany: vi.fn() },
       $transaction: vi.fn((ops: unknown[]) => Promise.all(ops)),
     };
     jwtService = { signAsync: vi.fn().mockResolvedValue('signed-token'), verifyAsync: vi.fn() };
@@ -129,11 +135,51 @@ describe('AuthService', () => {
         email: 'a@b.com',
         passwordHash,
         activo: true,
+        marcas: [],
       });
 
       const result = await service.login('  A@B.com ', 'correct-password');
 
-      expect(prisma.usuario.findUnique).toHaveBeenCalledWith({ where: { email: 'a@b.com' } });
+      expect(prisma.usuario.findUnique).toHaveBeenCalledWith({
+        where: { email: 'a@b.com' },
+        include: { marcas: { include: { rol: true } } },
+      });
+      expect(result).toEqual({ requiresOtp: true, email: 'a@b.com' });
+    });
+
+    it('skips 2FA and issues tokens right away when a valid "trusted device" cookie is presented', async () => {
+      const tokenHash = await bcrypt.hash('the-raw-device-token', 10);
+      prisma.usuario.findUnique.mockResolvedValue({
+        id: 'u1',
+        email: 'a@b.com',
+        passwordHash,
+        activo: true,
+        marcas: [{ marcaId: 'm1', rol: { nombre: 'admin' } }],
+      });
+      prisma.dispositivoConfiable.findMany.mockResolvedValue([
+        { id: 'd1', tokenHash, revoked: false, expiresAt: new Date(Date.now() + 60_000) },
+      ]);
+
+      const result = await service.login('a@b.com', 'correct-password', 'the-raw-device-token');
+
+      expect(result).not.toHaveProperty('requiresOtp');
+      expect(result).not.toHaveProperty('requiresTotp');
+      expect(jwtService.signAsync).toHaveBeenCalledTimes(2);
+      expect(mailService.sendOtpCode).not.toHaveBeenCalled();
+    });
+
+    it('falls back to normal 2FA when the device cookie does not match any stored token', async () => {
+      prisma.usuario.findUnique.mockResolvedValue({
+        id: 'u1',
+        email: 'a@b.com',
+        passwordHash,
+        activo: true,
+        marcas: [],
+      });
+      prisma.dispositivoConfiable.findMany.mockResolvedValue([]);
+
+      const result = await service.login('a@b.com', 'correct-password', 'not-a-real-token');
+
       expect(result).toEqual({ requiresOtp: true, email: 'a@b.com' });
     });
   });
@@ -190,6 +236,41 @@ describe('AuthService', () => {
       expect(result.usuario).toEqual({ id: 'u1', email: 'a@b.com', nombre: 'Ana' });
       expect(jwtService.signAsync).toHaveBeenCalledTimes(2);
       expect(prisma.refreshToken.create).toHaveBeenCalledOnce();
+    });
+
+    it('stores a hashed "trusted device" token and returns the raw one only when trustDevice is true', async () => {
+      const codigoHash = await bcrypt.hash('123456', 10);
+      prisma.usuario.findUnique.mockResolvedValue({
+        id: 'u1',
+        email: 'a@b.com',
+        nombre: 'Ana',
+        marcas: [],
+      });
+      prisma.otpCode.findFirst.mockResolvedValue({
+        id: 'otp1',
+        codigoHash,
+        expiresAt: new Date(Date.now() + 60_000),
+      });
+
+      const result = await service.verifyOtp('a@b.com', '123456', true);
+
+      expect(result.deviceToken).toEqual(expect.any(String));
+      expect(prisma.dispositivoConfiable.create).toHaveBeenCalledWith({
+        data: { usuarioId: 'u1', tokenHash: expect.any(String), expiresAt: expect.any(Date) },
+      });
+      // The stored hash must not equal the raw token handed back to the caller.
+      expect(prisma.dispositivoConfiable.create.mock.calls[0][0].data.tokenHash).not.toBe(result.deviceToken);
+    });
+
+    it('does not create a trusted-device row when trustDevice is not requested', async () => {
+      const codigoHash = await bcrypt.hash('123456', 10);
+      prisma.usuario.findUnique.mockResolvedValue({ id: 'u1', email: 'a@b.com', nombre: 'Ana', marcas: [] });
+      prisma.otpCode.findFirst.mockResolvedValue({ id: 'otp1', codigoHash, expiresAt: new Date(Date.now() + 60_000) });
+
+      const result = await service.verifyOtp('a@b.com', '123456');
+
+      expect(result.deviceToken).toBeUndefined();
+      expect(prisma.dispositivoConfiable.create).not.toHaveBeenCalled();
     });
   });
 
@@ -427,6 +508,62 @@ describe('AuthService', () => {
         where: { usuarioId: 'u1', revoked: false },
         data: { revoked: true },
       });
+      expect(prisma.dispositivoConfiable.updateMany).toHaveBeenCalledWith({
+        where: { usuarioId: 'u1', revoked: false },
+        data: { revoked: true },
+      });
+    });
+  });
+
+  describe('loginOrRegisterGoogle', () => {
+    it('logs an existing user in directly, without touching password or 2FA', async () => {
+      prisma.usuario.findUnique.mockResolvedValue({
+        id: 'u1',
+        email: 'a@b.com',
+        nombre: 'Ana',
+        activo: true,
+        marcas: [{ marcaId: 'm1', rol: { nombre: 'admin' } }],
+      });
+
+      const result = await service.loginOrRegisterGoogle('A@B.com', 'Ana Google');
+
+      expect(prisma.usuario.create).not.toHaveBeenCalled();
+      expect(result.usuario).toEqual({ id: 'u1', email: 'a@b.com', nombre: 'Ana' });
+    });
+
+    it('rejects an inactive account even if the Google email matches', async () => {
+      prisma.usuario.findUnique.mockResolvedValue({ id: 'u1', email: 'a@b.com', activo: false, marcas: [] });
+
+      await expect(service.loginOrRegisterGoogle('a@b.com', 'Ana')).rejects.toThrow(UnauthorizedException);
+    });
+
+    it('requires a marcaId to create a brand-new account', async () => {
+      prisma.usuario.findUnique.mockResolvedValue(null);
+
+      await expect(service.loginOrRegisterGoogle('new@b.com', 'Ana')).rejects.toThrow(BadRequestException);
+      expect(prisma.usuario.create).not.toHaveBeenCalled();
+    });
+
+    it('creates a new "cliente" account (with an unusable random password) when the email is unknown', async () => {
+      prisma.usuario.findUnique.mockResolvedValue(null);
+      prisma.marca.findUnique.mockResolvedValue({ id: 'm1', nombre: 'FPTecnologi' });
+      prisma.rol.findUnique.mockResolvedValue({ id: 'rol-cliente', nombre: 'cliente' });
+      prisma.usuario.create.mockResolvedValue({
+        id: 'u2',
+        email: 'new@b.com',
+        nombre: 'Ana',
+        marcas: [{ marcaId: 'm1', rol: { nombre: 'cliente' } }],
+      });
+
+      const result = await service.loginOrRegisterGoogle('New@B.com', 'Ana', 'm1');
+
+      expect(prisma.usuario.create.mock.calls[0][0].data).toMatchObject({
+        email: 'new@b.com',
+        nombre: 'Ana',
+        marcas: { create: { marcaId: 'm1', rolId: 'rol-cliente' } },
+      });
+      expect(mailService.sendWelcome).toHaveBeenCalledWith('new@b.com', 'Ana');
+      expect(result.usuario).toEqual({ id: 'u2', email: 'new@b.com', nombre: 'Ana' });
     });
   });
 });

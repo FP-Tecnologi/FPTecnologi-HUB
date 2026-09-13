@@ -27,6 +27,14 @@ export interface AppConfig {
       pass: string;
     };
   };
+  google: {
+    clientId: string;
+    clientSecret: string;
+    callbackUrl: string;
+  };
+  web: {
+    origin: string;
+  };
 }
 
 export default (): AppConfig => ({
@@ -57,5 +65,13 @@ export default (): AppConfig => ({
       user: process.env.SMTP_USER ?? '',
       pass: process.env.SMTP_PASS ?? '',
     },
+  },
+  google: {
+    clientId: process.env.GOOGLE_CLIENT_ID ?? '',
+    clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
+    callbackUrl: process.env.GOOGLE_CALLBACK_URL ?? 'http://localhost:3001/auth/google/callback',
+  },
+  web: {
+    origin: process.env.WEB_ORIGIN ?? 'http://localhost:3000',
   },
 });
