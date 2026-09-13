@@ -62,7 +62,7 @@ export class UsuariosService {
     const updated = await this.prisma.usuario.update({
       where: { id: usuario.id },
       data,
-      select: { id: true, email: true, nombre: true },
+      select: { id: true, email: true, nombre: true, avatarUrl: true },
     });
     return updated;
   }

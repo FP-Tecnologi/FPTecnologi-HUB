@@ -58,6 +58,7 @@ model Usuario {
   email        String   @unique
   passwordHash String
   nombre       String?
+  avatarUrl    String?
   activo       Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt

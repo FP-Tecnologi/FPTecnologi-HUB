@@ -123,7 +123,7 @@ export class AuthController {
     const marcaId = typeof req.query.state === 'string' && req.query.state ? req.query.state : undefined;
     try {
       const profile = req.user as GoogleProfile;
-      const result = await this.authService.loginOrRegisterGoogle(profile.email, profile.nombre, marcaId);
+      const result = await this.authService.loginOrRegisterGoogle(profile.email, profile.nombre, profile.avatarUrl, marcaId);
       const usuario = encodeURIComponent(JSON.stringify(result.usuario));
       res.redirect(
         `${webOrigin}/auth/google/callback?accessToken=${result.accessToken}&refreshToken=${result.refreshToken}&usuario=${usuario}`,

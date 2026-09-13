@@ -7,6 +7,7 @@ import type { AppConfig } from '../../config/configuration.js';
 export interface GoogleProfile {
   email: string;
   nombre: string | null;
+  avatarUrl: string | null;
 }
 
 @Injectable()
@@ -27,7 +28,11 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       done(new Error('La cuenta de Google no devolvió un correo'), undefined);
       return;
     }
-    const googleProfile: GoogleProfile = { email, nombre: profile.displayName || null };
+    const googleProfile: GoogleProfile = {
+      email,
+      nombre: profile.displayName || null,
+      avatarUrl: profile.photos?.[0]?.value || null,
+    };
     done(null, googleProfile);
   }
 }

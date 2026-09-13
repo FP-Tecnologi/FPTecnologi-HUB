@@ -4,14 +4,8 @@
  * (parte visible del grupo Mi cuenta). La edición vive en Configuración.
  */
 import { PageHead } from '../components/shell/PageHead';
+import { Avatar } from '../components/ui/Avatar';
 import { useAuth } from '../context/AuthContext';
-
-function initialsOf(nombre: string | null | undefined, email: string | undefined): string {
-  const parts = (nombre || '').trim().split(/\s+/).filter(Boolean);
-  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
-  return (email || '?').slice(0, 2).toUpperCase();
-}
 
 export function Perfil() {
   const { user, marcas, activeMarcaId, setActiveMarcaId } = useAuth();
@@ -25,9 +19,7 @@ export function Perfil() {
         <section className="ax-card ax-col--12" role="region" aria-label="Identidad">
           <div className="ax-card__body">
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-4)', alignItems: 'center' }}>
-              <span className="ax-avatar" style={{ width: 64, height: 64, fontSize: 22, borderRadius: 'var(--ax-radius-pill)', background: 'var(--ax-accent-wash)', color: 'var(--ax-accent)' }}>
-                <span className="ax-avatar__initials">{initialsOf(user?.nombre, user?.email)}</span>
-              </span>
+              <Avatar nombre={user?.nombre} email={user?.email} avatarUrl={user?.avatarUrl} size={64} />
               <div style={{ minInlineSize: 0 }}>
                 <h2 className="ax-card__title" style={{ margin: 0 }}>{user?.nombre || user?.email || 'Cuenta'}</h2>
                 <p style={{ margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>{user?.email}</p>

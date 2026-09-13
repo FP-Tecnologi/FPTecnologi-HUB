@@ -233,7 +233,7 @@ describe('AuthService', () => {
       expect(result.marcas).toEqual([{ marcaId: 'm1', rol: 'admin' }]);
       // Regression guard: issueTokens used to drop `usuario` entirely, so the
       // dashboard's `result.usuario` (AuthContext.tsx) was always undefined.
-      expect(result.usuario).toEqual({ id: 'u1', email: 'a@b.com', nombre: 'Ana' });
+      expect(result.usuario).toEqual({ id: 'u1', email: 'a@b.com', nombre: 'Ana', avatarUrl: null });
       expect(jwtService.signAsync).toHaveBeenCalledTimes(2);
       expect(prisma.refreshToken.create).toHaveBeenCalledOnce();
     });
@@ -525,22 +525,42 @@ describe('AuthService', () => {
         marcas: [{ marcaId: 'm1', rol: { nombre: 'admin' } }],
       });
 
-      const result = await service.loginOrRegisterGoogle('A@B.com', 'Ana Google');
+      const result = await service.loginOrRegisterGoogle('A@B.com', 'Ana Google', null);
 
       expect(prisma.usuario.create).not.toHaveBeenCalled();
-      expect(result.usuario).toEqual({ id: 'u1', email: 'a@b.com', nombre: 'Ana' });
+      expect(result.usuario).toEqual({ id: 'u1', email: 'a@b.com', nombre: 'Ana', avatarUrl: null });
+    });
+
+    it('syncs the Google profile photo onto an existing account that has none yet', async () => {
+      prisma.usuario.findUnique.mockResolvedValue({
+        id: 'u1', email: 'a@b.com', nombre: 'Ana', activo: true, avatarUrl: null,
+        marcas: [{ marcaId: 'm1', rol: { nombre: 'admin' } }],
+      });
+      prisma.usuario.update.mockResolvedValue({
+        id: 'u1', email: 'a@b.com', nombre: 'Ana', avatarUrl: 'https://lh3.googleusercontent.com/foto.jpg',
+        marcas: [{ marcaId: 'm1', rol: { nombre: 'admin' } }],
+      });
+
+      const result = await service.loginOrRegisterGoogle('a@b.com', 'Ana', 'https://lh3.googleusercontent.com/foto.jpg');
+
+      expect(prisma.usuario.update).toHaveBeenCalledWith({
+        where: { id: 'u1' },
+        data: { avatarUrl: 'https://lh3.googleusercontent.com/foto.jpg' },
+        include: { marcas: { include: { rol: true } } },
+      });
+      expect(result.usuario.avatarUrl).toBe('https://lh3.googleusercontent.com/foto.jpg');
     });
 
     it('rejects an inactive account even if the Google email matches', async () => {
       prisma.usuario.findUnique.mockResolvedValue({ id: 'u1', email: 'a@b.com', activo: false, marcas: [] });
 
-      await expect(service.loginOrRegisterGoogle('a@b.com', 'Ana')).rejects.toThrow(UnauthorizedException);
+      await expect(service.loginOrRegisterGoogle('a@b.com', 'Ana', null)).rejects.toThrow(UnauthorizedException);
     });
 
     it('requires a marcaId to create a brand-new account', async () => {
       prisma.usuario.findUnique.mockResolvedValue(null);
 
-      await expect(service.loginOrRegisterGoogle('new@b.com', 'Ana')).rejects.toThrow(BadRequestException);
+      await expect(service.loginOrRegisterGoogle('new@b.com', 'Ana', null)).rejects.toThrow(BadRequestException);
       expect(prisma.usuario.create).not.toHaveBeenCalled();
     });
 
@@ -552,18 +572,22 @@ describe('AuthService', () => {
         id: 'u2',
         email: 'new@b.com',
         nombre: 'Ana',
+        avatarUrl: 'https://lh3.googleusercontent.com/foto.jpg',
         marcas: [{ marcaId: 'm1', rol: { nombre: 'cliente' } }],
       });
 
-      const result = await service.loginOrRegisterGoogle('New@B.com', 'Ana', 'm1');
+      const result = await service.loginOrRegisterGoogle('New@B.com', 'Ana', 'https://lh3.googleusercontent.com/foto.jpg', 'm1');
 
       expect(prisma.usuario.create.mock.calls[0][0].data).toMatchObject({
         email: 'new@b.com',
         nombre: 'Ana',
+        avatarUrl: 'https://lh3.googleusercontent.com/foto.jpg',
         marcas: { create: { marcaId: 'm1', rolId: 'rol-cliente' } },
       });
       expect(mailService.sendWelcome).toHaveBeenCalledWith('new@b.com', 'Ana');
-      expect(result.usuario).toEqual({ id: 'u2', email: 'new@b.com', nombre: 'Ana' });
+      expect(result.usuario).toEqual({
+        id: 'u2', email: 'new@b.com', nombre: 'Ana', avatarUrl: 'https://lh3.googleusercontent.com/foto.jpg',
+      });
     });
   });
 });

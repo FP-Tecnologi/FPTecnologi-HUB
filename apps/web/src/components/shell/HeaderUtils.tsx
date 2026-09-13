@@ -26,6 +26,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Dropdown } from '../ui/Dropdown';
+import { Avatar } from '../ui/Avatar';
 import { useCustomizer } from '../../context/CustomizerContext';
 import { useOverflowShed } from '../../hooks/useOverflowShed';
 import { useAuth } from '../../context/AuthContext';
@@ -111,7 +112,7 @@ export function HeaderUtils({ onCustomizer }: { onCustomizer: () => void }) {
         panelClassName="ax-dropdown ax-profile__menu"
         trigger={({ open, triggerProps }) => (
           <button type="button" className="ax-profile__trigger has-meta" aria-label="Account menu" {...triggerProps} aria-expanded={open}>
-            <img className="ax-avatar ax-profile__avatar" src="https://i.pravatar.cc/64?img=12" alt={user?.nombre || 'Account'} width={32} height={32} />
+            <Avatar className="ax-avatar ax-profile__avatar" nombre={user?.nombre} email={user?.email} avatarUrl={user?.avatarUrl} size={32} />
             <span className="ax-profile__meta">
               <b>{user?.nombre || user?.email || 'Cuenta'}</b>
               {roleLabel && <small>{roleLabel}</small>}
@@ -120,7 +121,7 @@ export function HeaderUtils({ onCustomizer }: { onCustomizer: () => void }) {
         )}
       >
         <div className="ax-profile__card">
-          <img className="ax-avatar" src="https://i.pravatar.cc/80?img=12" alt="" width={40} height={40} />
+          <Avatar className="ax-avatar" nombre={user?.nombre} email={user?.email} avatarUrl={user?.avatarUrl} size={40} />
           <span className="ax-profile__card-meta"><b>{user?.nombre || 'Cuenta'}</b><small>{user?.email || ''}</small></span>
         </div>
         <Link className="ax-dropdown__item" role="menuitem" href="/cuenta">Mi cuenta</Link>

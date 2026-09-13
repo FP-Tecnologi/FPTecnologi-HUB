@@ -24,6 +24,7 @@ export interface AuthUser {
   id: string;
   email: string;
   nombre: string;
+  avatarUrl?: string | null;
 }
 
 interface VerifyResult {

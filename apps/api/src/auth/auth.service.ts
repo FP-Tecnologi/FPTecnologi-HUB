@@ -228,7 +228,7 @@ export class AuthService {
   }
 
   /** Logs in (or silently registers, cliente role) via a verified Google account — no 2FA step, Google already is the strong factor. */
-  async loginOrRegisterGoogle(email: string, nombre: string | null, marcaId?: string) {
+  async loginOrRegisterGoogle(email: string, nombre: string | null, avatarUrl: string | null, marcaId?: string) {
     email = normalizeEmail(email);
     let usuario = await this.prisma.usuario.findUnique({
       where: { email },
@@ -251,13 +251,21 @@ export class AuthService {
       // pida "olvidé mi contraseña" y se ponga una real.
       const passwordHash = await bcrypt.hash(randomBytes(32).toString('hex'), SALT_ROUNDS);
       const created = await this.prisma.usuario.create({
-        data: { email, passwordHash, nombre, marcas: { create: { marcaId, rolId: rolCliente.id } } },
+        data: { email, passwordHash, nombre, avatarUrl, marcas: { create: { marcaId, rolId: rolCliente.id } } },
         include: { marcas: { include: { rol: true } } },
       });
       await this.mailService.sendWelcome(created.email, created.nombre);
       usuario = created;
     } else if (!usuario.activo) {
       throw new UnauthorizedException('Cuenta inactiva');
+    } else if (avatarUrl && avatarUrl !== usuario.avatarUrl) {
+      // Sincroniza la foto de perfil de Google en cada login — es la única
+      // fuente de avatar hoy, no hay subida manual todavía.
+      usuario = await this.prisma.usuario.update({
+        where: { id: usuario.id },
+        data: { avatarUrl },
+        include: { marcas: { include: { rol: true } } },
+      });
     }
 
     return this.issueTokens(usuario, usuario.marcas.map((m) => ({ marcaId: m.marcaId, rol: m.rol.nombre })));
@@ -442,7 +450,7 @@ export class AuthService {
   }
 
   private async issueTokens(
-    usuario: { id: string; email: string; nombre: string | null },
+    usuario: { id: string; email: string; nombre: string | null; avatarUrl?: string | null },
     marcas: { marcaId: string; rol: string }[],
   ) {
     const jwtConfig = this.configService.get<AppConfig['jwt']>('jwt')!;
@@ -467,7 +475,7 @@ export class AuthService {
       accessToken,
       refreshToken,
       marcas,
-      usuario: { id: usuario.id, email: usuario.email, nombre: usuario.nombre },
+      usuario: { id: usuario.id, email: usuario.email, nombre: usuario.nombre, avatarUrl: usuario.avatarUrl ?? null },
     };
   }
 
