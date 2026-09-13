@@ -319,8 +319,13 @@ export function Sidebar({ drawerOpen = false, onNavToggle }: { drawerOpen?: bool
       {/* ===== BRAND ===== */}
       <div className="ax-sidebar__brand">
         <Link className="ax-sidebar__logo" href="/" aria-label="FPTecnologi home">
+          {/* Colapsado muestra solo el rombo (ax-sidebar__logo-icon) — el
+              lockup completo no entra en el riel de 76px. Las dos imágenes
+              conviven en el DOM y el CSS de colapso decide cuál se ve. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-fptecnologi.svg" alt="FPTecnologi" width={150} style={{ height: 'auto', maxWidth: '100%' }} />
+          <img className="ax-sidebar__logo-full" src="/logo-fptecnologi.svg" alt="FPTecnologi" width={150} style={{ height: 'auto', maxWidth: '100%' }} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="ax-sidebar__logo-icon" src="/logo-fptecnologi-icon.svg" alt="FPTecnologi" width={32} height={32} />
         </Link>
         <button type="button" className="ax-nav-toggle ax-icon-btn" onClick={onNavToggle} aria-label="Toggle menu">
           <svg className="ax-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" width={24} height={24} aria-hidden="true"><path d="M4 6l16 0" /><path d="M4 12l16 0" /><path d="M4 18l16 0" /></svg>

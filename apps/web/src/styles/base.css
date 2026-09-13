@@ -648,9 +648,19 @@ hr {
     gap: var(--ax-space-2);
     padding-block: var(--ax-space-3);
   }
-  :is([data-ax-collapsed]:not([data-ax-sidebar-style]), [data-ax-sidebar-behavior='compact']) .ax-sidebar__logo img {
-    inline-size: 40px;
-    block-size: auto;
+  /* Lockup completo (icono+texto) no entra en 76px -- se oculta y se muestra
+     el rombo solo (ax-sidebar__logo-icon, ambos conviven en el DOM). */
+  :is([data-ax-collapsed]:not([data-ax-sidebar-style]), [data-ax-sidebar-behavior='compact']) .ax-sidebar__logo-full {
+    display: none;
+  }
+  :is([data-ax-collapsed]:not([data-ax-sidebar-style]), [data-ax-sidebar-behavior='compact']) .ax-sidebar__logo-icon {
+    display: block;
+  }
+  /* shell.css empuja la hamburguesa a la derecha con margin-left:auto para el
+     layout en fila (logo | ... | hamburguesa); en columna eso la saca del
+     centro -- se anula para que herede el align-items:center del padre. */
+  :is([data-ax-collapsed]:not([data-ax-sidebar-style]), [data-ax-sidebar-behavior='compact']) .ax-sidebar__brand .ax-nav-toggle {
+    margin-left: 0;
   }
   :is([data-ax-collapsed]:not([data-ax-sidebar-style]), [data-ax-sidebar-behavior='compact']) .ax-marcaswitch {
     display: none;
@@ -1047,6 +1057,10 @@ hr {
   gap: var(--ax-space-3);
   color: var(--ax-text-strong);
 }
+/* Expandido: lockup completo. Colapsado: solo el rombo (ver §7b / §10). */
+.ax-sidebar__logo-icon {
+  display: none;
+}
 .ax-sidebar__wordmark {
   font-family: var(--ax-font-display);
   font-size: var(--ax-text-lg);
@@ -1151,9 +1165,11 @@ hr {
   }
   /* FPTecnologi-HUB: mismo fix de logo/switch de marca que §7b (ver ahí el
      porqué) — acá no hace falta apilar nada porque el toggle ya está oculto. */
-  :where(html):not([data-ax-shell-style='detached']):not([data-ax-sidebar-style]) .ax-sidebar__logo img {
-    inline-size: 40px;
-    block-size: auto;
+  :where(html):not([data-ax-shell-style='detached']):not([data-ax-sidebar-style]) .ax-sidebar__logo-full {
+    display: none;
+  }
+  :where(html):not([data-ax-shell-style='detached']):not([data-ax-sidebar-style]) .ax-sidebar__logo-icon {
+    display: block;
   }
   :where(html):not([data-ax-shell-style='detached']):not([data-ax-sidebar-style]) .ax-marcaswitch {
     display: none;
