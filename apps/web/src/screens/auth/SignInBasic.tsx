@@ -2,19 +2,22 @@
 /*
  * FPTecnologi-HUB · Dashboard — Sign in (basic, real).
  * Tarjeta centrada con formulario correo/contraseña (login real vía
- * AuthContext → bifurca a OTP o TOTP), botón de Google (próximamente) y
- * enlace a crear cuenta.
+ * AuthContext → bifurca a OTP o TOTP), botón real de Google y enlace a
+ * crear cuenta.
  */
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   AuthStandalone, OffappTools, BrandCentered, EYE, EYE_OFF, googleAuthUrl,
 } from './authShared';
 import { useAuth, ApiError } from '../../context/AuthContext';
 
-export function SignInBasic() {
+const GOOGLE_ERROR_MESSAGE = 'No pudimos completar el ingreso con Google. Si es tu primera vez, crea una cuenta primero.';
+
+function SignInBasicInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,8 +25,10 @@ export function SignInBasic() {
   const [reveal, setReveal] = useState(false);
   const [emailErr, setEmailErr] = useState('');
   const [passErr, setPassErr] = useState('');
-  const [error, setError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('Correo o contraseña incorrectos. Intenta de nuevo.');
+  const [error, setError] = useState(searchParams.get('error') === 'google');
+  const [errorMessage, setErrorMessage] = useState(
+    searchParams.get('error') === 'google' ? GOOGLE_ERROR_MESSAGE : 'Correo o contraseña incorrectos. Intenta de nuevo.',
+  );
   const [loading, setLoading] = useState(false);
 
   function validate() {
@@ -140,6 +145,14 @@ export function SignInBasic() {
         </div>
       </main>
     </AuthStandalone>
+  );
+}
+
+export function SignInBasic() {
+  return (
+    <Suspense fallback={null}>
+      <SignInBasicInner />
+    </Suspense>
   );
 }
 

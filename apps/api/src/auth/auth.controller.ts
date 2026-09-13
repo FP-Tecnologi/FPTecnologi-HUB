@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
@@ -25,6 +25,8 @@ const DEVICE_COOKIE_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
 
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(
     private readonly authService: AuthService,
     private readonly configService: ConfigService,
@@ -126,7 +128,8 @@ export class AuthController {
       res.redirect(
         `${webOrigin}/auth/google/callback?accessToken=${result.accessToken}&refreshToken=${result.refreshToken}&usuario=${usuario}`,
       );
-    } catch {
+    } catch (error) {
+      this.logger.error('Falló el login con Google', error as Error);
       res.redirect(`${webOrigin}/auth/sign-in?error=google`);
     }
   }
