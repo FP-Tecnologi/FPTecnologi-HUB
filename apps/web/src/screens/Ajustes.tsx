@@ -71,16 +71,54 @@ export function Ajustes() {
     }
   }
 
-  // --- Avisos: interruptores locales, sin backend ---
-  const [avisos, setAvisos] = useState<Record<string, boolean>>({
-    pedidos: true,
-    cotizaciones: true,
-    seguridad: true,
-    resumen: false,
-  });
+  // --- Avisos: preferencias locales (sin backend), pero de verdad guardadas
+  // en este navegador via localStorage -- antes decía "se guardan" y en
+  // realidad era solo useState en memoria, se perdía al recargar.
+  const AVISOS_KEY = 'ax:avisos';
+  const AVISOS_DEFAULT = { pedidos: true, cotizaciones: true, seguridad: true, resumen: false };
+  function leerAvisosGuardados(): { avisos: Record<string, boolean>; frecuencia: string; silenciar: boolean } {
+    try {
+      const raw = window.localStorage.getItem(AVISOS_KEY);
+      if (raw) return { frecuencia: 'Semanal', silenciar: false, ...JSON.parse(raw) };
+    } catch {
+      /* localStorage no disponible — se queda con los valores por defecto */
+    }
+    return { avisos: AVISOS_DEFAULT, frecuencia: 'Semanal', silenciar: false };
+  }
+  const [avisos, setAvisos] = useState<Record<string, boolean>>(AVISOS_DEFAULT);
   const [resumenFrecuencia, setResumenFrecuencia] = useState('Semanal');
   const [silenciarTodo, setSilenciarTodo] = useState(false);
-  const toggleAviso = (id: string) => setAvisos((prev) => ({ ...prev, [id]: !prev[id] }));
+  const [avisosSynced, setAvisosSynced] = useState(false);
+  if (!avisosSynced) {
+    setAvisosSynced(true);
+    const guardado = leerAvisosGuardados();
+    setAvisos(guardado.avisos);
+    setResumenFrecuencia(guardado.frecuencia);
+    setSilenciarTodo(guardado.silenciar);
+  }
+  function guardarAvisos(next: { avisos?: Record<string, boolean>; frecuencia?: string; silenciar?: boolean }) {
+    const avisosNext = next.avisos ?? avisos;
+    const frecuenciaNext = next.frecuencia ?? resumenFrecuencia;
+    const silenciarNext = next.silenciar ?? silenciarTodo;
+    try {
+      window.localStorage.setItem(AVISOS_KEY, JSON.stringify({ avisos: avisosNext, frecuencia: frecuenciaNext, silenciar: silenciarNext }));
+    } catch {
+      /* localStorage no disponible — el toggle sigue funcionando en memoria para esta sesión */
+    }
+  }
+  const toggleAviso = (id: string) => {
+    const next = { ...avisos, [id]: !avisos[id] };
+    setAvisos(next);
+    guardarAvisos({ avisos: next });
+  };
+  const setFrecuencia = (v: string) => {
+    setResumenFrecuencia(v);
+    guardarAvisos({ frecuencia: v });
+  };
+  const setSilenciar = (v: boolean) => {
+    setSilenciarTodo(v);
+    guardarAvisos({ silenciar: v });
+  };
 
   return (
     <>
@@ -159,7 +197,7 @@ export function Ajustes() {
             </ul>
             <div className="ax-field" style={{ marginTop: 'var(--ax-space-4)', maxWidth: 280 }}>
               <label className="ax-label" htmlFor="aj-resumen">Frecuencia del resumen</label>
-              <select id="aj-resumen" className="ax-select" value={resumenFrecuencia} onChange={(e) => setResumenFrecuencia(e.target.value)}>
+              <select id="aj-resumen" className="ax-select" value={resumenFrecuencia} onChange={(e) => setFrecuencia(e.target.value)}>
                 <option>Diaria</option>
                 <option>Semanal</option>
                 <option>Mensual</option>
@@ -168,7 +206,7 @@ export function Ajustes() {
             </div>
             <div className="ax-cluster" style={{ justifyContent: 'space-between', paddingTop: 'var(--ax-space-3)', marginTop: 'var(--ax-space-3)', borderTop: '1px solid var(--ax-border)' }}>
               <div><div style={{ fontWeight: 'var(--ax-weight-medium)', color: 'var(--ax-text-strong)', fontSize: 'var(--ax-text-sm)' }}>Silenciar todos los avisos</div><div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Pausa temporalmente todos los avisos</div></div>
-              <input type="checkbox" className="ax-switch" aria-label="Silenciar todos los avisos" checked={silenciarTodo} onChange={(e) => setSilenciarTodo(e.target.checked)} />
+              <input type="checkbox" className="ax-switch" aria-label="Silenciar todos los avisos" checked={silenciarTodo} onChange={(e) => setSilenciar(e.target.checked)} />
             </div>
           </div>
         </section>

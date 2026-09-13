@@ -48,8 +48,10 @@ export function Perfil() {
                 <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-muted)' }}>Rol en marca activa</div>
               </div>
               <div>
-                <div style={{ fontSize: 'var(--ax-text-2xl)', fontWeight: 600, color: 'var(--ax-text-strong)' }}>{esAdmin ? 'Sí' : 'No'}</div>
-                <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-muted)' }}>Administrador global</div>
+                <div style={{ fontSize: 'var(--ax-text-2xl)', fontWeight: 600, color: 'var(--ax-text-strong)' }}>
+                  {esAdmin ? (marcas.every((m) => m.rol.nombre.toLowerCase() === 'admin') ? 'Todas' : 'Algunas') : 'No'}
+                </div>
+                <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-muted)' }}>Marcas donde eres admin</div>
               </div>
             </div>
           </div>
