@@ -17,11 +17,18 @@ import { useAuth } from '../context/AuthContext';
 
 export function Home() {
   const router = useRouter();
-  const { user, marcas, activeMarcaId, adminMode, setAdminMode } = useAuth();
+  const {
+    user, marcas, activeMarcaId, adminMode, setAdminMode, setActiveMarcaId,
+  } = useAuth();
   const esAdmin = marcas.some((m) => m.rol.nombre.toLowerCase() === 'admin');
 
   function gestionar(marcaId: string) {
-    router.push(`/inicio/dashboard?marca=${marcaId}`);
+    // /inicio/dashboard?marca=<uuid> no lleva a ningún lado real -- ese slug
+    // no tiene página propia, cae en el <Placeholder/> genérico y el query
+    // param nunca se lee. El dashboard de una marca es "/" en modo marca
+    // (ver el branch de abajo), así que basta con activarla y quedarse.
+    setActiveMarcaId(marcaId);
+    router.push('/');
   }
 
   function verAdmin() {
