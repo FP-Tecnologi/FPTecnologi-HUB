@@ -1,2 +1,5 @@
 # Artefactos locales (nunca se versionan)
 .playwright-mcp/
+
+# Credenciales reales de cuentas de prueba (contraseñas en texto plano)
+docs/credenciales-prueba.md

@@ -310,3 +310,48 @@ sobre este mismo repo. Estado real hoy:
   con 10 miembros de ejemplo (buscador, filtro por rol, invitar), ruta
   /usuarios y nota de datos de ejemplo. Footer, buscador ⌘K, menú de perfil
   y páginas de error en español. Regla: interfaz siempre en español.
+
+### 2026-09-13
+- **Login con Google real** (`passport-google-oauth20`): `GET /auth/google`
+  (`?marcaId=` solo para cuenta nueva) → `GET /auth/google/callback` →
+  `loginOrRegisterGoogle()` — cuenta existente entra directo (Google ya es
+  el factor fuerte, sin 2FA), cuenta nueva se crea rol `cliente` en la
+  marca indicada con password aleatorio inutilizable. Bug real en el
+  camino: `GoogleAuthGuard` necesitaba constructor propio con `super()` —
+  sin eso Nest tira `UnknownDependenciesException` (una subclase de
+  `AuthGuard()` sin constructor pierde los metadatos de inyección de la
+  clase base).
+- **"Confiar en este dispositivo por 30 días" real** (antes: checkbox sin
+  efecto): tabla `DispositivoConfiable` (token random hasheado, 30 días),
+  cookie httpOnly `ax_device`. `login()` la revisa antes de pedir 2FA de
+  nuevo. Requirió CORS explícito (`WEB_ORIGIN`, `credentials:true`) +
+  `cookie-parser`, y `credentials:'include'` en el fetch del dashboard.
+  `confirmPasswordReset()` ahora revoca dispositivos confiables junto con
+  refresh tokens. 8 tests nuevos.
+- **Avatar real de Google**: `Usuario.avatarUrl`, sincronizado en cada
+  login de Google. Componente `Avatar` compartido (foto real o iniciales)
+  reemplaza los `pravatar.cc` hardcodeados (misma cara de mentira para
+  cualquier cuenta) del header y el `initialsOf()` duplicado de Perfil.
+- **Modal de bienvenida, una sola vez por cuenta**: `Usuario.bienvenidaVista`
+  (default `true` — no afecta cuentas ya existentes; `register()`/
+  `loginOrRegisterGoogle()` la ponen en `false` al crear cuenta nueva).
+  `issueTokens()` la marca `true` y devuelve `primeraVez:true` solo en
+  logins reales (nunca en `refresh()`, que corre en silencio). 64/64 tests
+  al cierre del día.
+- **Términos y Política de privacidad reales**: recuperados del template
+  original de Vireo (layout TOC + scroll-spy) pero con contenido real
+  adaptado a Perú (Ley 29733, Ley 29571, derechos ARCO) en vez del texto
+  de ejemplo. Viven en `(bare)` (público, sin sidebar) en vez de `(shell)`
+  — un visitante sin cuenta debe poder leerlos desde el registro.
+- **Sidebar colapsado, arreglado**: el CSS de colapso heredado de Vireo
+  nunca contempló el logo real ni el switch de marca de este proyecto
+  (no existían en la referencia). Logo se recorta a un ícono cuadrado
+  nuevo (`logo-fptecnologi-icon.svg`, el rombo con "FP" sin el texto,
+  generado a partir del SVG real) apilado con la hamburguesa — que
+  quedaba descentrada por un `margin-left:auto` pensado para el layout en
+  fila, no en columna. Switch de marca oculto en colapsado (no cabe un
+  botón con texto en un riel de solo íconos).
+- **5 cuentas de prueba, una por marca** (`admin` solo de su propia marca,
+  a diferencia de `Dev@fptecnologi.com` que es admin en las 5) —
+  credenciales en `docs/credenciales-prueba.md` (gitignored, tiene
+  contraseñas reales).
