@@ -57,6 +57,9 @@
     { "id": "auth.coming-soon", "title": "Coming Soon", "slug": "auth/coming-soon", "icon": "hourglass", "parent": "grp.auth", "section": null, "order": 14, "badge": null, "keywords": ["coming soon"], "inMenu": false, "alias": null },
     { "id": "auth.maintenance", "title": "Under Maintenance", "slug": "auth/maintenance", "icon": "tool", "parent": "grp.auth", "section": null, "order": 15, "badge": null, "keywords": ["maintenance"], "inMenu": false, "alias": null },
 
+    { "id": "pages.terms", "title": "Términos y condiciones", "slug": "pages/terms", "icon": "files", "parent": null, "section": "PAGES", "order": 12, "badge": null, "keywords": ["terminos", "condiciones", "legal"], "inMenu": false, "alias": null },
+    { "id": "pages.privacy", "title": "Política de privacidad", "slug": "pages/privacy", "icon": "files", "parent": null, "section": "PAGES", "order": 13, "badge": null, "keywords": ["privacidad", "datos", "legal"], "inMenu": false, "alias": null },
+
     { "id": "grp.errors", "title": "Error Pages", "slug": "error/404", "icon": "alert-triangle", "parent": null, "section": "PAGES", "order": 11, "badge": null, "keywords": ["errors", "404", "500"], "inMenu": false, "alias": null },
     { "id": "error.401", "title": "401 Unauthorized", "slug": "error/401", "icon": "lock-exclamation", "parent": "grp.errors", "section": null, "order": 1, "badge": null, "keywords": ["401"], "inMenu": false, "alias": null },
     { "id": "error.403", "title": "403 Forbidden", "slug": "error/403", "icon": "ban", "parent": "grp.errors", "section": null, "order": 2, "badge": null, "keywords": ["403"], "inMenu": false, "alias": null },
