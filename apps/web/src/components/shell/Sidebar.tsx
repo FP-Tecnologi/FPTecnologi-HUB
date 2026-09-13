@@ -174,6 +174,10 @@ function Group({ node, level, activeSlug, roleName }: GroupProps) {
     () => subtreeContainsSlug(node, activeSlug),
     [node, activeSlug],
   );
+  const activeChildIcon = useMemo(
+    () => (level === 1 ? activeDescendantIcon(node, activeSlug) : null),
+    [node, activeSlug, level],
+  );
   const [open, setOpen] = useState(containsActive || level === 1 && node.section === 'MAIN');
   const isOpen = open || containsActive;
 
@@ -196,7 +200,10 @@ function Group({ node, level, activeSlug, roleName }: GroupProps) {
         onClick={() => setOpen((o) => !o)}
         tabIndex={containsActive ? 0 : -1}
       >
-        {level === 1 && <Icon name={node.icon} className="ax-nav__icon" />}
+        {level === 1 && <Icon name={node.icon} className="ax-nav__icon ax-nav__icon--group" />}
+        {level === 1 && activeChildIcon && (
+          <Icon name={activeChildIcon} className="ax-nav__icon ax-nav__icon--active-child" />
+        )}
         <span className="ax-nav__label">{node.title}</span>
         <Badge badge={node.badge} />
         {CARET}
@@ -389,6 +396,20 @@ function subtreeContainsSlug(node: NavNode, slug: string): boolean {
     if (r.slug === slug) return true;
     return subtreeContainsSlug(c, slug);
   });
+}
+
+/* Icon of whichever descendant leaf/subgroup is currently active — used to
+   swap the collapsed rail's group icon for the active submenu's own icon
+   (§7b / auto-collapse CSS), since the child panel itself is hidden at 76px. */
+function activeDescendantIcon(node: NavNode, slug: string): string | null {
+  const kids = manifest.childrenOf(node.id);
+  for (const c of kids) {
+    const r = manifest.resolve(c)!;
+    if (r.slug === slug) return c.icon;
+    const nested = activeDescendantIcon(c, slug);
+    if (nested) return nested;
+  }
+  return null;
 }
 
 export default Sidebar;

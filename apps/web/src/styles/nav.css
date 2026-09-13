@@ -85,6 +85,12 @@
   flex: 0 0 auto;
   opacity: 0.85;
 }
+/* active-submenu icon on a level-1 group button: only surfaced when the rail
+   collapses (base.css §7b / auto-collapse) — expanded mode already shows the
+   active leaf via its own row + glow bar, so the group keeps its own icon. */
+.ax-nav__icon--active-child {
+  display: none;
+}
 .ax-nav__label {
   flex: 1 1 auto;
   min-inline-size: 0;

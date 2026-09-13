@@ -618,6 +618,14 @@ hr {
     color: var(--ax-accent);
     opacity: 1;
   }
+  /* collapsed rail: swap the group's own icon for the active submenu's icon,
+     so the rail shows exactly which sub-page you're on, not just the section. */
+  :is([data-ax-collapsed]:not([data-ax-sidebar-style]), [data-ax-sidebar-behavior='compact']) .ax-nav__item--trail .ax-nav__icon--group {
+    display: none;
+  }
+  :is([data-ax-collapsed]:not([data-ax-sidebar-style]), [data-ax-sidebar-behavior='compact']) .ax-nav__item--trail .ax-nav__icon--active-child {
+    display: inline-flex;
+  }
   /* section eyebrow → hairline divider (label text clipped away) */
   :is([data-ax-collapsed]:not([data-ax-sidebar-style]), [data-ax-sidebar-behavior='compact']) .ax-sidebar__section {
     block-size: 1px;
@@ -1150,6 +1158,12 @@ hr {
   :where(html):not([data-ax-shell-style='detached']):not([data-ax-sidebar-style]) .ax-nav__item--trail .ax-nav__icon {
     color: var(--ax-accent);
     opacity: 1;
+  }
+  :where(html):not([data-ax-shell-style='detached']):not([data-ax-sidebar-style]) .ax-nav__item--trail .ax-nav__icon--group {
+    display: none;
+  }
+  :where(html):not([data-ax-shell-style='detached']):not([data-ax-sidebar-style]) .ax-nav__item--trail .ax-nav__icon--active-child {
+    display: inline-flex;
   }
   :where(html):not([data-ax-shell-style='detached']):not([data-ax-sidebar-style]) .ax-sidebar__section {
     block-size: 1px;
