@@ -9,8 +9,10 @@
  */
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { api } from '../../lib/api';
 import { Icon } from '../ui/Icon';
+import { useAuth } from '../../context/AuthContext';
 
 interface Conteos {
   productos: number | null;
@@ -30,7 +32,11 @@ const MODULOS: { href: string; label: string; icon: string; desc: string }[] = [
   { href: '/soporte', label: 'Soporte', icon: 'files', desc: 'Ayuda y tickets' },
 ];
 
-export function ResumenMarca({ marcaId, rol }: { marcaId: string; rol: string }) {
+export function ResumenMarca({
+  marcaId, rol, soloResumen = false,
+}: { marcaId: string; rol: string; soloResumen?: boolean }) {
+  const router = useRouter();
+  const { setActiveMarcaId } = useAuth();
   const [conteos, setConteos] = useState<Conteos>({ productos: null, pedidos: null, cotizaciones: null, equipo: null });
 
   useEffect(() => {
@@ -93,30 +99,52 @@ export function ResumenMarca({ marcaId, rol }: { marcaId: string; rol: string })
         </div>
       </section>
 
-      <section className="ax-card ax-col--12" role="region" aria-label="Módulos de la marca">
-        <div className="ax-card__body">
-          <h2 className="ax-card__title" style={{ marginBottom: 'var(--ax-space-1)' }}>Módulos</h2>
-          <p style={{ margin: '0 0 var(--ax-space-4)', fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
-            Tu rol aquí: <b style={{ color: 'var(--ax-text-strong)' }}>{rol}</b>. Los que todavía no tienen pantalla propia muestran un starter — se van completando módulo por módulo.
-          </p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 'var(--ax-space-3)' }}>
-            {MODULOS.map((m) => (
-              <Link
-                key={m.href}
-                href={m.href}
-                className="ax-card ax-card--flat"
-                style={{ padding: 'var(--ax-space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-2)', textDecoration: 'none' }}
-              >
-                <span className="ax-center" aria-hidden="true" style={{ inlineSize: 36, blockSize: 36, borderRadius: 'var(--ax-radius-md)', background: 'var(--ax-accent-wash)', color: 'var(--ax-accent)' }}>
-                  <Icon name={m.icon} />
-                </span>
-                <span style={{ fontWeight: 'var(--ax-weight-medium)', color: 'var(--ax-text-strong)', fontSize: 'var(--ax-text-sm)' }}>{m.label}</span>
-                <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{m.desc}</span>
-              </Link>
-            ))}
+      {soloResumen ? (
+        // Vista de administración "espiando" una marca sin activarla: los
+        // links de Módulos de abajo navegan a rutas fijas (/ecommerce/...)
+        // que leen la marca ACTIVA del contexto, no la de esta pantalla --
+        // mostrarlos acá llevaría a gestionar la marca equivocada. Solo el
+        // resumen + un botón explícito para activarla de verdad.
+        <section className="ax-card ax-card--flat ax-col--12" role="region" aria-label="Gestionar esta marca">
+          <div className="ax-card__body" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--ax-space-4)', flexWrap: 'wrap' }}>
+            <p style={{ margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
+              Estás viendo este resumen desde Administración, sin salir de la vista global. Para entrar a sus módulos (productos, pedidos…) primero activá la marca.
+            </p>
+            <button
+              type="button"
+              className="ax-btn ax-btn--secondary"
+              onClick={() => { setActiveMarcaId(marcaId); router.push('/'); }}
+            >
+              <span className="ax-btn__label">Activar y gestionar esta marca</span>
+            </button>
           </div>
-        </div>
-      </section>
+        </section>
+      ) : (
+        <section className="ax-card ax-col--12" role="region" aria-label="Módulos de la marca">
+          <div className="ax-card__body">
+            <h2 className="ax-card__title" style={{ marginBottom: 'var(--ax-space-1)' }}>Módulos</h2>
+            <p style={{ margin: '0 0 var(--ax-space-4)', fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
+              Tu rol aquí: <b style={{ color: 'var(--ax-text-strong)' }}>{rol}</b>. Los que todavía no tienen pantalla propia muestran un starter — se van completando módulo por módulo.
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 'var(--ax-space-3)' }}>
+              {MODULOS.map((m) => (
+                <Link
+                  key={m.href}
+                  href={m.href}
+                  className="ax-card ax-card--flat"
+                  style={{ padding: 'var(--ax-space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-2)', textDecoration: 'none' }}
+                >
+                  <span className="ax-center" aria-hidden="true" style={{ inlineSize: 36, blockSize: 36, borderRadius: 'var(--ax-radius-md)', background: 'var(--ax-accent-wash)', color: 'var(--ax-accent)' }}>
+                    <Icon name={m.icon} />
+                  </span>
+                  <span style={{ fontWeight: 'var(--ax-weight-medium)', color: 'var(--ax-text-strong)', fontSize: 'var(--ax-text-sm)' }}>{m.label}</span>
+                  <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{m.desc}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
     </>
   );
 }
