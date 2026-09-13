@@ -287,17 +287,19 @@ function ApiStatus() {
     state.ok === null ? 'Verificando…' : state.ok ? `En línea${state.ms !== null ? ` · ${state.ms}ms` : ''}` : 'Sin conexión';
 
   return (
-    <div style={{ marginTop: 'auto', padding: 'var(--ax-space-3) var(--ax-space-4)', borderTop: '1px solid var(--ax-border)' }}>
+    <div className="ax-sidebar__apistatus" style={{ marginTop: 'auto', padding: 'var(--ax-space-3) var(--ax-space-4)', borderTop: '1px solid var(--ax-border)' }}>
       <a
         href={`${API_URL}/docs`}
         target="_blank"
         rel="noreferrer"
+        className="ax-sidebar__apistatus-link"
         style={{ display: 'flex', alignItems: 'center', gap: 'var(--ax-space-2)', textDecoration: 'none' }}
         aria-label={`Estado de la API: ${label}. Abrir documentación`}
+        title={`API: ${label}`}
       >
-        <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: color }} />
-        <span style={{ fontSize: 'var(--ax-text-xs)', fontWeight: 600, color: 'var(--ax-text-strong)' }}>API</span>
-        <span style={{ fontSize: 'var(--ax-text-2xs)', color: 'var(--ax-text-muted)', marginLeft: 'auto' }}>{label}</span>
+        <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: color, flexShrink: 0 }} />
+        <span className="ax-sidebar__apistatus-label" style={{ fontSize: 'var(--ax-text-xs)', fontWeight: 600, color: 'var(--ax-text-strong)' }}>API</span>
+        <span className="ax-sidebar__apistatus-detail" style={{ fontSize: 'var(--ax-text-2xs)', color: 'var(--ax-text-muted)', marginLeft: 'auto' }}>{label}</span>
       </a>
     </div>
   );

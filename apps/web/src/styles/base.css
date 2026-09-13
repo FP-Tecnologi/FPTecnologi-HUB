@@ -665,6 +665,15 @@ hr {
   :is([data-ax-collapsed]:not([data-ax-sidebar-style]), [data-ax-sidebar-behavior='compact']) .ax-marcaswitch {
     display: none;
   }
+  /* Pie del sidebar (estado de la API): igual que arriba, texto largo (label +
+     latencia en ms) no entra en 76px -- se oculta y queda solo el punto de
+     estado + "API" centrados. */
+  :is([data-ax-collapsed]:not([data-ax-sidebar-style]), [data-ax-sidebar-behavior='compact']) .ax-sidebar__apistatus-link {
+    justify-content: center;
+  }
+  :is([data-ax-collapsed]:not([data-ax-sidebar-style]), [data-ax-sidebar-behavior='compact']) .ax-sidebar__apistatus-detail {
+    display: none;
+  }
 }
 
 /* ── ICON-TEXT HOVER (rest 76px → 264px overlay on hover, no reflow) ──────
@@ -1172,6 +1181,12 @@ hr {
     display: block;
   }
   :where(html):not([data-ax-shell-style='detached']):not([data-ax-sidebar-style]) .ax-marcaswitch {
+    display: none;
+  }
+  :where(html):not([data-ax-shell-style='detached']):not([data-ax-sidebar-style]) .ax-sidebar__apistatus-link {
+    justify-content: center;
+  }
+  :where(html):not([data-ax-shell-style='detached']):not([data-ax-sidebar-style]) .ax-sidebar__apistatus-detail {
     display: none;
   }
 }
