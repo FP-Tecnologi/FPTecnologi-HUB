@@ -25,6 +25,9 @@ export interface AuthUser {
   email: string;
   nombre: string;
   avatarUrl?: string | null;
+  dni?: string | null;
+  telefono?: string | null;
+  cargo?: string | null;
 }
 
 interface VerifyResult {
@@ -55,7 +58,10 @@ interface AuthContextValue {
   confirmPasswordReset: (email: string, codigo: string, newPassword: string) => Promise<void>;
   logout: () => Promise<void>;
   setActiveMarcaId: (marcaId: string) => void;
-  updateProfile: (data: { nombre?: string; email?: string; currentPassword?: string }) => Promise<AuthUser>;
+  updateProfile: (data: {
+    nombre?: string; email?: string; currentPassword?: string;
+    dni?: string; telefono?: string; cargo?: string; avatarUrl?: string;
+  }) => Promise<AuthUser>;
   /** Vista global de administración (Panel general + gestión): sin marca activa. */
   adminMode: boolean;
   setAdminMode: (on: boolean) => void;
@@ -206,7 +212,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await api.post<void>('/auth/password-reset/confirm', { email, codigo, newPassword }, { auth: false });
   }, []);
 
-  const updateProfile = useCallback(async (data: { nombre?: string; email?: string; currentPassword?: string }) => {
+  const updateProfile = useCallback(async (data: {
+    nombre?: string; email?: string; currentPassword?: string;
+    dni?: string; telefono?: string; cargo?: string; avatarUrl?: string;
+  }) => {
     const updated = await api.patch<AuthUser>('/usuarios/me', data);
     setUser(updated);
     if (typeof window !== 'undefined') {

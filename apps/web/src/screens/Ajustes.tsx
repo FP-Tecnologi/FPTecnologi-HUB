@@ -1,13 +1,19 @@
 'use client';
 /*
- * FPTecnologi-HUB — "Configuración": editar cuenta (nombre/correo vía
- * PATCH /usuarios/me), seguridad (cambiar contraseña) y avisos
- * (preferencias locales, sin backend aún). Parte del grupo Mi cuenta.
+ * FPTecnologi-HUB — "Configuración": editar cuenta (nombre/correo/teléfono/
+ * DNI/cargo/foto vía PATCH /usuarios/me), seguridad (cambiar contraseña) y
+ * avisos (preferencias locales, sin backend aún). Parte del grupo Mi cuenta.
  */
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { PageHead } from '../components/shell/PageHead';
+import { Avatar } from '../components/ui/Avatar';
 import { useAuth, ApiError } from '../context/AuthContext';
+
+// ponytail: sin backend de storage todavía -- la foto se manda como data:
+// URI (base64) en la columna de texto avatarUrl. Tope generoso pero bajo:
+// subir a un bucket real (Supabase Storage/S3) si algún día hace falta más.
+const AVATAR_MAX_BYTES = 300 * 1024;
 
 interface Aviso {
   id: string;
@@ -28,6 +34,9 @@ export function Ajustes() {
   // --- Cuenta: edición real ---
   const [nombre, setNombre] = useState(user?.nombre || '');
   const [email, setEmail] = useState(user?.email || '');
+  const [telefono, setTelefono] = useState(user?.telefono || '');
+  const [dni, setDni] = useState(user?.dni || '');
+  const [cargo, setCargo] = useState(user?.cargo || '');
   const [currentPassword, setCurrentPassword] = useState('');
   const [saving, setSaving] = useState(false);
   const [okMsg, setOkMsg] = useState('');
@@ -38,11 +47,17 @@ export function Ajustes() {
     setSynced(true);
     setNombre(user.nombre || '');
     setEmail(user.email || '');
+    setTelefono(user.telefono || '');
+    setDni(user.dni || '');
+    setCargo(user.cargo || '');
   }
 
   const emailChanged = email.trim().toLowerCase() !== (user?.email || '').toLowerCase();
   const nombreChanged = nombre.trim() !== (user?.nombre || '');
-  const dirty = emailChanged || nombreChanged;
+  const telefonoChanged = telefono.trim() !== (user?.telefono || '');
+  const dniChanged = dni.trim() !== (user?.dni || '');
+  const cargoChanged = cargo.trim() !== (user?.cargo || '');
+  const dirty = emailChanged || nombreChanged || telefonoChanged || dniChanged || cargoChanged;
   const needsPassword = emailChanged && !currentPassword;
 
   async function submitCuenta(ev: React.FormEvent) {
@@ -59,15 +74,70 @@ export function Ajustes() {
       const updated = await updateProfile({
         ...(nombreChanged ? { nombre: nombre.trim() } : {}),
         ...(emailChanged ? { email: email.trim(), currentPassword } : {}),
+        ...(telefonoChanged ? { telefono: telefono.trim() } : {}),
+        ...(dniChanged ? { dni: dni.trim() } : {}),
+        ...(cargoChanged ? { cargo: cargo.trim() } : {}),
       });
       setNombre(updated.nombre || '');
       setEmail(updated.email || '');
+      setTelefono(updated.telefono || '');
+      setDni(updated.dni || '');
+      setCargo(updated.cargo || '');
       setCurrentPassword('');
       setOkMsg('Perfil actualizado.');
     } catch (err: unknown) {
       setErrMsg(err instanceof ApiError ? err.message : 'No se pudo actualizar el perfil.');
     } finally {
       setSaving(false);
+    }
+  }
+
+  // --- Foto de perfil: sube ya (no espera al botón "Guardar cambios" de
+  // arriba, es una acción propia). Se lee como base64 en el navegador -- ver
+  // la nota de AVATAR_MAX_BYTES arriba.
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [avatarSaving, setAvatarSaving] = useState(false);
+  const [avatarErr, setAvatarErr] = useState('');
+
+  function onAvatarPick(ev: React.ChangeEvent<HTMLInputElement>) {
+    const file = ev.target.files?.[0];
+    ev.target.value = '';
+    if (!file) return;
+    setAvatarErr('');
+    if (!file.type.startsWith('image/')) {
+      setAvatarErr('Elige un archivo de imagen (PNG o JPG).');
+      return;
+    }
+    if (file.size > AVATAR_MAX_BYTES) {
+      setAvatarErr(`La imagen pesa demasiado (máx. ${Math.round(AVATAR_MAX_BYTES / 1024)} KB). Usa una más liviana.`);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const dataUrl = reader.result as string;
+      setAvatarSaving(true);
+      try {
+        await updateProfile({ avatarUrl: dataUrl });
+        setOkMsg('Foto de perfil actualizada.');
+      } catch (err: unknown) {
+        setAvatarErr(err instanceof ApiError ? err.message : 'No se pudo subir la foto.');
+      } finally {
+        setAvatarSaving(false);
+      }
+    };
+    reader.onerror = () => setAvatarErr('No se pudo leer el archivo.');
+    reader.readAsDataURL(file);
+  }
+
+  async function quitarAvatar() {
+    setAvatarErr('');
+    setAvatarSaving(true);
+    try {
+      await updateProfile({ avatarUrl: '' });
+    } catch (err: unknown) {
+      setAvatarErr(err instanceof ApiError ? err.message : 'No se pudo quitar la foto.');
+    } finally {
+      setAvatarSaving(false);
     }
   }
 
@@ -124,8 +194,32 @@ export function Ajustes() {
     <>
       <PageHead title="Configuración" subtitle="Tus datos, tu seguridad y tus avisos." />
       <div className="ax-dash-grid">
+        <section className="ax-card ax-col--12" role="region" aria-label="Foto de perfil">
+          <div className="ax-card__header"><div className="ax-card__titles"><h2 className="ax-card__title">Foto de perfil</h2><p className="ax-card__subtitle">PNG o JPG, hasta {Math.round(AVATAR_MAX_BYTES / 1024)} KB. Cuadrada se ve mejor.</p></div></div>
+          <div className="ax-card__body" style={{ paddingTop: 0 }}>
+            {avatarErr && (
+              <div role="alert" className="ax-alert ax-alert--danger" style={{ marginBlockEnd: 'var(--ax-space-4)', padding: 'var(--ax-space-3) var(--ax-space-4)' }}>
+                <div className="ax-alert__content"><p className="ax-alert__message" style={{ color: 'var(--ax-danger-500)' }}>{avatarErr}</p></div>
+              </div>
+            )}
+            <div className="ax-cluster" style={{ gap: 'var(--ax-space-5)', alignItems: 'center' }}>
+              <Avatar nombre={user?.nombre} email={user?.email} avatarUrl={user?.avatarUrl} size={64} />
+              <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
+                <input ref={fileInputRef} type="file" accept="image/*" onChange={onAvatarPick} style={{ display: 'none' }} />
+                <button type="button" className={`ax-btn ax-btn--secondary${avatarSaving ? ' is-loading' : ''}`} disabled={avatarSaving} aria-busy={avatarSaving} onClick={() => fileInputRef.current?.click()}>
+                  <span className="ax-btn__spinner" aria-hidden="true"></span>
+                  <span className="ax-btn__label">Subir nueva</span>
+                </button>
+                {user?.avatarUrl && (
+                  <button type="button" className="ax-btn ax-btn--ghost" disabled={avatarSaving} onClick={quitarAvatar}>Quitar</button>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
         <section className="ax-card ax-col--12" role="region" aria-label="Datos personales">
-          <div className="ax-card__header"><div className="ax-card__titles"><h2 className="ax-card__title">Datos personales</h2><p className="ax-card__subtitle">Tu nombre y tu correo de acceso al dashboard.</p></div></div>
+          <div className="ax-card__header"><div className="ax-card__titles"><h2 className="ax-card__title">Datos personales</h2><p className="ax-card__subtitle">Tus datos de acceso y de contacto.</p></div></div>
           <div className="ax-card__body" style={{ paddingTop: 0 }}>
             {okMsg && (
               <div role="status" className="ax-alert ax-alert--success" style={{ marginBlockEnd: 'var(--ax-space-4)', padding: 'var(--ax-space-3) var(--ax-space-4)' }}>
@@ -137,19 +231,35 @@ export function Ajustes() {
                 <div className="ax-alert__content"><p className="ax-alert__message" style={{ color: 'var(--ax-danger-500)' }}>{errMsg}</p></div>
               </div>
             )}
-            <form onSubmit={submitCuenta} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)', maxWidth: 480 }}>
-              <div className="ax-field">
-                <label className="ax-label" htmlFor="aj-nombre">Nombre</label>
-                <input id="aj-nombre" type="text" className="ax-input" autoComplete="name" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
-              </div>
-              <div className="ax-field">
-                <label className="ax-label" htmlFor="aj-email">Correo</label>
-                <input id="aj-email" type="email" className="ax-input" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                <span className="ax-help">Si cambias tu correo deberás confirmar tu contraseña actual.</span>
+            <form onSubmit={submitCuenta} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 'var(--ax-space-4)' }}>
+                <div className="ax-field">
+                  <label className="ax-label" htmlFor="aj-nombre">Nombre</label>
+                  <input id="aj-nombre" type="text" className="ax-input" autoComplete="name" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
+                </div>
+                <div className="ax-field">
+                  <label className="ax-label" htmlFor="aj-email">Correo</label>
+                  <input id="aj-email" type="email" className="ax-input" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                </div>
+                <div className="ax-field">
+                  <label className="ax-label" htmlFor="aj-telefono">Teléfono</label>
+                  <input id="aj-telefono" type="tel" className="ax-input" autoComplete="tel" placeholder="+51 999 999 999" value={telefono} onChange={(e) => setTelefono(e.target.value)} />
+                </div>
+                <div className="ax-field">
+                  <label className="ax-label" htmlFor="aj-dni">DNI</label>
+                  <input id="aj-dni" type="text" className="ax-input" autoComplete="off" value={dni} onChange={(e) => setDni(e.target.value)} />
+                </div>
+                <div className="ax-field">
+                  <label className="ax-label" htmlFor="aj-cargo">Cargo</label>
+                  <input id="aj-cargo" type="text" className="ax-input" autoComplete="organization-title" placeholder="Ej. Asesor comercial" value={cargo} onChange={(e) => setCargo(e.target.value)} />
+                </div>
               </div>
               {emailChanged && (
-                <div className="ax-field">
-                  <label className="ax-label" htmlFor="aj-password">Contraseña actual (para confirmar el cambio de correo)</label>
+                <span className="ax-help">Cambiaste tu correo — confirmá tu contraseña actual para guardar.</span>
+              )}
+              {emailChanged && (
+                <div className="ax-field" style={{ maxWidth: 320 }}>
+                  <label className="ax-label" htmlFor="aj-password">Contraseña actual</label>
                   <input id="aj-password" type="password" className="ax-input" autoComplete="current-password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} required />
                 </div>
               )}
