@@ -22,8 +22,11 @@ export class UsuariosService {
    * el próximo login — aceptado: no invalida sesiones ajenas).
    */
   async updatePerfil(usuarioId: string, dto: UpdatePerfilDto) {
-    if (dto.nombre === undefined && dto.email === undefined) {
-      throw new BadRequestException('Nada que actualizar: envía nombre y/o email');
+    if (
+      dto.nombre === undefined && dto.email === undefined && dto.dni === undefined
+      && dto.telefono === undefined && dto.cargo === undefined && dto.avatarUrl === undefined
+    ) {
+      throw new BadRequestException('Nada que actualizar');
     }
 
     const usuario = await this.prisma.usuario.findUnique({ where: { id: usuarioId } });
@@ -31,7 +34,10 @@ export class UsuariosService {
       throw new NotFoundException('Usuario no encontrado');
     }
 
-    const data: { nombre?: string; email?: string } = {};
+    const data: {
+      nombre?: string; email?: string;
+      dni?: string | null; telefono?: string | null; cargo?: string | null; avatarUrl?: string | null;
+    } = {};
 
     if (dto.nombre !== undefined) {
       const nombre = dto.nombre.trim();
@@ -59,10 +65,17 @@ export class UsuariosService {
       }
     }
 
+    if (dto.dni !== undefined) data.dni = dto.dni.trim() || null;
+    if (dto.telefono !== undefined) data.telefono = dto.telefono.trim() || null;
+    if (dto.cargo !== undefined) data.cargo = dto.cargo.trim() || null;
+    if (dto.avatarUrl !== undefined) data.avatarUrl = dto.avatarUrl.trim() || null;
+
     const updated = await this.prisma.usuario.update({
       where: { id: usuario.id },
       data,
-      select: { id: true, email: true, nombre: true, avatarUrl: true },
+      select: {
+        id: true, email: true, nombre: true, avatarUrl: true, dni: true, telefono: true, cargo: true,
+      },
     });
     return updated;
   }

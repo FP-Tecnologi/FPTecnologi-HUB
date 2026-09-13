@@ -59,6 +59,9 @@ model Usuario {
   passwordHash String
   nombre       String?
   avatarUrl    String?
+  dni          String?
+  telefono     String?
+  cargo        String?
   activo       Boolean  @default(true)
   // Default true a propósito: la migración marca a todos los usuarios ya
   // existentes como "ya la vio" (nadie que ya usa el sistema debe recibir
