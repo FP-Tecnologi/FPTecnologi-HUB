@@ -1,0 +1,42 @@
+import type { Metadata, Viewport } from 'next';
+import type { ReactNode } from 'react';
+import { CartProvider } from '@/context/CartContext';
+import { ChatWidget } from '@/components/site/ChatWidget';
+import './globals.css';
+
+export const metadata: Metadata = {
+  title: {
+    default: 'FPTecnologi & System — Tecnología para tu negocio',
+    template: '%s · FPTecnologi',
+  },
+  description:
+    'Equipamiento TI y soluciones para empresas: seguridad, videoconferencia, servidores, data centers y más. Distribución autorizada de las principales marcas.',
+  icons: { icon: '/favicon.svg' },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#155382',
+  width: 'device-width',
+  initialScale: 1,
+};
+
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    <html lang="es">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body>
+        <CartProvider>
+          {children}
+          <ChatWidget />
+        </CartProvider>
+      </body>
+    </html>
+  );
+}

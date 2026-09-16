@@ -1,0 +1,417 @@
+@import 'tailwindcss';
+
+/*
+ * Paleta de marca FPTecnologi & System — tomada de la ficha Pantone real
+ * (color principal + 4 acentos del isotipo). Fuente: referencia de marca
+ * pasada por el cliente, no inventada.
+ */
+@theme {
+  --color-brand-primary: #2181af; /* Pantone 7468 C — color principal */
+  --color-brand-dark: #155382; /* Pantone 7692 C — azul oscuro */
+  --color-brand-petrol: #1c6587; /* Pantone 7698 C — azul petróleo */
+  --color-brand-teal: #18778b; /* Pantone 7470 C — turquesa petróleo */
+  --color-brand-teal-light: #208497; /* Pantone 7474 C — azul turquesa claro */
+
+  --color-ink: #0b1b26;
+  --color-paper: #f6f9fb;
+
+  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+/*
+ * Botón "glow" — el mismo ADN que .ax-btn--primary del dashboard (Vireo):
+ * degradé diagonal + sombra de color, no relleno plano. El usuario pidió
+ * traer algo del estilo Vireo al widget de chat y a los CTA principales.
+ */
+.btn-glow {
+  background: linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-dark) 100%);
+  box-shadow: 0 12px 26px -10px rgba(33, 129, 175, 0.55);
+  transition:
+    filter 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.btn-glow:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 14px 30px -8px rgba(33, 129, 175, 0.7);
+}
+
+.btn-glow:active {
+  filter: brightness(0.96);
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+}
+
+/* Fondo "circuito" reutilizable para heros/CTAs en tono marca — sin imágenes
+   de terceros, patrón propio en degradé de la paleta. */
+.brand-mesh {
+  background-image:
+    radial-gradient(circle at 15% 20%, color-mix(in srgb, var(--color-brand-teal-light) 35%, transparent) 0%, transparent 45%),
+    radial-gradient(circle at 85% 0%, color-mix(in srgb, var(--color-brand-teal) 30%, transparent) 0%, transparent 40%),
+    linear-gradient(135deg, var(--color-brand-dark) 0%, var(--color-brand-primary) 55%, var(--color-brand-petrol) 100%);
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+}
+
+@keyframes float-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.7s ease-out both;
+}
+
+@keyframes zoom-slow {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+}
+
+.animate-zoom-slow {
+  animation: zoom-slow 12s ease-in-out infinite;
+}
+
+/* Onda que nace en el punto de clic y crece desvaneciéndose — guía de
+   estilos, sección "2.3 Al hacer clic" (propuesta, no aplicado en el sitio). */
+@keyframes ripple-effect {
+  from {
+    transform: scale(0);
+    opacity: 0.5;
+  }
+  to {
+    transform: scale(18);
+    opacity: 0;
+  }
+}
+
+.animate-ripple {
+  animation: ripple-effect 600ms ease-out forwards;
+}
+
+/*
+ * Botón "barrido" — patrón real de Techon (.btn-style-one): el fondo no
+ * cambia de color, un pseudo-elemento desliza de un lado al 100% al hover.
+ * data-swap define el color que queda al descubierto.
+ */
+.btn-sweep {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.btn-sweep::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  transition: transform 0.4s ease;
+  z-index: -1;
+}
+
+.btn-sweep:hover::before {
+  transform: translateX(0);
+}
+
+/* Ícono que gira 180° (flip 3D) al hover de la tarjeta contenedora — patrón
+   real de Techon (.feature-block .inner-box:hover .icon). */
+.group:hover .icon-flip {
+  transform: rotateY(180deg);
+}
+
+.icon-flip {
+  transition: transform 0.5s ease;
+  transform-style: preserve-3d;
+}
+
+/* Subrayado que se desliza al hover — patrón real de Techon
+   (.main-menu .navigation > li:hover:before). */
+.nav-underline {
+  position: relative;
+  padding-bottom: 4px;
+}
+
+.nav-underline::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 0;
+  background: currentColor;
+  transition: width 0.3s ease;
+}
+
+.nav-underline:hover::after {
+  width: 100%;
+}
+
+/* ---------- Glassmorfismo (widget de chat) ---------- */
+
+@keyframes pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-pop-in {
+  animation: pop-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.glass-panel {
+  background: color-mix(in srgb, #050b12 80%, transparent);
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  border: 1px solid color-mix(in srgb, white 10%, transparent);
+  box-shadow:
+    0 30px 60px -15px rgba(0, 0, 0, 0.55),
+    0 0 0 1px color-mix(in srgb, white 4%, transparent),
+    inset 0 1px 0 color-mix(in srgb, white 8%, transparent);
+}
+
+.glass-card {
+  background: color-mix(in srgb, white 7%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid color-mix(in srgb, white 12%, transparent);
+}
+
+/* Tarjetas de opción del chat (WhatsApp / Asistente) — fondo claro propio
+   (no vidrio oscuro) para que se lean bien y se distingan entre sí. El
+   único efecto es el ícono saltando al hover, nada en la tarjeta misma. */
+.option-card {
+  --tint: var(--color-brand-primary);
+  background: color-mix(in srgb, white 93%, var(--tint) 7%);
+  border: 1px solid color-mix(in srgb, var(--tint) 22%, white 78%);
+}
+
+/* Salto del ícono al hover — el único efecto que pidió el usuario, nada
+   en la tarjeta (ni elevación, ni brillo, ni flecha). */
+@keyframes icon-hop {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  30% {
+    transform: translateY(-5px);
+  }
+  50% {
+    transform: translateY(0);
+  }
+  65% {
+    transform: translateY(-2px);
+  }
+}
+
+.option-card:hover .icon-hop,
+.group:hover .icon-hop {
+  animation: icon-hop 0.6s ease;
+}
+
+.online-dot {
+  position: relative;
+}
+
+.online-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: inherit;
+  animation: ring-pulse 1.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.glass-card:hover {
+  background: color-mix(in srgb, white 11%, transparent);
+  border-color: color-mix(in srgb, white 20%, transparent);
+}
+
+.glass-input {
+  background: color-mix(in srgb, white 6%, transparent);
+  border: 1px solid color-mix(in srgb, white 14%, transparent);
+}
+
+.glass-input::placeholder {
+  color: color-mix(in srgb, white 38%, transparent);
+}
+
+/* Versión clara de .glass-panel/.glass-card — mismo vidrio esmerilado,
+   blanco translúcido en vez de oscuro. A diferencia de la oscura, esta SÍ
+   necesita un fondo con color/textura detrás (ej. .brand-mesh) para
+   notarse; sobre blanco liso el contraste desaparece. */
+.glass-panel-light {
+  background: color-mix(in srgb, white 65%, transparent);
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  border: 1px solid color-mix(in srgb, white 70%, transparent);
+  box-shadow:
+    0 30px 60px -15px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 color-mix(in srgb, white 60%, transparent);
+}
+
+.glass-card-light {
+  background: color-mix(in srgb, white 55%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid color-mix(in srgb, white 55%, transparent);
+}
+
+.glass-card-light:hover {
+  background: color-mix(in srgb, white 75%, transparent);
+  border-color: color-mix(in srgb, white 85%, transparent);
+}
+
+@keyframes ring-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+/* position:relative va en la clase base (no solo confiar en que quien la usa
+   agregue "relative" a mano) — si falta, el ::before de abajo se posiciona
+   contra el ancestro posicionado más cercano en vez del botón, y el círculo
+   de pulso termina cubriendo una zona enorme de la página en vez del botón.
+   El z-index:0 también es necesario: "position: relative" solo, SIN un
+   z-index propio, no crea un contexto de apilamiento nuevo — el z-index:-1
+   del ::before se escapa entonces al contexto del ANCESTRO (la tarjeta
+   blanca que lo contiene), quedando pintado detrás de toda la tarjeta en
+   vez de solo detrás del botón. */
+.launcher-ring {
+  position: relative;
+  z-index: 0;
+}
+
+.launcher-ring::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 1rem;
+  background: var(--color-brand-primary);
+  animation: ring-pulse 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  z-index: -1;
+}
+
+/* Versión más marcada de .launcher-ring — SOLO para la comparación "Tipos de
+   efecto" de la guía de estilos. El anillo real (arriba) escala poco
+   (1→1.9) y con z-index:-1 queda casi todo tapado detrás del botón opaco —
+   se nota en el launcher real porque es el único elemento pulsando en la
+   pantalla, pero al lado de otras 3 tarjetas fijas en una comparación se
+   pierde, se ve casi igual que "sin efecto". Acá escala más y parte de una
+   opacidad más alta para que la diferencia se note en la comparación,
+   sin tocar el efecto real del botón del chat. */
+@keyframes ring-pulse-demo {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+
+.demo-ring-pulse {
+  position: relative;
+  z-index: 0;
+}
+
+.demo-ring-pulse::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--color-brand-primary);
+  animation: ring-pulse-demo 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  z-index: -1;
+}
+
+@keyframes typing-dot {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+.typing-dot {
+  animation: typing-dot 1.1s ease-in-out infinite;
+}
+
+/* Versiones en loop de icon-hop/icon-flip — SOLO para la guía de estilos
+   (sección "Tipos de efecto" del launcher), para que se vean sin necesitar
+   pasar el cursor. Los efectos reales del sitio (2.1/2.2, tarjetas de
+   servicio) siguen siendo solo-hover vía .icon-hop/.icon-flip de arriba. */
+.animate-icon-hop-loop {
+  animation: icon-hop 1.6s ease-in-out infinite;
+}
+
+@keyframes flip-loop {
+  0%,
+  100% {
+    transform: rotateY(0deg);
+  }
+  50% {
+    transform: rotateY(180deg);
+  }
+}
+
+.animate-icon-flip-loop {
+  animation: flip-loop 2s ease-in-out infinite;
+  transform-style: preserve-3d;
+}

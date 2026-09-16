@@ -1,0 +1,28 @@
+{
+  "name": "fptecnologi-web",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Web pública de fptecnologi.com (Next.js 16 + React 19 + Tailwind v4) — sin login, consume /public/* de la API central.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "16.3.4",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^22.20.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^15.3.9",
+    "tailwindcss": "^4.1.0",
+    "typescript": "^7.0.2"
+  }
+}

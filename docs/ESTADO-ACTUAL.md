@@ -19,7 +19,7 @@ se actualiza junto con esto cuando cambia arquitectura/convenciones).
 | --- | --- | --- | --- |
 | 0 — Planificación y setup | 07–18 sep 2026 | En curso (falta infra externa) | inició 2026-09-11 |
 | 1 — Backend / API central | 21 sep–16 oct 2026 | Prácticamente cerrada | 2026-09-11 |
-| 2 — fptecnologi.com (web pública) | 19 oct–13 nov 2026 | No iniciada | — |
+| 2 — fptecnologi.com (web pública) | 19 oct–13 nov 2026 | En curso — 6 modelos de home + guía de estilos, falta elegir modelo y conectar API | inició 2026-09-14 |
 | 3 — Dashboard (núcleo) | 16 nov–11 dic 2026 | En curso — login+2FA+selector de marca reales, falta CRUD | inició 2026-09-11 |
 | 4 — QA y lanzamiento fptecnologi | 14–23 dic 2026 | No iniciada | — |
 | 5 — Réplica 4 marcas | 24 dic 2026–17 feb 2027 | No iniciada | — |
@@ -141,6 +141,85 @@ sobre este mismo repo. Estado real hoy:
       token de dispositivo 30d en cookie HttpOnly + salto de OTP en ese
       navegador + revocación al cambiar contraseña + tests
 
+## Fase 2 — checklist real
+
+`apps/web-fptecnologi` (Next.js 16 + React 19 + Tailwind v4, sin login,
+propio `package.json`/`node_modules`, puerto 3002). Arrancó antes de lo
+previsto en el cronograma — mismo patrón que Fase 1 y Fase 3.
+
+- [x] App separada creada y registrada en `.claude/launch.json`
+      (`web-fptecnologi`, puerto 3002)
+- [x] 6 modelos completos de home (`/`, `/modelo-2`..`/modelo-6`): 5
+      basados en las plantillas Home1-5 de la plantilla comercial Techon
+      (usada solo como referencia visual, sin instalar sus dependencias)
+      + 1 propuesta propia. Comparten secciones de negocio
+      (`SplitPaths`, `StatsBar`, `FeaturedProducts`, `WhyChooseUs`,
+      `BrandMarquee`, `PartnerSteps`, `Contact`, `Footer`) — solo difieren
+      en Header/Hero/tarjetas de servicio, que es donde Techon realmente
+      varía entre sus 5 Home
+- [x] Contenido real relevado de fptecnologi.com en vivo (categorías,
+      marcas partner, dirección, teléfonos, email, 4 productos con
+      SKU/precio/descuento reales) — vive hoy en `src/lib/content.ts`,
+      **no conectado a la API** todavía (pendiente, ver `AGENTS.md`)
+- [x] Hero de 3 slides (Servicios/Tienda/Partners) con pestañas siempre
+      visibles y nombradas (decisión de UX: se descartó un carrusel ciego)
+- [x] Submenús de header con contenido real (8 slugs Servicios, 4 Tienda,
+      generados desde `content.ts`) + sitemap navegable completo con
+      páginas placeholder intencionales (`/servicios/[slug]`,
+      `/tienda/[slug]`, `/marcas`, `/nosotros`, `/contacto`)
+- [x] Carrito real: `CartContext` (Context + `localStorage`), `CartButton`
+      (ícono + dropdown) en los 6 headers, página `/carrito` real
+- [x] Widget de chat flotante (`ChatWidget.tsx`, global en las 6 páginas):
+      glassmorfismo oscuro real (`.glass-panel`/`.glass-card` en
+      `globals.css`, ADN Vireo/Aurora), look distinto por modelo
+      (`chatVariants.tsx`), opciones WhatsApp real / asistente simple por
+      keywords (**no es IA real conectada**, dejado explícito)
+- [x] Botón "Cotizador" real (`COTIZADOR_URL` en `content.ts`) en los 6
+      headers/heroes, reemplazando el antiguo "Contáctanos"
+- [x] Página `/guia-estilos`: catálogo vivo (componentes reales
+      embebidos, no capturas) de las 12 áreas del sistema visual —
+      headers, botones (jerarquía/relleno/efectos/tonos semánticos),
+      tarjetas de servicio, tarjeta de producto, tarjeta "por qué
+      elegirnos", badges, acordeón FAQ, ribbons, chat, efectos/
+      animaciones reutilizables, carrito (mini-carrito de header +
+      tarjetas panel), comparación de productos — cada propuesta no
+      aplicada está marcada explícitamente como tal, nunca mezclada con
+      lo real. Pensada para que el usuario elija dirección visual antes
+      de construir el resto del sitio
+- [ ] Elegir 1 de los 6 modelos de home como definitivo — pendiente,
+      decisión del usuario
+- [ ] Conectar `content.ts` a `GET /public/productos`/`/public/servicios`
+      de la API en vez de contenido hardcodeado
+- [ ] Catálogo completo, fichas de producto reales, checkout real (hoy
+      el carrito es solo vista previa en `localStorage`, sin pedido real
+      contra la API)
+- [ ] Infra (Cloudflare, Hostinger) — mismo bloqueo que Fase 0, requiere
+      acceso a esas cuentas
+
+**Notas técnicas no obvias (para no repetir el mismo bug en otra
+sesión/máquina)**:
+- Server Component (`app/guia-estilos/page.tsx`, sin `'use client'`) no
+  puede recibir una función como children/prop desde un Client Component
+  (no serializable) — pasar un `ReactNode` ya renderizado, nunca un
+  render-prop.
+- Importar consts/tipos planos desde un módulo con `'use client'` hacia
+  un Server Component puede fallar en build/prerender sin error claro en
+  desarrollo — si un valor se comparte entre un componente cliente y uno
+  servidor, extraerlo a un módulo sin `'use client'` aparte (ver
+  `src/components/site/chatVariants.tsx`).
+- `position: relative` solo no crea un nuevo contexto de apilamiento CSS —
+  hace falta un `z-index` explícito también. Un pseudo-elemento hijo con
+  `z-index: -1` sin eso se escapa al contexto de apilamiento del ancestro
+  posicionado más cercano en vez de quedar contenido en su propio padre.
+- El glassmorfismo claro (`.glass-panel-light`) necesita un fondo con
+  color/textura detrás (ej. `.brand-mesh`) para notarse — sobre blanco
+  liso el contraste desaparece. El oscuro (`.glass-panel`, ~80% opaco) no
+  tiene ese problema, funciona directo sobre cualquier fondo.
+- La plantilla comercial Vireo (referencia de diseño para el ADN
+  glass/glow) vive fuera del repo, solo en la máquina de desarrollo — ver
+  nota en `VIREO-REFERENCE.md`, la ruta cambia según el perfil de
+  Windows.
+
 ## Desviaciones del plan original (agregado / quitado / distinto)
 
 - **Agregado**: módulos `Servicio`/`Cotizacion` (cotizador B2B) — ver
@@ -151,10 +230,10 @@ sobre este mismo repo. Estado real hoy:
 - **Distinto**: `OtpCode` es tabla propia (con expiración e historial) en
   vez de dos campos inline en `Usuario` como sugería el plan original —
   permite reintentos/expiración sin pisar el código anterior.
-- **Distinto de nombres**: `apps/web` hoy contiene el dashboard (copia de
-  Vireo), no la web pública. El plan original asumía `apps/dashboard` +
-  `apps/web-fptecnologi` desde el día uno; la web pública de
-  fptecnologi.com **todavía no existe** como app — es lo próximo (Fase 2).
+- **Distinto de nombres**: `apps/web` contiene el dashboard (copia de
+  Vireo), no la web pública — el plan original asumía `apps/dashboard` +
+  `apps/web-fptecnologi` desde el día uno. La web pública real vive en
+  `apps/web-fptecnologi` (creada en Fase 2, ver checklist arriba).
 - **Quitado del alcance inmediato**: pnpm + turbo + npm workspaces (el
   plan original pedía pnpm+turbo; se probó el equivalente en npm y se
   revirtió el mismo día por romper el arranque — ver checklist de Fase 0
@@ -355,3 +434,78 @@ sobre este mismo repo. Estado real hoy:
   a diferencia de `Dev@fptecnologi.com` que es admin en las 5) —
   credenciales en `docs/credenciales-prueba.md` (gitignored, tiene
   contraseñas reales).
+
+### 2026-09-14 — arranca Fase 2 (web pública)
+- Creada `apps/web-fptecnologi` (Next.js 16 + React 19 + Tailwind v4,
+  propio `package.json`/`node_modules`, sin login), registrada en
+  `.claude/launch.json` (puerto 3002).
+- Modelo 1 de home (`app/page.tsx` + `src/components/site/*`): estructura
+  de Techon (hero slider, grid de soluciones, marquee de marcas, pasos de
+  partner, contacto, footer) + contenido real relevado de fptecnologi.com
+  en vivo (categorías, marcas, dirección, teléfonos, email).
+- 6 modelos completos (`/`, `/modelo-2`..`/modelo-6`): 5 basados en las
+  Home1-5 de la plantilla comercial Techon (solo referencia visual, no se
+  instalaron sus dependencias) + 1 propuesta propia. Secciones de negocio
+  compartidas entre los 6 (`SplitPaths`, `StatsBar`, `FeaturedProducts`,
+  `WhyChooseUs`) para no repetir contenido — solo Header/Hero/tarjetas de
+  servicio varían por modelo.
+- Estructura de información del home definida como UX antes de seguir con
+  visual: Header → Hero (3 slides con pestañas siempre visibles, no
+  puntos ciegos) → marcas → soluciones → catálogo destacado → por qué
+  elegirnos (con stats integradas) → partners → contacto → footer.
+- Submenús de header con contenido real (`src/lib/nav.ts` generado desde
+  `SOLUTIONS`/`TIENDA_CATEGORIES`) + sitemap navegable completo con
+  páginas placeholder intencionales.
+- Carrito real (`CartContext`, Context + `localStorage`) + `CartButton`
+  en los 6 headers + página `/carrito`.
+- Fotos del hero/categorías con fondo blanco horneado corregidas
+  (flood-fill con `sharp`) o reemplazadas por stock de Unsplash real,
+  revisado imagen por imagen.
+- Botón "Contáctanos" → "Cotizador" real (`COTIZADOR_URL`) en los 6
+  headers/heroes.
+- Widget de chat flotante (`ChatWidget.tsx`, global) con glassmorfismo,
+  bot simple por keywords (no IA real conectada, dejado explícito) y
+  efecto de escritura letra por letra.
+
+### 2026-09-15 — guía de estilos + refactors reales
+- Estilo Vireo/Aurora traído al sitio público: `.btn-glow` (degradé
+  diagonal + sombra de color, ADN real del dashboard) aplicado a
+  chat/carrito/WhatsApp/agregar-al-carrito.
+- Página `/guia-estilos` creada y expandida en varias pasadas hasta 12
+  secciones (headers, botones, tarjetas de servicio, tarjeta de producto,
+  "por qué elegirnos", badges, acordeón FAQ, ribbons, chat, efectos,
+  carrito, comparación de productos) — componentes reales embebidos, no
+  capturas; toda propuesta no aplicada marcada explícitamente como tal.
+  Contenido siempre real (`FEATURED_PRODUCTS`, `WHY_CHOOSE_US`,
+  `SOLUTIONS` de `content.ts`) — nunca specs/ratings inventados sobre
+  productos de marca real (ASUS/Dell).
+- Refactor real: `chatVariants.tsx` (nuevo módulo sin `'use client'`)
+  separado de `ChatWidget.tsx` para poder compartir sus valores con el
+  Server Component de la guía sin romper el build — ver nota técnica en
+  la sección de Fase 2 arriba.
+- Ícono del launcher del chat mejorado (3 puntos internos, antes vacío) y
+  forma `rounded-full` → `rounded-2xl` — cambio real en producción, no
+  solo de la guía.
+- Submenús de header con estilo real distinto por modelo
+  (`dropdownVariant` en `MainNav.tsx`, 6 variantes) — antes los 6 usaban
+  la misma tarjeta blanca genérica. Bug real encontrado y arreglado de
+  paso: doble `position` (`relative` + `absolute`) rompía el layout del
+  header del Modelo 5 — ver nota técnica arriba.
+- 2 bugs reales de stacking-context CSS en el anillo de pulso del chat
+  (`.launcher-ring`) — ver nota técnica arriba, ambos con fix defensivo
+  aplicado a la clase base, no solo al caso puntual.
+- Carrito: variantes de mini-carrito de header (ícono + dropdown) y de
+  tarjeta/panel completo agregadas a la guía, con datos reales del
+  catálogo — incluye una versión de glassmorfismo claro nueva
+  (`.glass-panel-light`/`.glass-card-light` en `globals.css`) sobre
+  `.brand-mesh`, ver nota técnica arriba.
+- Página verificada con `npm run build` limpio y en el navegador en cada
+  cambio — sin regresiones en los 6 modelos ni en las rutas existentes.
+
+### 2026-09-16 — primer commit de Fase 2 a git
+- `apps/web-fptecnologi` no se había subido a git todavía (todo el
+  trabajo de Fase 2 vivía sin commitear) — primer commit real de la app
+  completa (6 modelos, guía de estilos, carrito, chat) a `main`.
+- Este documento (`ESTADO-ACTUAL.md`) y `AGENTS.md` actualizados con el
+  detalle de Fase 2 para que cualquier sesión/máquina nueva pueda
+  continuar sin depender de contexto que solo vivía en memoria local.

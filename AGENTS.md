@@ -62,22 +62,24 @@ correo) — no se usa NextAuth ni login independiente por sitio.
 
 ```
 apps/
-  api/    NestJS — API central (Prisma + PostgreSQL/Supabase)
-  web/    Next.js + Vireo — HOY es el dashboard administrativo
-          (el nombre "web" es heredado de la plantilla Vireo; no es la
-          web pública de fptecnologi.com, esa app todavía no existe)
+  api/              NestJS — API central (Prisma + PostgreSQL/Supabase)
+  web/              Next.js + Vireo — dashboard administrativo
+                    (el nombre "web" es heredado de la plantilla Vireo)
+  web-fptecnologi/  Next.js — web pública de fptecnologi.com (Fase 2,
+                    sin login, catálogo/servicios/carrito/chat propios)
 docs/     Documentación de negocio y planificación
 ```
 
 No hay `packages/shared-types`, `turbo` ni npm workspaces — cada app
-(`apps/api`, `apps/web`) es un proyecto npm independiente con su propio
-`node_modules`/`package-lock.json`. Se probó un `package.json` raíz con
-workspaces y se revirtió: npm hoisteaba paquetes de forma inconsistente
-(un paquete en `node_modules` raíz, su propia dependencia interna en la del
-app) y rompía el arranque en runtime — sin un paquete compartido real
-todavía, el workspace no aportaba nada y sí agregaba ese riesgo. Se
-reevalúa cuando exista `packages/shared-types` de verdad (la futura web
-pública de fptecnologi consumiendo los mismos DTOs que el dashboard).
+(`apps/api`, `apps/web`, `apps/web-fptecnologi`) es un proyecto npm
+independiente con su propio `node_modules`/`package-lock.json`. Se probó un
+`package.json` raíz con workspaces y se revirtió: npm hoisteaba paquetes de
+forma inconsistente (un paquete en `node_modules` raíz, su propia
+dependencia interna en la del app) y rompía el arranque en runtime — sin un
+paquete compartido real todavía, el workspace no aportaba nada y sí
+agregaba ese riesgo. Se reevalúa cuando exista `packages/shared-types` de
+verdad (`apps/web-fptecnologi` consumiendo los mismos DTOs que la API en
+vez del contenido hardcodeado que usa hoy).
 
 ## Stack
 
@@ -100,6 +102,18 @@ pública de fptecnologi consumiendo los mismos DTOs que el dashboard).
   (`*Cover`, `SignUp*`, `ResetPassword*`, `CreatePassword*`,
   `LockScreen*`) siguen siendo demo de Vireo con `setTimeout` fake, sin
   endpoint real detrás todavía.
+- **Web pública** (`apps/web-fptecnologi`): Next.js 16 (App Router) +
+  React 19 + Tailwind v4, propio `package.json`/`node_modules`, **sin
+  login**. Puerto 3002 (`.claude/launch.json`, nombre `web-fptecnologi`).
+  Contenido hoy hardcodeado en `src/lib/content.ts` (productos, marcas,
+  soluciones, contacto — copiados de fptecnologi.com real, no inventados)
+  en vez de consumir `GET /public/*` de la API — pendiente de conectar.
+  Página `/guia-estilos` cataloga en vivo (no capturas) todos los
+  componentes reales de los 6 modelos de home más propuestas de diseño
+  explícitamente marcadas como no aplicadas — usarla como punto de partida
+  antes de tocar el look de cualquier componente. Detalle completo (6
+  modelos, carrito, chat, decisiones de diseño) en `ESTADO-ACTUAL.md` →
+  Fase 2.
 - **Testing**: Vitest (`*.spec.ts` junto al archivo que prueban).
 - **Package manager**: npm (no pnpm, no yarn) — instalar dentro de cada
   app (`cd apps/api && npm install`), no hay workspace raíz (ver arriba).
@@ -194,8 +208,11 @@ CI/CD y seguridad del repo (ver `.github/`):
   scanning, etc. — requieren rol admin, no se pueden setear por código).
 
 Pendiente:
-- Crear la web pública de fptecnologi.com (Next.js + shadcn/ui, sin login,
-  consume `/public/*`) — todavía no existe como app separada.
+- `apps/web-fptecnologi` (Fase 2): elegir 1 de los 6 modelos de home como
+  definitivo, conectar el contenido hardcodeado a `GET /public/*` en vez de
+  `src/lib/content.ts`, y construir catálogo completo/fichas de
+  producto/checkout real — hoy solo hay una vista previa de carrito
+  (`localStorage`, sin pedido real) y páginas placeholder de sitemap.
 - Activar en Settings → Code security: Dependabot alerts, secret scanning
   + push protection, y una branch protection rule en `main` que exija los
   checks de CI (ver `SECURITY.md`) — requiere rol admin, no se puede hacer
