@@ -172,6 +172,8 @@ export const BUSINESS_PATHS = [
     cta: 'Ver catálogo',
     href: '#catalogo',
     icon: 'cart',
+    tag: 'Tienda',
+    tags: ['Stock local', 'Envío rápido'],
   },
   {
     title: 'Servicios TI',
@@ -179,6 +181,8 @@ export const BUSINESS_PATHS = [
     cta: 'Cotizar servicio',
     href: '#servicios',
     icon: 'wrench',
+    tag: 'Servicios',
+    tags: ['A medida', 'Especialistas'],
   },
 ] as const;
 
