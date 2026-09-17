@@ -47,6 +47,14 @@ const MODELS = [
     styleDesc: 'Fondo blanco, imágenes recortadas en formas curvas/blob (no rectángulos) y header con vidrio esmerilado (glassmorfismo) al hacer scroll.',
     sections: ['Header', 'Hero', 'Tienda / Servicios (2 caminos)', 'Estadísticas', 'Servicios', 'Productos destacados', 'Marcas (marquesina)', 'Por qué elegirnos', 'Sé partner', 'Contacto', 'Footer'],
   },
+  {
+    href: '/modelo-7',
+    title: 'Modelo 7',
+    text: 'Hero con foto de escritorio + badges de confianza, categorías en grilla y bloque de rendimiento circular.',
+    style: 'Claro tipo producto',
+    styleDesc: 'Fondo claro, fotos de stock reales (no genéricas), tarjetas blancas con sombra suave y un bloque circular de "rendimiento" rodeado de features. Más orientado a catálogo que los otros 6.',
+    sections: ['Header', 'Hero', 'Categorías de producto', 'Productos destacados', 'Rendimiento (circular)', 'Soluciones por entorno', 'Por qué elegirnos', 'CTA', 'Marcas (marquesina)', 'Contacto', 'Footer'],
+  },
 ] as const;
 
 export const metadata = { title: 'Modelos — FPTecnologi' };
@@ -55,7 +63,7 @@ export default function ModelosPage() {
   return (
     <main className="mx-auto min-h-screen max-w-5xl px-6 py-16">
       <h1 className="font-bold text-3xl text-ink">Modelos de home — fptecnologi.com</h1>
-      <p className="mt-2 text-ink/60">6 propuestas para comparar y elegir.</p>
+      <p className="mt-2 text-ink/60">{MODELS.length} propuestas para comparar y elegir.</p>
 
       <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {MODELS.map((m) => (

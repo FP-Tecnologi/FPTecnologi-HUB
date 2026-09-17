@@ -105,12 +105,26 @@ export const SOLUTIONS = [
   },
 ] as const;
 
-/* Categorías reales de la Tienda (tabs del catálogo en fptecnologi.com). */
+/* Categorías reales de la Tienda (tabs del catálogo en fptecnologi.com).
+ * image: foto de stock (Unsplash, licencia libre) para las tarjetas de
+ * categoría del Modelo 7 -- Monitores usa una foto real de producto propia,
+ * el resto (sin foto de producto propia todavía) usa una foto de stock
+ * acorde al rubro, pedida y verificada visualmente por el usuario. */
 export const TIENDA_CATEGORIES = [
-  { title: 'Monitores', slug: 'monitores' },
-  { title: 'Laptops', slug: 'laptops' },
-  { title: 'Pantallas interactivas', slug: 'pantallas-interactivas' },
-  { title: 'Servidores', slug: 'servidores' },
+  { title: 'Monitores', slug: 'monitores', image: '/images/products/dell-p2724deb.png', imageFit: 'contain' },
+  { title: 'Laptops', slug: 'laptops', image: '/images/modelo7/cat-laptops.jpg', imageFit: 'cover' },
+  { title: 'Pantallas interactivas', slug: 'pantallas-interactivas', image: '/images/modelo7/cat-pantallas.jpg', imageFit: 'cover' },
+  { title: 'Servidores', slug: 'servidores', image: '/images/solutions/servidores.jpg', imageFit: 'cover' },
+] as const;
+
+/* Atributos técnicos genéricos de cualquier línea de hardware TI (no
+ * inventamos specs de producto puntuales) -- bloque "Rendimiento" del
+ * Modelo 7. */
+export const PERFORMANCE_FEATURES = [
+  { title: 'Rendimiento', text: 'Equipos pensados para no perder tiempo: arranque rápido y respuesta inmediata en el día a día.' },
+  { title: 'Compatibilidad', text: 'Funcionan con Windows, macOS y Linux, sin configuraciones complicadas ni drivers raros.' },
+  { title: 'Durabilidad', text: 'Materiales y componentes certificados, pensados para uso empresarial diario, no de consumo.' },
+  { title: 'Precisión', text: 'Cada cotización se arma a medida de tu operación, sin sobrantes ni faltantes.' },
 ] as const;
 
 export const PARTNER_BRANDS = [
