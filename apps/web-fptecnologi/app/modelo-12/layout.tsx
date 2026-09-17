@@ -1,22 +1,19 @@
 import '../../src/_riteflow-original/styles/globals.css';
 import './riteflow-light.css';
-import Footer from '@riteflow/components/Layouts/Footer';
 import { Header } from '@/components/site/Header';
 import { TopBar } from '@/components/site/TopBar';
+import { FooterSection } from './FooterSection';
 
 /*
  * Layout SOLO para /modelo-12 -- ver riteflow-light.css para el detalle del
- * cambio de tokens oscuro -> blanco. Header propio (no el de Riteflow):
- * el usuario pidió "encabezado bonito, en español, según nuestros
- * encabezados de modelos" -- el original traía nav en inglés
- * (Home/About/Features/Pricing/All Pages) sin relación con la estructura
- * real del sitio. TopBar+Header son los mismos componentes reales que usa
- * el Modelo 1 (site/Header.tsx): Inicio/Servicios/Tienda/Marcas/Nosotros/
- * Contacto, cotizador y carrito reales -- ya en español, ya con la
- * paleta de marca (vienen de app/globals.css, no de los tokens de Riteflow).
- * El footer se deja el de Riteflow por ahora (mismo criterio de "sección
- * por sección" -- todavía en inglés/marca Riteflow, pendiente igual que el
- * resto del copy).
+ * cambio de tokens oscuro -> blanco. Header y footer propios (no los de
+ * Riteflow): el original traía nav/pie en inglés y marca Riteflow (logo
+ * "Riteflow" gigante al pie), sin relación con la estructura real del
+ * sitio. TopBar+Header son los mismos componentes reales que usa el
+ * Modelo 1 (site/Header.tsx): Inicio/Servicios/Tienda/Marcas/Nosotros/
+ * Contacto, cotizador y carrito reales. FooterSection es propio de este
+ * modelo (ver FooterSection.tsx) -- azul oscuro de marca, logo real de
+ * FPTecnologi a todo el ancho, todo en español.
  */
 export default function Modelo12Layout({ children }: { children: React.ReactNode }) {
   // El body real (bg-secondary, oscuro) sigue detrás -- se lo tapa con este
@@ -27,7 +24,7 @@ export default function Modelo12Layout({ children }: { children: React.ReactNode
       <TopBar />
       <Header />
       {children}
-      <Footer />
+      <FooterSection />
     </div>
   );
 }

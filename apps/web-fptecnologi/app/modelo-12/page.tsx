@@ -1,7 +1,5 @@
 import React from 'react';
 import AboutSection from '@riteflow/components/home-v2/AboutSection';
-import PricingSection from '@riteflow/components/pricing/PricingSection';
-import Newsletter from '@riteflow/components/shortCode/Newsletter';
 import HomeBannerOne from '@riteflow/components/home-v1/HomeBannerOne';
 import ClientLogosOne from '@riteflow/components/home-v1/ClientLogosOne';
 import ProcessSection from '@riteflow/components/home-v1/ProcessSection';
@@ -10,6 +8,7 @@ import TestimonialOne from '@riteflow/components/home-v1/TestimonialOne';
 import { PARTNER_BRANDS, WHY_CHOOSE_US } from '@/lib/content';
 import { ServicesSection } from './ServicesSection';
 import { ProductsSection } from './ProductsSection';
+import { ContactSection } from './ContactSection';
 
 export const metadata = { title: 'Modelo 12' };
 
@@ -90,6 +89,7 @@ export default function Modelo12Page() {
         buttonIcon={<InfoIcon />}
         checkIconSrc="/images/modelo12/list-check-blue.svg"
       />
+      <ServicesSection />
       <ProcessSection
         title="Por qué elegirnos"
         description="Distribución autorizada, stock real y un equipo comercial que arma la propuesta a tu medida."
@@ -100,12 +100,23 @@ export default function Modelo12Page() {
         }))}
         stepLabel="Motivo"
       />
-      <ServicesSection />
       <ProductsSection />
-      <WorkflowSection />
-      <TestimonialOne />
-      <PricingSection variant="two" />
-      <Newsletter />
+      <WorkflowSection
+        title="Sumate como integrador o revendedor"
+        description="Precios y beneficios especiales para partners, con soporte comercial dedicado y cotización directa."
+        buttonText="Sumarme como partner"
+        buttonLink="/nosotros"
+      />
+      <TestimonialOne
+        badgeText="Opiniones"
+        title="Lo que dicen quienes ya trabajaron con nosotros"
+        description="Todavía no tenemos reseñas verificadas para mostrar -- esta sección va a conectar con las reseñas reales de Google, no con testimonios inventados."
+        columnOneTestimonials={[]}
+        columnTwoTestimonials={[]}
+        columnThreeTestimonials={[]}
+        emptyStateHref="https://www.google.com/maps?q=FP+Tecnologi+%26+System,+Jr.+Huaraz+1841,+Bre%C3%B1a,+Lima"
+      />
+      <ContactSection />
     </>
   );
 }

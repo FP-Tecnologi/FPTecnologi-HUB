@@ -52,6 +52,12 @@ export interface TestimonialOneProps {
    * Array of testimonials for the third column
    */
   columnThreeTestimonials?: Testimonial[];
+  /** Se muestra en vez de la grilla de 3 columnas cuando las 3 vienen
+   *  vacías -- para cuando todavía no hay reseñas reales que mostrar (ver
+   *  Modelo 12: acá conecta después con reseñas reales de Google, no se
+   *  inventan testimonios de personas que no existen mientras tanto). */
+  emptyStateHref?: string;
+  emptyStateLabel?: string;
 }
 
 /**
@@ -150,6 +156,8 @@ const TestimonialOne: React.FC<TestimonialOneProps> = ({
       text: 'Lead tracking is now effortless. Our close rate has improved significantly since using Riteflow.',
     },
   ],
+  emptyStateHref,
+  emptyStateLabel = 'Ver reseñas en Google',
 }) => {
   // Duplicate testimonials for seamless scroll effect
   const duplicateTestimonials = (testimonials: Testimonial[]) => {
@@ -159,6 +167,7 @@ const TestimonialOne: React.FC<TestimonialOneProps> = ({
   const columnOne = duplicateTestimonials(columnOneTestimonials);
   const columnTwo = duplicateTestimonials(columnTwoTestimonials);
   const columnThree = duplicateTestimonials(columnThreeTestimonials);
+  const hasTestimonials = columnOneTestimonials.length + columnTwoTestimonials.length + columnThreeTestimonials.length > 0;
 
   useSectionHeadingAnimation();
 
@@ -219,33 +228,47 @@ const TestimonialOne: React.FC<TestimonialOneProps> = ({
           </div>
 
           {/* Testimonial Grid */}
-          <div className="relative" data-lag="0.3">
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 overflow-hidden relative h-[500px] sm:h-[700px] testimonial-wrapper">
-              {/* Column One - Scrolls Down */}
-              <div className="flex flex-col gap-5 auto-scroll-content">
-                {columnOne.map((testimonial, index) =>
-                  renderTestimonialCard(testimonial, index)
-                )}
+          {hasTestimonials ? (
+            <div className="relative" data-lag="0.3">
+              <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-5 overflow-hidden relative h-[500px] sm:h-[700px] testimonial-wrapper">
+                {/* Column One - Scrolls Down */}
+                <div className="flex flex-col gap-5 auto-scroll-content">
+                  {columnOne.map((testimonial, index) =>
+                    renderTestimonialCard(testimonial, index)
+                  )}
+                </div>
+
+                {/* Column Two - Scrolls Up (Hidden on Mobile) */}
+                <div className="hidden sm:flex flex-col gap-5 auto-scroll-content-reverse">
+                  {columnTwo.map((testimonial, index) =>
+                    renderTestimonialCard(testimonial, index)
+                  )}
+                </div>
+
+                {/* Column Three - Scrolls Down (Hidden on Mobile/Tablet) */}
+                <div className="hidden md:flex flex-col gap-5 auto-scroll-content">
+                  {columnThree.map((testimonial, index) =>
+                    renderTestimonialCard(testimonial, index)
+                  )}
+                </div>
               </div>
 
-              {/* Column Two - Scrolls Up (Hidden on Mobile) */}
-              <div className="hidden sm:flex flex-col gap-5 auto-scroll-content-reverse">
-                {columnTwo.map((testimonial, index) =>
-                  renderTestimonialCard(testimonial, index)
-                )}
-              </div>
-
-              {/* Column Three - Scrolls Down (Hidden on Mobile/Tablet) */}
-              <div className="hidden md:flex flex-col gap-5 auto-scroll-content">
-                {columnThree.map((testimonial, index) =>
-                  renderTestimonialCard(testimonial, index)
-                )}
-              </div>
+              {/* Fade Overlay */}
+              <div className="testimonial-overlay h-[calc(100%+10px)] !top-[-5px] pointer-events-none"></div>
             </div>
-
-            {/* Fade Overlay */}
-            <div className="testimonial-overlay h-[calc(100%+10px)] !top-[-5px] pointer-events-none"></div>
-          </div>
+          ) : (
+            <div className="mx-auto max-w-[500px] rounded-20 border border-lineColor/70 bg-blue px-8 py-10 text-center">
+              <p className="text-offWhite/70">
+                Todavía no tenemos reseñas verificadas para mostrar acá — en vez de inventar testimonios, esta
+                sección va a conectar con las reseñas reales de Google de FPTecnologi &amp; System.
+              </p>
+              {emptyStateHref && (
+                <a href={emptyStateHref} target="_blank" rel="noreferrer" className="button-primary mt-6 inline-flex items-center justify-center px-[22px] py-3 text-sm font-medium text-white">
+                  {emptyStateLabel}
+                </a>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </section>
