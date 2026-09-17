@@ -55,6 +55,22 @@ const MODELS = [
     styleDesc: 'Fondo claro, fotos de stock reales (no genéricas), tarjetas blancas con sombra suave y un bloque circular de "rendimiento" rodeado de features. Más orientado a catálogo que los otros 6.',
     sections: ['Header', 'Hero', 'Categorías de producto', 'Productos destacados', 'Rendimiento (circular)', 'Soluciones por entorno', 'Por qué elegirnos', 'CTA', 'Marcas (marquesina)', 'Contacto', 'Footer'],
   },
+  {
+    href: '/modelo-8',
+    title: 'Modelo 8',
+    text: 'Hero de una sola pantalla en negro puro, nav en pastillas de metal líquido y titular con reveal enmascarado.',
+    style: 'Negro metal líquido',
+    styleDesc: 'Fondo negro con glow radial, pastillas de nav con degradé metálico + brillo diagonal al pasar el mouse, y CTAs "vidrio esmerilado". Entrada escalonada (fade+scale/mask) en CSS puro, sin librería de animación.',
+    sections: ['Header (nav en pastillas de metal líquido)', 'Hero (badge + titular en dos líneas + CTAs)', 'Estadísticas'],
+  },
+  {
+    href: '/modelo-9',
+    title: 'Modelo 9',
+    text: 'Tarjeta hero a pantalla completa con foto de oficina, nav de vidrio y una tarjeta flotante con esquina recortada.',
+    style: 'Glass sobre foto',
+    styleDesc: 'Una sola tarjeta redondeada ocupando casi toda la pantalla, foto de fondo con overlay claro, badge y titular centrados, y dos paneles de vidrio esmerilado flotantes (uno con esquina "recortada" en SVG puro).',
+    sections: ['Header (nav de vidrio sobre foto)', 'Hero (tarjeta con esquinas recortadas)', 'Footer'],
+  },
 ] as const;
 
 export const metadata = { title: 'Modelos — FPTecnologi' };

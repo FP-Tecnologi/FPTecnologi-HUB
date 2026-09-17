@@ -415,3 +415,198 @@ body {
   animation: flip-loop 2s ease-in-out infinite;
   transform-style: preserve-3d;
 }
+
+/* ---------- Modelo 8 (metal líquido sobre negro) -- entrada escalonada ----------
+   Mismo lenguaje del spec de referencia (fade+scale, fade+translateY, mask
+   reveal, pop) pero en CSS puro -- sin motion/framer-motion (no está
+   instalado a propósito, ver AGENTS.md). El delay de cada elemento se pasa
+   por `style={{ animationDelay }}` desde el componente, no por variable CSS. */
+.v8-appear {
+  opacity: 1;
+  animation-duration: 0.9s;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.v8-appear--scale {
+  animation-name: v8-in-scale;
+}
+.v8-appear--soft {
+  animation-name: v8-in-soft;
+}
+.v8-appear--mask {
+  animation-name: v8-in-mask;
+}
+.v8-appear--pop {
+  animation-name: v8-in-pop;
+}
+.v8-appear--btn {
+  animation-name: v8-in-btn;
+}
+.v8-appear--side {
+  animation-name: v8-in-side;
+}
+.v8-appear--stat {
+  animation-name: v8-in-stat;
+}
+
+@keyframes v8-in-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.86);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes v8-in-soft {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Requiere un contenedor `overflow:hidden` (.v8-headline-line) para que se
+   vea como un reveal enmascarado, no solo un translate. */
+@keyframes v8-in-mask {
+  from {
+    opacity: 0;
+    transform: translateY(45%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes v8-in-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  70% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes v8-in-btn {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes v8-in-side {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes v8-in-stat {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.v8-headline-line {
+  display: block;
+  overflow: hidden;
+  padding: 0.06em 0.1em 0.14em;
+}
+
+/* ---------- Modelo 9 (glass sobre foto, tarjeta con esquinas recortadas) ---------- */
+.v9-appear {
+  opacity: 1;
+  animation-duration: 0.8s;
+  animation-fill-mode: both;
+  animation-timing-function: ease-out;
+}
+
+.v9-appear--fade {
+  animation-name: v9-in-fade;
+}
+.v9-appear--scale {
+  animation-name: v9-in-scale;
+}
+.v9-appear--left {
+  animation-name: v9-in-left;
+}
+.v9-appear--up {
+  animation-name: v9-in-up;
+}
+
+@keyframes v9-in-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes v9-in-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes v9-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes v9-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v8-appear,
+  .v9-appear {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
