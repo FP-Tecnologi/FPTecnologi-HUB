@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useCart } from '@/context/CartContext';
+import { useCurrency } from '@/context/CurrencyContext';
 
 type Tone = 'light' | 'dark';
 
@@ -12,6 +13,7 @@ const TONE = {
 
 export function CartButton({ tone = 'light' }: { tone?: Tone }) {
   const { items, count, subtotal, removeItem, justAddedSku } = useCart();
+  const { format } = useCurrency();
   const [open, setOpen] = useState(false);
   const [bump, setBump] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -71,7 +73,7 @@ export function CartButton({ tone = 'light' }: { tone?: Tone }) {
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-xs font-medium text-ink">{item.name}</p>
                       <p className="text-xs text-ink/50">
-                        {item.qty} × ${item.price.toFixed(2)}
+                        {item.qty} × {format(item.price)}
                       </p>
                     </div>
                     <button type="button" onClick={() => removeItem(item.sku)} aria-label={`Quitar ${item.name}`} className="text-ink/30 hover:text-red-500">
@@ -85,7 +87,7 @@ export function CartButton({ tone = 'light' }: { tone?: Tone }) {
 
               <div className="mt-4 flex items-center justify-between border-t border-black/5 pt-3 text-sm">
                 <span className="text-ink/60">Subtotal</span>
-                <span className="font-semibold">${subtotal.toFixed(2)}</span>
+                <span className="font-semibold">{format(subtotal)}</span>
               </div>
 
               <a href="/carrito" onClick={() => setOpen(false)} className="btn-glow mt-3 flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-center text-sm font-semibold text-white">

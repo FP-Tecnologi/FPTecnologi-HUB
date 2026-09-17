@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCurrency } from '@/context/CurrencyContext';
 
 type Tone = 'light' | 'dark';
 
@@ -10,20 +10,20 @@ const TONE = {
 } as const;
 
 /*
- * Selector de moneda del header -- todavía sin tasa de cambio real conectada
- * (ver docs/estructura-home.md, "qué quedó fuera a propósito"). Por ahora
- * solo cambia la etiqueta visible; no recalcula ningún precio del sitio,
- * para no simular una conversión que no existe.
+ * Selector de moneda del header -- cambia CurrencyContext (persistido en
+ * localStorage), que es lo que leen los carritos (CartButton, /carrito)
+ * para mostrar el monto convertido. Tasa de cambio de referencia, no una
+ * API en vivo (ver CurrencyContext.tsx).
  */
 export function CurrencyToggle({ tone = 'light' }: { tone?: Tone }) {
-  const [currency, setCurrency] = useState<'USD' | 'PEN'>('USD');
+  const { currency, toggleCurrency } = useCurrency();
 
   return (
     <button
       type="button"
-      onClick={() => setCurrency((c) => (c === 'USD' ? 'PEN' : 'USD'))}
+      onClick={toggleCurrency}
       aria-label="Cambiar moneda"
-      title="Cambiar moneda (próximamente afecta precios)"
+      title="Cambiar moneda (USD / PEN)"
       className={`flex h-10 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition-colors ${TONE[tone]}`}
     >
       <span className="flex h-4 w-4 items-center justify-center rounded-full border border-current text-[10px] leading-none">

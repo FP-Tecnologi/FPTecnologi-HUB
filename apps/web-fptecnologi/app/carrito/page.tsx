@@ -3,9 +3,11 @@
 import { Footer } from '@/components/site/Footer';
 import { Header } from '@/components/site/Header';
 import { useCart } from '@/context/CartContext';
+import { useCurrency } from '@/context/CurrencyContext';
 
 export default function CarritoPage() {
   const { items, count, subtotal, removeItem } = useCart();
+  const { format } = useCurrency();
 
   return (
     <>
@@ -38,10 +40,10 @@ export default function CarritoPage() {
                     <p className="truncate text-sm font-semibold text-ink">{item.name}</p>
                     <p className="mt-0.5 text-xs text-ink/45">SKU: {item.sku}</p>
                     <p className="mt-1 text-sm text-ink/60">
-                      {item.qty} × ${item.price.toFixed(2)}
+                      {item.qty} × {format(item.price)}
                     </p>
                   </div>
-                  <p className="shrink-0 text-sm font-semibold text-ink">${(item.qty * item.price).toFixed(2)}</p>
+                  <p className="shrink-0 text-sm font-semibold text-ink">{format(item.qty * item.price)}</p>
                   <button type="button" onClick={() => removeItem(item.sku)} aria-label={`Quitar ${item.name}`} className="shrink-0 text-ink/30 hover:text-red-500">
                     <svg viewBox="0 0 24 24" fill="none" className="h-4.5 w-4.5">
                       <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -53,7 +55,7 @@ export default function CarritoPage() {
 
             <div className="mt-6 flex items-center justify-between rounded-xl border border-black/5 bg-white px-6 py-4">
               <span className="text-sm font-medium text-ink/60">Subtotal</span>
-              <span className="font-display text-2xl font-bold text-ink">${subtotal.toFixed(2)}</span>
+              <span className="font-display text-2xl font-bold text-ink">{format(subtotal)}</span>
             </div>
 
             <div className="mt-6 flex flex-wrap gap-4">
