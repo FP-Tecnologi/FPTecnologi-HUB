@@ -20,7 +20,7 @@ export function HeaderRiteflow() {
 
         <nav className="hidden flex-1 items-center justify-center gap-7 text-sm text-[#fbfbfb]/70 lg:flex" aria-label="Principal">
           {NAV_LINKS.map((item) => (
-            <a key={item.href} href={item.href} className="transition-colors hover:text-[#a78bfa]">
+            <a key={item.href} href={item.href} className="transition-colors hover:text-[#2181af]">
               {item.label}
             </a>
           ))}
@@ -31,7 +31,7 @@ export function HeaderRiteflow() {
           target="_blank"
           rel="noreferrer"
           className="ml-auto hidden rounded-[10px] px-5 py-2.5 text-sm font-medium text-white sm:inline-flex"
-          style={{ background: 'linear-gradient(to bottom, #7D76FF 0%, #2F27B1 51%, #7D76FF 100%)' }}
+          style={{ background: 'linear-gradient(to bottom, #18778b 0%, #155382 51%, #18778b 100%)' }}
         >
           Cotizar ahora
         </a>

@@ -1,9 +1,13 @@
-import { Contact } from '@/components/site/Contact';
 import { HeaderRiteflow } from '@/components/riteflow/HeaderRiteflow';
 import { HeroRiteflow } from '@/components/riteflow/HeroRiteflow';
 import { ClientLogosRiteflow } from '@/components/riteflow/ClientLogosRiteflow';
 import { AboutRiteflow } from '@/components/riteflow/AboutRiteflow';
+import { ServicesRiteflowSection } from '@/components/riteflow/ServicesRiteflow';
 import { FeaturesRiteflow } from '@/components/riteflow/FeaturesRiteflow';
+import { ProductCategoriesRiteflow } from '@/components/riteflow/ProductCategoriesRiteflow';
+import { FeaturedProductsRiteflow } from '@/components/riteflow/FeaturedProductsRiteflow';
+import { PartnerCtaRiteflow } from '@/components/riteflow/PartnerCtaRiteflow';
+import { ContactRiteflow } from '@/components/riteflow/ContactRiteflow';
 import { FooterRiteflow } from '@/components/riteflow/FooterRiteflow';
 
 export const metadata = { title: 'Modelo Riteflow' };
@@ -36,6 +40,14 @@ export const metadata = { title: 'Modelo Riteflow' };
  * automatización con IA específicas del producto original), ComparisonTable
  * (comparación "nosotros vs. competencia" sin datos reales) y Newsletter
  * (no hay backend de captura de correo).
+ *
+ * Estructura final acordada con el usuario (home de producción, no otro
+ * "modelo" de prueba): Hero de 3 (HERO_SLIDES) → Marcas → Nosotros →
+ * Servicios (8, SOLUTIONS) → Por qué elegirnos → Categorías de productos →
+ * Productos destacados (carrusel + carrito + comparar) → Sé partner →
+ * Contacto (con formulario liviano real) → Footer. Todo con el lenguaje
+ * visual de Riteflow (badges, gradient-text, tarjetas con borde #2d3a57),
+ * contenido 100% FPTecnologi.
  */
 export default function ModeloRiteflowPage() {
   return (
@@ -44,8 +56,12 @@ export default function ModeloRiteflowPage() {
       <HeroRiteflow />
       <ClientLogosRiteflow />
       <AboutRiteflow />
+      <ServicesRiteflowSection />
       <FeaturesRiteflow />
-      <Contact />
+      <ProductCategoriesRiteflow />
+      <FeaturedProductsRiteflow />
+      <PartnerCtaRiteflow />
+      <ContactRiteflow />
       <FooterRiteflow />
     </div>
   );

@@ -41,10 +41,10 @@ export function AboutStatCardRiteflow({ value, suffix, label, delay = 0 }: { val
   }, [hasAnimated, delay, animate]);
 
   return (
-    <div ref={cardRef} className="flex flex-col gap-2 rounded-2xl bg-gradient-to-b from-[#7d76ff]/20 to-[#2f27b1]/20 p-5">
+    <div ref={cardRef} className="flex flex-col gap-2 rounded-2xl bg-gradient-to-b from-[#18778b]/20 to-[#155382]/20 p-5">
       <h3 className="text-3xl font-semibold lg:text-[32px]">
         <span className="text-white">{count.toLocaleString('es-PE')}</span>
-        {suffix && <span className="text-[#a78bfa]"> {suffix}</span>}
+        {suffix && <span className="text-[#2181af]"> {suffix}</span>}
       </h3>
       <p className="tracking-[0.1px] text-white/80">{label}</p>
     </div>

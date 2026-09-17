@@ -47,6 +47,10 @@ export interface ProcessSectionProps {
    * Array of process steps
    */
   steps?: ProcessStep[];
+  /** Prefijo del badge ("Step 1") -- separado de step.title para no forzar
+   *  siempre la palabra "Step" cuando la sección deja de ser un proceso de
+   *  pasos secuenciales (ver Modelo 12: "Por qué elegirnos"). */
+  stepLabel?: string;
 }
 
 /**
@@ -89,6 +93,7 @@ const ProcessSection: React.FC<ProcessSectionProps> = ({
       icon: <LanchIcon className="w-4 h-[22px]" />,
     },
   ],
+  stepLabel = 'Step',
 }) => {
   const containerRef = useRef<HTMLElement>(null);
 
@@ -270,7 +275,7 @@ const ProcessSection: React.FC<ProcessSectionProps> = ({
                         )}
                       </div>
                       <span className="py-1.5 px-3 text-sm font-medium leading-normal tracking-[-0.1px] rounded-[10px] inline-block bg-linear-to-b from-slateBlue/20 to-royalBlue/20 text-tertiary">
-                        Step {step.step}
+                        {stepLabel} {step.step}
                       </span>
                     </div>
 

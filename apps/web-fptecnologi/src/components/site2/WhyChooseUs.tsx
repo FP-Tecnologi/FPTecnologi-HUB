@@ -2,7 +2,7 @@ import { WHY_CHOOSE_US } from '@/lib/content';
 
 export function WhyChooseUs() {
   return (
-    <section id="nosotros" className="mx-auto max-w-7xl px-6 py-20">
+    <section className="mx-auto max-w-7xl px-6 py-20">
       <div className="mx-auto mb-14 max-w-2xl text-center">
         <span className="text-sm font-semibold uppercase tracking-wide text-brand-primary">Por qué elegirnos</span>
         <h2 className="mt-2 font-display text-3xl font-bold text-ink sm:text-4xl">Lo que nos hace distintos</h2>

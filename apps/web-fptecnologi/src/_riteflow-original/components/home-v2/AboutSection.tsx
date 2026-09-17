@@ -14,6 +14,7 @@ if (typeof window !== 'undefined') {
 
 export interface AboutSectionProps {
   variant?: 'one' | 'two';
+  badgeText?: string;
   title?: string;
   description?: string;
   videoSrc?: string;
@@ -21,6 +22,8 @@ export interface AboutSectionProps {
   listItems?: string[];
   buttonText?: string;
   buttonLink?: string;
+  buttonIcon?: React.ReactNode;
+  checkIconSrc?: string;
 }
 
 /**
@@ -53,6 +56,7 @@ export interface AboutSectionProps {
  */
 const AboutSection: React.FC<AboutSectionProps> = ({
   variant = 'two',
+  badgeText,
   title = 'See RiteFlow in Action: Watch Our Tools Shine',
   description = "Play the video to see RiteFlow's flagship AI suite turn ideas into results. In under a minute, you'll watch workflows automated, insights revealed, and content created in real time—no coding, no complexity. Imagine what your team achieves when intelligent tools handle the heavy lifting.",
   videoSrc = '/images/home/about.mp4',
@@ -67,6 +71,8 @@ const AboutSection: React.FC<AboutSectionProps> = ({
   ],
   buttonText = 'Start Your Free Trial',
   buttonLink = '#',
+  buttonIcon,
+  checkIconSrc = '/images/home/list-check.svg',
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -288,6 +294,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
 
             {/* Content */}
             <div className="md:max-w-[575px] w-full md:py-5">
+              {badgeText && <span className="badge-button mb-5 inline-block">{badgeText}</span>}
               <h2
                 data-title
                 className="gradient-text text-3xl sm:text-4xl lg:text-5xl xl:text-[51px] font-semibold -tracking-[0.4px] !leading-[1.2]"
@@ -314,7 +321,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
                   {listItems.map((item, index) => (
                     <li key={index} className="flex items-center gap-3">
                       <Image
-                        src="/images/home/list-check.svg"
+                        src={checkIconSrc}
                         alt="check"
                         width={20}
                         height={20}
@@ -356,7 +363,7 @@ const AboutSection: React.FC<AboutSectionProps> = ({
               {/* Button */}
               <div className="" data-button>
                 <Button href={buttonLink} variant="primary" size="md">
-                  {buttonText}
+                  <span className="inline-flex items-center gap-2">{buttonIcon}{buttonText}</span>
                 </Button>
               </div>
             </div>

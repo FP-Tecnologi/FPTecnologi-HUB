@@ -37,7 +37,7 @@ export function AboutRiteflow() {
               data-title
               className="text-3xl font-semibold !leading-[1.2] tracking-[-0.4px] sm:text-4xl lg:text-5xl xl:text-[51px]"
               style={{
-                background: 'linear-gradient(180deg, #f8f8f8 62.71%, #7670de 90.4%)',
+                background: 'linear-gradient(180deg, #f8f8f8 62.71%, #2181af 90.4%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
                 backgroundClip: 'text',
@@ -50,7 +50,7 @@ export function AboutRiteflow() {
               la propuesta a medida de tu operación.
             </p>
 
-            <div className="my-5 h-px w-full bg-gradient-to-r from-[#1D2047] via-[#4F46E5] to-[#1C1F46] lg:my-9" />
+            <div className="my-5 h-px w-full bg-gradient-to-r from-[#0f1b2e] via-[#2181af] to-[#0d1622] lg:my-9" />
 
             <div className="grid grid-cols-3 gap-3 sm:gap-5">
               {STATS.map((s, i) => (
@@ -60,13 +60,13 @@ export function AboutRiteflow() {
               ))}
             </div>
 
-            <div className="my-5 h-px w-full bg-gradient-to-r from-[#1D2047] via-[#4F46E5] to-[#1C1F46] lg:my-9" />
+            <div className="my-5 h-px w-full bg-gradient-to-r from-[#0f1b2e] via-[#2181af] to-[#0d1622] lg:my-9" />
 
             <div data-button>
               <a
                 href="#catalogo"
                 className="inline-flex items-center justify-center rounded-[10px] px-[22px] py-3 text-sm font-medium text-white"
-                style={{ background: 'linear-gradient(to bottom, #7D76FF 0%, #2F27B1 51%, #7D76FF 100%)' }}
+                style={{ background: 'linear-gradient(to bottom, #18778b 0%, #155382 51%, #18778b 100%)' }}
               >
                 Ver catálogo
               </a>

@@ -18,6 +18,12 @@ export interface HomeBannerOneProps {
   description?: string;
   buttonText?: string;
   buttonLink?: string;
+  /** Segundo botón opcional (no está en el original -- home-v1/home-v2
+   *  verbatim siguen con uno solo porque no lo pasan). */
+  secondaryButtonText?: string;
+  secondaryButtonLink?: string;
+  buttonIcon?: React.ReactNode;
+  secondaryButtonIcon?: React.ReactNode;
   backgroundImage?: string;
   dashboardImage?: string;
   dashboardImageAlt?: string;
@@ -30,6 +36,10 @@ const HomeBannerOne: React.FC<HomeBannerOneProps> = ({
   description = 'Unlock the power of AI to automate tasks, boost creativity, and streamline your work—no code needed. Designed for every team.',
   buttonText = 'Start for Free',
   buttonLink = '#',
+  secondaryButtonText,
+  secondaryButtonLink = '#',
+  buttonIcon,
+  secondaryButtonIcon,
   backgroundImage = '/images/home/banner-bg.webp',
   dashboardImage = '/images/home/banner-dashboard.png',
   dashboardImageAlt = 'RiteFlow dashboard preview',
@@ -262,6 +272,18 @@ const HomeBannerOne: React.FC<HomeBannerOneProps> = ({
 
       // In case layout shifts (fonts/images load), refresh triggers
       ScrollTrigger.refresh();
+
+      // El hero está arriba del todo, así que su "top 80%" ya pasó apenas
+      // se crea el ScrollTrigger (scroll 0) -- en la práctica a veces no
+      // dispara el play a tiempo y el contenido queda en opacity:0 para
+      // siempre (bug real del template, no de este fork; reproducible en
+      // /preview/riteflow-home-v1 tal cual vino). Red de seguridad: si a los
+      // 1200ms el timeline no arrancó, se lo salta al final.
+      window.setTimeout(() => {
+        if (tl && tl.progress() === 0) {
+          tl.progress(1);
+        }
+      }, 1200);
     };
 
     initAnimation();
@@ -344,14 +366,23 @@ const HomeBannerOne: React.FC<HomeBannerOneProps> = ({
               {description}
             </p>
             
-            <div className="mt-5 sm:mt-8 lg:mt-10" data-button >
-              <Button 
-                href={buttonLink} 
-                variant="secondary" 
+            <div className="mt-5 sm:mt-8 lg:mt-10 flex flex-wrap items-center justify-center gap-3" data-button >
+              <Button
+                href={buttonLink}
+                variant={secondaryButtonText ? 'primary' : 'secondary'}
                 size="md"
               >
-                {buttonText}
+                <span className="inline-flex items-center gap-2">{buttonIcon}{buttonText}</span>
               </Button>
+              {secondaryButtonText && (
+                <Button
+                  href={secondaryButtonLink}
+                  variant="secondary"
+                  size="md"
+                >
+                  <span className="inline-flex items-center gap-2">{secondaryButtonIcon}{secondaryButtonText}</span>
+                </Button>
+              )}
             </div>
           </div>
 
