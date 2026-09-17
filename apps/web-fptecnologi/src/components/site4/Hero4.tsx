@@ -30,10 +30,7 @@ export function Hero4() {
       <div className="relative mx-auto grid w-full max-w-7xl gap-10 px-6 pt-24 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
         <div key={active} className="animate-fade-up">
           <HeroTabs active={active} onChange={setActive} tone="dark" />
-          <span className="mt-6 inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wide text-brand-teal-light ring-1 ring-white/20">
-            {slide.eyebrow}
-          </span>
-          <h1 className="mt-4 font-display text-4xl font-bold leading-[1.08] sm:text-5xl lg:text-6xl">{slide.title}</h1>
+          <h1 className="mt-6 font-display text-4xl font-bold leading-[1.08] sm:text-5xl lg:text-6xl">{slide.title}</h1>
           <p className="mt-6 max-w-md text-base text-white/75 sm:text-lg">{slide.text}</p>
           <div className="mt-9 flex flex-wrap gap-4">
             <a href={slide.cta.href} className="btn-sweep rounded-full bg-white px-7 py-3.5 text-sm font-semibold text-brand-dark before:bg-brand-teal-light before:opacity-30">
