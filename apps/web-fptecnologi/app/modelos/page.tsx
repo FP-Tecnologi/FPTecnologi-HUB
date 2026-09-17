@@ -87,6 +87,14 @@ const MODELS = [
     styleDesc: 'Header y footer negro-violeta, hero con carrusel (flechas + puntos) reusando los 3 slides reales del home, tarjetas de producto con favorito decorativo y "Añadir al carrito" real. Deliberadamente corto -- la referencia tampoco tenía más secciones que estas.',
     sections: ['Header (buscador + carrito)', 'Hero (carrusel)', 'Productos destacados', 'Footer'],
   },
+  {
+    href: '/modelo-riteflow',
+    title: 'Modelo Riteflow',
+    text: 'Único modelo portado desde código real (plantilla Riteflow del usuario, home-v2) en vez de solo una captura.',
+    style: 'Indigo + gradiente animado',
+    styleDesc: 'Título con gradient-text (blanco a violeta), animaciones de entrada GSAP + ScrollTrigger reales (no CSS), tarjetas de estadísticas con conteo animado (IntersectionObserver) y bento de beneficios con foto. Única dependencia nueva: gsap (necesaria para que la animación real del template funcione, ver comentario en app/modelo-riteflow/page.tsx sobre qué se portó y qué se dejó afuera).',
+    sections: ['Header', 'Hero', 'Marcas (marquesina)', 'Sobre nosotros + estadísticas animadas', 'Por qué elegirnos (bento)', 'Contacto', 'Footer'],
+  },
 ] as const;
 
 export const metadata = { title: 'Modelos — FPTecnologi' };
