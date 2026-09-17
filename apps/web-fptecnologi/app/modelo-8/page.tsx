@@ -27,8 +27,22 @@ export default function Modelo8Page() {
     <div className="bg-black text-white">
       <div
         className="relative overflow-hidden"
-        style={{ background: 'radial-gradient(ellipse 120% 70% at 50% 0%, #1a1a1a 0%, #000000 60%)' }}
+        style={{
+          background:
+            'radial-gradient(560px circle at 50% 20%, rgba(255,255,255,0.07), transparent 60%),'
+            + 'radial-gradient(ellipse 120% 70% at 50% 0%, #1a1a1a 0%, #000000 60%)',
+        }}
       >
+        {/* Grano sutil (SVG feTurbulence, sin asset) -- el negro liso de
+            antes quedaba muy plano/vacío arriba del badge. Mismo espíritu
+            que el ".grain" del spec original de Vesper.ai, sin librería. */}
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.05]"
+          style={{
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+          }}
+        />
         <Header8 />
         <Hero8 />
         <Stats8 />
