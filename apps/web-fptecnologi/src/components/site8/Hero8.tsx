@@ -18,7 +18,7 @@ const accentFont = Instrument_Serif({ subsets: ['latin'], weight: '400', style: 
  */
 export function Hero8() {
   return (
-    <main id="top" className="flex flex-1 items-end justify-center px-6 pb-16 pt-2">
+    <main id="top" className="flex min-h-[82vh] items-end justify-center px-6 pb-16 pt-2">
       <div className="flex w-full max-w-[860px] flex-col items-center text-center">
         <span
           className="v8-appear v8-appear--pop mb-6 inline-flex items-center gap-2 rounded-md px-4 py-2.5 text-[12.5px] text-[#f2f2f2]"
@@ -60,7 +60,7 @@ export function Hero8() {
             Cotizar ahora
           </a>
           <a
-            href="/#catalogo"
+            href="#catalogo"
             className="v8-appear v8-appear--side flex h-[42px] items-center rounded-md border border-white/55 bg-[linear-gradient(135deg,rgba(255,255,255,0.12),rgba(0,0,0,0.5)_46%,rgba(150,170,200,0.1))] px-[18px] text-[13.5px] font-medium text-white backdrop-blur-md transition-shadow duration-300 hover:border-white/80 hover:shadow-[0_0_24px_rgba(170,200,255,0.28)]"
             style={{ animationDelay: '1100ms' }}
           >

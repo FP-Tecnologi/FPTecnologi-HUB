@@ -7,10 +7,10 @@ import { COTIZADOR_URL } from '@/lib/content';
 /* Secciones reales del sitio (ver src/lib/nav.ts) -- nada de
    Benefits/How It Works/FAQs/Pricing del spec original de Vesper.ai. */
 const NAV = [
-  { label: 'Servicios', href: '/#servicios' },
-  { label: 'Tienda', href: '/#catalogo' },
-  { label: 'Marcas', href: '/#marcas' },
-  { label: 'Contacto', href: '/#contacto' },
+  { label: 'Servicios', href: '#servicios' },
+  { label: 'Tienda', href: '#catalogo' },
+  { label: 'Marcas', href: '#marcas' },
+  { label: 'Contacto', href: '#contacto' },
 ];
 
 /**
