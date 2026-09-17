@@ -1,0 +1,33 @@
+// components/icons/UpArrow.tsx
+import * as React from "react";
+import { IconProps } from "./types";
+
+const UpArrow: React.FC<IconProps> = ({ className, ...props }) => (
+  <>
+
+  <svg 
+  width="24" 
+  height="24" 
+  viewBox="0 0 24 24" 
+  fill="none" 
+  xmlns="http://www.w3.org/2000/svg" 
+  className={className} 
+  {...props}
+  >
+      <path d="M16 8.4L7.10005 17.3C6.91672 17.4833 6.68338 17.575 6.40005 17.575C6.11672 17.575 5.88338 17.4833 5.70005 17.3C5.51672 17.1167 5.42505 16.8833 5.42505 16.6C5.42505 16.3167 5.51672 16.0833 5.70005 15.9L14.6 7H7.00005C6.71672 7 6.47922 6.90417 6.28755 6.7125C6.09588 6.52083 6.00005 6.28333 6.00005 6C6.00005 5.71667 6.09588 5.47917 6.28755 5.2875C6.47922 5.09583 6.71672 5 7.00005 5H17C17.2834 5 17.5209 5.09583 17.7125 5.2875C17.9042 5.47917 18 5.71667 18 6V16C18 16.2833 17.9042 16.5208 17.7125 16.7125C17.5209 16.9042 17.2834 17 17 17C16.7167 17 16.4792 16.9042 16.2875 16.7125C16.0959 16.5208 16 16.2833 16 16V8.4Z" fill="url(#paint0_linear_3628_27292)" />
+      <defs>
+        <linearGradient id="paint0_linear_3628_27292" x1="11.7125" y1="5" x2="11.7125" y2="17.575" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#FBFBFB" />
+          <stop offset="1" stopColor="#E3E3E3" />
+        </linearGradient>
+      </defs>
+  </svg>
+    </>
+
+
+
+
+);
+
+export default UpArrow;
+

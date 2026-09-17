@@ -1,0 +1,36 @@
+.button-primary {
+  background: linear-gradient(to bottom, #7D76FF 0%, #2F27B1 51%, #7D76FF 100%);
+  background-size: auto 200%;
+  transition: all .4s ease-in-out;
+  &:hover {
+    background-position: bottom right;
+  }
+}
+
+.button-secondary {
+  display: none;
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 10px;
+  padding-inline: 22px;
+  padding-block: calc(var(--spacing) * 3);
+  text-align: center;
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading, var(--text-sm--line-height));
+  --tw-leading: var(--leading-normal);
+  line-height: var(--leading-normal);
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-secondary);
+  box-shadow: 3px 4px 5.3px 0px #0000002e inset, -3px -4px 5.3px 0px #00000026 inset;
+  background: linear-gradient(to bottom, #fbfbfb 0%, #e3e3e3 51%, #fbfbfb 100%);
+  background-size: auto 200%;
+  transition: all .4s ease-in-out;
+  &:hover {
+    background-position: bottom right;
+  }
+}
