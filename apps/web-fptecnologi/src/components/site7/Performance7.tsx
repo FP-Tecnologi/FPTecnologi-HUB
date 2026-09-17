@@ -11,25 +11,25 @@ const ICONS = [
 export function Performance7() {
   const [left, right] = [PERFORMANCE_FEATURES.slice(0, 2), PERFORMANCE_FEATURES.slice(2, 4)];
   return (
-    <section className="bg-ink/[0.03] py-20">
+    <section className="overflow-hidden py-20">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mb-14 text-center">
           <span className="text-sm font-semibold uppercase tracking-wide text-brand-primary">Pensado para durar</span>
-          <h2 className="mt-2 font-display text-3xl font-bold text-ink sm:text-4xl">Construido para el rendimiento</h2>
+          <h2 className="mt-2 font-display text-3xl font-bold uppercase text-ink sm:text-4xl">Diseñado para rendir</h2>
         </div>
 
-        <div className="grid items-center gap-6 lg:grid-cols-[1fr_auto_1fr]">
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
+        <div className="grid items-center gap-0 lg:grid-cols-[1fr_auto_1fr] lg:gap-0">
+          <div className="grid gap-4 rounded-[2rem] bg-brand-primary/[0.06] p-5 sm:grid-cols-2 lg:grid-cols-1 lg:rounded-r-none lg:py-10 lg:pl-8 lg:pr-16">
             {left.map((f, i) => (
               <FeatureCard key={f.title} icon={ICONS[i]} title={f.title} text={f.text} />
             ))}
           </div>
 
-          <div className="relative mx-auto h-56 w-56 shrink-0 overflow-hidden rounded-full shadow-2xl shadow-black/20 sm:h-72 sm:w-72">
+          <div className="relative z-10 mx-auto -my-6 h-52 w-52 shrink-0 overflow-hidden rounded-full shadow-2xl shadow-black/20 ring-8 ring-white sm:h-64 sm:w-64 lg:-mx-10 lg:h-72 lg:w-72">
             <Image src="/images/modelo7/rendimiento.jpg" alt="Infraestructura de red FPTecnologi" fill sizes="288px" className="object-cover" />
           </div>
 
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-1">
+          <div className="grid gap-4 rounded-[2rem] bg-brand-teal-light/10 p-5 sm:grid-cols-2 lg:grid-cols-1 lg:rounded-l-none lg:py-10 lg:pl-16 lg:pr-8">
             {right.map((f, i) => (
               <FeatureCard key={f.title} icon={ICONS[i + 2]} title={f.title} text={f.text} />
             ))}
@@ -42,11 +42,11 @@ export function Performance7() {
 
 function FeatureCard({ icon, title, text }: { icon: React.ReactNode; title: string; text: string }) {
   return (
-    <div className="rounded-2xl bg-white p-6 shadow-sm">
+    <div className="rounded-2xl bg-white p-5 shadow-sm">
       <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-primary">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5">{icon}</svg>
       </span>
-      <h3 className="mt-3 text-sm font-semibold text-ink">{title}</h3>
+      <h3 className="mt-3 text-sm font-semibold uppercase text-ink">{title}</h3>
       <p className="mt-1 text-sm text-ink/60">{text}</p>
     </div>
   );
