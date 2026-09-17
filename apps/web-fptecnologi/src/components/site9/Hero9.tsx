@@ -76,7 +76,7 @@ function BottomLeftCard() {
         </p>
         <p className="text-[10px] font-normal uppercase tracking-wider text-[rgba(30,50,90,0.6)] md:text-[12px]">{stat.label}</p>
       </div>
-      <a href="/#catalogo" className="flex items-center gap-2 self-start rounded-full bg-white py-1.5 pl-1.5 pr-5 transition-colors hover:bg-white/90">
+      <a href="#catalogo" className="flex items-center gap-2 self-start rounded-full bg-white py-1.5 pl-1.5 pr-5 transition-colors hover:bg-white/90">
         <span className="flex items-center justify-center rounded-full bg-[rgba(30,50,90,0.1)] p-1">
           <ArrowUpRightIcon className="h-4 w-4 text-[rgba(30,50,90,0.9)]" />
         </span>

@@ -2,13 +2,13 @@ import Image from 'next/image';
 import { COTIZADOR_URL } from '@/lib/content';
 import { ArrowUpRightIcon } from '@/components/site/icons';
 
-/* Secciones reales (ver src/lib/nav.ts) -- nada de
+/* Secciones reales del propio Modelo 9 (ver Modelo9Page) -- nada de
    Ecosystem/Economics/Developers/Governance del spec original de RIVR. */
 const NAV = [
-  { label: 'Servicios', href: '/#servicios' },
-  { label: 'Tienda', href: '/#catalogo' },
-  { label: 'Marcas', href: '/#marcas' },
-  { label: 'Nosotros', href: '/#nosotros' },
+  { label: 'Servicios', href: '#servicios' },
+  { label: 'Tienda', href: '#catalogo' },
+  { label: 'Marcas', href: '#marcas' },
+  { label: 'Nosotros', href: '#nosotros' },
 ];
 
 /**
