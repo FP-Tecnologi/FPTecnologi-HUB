@@ -79,6 +79,14 @@ const MODELS = [
     styleDesc: 'Header blanco minimal con buscador y carrito real (CartContext), hero con foto oscura a pantalla completa, tarjetas de producto numeradas con "Top Pick" y favoritos, banner partido en 2, métricas reales en vez de testimonios inventados, y FAQ nativo en acordeón (<details>, sin JS).',
     sections: ['Header (buscador + carrito)', 'Hero', 'Marcas (marquesina)', 'Favoritos del mes', 'Tienda/Servicios (banner partido)', 'Estadísticas de confianza', 'Sobre nosotros', 'Cómo comprar (pasos)', 'FAQ', 'CTA', 'Contacto', 'Footer'],
   },
+  {
+    href: '/modelo-11',
+    title: 'Modelo 11',
+    text: 'Tienda oscura con acento violeta, hero en carrusel y grid de productos con carrito real.',
+    style: 'Oscuro violeta',
+    styleDesc: 'Header y footer negro-violeta, hero con carrusel (flechas + puntos) reusando los 3 slides reales del home, tarjetas de producto con favorito decorativo y "Añadir al carrito" real. Deliberadamente corto -- la referencia tampoco tenía más secciones que estas.',
+    sections: ['Header (buscador + carrito)', 'Hero (carrusel)', 'Productos destacados', 'Footer'],
+  },
 ] as const;
 
 export const metadata = { title: 'Modelos — FPTecnologi' };
