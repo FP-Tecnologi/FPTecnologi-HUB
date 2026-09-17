@@ -14,13 +14,22 @@ type CartContextValue = {
   items: CartItem[];
   count: number;
   subtotal: number;
+  envio: number;
+  igv: number;
+  total: number;
   addItem: (item: Omit<CartItem, 'qty'>) => void;
   removeItem: (sku: string) => void;
+  setQty: (sku: string, qty: number) => void;
   justAddedSku: string | null;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
 const STORAGE_KEY = 'fpt-cart';
+const IGV_RATE = 0.18;
+/* Precios del catálogo (FEATURED_PRODUCTS) son SIN IGV -- el 18% se calcula
+   acá encima del subtotal, para el carrito y el checkout. Envío gratis por
+   ahora (no hay reglas de costo de envío todavía). */
+const ENVIO = 0;
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -60,11 +69,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prev) => prev.filter((i) => i.sku !== sku));
   }, []);
 
+  const setQty = useCallback((sku: string, qty: number) => {
+    if (qty < 1) {
+      setItems((prev) => prev.filter((i) => i.sku !== sku));
+      return;
+    }
+    setItems((prev) => prev.map((i) => (i.sku === sku ? { ...i, qty } : i)));
+  }, []);
+
   const value = useMemo<CartContextValue>(() => {
     const count = items.reduce((sum, i) => sum + i.qty, 0);
     const subtotal = items.reduce((sum, i) => sum + i.qty * i.price, 0);
-    return { items, count, subtotal, addItem, removeItem, justAddedSku };
-  }, [items, addItem, removeItem, justAddedSku]);
+    const envio = items.length === 0 ? 0 : ENVIO;
+    const igv = subtotal * IGV_RATE;
+    const total = subtotal + envio + igv;
+    return { items, count, subtotal, envio, igv, total, addItem, removeItem, setQty, justAddedSku };
+  }, [items, addItem, removeItem, setQty, justAddedSku]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

@@ -1,5 +1,4 @@
 @import "tailwindcss";
-@plugin "@tailwindcss/typography";
 @custom-variant dark (&:where(.dark, .dark *));
 @custom-variant hover (&:hover);
 @custom-variant dark-hover (&:where(.dark, .dark *) &:hover);
@@ -518,27 +517,6 @@ span {
     }
   }
 }
-}
-
-/* Article Content ========================= */
-.article-content {
-@apply prose max-w-full prose-headings:text-white prose-headings:mb-0 prose-headings:font-urbanist prose-headings:font-medium prose-headings:!leading-tight marker:text-offWhite/80 prose-p:mt-4 md:prose-p:mt-5 prose-p:mb-0 prose-ol:mt-4 prose-ol:mb-0 prose-ul:mt-4 prose-ul:mb-0 prose-figure:mt-4 prose-figure:mb-0 prose-blockquote:mb-0 prose-img:mt-8 md:prose-img:mt-10 prose-img:rounded-2xl prose-img:mb-0 prose-figcaption:text-center prose-figcaption:text-white/80 prose-strong:text-current
-
-prose-h1:text-[40px] sm:prose-h1:text-5xl md:prose-h1:text-[52px] lg:prose-h1:text-6xl xl:prose-h1:text-7xl 2xl:prose-h1:text-[80px] prose-h1:mt-8 xl:prose-h1:mt-10 
-
-prose-h2:text-4xl sm:prose-h2:text-[40px] md:prose-h2:text-5xl lg:prose-h2:text-[52px] xl:prose-h2:text-[64px] prose-h2:mt-7 xl:prose-h2:mt-9
-
-prose-h3:text-3xl md:prose-h3:text-4xl lg:prose-h3:text-[40px] xl:prose-h3:text-[51px] prose-h3:mt-7 xl:prose-h3:mt-8
-
-prose-h4:text-2xl md:prose-h4:text-3xl lg:prose-h4:text-4xl xl:prose-h4:text-[40px] prose-h4:mt-6 xl:prose-h4:mt-7
-
-prose-h5:text-2xl lg:prose-h5:text-3xl xl:prose-h5:text-[32px] prose-h5:mt-5 xl:prose-h5:mt-6
-
-prose-h6:text-xl md:prose-h6:text-xl lg:prose-h6:text-2xl xl:prose-h6:text-[25px] prose-h6:mt-4.5 xl:prose-h6:mt-5
-
-prose-blockquote:bg-transparent prose-blockquote:text-xl md:prose-blockquote:text-2xl prose-blockquote:border-l-3 prose-blockquote:border-tertiary prose-blockquote:italic prose-blockquote:font-urbanist prose-blockquote:font-medium prose-blockquote:text-tertiary prose-a:text-primary prose-blockquote:mt-8 md:prose-blockquote:mt-10
-
-prose-video:rounded-2xl prose-pre:mt-8 md:prose-pre:mt-10 prose-video:mt-8 md:prose-video:mt-10 prose-video:mb-0 prose-pre:mb-0 prose-img:w-full;
 }
 
 /* Integration Page ============================ */

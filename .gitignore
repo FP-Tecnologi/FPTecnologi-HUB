@@ -1,5 +1,9 @@
 # Artefactos locales (nunca se versionan)
 .playwright-mcp/
 
+# Video crudo sin comprimir (cientos de MB) -- la versión que usa el sitio
+# es apps/web-fptecnologi/public/videos/soluciones-ti.mp4 (comprimida)
+apps/web-fptecnologi/videos-originales/
+
 # Credenciales reales de cuentas de prueba (contraseñas en texto plano)
 docs/credenciales-prueba.md

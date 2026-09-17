@@ -638,9 +638,70 @@ body {
   }
 }
 
+/* ---------- Modelo 1 (hero con partículas, título con reveal enmascarado) ---------- */
+.v1-headline-line {
+  display: block;
+  overflow: hidden;
+  padding: 0.06em 0.1em 0.14em;
+}
+
+.v1-appear {
+  opacity: 0;
+  animation-duration: 0.7s;
+  animation-fill-mode: both;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.v1-appear--fade {
+  animation-name: v1-in-fade;
+}
+.v1-appear--mask {
+  animation-name: v1-in-mask;
+}
+.v1-appear--up {
+  animation-name: v1-in-up;
+}
+
+@keyframes v1-in-fade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Requiere el contenedor `overflow:hidden` de .v1-headline-line para que se
+   vea como un reveal enmascarado (el texto "sube" desde detrás), no solo un
+   translate suelto -- mismo patrón que .v8-headline-line. */
+@keyframes v1-in-mask {
+  from {
+    opacity: 0;
+    transform: translateY(70%);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes v1-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .v8-appear,
-  .v9-appear {
+  .v9-appear,
+  .v1-appear {
     animation: none !important;
     opacity: 1 !important;
     transform: none !important;

@@ -10,6 +10,14 @@ const ITEMS = [
   { label: 'Correo', value: CONTACT_INFO.email, icon: 'M4 6h16v12H4zm0 1 8 6 8-6' },
 ] as const;
 
+/*
+ * Sección de contacto en 2 columnas lado a lado (no todo centrado):
+ * izquierda -> título + descripción corta + datos de contacto en
+ * tarjetas; derecha -> formulario. Antes tenía el mapa de Google en la
+ * columna izquierda; se quitó (pedido explícito) sin cambiar el layout
+ * de 2 columnas que ya tenían los otros 9 modelos que usan este
+ * componente.
+ */
 export function Contact() {
   const [name, setName] = useState('');
   const [company, setCompany] = useState('');
@@ -36,8 +44,8 @@ export function Contact() {
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             {ITEMS.map((item) => (
-              <div key={item.label} className="flex items-start gap-3">
-                <svg viewBox="0 0 24 24" fill="none" className="mt-0.5 h-5 w-5 shrink-0 text-brand-teal-light">
+              <div key={item.label} className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-5 py-4">
+                <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 shrink-0 text-brand-teal-light">
                   <path d={item.icon} stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 <div>
@@ -46,15 +54,6 @@ export function Contact() {
                 </div>
               </div>
             ))}
-          </div>
-
-          <div className="relative mt-8 aspect-4/3 overflow-hidden rounded-2xl border border-white/10 bg-white/5">
-            <iframe
-              title="Ubicación FPTecnologi & System"
-              className="h-full w-full grayscale invert-[0.92] contrast-[1.05]"
-              loading="lazy"
-              src="https://www.google.com/maps?q=Jr.+Huaraz+1841,+Bre%C3%B1a,+Lima&output=embed"
-            />
           </div>
         </div>
 

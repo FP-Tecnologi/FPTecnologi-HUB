@@ -25,7 +25,7 @@ export default function HomePage() {
       <Header />
       <main>
         <Hero />
-        <BrandMarquee />
+        <BrandMarquee showLabel={false} />
         <Nosotros />
         <Solutions />
         <WhyChooseUs />

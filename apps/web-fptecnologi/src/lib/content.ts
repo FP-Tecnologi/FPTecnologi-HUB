@@ -15,22 +15,26 @@ export const HERO_SLIDES = [
     key: 'servicios',
     tabLabel: 'Servicios',
     eyebrow: 'Servicios TI',
-    title: 'Soluciones tecnológicas implementadas por especialistas',
+    title: 'Soluciones tecnológicas para tu empresa',
+    titleLead: 'Soluciones tecnológicas',
+    titleAccent: 'para tu empresa',
     text: 'Seguridad, videoconferencia, cloud y data centers — diseñados e implementados a medida de tu empresa.',
     cta: { label: 'Ver servicios', href: '#servicios' },
-    image: '/images/solutions/data-centers.jpg',
-    imageAlt: 'Data center — servicios TI FPTecnologi',
+    image: '/herobanner/Servicios.png',
+    imageAlt: 'Rack de servidores — servicios TI FPTecnologi',
     kind: 'photo',
   },
   {
     key: 'tienda',
     tabLabel: 'Tienda',
     eyebrow: 'Tienda B2B',
-    title: 'Equipamiento con stock local, listo para despachar',
+    title: 'Equipamiento con stock, listo para despachar',
+    titleLead: 'Equipamiento con stock,',
+    titleAccent: 'listo para despachar',
     text: 'Monitores, laptops y servidores de las principales marcas, con distribución autorizada y precio real.',
     cta: { label: 'Ver catálogo', href: '#catalogo' },
-    image: '/images/hero/laptop-cutout.png',
-    imageAlt: 'Laptop Dell — catálogo FPTecnologi',
+    image: '/herobanner/tienda.png',
+    imageAlt: 'Equipos de la tienda B2B FPTecnologi',
     kind: 'photo',
   },
   {
@@ -38,11 +42,13 @@ export const HERO_SLIDES = [
     tabLabel: 'Partners',
     eyebrow: 'Programa de Partners',
     title: 'Sumate como integrador o revendedor autorizado',
+    titleLead: 'Sumate como integrador o',
+    titleAccent: 'revendedor autorizado',
     text: 'Precios y beneficios especiales para partners — cotización directa y soporte comercial dedicado.',
     cta: { label: 'Conocer el programa', href: '#partners' },
-    image: null,
-    imageAlt: '',
-    kind: 'abstract',
+    image: '/herobanner/partner.png',
+    imageAlt: 'Programa de Partners FPTecnologi',
+    kind: 'photo',
   },
 ] as const;
 
@@ -53,6 +59,7 @@ export const SOLUTIONS = [
     tag: 'Somos expertos en',
     icon: 'shield',
     image: '/images/solutions/seguridad.jpg',
+    description: 'Cámaras, control de accesos y videovigilancia integrada para municipios, condominios y empresas.',
   },
   {
     title: 'Escuelas y universidades',
@@ -60,6 +67,7 @@ export const SOLUTIONS = [
     tag: 'Soluciones para',
     icon: 'academic',
     image: '/images/solutions/escuelas.jpg',
+    description: 'Equipamiento y conectividad para aulas, laboratorios y campus, con soporte técnico dedicado.',
   },
   {
     title: 'Servidores para empresas',
@@ -67,6 +75,7 @@ export const SOLUTIONS = [
     tag: 'Soluciones de',
     icon: 'server',
     image: '/images/solutions/servidores.jpg',
+    description: 'Servidores dimensionados a tu operación, con instalación, configuración y garantía oficial.',
   },
   {
     title: 'Hoteles y restaurantes',
@@ -74,6 +83,7 @@ export const SOLUTIONS = [
     tag: 'Soluciones para',
     icon: 'building',
     image: '/images/solutions/hoteles.jpg',
+    description: 'Redes, TV y sistemas de gestión pensados para la operación diaria del rubro hotelero y gastronómico.',
   },
   {
     title: 'Videoconferencia',
@@ -81,6 +91,7 @@ export const SOLUTIONS = [
     tag: 'Soluciones de',
     icon: 'video',
     image: '/images/solutions/videoconferencia.jpg',
+    description: 'Salas de reunión equipadas con cámaras, audio e integración a las plataformas que ya usas.',
   },
   {
     title: 'Data centers',
@@ -88,6 +99,7 @@ export const SOLUTIONS = [
     tag: 'Implementamos',
     icon: 'database',
     image: '/images/solutions/data-centers.jpg',
+    description: 'Diseño e implementación de data centers, desde el rack hasta el cableado estructurado.',
   },
   {
     title: 'Datos empresariales',
@@ -95,6 +107,7 @@ export const SOLUTIONS = [
     tag: 'Gestión y respaldo de',
     icon: 'cloud-upload',
     image: '/images/solutions/datos-empresariales.jpg',
+    description: 'Respaldo, almacenamiento y políticas de recuperación para que la información de tu empresa esté segura.',
   },
   {
     title: 'Soluciones cloud',
@@ -102,6 +115,7 @@ export const SOLUTIONS = [
     tag: 'Soluciones de',
     icon: 'cloud',
     image: '/images/solutions/cloud.jpg',
+    description: 'Migración e infraestructura en la nube, a medida del tamaño y presupuesto de tu operación.',
   },
 ] as const;
 
@@ -167,6 +181,19 @@ export const CONTACT_INFO = {
   phoneVentasWeb: '+51 908 856 286',
   email: 'ventasweb@fptecnologi.com',
 };
+
+/*
+ * Áreas de WhatsApp de la burbuja de chat -- todas con el mismo número por
+ * ahora (pedido explícito: "crear áreas pero mismo número, luego cambiamos
+ * el número"). Cuando haya números reales por área, solo se edita `number`
+ * acá, nada más en el sitio referencia un wa.me hardcodeado.
+ */
+export const WHATSAPP_AREAS = [
+  { label: 'Ventas', number: '51908856286' },
+  { label: 'Servicios', number: '51908856286' },
+  { label: 'Tienda', number: '51908856286' },
+  { label: 'Partners', number: '51908856286' },
+] as const;
 
 /*
  * Cotizador real de fptecnologi.com — el botón principal del header no debe

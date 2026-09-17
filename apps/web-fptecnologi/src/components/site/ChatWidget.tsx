@@ -3,8 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { VARIANTS, DEFAULT_VARIANT, HeaderBg, type Variant } from './chatVariants';
-
-const WHATSAPP_URL = 'https://wa.me/51908856286';
+import { WHATSAPP_AREAS } from '@/lib/content';
 
 type ChatMsg = { from: 'bot' | 'user'; text: string };
 
@@ -113,7 +112,7 @@ export function ChatWidget() {
   const variant = getVariant(pathname);
 
   const [open, setOpen] = useState(false);
-  const [view, setView] = useState<'choose' | 'chat'>('choose');
+  const [view, setView] = useState<'choose' | 'whatsapp' | 'chat'>('choose');
   const [messages, setMessages] = useState<ChatMsg[]>([
     { from: 'bot', text: 'Hola 👋 Soy el asistente virtual de FPTecnologi. Preguntame por horarios, servicios, productos o el programa de partners.' },
   ]);
@@ -159,23 +158,22 @@ export function ChatWidget() {
           <div className="relative flex items-center px-4 py-3.5 text-white">
             <HeaderBg look={variant.header} />
             <div className="relative flex items-center gap-2">
-              {view === 'chat' && (
+              {view !== 'choose' && (
                 <button type="button" onClick={() => setView('choose')} aria-label="Volver" className="text-white/70 transition-colors hover:text-white">
                   <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
                     <path d="m15 18-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </button>
               )}
-              <p className={variant.labelClass}>{view === 'choose' ? '¿Cómo te ayudamos?' : 'Asistente virtual'}</p>
+              <p className={variant.labelClass}>{view === 'choose' ? '¿Cómo te ayudamos?' : view === 'whatsapp' ? 'Elegí un área' : 'Asistente virtual'}</p>
             </div>
           </div>
 
           {view === 'choose' ? (
             <div className="flex flex-col gap-2.5 p-4">
-              <a
-                href={WHATSAPP_URL}
-                target="_blank"
-                rel="noreferrer"
+              <button
+                type="button"
+                onClick={() => setView('whatsapp')}
                 style={{ '--tint': '#10b981' } as CSSProperties}
                 className="option-card flex items-center gap-3 rounded-2xl p-3 text-left"
               >
@@ -186,9 +184,9 @@ export function ChatWidget() {
                 </span>
                 <span>
                   <p className="text-sm font-semibold text-ink">WhatsApp</p>
-                  <p className="text-xs text-ink/55">Hablá directo con un asesor</p>
+                  <p className="text-xs text-ink/55">Elegí el área y hablá directo con un asesor</p>
                 </span>
-              </a>
+              </button>
 
               <button
                 type="button"
@@ -212,6 +210,26 @@ export function ChatWidget() {
                   <p className="text-xs text-ink/55">Respuestas rápidas, al instante</p>
                 </span>
               </button>
+            </div>
+          ) : view === 'whatsapp' ? (
+            <div className="flex flex-col gap-2 p-4">
+              {WHATSAPP_AREAS.map((area) => (
+                <a
+                  key={area.label}
+                  href={`https://wa.me/${area.number}?text=${encodeURIComponent(`Hola, quiero contactar al área de ${area.label} de FPTecnologi`)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ '--tint': '#10b981' } as CSSProperties}
+                  className="option-card flex items-center gap-3 rounded-2xl p-3 text-left"
+                >
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white shadow-sm shadow-emerald-500/30">
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
+                      <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20Zm4.4-5.9c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5l.4-.4c.1-.1.2-.3.2-.4.1-.2 0-.3 0-.4l-.7-1.7c-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.5 4 3.5.6.2 1 .4 1.3.5.6.2 1.1.1 1.5 0 .5-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.2-.4-.3Z" />
+                    </svg>
+                  </span>
+                  <p className="text-sm font-semibold text-ink">{area.label}</p>
+                </a>
+              ))}
             </div>
           ) : (
             <>
@@ -271,7 +289,7 @@ export function ChatWidget() {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label={open ? 'Cerrar chat' : 'Abrir chat'}
-        className="btn-glow launcher-ring relative flex h-14 w-14 items-center justify-center rounded-2xl text-white transition-transform hover:scale-105 active:scale-95"
+        className="btn-glow launcher-ring relative flex h-14 w-14 items-center justify-center rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl rounded-br-md text-white transition-transform hover:scale-105 active:scale-95"
       >
         {open ? (
           <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
@@ -285,9 +303,6 @@ export function ChatWidget() {
               strokeWidth="1.7"
               strokeLinejoin="round"
             />
-            <circle cx="8.6" cy="11" r="1.1" fill="currentColor" />
-            <circle cx="12" cy="11" r="1.1" fill="currentColor" />
-            <circle cx="15.4" cy="11" r="1.1" fill="currentColor" />
           </svg>
         )}
       </button>

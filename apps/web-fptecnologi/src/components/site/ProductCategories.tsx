@@ -21,7 +21,7 @@ export function ProductCategories() {
           <a
             key={c.slug}
             href={`/tienda/${c.slug}`}
-            className="group relative block aspect-4/5 overflow-hidden rounded-2xl border border-black/5 shadow-sm transition-transform duration-300 hover:-translate-y-1.5"
+            className="group relative block aspect-4/5 overflow-hidden rounded-2xl border border-black/5 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-brand-dark/25"
           >
             <Image
               src={c.image}
@@ -33,8 +33,8 @@ export function ProductCategories() {
             <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/40 to-transparent" />
             <div className="absolute inset-x-0 bottom-0 flex items-center justify-between p-5">
               <h3 className="text-lg font-semibold text-white">{c.title}</h3>
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-brand-dark transition-transform group-hover:translate-x-0.5">
-                <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-brand-dark transition-all duration-300 group-hover:-rotate-45 group-hover:bg-brand-teal-light group-hover:text-white">
+                <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
                   <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </span>
