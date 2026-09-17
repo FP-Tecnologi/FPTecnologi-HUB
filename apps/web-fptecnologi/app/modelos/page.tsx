@@ -58,18 +58,26 @@ const MODELS = [
   {
     href: '/modelo-8',
     title: 'Modelo 8',
-    text: 'Hero de una sola pantalla en negro puro, nav en pastillas de metal líquido y titular con reveal enmascarado.',
+    text: 'Negro puro, nav en pastillas de metal líquido y titular con reveal enmascarado -- ahora con la home completa.',
     style: 'Negro metal líquido',
     styleDesc: 'Fondo negro con glow radial, pastillas de nav con degradé metálico + brillo diagonal al pasar el mouse, y CTAs "vidrio esmerilado". Entrada escalonada (fade+scale/mask) en CSS puro, sin librería de animación.',
-    sections: ['Header (nav en pastillas de metal líquido)', 'Hero (badge + titular en dos líneas + CTAs)', 'Estadísticas'],
+    sections: ['Header (pastillas de metal líquido)', 'Hero (badge + titular + CTAs)', 'Estadísticas', 'Categorías', 'Servicios', 'Productos destacados', 'Por qué elegirnos', 'CTA', 'Marcas (marquesina)', 'Contacto', 'Footer'],
   },
   {
     href: '/modelo-9',
     title: 'Modelo 9',
-    text: 'Tarjeta hero a pantalla completa con foto de oficina, nav de vidrio y una tarjeta flotante con esquina recortada.',
+    text: 'Tarjeta hero a pantalla completa con foto de oficina, nav de vidrio y una tarjeta flotante con esquina recortada -- ahora con la home completa.',
     style: 'Glass sobre foto',
-    styleDesc: 'Una sola tarjeta redondeada ocupando casi toda la pantalla, foto de fondo con overlay claro, badge y titular centrados, y dos paneles de vidrio esmerilado flotantes (uno con esquina "recortada" en SVG puro).',
-    sections: ['Header (nav de vidrio sobre foto)', 'Hero (tarjeta con esquinas recortadas)', 'Footer'],
+    styleDesc: 'Una sola tarjeta redondeada ocupando casi toda la pantalla, foto de fondo con overlay claro, badge y titular centrados, y dos paneles de vidrio esmerilado flotantes (uno con esquina "recortada" en SVG puro). El resto de la home sigue el mismo acento navy + tarjetas de vidrio.',
+    sections: ['Header (nav de vidrio sobre foto)', 'Hero (tarjeta con esquinas recortadas)', 'Categorías', 'Servicios', 'Productos destacados', 'Por qué elegirnos', 'CTA', 'Marcas (marquesina)', 'Contacto', 'Footer'],
+  },
+  {
+    href: '/modelo-10',
+    title: 'Modelo 10',
+    text: 'Hero con foto oscura, favoritos numerados con carrito real, banner partido Tienda/Servicios y FAQ en acordeón.',
+    style: 'E-commerce editorial',
+    styleDesc: 'Header blanco minimal con buscador y carrito real (CartContext), hero con foto oscura a pantalla completa, tarjetas de producto numeradas con "Top Pick" y favoritos, banner partido en 2, métricas reales en vez de testimonios inventados, y FAQ nativo en acordeón (<details>, sin JS).',
+    sections: ['Header (buscador + carrito)', 'Hero', 'Marcas (marquesina)', 'Favoritos del mes', 'Tienda/Servicios (banner partido)', 'Estadísticas de confianza', 'Sobre nosotros', 'Cómo comprar (pasos)', 'FAQ', 'CTA', 'Contacto', 'Footer'],
   },
 ] as const;
 
