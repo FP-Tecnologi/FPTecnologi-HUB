@@ -18,7 +18,7 @@ const TONE = {
 export function HeroTabs({ active, onChange, tone = 'dark' }: { active: number; onChange: (i: number) => void; tone?: Tone }) {
   const t = TONE[tone];
   return (
-    <div role="tablist" aria-label="Elegí qué buscás" className={`inline-flex gap-1 rounded-full p-1 ${t.wrap}`}>
+    <div role="tablist" aria-label="Elegí qué buscás" className={`flex w-fit gap-1 rounded-full p-1 ${t.wrap}`}>
       {HERO_SLIDES.map((s, i) => (
         <button
           key={s.key}
