@@ -44,6 +44,31 @@ function StoreIcon() {
   );
 }
 
+/* Reseñas reales de Google todavía no conectadas (ver docs/estructura-home.md)
+   -- en vez de nombres/frases inventadas, se usa un avatar genérico y un
+   texto que dice exactamente eso, para no simular reseñas de gente que no
+   existe mientras se arma la integración real. */
+const PLACEHOLDER_TESTIMONIALS = [
+  {
+    name: 'Nombre del cliente',
+    role: 'Cargo / empresa',
+    image: '/images/modelo12/avatar-placeholder.svg',
+    text: 'Acá va a aparecer una reseña real, verificada en Google -- todavía no está conectada la integración.',
+  },
+  {
+    name: 'Nombre del cliente',
+    role: 'Cargo / empresa',
+    image: '/images/modelo12/avatar-placeholder.svg',
+    text: 'Acá va a aparecer una reseña real, verificada en Google -- todavía no está conectada la integración.',
+  },
+  {
+    name: 'Nombre del cliente',
+    role: 'Cargo / empresa',
+    image: '/images/modelo12/avatar-placeholder.svg',
+    text: 'Acá va a aparecer una reseña real, verificada en Google -- todavía no está conectada la integración.',
+  },
+];
+
 function InfoIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
@@ -110,10 +135,10 @@ export default function Modelo12Page() {
       <TestimonialOne
         badgeText="Opiniones"
         title="Lo que dicen quienes ya trabajaron con nosotros"
-        description="Todavía no tenemos reseñas verificadas para mostrar -- esta sección va a conectar con las reseñas reales de Google, no con testimonios inventados."
-        columnOneTestimonials={[]}
-        columnTwoTestimonials={[]}
-        columnThreeTestimonials={[]}
+        description="Reseñas reales de Google, verificadas -- se van a conectar acá apenas tengamos la integración lista. Mientras tanto, así se va a ver la sección."
+        columnOneTestimonials={PLACEHOLDER_TESTIMONIALS}
+        columnTwoTestimonials={PLACEHOLDER_TESTIMONIALS}
+        columnThreeTestimonials={PLACEHOLDER_TESTIMONIALS}
         emptyStateHref="https://www.google.com/maps?q=FP+Tecnologi+%26+System,+Jr.+Huaraz+1841,+Bre%C3%B1a,+Lima"
       />
       <ContactSection />

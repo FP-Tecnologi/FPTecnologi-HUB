@@ -35,12 +35,12 @@ export function TestimonialCarouselDemo() {
       <Swiper
         modules={[Autoplay, Navigation]}
         spaceBetween={20}
-        slidesPerView={1.1}
+        slidesPerView={1}
         breakpoints={{ 640: { slidesPerView: 2 }, 1024: { slidesPerView: 3 } }}
         autoplay={{ delay: 2800, disableOnInteraction: false, pauseOnMouseEnter: true }}
         loop
         navigation={{ prevEl: '.tcd-prev', nextEl: '.tcd-next' }}
-        className="!overflow-visible"
+        className="!overflow-hidden"
       >
         {PLACEHOLDERS.map((t, i) => (
           <SwiperSlide key={i}>

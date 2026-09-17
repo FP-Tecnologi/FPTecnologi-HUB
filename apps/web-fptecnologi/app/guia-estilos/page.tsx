@@ -33,6 +33,7 @@ import { HeaderCartDropdownB } from './HeaderCartDropdownB';
 import { HeaderBg, VARIANTS as CHAT_VARIANTS, DEFAULT_VARIANT as CHAT_DEFAULT_VARIANT } from '@/components/site/chatVariants';
 import { ReplayAnimation } from './ReplayAnimation';
 import { TestimonialCarouselDemo } from './TestimonialCarouselDemo';
+import { TestimonialCarouselCenteredDemo } from './TestimonialCarouselCenteredDemo';
 import { CurrencyToggle } from '@/components/site/CurrencyToggle';
 import {
   CurrencyToggleSolid,
@@ -1573,10 +1574,10 @@ export default function GuiaEstilosPage() {
       <section id="testimonios" className="mt-16">
         <h2 className="font-display text-2xl font-bold text-ink">13. Testimonios</h2>
         <p className="mt-2 max-w-2xl text-sm text-ink/60">
-          Regla del sitio: no se inventan testimonios ni reseñas de personas que no existen (ver AGENTS.md).
-          Ningún modelo tiene reseñas reales todavía — el Modelo 12 es el único con la sección ya armada, con
-          un estado vacío honesto en vez de nombres y frases falsas, mientras se conecta con reseñas reales
-          de Google.
+          Regla del sitio: no se inventan nombres ni frases de reseñas que no existen (ver AGENTS.md). Ningún
+          modelo tiene reseñas reales conectadas todavía — el Modelo 12 ya tiene la sección armada con este
+          mismo diseño, con marcadores de posición (avatar genérico, "Nombre del cliente") en vez de datos
+          falsos, mientras se conecta con reseñas reales de Google.
         </p>
 
         <div className="mt-8 flex flex-wrap items-baseline justify-between gap-2">
@@ -1618,34 +1619,7 @@ export default function GuiaEstilosPage() {
           ))}
         </div>
 
-        <h3 className="mt-10 font-display text-lg font-bold text-ink">13.2 Estado actual en Modelo 12 — todavía sin reseñas</h3>
-        <p className="mt-1 max-w-2xl text-sm text-ink/55">
-          Mientras no haya reseñas reales conectadas, la grilla de arriba no se muestra vacía ni con datos
-          falsos — se reemplaza por este aviso + link a la ficha de Google del negocio (mismo componente,
-          props <code className="text-ink/70">emptyStateHref</code> / <code className="text-ink/70">emptyStateLabel</code>).
-        </p>
-        <div className="mt-3 rounded-2xl border border-black/10 bg-paper p-10 shadow-sm">
-          <div className="mx-auto max-w-[500px] text-center">
-            <span className="rounded-full bg-brand-primary/10 px-3 py-1.5 text-sm font-medium text-brand-primary">Opiniones</span>
-            <h4 className="mt-4 font-display text-xl font-bold text-ink">Lo que dicen quienes ya trabajaron con nosotros</h4>
-            <div className="mt-5 rounded-2xl border border-black/10 bg-white px-6 py-8 shadow-sm">
-              <p className="text-sm text-ink/60">
-                Todavía no tenemos reseñas verificadas para mostrar acá — en vez de inventar testimonios, esta
-                sección va a conectar con las reseñas reales de Google de FPTecnologi &amp; System.
-              </p>
-              <a
-                href="https://www.google.com/maps?q=FP+Tecnologi+%26+System,+Jr.+Huaraz+1841,+Bre%C3%B1a,+Lima"
-                target="_blank"
-                rel="noreferrer"
-                className="btn-glow mt-5 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white"
-              >
-                Ver reseñas en Google
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <h3 className="mt-10 font-display text-lg font-bold text-ink">13.3 Testimonio dinámico (carrusel)</h3>
+        <h3 className="mt-10 font-display text-lg font-bold text-ink">13.2 Testimonio dinámico (carrusel)</h3>
         <p className="mt-1 max-w-2xl text-sm text-ink/55">
           Propuesta aparte del diseño original — carrusel horizontal (arrastrá o usá las flechas, se mueve
           solo cada 2.8s) con el orden invertido: texto de la reseña arriba, avatar + nombre + cargo/empresa
@@ -1653,6 +1627,16 @@ export default function GuiaEstilosPage() {
         </p>
         <div className="mt-3">
           <TestimonialCarouselDemo />
+        </div>
+
+        <h3 className="mt-10 font-display text-lg font-bold text-ink">13.3 Testimonio dinámico — centrado</h3>
+        <p className="mt-1 max-w-2xl text-sm text-ink/55">
+          Otra variante del carrusel: 2 reseñas a tamaño completo en el centro, y a cada lado 1 más
+          desvanecida (así se nota que hay más para ese costado sin competir con las 2 del medio). Flechas a
+          los costados del carrusel (no abajo) + puntos de paginación abajo.
+        </p>
+        <div className="mt-3">
+          <TestimonialCarouselCenteredDemo />
         </div>
       </section>
 
