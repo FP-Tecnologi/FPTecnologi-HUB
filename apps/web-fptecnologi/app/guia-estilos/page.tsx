@@ -32,6 +32,14 @@ import { HeaderCartDropdownA } from './HeaderCartDropdownA';
 import { HeaderCartDropdownB } from './HeaderCartDropdownB';
 import { HeaderBg, VARIANTS as CHAT_VARIANTS, DEFAULT_VARIANT as CHAT_DEFAULT_VARIANT } from '@/components/site/chatVariants';
 import { ReplayAnimation } from './ReplayAnimation';
+import { TestimonialCarouselDemo } from './TestimonialCarouselDemo';
+import { CurrencyToggle } from '@/components/site/CurrencyToggle';
+import {
+  CurrencyToggleSolid,
+  CurrencyToggleSwitch,
+  CurrencyToggleBump,
+  CurrencyToggleCoinFlip,
+} from './CurrencyToggleVariants';
 import type { CSSProperties, ReactNode } from 'react';
 
 export const metadata = { title: 'Guía de estilos' };
@@ -609,6 +617,8 @@ const TOC = [
   { href: '#efectos', label: 'Efectos' },
   { href: '#carrito', label: 'Carrito' },
   { href: '#comparacion', label: 'Comparación de productos' },
+  { href: '#testimonios', label: 'Testimonios' },
+  { href: '#moneda', label: 'Selector de moneda' },
 ];
 
 export default function GuiaEstilosPage() {
@@ -1556,6 +1566,156 @@ export default function GuiaEstilosPage() {
               </tr>
             </tbody>
           </table>
+        </div>
+      </section>
+
+      {/* Testimonios */}
+      <section id="testimonios" className="mt-16">
+        <h2 className="font-display text-2xl font-bold text-ink">13. Testimonios</h2>
+        <p className="mt-2 max-w-2xl text-sm text-ink/60">
+          Regla del sitio: no se inventan testimonios ni reseñas de personas que no existen (ver AGENTS.md).
+          Ningún modelo tiene reseñas reales todavía — el Modelo 12 es el único con la sección ya armada, con
+          un estado vacío honesto en vez de nombres y frases falsas, mientras se conecta con reseñas reales
+          de Google.
+        </p>
+
+        <div className="mt-8 flex flex-wrap items-baseline justify-between gap-2">
+          <h3 className="font-display text-lg font-bold text-ink">13.1 Diseño de la tarjeta (original)</h3>
+          <a href="/modelo-12" className="text-sm font-semibold text-brand-primary hover:underline">
+            Ver en Modelo 12 →
+          </a>
+        </div>
+        <p className="mt-1 max-w-2xl text-sm text-ink/55">
+          Diseño real de la plantilla Riteflow, home-v1 (<code className="text-ink/70">TestimonialOne</code>):
+          columnas que se desplazan solas en loop vertical (2 hacia abajo, 1 en reversa hacia arriba en la
+          original — acá 2 para la guía), foto + nombre + rol arriba de cada tarjeta, línea divisoria en
+          degradé, texto de la reseña abajo. Con marcadores de posición en vez de nombres inventados — cuando
+          haya reseñas reales de Google entran en estos mismos campos.
+        </p>
+        <div className="relative mt-3 grid grid-cols-1 gap-4 overflow-hidden rounded-2xl border border-black/10 bg-paper p-6 sm:grid-cols-2" style={{ height: 340 }}>
+          <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-10 bg-gradient-to-b from-paper to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-10 bg-gradient-to-t from-paper to-transparent" />
+          {[0, 1].map((col) => (
+            <div key={col} className="overflow-hidden">
+              <div className={`flex flex-col gap-4 ${col === 0 ? 'animate-auto-scroll-y' : 'animate-auto-scroll-y-reverse'}`}>
+                {[1, 2, 1, 2].map((n, i) => (
+                  <div key={i} className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
+                    <div className="flex items-center gap-3">
+                      <span className="flex h-10.5 w-10.5 shrink-0 items-center justify-center rounded-full bg-brand-primary/10 text-sm font-bold text-brand-primary">
+                        ?
+                      </span>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-ink">Nombre del cliente {n}</p>
+                        <p className="truncate text-xs text-ink/45">Cargo / empresa</p>
+                      </div>
+                    </div>
+                    <div className="my-4 h-px w-full bg-gradient-to-r from-brand-primary/0 via-brand-primary/30 to-brand-primary/0" />
+                    <p className="text-sm text-ink/70">Texto real de la reseña, tal cual quedó publicada en Google — sin editar el contenido.</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <h3 className="mt-10 font-display text-lg font-bold text-ink">13.2 Estado actual en Modelo 12 — todavía sin reseñas</h3>
+        <p className="mt-1 max-w-2xl text-sm text-ink/55">
+          Mientras no haya reseñas reales conectadas, la grilla de arriba no se muestra vacía ni con datos
+          falsos — se reemplaza por este aviso + link a la ficha de Google del negocio (mismo componente,
+          props <code className="text-ink/70">emptyStateHref</code> / <code className="text-ink/70">emptyStateLabel</code>).
+        </p>
+        <div className="mt-3 rounded-2xl border border-black/10 bg-paper p-10 shadow-sm">
+          <div className="mx-auto max-w-[500px] text-center">
+            <span className="rounded-full bg-brand-primary/10 px-3 py-1.5 text-sm font-medium text-brand-primary">Opiniones</span>
+            <h4 className="mt-4 font-display text-xl font-bold text-ink">Lo que dicen quienes ya trabajaron con nosotros</h4>
+            <div className="mt-5 rounded-2xl border border-black/10 bg-white px-6 py-8 shadow-sm">
+              <p className="text-sm text-ink/60">
+                Todavía no tenemos reseñas verificadas para mostrar acá — en vez de inventar testimonios, esta
+                sección va a conectar con las reseñas reales de Google de FPTecnologi &amp; System.
+              </p>
+              <a
+                href="https://www.google.com/maps?q=FP+Tecnologi+%26+System,+Jr.+Huaraz+1841,+Bre%C3%B1a,+Lima"
+                target="_blank"
+                rel="noreferrer"
+                className="btn-glow mt-5 inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white"
+              >
+                Ver reseñas en Google
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <h3 className="mt-10 font-display text-lg font-bold text-ink">13.3 Testimonio dinámico (carrusel)</h3>
+        <p className="mt-1 max-w-2xl text-sm text-ink/55">
+          Propuesta aparte del diseño original — carrusel horizontal (arrastrá o usá las flechas, se mueve
+          solo cada 2.8s) con el orden invertido: texto de la reseña arriba, avatar + nombre + cargo/empresa
+          abajo. Avatar genérico (ícono, no foto) en vez de inventar la cara de alguien que no existe.
+        </p>
+        <div className="mt-3">
+          <TestimonialCarouselDemo />
+        </div>
+      </section>
+
+      {/* Selector de moneda */}
+      <section id="moneda" className="mt-16">
+        <h2 className="font-display text-2xl font-bold text-ink">14. Selector de moneda (USD / PEN)</h2>
+        <p className="mt-2 max-w-2xl text-sm text-ink/60">
+          Todas las variantes de acá abajo usan el mismo <code className="text-ink/70">useCurrency()</code> real
+          del header (<code className="text-ink/70">CurrencyContext</code>, persistido en localStorage) — no son
+          mockups sueltos, es el mismo estado: tocar cualquiera cambia las demás también. Lo que cambia es
+          solo el envoltorio visual.
+        </p>
+
+        <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
+            <div>
+              <h4 className="font-semibold text-ink">Actual (header)</h4>
+              <p className="mt-1 text-xs text-ink/50">El que está en producción hoy — outline neutro, sin animación.</p>
+            </div>
+            <div className="flex justify-center rounded-xl bg-paper p-6">
+              <CurrencyToggle tone="light" />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
+            <div>
+              <h4 className="font-semibold text-ink">Sólido con color por moneda</h4>
+              <p className="mt-1 text-xs text-ink/50">Fondo lleno: azul de marca en USD, dorado (alusión a la moneda de un sol) en PEN.</p>
+            </div>
+            <div className="flex justify-center rounded-xl bg-paper p-6">
+              <CurrencyToggleSolid />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
+            <div>
+              <h4 className="font-semibold text-ink">Switch deslizante</h4>
+              <p className="mt-1 text-xs text-ink/50">Las 2 opciones siempre visibles, un thumb se desliza entre ellas — se entiende de entrada que hay 2 estados.</p>
+            </div>
+            <div className="flex justify-center rounded-xl bg-paper p-6">
+              <CurrencyToggleSwitch />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
+            <div>
+              <h4 className="font-semibold text-ink">Salto al cambiar</h4>
+              <p className="mt-1 text-xs text-ink/50">Mismo diseño de hoy + el `bump` de escala que ya usa el badge del carrito al agregar un producto — hacé clic para sentirlo.</p>
+            </div>
+            <div className="flex justify-center rounded-xl bg-paper p-6">
+              <CurrencyToggleBump />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4 rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
+            <div>
+              <h4 className="font-semibold text-ink">Moneda al aire</h4>
+              <p className="mt-1 text-xs text-ink/50">El símbolo gira 360° como una moneda real al voltear, cada vez que cambiás — hacé clic para verlo.</p>
+            </div>
+            <div className="flex justify-center rounded-xl bg-paper p-6">
+              <CurrencyToggleCoinFlip />
+            </div>
+          </div>
         </div>
       </section>
     </main>

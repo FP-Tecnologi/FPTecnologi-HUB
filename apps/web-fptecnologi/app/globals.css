@@ -416,6 +416,42 @@ body {
   transform-style: preserve-3d;
 }
 
+/* Selector de moneda -- variante "moneda al aire" (guía de estilos, #moneda) */
+@keyframes coin-flip {
+  0% {
+    transform: rotateY(0deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+.animate-coin-flip {
+  animation: coin-flip 0.5s ease-in-out;
+  transform-style: preserve-3d;
+}
+
+/* Testimonios -- auto-scroll vertical, igual al de la plantilla Riteflow
+   original (auto-scroll-content / autoScrollY en su globals.css): sobre
+   una columna con el contenido duplicado, se desplaza -50% en loop, así
+   nunca se ve el corte. */
+@keyframes auto-scroll-y {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+.animate-auto-scroll-y {
+  animation: auto-scroll-y 8s linear infinite;
+}
+
+.animate-auto-scroll-y-reverse {
+  animation: auto-scroll-y 8s linear infinite reverse;
+}
+
 /* ---------- Modelo 8 (metal líquido sobre negro) -- entrada escalonada ----------
    Mismo lenguaje del spec de referencia (fade+scale, fade+translateY, mask
    reveal, pop) pero en CSS puro -- sin motion/framer-motion (no está
