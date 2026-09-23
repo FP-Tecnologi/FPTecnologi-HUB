@@ -141,10 +141,15 @@ export const PERFORMANCE_FEATURES = [
   { title: 'Precisión', text: 'Cada cotización se arma a medida de tu operación, sin sobrantes ni faltantes.' },
 ] as const;
 
-export const PARTNER_BRANDS = [
+export const PARTNER_BRANDS: { name: string; logo: string; maskLogo?: string }[] = [
   { name: 'Dell', logo: '/images/brands/dell.png' },
   { name: 'HP', logo: '/images/brands/hp.png' },
-  { name: 'Lenovo', logo: '/images/brands/lenovo.png' },
+  // maskLogo -- el archivo original tiene el fondo rojo de marca pegado (no
+  // transparente), así que sirve para el hover (se ve el logo real tal cual
+  // es), pero como silueta (mask-image en reposo) se veía como un cuadrado
+  // sólido. maskLogo es una versión aparte con el fondo rojo quitado
+  // (croma-key), solo para esa silueta.
+  { name: 'Lenovo', logo: '/images/brands/lenovo.png', maskLogo: '/images/brands/lenovo-mask.png' },
   { name: 'Samsung', logo: '/images/brands/samsung.webp' },
   { name: 'Xerox', logo: '/images/brands/xerox.png' },
   { name: 'Sharp', logo: '/images/brands/sharp.webp' },
@@ -155,7 +160,7 @@ export const PARTNER_BRANDS = [
   { name: 'ViewSonic', logo: '/images/brands/viewsonic.webp' },
   { name: 'Nureva', logo: '/images/brands/nureva.png' },
   { name: 'ScreenBeam', logo: '/images/brands/screenbeam.png' },
-] as const;
+];
 
 export const PARTNER_STEPS = [
   {
@@ -232,6 +237,17 @@ export const STATS = [
   { value: 13, suffix: '+', label: 'Marcas distribuidas' },
   { value: 8, suffix: '', label: 'Categorías de soluciones IT' },
   { value: 2, suffix: '', label: 'Líneas de negocio: tienda y servicios' },
+] as const;
+
+// Checklist de valores de la empresa -- reemplaza las 3 métricas de STATS
+// en la sección Nosotros de la home (se sentía muy genérico un contador de
+// números ahí; esto habla directamente de por qué elegir a FPTecnologi).
+// Solo título corto, sin descripción aparte (pedido explícito del usuario).
+// Reducido a 2 (antes 4), cada uno una frase un poco más larga en vez de
+// 2 palabras sueltas.
+export const COMPANY_VALUES = [
+  { title: 'Distribución autorizada de marcas líderes' },
+  { title: 'Stock local listo para despachar' },
 ] as const;
 
 /* Productos reales del catálogo (nombre, SKU, precio, marca) — monitores

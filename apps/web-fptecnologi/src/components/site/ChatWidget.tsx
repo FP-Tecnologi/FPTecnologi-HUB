@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { VARIANTS, DEFAULT_VARIANT, HeaderBg, type Variant } from './chatVariants';
 import { WHATSAPP_AREAS } from '@/lib/content';
+import { useChatWidget } from '@/context/ChatWidgetContext';
 
 type ChatMsg = { from: 'bot' | 'user'; text: string };
 
@@ -110,6 +111,7 @@ function TypewriterText({ text, skip, onDone }: { text: string; skip: boolean; o
 export function ChatWidget() {
   const pathname = usePathname();
   const variant = getVariant(pathname);
+  const { subscribeAskAI } = useChatWidget();
 
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<'choose' | 'whatsapp' | 'chat'>('choose');
@@ -134,11 +136,9 @@ export function ChatWidget() {
     return () => document.removeEventListener('mousedown', onClickOutside);
   }, []);
 
-  function send() {
-    const text = draft.trim();
+  function sendText(text: string) {
     if (!text || typing) return;
     setMessages((m) => [...m, { from: 'user', text }]);
-    setDraft('');
     setTyping(true);
     window.setTimeout(
       () => {
@@ -148,6 +148,27 @@ export function ChatWidget() {
       500 + Math.random() * 500,
     );
   }
+
+  function send() {
+    const text = draft.trim();
+    if (!text) return;
+    setDraft('');
+    sendText(text);
+  }
+
+  // "Pregunta a nuestra IA" del Hero llama a askAI() (ver
+  // ChatWidgetContext) -- acá se escucha eso, se abre el widget en la vista
+  // de conversación y se manda la pregunta como si el usuario la hubiera
+  // escrito directo acá, para que responda el mismo asistente/lógica de
+  // siempre (reply()), sin duplicar reglas en dos lados.
+  useEffect(() => {
+    return subscribeAskAI((question) => {
+      setOpen(true);
+      setView('chat');
+      sendText(question);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subscribeAskAI]);
 
   return (
     <div className="fixed bottom-5 right-5 z-[60]" ref={panelRef}>

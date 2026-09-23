@@ -1,28 +1,44 @@
-import { BrandMarquee } from '@/components/site/BrandMarquee';
-import { Contact } from '@/components/site/Contact';
-import { Footer } from '@/components/site/Footer';
-import { Header } from '@/components/site/Header';
-import { Hero } from '@/components/site/Hero';
-import { Nosotros } from '@/components/site/Nosotros';
-import { PartnerSteps } from '@/components/site/PartnerSteps';
-import { ProductCategories } from '@/components/site/ProductCategories';
-import { Solutions } from '@/components/site/Solutions';
-import { TopBar } from '@/components/site/TopBar';
-import { FeaturedProducts } from '@/components/site2/FeaturedProducts';
-import { WhyChooseUs } from '@/components/site2/WhyChooseUs';
+import { BrandMarquee } from '@/components/home/BrandMarquee';
+import { Contact } from '@/components/home/Contact';
+import { Footer } from '@/components/home/Footer';
+import { Hero } from '@/components/home/Hero';
+import { Nosotros } from '@/components/home/Nosotros';
+import { NuestrosClientes } from '@/components/home/NuestrosClientes';
+import { NuestrosProyectos } from '@/components/home/NuestrosProyectos';
+import { PartnerCta } from '@/components/home/PartnerCta';
+import { ProductCategories } from '@/components/home/ProductCategories';
+import { Solutions } from '@/components/home/Solutions';
+import { FeaturedProducts } from '@/components/home/FeaturedProducts';
+import { WhyChooseUs } from '@/components/home/WhyChooseUs';
 
 /*
- * Estructura final acordada (ver docs/estructura-home.md): Hero de 3 →
- * Marcas → Nosotros → Servicios (8) → Por qué elegirnos → Categorías de
- * productos → Productos destacados (carrito + comparar) → Sé partner →
- * Contacto (con formulario liviano) → Footer. Mismo orden que /modelo-riteflow,
- * con el estilo propio del Modelo 1 en vez del de Riteflow.
+ * Home reconstruida desde cero sobre src/components/home/ (ver
+ * docs/notas-rediseno-web-publica.md) -- carpeta autocontenida con los
+ * componentes ya elegidos como definitivos (catalogados antes en
+ * app/guia-estilos-final): Hero = Hero9 real (copiado de site9/, con video
+ * de fondo y su propio Navbar9 -- ese nav ya reusa el DesktopNav/MobileNav
+ * real del sitio, ver Navbar9.tsx), ServiceCardFinal, ProductCardFinal +
+ * comparador + galería, y PartnerCta (Modelo Riteflow).
+ *
+ * Sin <TopBar/><Header/> separados: Hero9 trae su propio nav (Navbar9)
+ * flotando sobre el video, igual que en /modelo-9. Pendiente (ver notas):
+ * Navbar9 todavía no tiene carrito ni selector de moneda como el Header
+ * real -- falta esa integración.
+ *
+ * Estructura pedida por el usuario (orden fijo, no el de estructura-home.md
+ * anterior): Hero → Marcas → Nosotros (breve) → Servicios → Por qué
+ * elegirnos → Categorías → Productos destacados → Nuestros proyectos →
+ * Nuestros clientes → Partners → Contacto → Footer.
+ *
+ * Nosotros, Por qué elegirnos, Categorías de producto y Contacto siguen
+ * siendo los componentes viejos de site/site2 (copiados tal cual, sin
+ * rediseñar) -- placeholder hasta definir su versión final. Nuestros
+ * proyectos y Nuestros clientes son secciones nuevas sin contenido real
+ * todavía, marcadas TODO en sus propios archivos.
  */
 export default function HomePage() {
   return (
     <>
-      <TopBar />
-      <Header />
       <main>
         <Hero />
         <BrandMarquee showLabel={false} />
@@ -31,7 +47,9 @@ export default function HomePage() {
         <WhyChooseUs />
         <ProductCategories />
         <FeaturedProducts />
-        <PartnerSteps />
+        <NuestrosProyectos />
+        <NuestrosClientes />
+        <PartnerCta />
         <Contact />
       </main>
       <Footer />

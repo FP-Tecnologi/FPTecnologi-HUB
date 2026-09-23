@@ -95,6 +95,14 @@ const MODELS = [
     styleDesc: 'Título con gradient-text (blanco a violeta), animaciones de entrada GSAP + ScrollTrigger reales (no CSS), tarjetas de estadísticas con conteo animado (IntersectionObserver) y bento de beneficios con foto. Única dependencia nueva: gsap (necesaria para que la animación real del template funcione, ver comentario en app/modelo-riteflow/page.tsx sobre qué se portó y qué se dejó afuera).',
     sections: ['Header', 'Hero', 'Marcas (marquesina)', 'Sobre nosotros + estadísticas animadas', 'Por qué elegirnos (bento)', 'Contacto', 'Footer'],
   },
+  {
+    href: '/modelo-claude',
+    title: 'Modelo Claude (snapshot)',
+    text: 'Copia congelada de la home real (/) tomada el 2026-09-22 -- referencia de cómo se veía antes de seguir mezclando piezas de otros modelos sobre Modelo 1.',
+    style: 'Snapshot, no es un modelo nuevo',
+    styleDesc: 'La raíz (/) es donde se arma la versión final del sitio (ver docs/notas-rediseno-web-publica.md): se sigue editando en vivo. Esta ruta usa su propia copia de componentes en src/components/site-claude/, así que NO cambia cuando la raíz siga cambiando -- sirve para comparar el antes/después.',
+    sections: ['Header', 'Hero (Modelo 9)', 'Marcas', 'Nosotros', 'Servicios', 'Por qué elegirnos', 'Categorías de producto', 'Productos destacados', 'Sé partner', 'Contacto', 'Footer'],
+  },
 ] as const;
 
 export const metadata = { title: 'Modelos — FPTecnologi' };

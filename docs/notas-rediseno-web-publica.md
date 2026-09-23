@@ -28,8 +28,11 @@ Dos encabezados distintos según la sección:
 
 ## Botones
 
-- Esquinas suaves, variante primaria + secundaria, y también botones de
-  solo texto (link-style).
+- **Esquinas: sin curva pronunciada** — solo un radio simple/sutil (no
+  "pill"/full-rounded). Regla única para **todos** los botones del sitio,
+  variante primaria, secundaria y de solo texto (link-style), **incluidos
+  los del encabezado** (hoy varios modelos usan botones tipo píldora en el
+  header — hay que unificarlos a este mismo radio sutil).
 - **Hover**: el ícono del botón gira.
 - **Click**: efecto *sweep* (barrido) — o, en botones de carrito, animación
   del ícono de carrito/producto moviéndose de un lado a otro.

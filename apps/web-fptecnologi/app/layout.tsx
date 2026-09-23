@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { CartProvider } from '@/context/CartContext';
 import { CurrencyProvider } from '@/context/CurrencyContext';
+import { ChatWidgetProvider } from '@/context/ChatWidgetContext';
 import { ChatWidget } from '@/components/site/ChatWidget';
 import './globals.css';
 
@@ -35,8 +36,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <CurrencyProvider>
           <CartProvider>
-            {children}
-            <ChatWidget />
+            <ChatWidgetProvider>
+              {children}
+              <ChatWidget />
+            </ChatWidgetProvider>
           </CartProvider>
         </CurrencyProvider>
       </body>
