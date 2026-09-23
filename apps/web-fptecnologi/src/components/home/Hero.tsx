@@ -6,8 +6,8 @@ import { HERO_SLIDES } from '@/lib/content';
 import { SparkleIcon, ArrowUpRightIcon } from '@/components/site/icons';
 import { useChatWidget } from '@/context/ChatWidgetContext';
 import { ParticlesBackground } from './ParticlesBackground';
-import { ScrollReveal } from './ScrollReveal';
 import { StickyNav } from './StickyNav';
+import { ClickConfirmButton } from './ClickConfirmButton';
 
 // Solo Servicios/Tienda para este hero (a diferencia del carrusel de 3 del
 // Modelo 1, acá no entra "Partners" -- pedido explícito del usuario). Mismo
@@ -44,17 +44,14 @@ export function Hero() {
   const slide = SLIDES[active];
 
   return (
-    // ScrollReveal en la tarjeta completa (no en el texto rotativo de
-    // adentro, que ya tiene su propia animación v9-appear por cada cambio de
-    // slide -- son 2 elementos distintos, no se pisan) -- así el Hero
-    // también entra/sale con el scroll: al cargar la página ya se ve visible
-    // (ver el chequeo síncrono en ScrollReveal.tsx, evita el parpadeo típico
-    // de contenido "above the fold"), pero si el usuario baja y vuelve a
-    // subir, se repite el efecto de entrada.
+    // Sin ScrollReveal: al volver a subir, el hero se ocultaba antes de
+    // tiempo. El texto rotativo sigue con su propia animación v9-appear.
+    // Ancho completo (sin max-w fijo) para que escale en pantallas grandes;
+    // alto en svh con un mínimo para pantallas bajas.
     <>
       <StickyNav />
-      <ScrollReveal direction="up" className="flex w-full items-center justify-center bg-paper p-3 md:p-5">
-        <section className="relative flex h-[92vh] w-full max-w-[1536px] flex-col items-center overflow-hidden rounded-[1.25rem] bg-white/10 md:rounded-[2.25rem]">
+      <div className="flex w-full items-center justify-center bg-paper p-3 md:p-5">
+        <section className="relative flex h-[92svh] min-h-[560px] w-full flex-col items-center overflow-hidden rounded-[1.25rem] bg-white/10 md:rounded-[2.25rem]">
         <video
           autoPlay
           muted
@@ -95,7 +92,11 @@ export function Hero() {
         </div>
 
         <div className="relative z-10 flex h-full w-full flex-col items-center">
-          <Navbar9 />
+          {/* Solo reserva el alto: el nav visible es StickyNav (fixed),
+              ubicado justo encima de este hueco y que se comprime al bajar. */}
+          <div className="invisible w-full" aria-hidden>
+            <Navbar9 />
+          </div>
 
           {/* flex-1 + relative: ocupa todo el alto que sobra debajo del nav,
               para que el bloque de texto de abajo se pueda centrar en ESE
@@ -119,7 +120,7 @@ export function Hero() {
               </div>
 
               <h1
-                className="v9-appear v9-appear--scale mx-auto mb-2 max-w-4xl text-4xl font-normal leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-[72px]"
+                className="v9-appear v9-appear--scale mx-auto mb-2 max-w-4xl text-4xl font-normal leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl lg:text-[72px] 2xl:max-w-6xl 2xl:text-[96px]"
                 style={{ animationDelay: '200ms', textShadow: '0 4px 30px rgba(0,0,0,0.45)' }}
               >
                 {/* Línea 1 (blanco) y línea 2 (color) forzadas con `block` en
@@ -131,7 +132,7 @@ export function Hero() {
               </h1>
 
               <p
-                className="v9-appear v9-appear--fade mx-auto max-w-xl px-4 text-sm leading-relaxed text-white/85 sm:text-base md:text-lg"
+                className="v9-appear v9-appear--fade mx-auto max-w-xl px-4 text-sm leading-relaxed text-white/85 sm:text-base md:text-lg 2xl:max-w-3xl 2xl:text-2xl"
                 style={{ animationDelay: '400ms', textShadow: '0 2px 16px rgba(0,0,0,0.4)' }}
               >
                 {slide.text}
@@ -163,7 +164,7 @@ export function Hero() {
           <BottomRightCorner />
         </div>
         </section>
-      </ScrollReveal>
+      </div>
     </>
   );
 }
@@ -177,14 +178,10 @@ export function Hero() {
    sólido; el otro queda en su estado "vidrio" normal. */
 function BottomLeftCard({ activeKey }: { activeKey: string }) {
   return (
-    <ScrollReveal
-      direction="left"
-      delayMs={260}
-      className="absolute bottom-10 left-10 hidden h-28 w-fit min-w-[150px] flex-col justify-center gap-2 rounded-[1.5rem] border border-white/25 bg-white/10 p-2 backdrop-blur-md lg:flex"
-    >
+    <div className="absolute bottom-10 left-10 hidden h-28 w-fit min-w-[150px] flex-col justify-center gap-2 rounded-[1.5rem] border border-white/25 bg-white/10 p-2 backdrop-blur-md lg:flex 2xl:bottom-14 2xl:left-14 2xl:h-32 2xl:p-3">
       <CornerLink href="/servicios" label="Servicios" icon={ServiceIcon} active={activeKey === 'servicios'} uppercase />
       <CornerLink href="/tienda" label="Tienda TI" icon={StoreIcon} active={activeKey === 'tienda'} uppercase />
-    </ScrollReveal>
+    </div>
   );
 }
 
@@ -205,30 +202,37 @@ function CornerLink({
   active: boolean;
   uppercase?: boolean;
 }) {
-  return (
-    <a
-      href={href}
-      className={`group flex items-center gap-2 rounded-lg py-1.5 pl-1.5 pr-5 transition-colors ${
-        active ? 'bg-white hover:bg-white/90' : 'hover:bg-white/10'
+  // Mismo efecto sweep que "Cotizar" (ClickConfirmButton): el ícono cruza
+  // el botón mientras se borra el texto y recién ahí navega a `href`.
+  const chip = (rotated: boolean) => (
+    <span
+      className={`flex items-center justify-center rounded-md p-1 ${
+        active ? 'bg-[rgba(30,50,90,0.1)]' : 'bg-white/15'
       }`}
     >
-      <span
-        className={`flex items-center justify-center rounded-md p-1 ${
-          active ? 'bg-[rgba(30,50,90,0.1)]' : 'bg-white/15'
-        }`}
-      >
-        <Icon
-          className={`h-4 w-4 transition-transform duration-300 group-hover:rotate-45 ${active ? 'text-[rgba(30,50,90,0.9)]' : 'text-white'}`}
-        />
-      </span>
-      <span
-        className={`text-sm ${uppercase ? 'font-semibold uppercase tracking-wide' : 'font-normal'} ${
+      <Icon
+        className={`h-4 w-4 transition-transform duration-300 ${rotated ? 'rotate-45' : ''} ${
           active ? 'text-[rgba(30,50,90,0.9)]' : 'text-white'
         }`}
-      >
-        {label}
-      </span>
-    </a>
+      />
+    </span>
+  );
+  const classes = `rounded-lg py-1.5 pl-1.5 pr-5 text-sm 2xl:text-base ${
+    uppercase ? 'font-semibold uppercase tracking-wide' : 'font-normal'
+  } ${active ? 'bg-white text-[rgba(30,50,90,0.9)] hover:bg-white/90' : 'text-white hover:bg-white/10'}`;
+
+  return (
+    <ClickConfirmButton
+      icon={chip}
+      label={label}
+      doneIcon={() => chip(false)}
+      doneLabel={label}
+      onConfirm={() => {
+        window.location.href = href;
+      }}
+      className={classes}
+      doneClassName={classes}
+    />
   );
 }
 
@@ -270,13 +274,9 @@ function StoreIcon({ className }: { className?: string }) {
    renderiza en el flujo normal, después de la descripción. */
 function BottomRightCorner() {
   return (
-    <ScrollReveal
-      direction="right"
-      delayMs={380}
-      className="absolute bottom-10 right-10 hidden h-28 w-80 flex-col justify-center rounded-[1.25rem] border border-white/25 bg-white/10 p-3 backdrop-blur-md lg:flex"
-    >
+    <div className="absolute bottom-10 right-10 hidden h-28 w-80 flex-col 2xl:bottom-14 2xl:right-14 2xl:h-32 2xl:w-[26rem] 2xl:p-4 justify-center rounded-[1.25rem] border border-white/25 bg-white/10 p-3 backdrop-blur-md lg:flex">
       <AskAiCard />
-    </ScrollReveal>
+    </div>
   );
 }
 
@@ -371,9 +371,9 @@ function AskAiCard() {
 
   return (
     <div className="w-full">
-      <span className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-white/70">
+      <span className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-white/70 sm:text-sm 2xl:mb-2 2xl:text-base">
         Pregunta a nuestra Inteligencia artificial
-        <SparkleIcon className="h-3.5 w-3.5" />
+        <SparkleIcon className="h-3.5 w-3.5 2xl:h-4 2xl:w-4" />
       </span>
       <form onSubmit={handleSubmit} className="flex w-full min-w-0 items-center gap-2">
         {/* Fondo oscuro/vidrio en reposo; al enfocar pasa a blanco suave
@@ -384,7 +384,7 @@ function AskAiCard() {
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder={animatedPlaceholder}
-          className="min-w-0 flex-1 rounded-lg bg-black/25 px-3.5 py-2.5 text-xs text-white outline-none transition-colors placeholder:text-white/60 focus:bg-white/95 focus:text-ink focus:placeholder:text-ink/40 md:text-sm"
+          className="min-w-0 flex-1 rounded-lg bg-black/25 px-3.5 py-2.5 text-xs text-white outline-none transition-colors placeholder:text-white/60 focus:bg-white/95 focus:text-ink focus:placeholder:text-ink/40 md:text-sm 2xl:py-3 2xl:text-base"
         />
         <button
           type="submit"

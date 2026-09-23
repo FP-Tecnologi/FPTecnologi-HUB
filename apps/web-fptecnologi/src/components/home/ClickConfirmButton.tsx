@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 
 type Phase = 'idle' | 'sweeping' | 'done';
 
-const SWEEP_MS = 900;
+const SWEEP_MS = 600;
 const DONE_MS = 1400;
 
 /**
@@ -46,22 +46,26 @@ export function ClickConfirmButton({
   const btnRef = useRef<HTMLButtonElement>(null);
   const iconRef = useRef<HTMLSpanElement>(null);
 
-  useEffect(() => {
-    if (!btnRef.current || !iconRef.current) return;
+  // Medido al hacer click (no al montar): así el ancho sigue al tamaño de
+  // fuente responsive y el texto no queda cortado al cambiar de pantalla.
+  // Solo se fija durante el sweep/done para que el botón no salte de tamaño.
+  function handleClick() {
+    if (phase !== 'idle' || !btnRef.current || !iconRef.current) return;
     const btnRect = btnRef.current.getBoundingClientRect();
     const iconRect = iconRef.current.getBoundingClientRect();
-    const cs = getComputedStyle(btnRef.current);
-    const paddingRight = parseFloat(cs.paddingRight) || 0;
+    const paddingRight = parseFloat(getComputedStyle(btnRef.current).paddingRight) || 0;
     setWidth(btnRect.width);
     setIconTravel(btnRect.width - paddingRight - iconRect.width - (iconRect.left - btnRect.left));
-  }, []);
-
-  function handleClick() {
-    if (phase !== 'idle') return;
-    onConfirm?.();
     setPhase('sweeping');
-    window.setTimeout(() => setPhase('done'), SWEEP_MS);
-    window.setTimeout(() => setPhase('idle'), SWEEP_MS + DONE_MS);
+    // onConfirm al terminar el sweep -- si no, abrir/navegar tapa el efecto.
+    window.setTimeout(() => {
+      setPhase('done');
+      onConfirm?.();
+    }, SWEEP_MS);
+    window.setTimeout(() => {
+      setPhase('idle');
+      setWidth(undefined);
+    }, SWEEP_MS + DONE_MS);
   }
 
   const sweeping = phase === 'sweeping';
@@ -78,7 +82,7 @@ export function ClickConfirmButton({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={width ? { width } : undefined}
-      className={`relative flex w-fit items-center overflow-hidden transition-colors duration-300 ${done ? doneClassName : className}`}
+      className={`relative flex items-center overflow-hidden transition-colors duration-300 ${done ? doneClassName : className}`}
     >
       {done ? (
         <span className="flex items-center gap-2">

@@ -96,8 +96,13 @@ export function DesktopNav({ tone = 'light', dropdownVariant = 'default' }: { to
               // las dos cosas a la vez era redundante. En darkAccent el
               // hover no cambia de color (no gustó el celeste) -- solo el
               // subrayado + un aumento leve de tamaño de letra.
-              className={`flex items-center gap-1 px-3 py-2 text-sm font-medium transition-[font-size] duration-200 ${hasChildren ? '' : 'nav-underline'} ${TRIGGER_TONE[tone]} ${
-                tone === 'darkAccent' ? 'text-xs uppercase tracking-wide hover:text-[13px]' : ''
+              // Tamaño por vista: tablet horizontal (lg), laptop (xl, 15px =
+              // mismo que Cotizar) y pantalla grande (2xl). Debajo de lg este
+              // nav no se muestra (va MobileNav).
+              className={`flex items-center gap-1 px-3 py-2 font-medium transition-[font-size] duration-200 2xl:px-4 ${hasChildren ? '' : 'nav-underline'} ${TRIGGER_TONE[tone]} ${
+                tone === 'darkAccent'
+                  ? 'text-[13px] uppercase tracking-wide hover:text-sm xl:text-[15px] xl:hover:text-base 2xl:text-base 2xl:hover:text-[17px]'
+                  : 'text-sm 2xl:text-base'
               }`}
             >
               {link.label}
@@ -106,12 +111,12 @@ export function DesktopNav({ tone = 'light', dropdownVariant = 'default' }: { to
 
             {hasChildren && (
               <div
-                className={`invisible absolute left-0 top-full z-50 w-64 p-2 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100 ${DROPDOWN_PANEL[dropdownVariant]}`}
+                className={`invisible absolute left-0 top-full z-50 w-64 p-2 2xl:w-72 opacity-0 transition-all duration-150 group-hover:visible group-hover:opacity-100 ${DROPDOWN_PANEL[dropdownVariant]}`}
               >
                 <ul>
                   {link.children.map((child) => (
                     <li key={child.href}>
-                      <a href={child.href} className={`block rounded-lg px-3 py-2 text-sm transition-colors ${DROPDOWN_ITEM[dropdownVariant]}`}>
+                      <a href={child.href} className={`block rounded-lg px-3 py-2 text-sm transition-colors 2xl:text-base ${DROPDOWN_ITEM[dropdownVariant]}`}>
                         {child.label}
                       </a>
                     </li>
@@ -120,7 +125,7 @@ export function DesktopNav({ tone = 'light', dropdownVariant = 'default' }: { to
                 {'viewAllHref' in link && (
                   <a
                     href={link.viewAllHref}
-                    className={`mt-1 block rounded-lg px-3 py-2.5 text-sm font-semibold ${DROPDOWN_VIEWALL[dropdownVariant]}`}
+                    className={`mt-1 block rounded-lg px-3 py-2.5 text-sm font-semibold 2xl:text-base ${DROPDOWN_VIEWALL[dropdownVariant]}`}
                   >
                     {link.viewAllLabel} →
                   </a>
@@ -143,7 +148,7 @@ export function MobileNav({ tone = 'light', onNavigate }: { tone?: Tone; onNavig
 
         if (!hasChildren) {
           return (
-            <a key={link.href} href={link.href} onClick={onNavigate} className={`block rounded-lg px-3 py-2.5 text-sm font-medium ${MOBILE_TOP_TONE[tone]}`}>
+            <a key={link.href} href={link.href} onClick={onNavigate} className={`block rounded-lg px-3 py-2.5 text-sm font-medium md:text-base ${MOBILE_TOP_TONE[tone]}`}>
               {link.label}
             </a>
           );
@@ -151,7 +156,7 @@ export function MobileNav({ tone = 'light', onNavigate }: { tone?: Tone; onNavig
 
         return (
           <details key={link.href} className="group">
-            <summary className={`flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium ${MOBILE_TOP_TONE[tone]}`}>
+            <summary className={`flex cursor-pointer list-none items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium md:text-base ${MOBILE_TOP_TONE[tone]}`}>
               <a href={link.href} onClick={onNavigate}>
                 {link.label}
               </a>
@@ -161,12 +166,12 @@ export function MobileNav({ tone = 'light', onNavigate }: { tone?: Tone; onNavig
             </summary>
             <div className={`ml-3 flex flex-col gap-0.5 border-l pl-3 ${MOBILE_CHILD_BORDER_TONE[tone]}`}>
               {link.children.map((child) => (
-                <a key={child.href} href={child.href} onClick={onNavigate} className={`rounded-lg px-3 py-2 text-sm ${MOBILE_CHILD_LINK_TONE[tone]}`}>
+                <a key={child.href} href={child.href} onClick={onNavigate} className={`rounded-lg px-3 py-2 text-sm md:text-base ${MOBILE_CHILD_LINK_TONE[tone]}`}>
                   {child.label}
                 </a>
               ))}
               {'viewAllHref' in link && (
-                <a href={link.viewAllHref} onClick={onNavigate} className={`rounded-lg px-3 py-2 text-sm font-semibold ${tone === 'dark' ? 'text-brand-teal-light' : 'text-brand-primary'}`}>
+                <a href={link.viewAllHref} onClick={onNavigate} className={`rounded-lg px-3 py-2 text-sm font-semibold md:text-base ${tone === 'dark' ? 'text-brand-teal-light' : 'text-brand-primary'}`}>
                   {link.viewAllLabel} →
                 </a>
               )}

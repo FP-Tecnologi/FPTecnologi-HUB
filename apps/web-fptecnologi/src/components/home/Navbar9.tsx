@@ -20,11 +20,13 @@ import { ClickConfirmButton } from './ClickConfirmButton';
  * dropdownVariant="glass" para que combine con el resto de tarjetas de
  * vidrio blanco del hero en vez del panel blanco sólido del header.
  */
+const COTIZAR_SIZE = 'h-10 pl-2 pr-4 text-xs md:text-sm lg:h-auto lg:py-1.5 lg:pl-1.5 lg:pr-4 xl:text-[15px] 2xl:py-2 2xl:pl-2 2xl:pr-5 2xl:text-base';
+
 export function Navbar9({ compact = false }: { compact?: boolean }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <nav className={`relative z-10 w-full ${compact ? 'px-4 py-2.5 md:px-5' : 'px-6 py-6 md:px-10'}`}>
+    <nav className={`relative z-10 w-full transition-[padding] duration-500 ease-in-out ${compact ? 'px-4 py-2.5 md:px-5' : 'px-6 py-6 md:px-10 2xl:px-14 2xl:py-8'}`}>
       <div className="flex w-full items-center justify-between">
         <a href="/" aria-label="FPTecnologi & System" className="flex flex-1 items-center">
           <Image
@@ -32,7 +34,7 @@ export function Navbar9({ compact = false }: { compact?: boolean }) {
             alt="FPTecnologi & System"
             width={168}
             height={40}
-            className={`w-auto brightness-0 invert ${compact ? 'h-6' : 'h-8 md:h-10'}`}
+            className={`w-auto brightness-0 invert transition-[height] duration-500 ease-in-out ${compact ? 'h-6 2xl:h-7' : 'h-8 md:h-10 2xl:h-[60px]'}`}
           />
         </a>
 
@@ -48,7 +50,7 @@ export function Navbar9({ compact = false }: { compact?: boolean }) {
           {/* Efecto sweep al click (mismo patrón que "Agregar al carrito",
               ver ClickConfirmButton): el ícono viaja de izquierda a derecha
               mientras el texto se borra en su camino (900ms), recién ahí
-              abre el cotizador en una pestaña nueva. El fondo/chip del
+              navega al cotizador interno (/cotizador). El fondo/chip del
               ícono no gira -- solo el glyph de adentro (90°), en hover y
               apenas arranca el sweep. Misma altura que el botón de
               hamburguesa (h-10) para que queden alineados. */}
@@ -65,12 +67,17 @@ export function Navbar9({ compact = false }: { compact?: boolean }) {
               </span>
             )}
             doneLabel="Cotizar"
-            onConfirm={() => window.open(COTIZADOR_URL, '_blank', 'noopener,noreferrer')}
+            onConfirm={() => {
+              window.location.href = COTIZADOR_URL;
+            }}
+            // Sin alto/ancho fijo en desktop: el botón se ajusta al texto
+            // (padding parejo). h-10 solo debajo de lg, para alinear con la
+            // hamburguesa.
             className={`hidden items-center rounded-xl bg-brand-dark/85 font-normal uppercase tracking-wide text-white transition-colors duration-200 hover:bg-brand-dark sm:flex ${
-              compact ? 'h-9 pl-1.5 pr-3 text-[11px]' : 'h-10 pl-2 pr-4 text-xs md:pr-6 md:text-sm'
+              compact ? 'h-9 pl-1.5 pr-3 text-[11px] 2xl:text-xs' : COTIZAR_SIZE
             }`}
             doneClassName={`hidden items-center rounded-xl bg-brand-dark font-normal uppercase tracking-wide text-white sm:flex ${
-              compact ? 'h-9 pl-1.5 pr-3 text-[11px]' : 'h-10 pl-2 pr-4 text-xs md:pr-6 md:text-sm'
+              compact ? 'h-9 pl-1.5 pr-3 text-[11px] 2xl:text-xs' : COTIZAR_SIZE
             }`}
           />
 

@@ -10,20 +10,20 @@ import { Navbar9 } from './Navbar9';
 const SCROLL_THRESHOLD = 140;
 
 /*
- * Barra de navegación fija que aparece al hacer scroll -- a diferencia del
- * <Navbar9/> de adentro del Hero (que vive en el flujo normal y se va con
- * el video al scrollear), esta es un componente aparte, siempre montado en
- * position:fixed.
+ * El encabezado del Hero ES este componente: siempre montado en
+ * position:fixed y siempre visible. Arriba del todo se ubica exactamente
+ * donde va el nav dentro de la tarjeta del Hero (mismo padding p-3/md:p-5
+ * que el wrapper del Hero, fondo transparente, tamaño normal) -- el Hero
+ * solo reserva ese alto con un Navbar9 invisible. Al pasar
+ * SCROLL_THRESHOLD, el mismo `<div>` se comprime: los bordes laterales
+ * (left/right) se animan hacia el centro, gana fondo oscuro + esquinas
+ * redondeadas y el Navbar9 pasa a `compact` (logo y padding más chicos,
+ * también con transición). Así se ve como el mismo encabezado
+ * achicándose, no uno nuevo apareciendo de la nada.
  *
- * En vez de solo un fade/slide, el mismo `<div>` transiciona TODAS las
- * propiedades de golpe entre dos estados (por eso transition-all): arriba
- * del todo empieza pegado a los 3 bordes (inset-x-0 top-0, sin esquinas
- * redondeadas, invisible) -- exactamente encima del Navbar9 real del Hero,
- * así que no se nota que está ahí -- y al pasar SCROLL_THRESHOLD pasa a
- * inset-x-4/8 + top-4 + rounded-2xl + opacity-100. Como `left`/`right`/`top`
- * son animables, el resultado es que se ve como si el propio encabezado se
- * fuera angostando/encogiendo hacia el centro (no un fade suelto ya
- * angosto), y al volver arriba se ensancha de vuelta a su lugar original.
+ * Ancho comprimido: 64rem (72rem en 2xl) centrado, con un mínimo de
+ * margen lateral -- expresado como left/right (max(...)) en vez de
+ * max-width para que la transición sea continua desde el ancho completo.
  */
 export function StickyNav() {
   const [scrolled, setScrolled] = useState(false);
@@ -41,17 +41,20 @@ export function StickyNav() {
     <div
       className={`fixed z-50 transition-all duration-500 ease-in-out ${
         scrolled
-          ? 'inset-x-6 top-4 opacity-100 md:inset-x-16 lg:inset-x-24'
-          : 'inset-x-0 top-0 opacity-0 pointer-events-none'
+          ? 'inset-x-6 top-4 md:inset-x-16 lg:inset-x-[max(6rem,calc((100%_-_64rem)/2))] 2xl:inset-x-[max(6rem,calc((100%_-_72rem)/2))]'
+          : // 1px menos que el p-3/md:p-5 del Hero: compensa el borde (1px)
+            // del div de adentro, así calza exacto con el hueco del nav.
+            'inset-x-[11px] top-[11px] md:inset-x-[19px] md:top-[19px]'
       }`}
-      aria-hidden={!scrolled}
     >
       <div
-        className={`mx-auto max-w-5xl border-white/10 bg-ink/80 shadow-black/30 backdrop-blur-xl transition-[border-radius,box-shadow] duration-500 ease-in-out ${
-          scrolled ? 'rounded-2xl border shadow-xl' : 'rounded-none border-0 shadow-none'
+        className={`border transition-all duration-500 ease-in-out ${
+          scrolled
+            ? 'rounded-2xl border-white/10 bg-ink/80 shadow-xl shadow-black/30 backdrop-blur-xl'
+            : 'rounded-[1.25rem] border-transparent bg-transparent shadow-none md:rounded-[2.25rem]'
         }`}
       >
-        <Navbar9 compact />
+        <Navbar9 compact={scrolled} />
       </div>
     </div>
   );

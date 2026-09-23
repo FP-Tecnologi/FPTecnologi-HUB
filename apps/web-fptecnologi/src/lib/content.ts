@@ -205,7 +205,9 @@ export const WHATSAPP_AREAS = [
  * ir a "Contacto" (ya existe como sección/página propia): va acá, que es
  * donde de verdad se genera una cotización.
  */
-export const COTIZADOR_URL = 'https://fptecnologi.com/landing-cotiza-tu-tiempo/';
+// Página interna (app/cotizador) -- antes apuntaba al cotizador externo
+// de fptecnologi.com/landing-cotiza-tu-tiempo/.
+export const COTIZADOR_URL = '/cotizador';
 
 /*
  * Dos líneas de negocio reales (ver AGENTS.md): ecommerce B2B con stock y
@@ -246,8 +248,9 @@ export const STATS = [
 // Reducido a 2 (antes 4), cada uno una frase un poco más larga en vez de
 // 2 palabras sueltas.
 export const COMPANY_VALUES = [
-  { title: 'Distribución autorizada de marcas líderes' },
-  { title: 'Stock local listo para despachar' },
+  // Uno por línea de negocio: servicios TI y tienda (e-commerce B2B).
+  { title: 'Servicios TI a medida: diseño, instalación y soporte técnico local' },
+  { title: 'Tienda online B2B con stock local y despacho inmediato' },
 ] as const;
 
 /* Productos reales del catálogo (nombre, SKU, precio, marca) — monitores

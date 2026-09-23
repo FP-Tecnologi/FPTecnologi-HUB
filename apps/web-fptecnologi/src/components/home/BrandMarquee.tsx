@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { PARTNER_BRANDS } from '@/lib/content';
+import { ScrollReveal } from './ScrollReveal';
 
 export function BrandMarquee({ showLabel = true }: { showLabel?: boolean }) {
   // 3 copias (antes 2) -- con solo 13 marcas, duplicar una vez hace que la
@@ -33,6 +34,8 @@ export function BrandMarquee({ showLabel = true }: { showLabel?: boolean }) {
           corto y la sombra se veía cortada abajo con un borde duro). Abajo
           (pb-6) se quedó como estaba porque ya entraba bien la sombra;
           arriba (pt-3) un poco menos, se sentía con de más aire de sobra. */}
+      {/* Entrada/salida con el scroll (fade + subida), igual que Nosotros. */}
+      <ScrollReveal direction="up">
       <div className="relative overflow-hidden pb-6 pt-3">
         {/* Degradé de borde más ancho (w-24 -> w-36) -- con logos que ahora
             crecen al hover, un degradé angosto hacía que se sintieran
@@ -97,6 +100,7 @@ export function BrandMarquee({ showLabel = true }: { showLabel?: boolean }) {
           ))}
         </div>
       </div>
+      </ScrollReveal>
     </section>
   );
 }
