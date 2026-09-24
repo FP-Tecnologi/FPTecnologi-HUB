@@ -12,13 +12,16 @@ import { useEffect, useState } from 'react';
 export function ProductGalleryModal({
   name,
   images,
+  initial = 0,
   onClose,
 }: {
   name: string;
   images: string[];
+  /** Foto con la que abre (la que estaba activa en la tarjeta). */
+  initial?: number;
   onClose: () => void;
 }) {
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(initial);
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {

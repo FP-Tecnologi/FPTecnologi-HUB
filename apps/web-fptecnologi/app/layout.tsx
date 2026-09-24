@@ -4,6 +4,8 @@ import { CartProvider } from '@/context/CartContext';
 import { CurrencyProvider } from '@/context/CurrencyContext';
 import { ChatWidgetProvider } from '@/context/ChatWidgetContext';
 import { ChatWidget } from '@/components/site/ChatWidget';
+import { FavoritesProvider } from '@/context/FavoritesContext';
+import { FavoritesWidget } from '@/components/site/FavoritesWidget';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -36,10 +38,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <CurrencyProvider>
           <CartProvider>
-            <ChatWidgetProvider>
-              {children}
-              <ChatWidget />
-            </ChatWidgetProvider>
+            <FavoritesProvider>
+              <ChatWidgetProvider>
+                {children}
+                <ChatWidget />
+                <FavoritesWidget />
+              </ChatWidgetProvider>
+            </FavoritesProvider>
           </CartProvider>
         </CurrencyProvider>
       </body>

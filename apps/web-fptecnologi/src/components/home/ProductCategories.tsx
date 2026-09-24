@@ -1,46 +1,94 @@
 import Image from 'next/image';
+import { ArrowUpRight, Laptop, Monitor, Presentation, Server, type LucideIcon } from 'lucide-react';
 import { TIENDA_CATEGORIES } from '@/lib/content';
+import { MoreInfoButton } from './MoreInfoButton';
+import { ScrollReveal } from './ScrollReveal';
+import { SectionBadge } from './SectionBadge';
 
-/* "Categorías de productos" de la estructura final -- las 4 categorías
-   reales de la Tienda (TIENDA_CATEGORIES), estilo modelo 1. */
+// Fotos propias de esta sección (Unsplash, licencia libre): no se tocan las
+// de TIENDA_CATEGORIES porque las usan otros modelos.
+const IMAGES: Record<string, string> = {
+  monitores: '/images/categorias/monitores.jpg', // unsplash.com/photos/KZnfwqi-B0U
+  laptops: '/images/categorias/laptops.jpg', // unsplash.com/photos/1SAnrIxw5OY
+  'pantallas-interactivas': '/images/categorias/pantallas-interactivas.jpg', // unsplash.com/photos/L__MBAI3ucc
+  servidores: '/images/categorias/servidores.jpg', // unsplash.com/photos/dyUp7WPu5q4
+};
+
+const ICONS: Record<string, LucideIcon> = {
+  monitores: Monitor,
+  laptops: Laptop,
+  'pantallas-interactivas': Presentation,
+  servidores: Server,
+};
+
+/*
+ * "Categorías del catálogo" -- las 4 categorías reales de la Tienda
+ * (TIENDA_CATEGORIES). Encabezado con el mismo lenguaje que Servicios
+ * (SectionBadge + título con brillo + descripción + botón sweep).
+ *
+ * Tarjeta distinta a la de Servicios a propósito (acá es tienda, no
+ * servicio): tarjeta blanca tipo producto, foto arriba con fondo claro,
+ * ícono de la categoría y pie con título + flecha. Hover: sube, sombra azul
+ * de marca, contorno que gira (.spin-border), zoom de la foto y la flecha
+ * pasa a azul principal girando.
+ */
 export function ProductCategories() {
   return (
-    <section className="mx-auto max-w-7xl px-6 py-20">
-      <div className="mb-12 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <span className="text-sm font-semibold uppercase tracking-wide text-brand-primary">Tienda</span>
-          <h2 className="mt-2 font-display text-3xl font-bold text-ink sm:text-4xl">Categorías del catálogo</h2>
-        </div>
-        <a href="/tienda" className="btn-sweep rounded-full border border-black/10 px-6 py-3 text-sm font-semibold text-ink before:bg-brand-primary hover:text-white">
-          Ver tienda completa
-        </a>
+    <section id="categorias" className="mx-auto max-w-7xl px-6 py-20">
+      <div className="mb-12 flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-end">
+        <ScrollReveal direction="left">
+          <SectionBadge>Nuestra tienda</SectionBadge>
+          <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
+            <span className="text-ink">Categorías del</span>{' '}
+            <span className="title-shimmer-light">catálogo</span>
+          </h2>
+        </ScrollReveal>
+        <ScrollReveal direction="right" delayMs={120} className="flex max-w-lg flex-col items-end gap-5">
+          <p className="text-justify text-ink/60 hyphens-auto">
+            Monitores, laptops, pantallas interactivas y servidores de las principales marcas, con stock local
+            listo para despachar.
+          </p>
+          <MoreInfoButton href="/tienda" label="Ver Tienda TI" />
+        </ScrollReveal>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {TIENDA_CATEGORIES.map((c) => (
-          <a
-            key={c.slug}
-            href={`/tienda/${c.slug}`}
-            className="group relative block aspect-4/5 overflow-hidden rounded-2xl border border-black/5 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-brand-dark/25"
-          >
-            <Image
-              src={c.image}
-              alt={c.title}
-              fill
-              sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-              className={`${c.imageFit === 'contain' ? 'object-contain bg-white p-6' : 'object-cover'} transition-transform duration-500 group-hover:scale-110`}
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/40 to-transparent" />
-            <div className="absolute inset-x-0 bottom-0 flex items-center justify-between p-5">
-              <h3 className="text-lg font-semibold text-white">{c.title}</h3>
-              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-brand-dark transition-all duration-300 group-hover:-rotate-45 group-hover:bg-brand-teal-light group-hover:text-white">
-                <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
-                  <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              </span>
-            </div>
-          </a>
-        ))}
+      <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-4">
+        {TIENDA_CATEGORIES.map((c, i) => {
+          const Icon = ICONS[c.slug] ?? Monitor;
+          return (
+            <ScrollReveal key={c.slug} direction="up" delayMs={i * 100}>
+              <a
+                href={`/tienda/${c.slug}`}
+                className="group relative block overflow-hidden rounded-2xl border border-black/5 bg-white shadow-lg shadow-brand-dark/10 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-brand-dark/30"
+              >
+                <span className="spin-border" aria-hidden />
+
+                <div className="relative aspect-4/3 overflow-hidden bg-gradient-to-b from-paper to-white">
+                  <Image
+                    src={IMAGES[c.slug] ?? c.image}
+                    alt={c.title}
+                    fill
+                    sizes="(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <span className="absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-xl border border-white/20 bg-brand-dark text-white shadow-lg shadow-brand-dark/40 transition-colors duration-300 group-hover:bg-brand-primary">
+                    <Icon className="h-5 w-5" strokeWidth={1.8} />
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between gap-3 p-5">
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-brand-primary">Categoría</p>
+                    <h3 className="mt-1 text-lg font-semibold text-ink">{c.title}</h3>
+                  </div>
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-dark/10 text-brand-dark transition-all duration-300 group-hover:rotate-45 group-hover:bg-brand-primary group-hover:text-white">
+                    <ArrowUpRight className="h-5 w-5" strokeWidth={2} />
+                  </span>
+                </div>
+              </a>
+            </ScrollReveal>
+          );
+        })}
       </div>
     </section>
   );

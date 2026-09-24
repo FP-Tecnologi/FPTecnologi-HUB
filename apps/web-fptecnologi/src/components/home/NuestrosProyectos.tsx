@@ -1,18 +1,254 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+import Image from 'next/image';
+import { MapPin, RotateCcw } from 'lucide-react';
+import { PERU_DEPARTMENTS, PERU_VIEWBOX } from '@/lib/peruDepartments';
+import { PROJECTS, type Project } from '@/lib/projects';
+import { MoreInfoButton } from './MoreInfoButton';
+import { ScrollReveal } from './ScrollReveal';
+import { SectionBadge } from './SectionBadge';
+
+const [, , VB_W, VB_H] = PERU_VIEWBOX.split(' ').map(Number);
+
 /*
- * TODO(diseño pendiente): sección "Nuestros proyectos" -- pedida en la
- * estructura de home (ver docs/notas-rediseno-web-publica.md), sin modelo
- * ni contenido definido todavía. No se inventan proyectos "de ejemplo": se
- * deja el placeholder hasta tener casos reales + el estilo elegido.
+ * Tarjeta de proyecto que se da vuelta: al hover aparece "Más información"
+ * (mismo botón sweep que Servicios); al click gira 180° en 3D y atrás muestra
+ * cliente, año, descripción y alcance, con "Volver" para girarla de nuevo.
+ */
+function ProjectCard({
+  project: p,
+  index,
+  flipped,
+  onFlip,
+}: {
+  project: Project;
+  index: number;
+  flipped: boolean;
+  onFlip: (v: boolean) => void;
+}) {
+  const face = 'absolute inset-0 overflow-hidden rounded-xl [backface-visibility:hidden]';
+  return (
+    <div className="group relative aspect-[16/10] shrink-0 [perspective:1200px] sm:aspect-[16/8]">
+      <div
+        className={`relative h-full w-full transition-transform duration-700 ease-in-out [transform-style:preserve-3d] ${
+          flipped ? '[transform:rotateY(180deg)]' : ''
+        }`}
+      >
+        {/* Frente */}
+        <div className={face} aria-hidden={flipped}>
+          <Image src={p.image} alt={p.title} fill sizes="(min-width: 1024px) 40vw, 100vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
+          <span className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg bg-brand-primary text-sm font-bold text-white shadow-lg shadow-brand-dark/40">
+            {index}
+          </span>
+          <div className="absolute inset-x-4 bottom-3">
+            <p className="text-sm font-bold uppercase leading-snug text-white">{p.title}</p>
+            {/* "Más información" solo al hover (siempre visible en táctil). */}
+            <div className="mt-3 transition-all duration-300 ease-out [@media(hover:hover)]:pointer-events-none [@media(hover:hover)]:mt-0 [@media(hover:hover)]:max-h-0 [@media(hover:hover)]:translate-y-2 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:pointer-events-auto [@media(hover:hover)]:group-hover:mt-3 [@media(hover:hover)]:group-hover:max-h-16 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:opacity-100">
+              {!flipped && <MoreInfoButton label="Más información" onClick={() => onFlip(true)} />}
+            </div>
+          </div>
+        </div>
+
+        {/* Reverso */}
+        <div className={`${face} flex flex-col bg-gradient-to-br from-brand-dark to-ink p-5 text-white [transform:rotateY(180deg)]`} aria-hidden={!flipped}>
+          <div className="flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-teal-light">
+              {p.client} · {p.year}
+            </p>
+            <h4 className="mt-1 text-sm font-bold uppercase leading-snug">{p.title}</h4>
+            <p className="mt-2 text-sm leading-relaxed text-white/75">{p.description}</p>
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {p.scope.map((s) => (
+                <span key={s} className="rounded-md border border-white/20 bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white">
+                  {s}
+                </span>
+              ))}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => onFlip(false)}
+            tabIndex={flipped ? 0 : -1}
+            className="mt-3 inline-flex w-fit items-center gap-1.5 rounded-lg bg-white/15 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-white/25"
+          >
+            <RotateCcw className="h-3.5 w-3.5" strokeWidth={2.2} />
+            Volver
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/*
+ * "Nuestros proyectos" -- mapa interactivo del Perú (referencia:
+ * tactical-it.pe). A la derecha el mapa por departamentos: los que tienen
+ * proyectos van coloreados y con un punto; al pasar el cursor sale un
+ * tooltip con el nombre y la cantidad, y al hacer click se selecciona. A la
+ * izquierda, el contenedor lista los proyectos del departamento elegido.
+ * Datos de ejemplo en lib/projects.ts (reemplazar por los reales).
  */
 export function NuestrosProyectos() {
+  const counts = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const p of PROJECTS) m.set(p.department, (m.get(p.department) ?? 0) + 1);
+    return m;
+  }, []);
+  const withProjects = PERU_DEPARTMENTS.filter((d) => counts.has(d.id));
+
+  const [selected, setSelected] = useState(withProjects.find((d) => d.id === 'lima')?.id ?? withProjects[0]?.id);
+  const [hovered, setHovered] = useState<string | null>(null);
+  // Tarjeta de proyecto dada vuelta (una a la vez).
+  const [flipped, setFlipped] = useState<string | null>(null);
+  const selectDepartment = (id: string) => {
+    setSelected(id);
+    setFlipped(null);
+  };
+
+  const current = PERU_DEPARTMENTS.find((d) => d.id === selected);
+  const projects = PROJECTS.filter((p) => p.department === selected);
+  const tip = PERU_DEPARTMENTS.find((d) => d.id === (hovered ?? selected));
+  const tipCount = tip ? (counts.get(tip.id) ?? 0) : 0;
+  // La línea sale de costado hacia el lado con más espacio (el tooltip mide
+  // ~170 unidades: con el mapa de 500 de ancho, siempre entra de un lado).
+  // El tooltip se engancha por su borde lateral al final de la línea.
+  const toRight = tip ? tip.cx < VB_W / 2 : true;
+  const anchor = tip ? { x: tip.cx + (toRight ? 60 : -60), y: Math.max(40, tip.cy - 18) } : { x: 0, y: 0 };
+
   return (
     <section id="proyectos" className="mx-auto max-w-7xl px-6 py-20">
-      <div className="mb-8">
-        <span className="text-sm font-semibold uppercase tracking-wide text-brand-primary">Nuestro trabajo</span>
-        <h2 className="mt-2 font-display text-3xl font-bold text-ink sm:text-4xl">Nuestros proyectos</h2>
+      <ScrollReveal direction="up" className="mx-auto mb-12 flex max-w-2xl flex-col items-center text-center">
+        <SectionBadge>Nuestro trabajo</SectionBadge>
+        <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
+          <span className="text-ink">Nuestros</span> <span className="title-shimmer-light">proyectos</span>
+        </h2>
+        <p className="mt-3 text-ink/60">Selecciona una región en el mapa para ver los proyectos.</p>
+      </ScrollReveal>
+
+      <div className="grid items-start gap-10 lg:grid-cols-2">
+        {/* Contenedor de proyectos del departamento seleccionado. */}
+        <div className="order-2 lg:order-1">
+        <ScrollReveal direction="left">
+          <div className="overflow-hidden rounded-2xl bg-brand-dark shadow-2xl shadow-brand-dark/30">
+            <p className="border-b border-white/10 px-6 py-4 text-center text-sm font-bold uppercase tracking-wide text-white">
+              {projects.length} {projects.length === 1 ? 'proyecto ejecutado' : 'proyectos ejecutados'} en {current?.name}
+            </p>
+            {/* Scroll sin barra visible (sigue funcionando con rueda/touch). */}
+            <div className="flex max-h-[34rem] flex-col gap-4 overflow-y-auto p-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {projects.map((p, i) => (
+                <ProjectCard
+                  key={p.title}
+                  project={p}
+                  index={i + 1}
+                  flipped={flipped === p.title}
+                  onFlip={(v) => setFlipped(v ? p.title : null)}
+                />
+              ))}
+            </div>
+          </div>
+        </ScrollReveal>
+        </div>
+
+        {/* Mapa. */}
+        <div className="order-1 lg:order-2">
+        <ScrollReveal direction="right" delayMs={120}>
+          <div className="relative mx-auto max-w-md">
+            <svg viewBox={PERU_VIEWBOX} className="h-auto w-full" role="img" aria-label="Mapa del Perú por departamentos">
+              {PERU_DEPARTMENTS.map((d) => {
+                const has = counts.has(d.id);
+                const isSel = d.id === selected;
+                const isHov = d.id === hovered;
+                return (
+                  <path
+                    key={d.id}
+                    d={d.d}
+                    onMouseEnter={() => setHovered(d.id)}
+                    onMouseLeave={() => setHovered(null)}
+                    onClick={() => has && selectDepartment(d.id)}
+                    className={`stroke-white transition-colors duration-200 [stroke-width:1.2] ${
+                      isSel
+                        ? 'fill-brand-primary'
+                        : has
+                          ? `cursor-pointer ${isHov ? 'fill-brand-primary/60' : 'fill-brand-primary/25'}`
+                          : isHov
+                            ? 'fill-brand-dark/15'
+                            : 'fill-brand-dark/8'
+                    }`}
+                  >
+                    <title>{`${d.name}: ${counts.get(d.id) ?? 0} proyectos`}</title>
+                  </path>
+                );
+              })}
+              {/* Punto en cada departamento con proyectos. */}
+              {withProjects.map((d) => (
+                <circle key={d.id} cx={d.cx} cy={d.cy} r={4} className="pointer-events-none fill-brand-dark" />
+              ))}
+
+              {/* Marcador del departamento activo: anillo que late + línea
+                  punteada animada hasta el tooltip + punto de llegada. */}
+              {tip && (
+                <g className="pointer-events-none">
+                  <line x1={tip.cx} y1={tip.cy} x2={anchor.x} y2={anchor.y} className="dash-flow stroke-brand-primary [stroke-width:1.6]" />
+                  <circle cx={anchor.x} cy={anchor.y} r={3} className="fill-brand-primary" />
+                  {/* Ondas: 3 anillos que se expanden desfasados. */}
+                  {[0, 0.6, 1.2].map((delay) => (
+                    <circle
+                      key={delay}
+                      cx={tip.cx}
+                      cy={tip.cy}
+                      r={16}
+                      className="marker-wave fill-none stroke-brand-primary [stroke-width:1.5]"
+                      style={{ animationDelay: `${delay}s` }}
+                    />
+                  ))}
+                  <circle cx={tip.cx} cy={tip.cy} r={8} className="fill-white/90 stroke-brand-primary [stroke-width:1.5]" />
+                  <circle cx={tip.cx} cy={tip.cy} r={4} className="fill-brand-dark" />
+                </g>
+              )}
+            </svg>
+
+            {/* Tooltip: departamento en hover (o el seleccionado). */}
+            {tip && (
+              <div
+                // Borde de acento del lado donde llega la línea.
+                className={`pointer-events-none absolute z-10 whitespace-nowrap rounded-xl border-brand-primary bg-white px-4 py-2.5 shadow-xl shadow-brand-dark/20 transition-all duration-300 ${
+                  toRight ? 'border-l-4' : 'border-r-4'
+                }`}
+                // Pegado de costado al final de la línea.
+                style={{
+                  left: `${(anchor.x / VB_W) * 100}%`,
+                  top: `${(anchor.y / VB_H) * 100}%`,
+                  translate: toRight ? '4px -50%' : 'calc(-100% - 4px) -50%',
+                }}
+              >
+                <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-brand-dark">
+                  <MapPin className="h-3.5 w-3.5" strokeWidth={2.2} />
+                  {tip.name}
+                </p>
+                <p className="mt-0.5 text-sm text-ink/60">
+                  <span className="font-display text-lg font-bold text-brand-primary">{tipCount}</span>{' '}
+                  {tipCount === 1 ? 'proyecto' : 'proyectos'}
+                </p>
+              </div>
+            )}
+
+            <div className="mt-4 flex justify-center gap-6 text-xs text-ink/60">
+              <span className="flex items-center gap-2">
+                <span className="h-3.5 w-3.5 rounded bg-brand-primary/25 ring-1 ring-brand-primary/40" /> Con proyectos
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="h-3.5 w-3.5 rounded bg-brand-dark/8 ring-1 ring-black/10" /> Sin proyectos
+              </span>
+            </div>
+          </div>
+        </ScrollReveal>
+        </div>
       </div>
-      <div className="flex min-h-[220px] items-center justify-center rounded-2xl border border-dashed border-black/15 bg-black/[0.02] text-sm text-ink/40">
-        Sección pendiente de diseño y contenido real -- ver docs/notas-rediseno-web-publica.md
+
+      <div className="mt-12 flex justify-center">
+        <MoreInfoButton href="/contacto" label="Solicitar información" />
       </div>
     </section>
   );

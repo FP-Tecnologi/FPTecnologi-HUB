@@ -1,28 +1,63 @@
+import { BadgeCheck, FileText, Handshake, Warehouse, type LucideIcon } from 'lucide-react';
 import { WHY_CHOOSE_US } from '@/lib/content';
+import { SectionBadge } from './SectionBadge';
+import { ScrollReveal } from './ScrollReveal';
 
+// Un ícono por diferenciador, en el mismo orden que WHY_CHOOSE_US.
+const ICONS: LucideIcon[] = [Warehouse, BadgeCheck, FileText, Handshake];
+
+/*
+ * "Por qué elegirnos" -- sección blanca a lo ancho (distinta del bg-paper
+ * con puntitos de Servicios). Mismo encabezado que Nosotros/Servicios
+ * (badge de vidrio + título con brillo). Tarjetas oscuras con resplandor
+ * de marca, ícono, número grande de fondo y hover: sube, borde celeste,
+ * sombra azul oscuro y el chip del ícono pasa a azul principal.
+ */
 export function WhyChooseUs() {
   return (
-    <section className="mx-auto max-w-7xl px-6 py-20">
-      <div className="mx-auto mb-14 max-w-2xl text-center">
-        <span className="text-sm font-semibold uppercase tracking-wide text-brand-primary">Por qué elegirnos</span>
-        <h2 className="mt-2 font-display text-3xl font-bold text-ink sm:text-4xl">Lo que nos hace distintos</h2>
-      </div>
+    // Fondo blanco (bg-white a lo ancho) -- distinto del bg-paper con
+    // puntitos de Servicios, para separar secciones sin oscurecer la página.
+    <section className="bg-white py-24">
+      <div className="mx-auto max-w-7xl px-6">
+        <ScrollReveal direction="up" className="mx-auto mb-14 flex max-w-2xl flex-col items-center text-center">
+          <SectionBadge>Por qué elegirnos</SectionBadge>
+          {/* Título en una línea (corto): las 2 partes son inline, solo
+              bajan de línea solas si no entran. */}
+          <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
+            <span className="text-ink">Lo que nos hace</span>{' '}
+            <span className="title-shimmer-light">distintos</span>
+          </h2>
+        </ScrollReveal>
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {WHY_CHOOSE_US.map((item, i) => (
-          <div
-            key={item.title}
-            className="group rounded-2xl border border-black/5 bg-white p-7 shadow-sm transition-colors duration-300 hover:bg-brand-primary"
-          >
-            <span className="font-display text-3xl font-bold text-brand-primary/20 transition-colors duration-300 group-hover:text-white/30">
-              0{i + 1}
-            </span>
-            <h3 className="mt-4 text-base font-semibold text-ink transition-colors duration-300 group-hover:text-white">
-              {item.title}
-            </h3>
-            <p className="mt-2 text-sm text-ink/60 transition-colors duration-300 group-hover:text-white/75">{item.text}</p>
-          </div>
-        ))}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+          {WHY_CHOOSE_US.map((item, i) => {
+            const Icon = ICONS[i] ?? BadgeCheck;
+            return (
+              <ScrollReveal key={item.title} direction="up" delayMs={i * 100} className="h-full">
+                {/* La tarjeta conserva el look oscuro (bg-ink + resplandor de
+                    marca) aunque la sección sea blanca. */}
+                <div className="group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-ink p-7 shadow-lg shadow-brand-dark/25 transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-primary/60 hover:shadow-2xl hover:shadow-brand-dark/45">
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-brand-primary/25 blur-3xl transition-opacity duration-300 group-hover:bg-brand-primary/40"
+                  />
+                  {/* Número grande de fondo, decorativo. */}
+                  <span
+                    aria-hidden
+                    className="absolute -right-2 -top-4 font-display text-8xl font-bold text-white/5 transition-colors duration-300 group-hover:text-brand-primary/20"
+                  >
+                    0{i + 1}
+                  </span>
+                  <span className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-brand-dark text-white shadow-lg shadow-brand-dark/40 transition-colors duration-300 group-hover:bg-brand-primary">
+                    <Icon className="h-6 w-6" strokeWidth={1.8} />
+                  </span>
+                  <h3 className="relative mt-5 text-lg font-semibold text-white">{item.title}</h3>
+                  <p className="relative mt-2 text-sm leading-relaxed text-white/65">{item.text}</p>
+                </div>
+              </ScrollReveal>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

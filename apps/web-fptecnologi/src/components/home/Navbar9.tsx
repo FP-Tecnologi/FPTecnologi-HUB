@@ -6,6 +6,8 @@ import { COTIZADOR_URL } from '@/lib/content';
 import { ArrowUpRightIcon } from '@/components/site/icons';
 import { DesktopNav, MobileNav } from './MainNav';
 import { ClickConfirmButton } from './ClickConfirmButton';
+import { CartButton } from './CartButton';
+import { useCart } from '@/context/CartContext';
 
 /**
  * Navbar del Modelo 9 -- misma estructura de 3 zonas del spec de RIVR (logo
@@ -24,6 +26,7 @@ const COTIZAR_SIZE = 'h-10 pl-2 pr-4 text-xs md:text-sm lg:h-auto lg:py-1.5 lg:p
 
 export function Navbar9({ compact = false }: { compact?: boolean }) {
   const [open, setOpen] = useState(false);
+  const { count } = useCart();
 
   return (
     <nav className={`relative z-10 w-full transition-[padding] duration-500 ease-in-out ${compact ? 'px-4 py-2.5 md:px-5' : 'px-6 py-6 md:px-10 2xl:px-14 2xl:py-8'}`}>
@@ -47,6 +50,8 @@ export function Navbar9({ compact = false }: { compact?: boolean }) {
         </div>
 
         <div className="flex flex-1 items-center justify-end gap-2">
+          {/* Carrito solo si hay algo agregado (se abre solo al agregar). */}
+          {count > 0 && <CartButton tone="dark" compact={compact} />}
           {/* Efecto sweep al click (mismo patrón que "Agregar al carrito",
               ver ClickConfirmButton): el ícono viaja de izquierda a derecha
               mientras el texto se borra en su camino (900ms), recién ahí
@@ -73,10 +78,10 @@ export function Navbar9({ compact = false }: { compact?: boolean }) {
             // Sin alto/ancho fijo en desktop: el botón se ajusta al texto
             // (padding parejo). h-10 solo debajo de lg, para alinear con la
             // hamburguesa.
-            className={`hidden items-center rounded-xl bg-brand-dark/85 font-normal uppercase tracking-wide text-white transition-colors duration-200 hover:bg-brand-dark sm:flex ${
+            className={`hidden items-center rounded-xl bg-brand-dark font-normal uppercase tracking-wide text-white transition-colors duration-200 hover:bg-brand-primary sm:flex ${
               compact ? 'h-9 pl-1.5 pr-3 text-[11px] 2xl:text-xs' : COTIZAR_SIZE
             }`}
-            doneClassName={`hidden items-center rounded-xl bg-brand-dark font-normal uppercase tracking-wide text-white sm:flex ${
+            doneClassName={`hidden items-center rounded-xl bg-brand-primary font-normal uppercase tracking-wide text-white sm:flex ${
               compact ? 'h-9 pl-1.5 pr-3 text-[11px] 2xl:text-xs' : COTIZAR_SIZE
             }`}
           />
