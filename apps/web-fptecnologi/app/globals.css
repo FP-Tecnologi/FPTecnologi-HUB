@@ -6,8 +6,8 @@
  * pasada por el cliente, no inventada.
  */
 @theme {
-  --color-brand-primary: #2181af; /* Pantone 7468 C — color principal */
-  --color-brand-dark: #155382; /* Pantone 7692 C — azul oscuro */
+  --color-brand-primary: #155382; /* Azul oscuro (ahora primario base de botones) */
+  --color-brand-dark: #2181af; /* Azul vibrante (ahora estado hover de botones) */
   --color-brand-petrol: #1c6587; /* Pantone 7698 C — azul petróleo */
   --color-brand-teal: #18778b; /* Pantone 7470 C — turquesa petróleo */
   --color-brand-teal-light: #208497; /* Pantone 7474 C — azul turquesa claro */
@@ -23,19 +23,20 @@
 
 /*
  * Botón "glow" — el mismo ADN que .ax-btn--primary del dashboard (Vireo):
- * degradé diagonal + sombra de color, no relleno plano. El usuario pidió
- * traer algo del estilo Vireo al widget de chat y a los CTA principales.
+ * degradé diagonal + sombra de color. Se invierte la dirección del degradé en hover.
  */
 .btn-glow {
-  background: linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-dark) 100%);
-  box-shadow: 0 12px 26px -10px rgba(33, 129, 175, 0.55);
+  background: linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-petrol) 100%);
+  box-shadow: 0 12px 26px -10px rgba(21, 83, 130, 0.55);
   transition:
     filter 0.2s ease,
     box-shadow 0.2s ease,
-    transform 0.2s ease;
+    transform 0.2s ease,
+    background 0.2s ease;
 }
 
 .btn-glow:hover {
+  background: linear-gradient(135deg, var(--color-brand-dark) 0%, var(--color-brand-teal-light) 100%);
   filter: brightness(1.08);
   box-shadow: 0 14px 30px -8px rgba(33, 129, 175, 0.7);
 }

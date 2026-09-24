@@ -28,7 +28,7 @@ export function Hero7() {
             Tecnología <span className="text-brand-teal-light">sin límites</span> para tu empresa
           </h1>
           <p className="mt-6 max-w-md text-base text-white/70 sm:text-lg">
-            Monitores, laptops, servidores y pantallas interactivas con stock local y distribución autorizada.
+            Monitores, laptops, servidores y pantallas con stock local y distribución autorizada.
           </p>
 
           <div className="mt-9 flex flex-wrap items-center gap-5">

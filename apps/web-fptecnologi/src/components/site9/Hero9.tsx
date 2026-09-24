@@ -59,7 +59,7 @@ export function Hero9() {
               className="v9-appear v9-appear--fade max-w-xl text-sm leading-relaxed text-white/85 sm:text-base md:text-lg"
               style={{ animationDelay: '400ms', textShadow: '0 2px 16px rgba(0,0,0,0.4)' }}
             >
-              Monitores, laptops, servidores y pantallas interactivas con stock local — cotización sin compromiso,
+              Monitores, laptops, servidores y pantallas con stock local — cotización sin compromiso,
               distribución autorizada de las principales marcas.
             </p>
           </div>

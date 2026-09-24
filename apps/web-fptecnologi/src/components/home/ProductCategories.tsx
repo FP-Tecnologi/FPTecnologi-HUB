@@ -10,13 +10,15 @@ import { SectionBadge } from './SectionBadge';
 const IMAGES: Record<string, string> = {
   monitores: '/images/categorias/monitores.jpg', // unsplash.com/photos/KZnfwqi-B0U
   laptops: '/images/categorias/laptops.jpg', // unsplash.com/photos/1SAnrIxw5OY
-  'pantallas-interactivas': '/images/categorias/pantallas-interactivas.jpg', // unsplash.com/photos/L__MBAI3ucc
+  pantallas: '/images/categorias/pantallas-interactivas.jpg', // unsplash.com/photos/L__MBAI3ucc
+  'pantallas-interactivas': '/images/categorias/pantallas-interactivas.jpg',
   servidores: '/images/categorias/servidores.jpg', // unsplash.com/photos/dyUp7WPu5q4
 };
 
 const ICONS: Record<string, LucideIcon> = {
   monitores: Monitor,
   laptops: Laptop,
+  pantallas: Presentation,
   'pantallas-interactivas': Presentation,
   servidores: Server,
 };
@@ -45,7 +47,7 @@ export function ProductCategories() {
         </ScrollReveal>
         <ScrollReveal direction="right" delayMs={120} className="flex max-w-lg flex-col items-end gap-5">
           <p className="text-justify text-ink/60 hyphens-auto">
-            Monitores, laptops, pantallas interactivas y servidores de las principales marcas, con stock local
+            Monitores, laptops, pantallas y servidores de las principales marcas, con stock local
             listo para despachar.
           </p>
           <MoreInfoButton href="/tienda" label="Ver Tienda TI" />

@@ -32,7 +32,7 @@ export const PROJECTS: Project[] = [
     client: 'Universidad Nacional de Jaén',
     year: 2023,
     description: 'Laboratorios de cómputo y aulas equipadas con pantallas interactivas y red inalámbrica para todo el campus.',
-    scope: ['Pantallas interactivas', 'Laboratorios', 'Wi-Fi'],
+    scope: ['Pantallas', 'Laboratorios', 'Wi-Fi'],
   },
   {
     title: 'Implementación de data center para entidad financiera',

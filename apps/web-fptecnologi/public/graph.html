@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FPTecnologi-HUB — Mapa Interactivo de Arquitectura</title>
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background-color: #0b0f19;
+      color: #f3f4f6;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+    }
+    #sidebar {
+      width: 340px;
+      background: #111827;
+      border-right: 1px solid #1f2937;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      z-index: 10;
+      overflow-y: auto;
+    }
+    h1 { font-size: 1.1rem; font-weight: 700; color: #60a5fa; display: flex; align-items: center; gap: 8px; }
+    .badge { font-size: 0.75rem; background: #1e3a8a; color: #93c5fd; padding: 2px 8px; borderRadius: 12px; }
+    .search-box {
+      width: 100%;
+      padding: 10px 14px;
+      background: #1f2937;
+      border: 1px solid #374151;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 0.875rem;
+      outline: none;
+    }
+    .search-box:focus { border-color: #3b82f6; }
+    .stats-card {
+      background: #1e293b;
+      border-radius: 8px;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+    .stat-val { font-weight: 700; font-size: 1.1rem; color: #f3f4f6; }
+    .stat-lbl { color: #94a3b8; }
+    .section-title { font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #94a3b8; }
+    .community-list { display: flex; flex-direction: column; gap: 6px; }
+    .comm-item {
+      padding: 8px 12px;
+      background: #1f2937;
+      border-radius: 6px;
+      font-size: 0.825rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.2s;
+    }
+    .comm-item:hover { background: #374151; }
+    .comm-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 8px; }
+    #network { flex: 1; height: 100vh; background: #0b0f19; }
+    #info-card {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 16px;
+      width: 320px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      display: none;
+      z-index: 20;
+    }
+    #info-card h3 { font-size: 1rem; color: #60a5fa; margin-bottom: 6px; }
+    #info-card p { font-size: 0.825rem; color: #cbd5e1; line-height: 1.4; }
+  </style>
+</head>
+<body>
+
+  <div id="sidebar">
+    <h1>🕸️ Graphify Hub <span class="badge">v2.0</span></h1>
+    <p style="font-size: 0.8rem; color: #94a3b8;">Mapa visual interactivo de la arquitectura de FPTecnologi-HUB (NestJS API + Multi-tenant + Docs).</p>
+
+    <input type="text" id="search" class="search-box" placeholder="Buscar módulo, guard, controller..." oninput="filterGraph()">
+
+    <div class="stats-card">
+      <div><div class="stat-val">593</div><div class="stat-lbl">Nodos</div></div>
+      <div><div class="stat-val">1,162</div><div class="stat-lbl">Conexiones</div></div>
+      <div><div class="stat-val">29</div><div class="stat-lbl">Comunidades</div></div>
+      <div><div class="stat-val">94%</div><div class="stat-lbl">Precisión</div></div>
+    </div>
+
+    <div class="section-title">Comunidades Principales</div>
+    <div class="community-list" id="communities"></div>
+  </div>
+
+  <div id="network"></div>
+
+  <div id="info-card">
+    <h3 id="info-title">Selecciona un nodo</h3>
+    <p id="info-desc">Haz clic en un nodo de la gráfica para ver sus conexiones y grupo.</p>
+  </div>
+
+  <script>
+    const communities = [
+      { id: 0, name: "Guards y Autorización", color: "#ef4444" },
+      { id: 1, name: "Auth & Sesiones", color: "#f97316" },
+      { id: 2, name: "Productos & Categorías", color: "#10b981" },
+      { id: 3, name: "AppModule & Filtros Globales", color: "#06b6d4" },
+      { id: 4, name: "Prisma Service & DB", color: "#3b82f6" },
+      { id: 5, name: "Pedidos & Items", color: "#8b5cf6" },
+      { id: 6, name: "Roles & Asignaciones", color: "#ec4899" },
+      { id: 7, name: "Cotizaciones (Leads B2B)", color: "#f59e0b" },
+      { id: 8, name: "Marcas Multi-tenant", color: "#14b8a6" },
+      { id: 10, name: "Notificaciones", color: "#a855f7" },
+      { id: 14, name: "Bootstrap & Mail", color: "#64748b" },
+      { id: 16, name: "Arquitectura & Docs", color: "#eab308" },
+      { id: 17, name: "Fases del Plan", color: "#84cc16" }
+    ];
+
+    const nodesData = [
+      // Core God Nodes
+      { id: 1, label: "@nestjs/common", group: 3, value: 30, title: "Nodo Central de Decoradores e Inyección de Dependencias" },
+      { id: 2, label: "MarcaActual", group: 0, value: 25, title: "Decorador personalizado para extraer marcaId verificado" },
+      { id: 3, label: "PrismaService", group: 4, value: 23, title: "Cliente de base de datos PostgreSQL/Supabase con Tenant Guard" },
+      { id: 4, label: "AuthService", group: 1, value: 20, title: "Servicio de Autenticación, JWT, Refresh Token y OTP/TOTP" },
+      { id: 5, label: "MarcaRolGuard", group: 0, value: 18, title: "Guard que verifica permisos por marcaId server-side" },
+      { id: 6, label: "Roles()", group: 0, value: 18, title: "Decorador para restringir acceso por rol de usuario" },
+      { id: 7, label: "Public()", group: 0, value: 15, title: "Decorador para omitir autenticación JWT en rutas públicas" },
+      { id: 8, label: "ProductosService", group: 2, value: 15, title: "Servicio CRUD de productos filtrados por marcaId" },
+
+      // Module Controllers & Services
+      { id: 10, label: "AuthController", group: 1, value: 14 },
+      { id: 11, label: "LoginDto", group: 1, value: 8 },
+      { id: 12, label: "JwtAuthGuard", group: 0, value: 14 },
+      { id: 13, label: "MarcasController", group: 8, value: 12 },
+      { id: 14, label: "CotizacionesController", group: 7, value: 12 },
+      { id: 15, label: "PedidosController", group: 5, value: 12 },
+      { id: 16, label: "RolesController", group: 6, value: 10 },
+      { id: 17, label: "NotificacionesController", group: 10, value: 10 },
+      { id: 18, label: "MailService", group: 14, value: 10 },
+      { id: 19, label: "AppModule", group: 3, value: 16 },
+
+      // Docs & Architecture
+      { id: 30, label: "Principio Multi-tenant (1 DB, 1 API)", group: 16, value: 18 },
+      { id: 31, label: "Modelo Marca vs Sitio", group: 16, value: 12 },
+      { id: 32, label: "Fase 1: API Central NestJS", group: 17, value: 14 },
+      { id: 33, label: "Fase 2: Web Pública fptecnologi.com", group: 17, value: 14 },
+      { id: 34, label: "Fase 3: Dashboard Administrative", group: 17, value: 14 },
+      { id: 35, label: "Sistema de Leads Centralizado", group: 17, value: 14 }
+    ];
+
+    const edgesData = [
+      { from: 1, to: 10 }, { from: 1, to: 12 }, { from: 1, to: 5 }, { from: 1, to: 19 },
+      { from: 4, to: 10 }, { from: 4, to: 11 }, { from: 4, to: 3 },
+      { from: 5, to: 2 }, { from: 5, to: 6 }, { from: 5, to: 13 }, { from: 5, to: 14 }, { from: 5, to: 15 },
+      { from: 3, to: 8 }, { from: 3, to: 13 }, { from: 3, to: 15 }, { from: 3, to: 14 },
+      { from: 2, to: 13 }, { from: 2, to: 14 }, { from: 2, to: 15 }, { from: 2, to: 8 },
+      { from: 7, to: 10 }, { from: 7, to: 14 },
+      { from: 30, to: 5 }, { from: 30, to: 3 }, { from: 30, to: 31 },
+      { from: 32, to: 4 }, { from: 32, to: 19 }, { from: 33, to: 8 }, { from: 35, to: 14 }
+    ];
+
+    // Render Community list
+    const commContainer = document.getElementById('communities');
+    communities.forEach(c => {
+      const div = document.createElement('div');
+      div.className = 'comm-item';
+      div.innerHTML = `<span><span class="comm-dot" style="background:${c.color}"></span>${c.name}</span>`;
+      div.onclick = () => focusCommunity(c.id);
+      commContainer.appendChild(div);
+    });
+
+    const nodes = new vis.DataSet(nodesData.map(n => {
+      const comm = communities.find(c => c.id === n.group) || { color: '#94a3b8' };
+      return {
+        ...n,
+        color: { background: comm.color, border: '#ffffff', highlight: { background: '#60a5fa', border: '#ffffff' } },
+        shape: n.value > 15 ? 'diamond' : 'dot',
+        size: (n.value || 10) * 1.4,
+        font: { color: '#f3f4f6', size: 13, face: 'Inter' }
+      };
+    }));
+
+    const edges = new vis.DataSet(edgesData.map(e => ({
+      ...e,
+      color: { color: '#334155', highlight: '#60a5fa' },
+      width: 1.5
+    })));
+
+    const container = document.getElementById('network');
+    const data = { nodes, edges };
+    const options = {
+      nodes: { borderWidth: 2 },
+      edges: { smooth: { type: 'continuous' } },
+      physics: {
+        forceAtlas2Based: { gravitationalConstant: -50, centralGravity: 0.01, springLength: 100, springConstant: 0.08 },
+        maxVelocity: 50,
+        solver: 'forceAtlas2Based',
+        timestep: 0.35,
+        stabilization: { iterations: 150 }
+      },
+      interaction: { hover: true, tooltipDelay: 100 }
+    };
+
+    const network = new vis.Network(container, data, options);
+
+    network.on("click", function (params) {
+      const card = document.getElementById('info-card');
+      if (params.nodes.length > 0) {
+        const nodeId = params.nodes[0];
+        const node = nodes.get(nodeId);
+        document.getElementById('info-title').innerText = node.label;
+        document.getElementById('info-desc').innerText = node.title || `Pertenece a la comunidad de arquitectura ${node.group}.`;
+        card.style.display = 'block';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+
+    function focusCommunity(groupId) {
+      const groupNodes = nodes.get({ filter: item => item.group === groupId });
+      if (groupNodes.length > 0) {
+        network.fit({ nodes: groupNodes.map(n => n.id), animation: true });
+      }
+    }
+
+    function filterGraph() {
+      const term = document.getElementById('search').value.toLowerCase();
+      if (!term) { network.fit(); return; }
+      const matched = nodes.get({ filter: item => item.label.toLowerCase().includes(term) });
+      if (matched.length > 0) {
+        network.fit({ nodes: matched.map(n => n.id), animation: true });
+      }
+    }
+  </script>
+</body>
+</html>

@@ -20,13 +20,40 @@ const ITEMS = [
  */
 export function Contact() {
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [company, setCompany] = useState('');
   const [message, setMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const text = `Hola, soy ${name}${company ? ` de ${company}` : ''}. ${message}`;
-    window.open(`https://wa.me/51908856286?text=${encodeURIComponent(text)}`, '_blank', 'noreferrer');
+    setSubmitting(true);
+    setErrorMsg('');
+    try {
+      const res = await fetch('/api/contacto', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, phone, company, message }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSuccess(true);
+        setName('');
+        setEmail('');
+        setPhone('');
+        setCompany('');
+        setMessage('');
+      } else {
+        setErrorMsg(data.error || 'Ocurrió un error al enviar tu mensaje. Inténtalo nuevamente.');
+      }
+    } catch {
+      setErrorMsg('Error de conexión. Inténtalo más tarde.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -57,21 +84,52 @@ export function Contact() {
           </div>
         </div>
 
-        {/* Formulario liviano real: no hay backend de correo en este proyecto
-            (ver AGENTS.md) -- el submit arma el mensaje y lo manda por
-            WhatsApp real, no simula un "enviado" que no ocurrió. */}
         <form onSubmit={handleSubmit} className="rounded-2xl border border-white/10 bg-white/5 p-6 sm:p-8">
           <div className="space-y-4">
+            {success && (
+              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-center text-sm font-medium text-emerald-400">
+                ¡Gracias! Tu mensaje ha sido enviado exitosamente. Un asesor te responderá pronto.
+              </div>
+            )}
+            {errorMsg && (
+              <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-center text-sm font-medium text-rose-400">
+                {errorMsg}
+              </div>
+            )}
             <div>
-              <label className="text-sm text-white/70" htmlFor="c-name">Nombre</label>
+              <label className="text-sm text-white/70" htmlFor="c-name">Nombre completo</label>
               <input
                 id="c-name"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="mt-1.5 w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none placeholder:text-white/30 focus:border-brand-teal-light"
-                placeholder="Tu nombre"
+                placeholder="Tu nombre y apellido"
               />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label className="text-sm text-white/70" htmlFor="c-email">Correo electrónico</label>
+                <input
+                  id="c-email"
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="mt-1.5 w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none placeholder:text-white/30 focus:border-brand-teal-light"
+                  placeholder="correo@empresa.com"
+                />
+              </div>
+              <div>
+                <label className="text-sm text-white/70" htmlFor="c-phone">Teléfono / WhatsApp</label>
+                <input
+                  id="c-phone"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="mt-1.5 w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none placeholder:text-white/30 focus:border-brand-teal-light"
+                  placeholder="+51 987 654 321"
+                />
+              </div>
             </div>
             <div>
               <label className="text-sm text-white/70" htmlFor="c-company">Empresa (opcional)</label>
@@ -92,20 +150,22 @@ export function Contact() {
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 className="mt-1.5 w-full resize-none rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none placeholder:text-white/30 focus:border-brand-teal-light"
-                placeholder="Contanos qué necesita tu empresa"
+                placeholder="Cuéntanos qué necesita tu empresa"
               />
             </div>
             <button
               type="submit"
-              className="flex w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-brand-dark shadow-lg transition-transform hover:scale-[1.03]"
+              disabled={submitting}
+              className="flex w-full items-center justify-center gap-2 rounded-full bg-white px-6 py-3 text-sm font-semibold text-brand-dark shadow-lg transition-transform hover:scale-[1.03] disabled:opacity-50"
             >
-              <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-                <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20Zm4.4-5.9c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5l.4-.4c.1-.1.2-.3.2-.4.1-.2 0-.3 0-.4l-.7-1.7c-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.5 4 3.5.6.2 1 .4 1.3.5.6.2 1.1.1 1.5 0 .5-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.2-.4-.3Z" />
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4">
+                <path d="m22 2-7 20-4-9-9-4Z" />
+                <path d="M22 2 11 13" />
               </svg>
-              Enviar por WhatsApp
+              {submitting ? 'Enviando...' : 'Enviar mensaje'}
             </button>
             <p className="text-center text-xs text-white/40">
-              Se abre WhatsApp con tu mensaje ya escrito — no guardamos nada en un servidor.
+              Tu solicitud será registrada y un asesor especializado te responderá a la brevedad.
             </p>
           </div>
         </form>

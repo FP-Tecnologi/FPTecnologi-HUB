@@ -45,7 +45,7 @@ export function Hero8() {
           className="v8-appear v8-appear--soft mt-4 max-w-[470px] text-[15.5px] leading-relaxed text-[#9a9a9a]"
           style={{ animationDelay: '820ms', animationDuration: '1.1s' }}
         >
-          Monitores, laptops, servidores y pantallas interactivas con distribución autorizada — cotización sin
+          Monitores, laptops, servidores y pantallas con distribución autorizada — cotización sin
           compromiso para tu empresa.
         </p>
 
