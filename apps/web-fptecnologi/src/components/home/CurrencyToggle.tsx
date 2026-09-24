@@ -10,7 +10,7 @@ import { useCurrency } from '@/context/CurrencyContext';
  * bien igual en header claro u oscuro -- la prop `tone` se mantiene por
  * compatibilidad con los headers que ya la pasan, pero no cambia el color.
  */
-export function CurrencyToggle({ tone: _tone = 'light' }: { tone?: 'light' | 'dark' }) {
+export function CurrencyToggle({ tone: _tone = 'light', className = 'h-10' }: { tone?: 'light' | 'dark'; className?: string }) {
   const { currency, toggleCurrency } = useCurrency();
   const isUsd = currency === 'USD';
 
@@ -20,7 +20,7 @@ export function CurrencyToggle({ tone: _tone = 'light' }: { tone?: 'light' | 'da
       onClick={toggleCurrency}
       aria-label="Cambiar moneda"
       title="Cambiar moneda (USD / PEN)"
-      className={`flex h-10 items-center gap-1.5 rounded-full px-4 text-sm font-bold text-white shadow-sm transition-colors ${
+      className={`flex items-center gap-1.5 rounded-xl px-4 ${className} text-sm font-bold text-white shadow-sm transition-colors ${
         isUsd ? 'bg-brand-primary shadow-brand-primary/30' : 'bg-amber-500 shadow-amber-500/30'
       }`}
     >

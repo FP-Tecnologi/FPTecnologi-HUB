@@ -7,9 +7,10 @@ import { useFavorites } from '@/context/FavoritesContext';
 import { ClickConfirmButton } from './ClickConfirmButton';
 import { useCurrency } from '@/context/CurrencyContext';
 import { ProductGalleryModal } from './ProductGalleryModal';
-import { brandSlug, type FEATURED_PRODUCTS } from '@/lib/content';
+import { brandSlug } from '@/lib/content';
+import { discountOf, type ShopProduct } from '@/lib/catalog';
 
-type Product = (typeof FEATURED_PRODUCTS)[number];
+type Product = ShopProduct;
 
 /**
  * Tarjeta de producto final -- base "4.2 estilo Vireo" de guia-estilos
@@ -40,7 +41,7 @@ export function ProductCardFinal({
   const [active, setActive] = useState(0);
   const go = (d: number) => setActive((i) => (i + d + images.length) % images.length);
 
-  const discount = Math.round(((product.priceBefore - product.price) / product.priceBefore) * 100);
+  const discount = discountOf(product);
   // El chip del ícono solo toma su fondo al hover/sweep (rotated): en reposo
   // es transparente, así no parece un botón dentro de otro.
   const cartIcon = (rotated: boolean) => (
@@ -60,13 +61,15 @@ export function ProductCardFinal({
         {/* Fondo celeste suave (azul bajo); el blanco de las fotos se funde
             con mix-blend-multiply. */}
         <div className="relative aspect-square overflow-hidden bg-brand-primary/8">
-          <span className="absolute left-3 top-3 z-10 rounded-md bg-red-500 px-2 py-0.5 text-[11px] font-bold text-white">-{discount}%</span>
+          {discount > 0 && (
+            <span className="absolute left-3 top-3 z-10 rounded-md bg-red-500 px-2 py-0.5 text-[11px] font-bold text-white">-{discount}%</span>
+          )}
 
           {/* Comparar + favorito, apilados en la esquina superior derecha. */}
           <div className="absolute right-3 top-3 z-10 flex flex-col gap-2">
             <button
               type="button"
-              onClick={() => toggle(product)}
+              onClick={() => toggle({ sku: product.sku, name: product.name, brand: product.brand, price: product.price, priceBefore: product.priceBefore, image: images[0] })}
               aria-pressed={favorite}
               aria-label={favorite ? 'Quitar de favoritos' : 'Agregar a favoritos'}
               className={iconBtn(favorite)}
@@ -147,7 +150,7 @@ export function ProductCardFinal({
           <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold text-ink">{product.name}</h3>
           <div className="mt-0.5 flex items-baseline gap-2 font-mono">
             <span className="text-base font-bold text-ink">{format(product.price)}</span>
-            <span className="text-xs text-ink/40 line-through">{format(product.priceBefore)}</span>
+            {discount > 0 && <span className="text-xs text-ink/40 line-through">{format(product.priceBefore!)}</span>}
           </div>
           <div className="mt-2 flex items-center justify-between">
             {/* Mismo alto que el botón del carrito (h-10). */}
@@ -165,7 +168,7 @@ export function ProductCardFinal({
                 </span>
               )}
               doneLabel="Agregado"
-              onConfirm={() => addItem({ sku: product.sku, name: product.name, price: product.price, image: product.image })}
+              onConfirm={() => addItem({ sku: product.sku, name: product.name, price: product.price, image: images[0] })}
               className="h-10 shrink-0 rounded-lg bg-brand-dark px-1.5 text-xs font-semibold text-white hover:bg-brand-primary hover:pr-3"
               doneClassName="h-10 shrink-0 rounded-lg bg-emerald-500 px-1.5 pr-3 text-xs font-semibold text-white"
             />
