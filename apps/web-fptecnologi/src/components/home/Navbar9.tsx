@@ -7,6 +7,7 @@ import { ArrowUpRightIcon } from '@/components/site/icons';
 import { DesktopNav, MobileNav } from './MainNav';
 import { ClickConfirmButton } from './ClickConfirmButton';
 import { CartButton } from './CartButton';
+import { CurrencyToggle } from './CurrencyToggle';
 import { useCart } from '@/context/CartContext';
 
 /**
@@ -24,7 +25,7 @@ import { useCart } from '@/context/CartContext';
  */
 const COTIZAR_SIZE = 'h-10 pl-2 pr-4 text-xs md:text-sm lg:h-auto lg:py-1.5 lg:pl-1.5 lg:pr-4 xl:text-[15px] 2xl:py-2 2xl:pl-2 2xl:pr-5 2xl:text-base';
 
-export function Navbar9({ compact = false }: { compact?: boolean }) {
+export function Navbar9({ compact = false, store = false }: { compact?: boolean; store?: boolean }) {
   const [open, setOpen] = useState(false);
   const { count } = useCart();
 
@@ -50,8 +51,12 @@ export function Navbar9({ compact = false }: { compact?: boolean }) {
         </div>
 
         <div className="flex flex-1 items-center justify-end gap-2">
-          {/* Carrito solo si hay algo agregado (se abre solo al agregar). */}
-          {count > 0 && <CartButton tone="dark" compact={compact} />}
+          {/* Tienda: selector de moneda + carrito siempre visible, sin
+              Cotizar. Resto del sitio: carrito solo si hay algo agregado. */}
+          {store && <CurrencyToggle className={compact ? 'h-9' : 'h-10 lg:h-11 2xl:h-12'} />}
+          {(store || count > 0) && <CartButton tone="dark" compact={compact} />}
+          {!store && (
+          <>
           {/* Efecto sweep al click (mismo patrón que "Agregar al carrito",
               ver ClickConfirmButton): el ícono viaja de izquierda a derecha
               mientras el texto se borra en su camino (900ms), recién ahí
@@ -85,6 +90,8 @@ export function Navbar9({ compact = false }: { compact?: boolean }) {
               compact ? 'h-9 pl-1.5 pr-3 text-[11px] 2xl:text-xs' : COTIZAR_SIZE
             }`}
           />
+          </>
+          )}
 
           <button
             type="button"

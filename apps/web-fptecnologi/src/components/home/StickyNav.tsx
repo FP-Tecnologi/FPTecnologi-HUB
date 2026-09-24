@@ -25,7 +25,7 @@ const SCROLL_THRESHOLD = 140;
  * margen lateral -- expresado como left/right (max(...)) en vez de
  * max-width para que la transición sea continua desde el ancho completo.
  */
-export function StickyNav() {
+export function StickyNav({ store = false }: { store?: boolean } = {}) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -54,7 +54,7 @@ export function StickyNav() {
             : 'rounded-[1.25rem] border-transparent bg-transparent shadow-none md:rounded-[2.25rem]'
         }`}
       >
-        <Navbar9 compact={scrolled} />
+        <Navbar9 compact={scrolled} store={store} />
       </div>
     </div>
   );

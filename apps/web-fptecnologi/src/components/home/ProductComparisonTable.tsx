@@ -2,9 +2,9 @@
 
 import { Check, X } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
-import type { FEATURED_PRODUCTS } from '@/lib/content';
+import { discountOf, type ShopProduct } from '@/lib/catalog';
 
-type Product = (typeof FEATURED_PRODUCTS)[number];
+type Product = ShopProduct;
 
 /**
  * Tabla de comparación final -- promovida de guia-estilos/page.tsx (sección
@@ -36,7 +36,7 @@ export function ProductComparisonTable({
             {products.map((p) => (
               <th key={p.sku} className="p-3 text-center">
                 <div className="relative mx-auto mb-2 h-16 w-16 rounded-lg bg-paper">
-                  <img src={p.image} alt={p.name} className="h-full w-full object-contain p-2 mix-blend-multiply" />
+                  <img src={p.images[0]} alt={p.name} className="h-full w-full object-contain p-2 mix-blend-multiply" />
                   {onRemove && (
                     <button
                       type="button"
@@ -85,7 +85,7 @@ export function ProductComparisonTable({
             <th className="pl-4 text-left text-xs font-medium text-ink/45">Descuento</th>
             {products.map((p) => (
               <td key={p.sku} className="font-mono text-xs font-semibold text-brand-primary">
-                -{Math.round(((p.priceBefore - p.price) / p.priceBefore) * 100)}%
+                {discountOf(p) ? `-${discountOf(p)}%` : '—'}
               </td>
             ))}
             {emptyCells('desc')}

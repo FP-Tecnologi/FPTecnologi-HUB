@@ -10,7 +10,7 @@ export type FavoriteItem = {
   name: string;
   brand: string;
   price: number;
-  priceBefore: number;
+  priceBefore?: number | null;
   image: string;
 };
 
