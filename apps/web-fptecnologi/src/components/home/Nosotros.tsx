@@ -1,9 +1,9 @@
 'use client';
 
 import { COMPANY_VALUES, STATS } from '@/lib/content';
-import { ClickConfirmButton } from './ClickConfirmButton';
+import { MoreInfoButton } from './MoreInfoButton';
 import { ScrollReveal } from './ScrollReveal';
-import { SparkleIcon, ArrowUpRightIcon } from '@/components/site/icons';
+import { SectionBadge } from './SectionBadge';
 
 function CheckIcon({ className }: { className?: string }) {
   return (
@@ -63,18 +63,15 @@ export function Nosotros() {
               porque el fondo de esta sección es blanco, no un video oscuro. */}
           {/* El nombre de la empresa va acá (antes en el título) -- el
               título ya no lo repite. */}
-          <span className="mb-2 inline-flex w-fit items-center gap-2 rounded-xl border border-brand-primary/20 bg-brand-primary/10 px-4 py-2 text-sm font-semibold uppercase tracking-wide text-brand-primary backdrop-blur-md">
-            <SparkleIcon className="h-4 w-4" />
-            FPTecnologi & System
-          </span>
+          <SectionBadge>FPTecnologi & System</SectionBadge>
           {/* Mismo lenguaje de dos colores + brillo en movimiento que el
               título del Hero (.hero-title-shimmer): línea 1 en color sólido
               normal, línea 2 con el degradé animado -- acá en su variante
               clara (.title-shimmer-light, sin blanco) porque el fondo de
               esta sección es blanco, no oscuro. */}
           <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
-            <span className="block text-ink">Tecnología empresarial con</span>
-            <span className="title-shimmer-light block">respaldo real y soporte local</span>
+            <span className="text-ink">Tecnología empresarial con</span>{' '}
+            <span className="title-shimmer-light">respaldo real y soporte local</span>
           </h2>
           <p className="mt-4 max-w-lg text-justify text-ink/60">
             Más de una década ayudando a empresas a equiparse con la tecnología correcta: distribución autorizada de
@@ -109,25 +106,7 @@ export function Nosotros() {
           {/* max-w-lg igual que el párrafo: el botón queda alineado a su
               borde derecho. */}
           <div className="mt-6 flex max-w-lg justify-end">
-            <ClickConfirmButton
-              icon={(rotated) => (
-                <span className="flex items-center justify-center rounded-lg bg-white/20 p-1 md:p-1.5">
-                  <ArrowUpRightIcon className={`h-4 w-4 text-white transition-transform duration-300 md:h-5 md:w-5 ${rotated ? 'rotate-45' : ''}`} />
-                </span>
-              )}
-              label="Más información"
-              doneIcon={() => (
-                <span className="flex items-center justify-center rounded-lg bg-white/20 p-1 md:p-1.5">
-                  <ArrowUpRightIcon className="h-4 w-4 text-white md:h-5 md:w-5" />
-                </span>
-              )}
-              doneLabel="Más información"
-              onConfirm={() => {
-                window.location.href = '/nosotros';
-              }}
-              className="h-10 items-center rounded-xl bg-brand-dark pl-2 pr-5 text-xs font-semibold uppercase tracking-wide text-white hover:bg-brand-primary md:h-11 md:pr-6 md:text-sm 2xl:h-12 2xl:text-base"
-              doneClassName="h-10 items-center rounded-xl bg-brand-primary pl-2 pr-5 text-xs font-semibold uppercase tracking-wide text-white md:h-11 md:pr-6 md:text-sm 2xl:h-12 2xl:text-base"
-            />
+            <MoreInfoButton href="/nosotros" />
           </div>
         </ScrollReveal>
       </div>

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { PARTNER_BRANDS } from '@/lib/content';
+import { PARTNER_BRANDS, brandSlug } from '@/lib/content';
 import { ScrollReveal } from './ScrollReveal';
 
 export function BrandMarquee({ showLabel = true }: { showLabel?: boolean }) {
@@ -54,8 +54,10 @@ export function BrandMarquee({ showLabel = true }: { showLabel?: boolean }) {
           onMouseLeave={() => setPaused(false)}
         >
           {track.map((brand, i) => (
-            <div
+            <a
               key={`${brand.name}-${i}`}
+              href={`/marcas/${brandSlug(brand.name)}`}
+              aria-label={`Ver productos ${brand.name}`}
               // La caja (h-32 w-32) ya NO se agranda -- solo el logo de
               // adentro (ver <Image>). `overflow-hidden` acá para que el
               // zoom del logo quede contenido dentro del cuadrado, no
@@ -96,7 +98,7 @@ export function BrandMarquee({ showLabel = true }: { showLabel?: boolean }) {
                   className="object-contain opacity-0 transition-opacity duration-500 ease-out group-hover:opacity-100"
                 />
               </div>
-            </div>
+            </a>
           ))}
         </div>
       </div>

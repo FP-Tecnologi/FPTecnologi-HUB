@@ -1,21 +1,26 @@
 'use client';
 
 import { useState } from 'react';
+import { Check, ChevronLeft, ChevronRight, GitCompareArrows, Heart, ShoppingCart } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useFavorites } from '@/context/FavoritesContext';
+import { ClickConfirmButton } from './ClickConfirmButton';
 import { useCurrency } from '@/context/CurrencyContext';
 import { ProductGalleryModal } from './ProductGalleryModal';
-import type { FEATURED_PRODUCTS } from '@/lib/content';
+import { brandSlug, type FEATURED_PRODUCTS } from '@/lib/content';
 
 type Product = (typeof FEATURED_PRODUCTS)[number];
 
 /**
  * Tarjeta de producto final -- base "4.2 estilo Vireo" de guia-estilos
- * (imagen cuadrada + badge de stock + botón de carrito solo-ícono), más 3
- * agregados pedidos: zoom de imagen al hover, checkbox de "comparar" (misma
- * lógica que ya usaba site2/FeaturedProducts.tsx) y botón de galería que abre
- * el lightbox de ProductGalleryModal. El catálogo real solo tiene 1 foto por
- * producto -- el botón de galería sigue sirviendo (zoom a pantalla completa)
- * aunque no haya varias fotos para pasar.
+ * (imagen + badge de stock + botón de carrito solo-ícono), con zoom de
+ * imagen al hover, "comparar", "favorito" y galería (ProductGalleryModal).
+ *
+ * Las fotos del catálogo son PNG con fondo blanco pegado: `mix-blend-multiply`
+ * hace que ese blanco desaparezca sobre el fondo claro del área de imagen,
+ * así el producto queda "recortado" sin editar los archivos.
+ * Botones con esquinas suaves (rounded-lg), no circulares, en colores de
+ * marca; íconos de lucide-react.
  */
 export function ProductCardFinal({
   product,
@@ -26,74 +31,149 @@ export function ProductCardFinal({
   compared: boolean;
   onToggleCompare: (sku: string) => void;
 }) {
-  const { addItem, justAddedSku } = useCart();
+  const { addItem } = useCart();
   const { format } = useCurrency();
+  const { isFavorite, toggle } = useFavorites();
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const favorite = isFavorite(product.sku);
+  const images: readonly string[] = product.images;
+  const [active, setActive] = useState(0);
+  const go = (d: number) => setActive((i) => (i + d + images.length) % images.length);
 
   const discount = Math.round(((product.priceBefore - product.price) / product.priceBefore) * 100);
-  const justAdded = justAddedSku === product.sku;
+  // El chip del ícono solo toma su fondo al hover/sweep (rotated): en reposo
+  // es transparente, así no parece un botón dentro de otro.
+  const cartIcon = (rotated: boolean) => (
+    <span className={`flex items-center justify-center rounded-md p-1.5 transition-colors duration-300 ${rotated ? 'bg-white/20' : 'bg-transparent'}`}>
+      <ShoppingCart className={`h-4 w-4 transition-transform duration-300 ${rotated ? '-rotate-12' : ''}`} strokeWidth={2} />
+    </span>
+  );
+
+  const iconBtn = (active: boolean) =>
+    `flex h-8 w-8 items-center justify-center rounded-lg shadow-sm shadow-brand-dark/15 transition-colors ${
+      active ? 'bg-brand-primary text-white' : 'bg-white text-brand-dark hover:bg-brand-dark hover:text-white'
+    }`;
 
   return (
     <>
-      <div className="group overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm transition-shadow duration-300 hover:shadow-xl">
+      <div className="group h-full overflow-hidden rounded-2xl border border-black/5 bg-white shadow-lg shadow-brand-dark/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand-dark/25">
+        {/* Fondo celeste suave (azul bajo); el blanco de las fotos se funde
+            con mix-blend-multiply. */}
         <div className="relative aspect-square overflow-hidden bg-brand-primary/8">
-          <span className="absolute left-2 top-2 z-10 rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white">-{discount}%</span>
+          <span className="absolute left-3 top-3 z-10 rounded-md bg-red-500 px-2 py-0.5 text-[11px] font-bold text-white">-{discount}%</span>
 
-          <button
-            type="button"
-            onClick={() => onToggleCompare(product.sku)}
-            aria-pressed={compared}
-            aria-label={compared ? 'Quitar de comparar' : 'Agregar a comparar'}
-            className={`absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full shadow-sm transition-colors ${
-              compared ? 'bg-brand-primary text-white' : 'bg-white text-ink/50 hover:text-ink'
-            }`}
-          >
-            <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
-              <path d="M8 4v16M16 4v16M4 9h4M16 9h4M4 15h4M16 15h4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-            </svg>
-          </button>
+          {/* Comparar + favorito, apilados en la esquina superior derecha. */}
+          <div className="absolute right-3 top-3 z-10 flex flex-col gap-2">
+            <button
+              type="button"
+              onClick={() => toggle(product)}
+              aria-pressed={favorite}
+              aria-label={favorite ? 'Quitar de favoritos' : 'Agregar a favoritos'}
+              className={iconBtn(favorite)}
+            >
+              <Heart className="h-4 w-4" strokeWidth={2} fill={favorite ? 'currentColor' : 'none'} />
+            </button>
+            <button
+              type="button"
+              onClick={() => onToggleCompare(product.sku)}
+              aria-pressed={compared}
+              aria-label={compared ? 'Quitar de comparar' : 'Agregar a comparar'}
+              className={iconBtn(compared)}
+            >
+              <GitCompareArrows className="h-4 w-4" strokeWidth={2} />
+            </button>
+          </div>
 
           <button type="button" onClick={() => setGalleryOpen(true)} aria-label="Ver galería" className="block h-full w-full cursor-zoom-in">
-            <img src={product.image} alt={product.name} className="h-full w-full object-contain p-6 transition-transform duration-500 group-hover:scale-110" />
+            <img
+              src={images[active]}
+              alt={product.name}
+              className="h-full w-full object-contain p-8 mix-blend-multiply transition-transform duration-500 group-hover:scale-110"
+            />
           </button>
+
+          {/* Galería (4.4): flechas al hover, solo si hay más de 1 foto. */}
+          {images.length > 1 && (
+            <>
+              <button
+                type="button"
+                onClick={() => go(-1)}
+                aria-label="Foto anterior"
+                className="absolute left-3 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg bg-white/90 text-brand-dark opacity-0 shadow-sm shadow-brand-dark/15 transition-opacity hover:bg-white group-hover:opacity-100"
+              >
+                <ChevronLeft className="h-4 w-4" strokeWidth={2.2} />
+              </button>
+              <button
+                type="button"
+                onClick={() => go(1)}
+                aria-label="Foto siguiente"
+                className="absolute right-3 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg bg-white/90 text-brand-dark opacity-0 shadow-sm shadow-brand-dark/15 transition-opacity hover:bg-white group-hover:opacity-100"
+              >
+                <ChevronRight className="h-4 w-4" strokeWidth={2.2} />
+              </button>
+            </>
+          )}
+
+          {/* Marca como etiqueta de vidrio sobre la foto; lleva a los
+              productos de esa marca. */}
+          <a
+            href={`/marcas/${brandSlug(product.brand)}`}
+            aria-label={`Ver productos ${product.brand}`}
+            className="absolute bottom-3 left-3 z-10 rounded-md border border-white/60 bg-white/40 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-brand-dark shadow-sm shadow-brand-dark/10 backdrop-blur-md transition-colors hover:bg-brand-dark hover:text-white"
+          >
+            {product.brand}
+          </a>
+        </div>
+
+        {/* Tira de miniaturas (4.4). Siempre visible, también con 1 sola
+            foto, para que todas las tarjetas tengan la misma altura. */}
+        <div className="flex gap-2 border-b border-black/5 px-4 py-3">
+          {images.map((img, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => setActive(i)}
+              aria-label={`Ver foto ${i + 1}`}
+              className={`h-11 w-11 shrink-0 overflow-hidden rounded-lg border-2 bg-brand-primary/8 transition-colors ${
+                active === i ? 'border-brand-primary' : 'border-transparent hover:border-brand-primary/40'
+              }`}
+            >
+              <img src={img} alt="" className="h-full w-full object-contain p-1 mix-blend-multiply" />
+            </button>
+          ))}
         </div>
 
         <div className="flex flex-col gap-1.5 p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-brand-primary">{product.brand}</p>
-          <h3 className="line-clamp-2 min-h-[2.2rem] text-sm font-semibold text-ink">{product.name}</h3>
+          <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold text-ink">{product.name}</h3>
           <div className="mt-0.5 flex items-baseline gap-2 font-mono">
             <span className="text-base font-bold text-ink">{format(product.price)}</span>
             <span className="text-xs text-ink/40 line-through">{format(product.priceBefore)}</span>
           </div>
           <div className="mt-2 flex items-center justify-between">
-            <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-semibold text-emerald-600">En stock</span>
-            <button
-              type="button"
-              onClick={() => addItem({ sku: product.sku, name: product.name, price: product.price, image: product.image })}
-              aria-label="Agregar al carrito"
-              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white transition-all ${justAdded ? 'bg-emerald-500' : 'btn-glow'}`}
-            >
-              {justAdded ? (
-                <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5">
-                  <path d="M5 13l4 4L19 7" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-              ) : (
-                <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5">
-                  <path
-                    d="M3 4h2l.4 2M7 14h10l3-8H5.4M7 14 5.4 6M7 14l-1.5 4h12M10 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm7 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
-                    stroke="currentColor"
-                    strokeWidth="1.7"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
+            {/* Mismo alto que el botón del carrito (h-10). */}
+            <span className="flex h-10 items-center rounded-lg bg-emerald-500/10 px-3 text-xs font-semibold text-emerald-600">En stock</span>
+            {/* Solo ícono en reposo; al hover se despliega "Añadir al
+                carrito", y al click hace el mismo sweep que "Ver catálogo"
+                antes de agregar y mostrar "Agregado". */}
+            <ClickConfirmButton
+              collapsed
+              icon={cartIcon}
+              label="Añadir al carrito"
+              doneIcon={() => (
+                <span className="flex items-center justify-center rounded-md bg-white/20 p-1.5">
+                  <Check className="h-4 w-4" strokeWidth={2.4} />
+                </span>
               )}
-            </button>
+              doneLabel="Agregado"
+              onConfirm={() => addItem({ sku: product.sku, name: product.name, price: product.price, image: product.image })}
+              className="h-10 shrink-0 rounded-lg bg-brand-dark px-1.5 text-xs font-semibold text-white hover:bg-brand-primary hover:pr-3"
+              doneClassName="h-10 shrink-0 rounded-lg bg-emerald-500 px-1.5 pr-3 text-xs font-semibold text-white"
+            />
           </div>
         </div>
       </div>
 
-      {galleryOpen && <ProductGalleryModal name={product.name} images={[product.image]} onClose={() => setGalleryOpen(false)} />}
+      {galleryOpen && <ProductGalleryModal name={product.name} images={[...images]} initial={active} onClose={() => setGalleryOpen(false)} />}
     </>
   );
 }

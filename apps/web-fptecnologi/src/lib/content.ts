@@ -162,6 +162,9 @@ export const PARTNER_BRANDS: { name: string; logo: string; maskLogo?: string }[]
   { name: 'ScreenBeam', logo: '/images/brands/screenbeam.png' },
 ];
 
+/* Slug de marca para /marcas/[slug] ("ScreenBeam" -> "screenbeam"). */
+export const brandSlug = (name: string) => name.toLowerCase().trim().replace(/\s+/g, '-');
+
 export const PARTNER_STEPS = [
   {
     step: '1',
@@ -263,6 +266,8 @@ export const FEATURED_PRODUCTS = [
     price: 289,
     priceBefore: 310,
     image: '/images/products/asus-be279qsk.png',
+    // Placeholder: foto repetida hasta tener las reales (3 por producto).
+    images: ['/images/products/asus-be279qsk.png', '/images/products/asus-be279qsk.png', '/images/products/asus-be279qsk.png'],
   },
   {
     name: 'Monitor Dell P2724DEB 27" LCD IPS QHD USB-C',
@@ -271,6 +276,8 @@ export const FEATURED_PRODUCTS = [
     price: 591,
     priceBefore: 630,
     image: '/images/products/dell-p2724deb.png',
+    // Placeholder: foto repetida hasta tener las reales (3 por producto).
+    images: ['/images/products/dell-p2724deb.png', '/images/products/dell-p2724deb.png', '/images/products/dell-p2724deb.png'],
   },
   {
     name: 'Monitor HP E27 G5, 27" FHD IPS',
@@ -279,6 +286,7 @@ export const FEATURED_PRODUCTS = [
     price: 240,
     priceBefore: 265,
     image: '/images/products/hp-e27g5.png',
+    images: ['/images/products/hp-e27g5.png', '/images/products/hp-e27g5-2.png', '/images/products/hp-e27g5-3.png'],
   },
   {
     name: 'Monitor Lenovo ThinkVision T24i-30, 23.8" WLED IPS',
@@ -287,6 +295,8 @@ export const FEATURED_PRODUCTS = [
     price: 220,
     priceBefore: 229,
     image: '/images/products/lenovo-t24i30.png',
+    // Placeholder: la 3ra repite la 1ra hasta tener la real.
+    images: ['/images/products/lenovo-t24i30.png', '/images/products/lenovo-t24i30-2.png', '/images/products/lenovo-t24i30.png'],
   },
 ] as const;
 
@@ -295,6 +305,6 @@ export const FEATURED_PRODUCTS = [
 export const WHY_CHOOSE_US = [
   { title: 'Stock local', text: 'Sin depender de importación por pedido — despacho inmediato.' },
   { title: 'Distribución autorizada', text: 'Marcas originales con garantía oficial, no gris.' },
-  { title: 'Cotización sin compromiso', text: 'Un especialista te arma la propuesta, vos decidís.' },
+  { title: 'Cotización sin compromiso', text: 'Un especialista te arma la propuesta, tú decides.' },
   { title: 'Programa de Partners', text: 'Precios y beneficios especiales para integradores.' },
 ] as const;

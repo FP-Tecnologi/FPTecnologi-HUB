@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { ShoppingCart } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { CartPanel } from './CartPanel';
 
@@ -15,7 +16,7 @@ const TONE = {
  * Ícono del carrito final -- cuadrado minimalista (antes círculo) con el
  * badge contador azul pequeño superpuesto, según la propuesta elegida.
  */
-export function CartButton({ tone = 'light' }: { tone?: Tone }) {
+export function CartButton({ tone = 'light', compact = false }: { tone?: Tone; compact?: boolean }) {
   const { count, justAddedSku } = useCart();
   const [open, setOpen] = useState(false);
   const [bump, setBump] = useState(false);
@@ -43,17 +44,9 @@ export function CartButton({ tone = 'light' }: { tone?: Tone }) {
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-label={`Carrito, ${count} producto${count === 1 ? '' : 's'}`}
-        className={`relative flex h-10 w-10 items-center justify-center rounded-lg border transition-colors ${TONE[tone]}`}
+        className={`relative flex items-center justify-center rounded-lg border transition-colors ${compact ? 'h-9 w-9' : 'h-10 w-10 lg:h-11 lg:w-11 2xl:h-12 2xl:w-12'} ${TONE[tone]}`}
       >
-        <svg viewBox="0 0 24 24" fill="none" className="h-4.5 w-4.5">
-          <path
-            d="M3 4h2l.4 2M7 14h10l3-8H5.4M7 14 5.4 6M7 14l-1.5 4h12M10 20a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm7 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
-            stroke="currentColor"
-            strokeWidth="1.7"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
+        <ShoppingCart className="h-4.5 w-4.5" strokeWidth={1.8} />
         {count > 0 && (
           <span className={`absolute -right-1.5 -top-1.5 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-brand-primary px-1 text-[10px] font-bold text-white transition-transform ${bump ? 'scale-125' : 'scale-100'}`}>
             {count}
@@ -62,7 +55,7 @@ export function CartButton({ tone = 'light' }: { tone?: Tone }) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-xl border border-black/5 bg-white p-4 text-ink shadow-2xl shadow-black/15">
+        <div className="absolute right-0 top-full z-50 mt-2 w-80 rounded-xl border border-black/5 bg-white p-4 text-ink shadow-2xl shadow-brand-dark/20">
           <p className="mb-3 text-sm font-semibold">Carrito {count > 0 && `(${count})`}</p>
           <CartPanel onNavigate={() => setOpen(false)} />
         </div>

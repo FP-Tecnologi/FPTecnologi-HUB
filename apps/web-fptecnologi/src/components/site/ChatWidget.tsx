@@ -1,44 +1,133 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { Fragment, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import {
+  ArrowUpRight,
+  Bot,
+  ChevronLeft,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Phone,
+  RotateCcw,
+  SendHorizontal,
+  User,
+  X,
+  type LucideIcon,
+} from 'lucide-react';
 import { VARIANTS, DEFAULT_VARIANT, HeaderBg, type Variant } from './chatVariants';
-import { WHATSAPP_AREAS } from '@/lib/content';
+import { CONTACT_INFO, WHATSAPP_AREAS } from '@/lib/content';
+import { resolveAction, type ChatAction, type ChatActionKind } from '@/lib/chatActions';
 import { useChatWidget } from '@/context/ChatWidgetContext';
 
-type ChatMsg = { from: 'bot' | 'user'; text: string };
+/*
+ * Íconos: todos de lucide-react (un solo estilo de trazo en todo el widget),
+ * nada de SVG dibujado a mano.
+ *
+ * instant: se muestra completo, sin efecto de escritura (saludo inicial).
+ * actions: botones de enlace (WhatsApp, Maps, mailto, páginas) resueltos
+ * desde IDs fijos en lib/chatActions -- nunca URLs escritas por la IA.
+ * options: respuestas rápidas que el usuario toca para seguir la charla.
+ */
+type ChatMsg = { from: 'bot' | 'user'; text: string; instant?: boolean; actions?: ChatAction[]; options?: string[] };
+type BotReply = { text: string; actions: ChatAction[]; options: string[] };
 
-const INTENTS: { keywords: string[]; reply: string }[] = [
+const GREETING: ChatMsg = {
+  from: 'bot',
+  text: 'Hola 👋 Soy el asistente virtual de FPTecnologi. Pregúntame por horarios, servicios, productos o el programa de partners.',
+  instant: true,
+  options: ['Ver servicios', 'Tienda', 'Ubicación', 'Hablar con un asesor'],
+};
+
+/*
+ * Historial por cliente: se guarda en localStorage de este navegador, así
+ * la conversación sigue ahí al recargar, cambiar de página o volver otro
+ * día. Máx. HISTORY_MAX mensajes. Todo en try/catch: en modo privado o con
+ * storage bloqueado, el chat funciona igual, solo sin memoria.
+ */
+const HISTORY_KEY = 'fp-chat-history-v1';
+const HISTORY_MAX = 50;
+const SAFE_HREF = /^(https:\/\/|\/|mailto:|tel:)/;
+
+function loadHistory(): ChatMsg[] | null {
+  try {
+    const raw = JSON.parse(window.localStorage.getItem(HISTORY_KEY) ?? 'null');
+    if (!Array.isArray(raw) || raw.length === 0) return null;
+    return raw
+      .filter((m) => m && (m.from === 'bot' || m.from === 'user') && typeof m.text === 'string')
+      .map((m) => ({
+        from: m.from,
+        text: m.text,
+        instant: true, // ya se leyó: no se vuelve a escribir letra por letra
+        actions: Array.isArray(m.actions)
+          ? m.actions.filter((a: ChatAction) => typeof a?.href === 'string' && SAFE_HREF.test(a.href) && a.kind in ACTION_ICON)
+          : undefined,
+        options: Array.isArray(m.options) ? m.options.filter((o: unknown) => typeof o === 'string') : undefined,
+      }));
+  } catch {
+    return null;
+  }
+}
+
+function saveHistory(messages: ChatMsg[]) {
+  try {
+    window.localStorage.setItem(HISTORY_KEY, JSON.stringify(messages.slice(-HISTORY_MAX)));
+  } catch {
+    // storage lleno o bloqueado: se sigue sin guardar
+  }
+}
+
+// Respaldo sin IA (si /api/chat falla o no hay GROQ_API_KEY).
+const INTENTS: { keywords: string[]; text: string; actions: string[]; options?: string[] }[] = [
   {
     keywords: ['horario', 'atienden', 'atención', 'abren', 'cierran'],
-    reply: 'Atendemos de lunes a viernes de 9:00 a 18:00. Fuera de ese horario podés dejarnos tu consulta y te respondemos apenas volvamos.',
+    text: 'Atendemos de lunes a viernes de 9:00 a 18:00. Fuera de ese horario puedes dejarnos tu consulta y te respondemos apenas volvamos.',
+    actions: ['whatsapp'],
   },
   {
     keywords: ['precio', 'costo', 'cotiza', 'cotización', 'presupuesto'],
-    reply: 'Para una cotización puntual lo más rápido es el cotizador: fptecnologi.com/landing-cotiza-tu-tiempo — o contanos acá qué necesitás y te derivo con un asesor.',
+    text: 'Para una cotización puntual lo más rápido es nuestro cotizador, o cuéntanos qué necesitas y te derivo con un asesor.',
+    actions: ['cotizar', 'whatsapp'],
   },
   {
     keywords: ['tienda', 'monitor', 'laptop', 'servidor', 'stock', 'producto'],
-    reply: 'En la Tienda tenés monitores, laptops, servidores y pantallas interactivas con stock local. ¿Buscás algo puntual?',
+    text: 'En la tienda tenemos monitores, laptops, servidores y pantallas interactivas con stock local. ¿Qué buscas?',
+    actions: ['tienda'],
+    options: ['Monitores', 'Laptops', 'Servidores'],
   },
   {
     keywords: ['servicio', 'seguridad', 'cámara', 'videoconferencia', 'cloud', 'data center'],
-    reply: 'Nuestros servicios TI van desde seguridad y videoconferencia hasta cloud y data centers, todos implementados por especialistas. ¿Cuál te interesa?',
+    text: 'Nuestros servicios TI van desde seguridad y videoconferencia hasta cloud y data centers, implementados por especialistas. ¿Cuál te interesa?',
+    actions: ['servicios'],
+    options: ['Videoconferencia', 'Data centers', 'Soluciones cloud'],
   },
   {
     keywords: ['partner', 'revendedor', 'integrador'],
-    reply: 'El programa de Partners FP tiene precios y beneficios especiales para integradores y revendedores. ¿Querés que te contacte alguien del equipo comercial?',
+    text: 'El programa de Partners FP tiene precios y beneficios especiales para integradores y revendedores.',
+    actions: ['whatsapp'],
   },
   {
     keywords: ['direccion', 'dirección', 'ubicac', 'donde', 'dónde'],
-    reply: 'Estamos en Jr. Huaraz 1841, Breña — Lima, Perú.',
+    text: `Estamos en ${CONTACT_INFO.address}.`,
+    actions: ['maps'],
+  },
+  {
+    keywords: ['asesor', 'whatsapp', 'humano', 'contacto'],
+    text: 'Te paso con un asesor por WhatsApp.',
+    actions: ['whatsapp', 'email'],
   },
 ];
 
-function reply(text: string) {
+function fallbackReply(text: string): BotReply {
   const q = text.toLowerCase();
   const hit = INTENTS.find((i) => i.keywords.some((k) => q.includes(k)));
-  return hit?.reply ?? 'No tengo una respuesta armada para eso todavía — te paso con un asesor humano por WhatsApp para que te ayude mejor.';
+  const ids = hit?.actions ?? ['whatsapp'];
+  return {
+    text: hit?.text ?? 'No tengo una respuesta para eso todavía. Te paso con un asesor por WhatsApp para ayudarte mejor.',
+    actions: ids.map(resolveAction).filter((a): a is ChatAction => a !== null),
+    options: hit?.options ?? [],
+  };
 }
 
 /*
@@ -53,27 +142,57 @@ function getVariant(pathname: string | null): Variant {
   return (seg && VARIANTS[seg]) || DEFAULT_VARIANT;
 }
 
-function BotAvatar() {
+const ACTION_ICON: Record<ChatActionKind, LucideIcon> = {
+  whatsapp: MessageCircle,
+  maps: MapPin,
+  email: Mail,
+  phone: Phone,
+  page: ArrowUpRight,
+};
+
+function Avatar({ icon: Icon, bot }: { icon: LucideIcon; bot?: boolean }) {
   return (
-    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-brand-primary/25 bg-brand-primary/15 text-brand-primary">
-      <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5">
-        <path d="M12 3a8 8 0 0 0-8 8c0 1.6.5 3.1 1.4 4.3L4 20l4.9-1.3c1.2.7 2.6 1.1 4.1 1.1a8 8 0 0 0 0-16Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
-        <circle cx="9" cy="11" r="1" fill="currentColor" />
-        <circle cx="12" cy="11" r="1" fill="currentColor" />
-        <circle cx="15" cy="11" r="1" fill="currentColor" />
-      </svg>
+    <span
+      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border ${
+        bot ? 'border-brand-primary/25 bg-brand-primary/15 text-brand-primary' : 'border-white/20 bg-white/10 text-white/80'
+      }`}
+    >
+      <Icon className="h-3.5 w-3.5" strokeWidth={2} />
     </span>
   );
 }
 
-function UserAvatar() {
+/* Correos -> mailto, teléfonos +51 -> WhatsApp, la dirección -> Google Maps.
+   Solo se aplica cuando el texto terminó de escribirse. */
+const ADDRESS_SHORT = CONTACT_INFO.address.split(',')[0]; // "Jr. Huaraz 1841"
+const LINK_RE = new RegExp(`([\\w.+-]+@[\\w-]+(?:\\.[\\w-]+)+|\\+51[\\d ]{9,12}\\d|${ADDRESS_SHORT.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'g');
+
+function linkHref(part: string) {
+  if (part.includes('@')) return `mailto:${part}`;
+  if (part.startsWith('+51')) return `https://wa.me/${part.replace(/\D/g, '')}`;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONTACT_INFO.address)}`;
+}
+
+function Linkified({ text }: { text: string }) {
+  const parts = text.split(LINK_RE);
   return (
-    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white/80">
-      <svg viewBox="0 0 24 24" fill="none" className="h-3.5 w-3.5">
-        <circle cx="12" cy="8" r="3.2" stroke="currentColor" strokeWidth="1.7" />
-        <path d="M5 20c1.2-3.5 4-5.3 7-5.3s5.8 1.8 7 5.3" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-      </svg>
-    </span>
+    <>
+      {parts.map((part, i) =>
+        i % 2 === 1 ? (
+          <a
+            key={i}
+            href={linkHref(part)}
+            target={part.includes('@') ? undefined : '_blank'}
+            rel="noreferrer"
+            className="font-semibold text-brand-teal-light underline decoration-brand-teal-light/40 underline-offset-2 hover:decoration-brand-teal-light"
+          >
+            {part}
+          </a>
+        ) : (
+          <Fragment key={i}>{part}</Fragment>
+        ),
+      )}
+    </>
   );
 }
 
@@ -86,11 +205,14 @@ function TypewriterText({ text, skip, onDone }: { text: string; skip: boolean; o
 
   useEffect(() => {
     if (skip) return;
+    // Array.from: recorre por caracteres reales, no por unidades UTF-16 --
+    // si no, los emojis (👋) se cortan a la mitad y se ve "�" un instante.
+    const chars = Array.from(text);
     let i = 0;
     const id = window.setInterval(() => {
       i++;
-      setShown(text.slice(0, i));
-      if (i >= text.length) {
+      setShown(chars.slice(0, i).join(''));
+      if (i >= chars.length) {
         window.clearInterval(id);
         setDone(true);
         onDone();
@@ -100,11 +222,58 @@ function TypewriterText({ text, skip, onDone }: { text: string; skip: boolean; o
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  if (done) return <Linkified text={text} />;
   return (
     <>
       {shown}
-      {!done && <span className="animate-pulse">▍</span>}
+      <span className="animate-pulse">▍</span>
     </>
+  );
+}
+
+function ActionLink({ action }: { action: ChatAction }) {
+  const Icon = ACTION_ICON[action.kind];
+  const external = action.href.startsWith('http');
+  const tone =
+    action.kind === 'whatsapp'
+      ? 'border-emerald-400/40 bg-emerald-500/15 text-emerald-200 hover:bg-emerald-500/30'
+      : 'border-white/15 bg-white/10 text-white/90 hover:bg-white/20';
+  return (
+    <a
+      href={action.href}
+      target={external ? '_blank' : undefined}
+      rel={external ? 'noreferrer' : undefined}
+      className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${tone}`}
+    >
+      <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+      {action.label}
+    </a>
+  );
+}
+
+function OptionCard({ icon: Icon, tint, title, text, onClick, extra }: {
+  icon: LucideIcon;
+  tint: string;
+  title: ReactNode;
+  text: string;
+  onClick: () => void;
+  extra?: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{ '--tint': tint } as CSSProperties}
+      className="option-card flex items-center gap-3 rounded-2xl p-3 text-left"
+    >
+      <span className={`icon-hop flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white shadow-sm ${extra}`}>
+        <Icon className="h-5 w-5" strokeWidth={2} />
+      </span>
+      <span>
+        <p className="flex items-center gap-1.5 text-sm font-semibold text-ink">{title}</p>
+        <p className="text-xs text-ink/55">{text}</p>
+      </span>
+    </button>
   );
 }
 
@@ -115,18 +284,38 @@ export function ChatWidget() {
 
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<'choose' | 'whatsapp' | 'chat'>('choose');
-  const [messages, setMessages] = useState<ChatMsg[]>([
-    { from: 'bot', text: 'Hola 👋 Soy el asistente virtual de FPTecnologi. Preguntame por horarios, servicios, productos o el programa de partners.' },
-  ]);
+  const [messages, setMessages] = useState<ChatMsg[]>([GREETING]);
   const [draft, setDraft] = useState('');
   const [typing, setTyping] = useState(false);
+  // Mensajes ya escritos (el typewriter terminó): recién ahí se muestran sus
+  // links/opciones, y no se vuelven a animar al volver a esta vista.
+  const [typedDone, setTypedDone] = useState<Set<number>>(new Set());
   const listRef = useRef<HTMLDivElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
-  const animatedRef = useRef<Set<number>>(new Set());
+  const [historyLoaded, setHistoryLoaded] = useState(false);
+
+  // Restaurar al montar (en effect, no en useState, para no romper la
+  // hidratación: el servidor no tiene localStorage). historyLoaded es state
+  // (no ref) para que el guardado recién corra en el render siguiente, con
+  // lo restaurado -- si no, el saludo inicial pisaba el historial guardado.
+  useEffect(() => {
+    const saved = loadHistory();
+    if (saved?.length) setMessages(saved);
+    setHistoryLoaded(true);
+  }, []);
+
+  useEffect(() => {
+    if (historyLoaded) saveHistory(messages);
+  }, [messages, historyLoaded]);
+
+  function resetConversation() {
+    setMessages([GREETING]);
+    setTypedDone(new Set());
+  }
 
   useEffect(() => {
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
-  }, [messages, typing]);
+  }, [messages, typing, typedDone]);
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -136,17 +325,33 @@ export function ChatWidget() {
     return () => document.removeEventListener('mousedown', onClickOutside);
   }, []);
 
-  function sendText(text: string) {
+  // Responde con Groq vía /api/chat (contexto = datos de la web, ver
+  // app/api/chat/route.ts). Si la API falla o no hay key, cae a
+  // fallbackReply(). greet: conversación iniciada desde el Hero (sin el
+  // saludo genérico) -- la respuesta arranca saludando.
+  async function sendText(text: string, greet = false) {
     if (!text || typing) return;
+    const history = [...(greet ? [] : messages), { from: 'user' as const, text }];
     setMessages((m) => [...m, { from: 'user', text }]);
     setTyping(true);
-    window.setTimeout(
-      () => {
-        setTyping(false);
-        setMessages((m) => [...m, { from: 'bot', text: reply(text) }]);
-      },
-      500 + Math.random() * 500,
-    );
+    let answer: BotReply;
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: history.map((m) => ({ role: m.from === 'bot' ? 'assistant' : 'user', content: m.text })),
+        }),
+      });
+      if (!res.ok) throw new Error(String(res.status));
+      const data = await res.json();
+      answer = { text: data.reply, actions: data.actions ?? [], options: data.options ?? [] };
+    } catch {
+      answer = fallbackReply(text);
+      if (greet) answer.text = `¡Hola! 👋 ${answer.text}`;
+    }
+    setTyping(false);
+    setMessages((m) => [...m, { from: 'bot', ...answer }]);
   }
 
   function send() {
@@ -159,21 +364,28 @@ export function ChatWidget() {
   // "Pregunta a nuestra IA" del Hero llama a askAI() (ver
   // ChatWidgetContext) -- acá se escucha eso, se abre el widget en la vista
   // de conversación y se manda la pregunta como si el usuario la hubiera
-  // escrito directo acá, para que responda el mismo asistente/lógica de
-  // siempre (reply()), sin duplicar reglas en dos lados.
+  // escrito directo acá. Si la conversación recién empieza (solo el saludo
+  // genérico), se quita ese saludo: la respuesta va directo a lo
+  // consultado, saludando.
   useEffect(() => {
     return subscribeAskAI((question) => {
+      const fresh = messages.length === 1 && messages[0].text === GREETING.text;
+      if (fresh) setMessages([]);
       setOpen(true);
       setView('chat');
-      sendText(question);
+      sendText(question, fresh);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [subscribeAskAI]);
+  }, [subscribeAskAI, messages, typing]);
+
+  const lastIndex = messages.length - 1;
 
   return (
-    <div className="fixed bottom-5 right-5 z-[60]" ref={panelRef}>
+    // flex-col items-end: el botón (burbuja / X de cerrar) queda siempre en
+    // la esquina derecha, en el mismo lugar, esté abierto o no el panel.
+    <div className="fixed bottom-5 right-5 z-[60] flex flex-col items-end" ref={panelRef}>
       {open && (
-        <div className={`glass-panel animate-pop-in relative mb-3 w-[340px] max-w-[calc(100vw-40px)] overflow-hidden ${variant.panelRadius}`}>
+        <div className={`glass-panel animate-pop-in relative mb-3 w-[360px] max-w-[calc(100vw-40px)] overflow-hidden ${variant.panelRadius}`}>
           {variant.cornerAccent && <div className="absolute -right-8 -top-8 z-10 h-16 w-16 rotate-45 bg-brand-primary" aria-hidden />}
 
           <div className="relative flex items-center px-4 py-3.5 text-white">
@@ -181,56 +393,48 @@ export function ChatWidget() {
             <div className="relative flex items-center gap-2">
               {view !== 'choose' && (
                 <button type="button" onClick={() => setView('choose')} aria-label="Volver" className="text-white/70 transition-colors hover:text-white">
-                  <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
-                    <path d="m15 18-6-6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
+                  <ChevronLeft className="h-4 w-4" strokeWidth={2} />
                 </button>
               )}
-              <p className={variant.labelClass}>{view === 'choose' ? '¿Cómo te ayudamos?' : view === 'whatsapp' ? 'Elegí un área' : 'Asistente virtual'}</p>
+              <p className={variant.labelClass}>{view === 'choose' ? '¿Cómo te ayudamos?' : view === 'whatsapp' ? 'Elige un área' : 'Asistente virtual'}</p>
             </div>
+            {view === 'chat' && messages.length > 1 && (
+              <button
+                type="button"
+                onClick={resetConversation}
+                aria-label="Nueva conversación"
+                title="Nueva conversación"
+                className="relative ml-auto flex items-center gap-1 rounded-md px-2 py-1 text-xs text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+              >
+                <RotateCcw className="h-3.5 w-3.5" strokeWidth={2} />
+                Nueva
+              </button>
+            )}
           </div>
 
           {view === 'choose' ? (
             <div className="flex flex-col gap-2.5 p-4">
-              <button
-                type="button"
+              <OptionCard
+                icon={MessageCircle}
+                tint="#10b981"
+                extra="bg-emerald-500 shadow-emerald-500/30"
+                title="WhatsApp"
+                text="Elige el área y habla directo con un asesor"
                 onClick={() => setView('whatsapp')}
-                style={{ '--tint': '#10b981' } as CSSProperties}
-                className="option-card flex items-center gap-3 rounded-2xl p-3 text-left"
-              >
-                <span className="icon-hop flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white shadow-sm shadow-emerald-500/30">
-                  <svg viewBox="0 0 24 24" fill="currentColor" className="h-5 w-5">
-                    <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20Zm4.4-5.9c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5l.4-.4c.1-.1.2-.3.2-.4.1-.2 0-.3 0-.4l-.7-1.7c-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.5 4 3.5.6.2 1 .4 1.3.5.6.2 1.1.1 1.5 0 .5-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.2-.4-.3Z" />
-                  </svg>
-                </span>
-                <span>
-                  <p className="text-sm font-semibold text-ink">WhatsApp</p>
-                  <p className="text-xs text-ink/55">Elegí el área y hablá directo con un asesor</p>
-                </span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setView('chat')}
-                style={{ '--tint': 'var(--color-brand-primary)' } as CSSProperties}
-                className="option-card flex items-center gap-3 rounded-2xl p-3 text-left"
-              >
-                <span className="icon-hop flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-primary text-white shadow-sm shadow-brand-primary/30">
-                  <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
-                    <path d="M12 3a8 8 0 0 0-8 8c0 1.6.5 3.1 1.4 4.3L4 20l4.9-1.3c1.2.7 2.6 1.1 4.1 1.1a8 8 0 0 0 0-16Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
-                    <circle cx="9" cy="11" r="1" fill="currentColor" />
-                    <circle cx="12" cy="11" r="1" fill="currentColor" />
-                    <circle cx="15" cy="11" r="1" fill="currentColor" />
-                  </svg>
-                </span>
-                <span>
-                  <p className="flex items-center gap-1.5 text-sm font-semibold text-ink">
+              />
+              <OptionCard
+                icon={Bot}
+                tint="var(--color-brand-primary)"
+                extra="bg-brand-primary shadow-brand-primary/30"
+                title={
+                  <>
                     Asistente virtual
                     <span className="online-dot h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                  </p>
-                  <p className="text-xs text-ink/55">Respuestas rápidas, al instante</p>
-                </span>
-              </button>
+                  </>
+                }
+                text="Respuestas rápidas, al instante"
+                onClick={() => setView('chat')}
+              />
             </div>
           ) : view === 'whatsapp' ? (
             <div className="flex flex-col gap-2 p-4">
@@ -244,9 +448,7 @@ export function ChatWidget() {
                   className="option-card flex items-center gap-3 rounded-2xl p-3 text-left"
                 >
                   <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white shadow-sm shadow-emerald-500/30">
-                    <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4">
-                      <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Zm0 18a8 8 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8 8 0 1 1 12 20Zm4.4-5.9c-.2-.1-1.4-.7-1.6-.8-.2-.1-.4-.1-.5.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1-.2-.1-1-.4-1.9-1.2-.7-.6-1.2-1.4-1.3-1.6-.1-.2 0-.4.1-.5l.4-.4c.1-.1.2-.3.2-.4.1-.2 0-.3 0-.4l-.7-1.7c-.2-.4-.4-.4-.5-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 1.9s.8 2.2.9 2.4c.1.2 1.6 2.5 4 3.5.6.2 1 .4 1.3.5.6.2 1.1.1 1.5 0 .5-.1 1.4-.6 1.6-1.1.2-.5.2-1 .1-1.1-.1-.1-.2-.2-.4-.3Z" />
-                    </svg>
+                    <MessageCircle className="h-4 w-4" strokeWidth={2} />
                   </span>
                   <p className="text-sm font-semibold text-ink">{area.label}</p>
                 </a>
@@ -254,27 +456,62 @@ export function ChatWidget() {
             </div>
           ) : (
             <>
-              <div ref={listRef} className="flex h-80 flex-col gap-3 overflow-y-auto p-4">
-                {messages.map((m, i) => (
-                  <div key={i} className={`animate-pop-in flex items-end gap-2 ${m.from === 'user' ? 'flex-row-reverse self-end' : 'self-start'}`}>
-                    {m.from === 'bot' ? <BotAvatar /> : <UserAvatar />}
-                    <div
-                      className={`max-w-[76%] rounded-2xl px-3.5 py-2 text-sm ${
-                        m.from === 'bot' ? 'glass-card text-white/90' : 'btn-glow text-white'
-                      }`}
-                    >
-                      {m.from === 'bot' ? (
-                        <TypewriterText text={m.text} skip={animatedRef.current.has(i)} onDone={() => animatedRef.current.add(i)} />
-                      ) : (
-                        m.text
+              <div ref={listRef} className="flex h-96 flex-col gap-3 overflow-y-auto p-4">
+                {messages.map((m, i) => {
+                  const ready = m.from === 'user' || m.instant || typedDone.has(i);
+                  return (
+                    <div key={i} className={`animate-pop-in flex flex-col gap-2 ${m.from === 'user' ? 'items-end' : 'items-start'}`}>
+                      <div className={`flex items-end gap-2 ${m.from === 'user' ? 'flex-row-reverse' : ''}`}>
+                        {m.from === 'bot' ? <Avatar icon={Bot} bot /> : <Avatar icon={User} />}
+                        <div
+                          className={`max-w-[80%] px-3.5 py-2.5 text-sm leading-relaxed ${
+                            m.from === 'bot'
+                              ? 'glass-card rounded-2xl rounded-bl-md text-white/90'
+                              : 'btn-glow rounded-2xl rounded-br-md text-white'
+                          }`}
+                        >
+                          {m.from === 'bot' ? (
+                            <TypewriterText
+                              text={m.text}
+                              skip={!!m.instant || typedDone.has(i)}
+                              onDone={() => setTypedDone((s) => new Set(s).add(i))}
+                            />
+                          ) : (
+                            m.text
+                          )}
+                        </div>
+                      </div>
+
+                      {m.from === 'bot' && ready && !!m.actions?.length && (
+                        <div className="animate-pop-in ml-9 flex flex-wrap gap-1.5">
+                          {m.actions.map((a) => (
+                            <ActionLink key={a.href} action={a} />
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Respuestas rápidas: solo en el último mensaje del bot. */}
+                      {m.from === 'bot' && ready && i === lastIndex && !typing && !!m.options?.length && (
+                        <div className="animate-pop-in ml-9 flex flex-wrap gap-1.5">
+                          {m.options.map((opt) => (
+                            <button
+                              key={opt}
+                              type="button"
+                              onClick={() => sendText(opt)}
+                              className="rounded-full border border-brand-primary/50 bg-brand-primary/15 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-brand-primary/40"
+                            >
+                              {opt}
+                            </button>
+                          ))}
+                        </div>
                       )}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
                 {typing && (
                   <div className="animate-pop-in flex items-end gap-2 self-start">
-                    <BotAvatar />
-                    <div className="glass-card flex items-center gap-1 rounded-2xl px-4 py-3">
+                    <Avatar icon={Bot} bot />
+                    <div className="glass-card flex items-center gap-1 rounded-2xl rounded-bl-md px-4 py-3">
                       <span className="typing-dot h-1.5 w-1.5 rounded-full bg-white/50" style={{ animationDelay: '0ms' }} />
                       <span className="typing-dot h-1.5 w-1.5 rounded-full bg-white/50" style={{ animationDelay: '150ms' }} />
                       <span className="typing-dot h-1.5 w-1.5 rounded-full bg-white/50" style={{ animationDelay: '300ms' }} />
@@ -287,7 +524,8 @@ export function ChatWidget() {
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && send()}
-                  placeholder="Escribí tu consulta..."
+                  maxLength={500}
+                  placeholder="Escribe tu consulta..."
                   className="glass-input min-w-0 flex-1 rounded-full px-4 py-2 text-sm text-white outline-none focus:ring-2 focus:ring-brand-primary/50"
                 />
                 <button
@@ -296,9 +534,7 @@ export function ChatWidget() {
                   aria-label="Enviar"
                   className="btn-glow flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white transition-transform hover:scale-105 active:scale-95"
                 >
-                  <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
-                    <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
+                  <SendHorizontal className="h-4 w-4" strokeWidth={2} />
                 </button>
               </div>
             </>
@@ -312,20 +548,7 @@ export function ChatWidget() {
         aria-label={open ? 'Cerrar chat' : 'Abrir chat'}
         className="btn-glow launcher-ring relative flex h-14 w-14 items-center justify-center rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl rounded-br-md text-white transition-transform hover:scale-105 active:scale-95"
       >
-        {open ? (
-          <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
-            <path d="M6 6l12 12M18 6 6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-        ) : (
-          <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6">
-            <path
-              d="M12 3a8 8 0 0 0-8 8c0 1.6.5 3.1 1.4 4.3L4 20l4.9-1.3c1.2.7 2.6 1.1 4.1 1.1a8 8 0 0 0 0-16Z"
-              stroke="currentColor"
-              strokeWidth="1.7"
-              strokeLinejoin="round"
-            />
-          </svg>
-        )}
+        {open ? <X className="h-6 w-6" strokeWidth={2} /> : <MessageCircle className="h-6 w-6" strokeWidth={2} />}
       </button>
     </div>
   );

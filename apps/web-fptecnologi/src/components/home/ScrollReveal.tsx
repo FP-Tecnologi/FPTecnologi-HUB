@@ -50,13 +50,19 @@ export function ScrollReveal({
     return () => observer.disconnect();
   }, []);
 
+  // Dos capas: el observer mira la de afuera, que NUNCA se mueve; la
+  // animación (translate) va en la de adentro. Antes era un solo div: al
+  // ocultarse se desplazaba, salía del umbral del observer, se mostraba,
+  // volvía a entrar... y quedaba parpadeando si el scroll paraba justo en
+  // el borde.
   return (
-    <div
-      ref={ref}
-      className={`scroll-reveal scroll-reveal--${direction} ${visible ? 'scroll-reveal--visible' : ''} ${className}`}
-      style={{ transitionDelay: visible ? `${delayMs}ms` : '0ms' }}
-    >
-      {children}
+    <div ref={ref}>
+      <div
+        className={`scroll-reveal scroll-reveal--${direction} ${visible ? 'scroll-reveal--visible' : ''} ${className}`}
+        style={{ transitionDelay: visible ? `${delayMs}ms` : '0ms' }}
+      >
+        {children}
+      </div>
     </div>
   );
 }

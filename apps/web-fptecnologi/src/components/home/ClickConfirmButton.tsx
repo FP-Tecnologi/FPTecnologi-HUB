@@ -30,6 +30,7 @@ export function ClickConfirmButton({
   className = 'btn-glow rounded-full px-6 py-3 text-sm font-semibold text-white',
   doneClassName = 'bg-emerald-500 shadow-lg shadow-emerald-500/40 rounded-full px-6 py-3 text-sm font-semibold text-white',
   onConfirm,
+  collapsed = false,
 }: {
   icon: (rotated: boolean) => ReactNode;
   label: string;
@@ -38,6 +39,8 @@ export function ClickConfirmButton({
   className?: string;
   doneClassName?: string;
   onConfirm?: () => void;
+  /** Solo ícono en reposo; el texto se despliega al pasar el cursor. */
+  collapsed?: boolean;
 }) {
   const [phase, setPhase] = useState<Phase>('idle');
   const [hovered, setHovered] = useState(false);
@@ -73,6 +76,7 @@ export function ClickConfirmButton({
   // El giro del ícono (hover o recién arrancando el sweep) lo decide el
   // caller vía la función `icon(rotated)` -- acá solo se traslada.
   const rotated = hovered || sweeping;
+  const labelOpen = !collapsed || hovered || phase !== 'idle';
 
   return (
     <button
@@ -82,7 +86,7 @@ export function ClickConfirmButton({
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       style={width ? { width } : undefined}
-      className={`relative flex items-center overflow-hidden transition-colors duration-300 ${done ? doneClassName : className}`}
+      className={`relative flex items-center justify-center overflow-hidden transition-colors duration-300 ${done ? doneClassName : className}`}
     >
       {done ? (
         <span className="flex items-center gap-2">
@@ -90,7 +94,9 @@ export function ClickConfirmButton({
           {doneLabel}
         </span>
       ) : (
-        <span className="relative flex w-full items-center">
+        // justify-center: en botones más anchos que su contenido (w-full),
+        // ícono + texto quedan centrados; en los de ancho natural no cambia.
+        <span className="relative flex w-full items-center justify-center">
           <span
             ref={iconRef}
             className="flex shrink-0 items-center ease-out"
@@ -99,8 +105,15 @@ export function ClickConfirmButton({
             {icon(rotated)}
           </span>
           <span
-            className="ml-2 overflow-hidden whitespace-nowrap ease-out"
-            style={{ clipPath: sweeping ? 'inset(0 0 0 100%)' : 'inset(0 0 0 0%)', transition: `clip-path ${SWEEP_MS}ms ease-out` }}
+            className="overflow-hidden whitespace-nowrap ease-out"
+            style={{
+              clipPath: sweeping ? 'inset(0 0 0 100%)' : 'inset(0 0 0 0%)',
+              // collapsed: solo ícono; el texto se despliega al hover (y
+              // queda abierto durante el sweep).
+              maxWidth: labelOpen ? '16rem' : 0,
+              marginLeft: labelOpen ? '0.5rem' : 0,
+              transition: `clip-path ${SWEEP_MS}ms ease-out, max-width 300ms ease-out, margin-left 300ms ease-out`,
+            }}
           >
             {label}
           </span>

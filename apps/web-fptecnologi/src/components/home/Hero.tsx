@@ -112,9 +112,11 @@ export function Hero() {
                 tarjetas de las esquinas (switch/AskAiCard). */}
             <div key={slide.key} className="absolute inset-x-0 top-0 bottom-24 flex flex-col items-center justify-center px-6 text-center lg:bottom-28">
               <div
-                className="v9-appear v9-appear--up mx-auto mb-3 flex w-fit items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 backdrop-blur-md"
+                className="v9-appear v9-appear--up relative mx-auto mb-3 flex w-fit items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 backdrop-blur-md"
                 style={{ animationDelay: '0ms' }}
               >
+                {/* Contorno fino que gira siempre, como los badges de sección. */}
+                <span className="spin-border spin-border--thin" aria-hidden />
                 <SparkleIcon className="h-4 w-4 text-white" />
                 <span className="text-sm text-white">{slide.eyebrow}</span>
               </div>
@@ -372,7 +374,7 @@ function AskAiCard() {
   return (
     <div className="w-full">
       <span className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-white/70 sm:text-sm 2xl:mb-2 2xl:text-base">
-        Pregunta a nuestra Inteligencia artificial
+        Pregunta a nuestra Inteligencia Artificial
         <SparkleIcon className="h-3.5 w-3.5 2xl:h-4 2xl:w-4" />
       </span>
       <form onSubmit={handleSubmit} className="flex w-full min-w-0 items-center gap-2">
@@ -389,7 +391,7 @@ function AskAiCard() {
         <button
           type="submit"
           aria-label="Preguntar a la IA"
-          className="group flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-brand-primary text-white transition-transform hover:scale-105 active:scale-95"
+          className="group flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-brand-dark text-white transition-[transform,background-color] hover:scale-105 hover:bg-brand-primary active:scale-95"
         >
           <span className="relative flex h-5 w-5 items-center justify-center">
             <ArrowUpRightIcon
