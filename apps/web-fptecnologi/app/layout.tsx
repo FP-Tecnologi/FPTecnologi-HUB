@@ -15,7 +15,11 @@ export const metadata: Metadata = {
   },
   description:
     'Equipamiento TI y soluciones para empresas: seguridad, videoconferencia, servidores, data centers y más. Distribución autorizada de las principales marcas.',
-  icons: { icon: '/favicon.svg' },
+  icons: {
+    icon: '/logo-fptecnologi-icon.svg',
+    shortcut: '/logo-fptecnologi-icon.svg',
+    apple: '/logo-fptecnologi-icon.svg',
+  },
 };
 
 export const viewport: Viewport = {

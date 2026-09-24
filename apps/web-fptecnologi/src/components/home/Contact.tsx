@@ -27,13 +27,40 @@ const ITEMS: { label: string; value: string; href: string; icon: LucideIcon }[] 
  */
 export function Contact() {
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [company, setCompany] = useState('');
   const [message, setMessage] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const text = `Hola, soy ${name}${company ? ` de ${company}` : ''}. ${message}`;
-    window.open(whatsappHref(text), '_blank', 'noreferrer');
+    setSubmitting(true);
+    setErrorMsg('');
+    try {
+      const res = await fetch('/api/contacto', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, phone, company, message }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSuccess(true);
+        setName('');
+        setEmail('');
+        setPhone('');
+        setCompany('');
+        setMessage('');
+      } else {
+        setErrorMsg(data.error || 'Ocurrió un error al enviar tu mensaje. Inténtalo nuevamente.');
+      }
+    } catch {
+      setErrorMsg('Error de conexión. Inténtalo más tarde.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const input =
@@ -67,8 +94,6 @@ export function Contact() {
                 </span>
                 <span className="min-w-0">
                   <span className="block text-xs uppercase tracking-wide text-white/50">{label}</span>
-                  {/* ​ antes de la @: si el correo no entra, baja de línea ahí
-                      y no a mitad de palabra. */}
                   <span className="block break-words text-sm font-medium">{value.replace('@', '​@')}</span>
                 </span>
               </a>
@@ -79,9 +104,29 @@ export function Contact() {
         <ScrollReveal direction="right" delayMs={120}>
           <form onSubmit={handleSubmit} className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/20 backdrop-blur-md sm:p-8">
             <div className="space-y-4">
+              {success && (
+                <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-center text-sm font-medium text-emerald-400">
+                  ¡Gracias! Tu mensaje ha sido enviado exitosamente. Un asesor te responderá pronto.
+                </div>
+              )}
+              {errorMsg && (
+                <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-center text-sm font-medium text-rose-400">
+                  {errorMsg}
+                </div>
+              )}
               <div>
-                <label className="text-sm text-white/70" htmlFor="c-name">Nombre</label>
-                <input id="c-name" required value={name} onChange={(e) => setName(e.target.value)} className={input} placeholder="Tu nombre" />
+                <label className="text-sm text-white/70" htmlFor="c-name">Nombre completo</label>
+                <input id="c-name" required value={name} onChange={(e) => setName(e.target.value)} className={input} placeholder="Tu nombre y apellido" />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="text-sm text-white/70" htmlFor="c-email">Correo electrónico</label>
+                  <input id="c-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={input} placeholder="correo@empresa.com" />
+                </div>
+                <div>
+                  <label className="text-sm text-white/70" htmlFor="c-phone">Teléfono / WhatsApp</label>
+                  <input id="c-phone" value={phone} onChange={(e) => setPhone(e.target.value)} className={input} placeholder="+51 987 654 321" />
+                </div>
               </div>
               <div>
                 <label className="text-sm text-white/70" htmlFor="c-company">Empresa (opcional)</label>
@@ -96,18 +141,19 @@ export function Contact() {
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
                   className={`${input} resize-none`}
-                  placeholder="Cuéntanos qué necesita tu empresa"
+                  placeholder="Cuéntanos qué solución o equipamiento necesita tu empresa"
                 />
               </div>
               <button
                 type="submit"
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-white text-sm font-semibold uppercase tracking-wide text-brand-dark transition-colors duration-300 hover:bg-brand-primary hover:text-white"
+                disabled={submitting}
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-white text-sm font-semibold uppercase tracking-wide text-brand-dark transition-colors duration-300 hover:bg-brand-primary hover:text-white disabled:opacity-50"
               >
-                <MessageCircle className="h-5 w-5" strokeWidth={2} />
-                Enviar por WhatsApp
+                <Mail className="h-5 w-5" strokeWidth={2} />
+                {submitting ? 'Enviando...' : 'Enviar mensaje'}
               </button>
               <p className="text-center text-xs text-white/40">
-                Se abre WhatsApp con tu mensaje ya escrito, no guardamos nada en un servidor.
+                Tu solicitud será enviada a nuestro equipo de ventas y registrada en el sistema de leads.
               </p>
             </div>
           </form>

@@ -121,7 +121,11 @@ export const metadata: Metadata = {
   },
   description:
     'Dashboard administrativo de FPTecnologi-HUB: gestión multi-marca de productos, pedidos, servicios y cotizaciones.',
-  icons: { icon: '/favicon.svg' },
+  icons: {
+    icon: '/logo-fptecnologi-icon.svg',
+    shortcut: '/logo-fptecnologi-icon.svg',
+    apple: '/logo-fptecnologi-icon.svg',
+  },
 };
 
 export const viewport: Viewport = {

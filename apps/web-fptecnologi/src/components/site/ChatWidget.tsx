@@ -92,7 +92,7 @@ const INTENTS: { keywords: string[]; text: string; actions: string[]; options?: 
   },
   {
     keywords: ['tienda', 'monitor', 'laptop', 'servidor', 'stock', 'producto'],
-    text: 'En la tienda tenemos monitores, laptops, servidores y pantallas interactivas con stock local. ¿Qué buscas?',
+    text: 'En la tienda tenemos monitores, laptops, servidores y pantallas con stock local. ¿Qué buscas?',
     actions: ['tienda'],
     options: ['Monitores', 'Laptops', 'Servidores'],
   },
