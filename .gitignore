@@ -7,3 +7,9 @@ apps/web-fptecnologi/videos-originales/
 
 # Credenciales reales de cuentas de prueba (contraseñas en texto plano)
 docs/credenciales-prueba.md
+
+# Variables de entorno con credenciales reales (nunca se versionan)
+envs/
+.env
+.env.local
+.env.*.local
