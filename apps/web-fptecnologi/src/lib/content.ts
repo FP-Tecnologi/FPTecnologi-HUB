@@ -196,11 +196,14 @@ export const CONTACT_INFO = {
  * el número"). Cuando haya números reales por área, solo se edita `number`
  * acá, nada más en el sitio referencia un wa.me hardcodeado.
  */
+// contact/phone: nombre del asesor y número que se MUESTRA en el widget --
+// provisionales (999 999 999) hasta tener los reales. `number` es el que usa
+// el link de WhatsApp (sigue siendo el real para que el chat funcione).
 export const WHATSAPP_AREAS = [
-  { label: 'Ventas', number: '51908856286' },
-  { label: 'Servicios', number: '51908856286' },
-  { label: 'Tienda', number: '51908856286' },
-  { label: 'Partners', number: '51908856286' },
+  { label: 'Ventas', contact: 'Juan', phone: '999 999 999', number: '51908856286' },
+  { label: 'Servicios', contact: 'María', phone: '999 999 999', number: '51908856286' },
+  { label: 'Tienda', contact: 'Carlos', phone: '999 999 999', number: '51908856286' },
+  { label: 'Partners', contact: 'Lucía', phone: '999 999 999', number: '51908856286' },
 ] as const;
 
 /*

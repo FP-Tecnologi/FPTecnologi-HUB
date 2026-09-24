@@ -67,7 +67,9 @@ export function Contact() {
                 </span>
                 <span className="min-w-0">
                   <span className="block text-xs uppercase tracking-wide text-white/50">{label}</span>
-                  <span className="block break-words text-sm font-medium">{value}</span>
+                  {/* ​ antes de la @: si el correo no entra, baja de línea ahí
+                      y no a mitad de palabra. */}
+                  <span className="block break-words text-sm font-medium">{value.replace('@', '​@')}</span>
                 </span>
               </a>
             ))}
