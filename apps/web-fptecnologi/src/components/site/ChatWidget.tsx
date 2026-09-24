@@ -441,16 +441,25 @@ export function ChatWidget() {
               {WHATSAPP_AREAS.map((area) => (
                 <a
                   key={area.label}
-                  href={`https://wa.me/${area.number}?text=${encodeURIComponent(`Hola, quiero contactar al área de ${area.label} de FPTecnologi`)}`}
+                  href={`https://wa.me/${area.number}?text=${encodeURIComponent(`Hola ${area.contact}, quiero contactar al área de ${area.label} de FPTecnologi`)}`}
                   target="_blank"
                   rel="noreferrer"
                   style={{ '--tint': '#10b981' } as CSSProperties}
                   className="option-card flex items-center gap-3 rounded-2xl p-3 text-left"
                 >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white shadow-sm shadow-emerald-500/30">
-                    <MessageCircle className="h-4 w-4" strokeWidth={2} />
+                  {/* Inicial del asesor con el ícono de WhatsApp de insignia. */}
+                  <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500 font-display text-sm font-bold text-white shadow-sm shadow-emerald-500/30">
+                    {area.contact[0]}
+                    <span className="absolute -bottom-0.5 -right-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-white text-emerald-600 ring-2 ring-white">
+                      <MessageCircle className="h-3 w-3" strokeWidth={2.4} />
+                    </span>
                   </span>
-                  <p className="text-sm font-semibold text-ink">{area.label}</p>
+                  <span className="min-w-0">
+                    <p className="text-sm font-semibold text-ink">
+                      {area.contact} <span className="font-normal text-ink/55">({area.label})</span>
+                    </p>
+                    <p className="text-xs text-ink/55">+51 {area.phone}</p>
+                  </span>
                 </a>
               ))}
             </div>
