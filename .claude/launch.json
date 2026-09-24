@@ -18,6 +18,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "apps/web-fptecnologi", "run", "dev", "--", "--port", "3002"],
       "port": 3002
+    },
+    {
+      "name": "leads",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "apps/leads", "run", "dev"],
+      "port": 3003
     }
   ]
 }
