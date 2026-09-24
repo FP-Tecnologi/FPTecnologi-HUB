@@ -169,7 +169,7 @@ export const PARTNER_STEPS = [
   {
     step: '1',
     title: '¿Necesitas asesoría especializada?',
-    text: 'Contanos qué necesita tu empresa y te asignamos un especialista del rubro.',
+    text: 'Cuéntanos qué necesita tu empresa y te asignamos un especialista del rubro.',
   },
   {
     step: '2',
