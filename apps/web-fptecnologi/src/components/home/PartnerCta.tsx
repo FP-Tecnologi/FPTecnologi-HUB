@@ -43,7 +43,7 @@ export function PartnerCta() {
                   {s.step}
                 </span>
                 <h3 className="mt-5 text-base font-semibold leading-snug text-white">{s.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/65">{s.text}</p>
+                <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-white/65">{s.text}</p>
               </div>
             </ScrollReveal>
           ))}

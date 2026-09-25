@@ -153,8 +153,10 @@ const ACTION_ICON: Record<ChatActionKind, LucideIcon> = {
 function Avatar({ icon: Icon, bot }: { icon: LucideIcon; bot?: boolean }) {
   return (
     <span
-      className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border ${
-        bot ? 'border-brand-primary/25 bg-brand-primary/15 text-brand-primary' : 'border-white/20 bg-white/10 text-white/80'
+      // Cuadrado con una esquina recta, como el botón del widget y la burbuja
+      // de su mismo lado: asistente en azul FP, persona en blanco.
+      className={`flex h-8 w-8 shrink-0 items-center justify-center shadow-md shadow-black/30 ${
+        bot ? 'rounded-xl rounded-bl-sm bg-brand-primary text-white' : 'rounded-xl rounded-br-sm bg-white text-brand-dark'
       }`}
     >
       <Icon className="h-3.5 w-3.5" strokeWidth={2} />
@@ -184,7 +186,7 @@ function Linkified({ text }: { text: string }) {
             href={linkHref(part)}
             target={part.includes('@') ? undefined : '_blank'}
             rel="noreferrer"
-            className="font-semibold text-brand-teal-light underline decoration-brand-teal-light/40 underline-offset-2 hover:decoration-brand-teal-light"
+            className="font-semibold text-white underline decoration-white/50 underline-offset-2 hover:decoration-white"
           >
             {part}
           </a>
@@ -475,8 +477,8 @@ export function ChatWidget() {
                         <div
                           className={`max-w-[80%] px-3.5 py-2.5 text-sm leading-relaxed ${
                             m.from === 'bot'
-                              ? 'glass-card rounded-2xl rounded-bl-md text-white/90'
-                              : 'btn-glow rounded-2xl rounded-br-md text-white'
+                              ? 'rounded-2xl rounded-bl-md bg-brand-primary text-white shadow-md shadow-black/25'
+                              : 'rounded-2xl rounded-br-md bg-white text-ink shadow-md shadow-black/25'
                           }`}
                         >
                           {m.from === 'bot' ? (
@@ -507,7 +509,7 @@ export function ChatWidget() {
                               key={opt}
                               type="button"
                               onClick={() => sendText(opt)}
-                              className="rounded-full border border-brand-primary/50 bg-brand-primary/15 px-3 py-1 text-xs font-medium text-white transition-colors hover:bg-brand-primary/40"
+                              className="rounded-xl rounded-br-sm bg-white px-3 py-1.5 text-xs font-semibold text-brand-dark shadow-sm shadow-black/20 transition-colors hover:bg-brand-primary hover:text-white"
                             >
                               {opt}
                             </button>
@@ -520,10 +522,10 @@ export function ChatWidget() {
                 {typing && (
                   <div className="animate-pop-in flex items-end gap-2 self-start">
                     <Avatar icon={Bot} bot />
-                    <div className="glass-card flex items-center gap-1 rounded-2xl rounded-bl-md px-4 py-3">
-                      <span className="typing-dot h-1.5 w-1.5 rounded-full bg-white/50" style={{ animationDelay: '0ms' }} />
-                      <span className="typing-dot h-1.5 w-1.5 rounded-full bg-white/50" style={{ animationDelay: '150ms' }} />
-                      <span className="typing-dot h-1.5 w-1.5 rounded-full bg-white/50" style={{ animationDelay: '300ms' }} />
+                    <div className="flex items-center gap-1 rounded-2xl rounded-bl-md bg-brand-primary px-4 py-3 shadow-md shadow-black/25">
+                      <span className="typing-dot h-1.5 w-1.5 rounded-full bg-white/80" style={{ animationDelay: '0ms' }} />
+                      <span className="typing-dot h-1.5 w-1.5 rounded-full bg-white/80" style={{ animationDelay: '150ms' }} />
+                      <span className="typing-dot h-1.5 w-1.5 rounded-full bg-white/80" style={{ animationDelay: '300ms' }} />
                     </div>
                   </div>
                 )}

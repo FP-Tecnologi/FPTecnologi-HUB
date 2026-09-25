@@ -169,17 +169,17 @@ export const PARTNER_STEPS = [
   {
     step: '1',
     title: '¿Necesitas asesoría especializada?',
-    text: 'Cuéntanos qué necesita tu empresa y te asignamos un especialista del rubro.',
+    text: 'Te asignamos un especialista según lo que necesita tu empresa.',
   },
   {
     step: '2',
     title: 'Contacta con nuestro equipo de ventas',
-    text: 'Cotización sin compromiso, con stock local y tiempos de entrega reales.',
+    text: 'Cotización sin compromiso, con stock local y entrega real.',
   },
   {
     step: '3',
-    title: 'Consulta por el programa de Partners FP',
-    text: 'Precios y beneficios especiales para integradores y revendedores.',
+    title: 'Consulta por el programa de Partners',
+    text: 'Precios y beneficios para integradores y revendedores.',
   },
 ] as const;
 
