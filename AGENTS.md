@@ -67,8 +67,22 @@ apps/
                     (el nombre "web" es heredado de la plantilla Vireo)
   web-fptecnologi/  Next.js — web pública de fptecnologi.com (Fase 2,
                     sin login, catálogo/servicios/carrito/chat propios)
+  leads/            COPIA CONGELADA — no editar (ver abajo)
 docs/     Documentación de negocio y planificación
 ```
+
+**Sistema de Centralización de Leads — vive en su propio repo** desde el
+2026-09-28: [`FP-Tecnologi/centralizaci-n-leads`](https://github.com/FP-Tecnologi/centralizaci-n-leads)
+(clonado localmente al lado de este repo, en `../centralizacion-leads`). Es el
+`git subtree split` de `apps/leads`, con su historial. `apps/leads` aquí quedó
+como copia de referencia: **los cambios se hacen en el repo nuevo**. Usa otra
+base Supabase (`qpjxwtvmuqramhqoxkxj`, la de leads) que la del ERP
+(`vzfdjpqvqxrooesxozjx`). Para vincularlos:
+- en ejecución, por API (`api-v1` para leer leads con una "aplicación
+  conectada", `ingresar-lead` para enviarlos desde webs del HUB);
+- en código, el remoto `leads` de este repo apunta al repo nuevo:
+  `git fetch leads && git subtree pull --prefix=apps/leads leads main` trae lo
+  último. Detalle en el README del repo de leads.
 
 No hay `packages/shared-types`, `turbo` ni npm workspaces — cada app
 (`apps/api`, `apps/web`, `apps/web-fptecnologi`) es un proyecto npm
