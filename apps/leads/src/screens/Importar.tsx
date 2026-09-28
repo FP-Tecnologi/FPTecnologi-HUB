@@ -12,22 +12,27 @@ import { PageHead } from '../components/shell/PageHead';
 import { useAuth } from '../context/AuthContext';
 import { supabase } from '../lib/supabase';
 import { guardarFuente, listarColumnasExtra, listarFuentes, registrarColumnas, type ColumnaExtra, type Fuente } from '../lib/leads/datos';
-import { claveDestinoSegura, construirFilas, inferirTipo, labelParaClaveSobrante, normalizarEncabezado, slugify, sugerirMapeo, type FilaEntrada, type Mapeo } from '../lib/leads/mapeo';
-import { exportarObjetos, leerArchivo } from '../lib/leads/exportar';
-import { NUCLEO, type ErrorCampo } from '../../supabase/functions/_shared/lead';
+import {
+  CAMPOS_IMPORTACION, CLAVES_UI, LABEL_DESTINO, claveDestinoSegura, construirFilas, describirErrorServidor, esDestinoDirecto,
+  inferirTipo, labelParaClaveSobrante, normalizarEncabezado, slugify, sugerirMapeo, type FilaEntrada, type Mapeo, type MarcaInvalido,
+} from '../lib/leads/mapeo';
+import { CeldaMarcada } from '../components/leads/CeldaMarcada';
+import { exportarRegistroFallas, leerArchivo, type FallaImportacion } from '../lib/leads/exportar';
+import { NUCLEO } from '../../supabase/functions/_shared/lead';
 
-const LABEL_NUCLEO: Record<string, string> = {
-  nombres: 'Nombres', apellido: 'Apellido', email: 'Correo', telefono: 'Teléfono',
-  empresa: 'Empresa', ruc: 'RUC/DNI', cargo: 'Cargo', rubro: 'Rubro', fecha_nacimiento: 'Fecha de nacimiento',
-};
-const MOTIVO: Record<ErrorCampo['motivo'], string> = {
-  requerido: 'Requerido', formato: 'Formato inválido', contacto: 'Indica correo o teléfono',
-};
-const MAX_FILAS = 50_000;
+// orden fijo de columnas en la vista previa: núcleo + estado/evento/fecha de registro.
+const COLS_DIRECTAS = [...NUCLEO, ...CAMPOS_IMPORTACION] as string[];
 const LOTE = 500;
 
 interface ImportacionHist { id: string; archivo: string; nuevas: number; actualizadas: number; errores: number; creado_en: string }
 interface ResultadoImport { nuevas: number; actualizadas: number; erroresServidor: { fila: number; motivo: string }[] }
+type Destino = 'directo' | 'existente' | 'nueva' | 'ignorar';
+const TEXTO_DESTINO: Record<Destino, string> = {
+  directo: 'Campo del lead', existente: 'Columna adicional existente', nueva: 'Se crea columna adicional', ignorar: 'No se guarda',
+};
+const CLASE_DESTINO: Record<Destino, string> = {
+  directo: 'ax-badge--success', existente: 'ax-badge--info', nueva: 'ax-badge--accent', ignorar: 'ax-badge--neutral',
+};
 
 const PASOS = ['Archivo y fuente', 'Mapear columnas', 'Vista previa y confirmar'];
 
@@ -104,10 +109,6 @@ export function Importar() {
     setLeyendo(true);
     try {
       const { encabezados: h, filas: f } = await leerArchivo(file);
-      if (f.length > MAX_FILAS) {
-        setErrorArchivo(`El archivo tiene ${f.length} filas; el máximo permitido es ${MAX_FILAS.toLocaleString('es-PE')}.`);
-        return;
-      }
       setEncabezados(h);
       setFilasArchivo(f);
     } catch {
@@ -119,7 +120,7 @@ export function Importar() {
 
   const avanzarAMapeo = () => {
     if (!fuente || !encabezados.length) return;
-    setMapeo(sugerirMapeo(encabezados, fuente.campos));
+    setMapeo(sugerirMapeo(encabezados, fuente.campos, columnasExtra));
     irA(1);
   };
 
@@ -129,7 +130,7 @@ export function Importar() {
   const opcionesMapeo = (encabezado: string) => {
     const out: { value: string; label: string }[] = [{ value: '', label: '— Ignorar —' }];
     const vistos = new Set<string>();
-    for (const k of NUCLEO) { out.push({ value: k, label: LABEL_NUCLEO[k] ?? k }); vistos.add(k); }
+    for (const k of COLS_DIRECTAS) { out.push({ value: k, label: LABEL_DESTINO[k] ?? k }); vistos.add(k); }
     for (const c of fuente?.campos ?? []) {
       if (vistos.has(c.key)) continue;
       vistos.add(c.key);
@@ -145,12 +146,21 @@ export function Importar() {
     // ya en `vistos`, o normalizar justo a un nombre reservado como "status"/"fuente_slug")
     // sino la que sale de claveDestinoSegura, que trunca/sufija para que registrar_columnas
     // nunca la rechace (23514).
+    // si la sugerencia automática ya eligió una clave nueva (p.ej. "Fuente" → fuente_origen),
+    // esa es la opción de columna nueva — si no, el select no la tendría entre sus opciones.
+    const actual = mapeo[encabezado];
     const base = normalizarEncabezado(encabezado);
-    if (base) {
-      const nueva = claveDestinoSegura(base, vistos);
-      out.push({ value: nueva, label: `Campo nuevo: ${encabezado}` });
-    }
+    const nueva = actual && !vistos.has(actual) ? actual : base ? claveDestinoSegura(base, [...vistos, ...CLAVES_UI]) : null;
+    if (nueva) out.push({ value: nueva, label: `Columna nueva: ${encabezado}` });
     return out;
+  };
+
+  // qué pasa con cada columna del archivo según su destino (se muestra en el paso 2).
+  const tipoDestino = (destino: string | null | undefined): Destino => {
+    if (!destino) return 'ignorar';
+    if (esDestinoDirecto(destino) || fuente?.campos.some((c) => c.key === destino)) return 'directo';
+    if (columnasExtra.some((c) => c.key === destino)) return 'existente';
+    return 'nueva';
   };
 
   const confirmarMapeo = async () => {
@@ -165,14 +175,14 @@ export function Importar() {
     // la definición de formulario de la fuente, que sigue siendo solo-admin vía RLS.
     const primerEncabezadoPorDestino = new Map<string, string>();
     for (const [h, destino] of Object.entries(mapeo)) {
-      if (destino && !(NUCLEO as readonly string[]).includes(destino) && !primerEncabezadoPorDestino.has(destino)) {
+      if (destino && !esDestinoDirecto(destino) && !primerEncabezadoPorDestino.has(destino)) {
         primerEncabezadoPorDestino.set(destino, h);
       }
     }
     const colsPrimarias: ColumnaExtra[] = [...primerEncabezadoPorDestino.entries()].map(([key, encabezado]) => ({
       key,
       label: encabezado,
-      tipo: inferirTipo(filasArchivo.map((f) => String(f.datos[encabezado] ?? ''))),
+      tipo: inferirTipo(filasArchivo.map((f) => String(f.datos[encabezado] ?? '')), encabezado),
     }));
 
     // construirFilas puede generar sus propias claves "sobrantes" (claveExtraLibre) cuando
@@ -184,7 +194,7 @@ export function Importar() {
     const primeraPasada = construirFilas(filasArchivo, mapeo, fuente.campos, tiposPrimarios);
     const clavesPrimarias = new Set(colsPrimarias.map((c) => c.key));
     const clavesSobrantes = new Set<string>();
-    for (const { lead } of primeraPasada.validas) {
+    for (const { lead } of primeraPasada.filas) {
       for (const k of Object.keys(lead.extra)) {
         if (!clavesPrimarias.has(k)) clavesSobrantes.add(k);
       }
@@ -193,7 +203,7 @@ export function Importar() {
       key,
       label: labelParaClaveSobrante(key, mapeo),
       tipo: inferirTipo(
-        primeraPasada.validas.map(({ lead }) => lead.extra[key]).filter((v): v is string => typeof v === 'string'),
+        primeraPasada.filas.map(({ lead }) => lead.extra[key]).filter((v): v is string => typeof v === 'string'),
       ),
     }));
 
@@ -216,10 +226,11 @@ export function Importar() {
         return [...prev, ...cols.filter((c) => !previas.has(c.key))].sort((a, b) => a.label.localeCompare(b.label));
       });
       setGuardandoMapeo(false);
-      if (fallidas.length) {
-        setErrorMapeo(`No se pudieron registrar estas columnas: ${fallidas.join('; ')}`);
-        return;
-      }
+      // no frena la importación: el dato igual se guarda en el lead (extra), solo que esa
+      // columna no aparece como columna propia en tabla/filtros hasta registrarla.
+      setErrorMapeo(fallidas.length
+        ? `Estas columnas no se pudieron crear como columna propia (sus datos se guardan igual dentro del lead): ${fallidas.join('; ')}`
+        : null);
     }
     // fechas extra en DD/MM/YYYY -> ISO antes de enviar: leads_completo (SQL) solo castea
     // ISO, y un DD/MM/YYYY guardado tal cual saldría null ahí para siempre. Se corre
@@ -247,7 +258,8 @@ export function Importar() {
     setImportando(true);
     setErrorImportar(null);
     setProgreso(0);
-    const validas = construido.validas;
+    // todas las filas se envían (las que tienen datos a revisar van con su marca en `invalidos`).
+    const validas = construido.filas;
     const totalLotes = Math.max(1, Math.ceil(validas.length / LOTE));
     let nuevas = 0;
     let actualizadas = 0;
@@ -270,7 +282,7 @@ export function Importar() {
           nuevas += data.nuevas;
           actualizadas += data.actualizadas;
           for (const e of data.errores as { fila: number; motivo: string }[]) {
-            erroresServidor.push({ fila: lote[e.fila - 1].fila, motivo: e.motivo });
+            erroresServidor.push({ fila: lote[e.fila - 1].fila, motivo: describirErrorServidor(e.motivo) });
           }
           setProgreso(Math.min(i + LOTE, validas.length));
         } catch (e) {
@@ -295,17 +307,49 @@ export function Importar() {
     }
   };
 
-  const descargarErrores = async () => {
-    if (!construido) return;
-    const filas = construido.errores.map((e) => ({
-      ...e.original,
-      errores: e.errores.map((er) => `${er.campo}: ${MOTIVO[er.motivo]}`).join('; '),
-    }));
-    // directo con exportarObjetos (no exportarLeads/valorColumna): las filas del archivo
-    // pueden traer columnas literalmente llamadas "nombre" o "fuente", que valorColumna
-    // trata como casos especiales de Lead y las perdería.
-    await exportarObjetos(filas, [...encabezados, 'errores'], 'csv', 'errores-importacion');
+  // Registro de fallas en Excel: las filas que no pasaron la revisión previa + las que el
+  // servidor rechazó al guardar (si ya se importó), con la causa de cada una y los datos
+  // originales del archivo para corregirlas ahí mismo y volver a importar solo esas.
+  const fallas = useMemo<FallaImportacion[]>(() => {
+    if (!construido) return [];
+    const originalPorFila = new Map(filasArchivo.map((f, i) => [f.fila ?? i + 2, f.datos]));
+    return [
+      ...construido.observadas.map((e) => ({ fila: e.fila, causas: e.causas, etapa: 'validacion' as const, original: e.original })),
+      ...(resultado?.erroresServidor ?? []).map((e) => ({
+        fila: e.fila, causas: [e.motivo], etapa: 'servidor' as const, original: originalPorFila.get(e.fila) ?? {},
+      })),
+    ];
+  }, [construido, resultado, filasArchivo]);
+
+  const descargarFallas = async () => {
+    const base = (archivo?.name ?? 'importacion').replace(/\.[^.]+$/, '');
+    await exportarRegistroFallas(fallas, encabezados, `fallas-${base}`);
   };
+
+  // columnas de la vista previa: las directas que aparezcan en alguna fila + "Columnas adicionales".
+  const colsPreview = useMemo(() => {
+    if (!construido) return [];
+    const presentes = new Set<string>();
+    for (const { lead } of construido.filas) for (const k of Object.keys(lead)) presentes.add(k);
+    return COLS_DIRECTAS.filter((k) => presentes.has(k));
+  }, [construido]);
+  const labelExtra = (k: string) => columnasExtra.find((c) => c.key === k)?.label ?? k;
+
+  // mismo correo y mismo evento dentro del archivo: se guardan como un solo lead (la fila de
+  // más abajo completa a la anterior), así que "nuevas" puede salir menor que el total. El
+  // mismo correo en otro evento es otro lead y no cuenta acá.
+  const repetidos = useMemo(() => {
+    if (!construido) return 0;
+    const vistos = new Set<string>();
+    let n = 0;
+    for (const { lead } of construido.filas) {
+      const correo = typeof lead.email === 'string' ? lead.email : '';
+      if (!correo) continue;
+      const e = `${correo}|${typeof lead.evento === 'string' ? lead.evento : ''}`;
+      if (vistos.has(e)) n += 1; else vistos.add(e);
+    }
+    return n;
+  }, [construido]);
 
   if (!puedeEditar) {
     return (
@@ -316,11 +360,11 @@ export function Importar() {
     );
   }
 
-  const totalConError = (construido?.errores.length ?? 0) + (resultado?.erroresServidor.length ?? 0);
+  const totalObservadas = construido?.observadas.length ?? 0;
 
   return (
     <>
-      <PageHead title="Importar leads" subtitle="Excel (.xlsx, .xls) o CSV. Máximo 50 000 filas por archivo." />
+      <PageHead title="Importar leads" subtitle="Excel (.xlsx, .xls) o CSV. Ninguna fila se descarta: lo incompleto se importa marcado para revisar." />
 
       <div className="ax-card ax-col--12">
         <div className="ax-tabs ax-tabs--pill" style={{ padding: 'var(--ax-space-4) var(--ax-space-5) 0' }}>
@@ -424,32 +468,47 @@ export function Importar() {
 
           {paso === 1 && fuente && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
+              <p className="ax-card__subtitle" style={{ margin: 0 }}>
+                Cada columna del archivo se guarda en el campo que elijas. Las que no corresponden a un
+                campo del lead (p.ej. &quot;Necesidad detectada&quot;) se guardan como <b>columna adicional</b>:
+                se crea una sola vez y queda disponible en la tabla, los filtros y la exportación de todas
+                las fuentes. Elige &quot;— Ignorar —&quot; si no quieres guardarla.
+              </p>
               <div className="ax-table-wrap">
                 <table className="ax-table">
                   <thead className="ax-table__head">
                     <tr>
                       <th className="ax-table__th" scope="col">Columna del archivo</th>
-                      <th className="ax-table__th" scope="col">Ejemplo (primera fila)</th>
+                      <th className="ax-table__th" scope="col">Ejemplo</th>
                       <th className="ax-table__th" scope="col">Guardar como</th>
+                      <th className="ax-table__th" scope="col">Qué pasa</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {encabezados.map((h) => (
-                      <tr key={h} className="ax-table__row">
-                        <td className="ax-table__td">{h}</td>
-                        <td className="ax-table__td">{String(filasArchivo[0]?.datos[h] ?? '')}</td>
-                        <td className="ax-table__td">
-                          <select
-                            className="ax-select ax-select--sm"
-                            value={mapeo[h] ?? ''}
-                            onChange={(e) => setMapeo((m) => ({ ...m, [h]: e.target.value || null }))}
-                            aria-label={`Guardar "${h}" como`}
-                          >
-                            {opcionesMapeo(h).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                          </select>
-                        </td>
-                      </tr>
-                    ))}
+                    {encabezados.map((h) => {
+                      // ejemplo: primer valor no vacío de la columna (la primera fila suele venir incompleta).
+                      const ejemplo = filasArchivo.find((f) => String(f.datos[h] ?? '').trim() !== '')?.datos[h];
+                      const tipo = tipoDestino(mapeo[h]);
+                      return (
+                        <tr key={h} className="ax-table__row">
+                          <td className="ax-table__td">{h}</td>
+                          <td className="ax-table__td">{String(ejemplo ?? '')}</td>
+                          <td className="ax-table__td">
+                            <select
+                              className="ax-select ax-select--sm"
+                              value={mapeo[h] ?? ''}
+                              onChange={(e) => setMapeo((m) => ({ ...m, [h]: e.target.value || null }))}
+                              aria-label={`Guardar "${h}" como`}
+                            >
+                              {opcionesMapeo(h).map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                            </select>
+                          </td>
+                          <td className="ax-table__td">
+                            <span className={`ax-badge ax-badge--soft ax-badge--pill ax-badge--sm ${CLASE_DESTINO[tipo]}`}>{TEXTO_DESTINO[tipo]}</span>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -468,67 +527,96 @@ export function Importar() {
               {!resultado && (
                 <>
                   <p className="ax-num">
-                    <b style={{ color: 'var(--ax-success-500)' }}>{construido.validas.length} filas válidas</b>
-                    {construido.errores.length > 0 && <>, <b style={{ color: 'var(--ax-danger-500)' }}>{construido.errores.length} con errores</b></>}
+                    <b style={{ color: 'var(--ax-success-500)' }}>{construido.filas.length} filas se importarán</b>
+                    {totalObservadas > 0 && <>, de ellas <b style={{ color: 'var(--ax-warning-500)' }}>{totalObservadas} con datos a revisar</b></>}
                   </p>
+                  {repetidos > 0 && (
+                    <p className="ax-card__subtitle" style={{ margin: 0 }}>
+                      {repetidos} fila{repetidos === 1 ? ' repite' : 's repiten'} un correo de otra fila del archivo: se
+                      guardan como un solo lead (la fila de más abajo completa a la anterior).
+                    </p>
+                  )}
 
-                  {!!construido.validas.length && (
+                  {!!construido.filas.length && (
                     <div className="ax-table-wrap">
                       <table className="ax-table">
                         <thead className="ax-table__head">
-                          <tr>{Object.keys(construido.validas[0].lead).filter((k) => k !== 'extra').map((k) => <th key={k} className="ax-table__th" scope="col">{LABEL_NUCLEO[k] ?? k}</th>)}<th className="ax-table__th" scope="col">Extra</th></tr>
+                          <tr>
+                            <th className="ax-table__th" scope="col">Fila</th>
+                            {colsPreview.map((k) => <th key={k} className="ax-table__th" scope="col">{LABEL_DESTINO[k] ?? k}</th>)}
+                            <th className="ax-table__th" scope="col">Columnas adicionales</th>
+                          </tr>
                         </thead>
                         <tbody>
-                          {construido.validas.slice(0, 20).map(({ fila, lead }) => (
+                          {construido.filas.slice(0, 20).map(({ fila, lead }) => {
+                            const marcas = (lead.invalidos ?? {}) as Record<string, MarcaInvalido>;
+                            return (
                             <tr key={fila} className="ax-table__row">
-                              {Object.keys(construido.validas[0].lead).filter((k) => k !== 'extra').map((k) => (
-                                <td key={k} className="ax-table__td">{String((lead as unknown as Record<string, unknown>)[k] ?? '')}</td>
+                              <td className="ax-table__td ax-num">{fila}</td>
+                              {colsPreview.map((k) => (
+                                <td key={k} className="ax-table__td">
+                                  <CeldaMarcada valor={String((lead as unknown as Record<string, unknown>)[k] ?? '')} marca={marcas[k]} />
+                                </td>
                               ))}
-                              <td className="ax-table__td">{Object.entries(lead.extra).map(([k, v]) => `${k}: ${v}`).join(', ')}</td>
+                              <td className="ax-table__td">{Object.entries(lead.extra).map(([k, v]) => `${labelExtra(k)}: ${v}`).join(' · ')}</td>
                             </tr>
-                          ))}
+                            );
+                          })}
                         </tbody>
                       </table>
                     </div>
                   )}
+                  {construido.filas.length > 20 && (
+                    <p className="ax-card__subtitle" style={{ margin: 0 }}>Vista previa de las primeras 20 filas.</p>
+                  )}
 
-                  {!!construido.errores.length && (
+                  {!!construido.observadas.length && (
                     <div>
                       <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
-                        <h3 className="ax-card__title" style={{ fontSize: 'var(--ax-text-md)' }}>Filas con errores</h3>
-                        <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={descargarErrores}>Descargar errores (CSV)</button>
+                        <h3 className="ax-card__title" style={{ fontSize: 'var(--ax-text-md)' }}>Filas con datos a revisar (se importan marcadas)</h3>
+                        <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={descargarFallas}>Descargar registro de observaciones (Excel)</button>
                       </div>
                       <ul style={{ margin: 0, paddingInlineStart: 'var(--ax-space-5)', fontSize: 'var(--ax-text-sm)' }}>
-                        {construido.errores.slice(0, 50).map((e) => (
-                          <li key={e.fila}>
-                            Fila {e.fila}: {e.errores.map((er) => `${er.campo} (${MOTIVO[er.motivo]})`).join(', ')}
-                          </li>
+                        {construido.observadas.slice(0, 50).map((e) => (
+                          <li key={e.fila}>Fila {e.fila}: {e.causas.join('; ')}</li>
                         ))}
                       </ul>
+                      {construido.observadas.length > 50 && (
+                        <p className="ax-card__subtitle">…y {construido.observadas.length - 50} más en el Excel de observaciones.</p>
+                      )}
                     </div>
                   )}
 
                   <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
                     <button type="button" className="ax-btn ax-btn--secondary" onClick={() => setPaso(1)} disabled={importando}>Atrás</button>
-                    <button type="button" className="ax-btn ax-btn--primary" disabled={!construido.validas.length || importando} onClick={importar}>
-                      {importando ? `Importando… ${progreso}/${construido.validas.length}` : `Importar ${construido.validas.length} filas`}
+                    <button type="button" className="ax-btn ax-btn--primary" disabled={!construido.filas.length || importando} onClick={importar}>
+                      {importando ? `Importando… ${progreso}/${construido.filas.length}` : `Importar ${construido.filas.length} filas`}
                     </button>
                   </div>
                 </>
               )}
 
+              {errorMapeo && <p role="status" style={{ color: 'var(--ax-warning-500)' }}>{errorMapeo}</p>}
               {errorImportar && <p role="alert" style={{ color: 'var(--ax-danger-500)' }}>{errorImportar}</p>}
 
               {resultado && (
                 <>
                   <p className="ax-num" style={{ fontSize: 'var(--ax-text-lg)' }}>
                     {resultado.nuevas} nuevas, {resultado.actualizadas} actualizadas
-                    {totalConError > 0 && <>, {totalConError} con error</>}
+                    {totalObservadas > 0 && <>, {totalObservadas} con datos a revisar (marcados en la tabla)</>}
+                    {resultado.erroresServidor.length > 0 && <>, {resultado.erroresServidor.length} no se pudieron guardar</>}
                   </p>
                   {!!resultado.erroresServidor.length && (
                     <ul style={{ margin: 0, paddingInlineStart: 'var(--ax-space-5)', fontSize: 'var(--ax-text-sm)' }}>
                       {resultado.erroresServidor.map((e, i) => <li key={i}>Fila {e.fila}: {e.motivo}</li>)}
                     </ul>
+                  )}
+                  {fallas.length > 0 && (
+                    <div>
+                      <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={descargarFallas}>
+                        Descargar registro de observaciones (Excel, {fallas.length} fila{fallas.length === 1 ? '' : 's'})
+                      </button>
+                    </div>
                   )}
                   <div>
                     <Link href={`/leads?fuente=${fuenteId}`} className="ax-btn ax-btn--primary">Ver en la tabla</Link>
