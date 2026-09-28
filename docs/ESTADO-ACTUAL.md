@@ -519,7 +519,7 @@ sesión/máquina)**:
   5 pasos + página pública `/l/<slug>`), confirmaciones con diseño propio, rango de fechas,
   panel de columnas, arreglo para que la landing de EXPOMINA vuelva a guardar registros.
 - Despliegue preparado para cPanel (Node.js, `output: 'standalone'`).
-- **El sistema de leads pasa a su propio repo**: `FP-Tecnologi/centralizaci-n-leads`.
+- **El sistema de leads pasa a su propio repo**: `FP-Tecnologi/centralizacion-leads`.
   `apps/leads` queda congelado aquí (ver AGENTS.md → Estructura del repo).
 - Pendiente: desplegar Edge Functions (`admin-usuarios`, `ingresar-lead`, `api-v1`),
   SMTP de Resend en Supabase Auth, decidir cómo reciben registros las landings del CMS,
