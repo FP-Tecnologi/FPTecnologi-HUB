@@ -64,7 +64,8 @@ function Leaf({ node, level, activeSlug, roleName }: LeafProps) {
   const resolved = manifest.resolve(node)!;
   const isActive = resolved.slug === activeSlug;
   const hidden = !visibleForRole(node, roleName);
-  const cls = ['ax-nav__item', 'ax-nav__item--child'];
+  const cls = ['ax-nav__item'];
+  if (level > 1) cls.push('ax-nav__item--child');
   if (isActive) cls.push('ax-nav__item--active', 'is-active');
   if (hidden) cls.push('is-hidden');
   return (
@@ -97,11 +98,15 @@ function TodasFuentesLeaf({ base, label, level, activeSlug }: { base: string; la
   );
 }
 
-/* Submenú por fuente (nivel 2): Gestionar / Registros. */
+/* Submenú por fuente (nivel 2). Landings: Gestionar (editor visual) / Configuración
+   (datos y conexión) / Registros. Apps offline: Gestionar / Registros. */
 function FuenteSubgrupo({ f, base, level, activeSlug }: { f: Fuente; base: string; level: number; activeSlug: string }) {
-  const slugGestionar = `${base}/${f.slug}`;
-  const slugRegistros = `${base}/${f.slug}/registros`;
-  const containsActive = activeSlug === slugGestionar || activeSlug === slugRegistros;
+  const items = [
+    { slug: `${base}/${f.slug}`, label: 'Gestionar' },
+    ...(base === 'landings' ? [{ slug: `${base}/${f.slug}/configuracion`, label: 'Configuración' }] : []),
+    { slug: `${base}/${f.slug}/registros`, label: 'Registros' },
+  ];
+  const containsActive = items.some((i) => i.slug === activeSlug);
   const [open, setOpen] = useState(containsActive);
   const isOpen = open || containsActive;
   const parentCls = ['ax-nav__item', 'ax-nav__item--parent', 'ax-nav__item--child'];
@@ -114,26 +119,19 @@ function FuenteSubgrupo({ f, base, level, activeSlug }: { f: Fuente; base: strin
         {CARET}
       </button>
       <div className="ax-nav__children" role="group" data-ax-collapse-panel hidden={!isOpen}>
-        <Link
-          className={`ax-nav__item ax-nav__item--child${activeSlug === slugGestionar ? ' ax-nav__item--active is-active' : ''}`}
-          role="treeitem"
-          aria-level={level + 1}
-          aria-current={activeSlug === slugGestionar ? 'page' : undefined}
-          href={`/${slugGestionar}`}
-        >
-          <span className="ax-nav__bar" aria-hidden="true"></span>
-          <span className="ax-nav__label">Gestionar</span>
-        </Link>
-        <Link
-          className={`ax-nav__item ax-nav__item--child${activeSlug === slugRegistros ? ' ax-nav__item--active is-active' : ''}`}
-          role="treeitem"
-          aria-level={level + 1}
-          aria-current={activeSlug === slugRegistros ? 'page' : undefined}
-          href={`/${slugRegistros}`}
-        >
-          <span className="ax-nav__bar" aria-hidden="true"></span>
-          <span className="ax-nav__label">Registros</span>
-        </Link>
+        {items.map((i) => (
+          <Link
+            key={i.slug}
+            className={`ax-nav__item ax-nav__item--child${activeSlug === i.slug ? ' ax-nav__item--active is-active' : ''}`}
+            role="treeitem"
+            aria-level={level + 1}
+            aria-current={activeSlug === i.slug ? 'page' : undefined}
+            href={`/${i.slug}`}
+          >
+            <span className="ax-nav__bar" aria-hidden="true"></span>
+            <span className="ax-nav__label">{i.label}</span>
+          </Link>
+        ))}
       </div>
     </div>
   );
@@ -268,15 +266,17 @@ export function Sidebar({ drawerOpen = false, onNavToggle }: { drawerOpen?: bool
               <p className="ax-sidebar__section" role="presentation">
                 {sectionLabel(section)}
               </p>
-              {groups.map((g) => (
-                <Group
-                  key={g.id}
-                  node={g}
-                  level={1}
-                  activeSlug={activeSlug}
-                  roleName={roleName}
-                />
-              ))}
+              {groups.map((g) =>
+                // Nivel 1 sin hijos (Dashboard, Exportación, Usuarios) = enlace directo;
+                // antes se dibujaba como grupo y el clic solo abría un submenú vacío.
+                // Landings/Apps offline siempre son grupo: sus hijos se inyectan desde `fuentes`.
+                manifest.childrenOf(g.id).some((c) => c.inMenu && visibleForRole(c, roleName))
+                || g.id === 'grp.landings' || g.id === 'grp.offline' ? (
+                  <Group key={g.id} node={g} level={1} activeSlug={activeSlug} roleName={roleName} />
+                ) : (
+                  <Leaf key={g.id} node={g} level={1} activeSlug={activeSlug} roleName={roleName} />
+                ),
+              )}
             </div>
           );
         })}
