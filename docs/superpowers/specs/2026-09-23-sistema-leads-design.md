@@ -134,6 +134,16 @@ producción.
    **Importar**: asistente en 3 pasos — subir Excel/CSV → elegir fuente y
    mapear columnas a campos (lo no mapeado va a `extra`) → vista previa con
    errores y duplicados detectados → confirmar. Queda en `importaciones`.
+   Detalle del mapeo (2026-09-28): cada columna se sugiere por sinónimo o por
+   palabra ("Nombres / Contacto" → nombres, "Empresa / Cliente" → empresa);
+   "Estado", "Evento" y "Fecha" (de registro) van a `status`, `evento` y
+   `created_at`; toda columna sin campo propio se guarda como **columna
+   adicional** (registro global `columnas_extra`, visible en tabla, filtros y
+   exportación) salvo que se elija "Ignorar". Fechas en serial de Excel
+   (46281), DD/MM/AAAA o "16-Sep-2026" se pasan a ISO; varios teléfonos o
+   correos en una celda se separan (el resto va a "Teléfono 2"); DNI sin el
+   cero inicial se completa a 8 dígitos. Los campos obligatorios del
+   formulario de la fuente solo bloquean filas si se marca "Exigir…".
 3. **Landings** — lista de fuentes tipo landing, botones "Nueva" y
    "Duplicar". Cada landing aparece en el menú con submenú:
    - **Gestionar**: nombre, dominio, estado, editor de campos del
@@ -172,8 +182,10 @@ producción.
 
 ## 6. Manejo de errores
 
-- Importación: filas inválidas no bloquean el lote; se listan con motivo y
-  se pueden descargar como CSV para corregir.
+- Importación: filas inválidas no bloquean el lote; se listan con la causa
+  en palabras (valor + qué se esperaba) y se descargan como **registro de
+  fallas en Excel** (fila del archivo, causa, etapa, datos originales) para
+  corregir y reimportar solo esas.
 - Edge Functions: respuestas JSON con código de error estable
   (`campo_invalido`, `clave_invalida`, `fuente_cerrada`, `limite_excedido`).
 - Webhooks: reintentos con espera creciente; fallos visibles en la app
