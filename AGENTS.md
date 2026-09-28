@@ -72,7 +72,7 @@ docs/     Documentación de negocio y planificación
 ```
 
 **Sistema de Centralización de Leads — vive en su propio repo** desde el
-2026-09-28: [`FP-Tecnologi/centralizaci-n-leads`](https://github.com/FP-Tecnologi/centralizaci-n-leads)
+2026-09-28: [`FP-Tecnologi/centralizacion-leads`](https://github.com/FP-Tecnologi/centralizacion-leads)
 (clonado localmente al lado de este repo, en `../centralizacion-leads`). Es el
 `git subtree split` de `apps/leads`, con su historial. `apps/leads` aquí quedó
 como copia de referencia: **los cambios se hacen en el repo nuevo**. Usa otra
