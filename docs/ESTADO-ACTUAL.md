@@ -509,3 +509,19 @@ sesión/máquina)**:
 - Este documento (`ESTADO-ACTUAL.md`) y `AGENTS.md` actualizados con el
   detalle de Fase 2 para que cualquier sesión/máquina nueva pueda
   continuar sin depender de contexto que solo vivía en memoria local.
+
+### 2026-09-28 — Sistema de Centralización de Leads: puesta en marcha y repo propio
+- Base de leads definida: Supabase `qpjxwtvmuqramhqoxkxj` (la de EXPOMINA) se migró en sitio
+  sin perder datos (43 leads → fuentes EXPOMINA Perú 2026 y Semana de Ingeniería Geológica).
+  El ERP sigue en `vzfdjpqvqxrooesxozjx`. El proyecto `dsanz…` era de pruebas y se abandona.
+- Agregado: roles superadmin/admin/editor/lector y módulo Usuarios (invitar, editar,
+  desactivar, eliminar), rediseño de Importar, CMS de landings (plantillas + asistente de
+  5 pasos + página pública `/l/<slug>`), confirmaciones con diseño propio, rango de fechas,
+  panel de columnas, arreglo para que la landing de EXPOMINA vuelva a guardar registros.
+- Despliegue preparado para cPanel (Node.js, `output: 'standalone'`).
+- **El sistema de leads pasa a su propio repo**: `FP-Tecnologi/centralizaci-n-leads`.
+  `apps/leads` queda congelado aquí (ver AGENTS.md → Estructura del repo).
+- Pendiente: desplegar Edge Functions (`admin-usuarios`, `ingresar-lead`, `api-v1`),
+  SMTP de Resend en Supabase Auth, decidir cómo reciben registros las landings del CMS,
+  habilitar deploy keys en la organización para conectar cPanel por Git, y rotar las
+  credenciales que estuvieron versionadas en `envs/` (historial del HUB).
