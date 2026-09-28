@@ -7,7 +7,9 @@ export const NUCLEO = [
 ] as const;
 export type CampoNucleo = typeof NUCLEO[number];
 export type TipoCampo = 'texto' | 'email' | 'telefono' | 'fecha' | 'numero' | 'opcion' | 'documento';
-export interface CampoFormulario { key: string; label: string; tipo: TipoCampo; requerido: boolean; opciones?: string[] }
+// `placeholder` solo lo usa el formulario público de las landings del CMS
+// (src/components/landings); la validación lo ignora.
+export interface CampoFormulario { key: string; label: string; tipo: TipoCampo; requerido: boolean; opciones?: string[]; placeholder?: string }
 export interface LeadEntrada { [k: string]: unknown; extra: Record<string, string> }
 export interface ErrorCampo { campo: string; motivo: 'requerido' | 'formato' | 'contacto' }
 
@@ -24,7 +26,7 @@ export function esNucleo(k: string): k is CampoNucleo {
 export const CLAVES_RESERVADAS = [
   ...NUCLEO,
   'status', 'extra', 'id', 'fuente_id', 'created_at', 'actualizado_en', 'duplicado_de',
-  'id_externo', 'origen', 'user_agent', 'evento', 'fuente_slug', 'fuente_nombre',
+  'id_externo', 'origen', 'user_agent', 'evento', 'invalidos', 'fuente_slug', 'fuente_nombre',
 ] as const;
 
 export function esClaveReservada(k: string): boolean {
