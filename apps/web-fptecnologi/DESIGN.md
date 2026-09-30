@@ -36,7 +36,7 @@ resuelve la home.
 
 ### Íconos
 
-- **Solo `lucide-react`** (un único estilo de trazo). `strokeWidth` 1.8–2.2.
+- **Solo `lucide-react`** (un único estilo de trazo). `strokeWidth` 1.8–2.2. Excepción: logos de marca que lucide no trae (`WhatsAppIcon` en `site/icons.tsx`).
 - Nada de SVG dibujado a mano. Excepción: `ArrowUpRightIcon` / `SparkleIcon`
   de `src/components/site/icons` en botones y badges ya existentes.
 

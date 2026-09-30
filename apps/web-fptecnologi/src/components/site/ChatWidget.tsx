@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { VARIANTS, DEFAULT_VARIANT, HeaderBg, type Variant } from './chatVariants';
 import { CONTACT_INFO, WHATSAPP_AREAS } from '@/lib/content';
+import { WhatsAppIcon } from './icons';
 import { resolveAction, type ChatAction, type ChatActionKind } from '@/lib/chatActions';
 import { useChatWidget } from '@/context/ChatWidgetContext';
 
@@ -180,8 +181,8 @@ function getVariant(pathname: string | null): Variant {
   return (seg && VARIANTS[seg]) || DEFAULT_VARIANT;
 }
 
-const ACTION_ICON: Record<ChatActionKind, LucideIcon> = {
-  whatsapp: MessageCircle,
+const ACTION_ICON: Record<ChatActionKind, LucideIcon | typeof WhatsAppIcon> = {
+  whatsapp: WhatsAppIcon,
   maps: MapPin,
   email: Mail,
   phone: Phone,
@@ -329,7 +330,7 @@ function ActionLink({ action, t }: { action: ChatAction; t: Theme }) {
 }
 
 function OptionCard({ icon: Icon, tint, title, text, onClick, extra, t }: {
-  icon: LucideIcon;
+  icon: LucideIcon | typeof WhatsAppIcon;
   tint: string;
   title: ReactNode;
   text: string;
@@ -534,7 +535,7 @@ export function ChatWidget() {
                 }`}
               >
                 {(() => {
-                  const HeaderIcon = view === 'chat' ? Bot : view === 'sessions' ? History : MessageCircle;
+                  const HeaderIcon = view === 'chat' ? Bot : view === 'sessions' ? History : view === 'whatsapp' ? WhatsAppIcon : MessageCircle;
                   return <HeaderIcon className="h-5 w-5" strokeWidth={2} />;
                 })()}
               </span>
@@ -579,7 +580,7 @@ export function ChatWidget() {
             <div className="flex flex-col gap-2.5 p-4">
               <OptionCard
                 t={t}
-                icon={MessageCircle}
+                icon={WhatsAppIcon}
                 tint="#10b981"
                 extra="bg-emerald-500 shadow-emerald-500/30"
                 title={
@@ -637,7 +638,7 @@ export function ChatWidget() {
                       <span className={`mt-0.5 block whitespace-nowrap text-xs ${t.muted}`}>+51 {area.phone}</span>
                     </span>
                     <span className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-emerald-500 px-3.5 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-colors group-hover:bg-emerald-600">
-                      <MessageCircle className="h-4 w-4" strokeWidth={2.2} />
+                      <WhatsAppIcon className="h-4 w-4" />
                       Chatear
                     </span>
                   </a>
