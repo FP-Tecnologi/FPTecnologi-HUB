@@ -5,30 +5,24 @@ import { useCurrency } from '@/context/CurrencyContext';
 /*
  * Selector de moneda tipo interruptor: dólares a la izquierda y soles a la
  * derecha; el indicador se desliza hasta la moneda activa -- azul de marca
- * con USD, ámbar con PEN. Cada lado lleva una "moneda" (disco metálico con
- * canto y símbolo en relieve): plateada para el dólar, dorada para el sol.
+ * con USD, ámbar con PEN. Cada lado lleva su símbolo en una ficha de vidrio.
  * Vidrio claro para el encabezado oscuro; `tone="light"` para encabezados blancos.
  */
-function Moneda({ tipo, activa }: { tipo: 'USD' | 'PEN'; activa: boolean }) {
-  const oro = tipo === 'PEN';
+/* Símbolo de la moneda en una ficha de vidrio sutil: lo que resalta es el
+   símbolo ($ / S/), no la ficha. */
+function Moneda({ tipo, activa, light }: { tipo: 'USD' | 'PEN'; activa: boolean; light: boolean }) {
   return (
     <span
       aria-hidden
-      className={`relative flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[9px] font-black leading-none transition-transform duration-300 ${
-        activa ? 'scale-110' : 'scale-95 opacity-70'
+      className={`flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full border px-1 text-[13px] font-extrabold leading-none backdrop-blur-sm transition-all duration-300 ${
+        activa
+          ? 'border-white/35 bg-white/20 text-white shadow-[inset_0_1px_0_rgba(255,255,255,.35)]'
+          : light
+            ? 'border-brand-dark/10 bg-white/60 text-ink/45'
+            : 'border-white/15 bg-white/5 text-white/55'
       }`}
-      style={{
-        background: oro
-          ? 'radial-gradient(circle at 32% 28%, #fff3c4 0%, #f7c948 38%, #d99a06 72%, #a86f00 100%)'
-          : 'radial-gradient(circle at 32% 28%, #ffffff 0%, #e3e9ee 40%, #a9b6c2 75%, #7d8b98 100%)',
-        boxShadow: activa ? '0 2px 6px rgba(0,0,0,.35), inset 0 -1px 1px rgba(0,0,0,.25)' : 'inset 0 -1px 1px rgba(0,0,0,.2)',
-        color: oro ? '#7a4d00' : '#3d4a56',
-        textShadow: '0 1px 0 rgba(255,255,255,.6)',
-      }}
     >
-      {/* Canto de la moneda. */}
-      <span className="absolute inset-[2px] rounded-full border" style={{ borderColor: oro ? 'rgba(122,77,0,.35)' : 'rgba(61,74,86,.3)' }} />
-      <span className="relative">{oro ? 'S/' : '$'}</span>
+      {tipo === 'PEN' ? 'S/' : '$'}
     </span>
   );
 }
@@ -63,11 +57,11 @@ export function CurrencyToggle({ tone = 'dark', className = 'h-10' }: { tone?: '
         }`}
       />
       <span className={label(isUsd)}>
-        <Moneda tipo="USD" activa={isUsd} />
+        <Moneda tipo="USD" activa={isUsd} light={light} />
         USD
       </span>
       <span className={label(!isUsd)}>
-        <Moneda tipo="PEN" activa={!isUsd} />
+        <Moneda tipo="PEN" activa={!isUsd} light={light} />
         PEN
       </span>
     </button>
