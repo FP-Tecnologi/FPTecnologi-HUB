@@ -521,7 +521,7 @@ export function ChatWidget() {
           if (seen.has(m.id)) continue;
           add.push({ from: 'asesor', text: m.texto, at: new Date(m.createdAt).getTime(), sid: m.id, name: data.asesor?.nombre ?? undefined, instant: true });
         }
-        if (data.estado === 'CERRADA') label('closed', 'La conversación fue cerrada');
+        if (data.estado === 'CERRADA') label('closed', 'La conversación fue finalizada');
         return add.length ? [...prev, ...add] : prev;
       });
     };
@@ -697,7 +697,7 @@ export function ChatWidget() {
                 <p className={variant.labelClass}>{view === 'choose' ? '¿Cómo te ayudamos?' : view === 'whatsapp' ? 'Habla con un asesor' : view === 'sessions' ? 'Conversaciones' : agent.estado === 'ASESOR' ? (agent.asesor?.nombre ?? 'Asesor') : 'Asistente virtual'}</p>
                 <p className="flex items-center gap-1.5 whitespace-nowrap text-[11px] text-white/75">
                   <span className="online-dot h-1.5 w-1.5 rounded-full bg-whatsapp" />
-                  {view === 'choose' ? 'Elige cómo quieres hablar' : view === 'whatsapp' ? 'Lun a vie, 9:00 a 18:00' : view === 'sessions' ? 'Guardadas en este navegador' : agent.estado === 'ASESOR' ? 'Asesor conectado' : agent.estado === 'CERRADA' ? 'Conversación cerrada' : 'En línea'}
+                  {view === 'choose' ? 'Elige cómo quieres hablar' : view === 'whatsapp' ? 'Lun a vie, 9:00 a 18:00' : view === 'sessions' ? 'Guardadas en este navegador' : agent.estado === 'ASESOR' ? 'Asesor conectado' : agent.estado === 'CERRADA' ? 'Conversación finalizada' : 'En línea'}
                 </p>
               </div>
             </div>
@@ -925,7 +925,7 @@ export function ChatWidget() {
                 <p className={`border-t px-4 py-2 text-center text-[11px] ${t.inputBar} ${t.muted}`}>
                   {agent.estado === 'ASESOR'
                     ? `${agent.asesor?.nombre ?? 'Un asesor'} está atendiendo tu conversación.`
-                    : 'Esta conversación fue cerrada. Toca "Nueva" para empezar otra.'}
+                    : 'Esta conversación fue finalizada. Toca "Nueva" para empezar otra.'}
                 </p>
               )}
               <div className={`flex items-center gap-2 border-t p-3 ${t.inputBar}`}>

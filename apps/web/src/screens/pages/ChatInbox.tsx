@@ -30,7 +30,14 @@ interface ConversacionResumen {
 }
 interface Conversacion extends Omit<ConversacionResumen, 'ultimoMensaje' | 'totalMensajes'> { mensajes: Mensaje[] }
 
-const ESTADO_LABEL: Record<Estado, string> = { BOT: 'Asistente', ASESOR: 'Con asesor', CERRADA: 'Cerrada' };
+// ASESOR = "Seguimiento": conversaciones que un asesor tomó y está atendiendo.
+const ESTADO_LABEL: Record<Estado, string> = { BOT: 'Asistente IA', ASESOR: 'Seguimiento', CERRADA: 'Finalizada' };
+const FILTROS: { id: '' | Estado; label: string }[] = [
+  { id: '', label: 'Todas' },
+  { id: 'BOT', label: 'Asistente IA' },
+  { id: 'ASESOR', label: 'Seguimiento' },
+  { id: 'CERRADA', label: 'Finalizadas' },
+];
 const ESTADO_BADGE: Record<Estado, string> = { BOT: 'ax-badge--info', ASESOR: 'ax-badge--success', CERRADA: 'ax-badge--neutral' };
 const AUTOR_LABEL: Record<Autor, string> = { CLIENTE: 'Cliente', BOT: 'Asistente virtual', ASESOR: 'Asesor' };
 const REFRESH_MS = 5000;
@@ -41,8 +48,8 @@ const fmt = (iso: string) =>
 const SVG = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.75, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, width: 16, height: 16, 'aria-hidden': true };
 
 /** Avatar de quien escribió: cliente (persona), asistente (robot) o asesor (iniciales). */
-function Avatar({ autor, nombre }: { autor: Autor; nombre: string | null }) {
-  const base = { flexShrink: 0, width: 32, height: 32 } as const;
+function Avatar({ autor, nombre, size = 32 }: { autor: Autor; nombre: string | null; size?: number }) {
+  const base = { flexShrink: 0, width: size, height: size } as const;
   if (autor === 'ASESOR') {
     const ini = (nombre ?? 'A').split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
     return (
@@ -64,6 +71,14 @@ function Avatar({ autor, nombre }: { autor: Autor; nombre: string | null }) {
     </span>
   );
 }
+
+const ICON = { className: 'ax-btn__icon', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.75, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, 'aria-hidden': true };
+const I_TOMAR = <svg {...ICON}><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M16 19h6" /><path d="M19 16v6" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4" /></svg>;
+const I_BOT = <svg {...ICON}><path d="M6 6a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2l0 -4" /><path d="M12 2v2" /><path d="M9 12v9" /><path d="M15 12v9" /><path d="M10 8v.01" /><path d="M14 8v.01" /></svg>;
+const I_FIN = <svg {...ICON}><path d="M5 12l5 5l10 -10" /></svg>;
+const I_REABRIR = <svg {...ICON}><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg>;
+const I_LOCK = <svg {...ICON}><path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6" /><path d="M8 11v-4a4 4 0 1 1 8 0v4" /></svg>;
+const I_SEND = <svg {...ICON}><path d="M10 14l11 -11" /><path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5" /></svg>;
 
 export function ChatInbox() {
   const { activeMarcaId, user } = useAuth();
@@ -165,16 +180,16 @@ export function ChatInbox() {
         <section className="ax-card ax-col--4" role="region" aria-label="Bandeja de conversaciones">
           <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
             <div className="ax-btn-group ax-btn-group--segmented" role="radiogroup" aria-label="Filtrar por estado">
-              {(['', 'BOT', 'ASESOR', 'CERRADA'] as const).map((e) => (
+              {FILTROS.map((f) => (
                 <button
-                  key={e || 'todas'}
+                  key={f.id || 'todas'}
                   type="button"
                   role="radio"
-                  aria-checked={filtro === e}
-                  className={`ax-btn ax-btn--sm${filtro === e ? ' is-selected' : ''}`}
-                  onClick={() => setFiltro(e)}
+                  aria-checked={filtro === f.id}
+                  className={`ax-btn ax-btn--sm${filtro === f.id ? ' is-selected' : ''}`}
+                  onClick={() => setFiltro(f.id)}
                 >
-                  {e ? ESTADO_LABEL[e] : 'Todas'}
+                  {f.label}
                 </button>
               ))}
             </div>
@@ -197,15 +212,26 @@ export function ChatInbox() {
                       borderRadius: 'var(--ax-radius-md, 8px)',
                       background: c.id === selId ? 'var(--ax-surface-subtle)' : undefined,
                       paddingInline: 'var(--ax-space-2)',
+                      display: 'flex',
+                      gap: 'var(--ax-space-3)',
+                      alignItems: 'center',
                     }}
                   >
-                    <div className="ax-list__content" style={{ minWidth: 0 }}>
+                    <span className="ax-list__leading">
+                      <Avatar autor={c.estado === 'ASESOR' ? 'ASESOR' : c.estado === 'BOT' ? 'BOT' : 'CLIENTE'} nombre={c.asesor?.nombre ?? c.asesor?.email ?? null} size={36} />
+                    </span>
+                    <div className="ax-list__content" style={{ minWidth: 0, flex: 1 }}>
                       <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'space-between', flexWrap: 'nowrap' }}>
                         <span className="ax-list__title" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                           {c.titulo ?? 'Sin mensajes todavía'}
                         </span>
                         <span className={`ax-badge ax-badge--soft ax-badge--sm ${ESTADO_BADGE[c.estado]}`}>{ESTADO_LABEL[c.estado]}</span>
                       </div>
+                      {c.ultimoMensaje && (
+                        <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', marginTop: 2 }}>
+                          {AUTOR_LABEL[c.ultimoMensaje.autor]}: {c.ultimoMensaje.texto}
+                        </div>
+                      )}
                       <div className="ax-list__meta" style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>
                         {fmt(c.updatedAt)} · {c.totalMensajes} mensajes{c.asesor ? ` · ${c.asesor.nombre ?? c.asesor.email}` : ''}
                       </div>
@@ -235,25 +261,28 @@ export function ChatInbox() {
                     {conv.asesor ? ` · Atiende ${esMia ? 'tú' : (conv.asesor.nombre ?? conv.asesor.email)}` : ''}
                   </p>
                 </div>
-                <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
-                  {conv.estado !== 'CERRADA' && !esMia && (
-                    <button type="button" className="ax-btn ax-btn--primary ax-btn--sm" onClick={() => accion(() => api.post(`/chat/conversaciones/${conv.id}/tomar`, {}))}>
-                      Retomar conversación
-                    </button>
-                  )}
-                  {conv.estado === 'ASESOR' && (
+                {/* Acciones en orden de flujo: retomar -> devolver a la IA -> finalizar. */}
+                <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                  {conv.estado === 'CERRADA' ? (
                     <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => accion(() => api.patch(`/chat/conversaciones/${conv.id}/estado`, { estado: 'BOT' }))}>
-                      Devolver al asistente
-                    </button>
-                  )}
-                  {conv.estado !== 'CERRADA' ? (
-                    <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => accion(() => api.patch(`/chat/conversaciones/${conv.id}/estado`, { estado: 'CERRADA' }))}>
-                      Cerrar
+                      {I_REABRIR}<span className="ax-btn__label">Reabrir</span>
                     </button>
                   ) : (
-                    <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => accion(() => api.patch(`/chat/conversaciones/${conv.id}/estado`, { estado: 'BOT' }))}>
-                      Reabrir
-                    </button>
+                    <>
+                      {!puedeEscribir && (
+                        <button type="button" className="ax-btn ax-btn--primary ax-btn--sm" onClick={() => accion(() => api.post(`/chat/conversaciones/${conv.id}/tomar`, {}))}>
+                          {I_TOMAR}<span className="ax-btn__label">Retomar conversación</span>
+                        </button>
+                      )}
+                      {conv.estado === 'ASESOR' && (
+                        <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => accion(() => api.patch(`/chat/conversaciones/${conv.id}/estado`, { estado: 'BOT' }))}>
+                          {I_BOT}<span className="ax-btn__label">Devolver al asistente IA</span>
+                        </button>
+                      )}
+                      <button type="button" className="ax-btn ax-btn--soft-success ax-btn--sm" onClick={() => accion(() => api.patch(`/chat/conversaciones/${conv.id}/estado`, { estado: 'CERRADA' }))}>
+                        {I_FIN}<span className="ax-btn__label">Finalizar</span>
+                      </button>
+                    </>
                   )}
                 </div>
               </div>
@@ -293,36 +322,47 @@ export function ChatInbox() {
                 })}
               </div>
 
-              <form onSubmit={responder} className="ax-card__body" style={{ display: 'flex', gap: 'var(--ax-space-3)', alignItems: 'flex-end', borderTop: '1px solid var(--ax-border)' }}>
-                <div className="ax-field" style={{ flex: '1 1 auto' }}>
-                  <label className="ax-label" htmlFor="chat-resp">
+              {/* Caja de respuesta: solo activa si tú tomaste la conversación. */}
+              {puedeEscribir ? (
+                <form onSubmit={responder} className="ax-card__body" style={{ display: 'flex', gap: 'var(--ax-space-3)', alignItems: 'flex-end', borderTop: '1px solid var(--ax-border)' }}>
+                  <Avatar autor="ASESOR" nombre={user?.nombre || user?.email || null} size={36} />
+                  <div className="ax-field" style={{ flex: '1 1 auto' }}>
+                    <label className="ax-label" htmlFor="chat-resp">Respondiendo como {user?.nombre || user?.email}</label>
+                    <textarea
+                      id="chat-resp"
+                      className="ax-textarea"
+                      rows={2}
+                      maxLength={2000}
+                      placeholder="Escribe al cliente… (Ctrl + Enter para enviar)"
+                      value={texto}
+                      onChange={(e) => setTexto(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) responder(e);
+                      }}
+                    />
+                  </div>
+                  <button type="submit" className={`ax-btn ax-btn--primary${enviando ? ' is-loading' : ''}`} disabled={!texto.trim() || enviando}>
+                    <span className="ax-btn__spinner" aria-hidden="true"></span>
+                    {I_SEND}<span className="ax-btn__label">Enviar</span>
+                  </button>
+                </form>
+              ) : (
+                <div className="ax-card__body" style={{ display: 'flex', gap: 'var(--ax-space-3)', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--ax-border)', color: 'var(--ax-text-muted)', fontSize: 'var(--ax-text-sm)' }}>
+                  <span className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
+                    <span style={{ display: 'inline-flex', width: 18 }}>{I_LOCK}</span>
                     {conv.estado === 'CERRADA'
-                      ? 'La conversación está cerrada'
-                      : puedeEscribir
-                        ? 'Tu respuesta'
-                        : conv.estado === 'ASESOR'
-                          ? `La atiende ${conv.asesor?.nombre ?? conv.asesor?.email ?? 'otro asesor'} — retómala para escribir`
-                          : 'Toca «Retomar conversación» para escribirle al cliente'}
-                  </label>
-                  <textarea
-                    id="chat-resp"
-                    className="ax-textarea"
-                    rows={2}
-                    maxLength={2000}
-                    placeholder={puedeEscribir ? 'Escribe al cliente… (Ctrl + Enter para enviar)' : 'Deshabilitado hasta retomar la conversación'}
-                    value={texto}
-                    disabled={!puedeEscribir}
-                    onChange={(e) => setTexto(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) responder(e);
-                    }}
-                  />
+                      ? 'Conversación finalizada. Reábrela para volver a escribir.'
+                      : conv.estado === 'ASESOR'
+                        ? `La atiende ${conv.asesor?.nombre ?? conv.asesor?.email ?? 'otro asesor'}. Retómala para escribir.`
+                        : 'La atiende el asistente IA. Retómala para escribirle al cliente.'}
+                  </span>
+                  {conv.estado !== 'CERRADA' && (
+                    <button type="button" className="ax-btn ax-btn--primary ax-btn--sm" onClick={() => accion(() => api.post(`/chat/conversaciones/${conv.id}/tomar`, {}))}>
+                      {I_TOMAR}<span className="ax-btn__label">Retomar</span>
+                    </button>
+                  )}
                 </div>
-                <button type="submit" className={`ax-btn ax-btn--primary${enviando ? ' is-loading' : ''}`} disabled={!texto.trim() || enviando || !puedeEscribir}>
-                  <span className="ax-btn__spinner" aria-hidden="true"></span>
-                  <span className="ax-btn__label">Enviar</span>
-                </button>
-              </form>
+              )}
             </>
           )}
         </section>
