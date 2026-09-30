@@ -21,7 +21,7 @@ resuelve la home.
 | `brand-teal-light` | `#208497` | Íconos sobre fondo oscuro, detalles |
 | `ink` | `#0b1b26` | Texto principal; fondo de "Hablemos" y del footer |
 | `paper` | `#f6f9fb` | Fondo de página (con textura de puntitos del `body`) |
-| `whatsapp` / `whatsapp-dark` | `#25d366` / `#128c7e` | Todo lo de WhatsApp (nunca `emerald` de Tailwind) |
+| `whatsapp` / `whatsapp-dark` | `#00d756` / `#00b248` (hover) | Todo lo de WhatsApp (nunca `emerald` de Tailwind) |
 | celeste de títulos | `#8fe0ee` | Parte con brillo de títulos sobre fondo oscuro |
 
 > Ojo: los nombres están cruzados respecto de su tono (`brand-primary` es el

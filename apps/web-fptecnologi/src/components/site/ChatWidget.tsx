@@ -203,7 +203,7 @@ const THEMES = {
     userAvatar: 'border border-brand-dark/15 bg-white text-brand-primary',
     userBubble: 'border border-brand-dark/10 bg-white text-ink shadow-md shadow-brand-dark/10',
     link: 'border-brand-dark/15 bg-white text-brand-primary shadow-sm shadow-brand-dark/10 hover:border-brand-primary hover:bg-brand-primary hover:text-white',
-    whatsapp: 'border-whatsapp/30 bg-whatsapp/10 text-whatsapp-dark shadow-sm shadow-brand-dark/10 hover:border-whatsapp-dark hover:bg-whatsapp-dark hover:text-white',
+    whatsapp: 'border-whatsapp/30 bg-whatsapp/10 text-whatsapp-dark shadow-sm shadow-brand-dark/10 hover:border-whatsapp hover:bg-whatsapp hover:text-white',
     chip: 'border-brand-dark/15 bg-white text-brand-primary shadow-sm shadow-brand-dark/10 hover:border-brand-primary hover:bg-brand-primary hover:text-white',
     inputBar: 'border-brand-dark/10 bg-white',
     time: 'text-ink/40',
@@ -219,7 +219,7 @@ const THEMES = {
     userAvatar: 'bg-white text-brand-primary',
     userBubble: 'bg-white text-ink shadow-md shadow-brand-dark/30',
     link: 'border-white/15 bg-white/10 text-white hover:border-brand-dark hover:bg-brand-dark',
-    whatsapp: 'border-whatsapp/40 bg-whatsapp/15 text-white hover:border-whatsapp-dark hover:bg-whatsapp-dark',
+    whatsapp: 'border-whatsapp/40 bg-whatsapp/15 text-white hover:border-whatsapp hover:bg-whatsapp',
     chip: 'border-white/20 bg-white/10 text-white backdrop-blur-md hover:border-brand-dark hover:bg-brand-dark',
     inputBar: 'border-white/10 bg-ink/60',
     time: 'text-white/40',
@@ -531,7 +531,7 @@ export function ChatWidget() {
               )}
               <span
                 className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/25 backdrop-blur-md ${
-                  view === 'whatsapp' ? 'bg-whatsapp-dark' : 'bg-white/10'
+                  view === 'whatsapp' ? 'bg-whatsapp' : 'bg-white/10'
                 }`}
               >
                 {(() => {
@@ -637,7 +637,7 @@ export function ChatWidget() {
                       </span>
                       <span className={`mt-0.5 block whitespace-nowrap text-xs ${t.muted}`}>+51 {area.phone}</span>
                     </span>
-                    <span className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-whatsapp-dark px-3.5 text-sm font-semibold text-white shadow-md shadow-whatsapp-dark/30 transition-colors group-hover:bg-[#0e7266]">
+                    <span className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-whatsapp px-3.5 text-sm font-semibold text-white shadow-md shadow-whatsapp/30 transition-colors group-hover:bg-whatsapp-dark">
                       <WhatsAppIcon className="h-4 w-4" />
                       Chatear
                     </span>
