@@ -111,3 +111,23 @@ export function pedidoConfirmadoEmail(pedidoId: string): { subject: string; html
     `),
   };
 }
+
+// El texto viene de un visitante anónimo: se escapa antes de meterlo al HTML.
+function escapeHtml(text: string): string {
+  return text.replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!);
+}
+
+export function chatNuevoEmail(primerMensaje: string, url: string): { subject: string; html: string } {
+  return {
+    subject: 'Nueva conversación en el chat de la web',
+    html: layout(`
+      <h1 style="margin:0 0 12px;font-size:20px;">Alguien está conversando con el asistente</h1>
+      <p style="margin:0 0 12px;color:${MUTED_COLOR};">Un visitante de la web inició una conversación con el asistente virtual. Su primer mensaje:</p>
+      <div style="margin:20px 0;padding:14px 20px;background:${CODE_BG};border-radius:8px;color:${TEXT_COLOR};">
+        ${escapeHtml(primerMensaje.slice(0, 500))}
+      </div>
+      <p style="margin:0 0 20px;color:${MUTED_COLOR};">Puedes leer la conversación y retomarla como asesor desde el dashboard.</p>
+      <a href="${escapeHtml(url)}" style="display:inline-block;background:${BRAND_COLOR};color:#FFFFFF;text-decoration:none;font-weight:700;padding:12px 20px;border-radius:8px;">Ver conversación</a>
+    `),
+  };
+}

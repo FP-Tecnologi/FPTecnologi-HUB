@@ -11,7 +11,7 @@ export class NotificacionesService {
   }
 
   findAllDeUsuario(usuarioId: string, tipo?: string) {
-    const tipos = ['SISTEMA', 'PEDIDO', 'COTIZACION', 'EQUIPO', 'STOCK'] as const;
+    const tipos = ['SISTEMA', 'PEDIDO', 'COTIZACION', 'EQUIPO', 'STOCK', 'CHAT'] as const;
     const where: { usuarioId: string; tipo?: (typeof tipos)[number] } = { usuarioId };
     if (tipo && (tipos as readonly string[]).includes(tipo)) {
       where.tipo = tipo as (typeof tipos)[number];

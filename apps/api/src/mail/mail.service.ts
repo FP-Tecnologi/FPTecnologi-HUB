@@ -9,6 +9,7 @@ import {
   welcomeEmail,
   passwordChangedEmail,
   pedidoConfirmadoEmail,
+  chatNuevoEmail,
 } from './templates.js';
 
 @Injectable()
@@ -57,6 +58,10 @@ export class MailService {
 
   async sendPedidoConfirmado(to: string, pedidoId: string): Promise<void> {
     await this.send(to, pedidoConfirmadoEmail(pedidoId));
+  }
+
+  async sendChatNuevo(to: string, primerMensaje: string, url: string): Promise<void> {
+    await this.send(to, chatNuevoEmail(primerMensaje, url));
   }
 
   private async send(to: string, { subject, html }: { subject: string; html: string }): Promise<void> {

@@ -154,6 +154,7 @@ vez del contenido hardcodeado que usa hoy).
 | `cotizaciones` | CRUD `/cotizaciones`, `PATCH /:id/estado` | Solicitudes de cotización sobre un servicio |
 | `notificaciones` | `/notificaciones`, `PATCH /:id/leida`, `/leidas/todas` | Centro de notificaciones del dashboard |
 | `public` | `GET /public/productos`, `/public/productos/:id`, `/public/servicios`, `/public/servicios/:id` | Sin auth — para las webs públicas |
+| `chat` | `/chat/asesores` (CRUD), `/chat/conversaciones` (`GET`, `GET /:id`, `POST /:id/tomar`, `PATCH /:id/estado`, `POST /:id/mensajes`); públicos `/public/chat/asesores`, `/public/chat/conversaciones` (+ `/:id`, `/:id/mensajes`, validados por `token`) | Chat de la web: asesores de WhatsApp + conversaciones del asistente que un asesor retoma desde el dashboard. Roles `admin`/`asesores` |
 | `mail` | — | Wrapper de Resend, usado por `auth` (OTP) y `pedidos` (confirmación) |
 | `health` | `GET /health` | — |
 
@@ -169,7 +170,7 @@ Ver [`apps/api/prisma/schema.prisma`](apps/api/prisma/schema.prisma) —
 es la fuente de verdad, no la dupliques en prosa aquí porque se desactualiza.
 Modelos clave: `Marca`, `Sitio`, `Usuario`, `OtpCode`, `RefreshToken`, `Rol`,
 `UsuarioMarcaRol`, `Categoria`, `Producto`, `Pedido`/`PedidoItem`,
-`Servicio`, `Cotizacion`, `Notificacion`.
+`Servicio`, `Cotizacion`, `Notificacion`, `ChatAsesor`, `ChatConversacion`/`ChatMensaje`.
 
 ## Roles del sistema
 

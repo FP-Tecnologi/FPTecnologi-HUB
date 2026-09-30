@@ -525,3 +525,33 @@ sesión/máquina)**:
   SMTP de Resend en Supabase Auth, decidir cómo reciben registros las landings del CMS,
   habilitar deploy keys en la organización para conectar cPanel por Git, y rotar las
   credenciales que estuvieron versionadas en `envs/` (historial del HUB).
+
+### 2026-09-30 — Chat de la web conectado al dashboard (módulo `chat`)
+
+- **API** (`apps/api/src/chat`): modelos `ChatAsesor`, `ChatConversacion`,
+  `ChatMensaje` (+ enums `EstadoChat`, `AutorChat`, y `CHAT` en
+  `TipoNotificacion`), migración `20260930120000_chat_web` aplicada en
+  Supabase. Los 3 modelos están en el tenant-guard.
+  - Dashboard (`admin`/`asesores`): `GET/POST/PATCH/DELETE /chat/asesores`,
+    `GET /chat/conversaciones[?estado=]`, `GET /chat/conversaciones/:id`,
+    `POST /:id/tomar`, `PATCH /:id/estado`, `POST /:id/mensajes`.
+  - Público (sin login, validado por `token` secreto de la conversación):
+    `GET /public/chat/asesores`, `POST /public/chat/conversaciones`,
+    `POST /public/chat/conversaciones/:id/mensajes` (autor solo
+    `CLIENTE`/`BOT`), `GET /public/chat/conversaciones/:id?token&desde`.
+  - Primer mensaje del visitante → notificación `CHAT` + correo a los
+    usuarios `admin`/`asesores` de la marca, con link a la conversación.
+- **Web pública**: el widget guarda cada conversación vía el proxy
+  `app/api/hub/chat/[...path]` (env `HUB_API_URL`, `HUB_MARCA_ID`; sin
+  CORS, la API no queda expuesta). Consulta cada 4 s si un asesor la tomó:
+  entonces el asistente deja de responder y se muestran los mensajes del
+  asesor. La lista de WhatsApp sale de `ChatAsesor` (fallback:
+  `WHATSAPP_AREAS` de `content.ts`). WhatsApp sigue siendo `wa.me`.
+- **Dashboard**: nuevo grupo "Chat y asesores" → `/chat/conversaciones`
+  (bandeja + retomar/responder/cerrar/devolver al asistente, refresco cada
+  5 s) y `/chat/asesores` (CRUD de perfiles de WhatsApp).
+- Se marcó como aplicada `20260913141955_usuario_datos_empresa` (sus
+  columnas ya existían en la base, aplicadas por fuera de `migrate`).
+- Pendiente: aviso "terminó la conversación" (hoy solo avisa al iniciar),
+  subir fotos de asesores (hoy es URL), rate limiting de los endpoints
+  públicos cuando vuelva `@nestjs/throttler`.

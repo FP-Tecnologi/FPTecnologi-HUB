@@ -25,6 +25,7 @@ const TIPOS = [
   { id: 'COTIZACION', label: 'Cotizaciones', color: 'var(--ax-viz-violet)' },
   { id: 'EQUIPO', label: 'Equipo', color: 'var(--ax-viz-cyan)' },
   { id: 'STOCK', label: 'Stock', color: 'var(--ax-warning-500)' },
+  { id: 'CHAT', label: 'Chat', color: 'var(--ax-viz-emerald)' },
 ] as const;
 
 type TipoId = (typeof TIPOS)[number]['id'];

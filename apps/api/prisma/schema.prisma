@@ -29,14 +29,17 @@ model Marca {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  sitios         Sitio[]
-  usuarios       UsuarioMarcaRol[]
-  categorias     Categoria[]
-  productos      Producto[]
-  pedidos        Pedido[]
-  servicios      Servicio[]
-  cotizaciones   Cotizacion[]
-  notificaciones Notificacion[]
+  sitios             Sitio[]
+  usuarios           UsuarioMarcaRol[]
+  categorias         Categoria[]
+  productos          Producto[]
+  pedidos            Pedido[]
+  servicios          Servicio[]
+  cotizaciones       Cotizacion[]
+  notificaciones     Notificacion[]
+  chatAsesores       ChatAsesor[]
+  chatConversaciones ChatConversacion[]
+  chatMensajes       ChatMensaje[]
 }
 
 model Sitio {
@@ -54,22 +57,22 @@ model Sitio {
 // ---------------------------------------------------------------------------
 
 model Usuario {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  passwordHash String
-  nombre       String?
-  avatarUrl    String?
-  dni          String?
-  telefono     String?
-  cargo        String?
-  activo       Boolean  @default(true)
+  id              String   @id @default(uuid())
+  email           String   @unique
+  passwordHash    String
+  nombre          String?
+  avatarUrl       String?
+  dni             String?
+  telefono        String?
+  cargo           String?
+  activo          Boolean  @default(true)
   // Default true a propósito: la migración marca a todos los usuarios ya
   // existentes como "ya la vio" (nadie que ya usa el sistema debe recibir
   // el modal de bienvenida). register()/loginOrRegisterGoogle() la ponen
   // en false explícitamente al crear una cuenta nueva.
-  bienvenidaVista Boolean @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  bienvenidaVista Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   // TOTP (app autenticadora) — método de 2FA alternativo al OTP por
   // correo. totpSecret se guarda desde /auth/totp/setup pero no habilita
@@ -77,13 +80,14 @@ model Usuario {
   totpSecret  String?
   totpEnabled Boolean @default(false)
 
-  marcas             UsuarioMarcaRol[]
-  refreshTokens      RefreshToken[]
-  otpCodes           OtpCode[]
-  totpBackupCodes    TotpBackupCode[]
-  pedidos            Pedido[]
-  notificaciones     Notificacion[]
+  marcas                 UsuarioMarcaRol[]
+  refreshTokens          RefreshToken[]
+  otpCodes               OtpCode[]
+  totpBackupCodes        TotpBackupCode[]
+  pedidos                Pedido[]
+  notificaciones         Notificacion[]
   dispositivosConfiables DispositivoConfiable[]
+  chatsAtendidos         ChatConversacion[]
 }
 
 // "Confiar en este dispositivo por 30 días": al confirmar el 2FA se guarda un
@@ -114,13 +118,13 @@ model TotpBackupCode {
 }
 
 model RefreshToken {
-  id        String    @id @default(uuid())
+  id        String   @id @default(uuid())
   tokenHash String
   usuarioId String
-  usuario   Usuario   @relation(fields: [usuarioId], references: [id])
+  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
   expiresAt DateTime
-  revoked   Boolean   @default(false)
-  createdAt DateTime  @default(now())
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
 
   @@index([usuarioId])
 }
@@ -131,14 +135,14 @@ enum OtpProposito {
 }
 
 model OtpCode {
-  id          String       @id @default(uuid())
-  usuarioId   String
-  usuario     Usuario      @relation(fields: [usuarioId], references: [id])
-  codigoHash  String
-  proposito   OtpProposito @default(LOGIN_2FA)
-  expiresAt   DateTime
-  consumedAt  DateTime?
-  createdAt   DateTime     @default(now())
+  id         String       @id @default(uuid())
+  usuarioId  String
+  usuario    Usuario      @relation(fields: [usuarioId], references: [id])
+  codigoHash String
+  proposito  OtpProposito @default(LOGIN_2FA)
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime     @default(now())
 
   @@index([usuarioId])
 }
@@ -182,20 +186,20 @@ model Categoria {
 }
 
 model Producto {
-  id           String       @id @default(uuid())
-  marcaId      String
-  marca        Marca        @relation(fields: [marcaId], references: [id])
-  categoriaId  String?
-  categoria    Categoria?   @relation(fields: [categoriaId], references: [id])
-  nombre       String
-  descripcion  String?
-  sku          String
-  precio       Decimal
-  stock        Int          @default(0)
-  activo       Boolean      @default(true)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  pedidoItems  PedidoItem[]
+  id          String       @id @default(uuid())
+  marcaId     String
+  marca       Marca        @relation(fields: [marcaId], references: [id])
+  categoriaId String?
+  categoria   Categoria?   @relation(fields: [categoriaId], references: [id])
+  nombre      String
+  descripcion String?
+  sku         String
+  precio      Decimal
+  stock       Int          @default(0)
+  activo      Boolean      @default(true)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  pedidoItems PedidoItem[]
 
   @@unique([marcaId, sku])
 }
@@ -291,20 +295,88 @@ enum TipoNotificacion {
   COTIZACION
   EQUIPO
   STOCK
+  CHAT
 }
 
 model Notificacion {
-  id        String   @id @default(uuid())
+  id        String           @id @default(uuid())
   marcaId   String?
-  marca     Marca?   @relation(fields: [marcaId], references: [id])
+  marca     Marca?           @relation(fields: [marcaId], references: [id])
   usuarioId String
-  usuario   Usuario  @relation(fields: [usuarioId], references: [id])
+  usuario   Usuario          @relation(fields: [usuarioId], references: [id])
   titulo    String
   mensaje   String
   tipo      TipoNotificacion @default(SISTEMA)
   leida     Boolean          @default(false)
-  createdAt DateTime @default(now())
+  createdAt DateTime         @default(now())
 
   @@index([usuarioId])
+  @@index([marcaId])
+}
+
+// ---------------------------------------------------------------------------
+// Chat de la web pública: asesores de WhatsApp (perfiles que muestra el
+// widget) + conversaciones del asistente virtual, que un asesor puede leer
+// y retomar desde el dashboard. El visitante no tiene cuenta: accede a su
+// conversación con un `token` secreto que solo tiene su navegador.
+// ---------------------------------------------------------------------------
+
+model ChatAsesor {
+  id        String   @id @default(uuid())
+  marcaId   String
+  marca     Marca    @relation(fields: [marcaId], references: [id])
+  nombre    String
+  area      String
+  telefono  String // como se muestra: "999 999 999"
+  whatsapp  String // solo dígitos con código de país, para wa.me: "51999999999"
+  fotoUrl   String?
+  activo    Boolean  @default(true)
+  orden     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([marcaId])
+}
+
+enum EstadoChat {
+  BOT // atendida por el asistente virtual
+  ASESOR // un asesor la tomó desde el dashboard
+  CERRADA
+}
+
+enum AutorChat {
+  CLIENTE
+  BOT
+  ASESOR
+}
+
+model ChatConversacion {
+  id           String        @id @default(uuid())
+  marcaId      String
+  marca        Marca         @relation(fields: [marcaId], references: [id])
+  token        String        @unique
+  titulo       String?
+  estado       EstadoChat    @default(BOT)
+  asesorId     String?
+  asesor       Usuario?      @relation(fields: [asesorId], references: [id])
+  paginaOrigen String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  mensajes     ChatMensaje[]
+
+  @@index([marcaId, updatedAt])
+}
+
+model ChatMensaje {
+  id             String           @id @default(uuid())
+  marcaId        String
+  marca          Marca            @relation(fields: [marcaId], references: [id])
+  conversacionId String
+  conversacion   ChatConversacion @relation(fields: [conversacionId], references: [id], onDelete: Cascade)
+  autor          AutorChat
+  texto          String
+  createdAt      DateTime         @default(now())
+
+  @@index([conversacionId, createdAt])
   @@index([marcaId])
 }

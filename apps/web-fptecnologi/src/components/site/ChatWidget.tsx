@@ -37,9 +37,25 @@ import { useChatWidget } from '@/context/ChatWidgetContext';
  * desde IDs fijos en lib/chatActions -- nunca URLs escritas por la IA.
  * options: respuestas rápidas que el usuario toca para seguir la charla.
  */
-type ChatMsg = { from: 'bot' | 'user'; text: string; instant?: boolean; actions?: ChatAction[]; options?: string[]; at?: number };
+// from 'asesor': respuesta de un asesor que tomó la conversación desde el
+// dashboard (sid = id del mensaje en la API, para no duplicarlo al consultar).
+type ChatMsg = {
+  from: 'bot' | 'user' | 'asesor';
+  text: string;
+  instant?: boolean;
+  actions?: ChatAction[];
+  options?: string[];
+  at?: number;
+  sid?: string;
+  name?: string;
+};
+// Conversación guardada en la API central (ver app/api/hub/chat): el token
+// es el secreto con el que este navegador lee/escribe su conversación.
+type Remote = { id: string; token: string };
+type Agent = { estado: 'BOT' | 'ASESOR' | 'CERRADA'; asesor: { nombre: string | null } | null };
+type Area = { label: string; contact: string; phone: string; number: string; photo: string | null };
 // Conversación archivada (historial): se guarda al tocar "Nueva".
-type ChatSession = { id: number; title: string; at: number; messages: ChatMsg[] };
+type ChatSession = { id: number; title: string; at: number; messages: ChatMsg[]; remote?: Remote | null };
 type BotReply = { text: string; actions: ChatAction[]; options: string[] };
 
 const GREETING: ChatMsg = {
@@ -64,7 +80,7 @@ function loadHistory(): ChatMsg[] | null {
     const raw = JSON.parse(window.localStorage.getItem(HISTORY_KEY) ?? 'null');
     if (!Array.isArray(raw) || raw.length === 0) return null;
     return raw
-      .filter((m) => m && (m.from === 'bot' || m.from === 'user') && typeof m.text === 'string')
+      .filter((m) => m && (m.from === 'bot' || m.from === 'user' || m.from === 'asesor') && typeof m.text === 'string')
       .map((m) => ({
         from: m.from,
         text: m.text,
@@ -74,11 +90,55 @@ function loadHistory(): ChatMsg[] | null {
           : undefined,
         options: Array.isArray(m.options) ? m.options.filter((o: unknown) => typeof o === 'string') : undefined,
         at: typeof m.at === 'number' ? m.at : undefined,
+        sid: typeof m.sid === 'string' ? m.sid : undefined,
+        name: typeof m.name === 'string' ? m.name : undefined,
       }));
   } catch {
     return null;
   }
 }
+
+const REMOTE_KEY = 'fp-chat-remote-v1';
+
+function loadRemote(): Remote | null {
+  try {
+    const r = JSON.parse(window.localStorage.getItem(REMOTE_KEY) ?? 'null');
+    return r && typeof r.id === 'string' && typeof r.token === 'string' ? r : null;
+  } catch {
+    return null;
+  }
+}
+
+function saveRemote(r: Remote | null) {
+  try {
+    if (r) window.localStorage.setItem(REMOTE_KEY, JSON.stringify(r));
+    else window.localStorage.removeItem(REMOTE_KEY);
+  } catch {
+    // storage bloqueado
+  }
+}
+
+/* Llamada al proxy /api/hub/chat. Nunca tira: si la API no está (o falta
+   HUB_MARCA_ID) devuelve null y el chat sigue funcionando solo con la IA. */
+async function hub<T>(path: string, body?: unknown): Promise<T | null> {
+  try {
+    const res = await fetch(`/api/hub/chat/${path}`, {
+      method: body === undefined ? 'GET' : 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: body === undefined ? undefined : JSON.stringify(body),
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return (json?.data ?? null) as T | null;
+  } catch {
+    return null;
+  }
+}
+
+const POLL_MS = 4000;
+
+const FALLBACK_AREAS: Area[] = WHATSAPP_AREAS.map((a) => ({ ...a, photo: a.photo }));
 
 /* Sesiones anteriores (máx. SESSIONS_MAX), mismo criterio que el historial:
    solo en este navegador y todo en try/catch. */
@@ -377,6 +437,12 @@ export function ChatWidget() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   // id de la sesión reabierta desde el historial (para no duplicarla al archivar).
   const [sessionId, setSessionId] = useState<number | null>(null);
+  const [remote, setRemote] = useState<Remote | null>(null);
+  const [agent, setAgent] = useState<Agent>({ estado: 'BOT', asesor: null });
+  const [areas, setAreas] = useState<Area[]>(FALLBACK_AREAS);
+  // Crear la conversación remota una sola vez aunque lleguen 2 mensajes juntos.
+  const remotePromise = useRef<Promise<Remote | null> | null>(null);
+  const lastSync = useRef<string | undefined>(undefined);
 
   // Restaurar al montar (en effect, no en useState, para no romper la
   // hidratación: el servidor no tiene localStorage). historyLoaded es state
@@ -386,6 +452,7 @@ export function ChatWidget() {
     const saved = loadHistory();
     if (saved?.length) setMessages(saved);
     setSessions(loadSessions());
+    setRemote(loadRemote());
     setHistoryLoaded(true);
   }, []);
 
@@ -393,13 +460,76 @@ export function ChatWidget() {
     if (historyLoaded) saveHistory(messages);
   }, [messages, historyLoaded]);
 
+  useEffect(() => {
+    if (historyLoaded) saveRemote(remote);
+  }, [remote, historyLoaded]);
+
+  // Asesores de WhatsApp gestionados desde el dashboard (si la API responde;
+  // si no, quedan los de lib/content.ts).
+  useEffect(() => {
+    if (view !== 'whatsapp') return;
+    hub<{ nombre: string; area: string; telefono: string; whatsapp: string; fotoUrl: string | null }[]>('asesores').then((rows) => {
+      if (rows?.length) {
+        setAreas(rows.map((r) => ({ label: r.area, contact: r.nombre, phone: r.telefono, number: r.whatsapp, photo: r.fotoUrl })));
+      }
+    });
+  }, [view]);
+
+  function ensureRemote(): Promise<Remote | null> {
+    if (remote) return Promise.resolve(remote);
+    remotePromise.current ??= hub<Remote>('conversaciones', { paginaOrigen: pathname ?? '/' }).then((r) => {
+      if (r) setRemote(r);
+      else remotePromise.current = null;
+      return r;
+    });
+    return remotePromise.current;
+  }
+
+  // Guarda cada mensaje en la API (el dashboard los ve). Fuego y olvido.
+  function persist(autor: 'CLIENTE' | 'BOT', texto: string) {
+    void ensureRemote().then((r) => r && hub(`conversaciones/${r.id}/mensajes`, { token: r.token, autor, texto }));
+  }
+
+  // Mientras la conversación está abierta, consulta si un asesor la tomó y
+  // trae sus mensajes (los propios ya están en pantalla: se ignoran).
+  useEffect(() => {
+    if (!open || view !== 'chat' || !remote) return;
+    let alive = true;
+    const tick = async () => {
+      const q = new URLSearchParams({ token: remote.token, ...(lastSync.current ? { desde: lastSync.current } : {}) });
+      const data = await hub<{ estado: Agent['estado']; asesor: Agent['asesor']; mensajes: { id: string; autor: string; texto: string; createdAt: string }[] }>(
+        `conversaciones/${remote.id}?${q}`,
+      );
+      if (!alive || !data) return;
+      setAgent({ estado: data.estado, asesor: data.asesor });
+      if (data.mensajes.length) lastSync.current = data.mensajes[data.mensajes.length - 1].createdAt;
+      const nuevos = data.mensajes.filter((m) => m.autor === 'ASESOR');
+      if (nuevos.length) {
+        setMessages((prev) => {
+          const seen = new Set(prev.map((m) => m.sid).filter(Boolean));
+          const add = nuevos
+            .filter((m) => !seen.has(m.id))
+            .map((m) => ({ from: 'asesor' as const, text: m.texto, at: new Date(m.createdAt).getTime(), sid: m.id, name: data.asesor?.nombre ?? undefined, instant: true }));
+          return add.length ? [...prev, ...add] : prev;
+        });
+      }
+    };
+    tick();
+    const id = window.setInterval(tick, POLL_MS);
+    return () => {
+      alive = false;
+      window.clearInterval(id);
+    };
+  }, [open, view, remote]);
+
+
   // Guarda la conversación actual en el historial (si el usuario escribió algo).
   function archiveCurrent() {
     const first = messages.find((m) => m.from === 'user');
     if (!first) return sessions;
     const id = sessionId ?? Date.now();
     const next = [
-      { id, title: first.text.slice(0, 60), at: messages[messages.length - 1]?.at ?? Date.now(), messages },
+      { id, title: first.text.slice(0, 60), at: messages[messages.length - 1]?.at ?? Date.now(), messages, remote },
       ...sessions.filter((x) => x.id !== id),
     ].slice(0, SESSIONS_MAX);
     setSessions(next);
@@ -412,12 +542,20 @@ export function ChatWidget() {
     setSessionId(null);
     setMessages([GREETING]);
     setTypedDone(new Set());
+    setRemote(null);
+    remotePromise.current = null;
+    lastSync.current = undefined;
+    setAgent({ estado: 'BOT', asesor: null });
   }
 
   function openSession(x: ChatSession) {
     archiveCurrent();
     setSessionId(x.id);
     setMessages(x.messages.map((m) => ({ ...m, instant: true })));
+    setRemote(x.remote ?? null);
+    remotePromise.current = null;
+    lastSync.current = undefined;
+    setAgent({ estado: 'BOT', asesor: null });
     setTypedDone(new Set());
     setView('chat');
   }
@@ -458,6 +596,10 @@ export function ChatWidget() {
     if (!text || typing) return;
     const history = [...(greet ? [] : messages), { from: 'user' as const, text }];
     setMessages((m) => [...m, { from: 'user', text, at: Date.now() }]);
+    persist('CLIENTE', text);
+    // Un asesor tomó la conversación: responde él (llega por la consulta
+    // periódica), el asistente ya no contesta.
+    if (agent.estado === 'ASESOR') return;
     setTyping(true);
     let answer: BotReply;
     try {
@@ -465,7 +607,7 @@ export function ChatWidget() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: history.map((m) => ({ role: m.from === 'bot' ? 'assistant' : 'user', content: m.text })),
+          messages: history.map((m) => ({ role: m.from === 'user' ? 'user' : 'assistant', content: m.text })),
         }),
       });
       if (!res.ok) throw new Error(String(res.status));
@@ -477,6 +619,7 @@ export function ChatWidget() {
     }
     setTyping(false);
     setMessages((m) => [...m, { from: 'bot', ...answer, at: Date.now() }]);
+    persist('BOT', answer.text);
   }
 
   function send() {
@@ -535,15 +678,15 @@ export function ChatWidget() {
                 }`}
               >
                 {(() => {
-                  const HeaderIcon = view === 'chat' ? Bot : view === 'sessions' ? History : view === 'whatsapp' ? WhatsAppIcon : MessageCircleMore;
+                  const HeaderIcon = view === 'chat' ? (agent.estado === 'ASESOR' ? User : Bot) : view === 'sessions' ? History : view === 'whatsapp' ? WhatsAppIcon : MessageCircleMore;
                   return <HeaderIcon className="h-5 w-5" strokeWidth={2} />;
                 })()}
               </span>
               <div className="min-w-0">
-                <p className={variant.labelClass}>{view === 'choose' ? '¿Cómo te ayudamos?' : view === 'whatsapp' ? 'Habla con un asesor' : view === 'sessions' ? 'Conversaciones' : 'Asistente virtual'}</p>
+                <p className={variant.labelClass}>{view === 'choose' ? '¿Cómo te ayudamos?' : view === 'whatsapp' ? 'Habla con un asesor' : view === 'sessions' ? 'Conversaciones' : agent.estado === 'ASESOR' ? (agent.asesor?.nombre ?? 'Asesor') : 'Asistente virtual'}</p>
                 <p className="flex items-center gap-1.5 whitespace-nowrap text-[11px] text-white/75">
                   <span className="online-dot h-1.5 w-1.5 rounded-full bg-whatsapp" />
-                  {view === 'choose' ? 'Elige cómo quieres hablar' : view === 'whatsapp' ? 'Lun a vie, 9:00 a 18:00' : view === 'sessions' ? 'Guardadas en este navegador' : 'En línea'}
+                  {view === 'choose' ? 'Elige cómo quieres hablar' : view === 'whatsapp' ? 'Lun a vie, 9:00 a 18:00' : view === 'sessions' ? 'Guardadas en este navegador' : agent.estado === 'ASESOR' ? 'Asesor conectado' : agent.estado === 'CERRADA' ? 'Conversación cerrada' : 'En línea'}
                 </p>
               </div>
             </div>
@@ -610,7 +753,7 @@ export function ChatWidget() {
           ) : view === 'whatsapp' ? (
             <div className="flex flex-col gap-2 p-4">
               <p className={`mb-1 text-xs ${t.muted}`}>Elige el área y te respondemos por WhatsApp.</p>
-              {WHATSAPP_AREAS.map((area) => {
+              {areas.map((area) => {
                 const AreaIcon = AREA_ICON[area.label] ?? MessageCircleMore;
                 return (
                   <a
@@ -622,11 +765,17 @@ export function ChatWidget() {
                   >
                     {/* Inicial del asesor + punto verde de disponible. */}
                     <span className="relative h-11 w-11 shrink-0">
-                      <img
-                        src={area.photo}
-                        alt={area.contact}
-                        className="h-11 w-11 rounded-xl object-cover shadow-md shadow-whatsapp-dark/30 ring-2 ring-whatsapp/70"
-                      />
+                      {area.photo ? (
+                        <img
+                          src={area.photo}
+                          alt={area.contact}
+                          className="h-11 w-11 rounded-xl object-cover shadow-md shadow-whatsapp-dark/30 ring-2 ring-whatsapp/70"
+                        />
+                      ) : (
+                        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-whatsapp to-whatsapp-dark font-display text-base font-bold text-white shadow-md shadow-whatsapp-dark/30">
+                          {area.contact[0]}
+                        </span>
+                      )}
                       <span className="absolute -right-0.5 -top-0.5 flex">
                         <span className="online-dot h-2.5 w-2.5 rounded-full bg-whatsapp ring-2 ring-white" />
                       </span>
@@ -678,18 +827,21 @@ export function ChatWidget() {
           ) : (
             <>
               <div ref={listRef} className="flex h-96 flex-col gap-3 overflow-y-auto p-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                <p className={`text-center text-[10px] ${t.time}`}>Un asesor puede revisar esta conversación para ayudarte mejor.</p>
                 {messages.map((m, i) => {
                   const ready = m.from === 'user' || m.instant || typedDone.has(i);
                   return (
                     <div key={i} className={`animate-pop-in flex flex-col gap-2 ${m.from === 'user' ? 'items-end' : 'items-start'}`}>
                       <div className={`flex items-end gap-2 ${m.from === 'user' ? 'flex-row-reverse' : ''}`}>
-                        {m.from === 'bot' ? <Avatar icon={Bot} bot t={t} /> : <Avatar icon={User} t={t} />}
+                        {m.from === 'bot' ? <Avatar icon={Bot} bot t={t} /> : m.from === 'asesor' ? <Avatar icon={User} bot t={t} /> : <Avatar icon={User} t={t} />}
                         <div className={`flex max-w-[80%] flex-col ${m.from === 'user' ? 'items-end' : 'items-start'}`}>
                           <div
                             className={`px-3.5 py-2.5 text-sm leading-relaxed ${
                               m.from === 'bot'
                                 ? `rounded-2xl rounded-bl-md bg-gradient-to-br from-brand-dark to-brand-primary text-white shadow-md shadow-brand-dark/25 ring-1 ${t.botRing}`
-                                : `rounded-2xl rounded-br-md ${t.userBubble}`
+                                : m.from === 'asesor'
+                                  ? `rounded-2xl rounded-bl-md bg-gradient-to-br from-brand-teal to-brand-petrol text-white shadow-md shadow-brand-dark/25 ring-1 ${t.botRing}`
+                                  : `rounded-2xl rounded-br-md ${t.userBubble}`
                             }`}
                           >
                             {m.from === 'bot' ? (
@@ -704,7 +856,7 @@ export function ChatWidget() {
                           </div>
                           {/* Remitente + hora debajo de la burbuja. */}
                           <span className={`mt-1 px-1 text-[10px] ${t.time}`}>
-                            {m.from === 'bot' ? 'Asistente FP' : 'Tú'}
+                            {m.from === 'bot' ? 'Asistente FP' : m.from === 'asesor' ? `${m.name ?? 'Asesor'} · asesor` : 'Tú'}
                             {m.at ? ` · ${timeFmt(m.at)}` : ''}
                           </span>
                         </div>
@@ -747,6 +899,13 @@ export function ChatWidget() {
                   </div>
                 )}
               </div>
+              {agent.estado !== 'BOT' && (
+                <p className={`border-t px-4 py-2 text-center text-[11px] ${t.inputBar} ${t.muted}`}>
+                  {agent.estado === 'ASESOR'
+                    ? `${agent.asesor?.nombre ?? 'Un asesor'} está atendiendo tu conversación.`
+                    : 'Esta conversación fue cerrada. Toca "Nueva" para empezar otra.'}
+                </p>
+              )}
               <div className={`flex items-center gap-2 border-t p-3 ${t.inputBar}`}>
                 <input
                   value={draft}
@@ -760,7 +919,7 @@ export function ChatWidget() {
                   type="button"
                   onClick={send}
                   aria-label="Enviar"
-                  disabled={!draft.trim() || typing}
+                  disabled={!draft.trim() || typing || agent.estado === 'CERRADA'}
                   className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary text-white shadow-md shadow-brand-dark/25 transition-all hover:bg-brand-dark active:scale-95 disabled:opacity-40"
                 >
                   <SendHorizontal className="h-4 w-4" strokeWidth={2} />
