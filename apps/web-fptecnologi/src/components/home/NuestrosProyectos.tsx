@@ -141,28 +141,47 @@ export function NuestrosProyectos() {
         <p className="mt-3 text-ink/60">Selecciona una región en el mapa para ver los proyectos.</p>
       </ScrollReveal>
 
-      <div className="grid items-start gap-10 lg:grid-cols-2">
-        {/* Contenedor de proyectos del departamento seleccionado. */}
-        <div className="order-2 lg:order-1">
-        <ScrollReveal direction="left">
-          <div className="overflow-hidden rounded-2xl bg-brand-dark shadow-2xl shadow-brand-dark/30">
-            <p className="border-b border-white/10 px-6 py-4 text-center text-sm font-bold uppercase tracking-wide text-white">
-              {projects.length} {projects.length === 1 ? 'proyecto ejecutado' : 'proyectos ejecutados'} en {current?.name}
-            </p>
-            {/* Scroll sin barra visible (sigue funcionando con rueda/touch). */}
-            <div className="flex max-h-[34rem] flex-col gap-4 overflow-y-auto p-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {projects.map((p, i) => (
-                <ProjectCard
-                  key={p.title}
-                  project={p}
-                  index={i + 1}
-                  flipped={flipped === p.title}
-                  onFlip={(v) => setFlipped(v ? p.title : null)}
-                />
-              ))}
-            </div>
+      <div className="grid gap-10 lg:grid-cols-2">
+        {/* Contenedor de proyectos del departamento seleccionado. En desktop
+            se estira al alto del mapa (absolute sobre la celda de la grilla:
+            el mapa define el alto de la fila) y la lista scrollea adentro. */}
+        <div className="relative order-2 lg:order-1">
+          <div className="lg:absolute lg:inset-0 lg:[&>div]:h-full">
+            <ScrollReveal direction="left" className="h-full">
+              <div className="brand-mesh relative flex h-full flex-col overflow-hidden rounded-2xl shadow-2xl shadow-brand-dark/30">
+                {/* Encabezado: departamento + cantidad. */}
+                <div className="flex items-center gap-3 border-b border-white/15 px-5 py-4">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/25 bg-white/10 text-white backdrop-blur-md">
+                    <MapPin className="h-5 w-5" strokeWidth={2} />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8fe0ee]">Proyectos en</p>
+                    <p className="truncate font-display text-lg font-bold uppercase leading-tight text-white">{current?.name}</p>
+                  </div>
+                  <span className="shrink-0 rounded-lg border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-md">
+                    <span className="font-display text-base font-bold">{projects.length}</span>{' '}
+                    {projects.length === 1 ? 'proyecto' : 'proyectos'}
+                  </span>
+                </div>
+                {/* Scroll sin barra visible (sigue funcionando con rueda/touch). */}
+                <div className="flex max-h-[34rem] min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-5 [scrollbar-width:none] lg:max-h-none [&::-webkit-scrollbar]:hidden">
+                  {projects.map((p, i) => (
+                    <ProjectCard
+                      key={p.title}
+                      project={p}
+                      index={i + 1}
+                      flipped={flipped === p.title}
+                      onFlip={(v) => setFlipped(v ? p.title : null)}
+                    />
+                  ))}
+                </div>
+                {/* Degradé abajo: indica que hay más proyectos al scrollear. */}
+                {projects.length > 2 && (
+                  <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-10 rounded-b-2xl bg-gradient-to-t from-brand-primary/80 to-transparent" />
+                )}
+              </div>
+            </ScrollReveal>
           </div>
-        </ScrollReveal>
         </div>
 
         {/* Mapa. */}
