@@ -14,7 +14,7 @@ import {
   Wrench,
   Mail,
   MapPin,
-  MessageCircle,
+  MessageCircleMore,
   Phone,
   RotateCcw,
   SendHorizontal,
@@ -203,7 +203,7 @@ const THEMES = {
     userAvatar: 'border border-brand-dark/15 bg-white text-brand-primary',
     userBubble: 'border border-brand-dark/10 bg-white text-ink shadow-md shadow-brand-dark/10',
     link: 'border-brand-dark/15 bg-white text-brand-primary shadow-sm shadow-brand-dark/10 hover:border-brand-primary hover:bg-brand-primary hover:text-white',
-    whatsapp: 'border-emerald-500/30 bg-emerald-50 text-emerald-700 shadow-sm shadow-brand-dark/10 hover:border-emerald-500 hover:bg-emerald-500 hover:text-white',
+    whatsapp: 'border-whatsapp/30 bg-whatsapp/10 text-whatsapp-dark shadow-sm shadow-brand-dark/10 hover:border-whatsapp-dark hover:bg-whatsapp-dark hover:text-white',
     chip: 'border-brand-dark/15 bg-white text-brand-primary shadow-sm shadow-brand-dark/10 hover:border-brand-primary hover:bg-brand-primary hover:text-white',
     inputBar: 'border-brand-dark/10 bg-white',
     time: 'text-ink/40',
@@ -219,7 +219,7 @@ const THEMES = {
     userAvatar: 'bg-white text-brand-primary',
     userBubble: 'bg-white text-ink shadow-md shadow-brand-dark/30',
     link: 'border-white/15 bg-white/10 text-white hover:border-brand-dark hover:bg-brand-dark',
-    whatsapp: 'border-emerald-400/40 bg-emerald-500/15 text-emerald-200 hover:border-emerald-500 hover:bg-emerald-500 hover:text-white',
+    whatsapp: 'border-whatsapp/40 bg-whatsapp/15 text-white hover:border-whatsapp-dark hover:bg-whatsapp-dark',
     chip: 'border-white/20 bg-white/10 text-white backdrop-blur-md hover:border-brand-dark hover:bg-brand-dark',
     inputBar: 'border-white/10 bg-ink/60',
     time: 'text-white/40',
@@ -531,18 +531,18 @@ export function ChatWidget() {
               )}
               <span
                 className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/25 backdrop-blur-md ${
-                  view === 'whatsapp' ? 'bg-emerald-500/80' : 'bg-white/10'
+                  view === 'whatsapp' ? 'bg-whatsapp-dark' : 'bg-white/10'
                 }`}
               >
                 {(() => {
-                  const HeaderIcon = view === 'chat' ? Bot : view === 'sessions' ? History : view === 'whatsapp' ? WhatsAppIcon : MessageCircle;
+                  const HeaderIcon = view === 'chat' ? Bot : view === 'sessions' ? History : view === 'whatsapp' ? WhatsAppIcon : MessageCircleMore;
                   return <HeaderIcon className="h-5 w-5" strokeWidth={2} />;
                 })()}
               </span>
               <div className="min-w-0">
                 <p className={variant.labelClass}>{view === 'choose' ? '¿Cómo te ayudamos?' : view === 'whatsapp' ? 'Habla con un asesor' : view === 'sessions' ? 'Conversaciones' : 'Asistente virtual'}</p>
                 <p className="flex items-center gap-1.5 whitespace-nowrap text-[11px] text-white/75">
-                  <span className="online-dot h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                  <span className="online-dot h-1.5 w-1.5 rounded-full bg-whatsapp" />
                   {view === 'choose' ? 'Elige cómo quieres hablar' : view === 'whatsapp' ? 'Lun a vie, 9:00 a 18:00' : view === 'sessions' ? 'Guardadas en este navegador' : 'En línea'}
                 </p>
               </div>
@@ -581,12 +581,12 @@ export function ChatWidget() {
               <OptionCard
                 t={t}
                 icon={WhatsAppIcon}
-                tint="#10b981"
-                extra="bg-emerald-500 shadow-emerald-500/30"
+                tint="#25d366"
+                extra="bg-gradient-to-br from-whatsapp to-whatsapp-dark shadow-whatsapp-dark/30"
                 title={
                   <>
                     WhatsApp
-                    <span className="online-dot h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    <span className="online-dot h-1.5 w-1.5 rounded-full bg-whatsapp" />
                   </>
                 }
                 text="Chatea directo con un asesor"
@@ -600,7 +600,7 @@ export function ChatWidget() {
                 title={
                   <>
                     Asistente virtual
-                    <span className="online-dot h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    <span className="online-dot h-1.5 w-1.5 rounded-full bg-whatsapp" />
                   </>
                 }
                 text="Respuestas al instante, 24/7"
@@ -611,7 +611,7 @@ export function ChatWidget() {
             <div className="flex flex-col gap-2 p-4">
               <p className={`mb-1 text-xs ${t.muted}`}>Elige el área y te respondemos por WhatsApp.</p>
               {WHATSAPP_AREAS.map((area) => {
-                const AreaIcon = AREA_ICON[area.label] ?? MessageCircle;
+                const AreaIcon = AREA_ICON[area.label] ?? MessageCircleMore;
                 return (
                   <a
                     key={area.label}
@@ -621,23 +621,23 @@ export function ChatWidget() {
                     className={`group flex items-center gap-3 rounded-xl p-3 text-left transition-all hover:-translate-y-0.5 ${t.card}`}
                   >
                     {/* Inicial del asesor + punto verde de disponible. */}
-                    <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 font-display text-base font-bold text-white shadow-md shadow-emerald-500/30">
+                    <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-whatsapp to-whatsapp-dark font-display text-base font-bold text-white shadow-md shadow-whatsapp-dark/30">
                       {area.contact[0]}
                       <span className="absolute -right-0.5 -top-0.5 flex">
-                        <span className="online-dot h-2.5 w-2.5 rounded-full bg-emerald-400 ring-2 ring-white" />
+                        <span className="online-dot h-2.5 w-2.5 rounded-full bg-whatsapp ring-2 ring-white" />
                       </span>
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="flex items-center gap-2">
                         <span className={`text-sm font-semibold ${t.title}`}>{area.contact}</span>
-                        <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-500">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-whatsapp/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-whatsapp">
                           <AreaIcon className="h-3 w-3" strokeWidth={2.2} />
                           {area.label}
                         </span>
                       </span>
                       <span className={`mt-0.5 block whitespace-nowrap text-xs ${t.muted}`}>+51 {area.phone}</span>
                     </span>
-                    <span className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-emerald-500 px-3.5 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-colors group-hover:bg-emerald-600">
+                    <span className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-whatsapp-dark px-3.5 text-sm font-semibold text-white shadow-md shadow-whatsapp-dark/30 transition-colors group-hover:bg-[#0e7266]">
                       <WhatsAppIcon className="h-4 w-4" />
                       Chatear
                     </span>
@@ -651,7 +651,7 @@ export function ChatWidget() {
                 <div key={x.id} className={`group flex items-center gap-2 rounded-xl p-3 transition-all ${t.card}`}>
                   <button type="button" onClick={() => openSession(x)} className="flex min-w-0 flex-1 items-center gap-3 text-left">
                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-brand-primary text-white shadow-md shadow-brand-dark/25">
-                      <MessageCircle className="h-4 w-4" strokeWidth={2} />
+                      <MessageCircleMore className="h-4 w-4" strokeWidth={2} />
                     </span>
                     <span className="min-w-0">
                       <span className={`block truncate text-sm font-semibold ${t.title}`}>{x.title}</span>
@@ -773,7 +773,7 @@ export function ChatWidget() {
         aria-label={open ? 'Cerrar chat' : 'Abrir chat'}
         className="btn-glow launcher-ring relative flex h-14 w-14 items-center justify-center rounded-tl-2xl rounded-tr-2xl rounded-bl-2xl rounded-br-md text-white transition-transform hover:scale-105 active:scale-95"
       >
-        {open ? <X className="h-6 w-6" strokeWidth={2} /> : <MessageCircle className="h-6 w-6" strokeWidth={2} />}
+        {open ? <X className="h-6 w-6" strokeWidth={2} /> : <MessageCircleMore className="h-6 w-6" strokeWidth={2} />}
       </button>
     </div>
   );
