@@ -555,3 +555,21 @@ sesión/máquina)**:
 - Pendiente: aviso "terminó la conversación" (hoy solo avisa al iniciar),
   subir fotos de asesores (hoy es URL), rate limiting de los endpoints
   públicos cuando vuelva `@nestjs/throttler`.
+
+### 2026-09-30 — CMS de la home (web informativa)
+
+- **API**: módulo `contenido` + modelo `ContenidoWeb` (JSON por marca +
+  página + sección; migración `20260930160000_contenido_web` aplicada).
+  `GET/PUT /contenido/:pagina[/:seccion]` (admin/marketing) y público
+  `GET /public/contenido/:pagina?marcaId`. Tabla en el tenant-guard.
+- **Web** (`web-fptecnologi`): `src/lib/homeContenido.ts` define la forma y
+  los textos por defecto de cada sección de la home; `app/page.tsx` los
+  mezcla con lo guardado en cada visita (`force-dynamic`) y respeta
+  mostrar/ocultar. `GET /api/cms/home` devuelve el contenido actual al
+  dashboard (CORS a `DASHBOARD_ORIGIN`).
+- **Dashboard**: Web informativa → Home page (`/web/home`): selector de
+  sección, formulario (textos, listas, diapositivas del banner), switch
+  Visible, "Guardar y publicar" y vista previa real de la web (iframe
+  escritorio/celular) que salta a la sección editada.
+- Pendiente: imágenes (subida), listas grandes (servicios, productos,
+  proyectos, clientes, marcas), borrador antes de publicar, otras páginas.

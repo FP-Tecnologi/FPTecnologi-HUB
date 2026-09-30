@@ -1,4 +1,5 @@
 'use client';
+import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
 
 import { useState } from 'react';
 import { Mail, MapPin, MessageCircle, Phone, type LucideIcon } from 'lucide-react';
@@ -25,7 +26,7 @@ const ITEMS: { label: string; value: string; href: string; icon: LucideIcon }[] 
  * footer (bg-ink) para que cierre la página junto con él. No hay backend de
  * correo (ver AGENTS.md): el formulario arma el mensaje y abre WhatsApp.
  */
-export function Contact() {
+export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -70,14 +71,13 @@ export function Contact() {
     <section id="contacto" className="bg-ink py-20 text-white">
       <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-2 lg:items-start">
         <ScrollReveal direction="left">
-          <SectionBadge tone="dark">Hablemos</SectionBadge>
+          <SectionBadge tone="dark">{c.badge}</SectionBadge>
           <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
-            <span className="text-white">¿Listo para modernizar</span>{' '}
-            <span className="title-shimmer-dark">la tecnología de tu empresa?</span>
+            <span className="text-white">{c.titulo}</span>{' '}
+            <span className="title-shimmer-dark">{c.destacado}</span>
           </h2>
           <p className="mt-4 max-w-lg text-white/70">
-            Escríbenos y un asesor especializado te ayuda a armar la mejor solución para tu negocio, con stock local y
-            tiempos de entrega reales.
+            {c.descripcion}
           </p>
 
           <div className="mt-8 grid gap-4 sm:grid-cols-2">

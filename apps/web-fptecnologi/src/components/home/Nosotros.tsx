@@ -1,6 +1,7 @@
 'use client';
+import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
 
-import { COMPANY_VALUES, STATS } from '@/lib/content';
+import { STATS } from '@/lib/content';
 import { MoreInfoButton } from './MoreInfoButton';
 import { ScrollReveal } from './ScrollReveal';
 import { SectionBadge } from './SectionBadge';
@@ -20,7 +21,7 @@ function CheckIcon({ className }: { className?: string }) {
    elegir a FPTecnologi, un check con el motivo sí. Cada ítem entra con su
    propio ScrollReveal escalonado (delayMs creciente) para que se sientan
    "en cascada" al hacer scroll, no todos de golpe. */
-export function Nosotros() {
+export function Nosotros({ c = HOME_DEFAULTS.nosotros }: { c?: Encabezado & { puntos: string[] } }) {
   return (
     // bg-white en la sección completa (no solo en el contenido) -- para que
     // se note como una franja blanca propia, distinta del fondo con
@@ -63,25 +64,23 @@ export function Nosotros() {
               porque el fondo de esta sección es blanco, no un video oscuro. */}
           {/* El nombre de la empresa va acá (antes en el título) -- el
               título ya no lo repite. */}
-          <SectionBadge>FPTecnologi & System</SectionBadge>
+          <SectionBadge>{c.badge}</SectionBadge>
           {/* Mismo lenguaje de dos colores + brillo en movimiento que el
               título del Hero (.hero-title-shimmer): línea 1 en color sólido
               normal, línea 2 con el degradé animado -- acá en su variante
               clara (.title-shimmer-light, sin blanco) porque el fondo de
               esta sección es blanco, no oscuro. */}
           <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
-            <span className="text-ink">Tecnología empresarial con</span>{' '}
-            <span className="title-shimmer-light">respaldo real y soporte local</span>
+            <span className="text-ink">{c.titulo}</span>{' '}
+            <span className="title-shimmer-light">{c.destacado}</span>
           </h2>
           <p className="mt-4 max-w-lg text-justify text-ink/60">
-            Más de una década ayudando a empresas a equiparse con la tecnología correcta: distribución autorizada de
-            las principales marcas, stock local listo para despachar y un equipo técnico que arma cada propuesta a
-            medida de tu operación.
+            {c.descripcion}
           </p>
 
           <div className="mt-8 flex flex-col gap-4">
-            {COMPANY_VALUES.map((value, i) => (
-              <ScrollReveal key={value.title} direction="up" delayMs={150 + i * 100}>
+            {c.puntos.map((title, i) => (
+              <ScrollReveal key={i} direction="up" delayMs={150 + i * 100}>
                 <div className="flex items-center gap-3">
                   {/* Chip con degradé de marca en movimiento (.value-check-glow,
                       ver globals.css) en vez de un color plano -- mismo
@@ -90,7 +89,7 @@ export function Nosotros() {
                   <span className="value-check-glow flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-white">
                     <CheckIcon className="h-3.5 w-3.5" />
                   </span>
-                  <p className="font-medium text-ink">{value.title}</p>
+                  <p className="font-medium text-ink">{title}</p>
                 </div>
               </ScrollReveal>
             ))}
@@ -106,7 +105,7 @@ export function Nosotros() {
           {/* max-w-lg igual que el párrafo: el botón queda alineado a su
               borde derecho. */}
           <div className="mt-6 flex max-w-lg justify-end">
-            <MoreInfoButton href="/nosotros" />
+            <MoreInfoButton href={c.botonUrl || '/nosotros'} label={c.botonTexto || undefined} />
           </div>
         </ScrollReveal>
       </div>

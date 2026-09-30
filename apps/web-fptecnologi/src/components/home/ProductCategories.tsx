@@ -1,3 +1,4 @@
+import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
 import Image from 'next/image';
 import { ArrowUpRight, Laptop, Monitor, Presentation, Server, type LucideIcon } from 'lucide-react';
 import { TIENDA_CATEGORIES } from '@/lib/content';
@@ -34,23 +35,22 @@ const ICONS: Record<string, LucideIcon> = {
  * de marca, contorno que gira (.spin-border), zoom de la foto y la flecha
  * pasa a azul principal girando.
  */
-export function ProductCategories() {
+export function ProductCategories({ c = HOME_DEFAULTS.categorias }: { c?: Encabezado }) {
   return (
     <section id="categorias" className="mx-auto max-w-7xl px-6 py-20">
       <div className="mb-12 flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-end">
         <ScrollReveal direction="left">
-          <SectionBadge>Nuestra tienda</SectionBadge>
+          <SectionBadge>{c.badge}</SectionBadge>
           <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
-            <span className="text-ink">Categorías del</span>{' '}
-            <span className="title-shimmer-light">catálogo</span>
+            <span className="text-ink">{c.titulo}</span>{' '}
+            <span className="title-shimmer-light">{c.destacado}</span>
           </h2>
         </ScrollReveal>
         <ScrollReveal direction="right" delayMs={120} className="flex max-w-lg flex-col items-end gap-5">
           <p className="text-justify text-ink/60 hyphens-auto">
-            Monitores, laptops, pantallas y servidores de las principales marcas, con stock local
-            listo para despachar.
+            {c.descripcion}
           </p>
-          <MoreInfoButton href="/tienda" label="Ver Tienda TI" />
+          {c.botonTexto && <MoreInfoButton href={c.botonUrl || '/tienda'} label={c.botonTexto} />}
         </ScrollReveal>
       </div>
 

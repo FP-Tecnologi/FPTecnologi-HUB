@@ -1,4 +1,5 @@
 'use client';
+import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
 
 import { FEATURED_PRODUCTS } from '@/lib/content';
 import { ProductCardFinal } from './ProductCardFinal';
@@ -13,7 +14,7 @@ import { SectionBadge } from './SectionBadge';
  * imagen, comparar, ver galería) y la tabla comparativa 12.2 con imagen (ver
  * app/guia-estilos-final).
  */
-export function FeaturedProducts() {
+export function FeaturedProducts({ c = HOME_DEFAULTS.productos }: { c?: Encabezado }) {
   // Comparar: estado + panel pegado abajo compartidos con la tienda.
   const compare = useCompare();
 
@@ -25,13 +26,13 @@ export function FeaturedProducts() {
             brillo a la izquierda, descripción + botón sweep a la derecha. */}
         <div className="mb-12 flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-end">
           <ScrollReveal direction="left">
-            <SectionBadge>Tienda B2B</SectionBadge>
+            <SectionBadge>{c.badge}</SectionBadge>
             <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
-              <span className="text-ink">Los más</span> <span className="title-shimmer-light">vendidos</span>
+              <span className="text-ink">{c.titulo}</span> <span className="title-shimmer-light">{c.destacado}</span>
             </h2>
           </ScrollReveal>
           <ScrollReveal direction="right" delayMs={120}>
-            <MoreInfoButton href="/tienda" label="Ver Tienda B2B" />
+            {c.botonTexto && <MoreInfoButton href={c.botonUrl || '/tienda'} label={c.botonTexto} />}
           </ScrollReveal>
         </div>
 

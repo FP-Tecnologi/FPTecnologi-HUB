@@ -1,4 +1,5 @@
 'use client';
+import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
 
 import { useState } from 'react';
 import { Building2, GraduationCap, Landmark, type LucideIcon } from 'lucide-react';
@@ -19,19 +20,19 @@ const SECTOR_ICONS: Record<ClientSector['key'], LucideIcon> = {
  * dentro de cada caja los logos se desplazan en bucle (marquesina, se pausa
  * al pasar el cursor). Clientes de ejemplo en lib/clients.ts.
  */
-export function NuestrosClientes() {
+export function NuestrosClientes({ c = HOME_DEFAULTS.clientes }: { c?: Encabezado }) {
   const [gobierno, ...resto] = CLIENT_SECTORS;
 
   return (
     <section id="clientes" className="bg-white py-20">
       <div className="mx-auto max-w-7xl px-6">
         <ScrollReveal direction="up" className="mx-auto mb-14 flex max-w-2xl flex-col items-center text-center">
-          <SectionBadge>Confían en nosotros</SectionBadge>
+          <SectionBadge>{c.badge}</SectionBadge>
           <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
-            <span className="text-ink">Nuestros</span> <span className="title-shimmer-light">clientes</span>
+            <span className="text-ink">{c.titulo}</span> <span className="title-shimmer-light">{c.destacado}</span>
           </h2>
           <p className="mt-3 text-ink/60">
-            Organizaciones que confían en nosotros en <span className="font-semibold text-brand-primary">{CLIENT_SECTORS.length} sectores clave</span>.
+            {c.descripcion}
           </p>
         </ScrollReveal>
 

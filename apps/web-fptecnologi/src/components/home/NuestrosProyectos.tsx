@@ -1,4 +1,5 @@
 'use client';
+import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
 
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
@@ -116,7 +117,7 @@ function ProjectCard({
  * izquierda, el contenedor lista los proyectos del departamento elegido.
  * Datos de ejemplo en lib/projects.ts (reemplazar por los reales).
  */
-export function NuestrosProyectos() {
+export function NuestrosProyectos({ c = HOME_DEFAULTS.proyectos }: { c?: Encabezado }) {
   const counts = useMemo(() => {
     const m = new Map<string, number>();
     for (const p of PROJECTS) m.set(p.department, (m.get(p.department) ?? 0) + 1);
@@ -146,11 +147,11 @@ export function NuestrosProyectos() {
   return (
     <section id="proyectos" className="mx-auto max-w-7xl px-6 py-20">
       <ScrollReveal direction="up" className="mx-auto mb-12 flex max-w-2xl flex-col items-center text-center">
-        <SectionBadge>Nuestro trabajo</SectionBadge>
+        <SectionBadge>{c.badge}</SectionBadge>
         <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
-          <span className="text-ink">Nuestros</span> <span className="title-shimmer-light">proyectos</span>
+          <span className="text-ink">{c.titulo}</span> <span className="title-shimmer-light">{c.destacado}</span>
         </h2>
-        <p className="mt-3 text-ink/60">Selecciona una región en el mapa para ver los proyectos.</p>
+        {c.descripcion && <p className="mt-3 text-ink/60">{c.descripcion}</p>}
       </ScrollReveal>
 
       <div className="grid gap-10 lg:grid-cols-2">

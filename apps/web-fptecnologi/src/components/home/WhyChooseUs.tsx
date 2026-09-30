@@ -1,5 +1,5 @@
+import { HOME_DEFAULTS, type Encabezado, type ItemTexto } from '@/lib/homeContenido';
 import { BadgeCheck, FileText, Handshake, Warehouse, type LucideIcon } from 'lucide-react';
-import { WHY_CHOOSE_US } from '@/lib/content';
 import { SectionBadge } from './SectionBadge';
 import { ScrollReveal } from './ScrollReveal';
 
@@ -13,24 +13,24 @@ const ICONS: LucideIcon[] = [Warehouse, BadgeCheck, FileText, Handshake];
  * de marca, ícono, número grande de fondo y hover: sube, borde celeste,
  * sombra azul oscuro y el chip del ícono pasa a azul principal.
  */
-export function WhyChooseUs() {
+export function WhyChooseUs({ c = HOME_DEFAULTS.porque }: { c?: Encabezado & { items: ItemTexto[] } }) {
   return (
     // Fondo blanco (bg-white a lo ancho) -- distinto del bg-paper con
     // puntitos de Servicios, para separar secciones sin oscurecer la página.
-    <section className="bg-white py-24">
+    <section id="porque" className="bg-white py-24">
       <div className="mx-auto max-w-7xl px-6">
         <ScrollReveal direction="up" className="mx-auto mb-14 flex max-w-2xl flex-col items-center text-center">
-          <SectionBadge>Por qué elegirnos</SectionBadge>
+          <SectionBadge>{c.badge}</SectionBadge>
           {/* Título en una línea (corto): las 2 partes son inline, solo
               bajan de línea solas si no entran. */}
           <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
-            <span className="text-ink">Lo que nos hace</span>{' '}
-            <span className="title-shimmer-light">distintos</span>
+            <span className="text-ink">{c.titulo}</span>{' '}
+            <span className="title-shimmer-light">{c.destacado}</span>
           </h2>
         </ScrollReveal>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
-          {WHY_CHOOSE_US.map((item, i) => {
+          {c.items.map((item, i) => {
             const Icon = ICONS[i] ?? BadgeCheck;
             return (
               <ScrollReveal key={item.title} direction="up" delayMs={i * 100} className="h-full">

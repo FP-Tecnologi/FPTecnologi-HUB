@@ -10,6 +10,7 @@ import { ProductCategories } from '@/components/home/ProductCategories';
 import { Solutions } from '@/components/home/Solutions';
 import { FeaturedProducts } from '@/components/home/FeaturedProducts';
 import { WhyChooseUs } from '@/components/home/WhyChooseUs';
+import { getHomeContenido } from '@/lib/homeContenido';
 
 /*
  * Home reconstruida desde cero sobre src/components/home/ (ver
@@ -36,21 +37,26 @@ import { WhyChooseUs } from '@/components/home/WhyChooseUs';
  * proyectos y Nuestros clientes son secciones nuevas sin contenido real
  * todavía, marcadas TODO en sus propios archivos.
  */
-export default function HomePage() {
+// Contenido editable desde el dashboard (CMS) -- se lee en cada visita para
+// que lo guardado se vea al instante (y en la vista previa del dashboard).
+export const dynamic = 'force-dynamic';
+
+export default async function HomePage() {
+  const c = await getHomeContenido();
   return (
     <>
       <main>
-        <Hero />
-        <BrandMarquee showLabel={false} />
-        <Nosotros />
-        <Solutions />
-        <WhyChooseUs />
-        <ProductCategories />
-        <FeaturedProducts />
-        <NuestrosProyectos />
-        <NuestrosClientes />
-        <PartnerCta />
-        <Contact />
+        {c.hero.visible && <Hero slides={c.hero.slides} />}
+        {c.marcas.visible && <BrandMarquee showLabel={false} />}
+        {c.nosotros.visible && <Nosotros c={c.nosotros} />}
+        {c.servicios.visible && <Solutions c={c.servicios} />}
+        {c.porque.visible && <WhyChooseUs c={c.porque} />}
+        {c.categorias.visible && <ProductCategories c={c.categorias} />}
+        {c.productos.visible && <FeaturedProducts c={c.productos} />}
+        {c.proyectos.visible && <NuestrosProyectos c={c.proyectos} />}
+        {c.clientes.visible && <NuestrosClientes c={c.clientes} />}
+        {c.partners.visible && <PartnerCta c={c.partners} />}
+        {c.contacto.visible && <Contact c={c.contacto} />}
       </main>
       <Footer />
     </>

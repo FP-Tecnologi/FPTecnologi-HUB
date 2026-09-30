@@ -1,6 +1,6 @@
 'use client';
+import { HOME_DEFAULTS, type Encabezado, type ItemTexto } from '@/lib/homeContenido';
 
-import { PARTNER_STEPS } from '@/lib/content';
 import { whatsappHref } from '@/lib/chatActions';
 import { MoreInfoButton } from './MoreInfoButton';
 import { ScrollReveal } from './ScrollReveal';
@@ -13,29 +13,29 @@ import { SectionBadge } from './SectionBadge';
  * hover. Fondo azul oscuro de marca (el que tenía "Hablemos"); Contacto pasa
  * al color del footer.
  */
-export function PartnerCta() {
+export function PartnerCta({ c = HOME_DEFAULTS.partners }: { c?: Encabezado & { pasos: ItemTexto[] } }) {
   return (
     <section id="partners" className="bg-brand-dark py-20 text-white">
       <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-[minmax(0,420px)_1fr] lg:items-center">
         <ScrollReveal direction="left">
-          <SectionBadge tone="dark">Programa de Partners</SectionBadge>
+          <SectionBadge tone="dark">{c.badge}</SectionBadge>
           <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
-            <span className="text-white">Súmate como integrador</span> <span className="title-shimmer-dark">o revendedor</span>
+            <span className="text-white">{c.titulo}</span> <span className="title-shimmer-dark">{c.destacado}</span>
           </h2>
           <p className="mt-4 text-white/70">
-            Precios y beneficios especiales para partners, con soporte comercial dedicado y cotización directa.
+            {c.descripcion}
           </p>
           <div className="mt-8">
             <MoreInfoButton
               tone="dark"
-              label="Sumarme como partner"
+              label={c.botonTexto || 'Sumarme como partner'}
               onClick={() => window.open(whatsappHref('Hola, quiero saber más sobre el programa de Partners de FPTecnologi'), '_blank', 'noreferrer')}
             />
           </div>
         </ScrollReveal>
 
         <div className="grid gap-5 sm:grid-cols-3">
-          {PARTNER_STEPS.map((s, i) => (
+          {c.pasos.map((s, i) => ({ ...s, step: String(i + 1) })).map((s, i) => (
             <ScrollReveal key={s.step} direction="up" delayMs={i * 120} className="h-full">
               <div className="group relative h-full overflow-hidden rounded-2xl border border-white/15 bg-white/10 p-6 backdrop-blur-md transition-all duration-300 hover:-translate-y-1.5 hover:bg-white/15 hover:shadow-2xl hover:shadow-ink/40">
                 <span className="spin-border" aria-hidden />

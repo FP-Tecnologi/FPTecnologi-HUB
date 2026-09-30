@@ -1,3 +1,4 @@
+import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
 import { SOLUTIONS } from '@/lib/content';
 import { ServiceCardFinal } from './ServiceCardFinal';
 import { MoreInfoButton } from './MoreInfoButton';
@@ -14,7 +15,7 @@ import { SectionBadge } from './SectionBadge';
  * entra desde la izquierda, descripción+botón desde la derecha, y las
  * tarjetas suben en cascada por columna (delay creciente).
  */
-export function Solutions() {
+export function Solutions({ c = HOME_DEFAULTS.servicios }: { c?: Encabezado }) {
   return (
     <section id="servicios" className="mx-auto max-w-7xl px-6 py-20">
       {/* Encabezado con el mismo lenguaje que Nosotros: badge de vidrio con
@@ -22,14 +23,14 @@ export function Solutions() {
           .title-shimmer-light), descripción justificada y botón sweep. */}
       <div className="mb-12 flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-end">
         <ScrollReveal direction="left">
-          <SectionBadge>Nuestros servicios</SectionBadge>
+          <SectionBadge>{c.badge}</SectionBadge>
           <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
-            <span className="text-ink">Servicios TI a medida</span>{' '}
-            <span className="title-shimmer-light">para cada sector</span>
+            <span className="text-ink">{c.titulo}</span>{' '}
+            <span className="title-shimmer-light">{c.destacado}</span>
           </h2>
         </ScrollReveal>
         <ScrollReveal direction="right" delayMs={120}>
-          <MoreInfoButton href="/servicios" label="Ver servicios" />
+          {c.botonTexto && <MoreInfoButton href={c.botonUrl || '/servicios'} label={c.botonTexto} />}
         </ScrollReveal>
       </div>
 

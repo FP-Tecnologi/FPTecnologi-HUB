@@ -1,4 +1,5 @@
 'use client';
+import type { HeroSlide } from '@/lib/homeContenido';
 
 import { useEffect, useState, type ComponentType, type FormEvent } from 'react';
 import { Navbar9 } from './Navbar9';
@@ -12,7 +13,7 @@ import { ClickConfirmButton } from './ClickConfirmButton';
 // Solo Servicios/Tienda para este hero (a diferencia del carrusel de 3 del
 // Modelo 1, acá no entra "Partners" -- pedido explícito del usuario). Mismo
 // HERO_SLIDES real de content.ts, sin inventar copy nuevo.
-const SLIDES = HERO_SLIDES.filter((s) => s.key === 'servicios' || s.key === 'tienda');
+const BASE_SLIDES = HERO_SLIDES.filter((s) => s.key === 'servicios' || s.key === 'tienda');
 const ROTATE_MS = 7000;
 
 /**
@@ -32,7 +33,9 @@ const ROTATE_MS = 7000;
  * la frase que importa). La tarjeta flotante de abajo a la izquierda marca
  * en blanco cuál de los dos está activo en cada momento.
  */
-export function Hero() {
+export function Hero({ slides }: { slides?: HeroSlide[] }) {
+  // Textos editables desde el CMS (imagen/kind siguen siendo los de content.ts).
+  const SLIDES = BASE_SLIDES.map((s, i) => ({ ...s, ...(slides?.[i] ?? {}) }));
   const [active, setActive] = useState(0);
   const [videoReady, setVideoReady] = useState(false);
 

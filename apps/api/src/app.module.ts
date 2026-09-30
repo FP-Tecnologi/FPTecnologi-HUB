@@ -22,6 +22,7 @@ import { NotificacionesModule } from './notificaciones/notificaciones.module.js'
 import { PublicApiModule } from './public/public.module.js';
 import { UsuariosModule } from './usuarios/usuarios.module.js';
 import { ChatModule } from './chat/chat.module.js';
+import { ContenidoModule } from './contenido/contenido.module.js';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { ChatModule } from './chat/chat.module.js';
     PublicApiModule,
     UsuariosModule,
     ChatModule,
+    ContenidoModule,
   ],
   controllers: [HealthController],
   providers: [

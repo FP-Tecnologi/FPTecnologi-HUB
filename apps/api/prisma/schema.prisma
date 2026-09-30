@@ -40,6 +40,7 @@ model Marca {
   chatAsesores       ChatAsesor[]
   chatConversaciones ChatConversacion[]
   chatMensajes       ChatMensaje[]
+  contenidos         ContenidoWeb[]
 }
 
 model Sitio {
@@ -380,4 +381,26 @@ model ChatMensaje {
 
   @@index([conversacionId, createdAt])
   @@index([marcaId])
+}
+
+// ---------------------------------------------------------------------------
+// CMS de las webs públicas: contenido editable por página y sección (textos,
+// botones, listas, mostrar/ocultar). `datos` es JSON libre: la forma de cada
+// sección la define la web que lo consume (ej. web-fptecnologi/src/lib/
+// homeContenido.ts), que además tiene los valores por defecto.
+// ---------------------------------------------------------------------------
+
+model ContenidoWeb {
+  id             String   @id @default(uuid())
+  marcaId        String
+  marca          Marca    @relation(fields: [marcaId], references: [id])
+  pagina         String // "home", "nosotros", ...
+  seccion        String // "hero", "servicios", ...
+  datos          Json
+  actualizadoPor String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([marcaId, pagina, seccion])
+  @@index([marcaId, pagina])
 }
