@@ -86,8 +86,8 @@ Secciones (alternando fondo)
 - Arriba del todo: transparente sobre el hero. Al bajar 140px: se comprime
   (ancho 64rem / 72rem en 2xl), fondo `bg-ink/80` + blur, esquinas
   redondeadas. Logo 60px en pantalla grande (`2xl:h-[60px]`), 24–28px comprimido.
-- Menú: Inicio, Servicios (submenú), Tienda (submenú), Marcas, Nosotros,
-  Contacto (items en `lib/content.ts`). Tamaño por vista: 13px (lg), 15px (xl), 16px (2xl), mayúsculas.
+- Menú (orden fijo): Inicio, Nosotros, Servicios (submenú), Tienda (submenú), Marcas,
+  Contacto (items en `lib/nav.ts`; footer: Nosotros, Servicios, Tienda, Contacto). Tamaño por vista: 13px (lg), 15px (xl), 16px (2xl), mayúsculas.
 - Derecha: carrito (solo si hay productos) + **Cotizar** (sweep → `/cotizador`).
 - Variante tienda (`store`): selector USD/PEN + carrito siempre visible,
   **sin** Cotizar.

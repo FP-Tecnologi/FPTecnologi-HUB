@@ -5,9 +5,9 @@ import { whatsappHref } from '@/lib/chatActions';
 
 // Solo páginas (no anclas de la home): pedido del usuario.
 const NAV = [
+  { label: 'Nosotros', href: '/nosotros' },
   { label: 'Servicios', href: '/servicios' },
   { label: 'Tienda', href: '/tienda' },
-  { label: 'Nosotros', href: '/nosotros' },
   { label: 'Contacto', href: '/contacto' },
 ];
 

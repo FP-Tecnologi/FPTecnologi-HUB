@@ -2,6 +2,7 @@ import { SOLUTIONS, TIENDA_CATEGORIES } from './content';
 
 export const NAV_LINKS = [
   { label: 'Inicio', href: '#inicio' },
+  { label: 'Nosotros', href: '#nosotros' },
   {
     label: 'Servicios',
     href: '#servicios',
@@ -17,6 +18,5 @@ export const NAV_LINKS = [
     viewAllLabel: 'Ver catálogo completo',
   },
   { label: 'Marcas', href: '#marcas' },
-  { label: 'Nosotros', href: '#nosotros' },
   { label: 'Contacto', href: '#contacto' },
 ] as const;

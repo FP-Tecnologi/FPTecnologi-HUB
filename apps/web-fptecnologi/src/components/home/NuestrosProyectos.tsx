@@ -5,7 +5,6 @@ import Image from 'next/image';
 import { Building2, MapPin, MousePointerClick, RotateCcw } from 'lucide-react';
 import { PERU_DEPARTMENTS, PERU_VIEWBOX } from '@/lib/peruDepartments';
 import { PROJECTS, type Project } from '@/lib/projects';
-import { MoreInfoButton } from './MoreInfoButton';
 import { ScrollReveal } from './ScrollReveal';
 import { SectionBadge } from './SectionBadge';
 
@@ -260,10 +259,6 @@ export function NuestrosProyectos() {
           </div>
         </ScrollReveal>
         </div>
-      </div>
-
-      <div className="mt-12 flex justify-center">
-        <MoreInfoButton href="/contacto" label="Solicitar información" />
       </div>
     </section>
   );
