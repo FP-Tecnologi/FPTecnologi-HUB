@@ -40,7 +40,8 @@ import { useChatWidget } from '@/context/ChatWidgetContext';
 // from 'asesor': respuesta de un asesor que tomó la conversación desde el
 // dashboard (sid = id del mensaje en la API, para no duplicarlo al consultar).
 type ChatMsg = {
-  from: 'bot' | 'user' | 'asesor';
+  // 'system': etiqueta centrada ("Jaime se unió al chat"), no es un mensaje.
+  from: 'bot' | 'user' | 'asesor' | 'system';
   text: string;
   instant?: boolean;
   actions?: ChatAction[];
@@ -80,7 +81,7 @@ function loadHistory(): ChatMsg[] | null {
     const raw = JSON.parse(window.localStorage.getItem(HISTORY_KEY) ?? 'null');
     if (!Array.isArray(raw) || raw.length === 0) return null;
     return raw
-      .filter((m) => m && (m.from === 'bot' || m.from === 'user' || m.from === 'asesor') && typeof m.text === 'string')
+      .filter((m) => m && (m.from === 'bot' || m.from === 'user' || m.from === 'asesor' || m.from === 'system') && typeof m.text === 'string')
       .map((m) => ({
         from: m.from,
         text: m.text,
@@ -504,15 +505,25 @@ export function ChatWidget() {
       setAgent({ estado: data.estado, asesor: data.asesor });
       if (data.mensajes.length) lastSync.current = data.mensajes[data.mensajes.length - 1].createdAt;
       const nuevos = data.mensajes.filter((m) => m.autor === 'ASESOR');
-      if (nuevos.length) {
-        setMessages((prev) => {
-          const seen = new Set(prev.map((m) => m.sid).filter(Boolean));
-          const add = nuevos
-            .filter((m) => !seen.has(m.id))
-            .map((m) => ({ from: 'asesor' as const, text: m.texto, at: new Date(m.createdAt).getTime(), sid: m.id, name: data.asesor?.nombre ?? undefined, instant: true }));
-          return add.length ? [...prev, ...add] : prev;
-        });
-      }
+      const nombre = data.asesor?.nombre ?? 'Un asesor';
+      setMessages((prev) => {
+        const seen = new Set(prev.map((m) => m.sid).filter(Boolean));
+        const add: ChatMsg[] = [];
+        // Etiquetas de sistema (una sola vez cada una, por sid).
+        const label = (sid: string, text: string) => {
+          if (!seen.has(sid)) {
+            add.push({ from: 'system', text, sid, at: Date.now(), instant: true });
+            seen.add(sid);
+          }
+        };
+        if (data.estado === 'ASESOR') label(`join:${nombre}`, `${nombre} se unió al chat`);
+        for (const m of nuevos) {
+          if (seen.has(m.id)) continue;
+          add.push({ from: 'asesor', text: m.texto, at: new Date(m.createdAt).getTime(), sid: m.id, name: data.asesor?.nombre ?? undefined, instant: true });
+        }
+        if (data.estado === 'CERRADA') label('closed', 'La conversación fue cerrada');
+        return add.length ? [...prev, ...add] : prev;
+      });
     };
     tick();
     const id = window.setInterval(tick, POLL_MS);
@@ -607,7 +618,7 @@ export function ChatWidget() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: history.map((m) => ({ role: m.from === 'user' ? 'user' : 'assistant', content: m.text })),
+          messages: history.filter((m) => m.from !== 'system').map((m) => ({ role: m.from === 'user' ? 'user' : 'assistant', content: m.text })),
         }),
       });
       if (!res.ok) throw new Error(String(res.status));
@@ -829,6 +840,17 @@ export function ChatWidget() {
               <div ref={listRef} className="flex h-96 flex-col gap-3 overflow-y-auto p-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 <p className={`text-center text-[10px] ${t.time}`}>Un asesor puede revisar esta conversación para ayudarte mejor.</p>
                 {messages.map((m, i) => {
+                  if (m.from === 'system') {
+                    return (
+                      <div key={i} className="animate-pop-in flex justify-center">
+                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold ${t.chip}`}>
+                          <User className="h-3 w-3" strokeWidth={2.2} />
+                          {m.text}
+                          {m.at ? <span className="font-normal opacity-60">· {timeFmt(m.at)}</span> : null}
+                        </span>
+                      </div>
+                    );
+                  }
                   const ready = m.from === 'user' || m.instant || typedDone.has(i);
                   return (
                     <div key={i} className={`animate-pop-in flex flex-col gap-2 ${m.from === 'user' ? 'items-end' : 'items-start'}`}>

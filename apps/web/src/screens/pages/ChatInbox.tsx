@@ -144,6 +144,8 @@ export function ChatInbox() {
   }
 
   const esMia = conv?.asesor?.id === user?.id;
+  // Solo se escribe después de "Retomar conversación" (y si es de uno).
+  const puedeEscribir = conv?.estado === 'ASESOR' && esMia;
 
   return (
     <>
@@ -294,23 +296,29 @@ export function ChatInbox() {
               <form onSubmit={responder} className="ax-card__body" style={{ display: 'flex', gap: 'var(--ax-space-3)', alignItems: 'flex-end', borderTop: '1px solid var(--ax-border)' }}>
                 <div className="ax-field" style={{ flex: '1 1 auto' }}>
                   <label className="ax-label" htmlFor="chat-resp">
-                    {conv.estado === 'CERRADA' ? 'La conversación está cerrada' : esMia ? 'Tu respuesta' : 'Responder (retoma la conversación)'}
+                    {conv.estado === 'CERRADA'
+                      ? 'La conversación está cerrada'
+                      : puedeEscribir
+                        ? 'Tu respuesta'
+                        : conv.estado === 'ASESOR'
+                          ? `La atiende ${conv.asesor?.nombre ?? conv.asesor?.email ?? 'otro asesor'} — retómala para escribir`
+                          : 'Toca «Retomar conversación» para escribirle al cliente'}
                   </label>
                   <textarea
                     id="chat-resp"
                     className="ax-textarea"
                     rows={2}
                     maxLength={2000}
-                    placeholder="Escribe al cliente… (Ctrl + Enter para enviar)"
+                    placeholder={puedeEscribir ? 'Escribe al cliente… (Ctrl + Enter para enviar)' : 'Deshabilitado hasta retomar la conversación'}
                     value={texto}
-                    disabled={conv.estado === 'CERRADA'}
+                    disabled={!puedeEscribir}
                     onChange={(e) => setTexto(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) responder(e);
                     }}
                   />
                 </div>
-                <button type="submit" className={`ax-btn ax-btn--primary${enviando ? ' is-loading' : ''}`} disabled={!texto.trim() || enviando || conv.estado === 'CERRADA'}>
+                <button type="submit" className={`ax-btn ax-btn--primary${enviando ? ' is-loading' : ''}`} disabled={!texto.trim() || enviando || !puedeEscribir}>
                   <span className="ax-btn__spinner" aria-hidden="true"></span>
                   <span className="ax-btn__label">Enviar</span>
                 </button>

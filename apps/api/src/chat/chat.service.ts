@@ -110,8 +110,11 @@ export class ChatService {
   async responder(marcaId: string, id: string, usuarioId: string, texto: string) {
     const conv = await this.getConversacion(marcaId, id);
     if (conv.estado === 'CERRADA') throw new BadRequestException('La conversación está cerrada');
-    // Responder la toma: desde ahí el asistente deja de contestar en la web.
-    if (conv.estado !== 'ASESOR' || conv.asesorId !== usuarioId) await this.tomar(marcaId, id, usuarioId);
+    // Primero hay que retomarla (así el cliente ve "X se unió al chat" antes
+    // del primer mensaje del asesor).
+    if (conv.estado !== 'ASESOR' || conv.asesorId !== usuarioId) {
+      throw new BadRequestException('Primero retoma la conversación');
+    }
     return this.addMensaje(marcaId, id, 'ASESOR', texto);
   }
 
