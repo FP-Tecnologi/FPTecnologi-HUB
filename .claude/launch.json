@@ -40,18 +40,7 @@
     {
       "name": "leads",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "apps/leads", "run", "dev"],
-      "port": 3003
-    },
-    {
-      "name": "leads-wt",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "--prefix",
-        "../FPTecnologi-HUB-leads/apps/leads",
-        "run",
-        "dev"
-      ],
+      "runtimeArgs": ["--prefix", "../centralizacion-leads", "run", "dev"],
       "port": 3003
     }
   ]
