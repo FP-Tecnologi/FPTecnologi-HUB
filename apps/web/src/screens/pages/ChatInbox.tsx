@@ -38,6 +38,33 @@ const REFRESH_MS = 5000;
 const fmt = (iso: string) =>
   new Date(iso).toLocaleString('es-PE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 
+const SVG = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.75, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, width: 16, height: 16, 'aria-hidden': true };
+
+/** Avatar de quien escribió: cliente (persona), asistente (robot) o asesor (iniciales). */
+function Avatar({ autor, nombre }: { autor: Autor; nombre: string | null }) {
+  const base = { flexShrink: 0, width: 32, height: 32 } as const;
+  if (autor === 'ASESOR') {
+    const ini = (nombre ?? 'A').split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+    return (
+      <span className="ax-avatar ax-avatar--sm" title={nombre ?? 'Asesor'} style={{ ...base, background: 'var(--ax-accent)', color: '#fff' }}>
+        <span className="ax-avatar__initials">{ini}</span>
+      </span>
+    );
+  }
+  if (autor === 'BOT') {
+    return (
+      <span className="ax-avatar ax-avatar--sm" title="Asistente virtual" style={{ ...base, background: 'color-mix(in oklab, var(--ax-accent) 18%, transparent)', color: 'var(--ax-accent)' }}>
+        <svg {...SVG}><path d="M6 6a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2l0 -4" /><path d="M12 2v2" /><path d="M9 12v9" /><path d="M15 12v9" /><path d="M5 16l4 -2" /><path d="M15 14l4 2" /><path d="M9 18h6" /><path d="M10 8v.01" /><path d="M14 8v.01" /></svg>
+      </span>
+    );
+  }
+  return (
+    <span className="ax-avatar ax-avatar--sm" title="Cliente" style={{ ...base, background: 'var(--ax-surface)', color: 'var(--ax-text-muted)', border: '1px solid var(--ax-border)' }}>
+      <svg {...SVG}><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
+    </span>
+  );
+}
+
 export function ChatInbox() {
   const { activeMarcaId, user } = useAuth();
   const [filtro, setFiltro] = useState<'' | Estado>('');
@@ -157,7 +184,7 @@ export function ChatInbox() {
                 Todavía no hay conversaciones{filtro ? ' con este estado' : ''}.
               </p>
             ) : (
-              <ul className="ax-list" style={{ maxHeight: 560, overflowY: 'auto', margin: 0, padding: 0 }}>
+              <ul className="ax-list" style={{ maxHeight: 'max(520px, calc(100vh - 260px))', overflowY: 'auto', margin: 0, padding: 0 }}>
                 {lista.map((c) => (
                   <li
                     key={c.id}
@@ -232,30 +259,33 @@ export function ChatInbox() {
               <div
                 ref={hiloRef}
                 className="ax-card__body"
-                style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)', maxHeight: 480, overflowY: 'auto', background: 'var(--ax-surface-subtle)' }}
+                style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)', height: 'max(440px, calc(100vh - 380px))', overflowY: 'auto', background: 'var(--ax-surface-subtle)' }}
               >
                 {conv.mensajes.map((m) => {
                   const derecha = m.autor !== 'CLIENTE';
+                  const nombre = m.autor === 'ASESOR' ? `${conv.asesor?.nombre ?? conv.asesor?.email ?? 'Asesor'} · Asesor` : AUTOR_LABEL[m.autor];
                   return (
-                    <div key={m.id} style={{ display: 'flex', flexDirection: 'column', alignItems: derecha ? 'flex-end' : 'flex-start' }}>
-                      <div
-                        style={{
-                          maxWidth: '75%',
-                          padding: 'var(--ax-space-2) var(--ax-space-3)',
-                          borderRadius: 12,
-                          whiteSpace: 'pre-wrap',
-                          fontSize: 'var(--ax-text-sm)',
-                          lineHeight: 1.5,
-                          background: m.autor === 'CLIENTE' ? 'var(--ax-surface)' : m.autor === 'BOT' ? 'color-mix(in oklab, var(--ax-accent) 14%, var(--ax-surface))' : 'var(--ax-accent)',
-                          color: m.autor === 'ASESOR' ? '#fff' : 'var(--ax-text)',
-                          border: m.autor === 'CLIENTE' ? '1px solid var(--ax-border)' : 'none',
-                        }}
-                      >
-                        {m.texto}
+                    <div key={m.id} style={{ display: 'flex', gap: 'var(--ax-space-2)', alignItems: 'flex-end', flexDirection: derecha ? 'row-reverse' : 'row' }}>
+                      <Avatar autor={m.autor} nombre={conv.asesor?.nombre ?? conv.asesor?.email ?? null} />
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: derecha ? 'flex-end' : 'flex-start', maxWidth: '75%' }}>
+                        <span style={{ fontSize: 'var(--ax-text-xs)', fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-muted)', marginBottom: 4 }}>{nombre}</span>
+                        <div
+                          style={{
+                            padding: 'var(--ax-space-2) var(--ax-space-3)',
+                            borderRadius: derecha ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
+                            whiteSpace: 'pre-wrap',
+                            fontSize: 'var(--ax-text-sm)',
+                            lineHeight: 1.55,
+                            background: m.autor === 'CLIENTE' ? 'var(--ax-surface)' : m.autor === 'BOT' ? 'color-mix(in oklab, var(--ax-accent) 14%, var(--ax-surface))' : 'var(--ax-accent)',
+                            color: m.autor === 'ASESOR' ? '#fff' : 'var(--ax-text)',
+                            border: m.autor === 'CLIENTE' ? '1px solid var(--ax-border)' : 'none',
+                            boxShadow: '0 1px 2px rgba(0,0,0,.06)',
+                          }}
+                        >
+                          {m.texto}
+                        </div>
+                        <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)', marginTop: 4 }}>{fmt(m.createdAt)}</span>
                       </div>
-                      <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)', marginTop: 4 }}>
-                        {AUTOR_LABEL[m.autor]} · {fmt(m.createdAt)}
-                      </span>
                     </div>
                   );
                 })}
