@@ -8,7 +8,7 @@ import { ClickConfirmButton } from './ClickConfirmButton';
 import { useCurrency } from '@/context/CurrencyContext';
 import { ProductGalleryModal } from './ProductGalleryModal';
 import { brandSlug } from '@/lib/content';
-import { discountOf, type ShopProduct } from '@/lib/catalog';
+import { discountOf, productHref, type ShopProduct } from '@/lib/catalog';
 
 type Product = ShopProduct;
 
@@ -147,7 +147,11 @@ export function ProductCardFinal({
         </div>
 
         <div className="flex flex-col gap-1.5 p-4">
-          <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold text-ink">{product.name}</h3>
+          <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold text-ink">
+            <a href={productHref(product.sku)} className="transition-colors hover:text-brand-primary">
+              {product.name}
+            </a>
+          </h3>
           <div className="mt-0.5 flex items-baseline gap-2 font-mono">
             <span className="text-base font-bold text-ink">{format(product.price)}</span>
             {discount > 0 && <span className="text-xs text-ink/40 line-through">{format(product.priceBefore!)}</span>}

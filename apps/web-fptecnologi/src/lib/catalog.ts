@@ -53,3 +53,8 @@ export const CATALOG: CatalogProduct[] = [
 
 export const discountOf = (p: ShopProduct) =>
   p.priceBefore && p.priceBefore > p.price ? Math.round(((p.priceBefore - p.price) / p.priceBefore) * 100) : 0;
+
+/** URL de la ficha de un producto: el SKU en minúsculas y sin símbolos (#, /). */
+export const productSlug = (sku: string) => sku.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+export const productHref = (sku: string) => `/producto/${productSlug(sku)}`;
+export const findProduct = (slug: string) => CATALOG.find((p) => productSlug(p.sku) === slug);
