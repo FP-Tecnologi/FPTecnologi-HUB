@@ -155,7 +155,7 @@ nunca gris/negra), hover que sube (`hover:-translate-y-1`/`-1.5`).
 | Categoría | `ProductCategories` | Blanca tipo producto: foto arriba, chip de ícono, pie con título + flecha |
 | Producto | `ProductCardFinal` | Fondo celeste suave, foto con `mix-blend-multiply`, galería (miniaturas + flechas), marca como etiqueta de vidrio (link a `/marcas/[slug]`), favorito + comparar arriba-der, "En stock" y carrito del mismo alto |
 | Diferenciador | `WhyChooseUs` | Oscura (`bg-ink`) con resplandor de marca, número grande de fondo, ícono en chip |
-| Proyecto | `NuestrosProyectos` | Contenedor `brand-mesh` al alto del mapa (encabezado: chip de ubicación, "Proyectos en" + departamento, contador de vidrio; lista con scroll oculto y degradé abajo). Tarjeta: Foto 16:8, número arriba-izq, toda la tarjeta clickeable; etiqueta vidrio informativa arriba-der ("Click para ver detalles" / "Volver", `backdrop-blur`, solo al hover; siempre visible en táctil); al click gira 3D y el reverso muestra la misma foto desenfocada + velo de marca con el contenido centrado |
+| Proyecto | `NuestrosProyectos` | Contenedor `brand-mesh` al alto del mapa (encabezado: chip de ubicación, "Proyectos en" + departamento, contador de vidrio; lista con scroll oculto y degradé abajo; en desktop cada tarjeta mide la mitad del alto, así se ven 2 completas). Tarjeta: Foto 16:8, número arriba-izq, toda la tarjeta clickeable; etiqueta vidrio informativa arriba-der ("Click para ver detalles" / "Volver", `backdrop-blur`, solo al hover; siempre visible en táctil); al click gira 3D y el reverso muestra la misma foto desenfocada + velo de marca con el contenido centrado |
 
 ---
 

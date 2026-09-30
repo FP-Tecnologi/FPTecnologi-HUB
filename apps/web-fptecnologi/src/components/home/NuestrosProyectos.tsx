@@ -45,7 +45,7 @@ function ProjectCard({
           onFlip(!flipped);
         }
       }}
-      className="group relative aspect-[16/10] shrink-0 cursor-pointer rounded-xl [perspective:1200px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-dark sm:aspect-[16/8]"
+      className="group relative aspect-[16/10] shrink-0 cursor-pointer rounded-xl [perspective:1200px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-dark sm:aspect-[16/8] lg:aspect-auto lg:h-[calc((100%-1rem)/2)]"
     >
       <div
         className={`relative h-full w-full transition-transform duration-700 ease-in-out [transform-style:preserve-3d] ${
