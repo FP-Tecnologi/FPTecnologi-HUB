@@ -16,7 +16,7 @@ import { api } from '../../lib/api';
 type Estado = 'BOT' | 'ASESOR' | 'CERRADA';
 type Autor = 'CLIENTE' | 'BOT' | 'ASESOR';
 interface Mensaje { id: string; autor: Autor; texto: string; createdAt: string }
-interface AsesorRef { id: string; nombre: string | null; email: string }
+interface AsesorRef { id: string; nombre: string | null; email: string; avatarUrl?: string | null }
 interface ConversacionResumen {
   id: string;
   titulo: string | null;
@@ -41,32 +41,52 @@ const FILTROS: { id: '' | Estado; label: string }[] = [
 const ESTADO_BADGE: Record<Estado, string> = { BOT: 'ax-badge--info', ASESOR: 'ax-badge--success', CERRADA: 'ax-badge--neutral' };
 const AUTOR_LABEL: Record<Autor, string> = { CLIENTE: 'Cliente', BOT: 'Asistente virtual', ASESOR: 'Asesor' };
 const REFRESH_MS = 5000;
+// Bandeja y conversación ocupan el alto disponible; el hilo scrollea adentro
+// y la caja de respuesta queda siempre visible abajo.
+const PANEL_H = 'calc(100vh - 300px)';
 
 const fmt = (iso: string) =>
   new Date(iso).toLocaleString('es-PE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
 
 const SVG = { viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.75, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, width: 16, height: 16, 'aria-hidden': true };
 
-/** Avatar de quien escribió: cliente (persona), asistente (robot) o asesor (iniciales). */
-function Avatar({ autor, nombre, size = 32 }: { autor: Autor; nombre: string | null; size?: number }) {
-  const base = { flexShrink: 0, width: size, height: size } as const;
+// Colores del widget de la web (misma marca), para que se reconozca el chat.
+const BRAND = { bot: 'linear-gradient(135deg,#2181af,#155382)', asesor: 'linear-gradient(135deg,#18778b,#1c6587)' };
+
+/** Avatar como en el widget: cuadrado redondeado con una esquina recta (del
+ *  lado de su burbuja). Cliente = persona, asistente = robot, asesor = foto o iniciales. */
+function Avatar({ autor, nombre, foto, size = 32 }: { autor: Autor; nombre: string | null; foto?: string | null; size?: number }) {
+  const derecha = autor !== 'CLIENTE';
+  const base = {
+    flexShrink: 0,
+    width: size,
+    height: size,
+    borderRadius: derecha ? '10px 10px 3px 10px' : '10px 10px 10px 3px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    boxShadow: '0 4px 10px -4px rgba(21,83,130,.45)',
+  } as const;
+  if (autor === 'ASESOR' && foto) {
+    return <img src={foto} alt={nombre ?? 'Asesor'} title={nombre ?? 'Asesor'} style={{ ...base, objectFit: 'cover' }} />;
+  }
   if (autor === 'ASESOR') {
     const ini = (nombre ?? 'A').split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
     return (
-      <span className="ax-avatar ax-avatar--sm" title={nombre ?? 'Asesor'} style={{ ...base, background: 'var(--ax-accent)', color: '#fff' }}>
-        <span className="ax-avatar__initials">{ini}</span>
+      <span title={nombre ?? 'Asesor'} style={{ ...base, background: BRAND.asesor, color: '#fff', fontSize: 11, fontWeight: 700 }}>
+        {ini}
       </span>
     );
   }
   if (autor === 'BOT') {
     return (
-      <span className="ax-avatar ax-avatar--sm" title="Asistente virtual" style={{ ...base, background: 'color-mix(in oklab, var(--ax-accent) 18%, transparent)', color: 'var(--ax-accent)' }}>
+      <span title="Asistente virtual" style={{ ...base, background: '#155382', color: '#fff' }}>
         <svg {...SVG}><path d="M6 6a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2l0 -4" /><path d="M12 2v2" /><path d="M9 12v9" /><path d="M15 12v9" /><path d="M5 16l4 -2" /><path d="M15 14l4 2" /><path d="M9 18h6" /><path d="M10 8v.01" /><path d="M14 8v.01" /></svg>
       </span>
     );
   }
   return (
-    <span className="ax-avatar ax-avatar--sm" title="Cliente" style={{ ...base, background: 'var(--ax-surface)', color: 'var(--ax-text-muted)', border: '1px solid var(--ax-border)' }}>
+    <span title="Cliente" style={{ ...base, background: '#fff', color: '#155382' }}>
       <svg {...SVG}><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" /></svg>
     </span>
   );
@@ -177,8 +197,8 @@ export function ChatInbox() {
 
       <div className="ax-dash-grid">
         {/* Bandeja */}
-        <section className="ax-card ax-col--4" role="region" aria-label="Bandeja de conversaciones">
-          <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
+        <section className="ax-card ax-col--4" role="region" aria-label="Bandeja de conversaciones" style={{ height: PANEL_H, minHeight: 520, overflow: 'hidden' }}>
+          <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)', height: '100%', minHeight: 0 }}>
             <div className="ax-btn-group ax-btn-group--segmented" role="radiogroup" aria-label="Filtrar por estado">
               {FILTROS.map((f) => (
                 <button
@@ -201,7 +221,7 @@ export function ChatInbox() {
                 Todavía no hay conversaciones{filtro ? ' con este estado' : ''}.
               </p>
             ) : (
-              <ul className="ax-list" style={{ maxHeight: 'max(520px, calc(100vh - 260px))', overflowY: 'auto', margin: 0, padding: 0 }}>
+              <ul className="ax-list" style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', margin: 0, padding: 0 }}>
                 {lista.map((c) => (
                   <li
                     key={c.id}
@@ -244,7 +264,7 @@ export function ChatInbox() {
         </section>
 
         {/* Conversación */}
-        <section className="ax-card ax-col--8" role="region" aria-label="Conversación">
+        <section className="ax-card ax-col--8" role="region" aria-label="Conversación" style={{ display: 'flex', flexDirection: 'column', height: PANEL_H, minHeight: 520, overflow: 'hidden' }}>
           {!conv ? (
             <div className="ax-card__body" style={{ textAlign: 'center', paddingBlock: 'var(--ax-space-10, 64px)', color: 'var(--ax-text-muted)' }}>
               Elige una conversación de la bandeja para leerla.
@@ -290,27 +310,27 @@ export function ChatInbox() {
               <div
                 ref={hiloRef}
                 className="ax-card__body"
-                style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)', height: 'max(440px, calc(100vh - 380px))', overflowY: 'auto', background: 'var(--ax-surface-subtle)' }}
+                style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)', flex: '1 1 auto', minHeight: 0, overflowY: 'auto', background: 'var(--ax-surface-subtle)' }}
               >
                 {conv.mensajes.map((m) => {
                   const derecha = m.autor !== 'CLIENTE';
                   const nombre = m.autor === 'ASESOR' ? `${conv.asesor?.nombre ?? conv.asesor?.email ?? 'Asesor'} · Asesor` : AUTOR_LABEL[m.autor];
                   return (
                     <div key={m.id} style={{ display: 'flex', gap: 'var(--ax-space-2)', alignItems: 'flex-end', flexDirection: derecha ? 'row-reverse' : 'row' }}>
-                      <Avatar autor={m.autor} nombre={conv.asesor?.nombre ?? conv.asesor?.email ?? null} />
+                      <Avatar autor={m.autor} nombre={conv.asesor?.nombre ?? conv.asesor?.email ?? null} foto={conv.asesor?.avatarUrl} />
                       <div style={{ display: 'flex', flexDirection: 'column', alignItems: derecha ? 'flex-end' : 'flex-start', maxWidth: '75%' }}>
                         <span style={{ fontSize: 'var(--ax-text-xs)', fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-muted)', marginBottom: 4 }}>{nombre}</span>
                         <div
                           style={{
                             padding: 'var(--ax-space-2) var(--ax-space-3)',
-                            borderRadius: derecha ? '14px 14px 4px 14px' : '14px 14px 14px 4px',
+                            borderRadius: derecha ? '16px 16px 6px 16px' : '16px 16px 16px 6px',
                             whiteSpace: 'pre-wrap',
                             fontSize: 'var(--ax-text-sm)',
                             lineHeight: 1.55,
-                            background: m.autor === 'CLIENTE' ? 'var(--ax-surface)' : m.autor === 'BOT' ? 'color-mix(in oklab, var(--ax-accent) 14%, var(--ax-surface))' : 'var(--ax-accent)',
-                            color: m.autor === 'ASESOR' ? '#fff' : 'var(--ax-text)',
-                            border: m.autor === 'CLIENTE' ? '1px solid var(--ax-border)' : 'none',
-                            boxShadow: '0 1px 2px rgba(0,0,0,.06)',
+                            // Igual que el widget: asistente azul de marca, asesor turquesa, cliente blanco.
+                            background: m.autor === 'CLIENTE' ? '#fff' : m.autor === 'BOT' ? BRAND.bot : BRAND.asesor,
+                            color: m.autor === 'CLIENTE' ? '#0b1b26' : '#fff',
+                            boxShadow: '0 6px 16px -8px rgba(21,83,130,.5)',
                           }}
                         >
                           {m.texto}
@@ -325,20 +345,16 @@ export function ChatInbox() {
               {/* Caja de respuesta: solo activa si tú tomaste la conversación. */}
               {puedeEscribir ? (
                 <form onSubmit={responder} className="ax-card__body" style={{ display: 'flex', gap: 'var(--ax-space-3)', alignItems: 'flex-end', borderTop: '1px solid var(--ax-border)' }}>
-                  <Avatar autor="ASESOR" nombre={user?.nombre || user?.email || null} size={36} />
+                  <Avatar autor="ASESOR" nombre={user?.nombre || user?.email || null} foto={user?.avatarUrl} size={36} />
                   <div className="ax-field" style={{ flex: '1 1 auto' }}>
                     <label className="ax-label" htmlFor="chat-resp">Respondiendo como {user?.nombre || user?.email}</label>
-                    <textarea
+                    <input
                       id="chat-resp"
-                      className="ax-textarea"
-                      rows={2}
+                      className="ax-input"
                       maxLength={2000}
-                      placeholder="Escribe al cliente… (Ctrl + Enter para enviar)"
+                      placeholder="Escribe al cliente… (Enter para enviar)"
                       value={texto}
                       onChange={(e) => setTexto(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) responder(e);
-                      }}
                     />
                   </div>
                   <button type="submit" className={`ax-btn ax-btn--primary${enviando ? ' is-loading' : ''}`} disabled={!texto.trim() || enviando}>

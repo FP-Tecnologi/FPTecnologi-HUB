@@ -885,21 +885,11 @@ export function ChatWidget() {
                     return (
                       <div key={i} className="animate-pop-in my-1 flex items-center gap-2">
                         <span className={`h-px flex-1 ${t.divider}`} />
-                        <div className={`flex items-center gap-2.5 rounded-2xl border px-3 py-2 ${t.notice}`}>
-                          {join ? (
-                            <span className="relative">
-                              <AdvisorAvatar name={who} photo={photos[who]} size="h-9 w-9" />
-                              <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-whatsapp ring-2 ring-white" />
-                            </span>
-                          ) : null}
-                          <span className="leading-tight">
-                            <span className={`block text-xs font-semibold ${t.title}`}>{join ? `${who} se unió al chat` : m.text}</span>
-                            <span className={`block text-[10px] ${t.muted}`}>
-                              {join ? 'Ahora conversas con un asesor' : 'Toca «Nueva» para empezar otra'}
-                              {m.at ? ` · ${timeFmt(m.at)}` : ''}
-                            </span>
-                          </span>
-                        </div>
+                        <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border px-2.5 py-1 text-[11px] font-semibold ${t.notice} ${t.title}`}>
+                          <span className={`h-1.5 w-1.5 rounded-full ${join ? 'bg-whatsapp' : 'bg-white/40'}`} />
+                          {join ? `${who} se unió al chat` : m.text}
+                          {m.at ? <span className={`font-normal ${t.muted}`}>· {timeFmt(m.at)}</span> : null}
+                        </span>
                         <span className={`h-px flex-1 ${t.divider}`} />
                       </div>
                     );
@@ -930,8 +920,8 @@ export function ChatWidget() {
                             )}
                           </div>
                           {/* Remitente + hora debajo de la burbuja. */}
-                          <span className={`mt-1 px-1 text-[10px] ${t.time}`}>
-                            {m.from === 'bot' ? 'Asistente FP' : m.from === 'asesor' ? `${m.name ?? 'Asesor'} · asesor` : 'Tú'}
+                          <span className={`mt-1 whitespace-nowrap px-1 text-[10px] ${t.time}`}>
+                            {m.from === 'bot' ? 'Asistente FP' : m.from === 'asesor' ? (m.name ?? 'Asesor') : 'Tú'}
                             {m.at ? ` · ${timeFmt(m.at)}` : ''}
                           </span>
                         </div>

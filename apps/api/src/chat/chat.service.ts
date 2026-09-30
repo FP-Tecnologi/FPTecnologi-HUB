@@ -80,7 +80,7 @@ export class ChatService {
     const conv = await this.prisma.chatConversacion.findFirst({
       where: { id, marcaId },
       include: {
-        asesor: { select: { id: true, nombre: true, email: true } },
+        asesor: { select: { id: true, nombre: true, email: true, avatarUrl: true } },
         mensajes: { orderBy: { createdAt: 'asc' } },
       },
     });
