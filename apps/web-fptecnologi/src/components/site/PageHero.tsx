@@ -9,8 +9,8 @@ import { Home } from 'lucide-react';
  * estilo del banner de la home (Hero.tsx): tarjeta redondeada sobre paper con
  * video o foto de fondo, velo oscuro + degradé central, partículas, etiqueta
  * de vidrio con contorno que gira, título grande en dos líneas (blanca + con
- * brillo) y botones, todo centrado. Más baja que la home (70svh) para que se
- * vea el contenido de la página. `children` = botones.
+ * brillo) y botones, todo centrado. Alto según el contenido (como la tienda), no
+ * pantalla completa. `children` = botones.
  */
 export function PageHero({
   crumbs,
@@ -35,7 +35,7 @@ export function PageHero({
     <>
       <StickyNav />
       <div className="bg-paper p-3 md:p-5">
-        <section className="relative flex min-h-[520px] w-full flex-col overflow-hidden rounded-[1.25rem] bg-ink md:h-[72svh] md:rounded-[2.25rem]">
+        <section className="relative flex w-full flex-col overflow-hidden rounded-[1.25rem] bg-ink md:rounded-[2.25rem]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={imagen} alt="" aria-hidden className="absolute inset-0 z-0 h-full w-full object-cover" />
           {video && (
@@ -54,7 +54,7 @@ export function PageHero({
               <Navbar9 />
             </div>
 
-            <div className="flex flex-1 flex-col items-center justify-center px-6 pb-14 pt-4 text-center">
+            <div className="flex flex-1 flex-col items-center justify-center px-6 pb-14 pt-6 text-center">
               {/* Migas de pan = etiqueta: cápsula de vidrio con el contorno que
                   gira (mismo efecto del badge del banner), casita de Inicio y
                   la ruta hasta esta página -- así el nombre no se repite. */}
@@ -83,7 +83,7 @@ export function PageHero({
               </nav>
 
               <h1
-                className="v9-appear v9-appear--scale mx-auto mb-3 max-w-4xl text-4xl font-normal leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl 2xl:max-w-5xl 2xl:text-[80px]"
+                className="v9-appear v9-appear--scale mx-auto mb-3 max-w-4xl text-4xl font-normal leading-[1.08] tracking-tight text-white sm:text-5xl 2xl:text-6xl"
                 style={{ animationDelay: '150ms', textShadow: '0 4px 30px rgba(0,0,0,0.45)' }}
               >
                 <span className="block">{titulo}</span>
@@ -100,7 +100,7 @@ export function PageHero({
               )}
 
               {children && (
-                <div className="v9-appear v9-appear--up mt-8 flex flex-wrap items-center justify-center gap-3" style={{ animationDelay: '450ms' }}>
+                <div className="v9-appear v9-appear--up mt-6 flex flex-wrap items-center justify-center gap-3" style={{ animationDelay: '450ms' }}>
                   {children}
                 </div>
               )}

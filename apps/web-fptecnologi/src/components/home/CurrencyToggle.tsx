@@ -3,31 +3,43 @@
 import { useCurrency } from '@/context/CurrencyContext';
 
 /*
- * Selector de moneda final -- versión "sólido con color por moneda"
- * (guia-estilos/CurrencyToggleVariants.tsx, CurrencyToggleSolid): USD en
- * azul de marca, PEN en ámbar (alusión al sol/moneda de oro), en vez del
- * outline neutro que había antes. Es un botón con relleno, así que se ve
- * bien igual en header claro u oscuro -- la prop `tone` se mantiene por
- * compatibilidad con los headers que ya la pasan, pero no cambia el color.
+ * Selector de moneda tipo interruptor: dólares a la izquierda y soles a la
+ * derecha; el indicador se desliza hasta la moneda activa -- azul de marca
+ * con USD, ámbar con PEN (alusión a la moneda de oro). Vidrio claro para
+ * verse bien sobre el encabezado oscuro; `tone="light"` lo adapta a
+ * encabezados blancos.
  */
-export function CurrencyToggle({ tone: _tone = 'light', className = 'h-10' }: { tone?: 'light' | 'dark'; className?: string }) {
+export function CurrencyToggle({ tone = 'dark', className = 'h-10' }: { tone?: 'light' | 'dark'; className?: string }) {
   const { currency, toggleCurrency } = useCurrency();
   const isUsd = currency === 'USD';
+  const light = tone === 'light';
+
+  const label = (activo: boolean) =>
+    `relative z-10 flex flex-1 items-center justify-center gap-1 whitespace-nowrap px-2 text-xs font-bold transition-colors duration-300 ${
+      activo ? 'text-white' : light ? 'text-ink/50' : 'text-white/60'
+    }`;
 
   return (
     <button
       type="button"
+      role="switch"
+      aria-checked={!isUsd}
       onClick={toggleCurrency}
-      aria-label="Cambiar moneda"
+      aria-label={`Moneda: ${isUsd ? 'dólares' : 'soles'}. Cambiar a ${isUsd ? 'soles' : 'dólares'}`}
       title="Cambiar moneda (USD / PEN)"
-      className={`flex items-center gap-1.5 rounded-xl px-4 ${className} text-sm font-bold text-white shadow-sm transition-colors ${
-        isUsd ? 'bg-brand-primary shadow-brand-primary/30' : 'bg-amber-500 shadow-amber-500/30'
+      className={`relative flex w-[8.75rem] shrink-0 items-stretch rounded-xl border p-1 backdrop-blur-md transition-colors ${className} ${
+        light ? 'border-brand-dark/15 bg-paper' : 'border-white/20 bg-white/10 hover:bg-white/15'
       }`}
     >
-      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-white/25 text-[10px] leading-none">
-        {isUsd ? '$' : 'S/'}
-      </span>
-      {currency}
+      {/* Indicador que se desliza. */}
+      <span
+        aria-hidden
+        className={`absolute inset-y-1 left-1 w-[calc(50%-4px)] rounded-lg shadow-md transition-all duration-300 ease-out ${
+          isUsd ? 'translate-x-0 bg-brand-dark shadow-brand-dark/40' : 'translate-x-full bg-amber-500 shadow-amber-500/40'
+        }`}
+      />
+      <span className={label(isUsd)}>$ USD</span>
+      <span className={label(!isUsd)}>S/ PEN</span>
     </button>
   );
 }

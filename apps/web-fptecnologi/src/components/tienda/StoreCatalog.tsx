@@ -163,22 +163,16 @@ export function StoreCatalog({ initialCategory }: { initialCategory?: string }) 
           invisible reserva el lugar del encabezado fijo). */}
       <div className="bg-paper p-3 md:p-5">
         <section className="relative overflow-hidden rounded-[1.25rem] bg-brand-dark text-white md:rounded-[2.25rem]">
-          {/* Fondo limpio: degradado de marca con resplandores suaves y los
-              productos (PNG transparente) flotando a la derecha. */}
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-br from-brand-primary via-brand-dark to-brand-petrol" />
-          <div aria-hidden className="pointer-events-none absolute -right-20 top-10 h-[28rem] w-[28rem] rounded-full bg-white/15 blur-3xl" />
-          <div aria-hidden className="pointer-events-none absolute -bottom-40 left-1/4 h-96 w-96 rounded-full bg-brand-teal/40 blur-3xl" />
+          {/* Foto de fondo completa (escritorio con monitor) + degradado de
+              marca: oscuro a la izquierda, donde va el texto. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/herobanner/tienda.png"
-            alt=""
-            aria-hidden
-            className="pointer-events-none absolute bottom-0 right-4 hidden w-[420px] drop-shadow-[0_30px_40px_rgba(11,27,38,0.45)] lg:block xl:right-16 xl:w-[480px]"
-          />
+          <img src="/images/categorias/monitores.jpg" alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover object-[center_55%]" />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-ink via-ink/80 to-brand-primary/20" />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
           <div className="invisible" aria-hidden>
             <Navbar9 store />
           </div>
-          <div className="relative mx-auto max-w-7xl px-6 pb-14 pt-6 md:px-10 lg:pr-[440px]! xl:pr-[560px]!">
+          <div className="relative mx-auto max-w-7xl px-6 pb-14 pt-6 md:px-10">
             {/* Migas de pan = etiqueta de vidrio con casita (igual que las páginas internas). */}
             <nav
               aria-label="Migas de pan"
