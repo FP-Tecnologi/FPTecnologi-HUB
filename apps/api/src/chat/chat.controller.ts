@@ -103,7 +103,8 @@ export class PublicChatController {
     @Param('id') id: string,
     @Query('token') token: string,
     @Query('desde') desde?: string,
+    @Query('foto') foto?: string,
   ) {
-    return this.chat.estadoPublico(marcaId, id, token, desde);
+    return this.chat.estadoPublico(marcaId, id, token, desde, foto === '1');
   }
 }

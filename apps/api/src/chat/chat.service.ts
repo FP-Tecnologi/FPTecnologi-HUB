@@ -149,7 +149,9 @@ export class ChatService {
   }
 
   /** Lo que el widget consulta cada pocos segundos: estado + mensajes nuevos. */
-  async estadoPublico(marcaId: string, id: string, token: string, desde?: string) {
+  // conFoto: la foto de perfil puede ser un data: URI pesado -- el widget la
+  // pide una sola vez (foto=1), no en cada consulta periódica.
+  async estadoPublico(marcaId: string, id: string, token: string, desde?: string, conFoto = false) {
     const conv = await this.porToken(marcaId, id, token);
     const after = desde ? new Date(desde) : null;
     const mensajes = await this.prisma.chatMensaje.findMany({
@@ -162,7 +164,7 @@ export class ChatService {
       select: { id: true, autor: true, texto: true, createdAt: true },
     });
     const asesor = conv.asesorId
-      ? await this.prisma.usuario.findUnique({ where: { id: conv.asesorId }, select: { nombre: true, avatarUrl: true } })
+      ? await this.prisma.usuario.findUnique({ where: { id: conv.asesorId }, select: { nombre: true, avatarUrl: conFoto } })
       : null;
     return { estado: conv.estado, asesor, mensajes };
   }

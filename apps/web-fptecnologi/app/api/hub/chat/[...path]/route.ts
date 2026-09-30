@@ -23,7 +23,7 @@ async function forward(req: Request, path: string[]) {
   const incoming = new URL(req.url);
   const url = new URL(`${API_URL}/public/chat/${path.join('/')}`);
   url.searchParams.set('marcaId', MARCA_ID);
-  for (const key of ['token', 'desde']) {
+  for (const key of ['token', 'desde', 'foto']) {
     const v = incoming.searchParams.get(key);
     if (v) url.searchParams.set(key, v);
   }

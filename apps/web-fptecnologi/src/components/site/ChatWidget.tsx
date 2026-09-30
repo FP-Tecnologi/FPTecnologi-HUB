@@ -267,6 +267,8 @@ const THEMES = {
     whatsapp: 'border-whatsapp/30 bg-whatsapp/10 text-whatsapp-dark shadow-sm shadow-brand-dark/10 hover:border-whatsapp hover:bg-whatsapp hover:text-white',
     chip: 'border-brand-dark/15 bg-white text-brand-primary shadow-sm shadow-brand-dark/10 hover:border-brand-primary hover:bg-brand-primary hover:text-white',
     inputBar: 'border-brand-dark/10 bg-white',
+    notice: 'border-brand-dark/10 bg-white shadow-md shadow-brand-dark/10',
+    divider: 'bg-brand-dark/10',
     time: 'text-ink/40',
     botRing: 'ring-brand-dark/10',
     input: 'border-brand-dark/15 bg-paper text-ink placeholder:text-ink/40 focus:border-brand-dark focus:bg-white focus:ring-brand-dark/15',
@@ -283,6 +285,8 @@ const THEMES = {
     whatsapp: 'border-whatsapp/40 bg-whatsapp/15 text-white hover:border-whatsapp hover:bg-whatsapp',
     chip: 'border-white/20 bg-white/10 text-white backdrop-blur-md hover:border-brand-dark hover:bg-brand-dark',
     inputBar: 'border-white/10 bg-ink/60',
+    notice: 'border-white/15 bg-white/10 shadow-lg shadow-brand-dark/30 backdrop-blur-md',
+    divider: 'bg-white/10',
     time: 'text-white/40',
     botRing: 'ring-white/10',
     input: 'border-white/15 bg-white/5 text-white placeholder:text-white/40 focus:border-brand-dark focus:bg-white/10 focus:ring-brand-dark/30',
@@ -300,6 +304,19 @@ function Avatar({ icon: Icon, bot, t }: { icon: LucideIcon; bot?: boolean; t: Th
       }`}
     >
       <Icon className="h-3.5 w-3.5" strokeWidth={2} />
+    </span>
+  );
+}
+
+/* Asesor: su foto de perfil del dashboard (así se ve que escribe una persona,
+   no el asistente); sin foto, sus iniciales. */
+function AdvisorAvatar({ name, photo, size = 'h-8 w-8' }: { name?: string; photo?: string | null; size?: string }) {
+  const ini = (name ?? 'A').split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+  return photo ? (
+    <img src={photo} alt={name ?? 'Asesor'} className={`${size} shrink-0 rounded-xl rounded-bl-sm object-cover shadow-md shadow-brand-dark/25 ring-2 ring-brand-teal-light/70`} />
+  ) : (
+    <span className={`${size} flex shrink-0 items-center justify-center rounded-xl rounded-bl-sm bg-gradient-to-br from-brand-teal to-brand-petrol text-[11px] font-bold text-white shadow-md shadow-brand-dark/25`}>
+      {ini}
     </span>
   );
 }
@@ -440,10 +457,16 @@ export function ChatWidget() {
   const [sessionId, setSessionId] = useState<number | null>(null);
   const [remote, setRemote] = useState<Remote | null>(null);
   const [agent, setAgent] = useState<Agent>({ estado: 'BOT', asesor: null });
+  // Fotos de asesores por nombre (en memoria: pueden ser data: URI pesados,
+  // no se guardan en localStorage). null = ya se pidió y no tiene foto.
+  const [photos, setPhotos] = useState<Record<string, string | null>>({});
+  const photosRef = useRef(photos);
+  photosRef.current = photos;
   const [areas, setAreas] = useState<Area[]>(FALLBACK_AREAS);
   // Crear la conversación remota una sola vez aunque lleguen 2 mensajes juntos.
   const remotePromise = useRef<Promise<Remote | null> | null>(null);
   const lastSync = useRef<string | undefined>(undefined);
+  const agentNameRef = useRef<string | undefined>(undefined);
 
   // Restaurar al montar (en effect, no en useState, para no romper la
   // hidratación: el servidor no tiene localStorage). historyLoaded es state
@@ -497,11 +520,24 @@ export function ChatWidget() {
     if (!open || view !== 'chat' || !remote) return;
     let alive = true;
     const tick = async () => {
-      const q = new URLSearchParams({ token: remote.token, ...(lastSync.current ? { desde: lastSync.current } : {}) });
-      const data = await hub<{ estado: Agent['estado']; asesor: Agent['asesor']; mensajes: { id: string; autor: string; texto: string; createdAt: string }[] }>(
-        `conversaciones/${remote.id}?${q}`,
-      );
+      const knownName = agentNameRef.current;
+      const wantPhoto = !knownName || !(knownName in photosRef.current);
+      const q = new URLSearchParams({
+        token: remote.token,
+        ...(lastSync.current ? { desde: lastSync.current } : {}),
+        ...(wantPhoto ? { foto: '1' } : {}),
+      });
+      const data = await hub<{
+        estado: Agent['estado'];
+        asesor: (Agent['asesor'] & { avatarUrl?: string | null }) | null;
+        mensajes: { id: string; autor: string; texto: string; createdAt: string }[];
+      }>(`conversaciones/${remote.id}?${q}`);
       if (!alive || !data) return;
+      agentNameRef.current = data.asesor?.nombre ?? undefined;
+      if (wantPhoto && data.asesor) {
+        const n = data.asesor.nombre ?? 'Un asesor';
+        setPhotos((ph) => ({ ...ph, [n]: data.asesor?.avatarUrl ?? null }));
+      }
       setAgent({ estado: data.estado, asesor: data.asesor });
       if (data.mensajes.length) lastSync.current = data.mensajes[data.mensajes.length - 1].createdAt;
       const nuevos = data.mensajes.filter((m) => m.autor === 'ASESOR');
@@ -516,7 +552,7 @@ export function ChatWidget() {
             seen.add(sid);
           }
         };
-        if (data.estado === 'ASESOR') label(`join:${nombre}`, `${nombre} se unió al chat`);
+        if (data.estado === 'ASESOR') label(`join:${nombre}`, nombre);
         for (const m of nuevos) {
           if (seen.has(m.id)) continue;
           add.push({ from: 'asesor', text: m.texto, at: new Date(m.createdAt).getTime(), sid: m.id, name: data.asesor?.nombre ?? undefined, instant: true });
@@ -688,7 +724,9 @@ export function ChatWidget() {
                   view === 'whatsapp' ? 'bg-whatsapp' : 'bg-white/10'
                 }`}
               >
-                {(() => {
+                {view === 'chat' && agent.estado === 'ASESOR' && photos[agent.asesor?.nombre ?? 'Un asesor'] ? (
+                  <img src={photos[agent.asesor?.nombre ?? 'Un asesor']!} alt="" className="h-full w-full rounded-xl object-cover" />
+                ) : (() => {
                   const HeaderIcon = view === 'chat' ? (agent.estado === 'ASESOR' ? User : Bot) : view === 'sessions' ? History : view === 'whatsapp' ? WhatsAppIcon : MessageCircleMore;
                   return <HeaderIcon className="h-5 w-5" strokeWidth={2} />;
                 })()}
@@ -841,13 +879,28 @@ export function ChatWidget() {
                 <p className={`text-center text-[10px] ${t.time}`}>Un asesor puede revisar esta conversación para ayudarte mejor.</p>
                 {messages.map((m, i) => {
                   if (m.from === 'system') {
+                    const join = m.sid?.startsWith('join:');
+                    // Historial viejo guardaba el texto completo; hoy guarda solo el nombre.
+                    const who = m.text.replace(/ se unió al chat$/, '');
                     return (
-                      <div key={i} className="animate-pop-in flex justify-center">
-                        <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold ${t.chip}`}>
-                          <User className="h-3 w-3" strokeWidth={2.2} />
-                          {m.text}
-                          {m.at ? <span className="font-normal opacity-60">· {timeFmt(m.at)}</span> : null}
-                        </span>
+                      <div key={i} className="animate-pop-in my-1 flex items-center gap-2">
+                        <span className={`h-px flex-1 ${t.divider}`} />
+                        <div className={`flex items-center gap-2.5 rounded-2xl border px-3 py-2 ${t.notice}`}>
+                          {join ? (
+                            <span className="relative">
+                              <AdvisorAvatar name={who} photo={photos[who]} size="h-9 w-9" />
+                              <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-whatsapp ring-2 ring-white" />
+                            </span>
+                          ) : null}
+                          <span className="leading-tight">
+                            <span className={`block text-xs font-semibold ${t.title}`}>{join ? `${who} se unió al chat` : m.text}</span>
+                            <span className={`block text-[10px] ${t.muted}`}>
+                              {join ? 'Ahora conversas con un asesor' : 'Toca «Nueva» para empezar otra'}
+                              {m.at ? ` · ${timeFmt(m.at)}` : ''}
+                            </span>
+                          </span>
+                        </div>
+                        <span className={`h-px flex-1 ${t.divider}`} />
                       </div>
                     );
                   }
@@ -855,7 +908,7 @@ export function ChatWidget() {
                   return (
                     <div key={i} className={`animate-pop-in flex flex-col gap-2 ${m.from === 'user' ? 'items-end' : 'items-start'}`}>
                       <div className={`flex items-end gap-2 ${m.from === 'user' ? 'flex-row-reverse' : ''}`}>
-                        {m.from === 'bot' ? <Avatar icon={Bot} bot t={t} /> : m.from === 'asesor' ? <Avatar icon={User} bot t={t} /> : <Avatar icon={User} t={t} />}
+                        {m.from === 'bot' ? <Avatar icon={Bot} bot t={t} /> : m.from === 'asesor' ? <AdvisorAvatar name={m.name ?? 'Un asesor'} photo={photos[m.name ?? 'Un asesor']} /> : <Avatar icon={User} t={t} />}
                         <div className={`flex max-w-[80%] flex-col ${m.from === 'user' ? 'items-end' : 'items-start'}`}>
                           <div
                             className={`px-3.5 py-2.5 text-sm leading-relaxed ${
@@ -921,13 +974,6 @@ export function ChatWidget() {
                   </div>
                 )}
               </div>
-              {agent.estado !== 'BOT' && (
-                <p className={`border-t px-4 py-2 text-center text-[11px] ${t.inputBar} ${t.muted}`}>
-                  {agent.estado === 'ASESOR'
-                    ? `${agent.asesor?.nombre ?? 'Un asesor'} está atendiendo tu conversación.`
-                    : 'Esta conversación fue finalizada. Toca "Nueva" para empezar otra.'}
-                </p>
-              )}
               <div className={`flex items-center gap-2 border-t p-3 ${t.inputBar}`}>
                 <input
                   value={draft}
