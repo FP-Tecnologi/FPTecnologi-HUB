@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Plus } from 'lucide-react';
 import { SOLUTIONS } from '@/lib/content';
+import { SERVICIOS_DETALLE } from '@/lib/serviciosDetalle';
 import { PageHero } from '@/components/site/PageHero';
 import { WhatsAppCta } from '@/components/site/WhatsAppCta';
 import { ProcesoServicio } from '@/components/site/ProcesoServicio';
@@ -21,21 +22,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return { title: solution?.title ?? 'Servicio' };
 }
 
-// Lo que incluye cualquier proyecto (común a todos los servicios hasta tener
-// el detalle real de cada uno desde el CMS).
-const INCLUYE = [
-  'Visita técnica y diagnóstico sin costo',
-  'Diseño de la solución y cotización detallada',
-  'Equipos de marcas autorizadas con garantía oficial',
-  'Instalación, configuración y pruebas en sitio',
-  'Capacitación a tu equipo',
-  'Soporte técnico local post-implementación',
-];
-
 export default async function ServicioDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const s = SOLUTIONS.find((x) => x.slug === slug);
   if (!s) notFound();
+  const d = SERVICIOS_DETALLE[s.slug];
   const otros = SOLUTIONS.filter((x) => x.slug !== s.slug).slice(0, 4);
 
   return (
@@ -65,10 +56,10 @@ export default async function ServicioDetailPage({ params }: { params: Promise<{
                 <span className="text-ink">Un servicio</span> <span className="title-shimmer-light">llave en mano</span>
               </h2>
               <p className="mt-4 text-ink/60">
-                Nos encargamos de todo el proyecto de {s.title.toLowerCase()}: desde el diagnóstico hasta el soporte después de la entrega.
+                {d?.intro ?? s.description}
               </p>
               <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-                {INCLUYE.map((t) => (
+                {(d?.incluye ?? []).map((t) => (
                   <li key={t} className="flex items-start gap-2.5 text-sm font-medium text-ink">
                     <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-primary" strokeWidth={2} />
                     {t}
@@ -85,9 +76,69 @@ export default async function ServicioDetailPage({ params }: { params: Promise<{
           </div>
         </section>
 
+        {d && (
+          <section className="mx-auto max-w-7xl px-6 py-20">
+            <ScrollReveal direction="up" className="mx-auto mb-12 flex max-w-2xl flex-col items-center text-center">
+              <SectionBadge>Beneficios</SectionBadge>
+              <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
+                <span className="text-ink">Por qué</span> <span className="title-shimmer-light">te conviene</span>
+              </h2>
+            </ScrollReveal>
+            <div className="grid gap-6 md:grid-cols-3">
+              {d.beneficios.map((b, i) => (
+                <ScrollReveal key={b.titulo} direction="up" delayMs={i * 100} className="h-full">
+                  <div className="group relative h-full overflow-hidden rounded-2xl bg-white p-7 shadow-lg shadow-brand-dark/10 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-brand-dark/25">
+                    <span className="spin-border" aria-hidden />
+                    <span className="font-display text-4xl font-bold text-brand-primary/15">0{i + 1}</span>
+                    <h3 className="mt-2 font-display text-xl font-bold text-ink">{b.titulo}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-ink/60">{b.texto}</p>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </section>
+        )}
+
         <ProcesoServicio />
 
-        <section className="mx-auto max-w-7xl px-6 py-20">
+        {d && (
+          <section className="mx-auto max-w-7xl px-6 py-20">
+            <div className="grid gap-10 lg:grid-cols-[minmax(0,380px)_1fr]">
+              <ScrollReveal direction="left">
+                <SectionBadge>Para quién</SectionBadge>
+                <h2 className="mt-2 font-display text-3xl font-bold leading-tight">
+                  <span className="text-ink">Sectores que</span> <span className="title-shimmer-light">atendemos</span>
+                </h2>
+                <div className="mt-6 flex flex-wrap gap-2.5">
+                  {d.sectores.map((sec) => (
+                    <span key={sec} className="rounded-lg border border-brand-dark/10 bg-white px-3.5 py-2 text-sm font-semibold text-brand-primary shadow-sm shadow-brand-dark/10">
+                      {sec}
+                    </span>
+                  ))}
+                </div>
+              </ScrollReveal>
+              <ScrollReveal direction="right" delayMs={120}>
+                <SectionBadge>Preguntas frecuentes</SectionBadge>
+                <div className="mt-4 space-y-3">
+                  {d.faqs.map((f) => (
+                    <details key={f.p} className="group rounded-2xl bg-white p-5 shadow-md shadow-brand-dark/10 open:shadow-lg">
+                      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink">
+                        {f.p}
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary transition-transform duration-300 group-open:rotate-45">
+                          <Plus className="h-4 w-4" strokeWidth={2.2} />
+                        </span>
+                      </summary>
+                      <p className="mt-3 text-sm leading-relaxed text-ink/65">{f.r}</p>
+                    </details>
+                  ))}
+                </div>
+              </ScrollReveal>
+            </div>
+          </section>
+        )}
+
+        <section className="bg-white py-20">
+          <div className="mx-auto max-w-7xl px-6">
           <div className="mb-12 flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-end">
             <ScrollReveal direction="left">
               <SectionBadge>Otros servicios</SectionBadge>
@@ -105,6 +156,7 @@ export default async function ServicioDetailPage({ params }: { params: Promise<{
                 <ServiceCardFinal item={item} />
               </ScrollReveal>
             ))}
+          </div>
           </div>
         </section>
 
