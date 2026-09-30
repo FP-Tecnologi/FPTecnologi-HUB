@@ -164,8 +164,13 @@ export function StoreCatalog({ initialCategory }: { initialCategory?: string }) 
           invisible reserva el lugar del encabezado fijo). */}
       <div className="bg-paper p-3 md:p-5">
         <section className="relative overflow-hidden rounded-[1.25rem] bg-brand-dark text-white md:rounded-[2.25rem]">
-          <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-brand-primary/40 blur-3xl" />
-          <div aria-hidden className="pointer-events-none absolute -bottom-32 left-1/3 h-80 w-80 rounded-full bg-brand-teal/30 blur-3xl" />
+          {/* Foto de fondo (sala de equipos + productos) con degradado de marca:
+              oscuro a la izquierda, donde va el texto, y se abre hacia la derecha. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/herobanner/tienda derecho.jpg" alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover object-right" />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-ink via-ink/85 to-brand-primary/30" />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent" />
+          <div aria-hidden className="pointer-events-none absolute -bottom-32 left-1/4 h-80 w-80 rounded-full bg-brand-teal/25 blur-3xl" />
           <div className="invisible" aria-hidden>
             <Navbar9 store />
           </div>
