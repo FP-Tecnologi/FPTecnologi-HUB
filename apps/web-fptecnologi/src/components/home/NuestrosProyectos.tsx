@@ -14,11 +14,12 @@ const [, , VB_W, VB_H] = PERU_VIEWBOX.split(' ').map(Number);
 /*
  * Tarjeta de proyecto que se da vuelta: toda la tarjeta es clickeable y gira
  * 180° en 3D. Arriba a la derecha, una etiqueta de vidrio informativa
- * ("Click para ver detalles" / "Click para volver"). Atrás, sobre la misma
+ * ("Click para ver detalles" / "Volver") que aparece al pasar
+ * el cursor (siempre visible en táctil). Atrás, sobre la misma
  * foto desenfocada, cliente, año, descripción y alcance centrados.
  */
 const GLASS_TAG =
-  'pointer-events-none absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-lg border border-white/30 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/30 backdrop-blur-md transition-colors group-hover:border-white/50 group-hover:bg-white/20 sm:text-xs';
+  'pointer-events-none absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-lg border border-white/30 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/30 backdrop-blur-md transition-all duration-300 group-hover:border-white/50 group-hover:bg-white/20 sm:text-xs [@media(hover:hover)]:-translate-y-1 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-focus-visible:opacity-100';
 
 function ProjectCard({
   project: p,
@@ -72,7 +73,7 @@ function ProjectCard({
           <div className="absolute inset-0 bg-gradient-to-br from-brand-primary/90 via-ink/90 to-ink/95" />
           <span className={GLASS_TAG}>
             <RotateCcw className="h-3.5 w-3.5" strokeWidth={2.2} />
-            Click para volver
+            Volver
           </span>
           <div className="relative flex h-full flex-col items-center justify-center overflow-y-auto px-6 pb-4 pt-12 text-center [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#8fe0ee]">
