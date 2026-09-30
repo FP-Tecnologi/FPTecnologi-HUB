@@ -97,7 +97,7 @@ El menú apunta a páginas (`/nosotros`, `/servicios`...), no a anclas.
 - Arriba del todo: transparente sobre el hero. Al bajar 140px: se comprime
   (ancho 64rem / 72rem en 2xl), fondo `bg-ink/80` + blur, esquinas
   redondeadas. Logo 60px en pantalla grande (`2xl:h-[60px]`), 24–28px comprimido.
-- Menú (orden fijo): Inicio, Nosotros, Servicios (submenú), Tienda (submenú), Marcas,
+- Menú (orden fijo): Inicio, Nosotros, Servicios (submenú), Tienda (submenú),
   Contacto (items en `lib/nav.ts`; footer: Nosotros, Servicios, Tienda, Contacto). Tamaño por vista: 13px (lg), 15px (xl), 16px (2xl), mayúsculas.
 - Derecha: carrito (solo si hay productos) + **Cotizar** (sweep → `/cotizador`).
 - Variante tienda (`store`): selector USD/PEN + carrito siempre visible,

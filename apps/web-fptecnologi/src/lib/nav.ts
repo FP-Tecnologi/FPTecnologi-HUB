@@ -20,6 +20,5 @@ export const NAV_LINKS = [
     viewAllHref: '/tienda',
     viewAllLabel: 'Ver catálogo completo',
   },
-  { label: 'Marcas', href: '/marcas' },
   { label: 'Contacto', href: '/contacto' },
 ] as const;
