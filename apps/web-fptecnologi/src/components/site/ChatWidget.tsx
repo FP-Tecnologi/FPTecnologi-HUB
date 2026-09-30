@@ -612,8 +612,8 @@ export function ChatWidget() {
                       </span>
                       <span className={`mt-0.5 block whitespace-nowrap text-xs ${t.muted}`}>+51 {area.phone}</span>
                     </span>
-                    <span className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-emerald-500 px-2.5 py-1.5 text-xs font-semibold text-white shadow-md shadow-emerald-500/30 transition-colors group-hover:bg-emerald-600">
-                      <MessageCircle className="h-3.5 w-3.5" strokeWidth={2.2} />
+                    <span className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-emerald-500 px-3.5 text-sm font-semibold text-white shadow-md shadow-emerald-500/30 transition-colors group-hover:bg-emerald-600">
+                      <MessageCircle className="h-4 w-4" strokeWidth={2.2} />
                       Chatear
                     </span>
                   </a>
