@@ -21,7 +21,7 @@ resuelve la home.
 | `brand-teal-light` | `#208497` | Íconos sobre fondo oscuro, detalles |
 | `ink` | `#0b1b26` | Texto principal; fondo de "Hablemos" y del footer |
 | `paper` | `#f6f9fb` | Fondo de página (con textura de puntitos del `body`) |
-| `whatsapp` / `whatsapp-dark` | `#00d756` / `#00b248` (hover) | Todo lo de WhatsApp (nunca `emerald` de Tailwind) |
+| `whatsapp` / `whatsapp-dark` | `#37c472` / `#2ba35d` (hover) | Todo lo de WhatsApp (nunca `emerald` de Tailwind) |
 | celeste de títulos | `#8fe0ee` | Parte con brillo de títulos sobre fondo oscuro |
 
 > Ojo: los nombres están cruzados respecto de su tono (`brand-primary` es el
@@ -179,7 +179,7 @@ nunca gris/negra), hover que sube (`hover:-translate-y-1`/`-1.5`).
 
 - **Chat** (`site/ChatWidget`): dos looks (`THEMES`): oscuro tipo Hero (vidrio `ink`, acentos de marca) en la web informativa y claro (`bg-paper`) en `/tienda`; header `brand-mesh` con chip de vidrio + "En línea"; asistente con Groq (`/api/chat`); burbujas
   asistente azul FP / persona blanca con esquina recta; opciones y links;
-  burbuja del asistente en degradado de marca con "Asistente FP · hora" debajo; historial de conversaciones ("Nueva" archiva, botón de historial reabre o borra; máx. 10, solo en el navegador); vista WhatsApp con tarjeta por asesor (inicial + punto verde, chip de área, botón "Chatear").
+  burbuja del asistente en degradado de marca con "Asistente FP · hora" debajo; historial de conversaciones ("Nueva" archiva, botón de historial reabre o borra; máx. 10, solo en el navegador); vista WhatsApp con tarjeta por asesor (foto + punto verde, chip de área, número debajo, botón "Chatear").
 - **Favoritos** (`site/FavoritesWidget`): pestaña compacta a la derecha
   (corazón + cantidad) que se despliega en lista.
 - **Comparar** (`home/CompareDock` + `useCompare`): panel pegado abajo, hasta

@@ -621,8 +621,12 @@ export function ChatWidget() {
                     className={`group flex items-center gap-3 rounded-xl p-3 text-left transition-all hover:-translate-y-0.5 ${t.card}`}
                   >
                     {/* Inicial del asesor + punto verde de disponible. */}
-                    <span className="relative flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-whatsapp to-whatsapp-dark font-display text-base font-bold text-white shadow-md shadow-whatsapp-dark/30">
-                      {area.contact[0]}
+                    <span className="relative h-11 w-11 shrink-0">
+                      <img
+                        src={area.photo}
+                        alt={area.contact}
+                        className="h-11 w-11 rounded-xl object-cover shadow-md shadow-whatsapp-dark/30 ring-2 ring-whatsapp/70"
+                      />
                       <span className="absolute -right-0.5 -top-0.5 flex">
                         <span className="online-dot h-2.5 w-2.5 rounded-full bg-whatsapp ring-2 ring-white" />
                       </span>

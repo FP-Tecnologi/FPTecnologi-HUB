@@ -15,8 +15,8 @@
   --color-ink: #0b1b26;
   --color-paper: #f6f9fb;
   /* Verde oficial de WhatsApp (el emerald de Tailwind se veía fosforescente). */
-  --color-whatsapp: #00d756;
-  --color-whatsapp-dark: #00b248; /* hover / degradado */
+  --color-whatsapp: #37c472;
+  --color-whatsapp-dark: #2ba35d; /* hover / degradado */
 
   /* Montserrat como fuente única del sitio: títulos (font-display) y texto
      (font-sans) iguales en todas las secciones. */

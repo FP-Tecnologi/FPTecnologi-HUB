@@ -199,11 +199,12 @@ export const CONTACT_INFO = {
 // contact/phone: nombre del asesor y número que se MUESTRA en el widget --
 // provisionales (999 999 999) hasta tener los reales. `number` es el que usa
 // el link de WhatsApp (sigue siendo el real para que el chat funcione).
+// photo: fotos de ejemplo (Unsplash) -- reemplazar por las de los asesores reales.
 export const WHATSAPP_AREAS = [
-  { label: 'Ventas', contact: 'Juan', phone: '999 999 999', number: '51908856286' },
-  { label: 'Servicios', contact: 'María', phone: '999 999 999', number: '51908856286' },
-  { label: 'Tienda', contact: 'Carlos', phone: '999 999 999', number: '51908856286' },
-  { label: 'Partners', contact: 'Lucía', phone: '999 999 999', number: '51908856286' },
+  { label: 'Ventas', contact: 'Juan', phone: '999 999 999', number: '51908856286', photo: '/images/asesores/juan.jpg' },
+  { label: 'Servicios', contact: 'María', phone: '999 999 999', number: '51908856286', photo: '/images/asesores/maria.jpg' },
+  { label: 'Tienda', contact: 'Carlos', phone: '999 999 999', number: '51908856286', photo: '/images/asesores/carlos.jpg' },
+  { label: 'Partners', contact: 'Lucía', phone: '999 999 999', number: '51908856286', photo: '/images/asesores/lucia.jpg' },
 ] as const;
 
 /*
