@@ -30,7 +30,6 @@ import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { Footer } from './Footer';
 import { Loader } from './Loader';
-import { Customizer } from './Customizer';
 import { CommandPalette } from './CommandPalette';
 import { slugFromPath } from '../../lib/manifest';
 import { useCustomizer } from '../../context/CustomizerContext';
@@ -130,7 +129,6 @@ export function Layout({ children }: { children: ReactNode }) {
           <Footer />
         </div>
       </div>
-      <Customizer open={customizerOpen} onClose={() => setCustomizerOpen(false)} />
       <CommandPalette
         open={commandOpen}
         onClose={() => setCommandOpen(false)}

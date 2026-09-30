@@ -147,7 +147,6 @@ export function CustomizerProvider({ children }: { children: ReactNode }) {
     // <link> and (for a catalog family) the inline --ax-font-sans are not
     // attributes, so keep them in step here too. Mirrors theme-restore.js
     // applyTheme() in the reference; idempotent, so the normal path is a no-op.
-    theme.restoreFont();
     sync();
     theme.listenSystem();
     const onChange = () => sync();

@@ -43,10 +43,12 @@ const ANTI_FLASH = `
   var resolved = (theme === 'system') ? (sysDark ? 'dark' : 'light') : theme;
   D.setAttribute('data-ax-theme', resolved);
 
-  /* ---- ACCENT ---- */
-  var accent = get('ax:accent') || 'azul-logo';
-  if (accent === 'azul-logo') D.removeAttribute('data-ax-accent');
-  else D.setAttribute('data-ax-accent', accent);
+  /* ---- ESTILO FIJO DEL SISTEMA ----
+     La personalización se quitó: colores por defecto, Montserrat (token
+     --ax-font-sans) y estilo "Separado" para todos. Lo que un navegador
+     tenga guardado de antes (ax:accent, ax:font, layout...) se ignora. */
+  var accent = 'azul-logo';
+  D.removeAttribute('data-ax-accent');
 
   /* ---- FONT (any Google family; the default, Inter, needs no attr + no link) ----
      Mirrors src/lib/fonts.ts. Injected here rather than after hydration so the
@@ -56,16 +58,7 @@ const ANTI_FLASH = `
      colour does; its weight ramp was resolved from the Google Fonts catalog at
      pick time and persisted, because this script must rebuild the same URL
      without being able to load that catalog. */
-  var fontFamily = (get('ax:font') === 'custom') ? get('ax:font-custom') : null;
-  if (fontFamily) {
-    D.setAttribute('data-ax-font', 'custom');
-    D.style.setProperty('--ax-font-sans', '"' + fontFamily + '", ui-sans-serif, system-ui, sans-serif');
-    var fl = document.createElement('link');
-    fl.id = 'ax-font-link'; fl.rel = 'stylesheet';
-    fl.href = 'https://fonts.googleapis.com/css2?family=' + fontFamily.replace(/ /g, '+') +
-              (get('ax:font-weights') || ':wght@400;500;600;700') + '&display=swap';
-    document.head.appendChild(fl);
-  } else { D.removeAttribute('data-ax-font'); }
+  D.removeAttribute('data-ax-font');
 
   /* ---- LANG + DIR ---- */
   var lang = (get('ax:lang') || 'ES').toUpperCase();
@@ -75,12 +68,10 @@ const ANTI_FLASH = `
   D.setAttribute('dir', dir);
 
   /* ---- LAYOUT / SCHEME attributes (write only non-defaults) ---- */
-  function setAttr(attr, key, def){
-    var v = get(key);
-    if (v && v !== def) D.setAttribute(attr, v); else D.removeAttribute(attr);
-  }
+  // Todo en su valor por defecto (sin leer localStorage), salvo el estilo.
+  function setAttr(attr){ D.removeAttribute(attr); }
+  D.setAttribute('data-ax-shell-style', 'detached');
   setAttr('data-ax-nav',              'ax:nav',              'vertical');
-  setAttr('data-ax-shell-style',      'ax:shell-style',      'default');
   setAttr('data-ax-sidebar-behavior', 'ax:sidebar-behavior', 'collapsible');
   setAttr('data-ax-menu',             'ax:menu',             'click');
   setAttr('data-ax-page',             'ax:page',             'regular');
@@ -93,12 +84,11 @@ const ANTI_FLASH = `
   setAttr('data-ax-loader',           'ax:loader',           'on');
 
   /* ---- COLLAPSED RAIL (header toggle; default expanded) ---- */
-  var behavior = get('ax:sidebar-behavior') || 'collapsible';
-  if (behavior === 'collapsible' && get('ax:collapsed') === '1') D.setAttribute('data-ax-collapsed', '');
+  if (get('ax:collapsed') === '1') D.setAttribute('data-ax-collapsed', '');
   else D.removeAttribute('data-ax-collapsed');
 
   /* ---- CUSTOM COLOR PICKERS (inline style; re-derive ramp deterministically) ---- */
-  var customAccent = get('ax:accent-custom');
+  var customAccent = null;
   if (accent === 'custom' && customAccent) {
     D.style.setProperty('--ax-accent', customAccent);
     var h = customAccent.replace('#','');
@@ -107,8 +97,7 @@ const ANTI_FLASH = `
     D.style.setProperty('--ax-on-accent', L > 0.62 ? '#1F1602' : '#FFFFFF');
     D.setAttribute('data-ax-accent','custom');
   }
-  var bg = get(resolved === 'dark' ? 'ax:bg-custom-dark' : 'ax:bg-custom');
-  if (bg) D.style.setProperty('--ax-canvas', bg);
+
 })();
 `;
 
@@ -144,11 +133,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         {/* Anti-flash theme-restore — FIRST in <head>, before app.css. */}
         <script dangerouslySetInnerHTML={{ __html: ANTI_FLASH }} />
-        {/* Google Fonts — Inter (sans) · Space Grotesk (display) · JetBrains Mono (mono) */}
+        {/* Google Fonts — Montserrat (sans + display) · JetBrains Mono (mono) */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap"
           rel="stylesheet"
         />
       </head>

@@ -43,7 +43,7 @@ const AUTOR_LABEL: Record<Autor, string> = { CLIENTE: 'Cliente', BOT: 'Asistente
 const REFRESH_MS = 5000;
 // Bandeja y conversación ocupan el alto disponible; el hilo scrollea adentro
 // y la caja de respuesta queda siempre visible abajo.
-const PANEL_H = 'calc(100vh - 300px)';
+const PANEL_H = 'calc(100vh - 370px)';
 
 const fmt = (iso: string) =>
   new Date(iso).toLocaleString('es-PE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });

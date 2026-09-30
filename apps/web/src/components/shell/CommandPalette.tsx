@@ -96,7 +96,6 @@ function buildItems(): Item[] {
   // Actions
   items.push(
     { group: 'Actions', title: 'Toggle dark mode', action: 'toggle-theme', crumb: 'Theme', keywords: 'dark light theme mode' },
-    { group: 'Actions', title: 'Open theme customizer', action: 'open-customizer', crumb: 'Settings', keywords: 'customizer settings theme appearance' },
   );
   return items;
 }

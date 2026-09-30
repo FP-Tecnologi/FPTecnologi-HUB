@@ -48,7 +48,7 @@ const ICON = {
   ),
 };
 
-export function HeaderUtils({ onCustomizer }: { onCustomizer: () => void }) {
+export function HeaderUtils(_props: { onCustomizer: () => void }) {
   const c = useCustomizer();
   const [full, setFull] = useState(false);
   const shed = useOverflowShed();
@@ -129,18 +129,7 @@ export function HeaderUtils({ onCustomizer }: { onCustomizer: () => void }) {
         <button type="button" className="ax-dropdown__item ax-dropdown__item--danger" role="menuitem" onClick={() => logout()} style={{ width: '100%', textAlign: 'start', background: 'none', border: 'none', cursor: 'pointer' }}>Cerrar sesión</button>
       </Dropdown>
 
-      {/* 11 · CUSTOMIZER TRIGGER */}
-      <button
-        type="button"
-        className="ax-cog ax-icon-btn"
-        data-ax-toggle="customizer"
-        onClick={onCustomizer}
-        aria-haspopup="dialog"
-        aria-controls="ax-customizer"
-        aria-label="Open theme customizer"
-      >
-        {ICON.cog}
-      </button>
+      {/* Personalización quitada: el estilo del sistema es fijo (ver app/layout.tsx). */}
 
       {/* ===== OVERFLOW (mobile / tablet shed) — always LAST in the run ===== */}
       {/* The trigger only exists while a band is actually shedding something;
@@ -175,20 +164,6 @@ export function HeaderUtils({ onCustomizer }: { onCustomizer: () => void }) {
                 <span>{full ? 'Exit fullscreen' : 'Fullscreen'}</span>
               </button>
 
-              {/* CUSTOMIZER (shed < md) */}
-              <button
-                type="button"
-                className="ax-dropdown__item"
-                role="menuitem"
-                data-ax-shed="customizer"
-                onClick={() => {
-                  close();
-                  onCustomizer();
-                }}
-              >
-                {ICON.cogLead}
-                <span>Customize theme</span>
-              </button>
             </>
           )}
         </Dropdown>
