@@ -573,3 +573,19 @@ sesión/máquina)**:
   escritorio/celular) que salta a la sección editada.
 - Pendiente: imágenes (subida), listas grandes (servicios, productos,
   proyectos, clientes, marcas), borrador antes de publicar, otras páginas.
+
+### 2026-09-30 — Blog (CMS de artículos + páginas públicas)
+
+- **API**: módulo `blog` + modelo `BlogArticulo` (Markdown, `slug` único por
+  marca, `BORRADOR`/`PUBLICADO`, destacado, etiquetas; migración
+  `20260930180000_blog` aplicada). 3 artículos de ejemplo publicados.
+- **Dashboard**: Blogs → Lista de blogs (`/blogs/lista`: filtro por estado,
+  búsqueda, editar/ver/eliminar) y Nuevo artículo (`/blogs/nuevo[?id=]`:
+  editor Markdown con barra de formato, vista previa, URL automática,
+  categoría, etiquetas, autor, portada por URL, destacado, borrador/publicar).
+- **Web**: `/blog` (destacado + grilla con filtro por categoría) y
+  `/blog/[slug]` (portada, autor/fecha/lectura, texto con estilos
+  `.blog-prose`, compartir, CTA, relacionados). `lib/markdown.ts` convierte
+  Markdown escapando todo el HTML (autochequeo: `npx tsx src/lib/markdown.check.mts`).
+- Pendiente: subida de imágenes (hoy portada por URL), SEO (OG/meta por
+  artículo), programar publicación.
