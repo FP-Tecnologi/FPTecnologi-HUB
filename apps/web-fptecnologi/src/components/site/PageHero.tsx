@@ -25,7 +25,7 @@ export function PageHero({
   /** Ya no se muestra (las migas de pan hacen de etiqueta); se deja por compatibilidad. */
   badge?: string;
   titulo: string;
-  destacado: string;
+  destacado?: string;
   descripcion?: string;
   imagen?: string;
   video?: string;
@@ -87,7 +87,7 @@ export function PageHero({
                 style={{ animationDelay: '150ms', textShadow: '0 4px 30px rgba(0,0,0,0.45)' }}
               >
                 <span className="block">{titulo}</span>
-                <span className="hero-title-shimmer block">{destacado}</span>
+                {destacado && <span className="hero-title-shimmer block">{destacado}</span>}
               </h1>
 
               {descripcion && (

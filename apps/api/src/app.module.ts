@@ -23,6 +23,7 @@ import { PublicApiModule } from './public/public.module.js';
 import { UsuariosModule } from './usuarios/usuarios.module.js';
 import { ChatModule } from './chat/chat.module.js';
 import { ContenidoModule } from './contenido/contenido.module.js';
+import { BlogModule } from './blog/blog.module.js';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { ContenidoModule } from './contenido/contenido.module.js';
     UsuariosModule,
     ChatModule,
     ContenidoModule,
+    BlogModule,
   ],
   controllers: [HealthController],
   providers: [

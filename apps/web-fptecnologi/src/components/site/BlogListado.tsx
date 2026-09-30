@@ -1,0 +1,121 @@
+'use client';
+
+import { useMemo, useState } from 'react';
+import { ArrowUpRight, CalendarDays } from 'lucide-react';
+import { fechaLarga, PORTADA_DEFECTO, type ArticuloResumen } from '@/lib/blog';
+import { SectionBadge } from '@/components/home/SectionBadge';
+import { ScrollReveal } from '@/components/home/ScrollReveal';
+
+export function ArticuloCard({ a }: { a: ArticuloResumen }) {
+  return (
+    <a
+      href={`/blog/${a.slug}`}
+      className="group flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-lg shadow-brand-dark/10 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-brand-dark/25"
+    >
+      <div className="relative aspect-[16/10] overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={a.portadaUrl || PORTADA_DEFECTO} alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:rotate-1 group-hover:scale-110" />
+        <span className="absolute left-3 top-3 rounded-lg border border-white/30 bg-ink/40 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-md">{a.categoria}</span>
+      </div>
+      <div className="flex flex-1 flex-col p-6">
+        <p className="flex items-center gap-1.5 text-xs text-ink/50">
+          <CalendarDays className="h-3.5 w-3.5" strokeWidth={2} />
+          {fechaLarga(a.publicadoEn)}
+        </p>
+        <h3 className="mt-2 font-display text-lg font-bold leading-snug text-ink transition-colors group-hover:text-brand-primary">{a.titulo}</h3>
+        <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-ink/60">{a.resumen}</p>
+        <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold text-brand-primary">
+          Leer artículo
+          <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:rotate-45" strokeWidth={2} />
+        </span>
+      </div>
+    </a>
+  );
+}
+
+/* Destacado arriba (o el más reciente) + grilla con filtro por categoría. */
+export function BlogListado({ articulos }: { articulos: ArticuloResumen[] }) {
+  const [cat, setCat] = useState<string | null>(null);
+  const destacado = articulos.find((a) => a.destacado) ?? articulos[0];
+  const categorias = useMemo(() => [...new Set(articulos.map((a) => a.categoria))], [articulos]);
+  const resto = articulos.filter((a) => a !== destacado && (!cat || a.categoria === cat));
+
+  if (articulos.length === 0) {
+    return (
+      <section className="mx-auto max-w-3xl px-6 py-24 text-center">
+        <SectionBadge>Blog</SectionBadge>
+        <h2 className="mt-2 font-display text-3xl font-bold text-ink">Pronto publicaremos artículos</h2>
+        <p className="mt-3 text-ink/60">Guías y novedades de tecnología para empresas. Vuelve pronto.</p>
+      </section>
+    );
+  }
+
+  const chip = (on: boolean) =>
+    `rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors ${
+      on ? 'bg-brand-dark text-white shadow-md shadow-brand-dark/30' : 'bg-white text-ink/70 shadow-sm shadow-brand-dark/10 hover:text-brand-primary'
+    }`;
+
+  return (
+    <>
+      {destacado && (
+        <section className="mx-auto max-w-7xl px-6 pt-20">
+          <ScrollReveal direction="up">
+            <a
+              href={`/blog/${destacado.slug}`}
+              className="group grid overflow-hidden rounded-2xl bg-white shadow-xl shadow-brand-dark/15 transition-all duration-300 hover:shadow-2xl hover:shadow-brand-dark/25 lg:grid-cols-2"
+            >
+              <div className="relative aspect-[16/10] overflow-hidden lg:aspect-auto">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={destacado.portadaUrl || PORTADA_DEFECTO} alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <span className="absolute left-4 top-4 rounded-lg bg-brand-primary px-3 py-1 text-xs font-bold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/30">Destacado</span>
+              </div>
+              <div className="flex flex-col justify-center p-8 lg:p-12">
+                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-brand-primary">
+                  {destacado.categoria} · {fechaLarga(destacado.publicadoEn)}
+                </p>
+                <h2 className="mt-3 font-display text-2xl font-bold leading-tight text-ink transition-colors group-hover:text-brand-primary sm:text-3xl">{destacado.titulo}</h2>
+                <p className="mt-3 leading-relaxed text-ink/60">{destacado.resumen}</p>
+                <span className="mt-6 inline-flex w-fit items-center gap-2 rounded-xl bg-brand-dark px-5 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/30 transition-colors group-hover:bg-brand-primary">
+                  <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:rotate-45" strokeWidth={2} />
+                  Leer artículo
+                </span>
+              </div>
+            </a>
+          </ScrollReveal>
+        </section>
+      )}
+
+      <section className="mx-auto max-w-7xl px-6 py-20">
+        <ScrollReveal direction="up" className="mx-auto mb-10 flex max-w-2xl flex-col items-center text-center">
+          <SectionBadge>Artículos</SectionBadge>
+          <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
+            <span className="text-ink">Últimas</span> <span className="title-shimmer-light">publicaciones</span>
+          </h2>
+        </ScrollReveal>
+        {categorias.length > 1 && (
+          <div className="mb-10 flex flex-wrap justify-center gap-2.5">
+            <button type="button" className={chip(cat === null)} onClick={() => setCat(null)}>
+              Todas
+            </button>
+            {categorias.map((c) => (
+              <button key={c} type="button" className={chip(cat === c)} onClick={() => setCat(c)}>
+                {c}
+              </button>
+            ))}
+          </div>
+        )}
+        {resto.length === 0 ? (
+          <p className="text-center text-ink/50">No hay más artículos en esta categoría.</p>
+        ) : (
+          <div className="grid gap-7 sm:grid-cols-2 xl:grid-cols-3">
+            {resto.map((a, i) => (
+              <ScrollReveal key={a.id} direction="up" delayMs={(i % 3) * 100} className="h-full">
+                <ArticuloCard a={a} />
+              </ScrollReveal>
+            ))}
+          </div>
+        )}
+      </section>
+    </>
+  );
+}

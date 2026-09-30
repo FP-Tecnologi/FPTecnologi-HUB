@@ -41,6 +41,7 @@ model Marca {
   chatConversaciones ChatConversacion[]
   chatMensajes       ChatMensaje[]
   contenidos         ContenidoWeb[]
+  blogArticulos      BlogArticulo[]
 }
 
 model Sitio {
@@ -403,4 +404,37 @@ model ContenidoWeb {
 
   @@unique([marcaId, pagina, seccion])
   @@index([marcaId, pagina])
+}
+
+// ---------------------------------------------------------------------------
+// Blog de las webs públicas (CMS de artículos desde el dashboard). El
+// contenido es Markdown; la web lo convierte a HTML. Solo PUBLICADO se ve.
+// ---------------------------------------------------------------------------
+
+enum EstadoArticulo {
+  BORRADOR
+  PUBLICADO
+}
+
+model BlogArticulo {
+  id          String         @id @default(uuid())
+  marcaId     String
+  marca       Marca          @relation(fields: [marcaId], references: [id])
+  titulo      String
+  slug        String
+  resumen     String
+  contenido   String
+  portadaUrl  String?
+  categoria   String
+  etiquetas   String[]
+  autorNombre String
+  estado      EstadoArticulo @default(BORRADOR)
+  destacado   Boolean        @default(false)
+  publicadoEn DateTime?
+  creadoPor   String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@unique([marcaId, slug])
+  @@index([marcaId, estado, publicadoEn])
 }

@@ -971,3 +971,71 @@ body {
   padding: 1px;
   opacity: 1;
 }
+
+/* Texto de los artículos del blog (HTML de markdownToHtml, lib/markdown.ts). */
+.blog-prose {
+  color: color-mix(in srgb, var(--color-ink) 78%, transparent);
+  font-size: 1.0625rem;
+  line-height: 1.8;
+}
+.blog-prose > * + * {
+  margin-top: 1.15em;
+}
+.blog-prose h2 {
+  margin-top: 1.8em;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.25;
+  color: var(--color-ink);
+}
+.blog-prose h3 {
+  margin-top: 1.5em;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+.blog-prose strong {
+  color: var(--color-ink);
+  font-weight: 700;
+}
+.blog-prose a {
+  color: var(--color-brand-primary);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.blog-prose ul,
+.blog-prose ol {
+  padding-left: 1.4em;
+}
+.blog-prose ul {
+  list-style: disc;
+}
+.blog-prose ol {
+  list-style: decimal;
+}
+.blog-prose li + li {
+  margin-top: 0.4em;
+}
+.blog-prose li::marker {
+  color: var(--color-brand-dark);
+}
+.blog-prose blockquote {
+  border-left: 4px solid var(--color-brand-dark);
+  border-radius: 0 0.75rem 0.75rem 0;
+  background: color-mix(in srgb, var(--color-brand-dark) 8%, white);
+  padding: 1rem 1.25rem;
+  font-weight: 600;
+  color: var(--color-brand-primary);
+}
+.blog-prose img {
+  width: 100%;
+  border-radius: 1rem;
+  box-shadow: 0 20px 40px -20px rgba(21, 83, 130, 0.45);
+}
+.blog-prose code {
+  border-radius: 0.375rem;
+  background: var(--color-paper);
+  padding: 0.1em 0.4em;
+  font-size: 0.9em;
+}
