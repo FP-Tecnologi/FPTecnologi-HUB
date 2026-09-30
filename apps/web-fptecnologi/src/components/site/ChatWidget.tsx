@@ -515,25 +515,34 @@ export function ChatWidget() {
           <div className="relative flex items-center px-4 py-3.5 text-white">
             <HeaderBg look={variant.header} />
             <div className="relative flex min-w-0 items-center gap-3">
-              {view !== 'choose' ? (
+              {/* Volver (fuera del inicio) + ícono según la vista abierta:
+                  chat en el inicio, WhatsApp en asesores, robot en el
+                  asistente, historial en conversaciones. */}
+              {view !== 'choose' && (
                 <button
                   type="button"
                   onClick={() => setView(view === 'sessions' ? 'chat' : 'choose')}
                   aria-label="Volver"
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/25 bg-white/10 text-white backdrop-blur-md transition-colors hover:bg-white/20"
+                  className="-ml-1 flex h-8 w-6 shrink-0 items-center justify-center rounded-lg text-white/70 transition-colors hover:bg-white/10 hover:text-white"
                 >
                   <ChevronLeft className="h-5 w-5" strokeWidth={2} />
                 </button>
-              ) : (
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/25 bg-white/10 backdrop-blur-md">
-                  <Bot className="h-5 w-5" strokeWidth={2} />
-                </span>
               )}
+              <span
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/25 backdrop-blur-md ${
+                  view === 'whatsapp' ? 'bg-emerald-500/80' : 'bg-white/10'
+                }`}
+              >
+                {(() => {
+                  const HeaderIcon = view === 'chat' ? Bot : view === 'sessions' ? History : MessageCircle;
+                  return <HeaderIcon className="h-5 w-5" strokeWidth={2} />;
+                })()}
+              </span>
               <div className="min-w-0">
                 <p className={variant.labelClass}>{view === 'choose' ? '¿Cómo te ayudamos?' : view === 'whatsapp' ? 'Habla con un asesor' : view === 'sessions' ? 'Conversaciones' : 'Asistente virtual'}</p>
                 <p className="flex items-center gap-1.5 whitespace-nowrap text-[11px] text-white/75">
                   <span className="online-dot h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                  {view === 'whatsapp' ? 'Lunes a viernes, 9:00 a 18:00' : view === 'sessions' ? 'Guardadas en este navegador' : 'En línea'}
+                  {view === 'choose' ? 'Elige cómo quieres hablar' : view === 'whatsapp' ? 'Lun a vie, 9:00 a 18:00' : view === 'sessions' ? 'Guardadas en este navegador' : 'En línea'}
                 </p>
               </div>
             </div>
@@ -573,8 +582,13 @@ export function ChatWidget() {
                 icon={MessageCircle}
                 tint="#10b981"
                 extra="bg-emerald-500 shadow-emerald-500/30"
-                title="WhatsApp"
-                text="Elige el área y habla directo con un asesor"
+                title={
+                  <>
+                    WhatsApp
+                    <span className="online-dot h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  </>
+                }
+                text="Chatea directo con un asesor"
                 onClick={() => setView('whatsapp')}
               />
               <OptionCard
@@ -588,7 +602,7 @@ export function ChatWidget() {
                     <span className="online-dot h-1.5 w-1.5 rounded-full bg-emerald-500" />
                   </>
                 }
-                text="Respuestas rápidas, al instante"
+                text="Respuestas al instante, 24/7"
                 onClick={() => setView('chat')}
               />
             </div>
