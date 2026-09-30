@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
-import { MapPin, RotateCcw } from 'lucide-react';
+import { Building2, Info, MapPin, RotateCcw } from 'lucide-react';
 import { PERU_DEPARTMENTS, PERU_VIEWBOX } from '@/lib/peruDepartments';
 import { PROJECTS, type Project } from '@/lib/projects';
 import { MoreInfoButton } from './MoreInfoButton';
@@ -12,10 +12,14 @@ import { SectionBadge } from './SectionBadge';
 const [, , VB_W, VB_H] = PERU_VIEWBOX.split(' ').map(Number);
 
 /*
- * Tarjeta de proyecto que se da vuelta: al hover aparece "Más información"
- * (mismo botón sweep que Servicios); al click gira 180° en 3D y atrás muestra
- * cliente, año, descripción y alcance, con "Volver" para girarla de nuevo.
+ * Tarjeta de proyecto que se da vuelta: arriba a la derecha un botón de
+ * vidrio "Más información"; al click gira 180° en 3D y atrás muestra, sobre
+ * la misma foto desenfocada, cliente, año, descripción y alcance centrados.
+ * El botón de cerrar queda en la misma esquina para volver al frente.
  */
+const GLASS_BTN =
+  'absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-lg border border-white/30 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/30 backdrop-blur-md transition-colors hover:border-white/50 hover:bg-white/20 sm:text-xs';
+
 function ProjectCard({
   project: p,
   index,
@@ -42,40 +46,37 @@ function ProjectCard({
           <span className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg bg-brand-primary text-sm font-bold text-white shadow-lg shadow-brand-dark/40">
             {index}
           </span>
-          <div className="absolute inset-x-4 bottom-3">
-            <p className="text-sm font-bold uppercase leading-snug text-white">{p.title}</p>
-            {/* "Más información" solo al hover (siempre visible en táctil). */}
-            <div className="mt-3 transition-all duration-300 ease-out [@media(hover:hover)]:pointer-events-none [@media(hover:hover)]:mt-0 [@media(hover:hover)]:max-h-0 [@media(hover:hover)]:translate-y-2 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:pointer-events-auto [@media(hover:hover)]:group-hover:mt-3 [@media(hover:hover)]:group-hover:max-h-16 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:opacity-100">
-              {!flipped && <MoreInfoButton label="Más información" onClick={() => onFlip(true)} />}
-            </div>
-          </div>
+          <button type="button" onClick={() => onFlip(true)} tabIndex={flipped ? -1 : 0} className={GLASS_BTN}>
+            <Info className="h-3.5 w-3.5" strokeWidth={2.2} />
+            Más información
+          </button>
+          <p className="absolute inset-x-4 bottom-3 text-sm font-bold uppercase leading-snug text-white">{p.title}</p>
         </div>
 
-        {/* Reverso */}
-        <div className={`${face} flex flex-col bg-gradient-to-br from-brand-dark to-ink p-5 text-white [transform:rotateY(180deg)]`} aria-hidden={!flipped}>
-          <div className="flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-brand-teal-light">
+        {/* Reverso: misma foto desenfocada + velo de marca, contenido centrado. */}
+        <div className={`${face} text-white [transform:rotateY(180deg)]`} aria-hidden={!flipped}>
+          <Image src={p.image} alt="" fill sizes="(min-width: 1024px) 40vw, 100vw" className="scale-110 object-cover blur-md" />
+          <div className="absolute inset-0 bg-gradient-to-br from-brand-primary/90 via-ink/90 to-ink/95" />
+          <button type="button" onClick={() => onFlip(false)} tabIndex={flipped ? 0 : -1} className={GLASS_BTN}>
+            <RotateCcw className="h-3.5 w-3.5" strokeWidth={2.2} />
+            Volver
+          </button>
+          <div className="relative flex h-full flex-col items-center justify-center overflow-y-auto px-6 pb-4 pt-12 text-center [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#8fe0ee]">
+              <Building2 className="h-3.5 w-3.5" strokeWidth={2} />
               {p.client} · {p.year}
             </p>
-            <h4 className="mt-1 text-sm font-bold uppercase leading-snug">{p.title}</h4>
-            <p className="mt-2 text-sm leading-relaxed text-white/75">{p.description}</p>
-            <div className="mt-3 flex flex-wrap gap-1.5">
+            <h4 className="mt-2 max-w-md text-sm font-bold uppercase leading-snug sm:text-base">{p.title}</h4>
+            <span aria-hidden className="mt-3 h-0.5 w-10 rounded-full bg-brand-dark" />
+            <p className="mt-3 max-w-md text-xs leading-relaxed text-white/75 sm:text-sm">{p.description}</p>
+            <div className="mt-4 flex flex-wrap justify-center gap-1.5">
               {p.scope.map((s) => (
-                <span key={s} className="rounded-md border border-white/20 bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white">
+                <span key={s} className="rounded-md border border-white/20 bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white backdrop-blur-sm">
                   {s}
                 </span>
               ))}
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => onFlip(false)}
-            tabIndex={flipped ? 0 : -1}
-            className="mt-3 inline-flex w-fit items-center gap-1.5 rounded-lg bg-white/15 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-white/25"
-          >
-            <RotateCcw className="h-3.5 w-3.5" strokeWidth={2.2} />
-            Volver
-          </button>
         </div>
       </div>
     </div>
