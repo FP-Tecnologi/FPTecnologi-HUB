@@ -54,16 +54,27 @@ function ProjectCard({
       >
         {/* Frente */}
         <div className={face} aria-hidden={flipped}>
-          <Image src={p.image} alt={p.title} fill sizes="(min-width: 1024px) 40vw, 100vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent" />
-          <span className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg bg-brand-primary text-sm font-bold text-white shadow-lg shadow-brand-dark/40">
-            {index}
+          {/* Foto: acercamiento + giro suave al hover (igual que Servicios). */}
+          <Image src={p.image} alt={p.title} fill sizes="(min-width: 1024px) 40vw, 100vw" className="object-cover transition-transform duration-700 ease-out group-hover:rotate-2 group-hover:scale-110" />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink/95 via-ink/35 to-transparent" />
+          <span className="absolute left-3 top-3 z-10 flex h-9 min-w-9 items-center justify-center rounded-lg border border-white/30 bg-white/10 px-2 font-display text-sm font-bold text-white shadow-lg shadow-brand-dark/30 backdrop-blur-md">
+            {String(index).padStart(2, '0')}
           </span>
           <span className={GLASS_TAG}>
             <MousePointerClick className="h-3.5 w-3.5" strokeWidth={2.2} />
             Click para ver detalles
           </span>
-          <p className="absolute inset-x-4 bottom-3 text-sm font-bold uppercase leading-snug text-white">{p.title}</p>
+          <div className="absolute inset-x-4 bottom-4">
+            <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#8fe0ee]">
+              <Building2 className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
+              <span className="truncate">{p.client} · {p.year}</span>
+            </p>
+            <p className="mt-1.5 line-clamp-2 text-sm font-bold uppercase leading-snug text-white sm:text-base">{p.title}</p>
+            {/* Línea de acento que se alarga al hover. */}
+            <span aria-hidden className="mt-2.5 block h-0.5 w-8 rounded-full bg-brand-dark transition-all duration-500 group-hover:w-20 group-hover:bg-[#8fe0ee]" />
+          </div>
+          {/* Contorno que gira al hover (ver .spin-border en globals.css). */}
+          <span className="spin-border" aria-hidden />
         </div>
 
         {/* Reverso: misma foto desenfocada + velo de marca, contenido centrado. */}
