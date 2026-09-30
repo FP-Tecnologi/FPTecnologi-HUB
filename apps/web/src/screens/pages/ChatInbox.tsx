@@ -271,8 +271,8 @@ export function ChatInbox() {
           ) : (
             <>
               <div className="ax-card__header">
-                <div className="ax-card__titles">
-                  <h2 className="ax-card__title">{conv.titulo ?? 'Conversación'}</h2>
+                <div className="ax-card__titles" style={{ minWidth: 0, flex: '1 1 auto' }}>
+                  <h2 className="ax-card__title" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={conv.titulo ?? undefined}>{conv.titulo ?? 'Conversación'}</h2>
                   <p className="ax-card__subtitle">
                     Iniciada {fmt(conv.createdAt)}
                     {conv.paginaOrigen ? ` desde ${conv.paginaOrigen}` : ''} ·{' '}
@@ -281,7 +281,7 @@ export function ChatInbox() {
                   </p>
                 </div>
                 {/* Acciones en orden de flujo: retomar -> devolver a la IA -> finalizar. */}
-                <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap', flexShrink: 0, justifyContent: 'flex-end' }}>
                   {conv.estado === 'CERRADA' ? (
                     <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => accion(() => api.patch(`/chat/conversaciones/${conv.id}/estado`, { estado: 'BOT' }))}>
                       {I_REABRIR}<span className="ax-btn__label">Reabrir</span>
@@ -365,7 +365,7 @@ export function ChatInbox() {
               {/* Caja de respuesta: mismo diseño siempre. Si no la tomaste, el
                   campo queda bloqueado con el motivo adentro y el botón pasa
                   a "Retomar" (o "Reabrir" si está finalizada). */}
-              <form onSubmit={responder} className="ax-card__body" style={{ display: 'flex', gap: 'var(--ax-space-3)', alignItems: 'flex-end', borderTop: '1px solid var(--ax-border)' }}>
+              <form onSubmit={responder} className="ax-card__body" style={{ flex: '0 0 auto', display: 'flex', gap: 'var(--ax-space-3)', alignItems: 'flex-end', borderTop: '1px solid var(--ax-border)' }}>
                 <Avatar autor="ASESOR" nombre={user?.nombre || user?.email || null} foto={user?.avatarUrl} size={36} />
                 <div className="ax-field" style={{ flex: '1 1 auto' }}>
                   <label className="ax-label" htmlFor="chat-resp">
