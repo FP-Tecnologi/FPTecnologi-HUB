@@ -188,13 +188,19 @@ export function NuestrosProyectos() {
         <div className="order-1 lg:order-2">
         <ScrollReveal direction="right" delayMs={120}>
           <div className="relative mx-auto max-w-md">
-            <svg viewBox={PERU_VIEWBOX} className="h-auto w-full" role="img" aria-label="Mapa del Perú por departamentos">
-              {/* Contorno del país: los mismos departamentos con trazo grueso
-                  debajo; los rellenos de arriba tapan las líneas internas y
-                  solo queda visible el borde exterior. */}
-              <g aria-hidden className="pointer-events-none drop-shadow-[0_6px_14px_rgb(33_129_175_/_0.25)]">
+            <svg viewBox={PERU_VIEWBOX} className="h-auto w-full overflow-visible" role="img" aria-label="Mapa del Perú por departamentos">
+              {/* Relieve: copia del país desplazada abajo-derecha en azul
+                  suave con sombra difusa de marca (efecto "sobresale"), y
+                  encima una base blanca para que los rellenos translúcidos
+                  no dejen ver el relieve. */}
+              <g aria-hidden className="pointer-events-none">
+                <g transform="translate(6 10)" className="drop-shadow-[0_14px_22px_rgb(21_83_130_/_0.28)]">
+                  {PERU_DEPARTMENTS.map((d) => (
+                    <path key={d.id} d={d.d} className="fill-[#b9d1e2] stroke-[#b9d1e2] [stroke-width:1.2]" />
+                  ))}
+                </g>
                 {PERU_DEPARTMENTS.map((d) => (
-                  <path key={d.id} d={d.d} className="fill-white stroke-brand-primary [stroke-linejoin:round] [stroke-width:5]" />
+                  <path key={d.id} d={d.d} className="fill-white" />
                 ))}
               </g>
               {PERU_DEPARTMENTS.map((d) => {
