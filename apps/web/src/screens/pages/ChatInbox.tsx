@@ -14,7 +14,7 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 
 type Estado = 'BOT' | 'ASESOR' | 'CERRADA';
-type Autor = 'CLIENTE' | 'BOT' | 'ASESOR';
+type Autor = 'CLIENTE' | 'BOT' | 'ASESOR' | 'SISTEMA';
 interface Mensaje { id: string; autor: Autor; texto: string; createdAt: string }
 interface AsesorRef { id: string; nombre: string | null; email: string; avatarUrl?: string | null }
 interface ConversacionResumen {
@@ -39,7 +39,7 @@ const FILTROS: { id: '' | Estado; label: string }[] = [
   { id: 'CERRADA', label: 'Finalizadas' },
 ];
 const ESTADO_BADGE: Record<Estado, string> = { BOT: 'ax-badge--info', ASESOR: 'ax-badge--success', CERRADA: 'ax-badge--neutral' };
-const AUTOR_LABEL: Record<Autor, string> = { CLIENTE: 'Cliente', BOT: 'Asistente virtual', ASESOR: 'Asesor' };
+const AUTOR_LABEL: Record<Autor, string> = { CLIENTE: 'Cliente', BOT: 'Asistente virtual', ASESOR: 'Asesor', SISTEMA: 'Evento' };
 const REFRESH_MS = 5000;
 // Bandeja y conversación ocupan el alto disponible; el hilo scrollea adentro
 // y la caja de respuesta queda siempre visible abajo.
@@ -97,7 +97,6 @@ const I_TOMAR = <svg {...ICON}><path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0" /><pa
 const I_BOT = <svg {...ICON}><path d="M6 6a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v4a2 2 0 0 1 -2 2h-8a2 2 0 0 1 -2 -2l0 -4" /><path d="M12 2v2" /><path d="M9 12v9" /><path d="M15 12v9" /><path d="M10 8v.01" /><path d="M14 8v.01" /></svg>;
 const I_FIN = <svg {...ICON}><path d="M5 12l5 5l10 -10" /></svg>;
 const I_REABRIR = <svg {...ICON}><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg>;
-const I_LOCK = <svg {...ICON}><path d="M5 13a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v6a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-6" /><path d="M8 11v-4a4 4 0 1 1 8 0v4" /></svg>;
 const I_SEND = <svg {...ICON}><path d="M10 14l11 -11" /><path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5" /></svg>;
 
 export function ChatInbox() {
@@ -313,6 +312,27 @@ export function ChatInbox() {
                 style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)', flex: '1 1 auto', minHeight: 0, overflowY: 'auto', background: 'var(--ax-surface-subtle)' }}
               >
                 {conv.mensajes.map((m) => {
+                  // Eventos (se unió / devolvió al asistente IA / finalizó / reabrió).
+                  if (m.autor === 'SISTEMA') {
+                    return (
+                      <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--ax-space-2)', margin: '4px 0' }}>
+                        <span style={{ flex: 1, height: 1, background: 'var(--ax-border)' }} />
+                        <span
+                          style={{
+                            display: 'inline-flex', alignItems: 'center', gap: 6, padding: '4px 10px', borderRadius: 8,
+                            fontSize: 'var(--ax-text-xs)', fontWeight: 600, color: '#155382',
+                            background: 'rgba(255,255,255,.85)', border: '1px solid rgba(255,255,255,.7)',
+                            backdropFilter: 'blur(8px)', boxShadow: '0 6px 16px -8px rgba(21,83,130,.5)',
+                          }}
+                        >
+                          <span style={{ width: 6, height: 6, borderRadius: '50%', background: m.texto.includes('se unió') ? '#37c472' : 'rgba(21,83,130,.4)' }} />
+                          {m.texto}
+                          <span style={{ fontWeight: 400, opacity: 0.6 }}>· {fmt(m.createdAt)}</span>
+                        </span>
+                        <span style={{ flex: 1, height: 1, background: 'var(--ax-border)' }} />
+                      </div>
+                    );
+                  }
                   const derecha = m.autor !== 'CLIENTE';
                   const nombre = m.autor === 'ASESOR' ? `${conv.asesor?.nombre ?? conv.asesor?.email ?? 'Asesor'} · Asesor` : AUTOR_LABEL[m.autor];
                   return (
@@ -342,43 +362,48 @@ export function ChatInbox() {
                 })}
               </div>
 
-              {/* Caja de respuesta: solo activa si tú tomaste la conversación. */}
-              {puedeEscribir ? (
-                <form onSubmit={responder} className="ax-card__body" style={{ display: 'flex', gap: 'var(--ax-space-3)', alignItems: 'flex-end', borderTop: '1px solid var(--ax-border)' }}>
-                  <Avatar autor="ASESOR" nombre={user?.nombre || user?.email || null} foto={user?.avatarUrl} size={36} />
-                  <div className="ax-field" style={{ flex: '1 1 auto' }}>
-                    <label className="ax-label" htmlFor="chat-resp">Respondiendo como {user?.nombre || user?.email}</label>
-                    <input
-                      id="chat-resp"
-                      className="ax-input"
-                      maxLength={2000}
-                      placeholder="Escribe al cliente… (Enter para enviar)"
-                      value={texto}
-                      onChange={(e) => setTexto(e.target.value)}
-                    />
-                  </div>
+              {/* Caja de respuesta: mismo diseño siempre. Si no la tomaste, el
+                  campo queda bloqueado con el motivo adentro y el botón pasa
+                  a "Retomar" (o "Reabrir" si está finalizada). */}
+              <form onSubmit={responder} className="ax-card__body" style={{ display: 'flex', gap: 'var(--ax-space-3)', alignItems: 'flex-end', borderTop: '1px solid var(--ax-border)' }}>
+                <Avatar autor="ASESOR" nombre={user?.nombre || user?.email || null} foto={user?.avatarUrl} size={36} />
+                <div className="ax-field" style={{ flex: '1 1 auto' }}>
+                  <label className="ax-label" htmlFor="chat-resp">
+                    {puedeEscribir ? `Respondiendo como ${user?.nombre || user?.email}` : 'Respuesta bloqueada'}
+                  </label>
+                  <input
+                    id="chat-resp"
+                    className="ax-input"
+                    maxLength={2000}
+                    disabled={!puedeEscribir}
+                    placeholder={
+                      puedeEscribir
+                        ? 'Escribe al cliente… (Enter para enviar)'
+                        : conv.estado === 'CERRADA'
+                          ? 'Conversación finalizada. Reábrela para volver a escribir.'
+                          : conv.estado === 'ASESOR'
+                            ? `La atiende ${conv.asesor?.nombre ?? conv.asesor?.email ?? 'otro asesor'}. Retómala para escribir.`
+                            : 'La atiende el asistente IA. Retómala para escribirle al cliente.'
+                    }
+                    value={puedeEscribir ? texto : ''}
+                    onChange={(e) => setTexto(e.target.value)}
+                  />
+                </div>
+                {puedeEscribir ? (
                   <button type="submit" className={`ax-btn ax-btn--primary${enviando ? ' is-loading' : ''}`} disabled={!texto.trim() || enviando}>
                     <span className="ax-btn__spinner" aria-hidden="true"></span>
                     {I_SEND}<span className="ax-btn__label">Enviar</span>
                   </button>
-                </form>
-              ) : (
-                <div className="ax-card__body" style={{ display: 'flex', gap: 'var(--ax-space-3)', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid var(--ax-border)', color: 'var(--ax-text-muted)', fontSize: 'var(--ax-text-sm)' }}>
-                  <span className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
-                    <span style={{ display: 'inline-flex', width: 18 }}>{I_LOCK}</span>
-                    {conv.estado === 'CERRADA'
-                      ? 'Conversación finalizada. Reábrela para volver a escribir.'
-                      : conv.estado === 'ASESOR'
-                        ? `La atiende ${conv.asesor?.nombre ?? conv.asesor?.email ?? 'otro asesor'}. Retómala para escribir.`
-                        : 'La atiende el asistente IA. Retómala para escribirle al cliente.'}
-                  </span>
-                  {conv.estado !== 'CERRADA' && (
-                    <button type="button" className="ax-btn ax-btn--primary ax-btn--sm" onClick={() => accion(() => api.post(`/chat/conversaciones/${conv.id}/tomar`, {}))}>
-                      {I_TOMAR}<span className="ax-btn__label">Retomar</span>
-                    </button>
-                  )}
-                </div>
-              )}
+                ) : conv.estado === 'CERRADA' ? (
+                  <button type="button" className="ax-btn ax-btn--secondary" onClick={() => accion(() => api.patch(`/chat/conversaciones/${conv.id}/estado`, { estado: 'BOT' }))}>
+                    {I_REABRIR}<span className="ax-btn__label">Reabrir</span>
+                  </button>
+                ) : (
+                  <button type="button" className="ax-btn ax-btn--primary" onClick={() => accion(() => api.post(`/chat/conversaciones/${conv.id}/tomar`, {}))}>
+                    {I_TOMAR}<span className="ax-btn__label">Retomar</span>
+                  </button>
+                )}
+              </form>
             </>
           )}
         </section>

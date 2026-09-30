@@ -12,7 +12,7 @@ const MAX_MENSAJES = 300;
 const ROLES_AVISO = ['admin', 'asesores'];
 
 type EstadoChat = 'BOT' | 'ASESOR' | 'CERRADA';
-type AutorChat = 'CLIENTE' | 'BOT' | 'ASESOR';
+type AutorChat = 'CLIENTE' | 'BOT' | 'ASESOR' | 'SISTEMA';
 
 @Injectable()
 export class ChatService {
@@ -90,21 +90,43 @@ export class ChatService {
   }
 
   async tomar(marcaId: string, id: string, usuarioId: string) {
-    await this.getConversacion(marcaId, id);
-    return this.prisma.chatConversacion.update({
+    const conv = await this.getConversacion(marcaId, id);
+    const res = await this.prisma.chatConversacion.update({
       where: { id, marcaId },
       data: { estado: 'ASESOR', asesorId: usuarioId },
       select: { id: true, estado: true, asesorId: true },
     });
+    if (conv.estado !== 'ASESOR' || conv.asesorId !== usuarioId) {
+      await this.evento(marcaId, id, usuarioId, (n) => `${n} se unió al chat`);
+    }
+    return res;
   }
 
-  async cambiarEstado(marcaId: string, id: string, estado: EstadoChat) {
-    await this.getConversacion(marcaId, id);
-    return this.prisma.chatConversacion.update({
+  // Evento visible en el hilo (dashboard y widget): quién hizo qué y cuándo.
+  private async evento(marcaId: string, id: string, usuarioId: string, texto: (nombre: string) => string) {
+    const u = await this.prisma.usuario.findUnique({ where: { id: usuarioId }, select: { nombre: true, email: true } });
+    await this.addMensaje(marcaId, id, 'SISTEMA', texto(u?.nombre || 'Un asesor'));
+  }
+
+  async cambiarEstado(marcaId: string, id: string, estado: EstadoChat, usuarioId: string) {
+    const conv = await this.getConversacion(marcaId, id);
+    const res = await this.prisma.chatConversacion.update({
       where: { id, marcaId },
       data: { estado, ...(estado === 'BOT' ? { asesorId: null } : {}) },
       select: { id: true, estado: true, asesorId: true },
     });
+    if (conv.estado !== estado) {
+      const texto =
+        estado === 'CERRADA'
+          ? (n: string) => `${n} finalizó la conversación`
+          : estado === 'BOT' && conv.estado === 'CERRADA'
+            ? (n: string) => `${n} reabrió la conversación`
+            : estado === 'BOT'
+              ? (n: string) => `${n} devolvió la conversación al asistente IA`
+              : (n: string) => `${n} se unió al chat`;
+      await this.evento(marcaId, id, usuarioId, texto);
+    }
+    return res;
   }
 
   async responder(marcaId: string, id: string, usuarioId: string, texto: string) {

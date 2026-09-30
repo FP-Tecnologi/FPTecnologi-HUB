@@ -56,8 +56,13 @@ export class ChatController {
   }
 
   @Patch('conversaciones/:id/estado')
-  estado(@MarcaActual() marcaId: string, @Param('id') id: string, @Body() dto: EstadoConversacionDto) {
-    return this.chat.cambiarEstado(marcaId, id, dto.estado);
+  estado(
+    @MarcaActual() marcaId: string,
+    @Param('id') id: string,
+    @Body() dto: EstadoConversacionDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.chat.cambiarEstado(marcaId, id, dto.estado, user.sub);
   }
 
   @Post('conversaciones/:id/mensajes')

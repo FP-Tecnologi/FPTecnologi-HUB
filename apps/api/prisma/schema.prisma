@@ -348,6 +348,7 @@ enum AutorChat {
   CLIENTE
   BOT
   ASESOR
+  SISTEMA // eventos: se unió, devolvió al asistente, finalizó, reabrió
 }
 
 model ChatConversacion {

@@ -540,24 +540,22 @@ export function ChatWidget() {
       }
       setAgent({ estado: data.estado, asesor: data.asesor });
       if (data.mensajes.length) lastSync.current = data.mensajes[data.mensajes.length - 1].createdAt;
-      const nuevos = data.mensajes.filter((m) => m.autor === 'ASESOR');
+      // ASESOR = mensajes del asesor; SISTEMA = eventos (se unió, devolvió al
+      // asistente IA, finalizó) que la API guarda con su hora real.
+      const nuevos = data.mensajes.filter((m) => m.autor === 'ASESOR' || m.autor === 'SISTEMA');
       const nombre = data.asesor?.nombre ?? 'Un asesor';
       setMessages((prev) => {
         const seen = new Set(prev.map((m) => m.sid).filter(Boolean));
         const add: ChatMsg[] = [];
-        // Etiquetas de sistema (una sola vez cada una, por sid).
-        const label = (sid: string, text: string) => {
-          if (!seen.has(sid)) {
-            add.push({ from: 'system', text, sid, at: Date.now(), instant: true });
-            seen.add(sid);
-          }
-        };
-        if (data.estado === 'ASESOR') label(`join:${nombre}`, nombre);
         for (const m of nuevos) {
           if (seen.has(m.id)) continue;
-          add.push({ from: 'asesor', text: m.texto, at: new Date(m.createdAt).getTime(), sid: m.id, name: data.asesor?.nombre ?? undefined, instant: true });
+          const at = new Date(m.createdAt).getTime();
+          add.push(
+            m.autor === 'SISTEMA'
+              ? { from: 'system', text: m.texto, at, sid: m.id, instant: true }
+              : { from: 'asesor', text: m.texto, at, sid: m.id, name: data.asesor?.nombre ?? undefined, instant: true },
+          );
         }
-        if (data.estado === 'CERRADA') label('closed', 'La conversación fue finalizada');
         return add.length ? [...prev, ...add] : prev;
       });
     };
@@ -879,16 +877,15 @@ export function ChatWidget() {
                 <p className={`text-center text-[10px] ${t.time}`}>Un asesor puede revisar esta conversación para ayudarte mejor.</p>
                 {messages.map((m, i) => {
                   if (m.from === 'system') {
-                    const join = m.sid?.startsWith('join:');
-                    // Historial viejo guardaba el texto completo; hoy guarda solo el nombre.
-                    const who = m.text.replace(/ se unió al chat$/, '');
+                    const join = m.text.includes('se unió');
                     return (
                       <div key={i} className="animate-pop-in my-1 flex items-center gap-2">
                         <span className={`h-px flex-1 ${t.divider}`} />
-                        <span className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-lg border px-2.5 py-1 text-[11px] font-semibold ${t.notice} ${t.title}`}>
-                          <span className={`h-1.5 w-1.5 rounded-full ${join ? 'bg-whatsapp' : 'bg-white/40'}`} />
-                          {join ? `${who} se unió al chat` : m.text}
-                          {m.at ? <span className={`font-normal ${t.muted}`}>· {timeFmt(m.at)}</span> : null}
+                        {/* Etiqueta de vidrio blanco (glassmorphism). */}
+                        <span className="inline-flex max-w-[85%] items-center gap-1.5 rounded-lg border border-white/70 bg-white/80 px-2.5 py-1 text-[11px] font-semibold text-brand-primary shadow-md shadow-brand-dark/20 backdrop-blur-md">
+                          <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${join ? 'bg-whatsapp' : 'bg-brand-primary/40'}`} />
+                          <span className="truncate">{m.text}</span>
+                          {m.at ? <span className="shrink-0 font-normal text-brand-primary/60">· {timeFmt(m.at)}</span> : null}
                         </span>
                         <span className={`h-px flex-1 ${t.divider}`} />
                       </div>
