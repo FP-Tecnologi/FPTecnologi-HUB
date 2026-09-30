@@ -139,6 +139,15 @@ async function hub<T>(path: string, body?: unknown): Promise<T | null> {
 
 const POLL_MS = 4000;
 
+/* Los eventos se guardan pensando en el equipo ("Jaime devolvió la
+   conversación al asistente IA"); al cliente se le muestra en su idioma. */
+function textoCliente(evento: string): string {
+  if (evento.includes('devolvió')) return 'Ahora te atiende nuestro asistente IA';
+  if (evento.includes('finalizó')) return 'La conversación fue finalizada';
+  if (evento.includes('reabrió')) return 'La conversación se reabrió';
+  return evento; // "X se unió al chat"
+}
+
 const FALLBACK_AREAS: Area[] = WHATSAPP_AREAS.map((a) => ({ ...a, photo: a.photo }));
 
 /* Sesiones anteriores (máx. SESSIONS_MAX), mismo criterio que el historial:
@@ -552,7 +561,7 @@ export function ChatWidget() {
           const at = new Date(m.createdAt).getTime();
           add.push(
             m.autor === 'SISTEMA'
-              ? { from: 'system', text: m.texto, at, sid: m.id, instant: true }
+              ? { from: 'system', text: textoCliente(m.texto), at, sid: m.id, instant: true }
               : { from: 'asesor', text: m.texto, at, sid: m.id, name: data.asesor?.nombre ?? undefined, instant: true },
           );
         }
