@@ -150,13 +150,49 @@ const ACTION_ICON: Record<ChatActionKind, LucideIcon> = {
   page: ArrowUpRight,
 };
 
-function Avatar({ icon: Icon, bot }: { icon: LucideIcon; bot?: boolean }) {
+/*
+ * Dos looks del panel: claro en la tienda (/tienda...) y oscuro tipo Hero
+ * (vidrio ink + acentos de marca) en el resto de la web informativa.
+ */
+const THEMES = {
+  light: {
+    panel: 'border border-brand-dark/10 bg-paper shadow-2xl shadow-brand-dark/30',
+    card: 'option-card bg-white shadow-sm shadow-brand-dark/10 hover:shadow-lg hover:shadow-brand-dark/15',
+    title: 'text-ink',
+    muted: 'text-ink/55',
+    arrow: 'text-ink/30',
+    userAvatar: 'border border-brand-dark/15 bg-white text-brand-primary',
+    userBubble: 'border border-brand-dark/10 bg-white text-ink shadow-md shadow-brand-dark/10',
+    link: 'border-brand-dark/15 bg-white text-brand-primary shadow-sm shadow-brand-dark/10 hover:border-brand-primary hover:bg-brand-primary hover:text-white',
+    whatsapp: 'border-emerald-500/30 bg-emerald-50 text-emerald-700 shadow-sm shadow-brand-dark/10 hover:border-emerald-500 hover:bg-emerald-500 hover:text-white',
+    chip: 'border-brand-dark/15 bg-white text-brand-primary shadow-sm shadow-brand-dark/10 hover:border-brand-primary hover:bg-brand-primary hover:text-white',
+    inputBar: 'border-brand-dark/10 bg-white',
+    input: 'border-brand-dark/15 bg-paper text-ink placeholder:text-ink/40 focus:border-brand-dark focus:bg-white focus:ring-brand-dark/15',
+  },
+  dark: {
+    panel: 'border border-white/10 bg-ink/90 shadow-2xl shadow-brand-dark/40 backdrop-blur-xl',
+    card: 'border border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10 hover:shadow-lg hover:shadow-brand-dark/30',
+    title: 'text-white',
+    muted: 'text-white/60',
+    arrow: 'text-white/40',
+    userAvatar: 'bg-white text-brand-primary',
+    userBubble: 'bg-white text-ink shadow-md shadow-brand-dark/30',
+    link: 'border-white/15 bg-white/10 text-white hover:border-brand-dark hover:bg-brand-dark',
+    whatsapp: 'border-emerald-400/40 bg-emerald-500/15 text-emerald-200 hover:border-emerald-500 hover:bg-emerald-500 hover:text-white',
+    chip: 'border-white/20 bg-white/10 text-white backdrop-blur-md hover:border-brand-dark hover:bg-brand-dark',
+    inputBar: 'border-white/10 bg-ink/60',
+    input: 'border-white/15 bg-white/5 text-white placeholder:text-white/40 focus:border-brand-dark focus:bg-white/10 focus:ring-brand-dark/30',
+  },
+};
+type Theme = (typeof THEMES)['light'];
+
+function Avatar({ icon: Icon, bot, t }: { icon: LucideIcon; bot?: boolean; t: Theme }) {
   return (
     <span
       // Cuadrado con una esquina recta, como el botón del widget y la burbuja
       // de su mismo lado: asistente en azul FP, persona en blanco.
       className={`flex h-8 w-8 shrink-0 items-center justify-center shadow-md shadow-brand-dark/15 ${
-        bot ? 'rounded-xl rounded-bl-sm bg-brand-primary text-white' : 'rounded-xl rounded-br-sm border border-brand-dark/15 bg-white text-brand-primary'
+        bot ? 'rounded-xl rounded-bl-sm bg-brand-primary text-white' : `rounded-xl rounded-br-sm ${t.userAvatar}`
       }`}
     >
       <Icon className="h-3.5 w-3.5" strokeWidth={2} />
@@ -233,19 +269,16 @@ function TypewriterText({ text, skip, onDone }: { text: string; skip: boolean; o
   );
 }
 
-function ActionLink({ action }: { action: ChatAction }) {
+function ActionLink({ action, t }: { action: ChatAction; t: Theme }) {
   const Icon = ACTION_ICON[action.kind];
   const external = action.href.startsWith('http');
-  const tone =
-    action.kind === 'whatsapp'
-      ? 'border-emerald-500/30 bg-emerald-50 text-emerald-700 hover:border-emerald-500 hover:bg-emerald-500 hover:text-white'
-      : 'border-brand-dark/15 bg-white text-brand-primary hover:border-brand-primary hover:bg-brand-primary hover:text-white';
+  const tone = action.kind === 'whatsapp' ? t.whatsapp : t.link;
   return (
     <a
       href={action.href}
       target={external ? '_blank' : undefined}
       rel={external ? 'noreferrer' : undefined}
-      className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold shadow-sm shadow-brand-dark/10 transition-colors ${tone}`}
+      className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors ${tone}`}
     >
       <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
       {action.label}
@@ -253,29 +286,30 @@ function ActionLink({ action }: { action: ChatAction }) {
   );
 }
 
-function OptionCard({ icon: Icon, tint, title, text, onClick, extra }: {
+function OptionCard({ icon: Icon, tint, title, text, onClick, extra, t }: {
   icon: LucideIcon;
   tint: string;
   title: ReactNode;
   text: string;
   onClick: () => void;
   extra?: string;
+  t: Theme;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       style={{ '--tint': tint } as CSSProperties}
-      className="option-card group flex items-center gap-3 rounded-xl bg-white p-3 text-left shadow-sm shadow-brand-dark/10 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-brand-dark/15"
+      className={`group flex items-center gap-3 rounded-xl p-3 text-left transition-all hover:-translate-y-0.5 ${t.card}`}
     >
       <span className={`icon-hop flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-md ${extra}`}>
         <Icon className="h-5 w-5" strokeWidth={2} />
       </span>
       <span>
-        <p className="flex items-center gap-1.5 text-sm font-semibold text-ink">{title}</p>
-        <p className="text-xs text-ink/55">{text}</p>
+        <p className={`flex items-center gap-1.5 text-sm font-semibold ${t.title}`}>{title}</p>
+        <p className={`text-xs ${t.muted}`}>{text}</p>
       </span>
-      <ArrowUpRight className="ml-auto h-4 w-4 shrink-0 text-ink/30 transition-all group-hover:rotate-45 group-hover:text-brand-dark" strokeWidth={2} />
+      <ArrowUpRight className={`ml-auto h-4 w-4 shrink-0 transition-all group-hover:rotate-45 group-hover:text-brand-dark ${t.arrow}`} strokeWidth={2} />
     </button>
   );
 }
@@ -283,6 +317,7 @@ function OptionCard({ icon: Icon, tint, title, text, onClick, extra }: {
 export function ChatWidget() {
   const pathname = usePathname();
   const variant = getVariant(pathname);
+  const t = THEMES[pathname?.startsWith('/tienda') ? 'light' : 'dark'];
   const { subscribeAskAI } = useChatWidget();
 
   const [open, setOpen] = useState(false);
@@ -388,7 +423,7 @@ export function ChatWidget() {
     // la esquina derecha, en el mismo lugar, esté abierto o no el panel.
     <div className="fixed bottom-5 right-5 z-[60] flex flex-col items-end" ref={panelRef}>
       {open && (
-        <div className={`animate-pop-in relative mb-3 w-[370px] max-w-[calc(100vw-40px)] overflow-hidden border border-brand-dark/10 bg-paper shadow-2xl shadow-brand-dark/30 ${variant.panelRadius}`}>
+        <div className={`animate-pop-in relative mb-3 w-[370px] max-w-[calc(100vw-40px)] overflow-hidden ${t.panel} ${variant.panelRadius}`}>
           {variant.cornerAccent && <div className="absolute -right-8 -top-8 z-10 h-16 w-16 rotate-45 bg-brand-primary" aria-hidden />}
 
           <div className="relative flex items-center px-4 py-3.5 text-white">
@@ -433,6 +468,7 @@ export function ChatWidget() {
           {view === 'choose' ? (
             <div className="flex flex-col gap-2.5 p-4">
               <OptionCard
+                t={t}
                 icon={MessageCircle}
                 tint="#10b981"
                 extra="bg-emerald-500 shadow-emerald-500/30"
@@ -441,6 +477,7 @@ export function ChatWidget() {
                 onClick={() => setView('whatsapp')}
               />
               <OptionCard
+                t={t}
                 icon={Bot}
                 tint="var(--color-brand-primary)"
                 extra="bg-brand-primary shadow-brand-primary/30"
@@ -463,7 +500,7 @@ export function ChatWidget() {
                   target="_blank"
                   rel="noreferrer"
                   style={{ '--tint': '#10b981' } as CSSProperties}
-                  className="option-card group flex items-center gap-3 rounded-xl bg-white p-3 text-left shadow-sm shadow-brand-dark/10 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-brand-dark/15"
+                  className={`group flex items-center gap-3 rounded-xl p-3 text-left transition-all hover:-translate-y-0.5 ${t.card}`}
                 >
                   {/* Inicial del asesor con el ícono de WhatsApp de insignia. */}
                   <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500 font-display text-sm font-bold text-white shadow-md shadow-emerald-500/30">
@@ -473,12 +510,12 @@ export function ChatWidget() {
                     </span>
                   </span>
                   <span className="min-w-0">
-                    <p className="text-sm font-semibold text-ink">
-                      {area.contact} <span className="font-normal text-ink/55">({area.label})</span>
+                    <p className={`text-sm font-semibold ${t.title}`}>
+                      {area.contact} <span className={`font-normal ${t.muted}`}>({area.label})</span>
                     </p>
-                    <p className="text-xs text-ink/55">+51 {area.phone}</p>
+                    <p className={`text-xs ${t.muted}`}>+51 {area.phone}</p>
                   </span>
-                  <ArrowUpRight className="ml-auto h-4 w-4 shrink-0 text-ink/30 transition-all group-hover:rotate-45 group-hover:text-emerald-600" strokeWidth={2} />
+                  <ArrowUpRight className={`ml-auto h-4 w-4 shrink-0 transition-all group-hover:rotate-45 group-hover:text-emerald-500 ${t.arrow}`} strokeWidth={2} />
                 </a>
               ))}
             </div>
@@ -490,12 +527,12 @@ export function ChatWidget() {
                   return (
                     <div key={i} className={`animate-pop-in flex flex-col gap-2 ${m.from === 'user' ? 'items-end' : 'items-start'}`}>
                       <div className={`flex items-end gap-2 ${m.from === 'user' ? 'flex-row-reverse' : ''}`}>
-                        {m.from === 'bot' ? <Avatar icon={Bot} bot /> : <Avatar icon={User} />}
+                        {m.from === 'bot' ? <Avatar icon={Bot} bot t={t} /> : <Avatar icon={User} t={t} />}
                         <div
                           className={`max-w-[80%] px-3.5 py-2.5 text-sm leading-relaxed ${
                             m.from === 'bot'
                               ? 'rounded-2xl rounded-bl-md bg-brand-primary text-white shadow-md shadow-brand-dark/20'
-                              : 'rounded-2xl rounded-br-md border border-brand-dark/10 bg-white text-ink shadow-md shadow-brand-dark/10'
+                              : `rounded-2xl rounded-br-md ${t.userBubble}`
                           }`}
                         >
                           {m.from === 'bot' ? (
@@ -513,7 +550,7 @@ export function ChatWidget() {
                       {m.from === 'bot' && ready && !!m.actions?.length && (
                         <div className="animate-pop-in ml-9 flex flex-wrap gap-1.5">
                           {m.actions.map((a) => (
-                            <ActionLink key={a.href} action={a} />
+                            <ActionLink key={a.href} action={a} t={t} />
                           ))}
                         </div>
                       )}
@@ -526,7 +563,7 @@ export function ChatWidget() {
                               key={opt}
                               type="button"
                               onClick={() => sendText(opt)}
-                              className="rounded-xl rounded-br-sm border border-brand-dark/15 bg-white px-3 py-1.5 text-xs font-semibold text-brand-primary shadow-sm shadow-brand-dark/10 transition-colors hover:border-brand-primary hover:bg-brand-primary hover:text-white"
+                              className={`rounded-xl rounded-br-sm border px-3 py-1.5 text-xs font-semibold transition-colors ${t.chip}`}
                             >
                               {opt}
                             </button>
@@ -538,7 +575,7 @@ export function ChatWidget() {
                 })}
                 {typing && (
                   <div className="animate-pop-in flex items-end gap-2 self-start">
-                    <Avatar icon={Bot} bot />
+                    <Avatar icon={Bot} bot t={t} />
                     <div className="flex items-center gap-1 rounded-2xl rounded-bl-md bg-brand-primary px-4 py-3 shadow-md shadow-brand-dark/20">
                       <span className="typing-dot h-1.5 w-1.5 rounded-full bg-white/80" style={{ animationDelay: '0ms' }} />
                       <span className="typing-dot h-1.5 w-1.5 rounded-full bg-white/80" style={{ animationDelay: '150ms' }} />
@@ -547,14 +584,14 @@ export function ChatWidget() {
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-2 border-t border-brand-dark/10 bg-white p-3">
+              <div className={`flex items-center gap-2 border-t p-3 ${t.inputBar}`}>
                 <input
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && send()}
                   maxLength={500}
                   placeholder="Escribe tu consulta..."
-                  className="min-w-0 flex-1 rounded-xl border border-brand-dark/15 bg-paper px-4 py-2.5 text-sm text-ink outline-none transition-colors placeholder:text-ink/40 focus:border-brand-dark focus:bg-white focus:ring-2 focus:ring-brand-dark/15"
+                  className={`min-w-0 flex-1 rounded-xl border px-4 py-2.5 text-sm outline-none transition-colors focus:ring-2 ${t.input}`}
                 />
                 <button
                   type="button"
