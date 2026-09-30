@@ -82,6 +82,16 @@ Secciones (alternando fondo)
   fijo (`StickyNav`), así el header "real" calza exacto encima.
 - Título grande blanco + parte con brillo; texto `text-white/85`.
 
+### Páginas internas (`site/PageHero`)
+
+Nosotros, Servicios (+ detalle), Contacto usan `PageHero`: mismo marco del
+hero (tarjeta redondeada sobre paper, `StickyNav` + `Navbar9` invisible),
+fondo azul de marca con resplandores o `imagen` con velo `ink`, migas de
+pan, badge y título en dos tonos, y botones (`MoreInfoButton tone="dark"`,
+`WhatsAppCta`). Debajo, secciones de la home reutilizadas (Por qué
+elegirnos, Clientes, Proyectos...) y cierre oscuro con `Contact` + `Footer`.
+El menú apunta a páginas (`/nosotros`, `/servicios`...), no a anclas.
+
 ### Encabezado (`StickyNav` + `Navbar9`)
 
 - Arriba del todo: transparente sobre el hero. Al bajar 140px: se comprime

@@ -48,6 +48,14 @@
   filter: brightness(0.96);
 }
 
+/* Sin scroll horizontal en celular: la cinta de logos (w-max) y las
+   animaciones que entran desde el costado desbordaban el ancho. `clip` (no
+   `hidden`) para no romper el encabezado sticky. */
+html,
+body {
+  overflow-x: clip;
+}
+
 body {
   background-color: var(--color-paper);
   /* Textura de puntitos de fondo -- sutil, se nota sobre el paper pero

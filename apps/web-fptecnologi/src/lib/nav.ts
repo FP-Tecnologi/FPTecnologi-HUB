@@ -1,22 +1,25 @@
 import { SOLUTIONS, TIENDA_CATEGORIES } from './content';
 
+// Cada item va a su página (antes eran anclas de la home: desde otra página
+// no llevaban a ningún lado).
+
 export const NAV_LINKS = [
-  { label: 'Inicio', href: '#inicio' },
-  { label: 'Nosotros', href: '#nosotros' },
+  { label: 'Inicio', href: '/' },
+  { label: 'Nosotros', href: '/nosotros' },
   {
     label: 'Servicios',
-    href: '#servicios',
+    href: '/servicios',
     children: SOLUTIONS.map((s) => ({ label: s.title, href: `/servicios/${s.slug}` })),
     viewAllHref: '/servicios',
     viewAllLabel: 'Ver todos los servicios',
   },
   {
     label: 'Tienda',
-    href: '#catalogo',
+    href: '/tienda',
     children: TIENDA_CATEGORIES.map((c) => ({ label: c.title, href: `/tienda/${c.slug}` })),
     viewAllHref: '/tienda',
     viewAllLabel: 'Ver catálogo completo',
   },
-  { label: 'Marcas', href: '#marcas' },
-  { label: 'Contacto', href: '#contacto' },
+  { label: 'Marcas', href: '/marcas' },
+  { label: 'Contacto', href: '/contacto' },
 ] as const;
