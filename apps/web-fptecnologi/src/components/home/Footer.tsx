@@ -1,6 +1,5 @@
 import Image from 'next/image';
-import { Clock, Mail, MapPin, Phone, type LucideIcon } from 'lucide-react';
-import { CONTACT_INFO, COTIZADOR_URL, SOCIAL_LINKS, SOLUTIONS } from '@/lib/content';
+import { COTIZADOR_URL, SOCIAL_LINKS, SOLUTIONS } from '@/lib/content';
 import { FacebookIcon, InstagramIcon, LinkedinIcon, YoutubeIcon } from '@/components/site/icons';
 import { whatsappHref } from '@/lib/chatActions';
 
@@ -12,12 +11,6 @@ const NAV = [
   { label: 'Contacto', href: '/contacto' },
 ];
 
-const CONTACTO: { icon: LucideIcon; text: string; href?: string }[] = [
-  { icon: MapPin, text: CONTACT_INFO.address, href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONTACT_INFO.address)}` },
-  { icon: Phone, text: CONTACT_INFO.phoneVentas, href: `tel:${CONTACT_INFO.phoneVentas.replace(/\s/g, '')}` },
-  { icon: Mail, text: CONTACT_INFO.email, href: `mailto:${CONTACT_INFO.email}` },
-  { icon: Clock, text: 'Lun a vie, 9:00 a 18:00' },
-];
 
 const SOCIAL_ICON = { facebook: FacebookIcon, instagram: InstagramIcon, linkedin: LinkedinIcon, youtube: YoutubeIcon };
 
@@ -82,26 +75,8 @@ export function Footer() {
               Equipamiento TI y soluciones tecnológicas para empresas, con distribución autorizada de las principales
               marcas del mercado.
             </p>
-            {/* Datos de contacto: ícono en chip + texto, y redes en fila. */}
-            <ul className="mt-6 space-y-3 text-sm">
-              {CONTACTO.map(({ icon: Icon, text, href }) => (
-                <li key={text}>
-                  <a
-                    href={href}
-                    target={href?.startsWith('http') ? '_blank' : undefined}
-                    rel={href?.startsWith('http') ? 'noreferrer' : undefined}
-                    className={`group flex items-center gap-3 ${href ? 'transition-colors hover:text-white' : 'pointer-events-none'}`}
-                  >
-                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-dark text-white shadow-md shadow-brand-dark/30 transition-colors group-hover:bg-brand-primary">
-                      <Icon className="h-4 w-4" strokeWidth={1.8} />
-                    </span>
-                    <span className="leading-snug">{text}</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-
-            <p className="mt-7 text-xs font-bold uppercase tracking-[0.18em] text-white">Síguenos</p>
+            {/* Solo redes sociales (los datos de contacto ya están en la sección Contacto). */}
+            <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-white">Síguenos</p>
             <div className="mt-3 flex items-center gap-2.5">
               {SOCIAL_LINKS.map((s) => {
                 const Icon = SOCIAL_ICON[s.red];
