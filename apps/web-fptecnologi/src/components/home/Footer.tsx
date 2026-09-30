@@ -1,6 +1,7 @@
 import Image from 'next/image';
-import { Clock, Mail, MapPin, Phone } from 'lucide-react';
-import { CONTACT_INFO, COTIZADOR_URL, SOLUTIONS } from '@/lib/content';
+import { Clock, Mail, MapPin, Phone, type LucideIcon } from 'lucide-react';
+import { CONTACT_INFO, COTIZADOR_URL, SOCIAL_LINKS, SOLUTIONS } from '@/lib/content';
+import { FacebookIcon, InstagramIcon, LinkedinIcon, YoutubeIcon } from '@/components/site/icons';
 import { whatsappHref } from '@/lib/chatActions';
 
 // Solo páginas (no anclas de la home): pedido del usuario.
@@ -10,6 +11,15 @@ const NAV = [
   { label: 'Tienda', href: '/tienda' },
   { label: 'Contacto', href: '/contacto' },
 ];
+
+const CONTACTO: { icon: LucideIcon; text: string; href?: string }[] = [
+  { icon: MapPin, text: CONTACT_INFO.address, href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONTACT_INFO.address)}` },
+  { icon: Phone, text: CONTACT_INFO.phoneVentas, href: `tel:${CONTACT_INFO.phoneVentas.replace(/\s/g, '')}` },
+  { icon: Mail, text: CONTACT_INFO.email, href: `mailto:${CONTACT_INFO.email}` },
+  { icon: Clock, text: 'Lun a vie, 9:00 a 18:00' },
+];
+
+const SOCIAL_ICON = { facebook: FacebookIcon, instagram: InstagramIcon, linkedin: LinkedinIcon, youtube: YoutubeIcon };
 
 const LEGAL_LINKS = ['Política de privacidad', 'Devoluciones', 'Términos y condiciones', 'Libro de reclamaciones'];
 
@@ -72,28 +82,44 @@ export function Footer() {
               Equipamiento TI y soluciones tecnológicas para empresas, con distribución autorizada de las principales
               marcas del mercado.
             </p>
-            <ul className="mt-5 space-y-2.5 text-sm">
-              <li className="flex items-start gap-2.5">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-teal-light" strokeWidth={1.8} />
-                {CONTACT_INFO.address}
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Phone className="h-4 w-4 shrink-0 text-brand-teal-light" strokeWidth={1.8} />
-                <a href={`tel:${CONTACT_INFO.phoneVentas.replace(/\s/g, '')}`} className="hover:text-white">
-                  {CONTACT_INFO.phoneVentas}
-                </a>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Mail className="h-4 w-4 shrink-0 text-brand-teal-light" strokeWidth={1.8} />
-                <a href={`mailto:${CONTACT_INFO.email}`} className="hover:text-white">
-                  {CONTACT_INFO.email}
-                </a>
-              </li>
-              <li className="flex items-center gap-2.5">
-                <Clock className="h-4 w-4 shrink-0 text-brand-teal-light" strokeWidth={1.8} />
-                Lun a vie, 9:00 a 18:00
-              </li>
+            {/* Datos de contacto: ícono en chip + texto, y redes en fila. */}
+            <ul className="mt-6 space-y-3 text-sm">
+              {CONTACTO.map(({ icon: Icon, text, href }) => (
+                <li key={text}>
+                  <a
+                    href={href}
+                    target={href?.startsWith('http') ? '_blank' : undefined}
+                    rel={href?.startsWith('http') ? 'noreferrer' : undefined}
+                    className={`group flex items-center gap-3 ${href ? 'transition-colors hover:text-white' : 'pointer-events-none'}`}
+                  >
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-dark text-white shadow-md shadow-brand-dark/30 transition-colors group-hover:bg-brand-primary">
+                      <Icon className="h-4 w-4" strokeWidth={1.8} />
+                    </span>
+                    <span className="leading-snug">{text}</span>
+                  </a>
+                </li>
+              ))}
             </ul>
+
+            <p className="mt-7 text-xs font-bold uppercase tracking-[0.18em] text-white">Síguenos</p>
+            <div className="mt-3 flex items-center gap-2.5">
+              {SOCIAL_LINKS.map((s) => {
+                const Icon = SOCIAL_ICON[s.red];
+                return (
+                  <a
+                    key={s.red}
+                    href={s.href}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={`FPTecnologi en ${s.label}`}
+                    title={s.label}
+                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-white/5 text-white/80 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-primary hover:bg-brand-primary hover:text-white hover:shadow-lg hover:shadow-brand-primary/30"
+                  >
+                    <Icon className="h-[18px] w-[18px]" />
+                  </a>
+                );
+              })}
+            </div>
           </div>
 
           <div className="lg:border-l lg:border-white/10 lg:px-8">

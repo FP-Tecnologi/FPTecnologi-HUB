@@ -183,6 +183,14 @@ export const PARTNER_STEPS = [
   },
 ] as const;
 
+// Redes oficiales (tomadas del footer de fptecnologi.com, 2026-09-30).
+export const SOCIAL_LINKS = [
+  { red: 'facebook', label: 'Facebook', href: 'https://www.facebook.com/fptecnologisystem/' },
+  { red: 'instagram', label: 'Instagram', href: 'https://www.instagram.com/fptecnologisystem_/' },
+  { red: 'linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/company/fp-tecnologi-system/' },
+  { red: 'youtube', label: 'YouTube', href: 'https://www.youtube.com/channel/UCELd7u4oPpWzbGVvIVzfoxg' },
+] as const;
+
 export const CONTACT_INFO = {
   address: 'Jr. Huaraz 1841, Breña — Lima, Perú',
   phoneVentas: '+51 970 614 881',
