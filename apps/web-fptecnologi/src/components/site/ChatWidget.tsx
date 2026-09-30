@@ -427,9 +427,19 @@ export function ChatWidget() {
     saveSessions(next);
   }
 
+  // Siempre pegado al último mensaje: al abrir la conversación salta al
+  // final, y mientras llegan mensajes o el texto se escribe letra por letra
+  // (MutationObserver) sigue bajando solo, sin que el usuario scrollee.
   useEffect(() => {
-    listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
-  }, [messages, typing, typedDone]);
+    const el = listRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
+    const obs = new MutationObserver(() => {
+      el.scrollTop = el.scrollHeight;
+    });
+    obs.observe(el, { childList: true, subtree: true, characterData: true });
+    return () => obs.disconnect();
+  }, [open, view]);
 
   useEffect(() => {
     function onClickOutside(e: MouseEvent) {
@@ -521,7 +531,7 @@ export function ChatWidget() {
               )}
               <div className="min-w-0">
                 <p className={variant.labelClass}>{view === 'choose' ? '¿Cómo te ayudamos?' : view === 'whatsapp' ? 'Habla con un asesor' : view === 'sessions' ? 'Conversaciones' : 'Asistente virtual'}</p>
-                <p className="flex items-center gap-1.5 text-[11px] text-white/75">
+                <p className="flex items-center gap-1.5 whitespace-nowrap text-[11px] text-white/75">
                   <span className="online-dot h-1.5 w-1.5 rounded-full bg-emerald-400" />
                   {view === 'whatsapp' ? 'Lunes a viernes, 9:00 a 18:00' : view === 'sessions' ? 'Guardadas en este navegador' : 'En línea · responde al instante'}
                 </p>
@@ -648,7 +658,7 @@ export function ChatWidget() {
             </div>
           ) : (
             <>
-              <div ref={listRef} className="flex h-96 flex-col gap-3 overflow-y-auto p-4">
+              <div ref={listRef} className="flex h-96 flex-col gap-3 overflow-y-auto p-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {messages.map((m, i) => {
                   const ready = m.from === 'user' || m.instant || typedDone.has(i);
                   return (
