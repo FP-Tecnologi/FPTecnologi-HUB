@@ -178,7 +178,7 @@ nunca gris/negra), hover que sube (`hover:-translate-y-1`/`-1.5`).
 
 - **Chat** (`site/ChatWidget`): dos looks (`THEMES`): oscuro tipo Hero (vidrio `ink`, acentos de marca) en la web informativa y claro (`bg-paper`) en `/tienda`; header `brand-mesh` con chip de vidrio + "En línea"; asistente con Groq (`/api/chat`); burbujas
   asistente azul FP / persona blanca con esquina recta; opciones y links;
-  historial por navegador; vista WhatsApp con asesor por área.
+  burbuja del asistente en degradado de marca con "Asistente FP · hora" debajo; historial de conversaciones ("Nueva" archiva, botón de historial reabre o borra; máx. 10, solo en el navegador); vista WhatsApp con tarjeta por asesor (inicial + punto verde, chip de área, botón "Chatear").
 - **Favoritos** (`site/FavoritesWidget`): pestaña compacta a la derecha
   (corazón + cantidad) que se despliega en lista.
 - **Comparar** (`home/CompareDock` + `useCompare`): panel pegado abajo, hasta
