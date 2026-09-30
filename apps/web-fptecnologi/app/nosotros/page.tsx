@@ -46,9 +46,11 @@ export default function NosotrosPage() {
           { label: 'Nosotros', href: '/nosotros' },
         ]}
         badge="Nosotros"
-        titulo="Tecnología empresarial con"
-        destacado="respaldo real y soporte local"
+        titulo="Tecnología empresarial"
+        destacado="con respaldo real"
         descripcion="Somos FPTecnologi & System: distribuimos las principales marcas de tecnología y diseñamos soluciones TI a medida para empresas e instituciones de todo el Perú."
+        video="/images/home/about.mp4"
+        imagen="/herobanner/partner izquierdo.jpg"
       >
         <MoreInfoButton tone="dark" href="/cotizador" label="Cotizar" />
         <WhatsAppCta label="Hablar con un asesor" tone="dark" />
@@ -60,7 +62,8 @@ export default function NosotrosPage() {
           <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2">
             <ScrollReveal direction="left">
               <div className="overflow-hidden rounded-2xl shadow-2xl shadow-brand-dark/25">
-                <video src="/images/home/about.mp4" autoPlay muted loop playsInline className="aspect-[4/3] w-full object-cover" aria-label="Video institucional FPTecnologi" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/herobanner/partner izquierdo.jpg" alt="Equipo de FPTecnologi en reunión con clientes" className="aspect-[4/3] w-full object-cover" />
               </div>
             </ScrollReveal>
             <ScrollReveal direction="right" delayMs={120}>

@@ -27,6 +27,7 @@ export default function ContactoPage() {
         titulo="Hablemos de"
         destacado="tu próximo proyecto"
         descripcion="Escríbenos, llámanos o visítanos en Breña. Un asesor te responde en horario de oficina."
+        imagen="/images/modelo9/hero-office.jpg"
       >
         <WhatsAppCta label="Escríbenos por WhatsApp" />
         <MoreInfoButton tone="dark" href="/cotizador" label="Cotizar" />

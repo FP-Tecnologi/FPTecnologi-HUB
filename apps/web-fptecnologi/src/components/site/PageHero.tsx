@@ -1,14 +1,16 @@
 import type { ReactNode } from 'react';
 import { StickyNav } from '@/components/home/StickyNav';
 import { Navbar9 } from '@/components/home/Navbar9';
-import { SectionBadge } from '@/components/home/SectionBadge';
+import { ParticlesBackground } from '@/components/home/ParticlesBackground';
+import { SparkleIcon } from '@/components/site/icons';
 
 /*
- * Encabezado de páginas internas (Nosotros, Servicios, Contacto...): mismo
- * marco que el hero de la home y la tienda (tarjeta redondeada sobre paper,
- * Navbar9 invisible que reserva el lugar del encabezado fijo), fondo azul de
- * marca con resplandores o foto con velo oscuro, migas, badge y título en
- * dos tonos (DESIGN.md §2 y §3). `children` = botones u otro contenido.
+ * Portada de páginas internas (Nosotros, Servicios, Contacto...) con el mismo
+ * estilo del banner de la home (Hero.tsx): tarjeta redondeada sobre paper con
+ * video o foto de fondo, velo oscuro + degradé central, partículas, etiqueta
+ * de vidrio con contorno que gira, título grande en dos líneas (blanca + con
+ * brillo) y botones, todo centrado. Más baja que la home (70svh) para que se
+ * vea el contenido de la página. `children` = botones.
  */
 export function PageHero({
   crumbs,
@@ -16,7 +18,8 @@ export function PageHero({
   titulo,
   destacado,
   descripcion,
-  imagen,
+  imagen = '/images/modelo9/hero-office.jpg',
+  video,
   children,
 }: {
   crumbs: { label: string; href: string }[];
@@ -25,49 +28,81 @@ export function PageHero({
   destacado: string;
   descripcion?: string;
   imagen?: string;
+  video?: string;
   children?: ReactNode;
 }) {
   return (
     <>
       <StickyNav />
       <div className="bg-paper p-3 md:p-5">
-        <section className="relative overflow-hidden rounded-[1.25rem] bg-brand-dark text-white md:rounded-[2.25rem]">
-          {imagen ? (
-            <>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={imagen} alt="" className="absolute inset-0 h-full w-full object-cover" />
-              <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-ink/90 via-ink/70 to-ink/30" />
-            </>
-          ) : (
-            <>
-              <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-brand-primary/40 blur-3xl" />
-              <div aria-hidden className="pointer-events-none absolute -bottom-32 left-1/3 h-80 w-80 rounded-full bg-brand-teal/30 blur-3xl" />
-            </>
+        <section className="relative flex min-h-[520px] w-full flex-col overflow-hidden rounded-[1.25rem] bg-ink md:h-[72svh] md:rounded-[2.25rem]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={imagen} alt="" aria-hidden className="absolute inset-0 z-0 h-full w-full object-cover" />
+          {video && (
+            <video autoPlay muted loop playsInline preload="auto" poster={imagen} aria-hidden className="absolute inset-0 z-0 h-full w-full object-cover">
+              <source src={video} type="video/mp4" />
+            </video>
           )}
-          <div className="invisible" aria-hidden>
-            <Navbar9 />
+          <div className="absolute inset-0 z-[1] bg-black/50" />
+          <div className="absolute inset-0 z-[1] bg-[radial-gradient(ellipse_60%_50%_at_50%_45%,rgba(0,0,0,0.35),transparent)]" />
+          <div className="absolute inset-0 z-[2]">
+            <ParticlesBackground />
           </div>
-          <div className="relative mx-auto max-w-7xl px-6 pb-16 pt-6 md:px-10 md:pb-20">
-            <nav aria-label="Migas de pan" className="mb-5 flex flex-wrap items-center gap-1.5 text-xs text-white/60">
-              {crumbs.map((c, i) => (
-                <span key={c.href} className="flex items-center gap-1.5">
-                  {i > 0 && <span>/</span>}
-                  {i === crumbs.length - 1 ? (
-                    <span className="text-white">{c.label}</span>
-                  ) : (
-                    <a href={c.href} className="hover:text-white">
-                      {c.label}
-                    </a>
-                  )}
-                </span>
-              ))}
-            </nav>
-            <SectionBadge tone="dark">{badge}</SectionBadge>
-            <h1 className="mt-2 max-w-3xl font-display text-3xl font-bold leading-tight sm:text-5xl">
-              <span className="text-white">{titulo}</span> <span className="title-shimmer-dark">{destacado}</span>
-            </h1>
-            {descripcion && <p className="mt-4 max-w-2xl text-white/75">{descripcion}</p>}
-            {children && <div className="mt-8 flex flex-wrap gap-3">{children}</div>}
+
+          <div className="relative z-10 flex w-full flex-1 flex-col">
+            <div className="invisible w-full" aria-hidden>
+              <Navbar9 />
+            </div>
+
+            <div className="flex flex-1 flex-col items-center justify-center px-6 pb-14 pt-4 text-center">
+              {/* Migas de pan en vidrio. */}
+              <nav
+                aria-label="Migas de pan"
+                className="v9-appear v9-appear--fade mb-4 flex flex-wrap items-center justify-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-3 py-1 text-xs text-white/70 backdrop-blur-md"
+              >
+                {crumbs.map((c, i) => (
+                  <span key={c.href} className="flex items-center gap-1.5">
+                    {i > 0 && <span className="text-white/40">/</span>}
+                    {i === crumbs.length - 1 ? (
+                      <span className="text-white">{c.label}</span>
+                    ) : (
+                      <a href={c.href} className="hover:text-white">
+                        {c.label}
+                      </a>
+                    )}
+                  </span>
+                ))}
+              </nav>
+
+              <div className="v9-appear v9-appear--up relative mx-auto mb-3 flex w-fit items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 backdrop-blur-md">
+                <span className="spin-border spin-border--thin" aria-hidden />
+                <SparkleIcon className="h-4 w-4 text-white" />
+                <span className="text-sm text-white">{badge}</span>
+              </div>
+
+              <h1
+                className="v9-appear v9-appear--scale mx-auto mb-3 max-w-4xl text-4xl font-normal leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl 2xl:max-w-5xl 2xl:text-[80px]"
+                style={{ animationDelay: '150ms', textShadow: '0 4px 30px rgba(0,0,0,0.45)' }}
+              >
+                <span className="block">{titulo}</span>
+                <span className="hero-title-shimmer block">{destacado}</span>
+              </h1>
+
+              {descripcion && (
+                <p
+                  className="v9-appear v9-appear--fade mx-auto max-w-2xl text-sm leading-relaxed text-white/85 sm:text-base md:text-lg"
+                  style={{ animationDelay: '300ms', textShadow: '0 2px 16px rgba(0,0,0,0.4)' }}
+                >
+                  {descripcion}
+                </p>
+              )}
+
+              {children && (
+                <div className="v9-appear v9-appear--up mt-8 flex flex-wrap items-center justify-center gap-3" style={{ animationDelay: '450ms' }}>
+                  {children}
+                </div>
+              )}
+            </div>
           </div>
         </section>
       </div>
