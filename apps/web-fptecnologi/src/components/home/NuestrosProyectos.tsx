@@ -189,6 +189,14 @@ export function NuestrosProyectos() {
         <ScrollReveal direction="right" delayMs={120}>
           <div className="relative mx-auto max-w-md">
             <svg viewBox={PERU_VIEWBOX} className="h-auto w-full" role="img" aria-label="Mapa del Perú por departamentos">
+              {/* Contorno del país: los mismos departamentos con trazo grueso
+                  debajo; los rellenos de arriba tapan las líneas internas y
+                  solo queda visible el borde exterior. */}
+              <g aria-hidden className="pointer-events-none drop-shadow-[0_6px_14px_rgb(33_129_175_/_0.25)]">
+                {PERU_DEPARTMENTS.map((d) => (
+                  <path key={d.id} d={d.d} className="fill-white stroke-brand-primary [stroke-linejoin:round] [stroke-width:5]" />
+                ))}
+              </g>
               {PERU_DEPARTMENTS.map((d) => {
                 const has = counts.has(d.id);
                 const isSel = d.id === selected;
@@ -204,10 +212,10 @@ export function NuestrosProyectos() {
                       isSel
                         ? 'fill-brand-primary'
                         : has
-                          ? `cursor-pointer ${isHov ? 'fill-brand-primary/60' : 'fill-brand-primary/25'}`
+                          ? `cursor-pointer ${isHov ? 'fill-brand-primary/75' : 'fill-brand-primary/50'}`
                           : isHov
-                            ? 'fill-brand-dark/15'
-                            : 'fill-brand-dark/8'
+                            ? 'fill-[#d3e3ee]'
+                            : 'fill-[#e4eef5]'
                     }`}
                   >
                     <title>{`${d.name}: ${counts.get(d.id) ?? 0} proyectos`}</title>
@@ -269,10 +277,10 @@ export function NuestrosProyectos() {
 
             <div className="mt-4 flex justify-center gap-6 text-xs text-ink/60">
               <span className="flex items-center gap-2">
-                <span className="h-3.5 w-3.5 rounded bg-brand-primary/25 ring-1 ring-brand-primary/40" /> Con proyectos
+                <span className="h-3.5 w-3.5 rounded bg-brand-primary/50 ring-1 ring-brand-primary/60" /> Con proyectos
               </span>
               <span className="flex items-center gap-2">
-                <span className="h-3.5 w-3.5 rounded bg-brand-dark/8 ring-1 ring-black/10" /> Sin proyectos
+                <span className="h-3.5 w-3.5 rounded bg-[#e4eef5] ring-1 ring-brand-primary/40" /> Sin proyectos
               </span>
             </div>
           </div>
