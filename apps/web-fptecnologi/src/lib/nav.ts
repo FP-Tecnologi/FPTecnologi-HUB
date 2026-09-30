@@ -13,6 +13,7 @@ export const NAV_LINKS = [
     viewAllHref: '/servicios',
     viewAllLabel: 'Ver todos los servicios',
   },
+  { label: 'Proyectos', href: '/proyectos' },
   {
     label: 'Tienda',
     href: '/tienda',

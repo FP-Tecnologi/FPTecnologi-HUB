@@ -8,6 +8,7 @@ import { whatsappHref } from '@/lib/chatActions';
 const NAV = [
   { label: 'Nosotros', href: '/nosotros' },
   { label: 'Servicios', href: '/servicios' },
+  { label: 'Proyectos', href: '/proyectos' },
   { label: 'Tienda', href: '/tienda' },
   { label: 'Contacto', href: '/contacto' },
 ];
