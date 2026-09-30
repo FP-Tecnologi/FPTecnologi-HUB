@@ -155,8 +155,8 @@ function Avatar({ icon: Icon, bot }: { icon: LucideIcon; bot?: boolean }) {
     <span
       // Cuadrado con una esquina recta, como el botón del widget y la burbuja
       // de su mismo lado: asistente en azul FP, persona en blanco.
-      className={`flex h-8 w-8 shrink-0 items-center justify-center shadow-md shadow-black/30 ${
-        bot ? 'rounded-xl rounded-bl-sm bg-brand-primary text-white' : 'rounded-xl rounded-br-sm bg-white text-brand-dark'
+      className={`flex h-8 w-8 shrink-0 items-center justify-center shadow-md shadow-brand-dark/15 ${
+        bot ? 'rounded-xl rounded-bl-sm bg-brand-primary text-white' : 'rounded-xl rounded-br-sm border border-brand-dark/15 bg-white text-brand-primary'
       }`}
     >
       <Icon className="h-3.5 w-3.5" strokeWidth={2} />
@@ -238,14 +238,14 @@ function ActionLink({ action }: { action: ChatAction }) {
   const external = action.href.startsWith('http');
   const tone =
     action.kind === 'whatsapp'
-      ? 'border-emerald-400/40 bg-emerald-500/15 text-emerald-200 hover:bg-emerald-500/30'
-      : 'border-white/15 bg-white/10 text-white/90 hover:bg-white/20';
+      ? 'border-emerald-500/30 bg-emerald-50 text-emerald-700 hover:border-emerald-500 hover:bg-emerald-500 hover:text-white'
+      : 'border-brand-dark/15 bg-white text-brand-primary hover:border-brand-primary hover:bg-brand-primary hover:text-white';
   return (
     <a
       href={action.href}
       target={external ? '_blank' : undefined}
       rel={external ? 'noreferrer' : undefined}
-      className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors ${tone}`}
+      className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold shadow-sm shadow-brand-dark/10 transition-colors ${tone}`}
     >
       <Icon className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
       {action.label}
@@ -266,15 +266,16 @@ function OptionCard({ icon: Icon, tint, title, text, onClick, extra }: {
       type="button"
       onClick={onClick}
       style={{ '--tint': tint } as CSSProperties}
-      className="option-card flex items-center gap-3 rounded-2xl p-3 text-left"
+      className="option-card group flex items-center gap-3 rounded-xl bg-white p-3 text-left shadow-sm shadow-brand-dark/10 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-brand-dark/15"
     >
-      <span className={`icon-hop flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-white shadow-sm ${extra}`}>
+      <span className={`icon-hop flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white shadow-md ${extra}`}>
         <Icon className="h-5 w-5" strokeWidth={2} />
       </span>
       <span>
         <p className="flex items-center gap-1.5 text-sm font-semibold text-ink">{title}</p>
         <p className="text-xs text-ink/55">{text}</p>
       </span>
+      <ArrowUpRight className="ml-auto h-4 w-4 shrink-0 text-ink/30 transition-all group-hover:rotate-45 group-hover:text-brand-dark" strokeWidth={2} />
     </button>
   );
 }
@@ -387,18 +388,33 @@ export function ChatWidget() {
     // la esquina derecha, en el mismo lugar, esté abierto o no el panel.
     <div className="fixed bottom-5 right-5 z-[60] flex flex-col items-end" ref={panelRef}>
       {open && (
-        <div className={`glass-panel animate-pop-in relative mb-3 w-[360px] max-w-[calc(100vw-40px)] overflow-hidden ${variant.panelRadius}`}>
+        <div className={`animate-pop-in relative mb-3 w-[370px] max-w-[calc(100vw-40px)] overflow-hidden border border-brand-dark/10 bg-paper shadow-2xl shadow-brand-dark/30 ${variant.panelRadius}`}>
           {variant.cornerAccent && <div className="absolute -right-8 -top-8 z-10 h-16 w-16 rotate-45 bg-brand-primary" aria-hidden />}
 
           <div className="relative flex items-center px-4 py-3.5 text-white">
             <HeaderBg look={variant.header} />
-            <div className="relative flex items-center gap-2">
-              {view !== 'choose' && (
-                <button type="button" onClick={() => setView('choose')} aria-label="Volver" className="text-white/70 transition-colors hover:text-white">
-                  <ChevronLeft className="h-4 w-4" strokeWidth={2} />
+            <div className="relative flex min-w-0 items-center gap-3">
+              {view !== 'choose' ? (
+                <button
+                  type="button"
+                  onClick={() => setView('choose')}
+                  aria-label="Volver"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/25 bg-white/10 text-white backdrop-blur-md transition-colors hover:bg-white/20"
+                >
+                  <ChevronLeft className="h-5 w-5" strokeWidth={2} />
                 </button>
+              ) : (
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/25 bg-white/10 backdrop-blur-md">
+                  <Bot className="h-5 w-5" strokeWidth={2} />
+                </span>
               )}
-              <p className={variant.labelClass}>{view === 'choose' ? '¿Cómo te ayudamos?' : view === 'whatsapp' ? 'Elige un área' : 'Asistente virtual'}</p>
+              <div className="min-w-0">
+                <p className={variant.labelClass}>{view === 'choose' ? '¿Cómo te ayudamos?' : view === 'whatsapp' ? 'Elige un área' : 'Asistente virtual'}</p>
+                <p className="flex items-center gap-1.5 text-[11px] text-white/75">
+                  <span className="online-dot h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                  {view === 'whatsapp' ? 'Asesores de lunes a viernes, 9:00 a 18:00' : 'En línea · responde al instante'}
+                </p>
+              </div>
             </div>
             {view === 'chat' && messages.length > 1 && (
               <button
@@ -406,7 +422,7 @@ export function ChatWidget() {
                 onClick={resetConversation}
                 aria-label="Nueva conversación"
                 title="Nueva conversación"
-                className="relative ml-auto flex items-center gap-1 rounded-md px-2 py-1 text-xs text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+                className="relative ml-auto flex shrink-0 items-center gap-1 rounded-lg border border-white/25 bg-white/10 px-2.5 py-1.5 text-xs font-semibold text-white backdrop-blur-md transition-colors hover:bg-white/20"
               >
                 <RotateCcw className="h-3.5 w-3.5" strokeWidth={2} />
                 Nueva
@@ -447,10 +463,10 @@ export function ChatWidget() {
                   target="_blank"
                   rel="noreferrer"
                   style={{ '--tint': '#10b981' } as CSSProperties}
-                  className="option-card flex items-center gap-3 rounded-2xl p-3 text-left"
+                  className="option-card group flex items-center gap-3 rounded-xl bg-white p-3 text-left shadow-sm shadow-brand-dark/10 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-brand-dark/15"
                 >
                   {/* Inicial del asesor con el ícono de WhatsApp de insignia. */}
-                  <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500 font-display text-sm font-bold text-white shadow-sm shadow-emerald-500/30">
+                  <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500 font-display text-sm font-bold text-white shadow-md shadow-emerald-500/30">
                     {area.contact[0]}
                     <span className="absolute -bottom-0.5 -right-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-white text-emerald-600 ring-2 ring-white">
                       <MessageCircle className="h-3 w-3" strokeWidth={2.4} />
@@ -462,6 +478,7 @@ export function ChatWidget() {
                     </p>
                     <p className="text-xs text-ink/55">+51 {area.phone}</p>
                   </span>
+                  <ArrowUpRight className="ml-auto h-4 w-4 shrink-0 text-ink/30 transition-all group-hover:rotate-45 group-hover:text-emerald-600" strokeWidth={2} />
                 </a>
               ))}
             </div>
@@ -477,8 +494,8 @@ export function ChatWidget() {
                         <div
                           className={`max-w-[80%] px-3.5 py-2.5 text-sm leading-relaxed ${
                             m.from === 'bot'
-                              ? 'rounded-2xl rounded-bl-md bg-brand-primary text-white shadow-md shadow-black/25'
-                              : 'rounded-2xl rounded-br-md bg-white text-ink shadow-md shadow-black/25'
+                              ? 'rounded-2xl rounded-bl-md bg-brand-primary text-white shadow-md shadow-brand-dark/20'
+                              : 'rounded-2xl rounded-br-md border border-brand-dark/10 bg-white text-ink shadow-md shadow-brand-dark/10'
                           }`}
                         >
                           {m.from === 'bot' ? (
@@ -509,7 +526,7 @@ export function ChatWidget() {
                               key={opt}
                               type="button"
                               onClick={() => sendText(opt)}
-                              className="rounded-xl rounded-br-sm bg-white px-3 py-1.5 text-xs font-semibold text-brand-dark shadow-sm shadow-black/20 transition-colors hover:bg-brand-primary hover:text-white"
+                              className="rounded-xl rounded-br-sm border border-brand-dark/15 bg-white px-3 py-1.5 text-xs font-semibold text-brand-primary shadow-sm shadow-brand-dark/10 transition-colors hover:border-brand-primary hover:bg-brand-primary hover:text-white"
                             >
                               {opt}
                             </button>
@@ -522,7 +539,7 @@ export function ChatWidget() {
                 {typing && (
                   <div className="animate-pop-in flex items-end gap-2 self-start">
                     <Avatar icon={Bot} bot />
-                    <div className="flex items-center gap-1 rounded-2xl rounded-bl-md bg-brand-primary px-4 py-3 shadow-md shadow-black/25">
+                    <div className="flex items-center gap-1 rounded-2xl rounded-bl-md bg-brand-primary px-4 py-3 shadow-md shadow-brand-dark/20">
                       <span className="typing-dot h-1.5 w-1.5 rounded-full bg-white/80" style={{ animationDelay: '0ms' }} />
                       <span className="typing-dot h-1.5 w-1.5 rounded-full bg-white/80" style={{ animationDelay: '150ms' }} />
                       <span className="typing-dot h-1.5 w-1.5 rounded-full bg-white/80" style={{ animationDelay: '300ms' }} />
@@ -530,20 +547,21 @@ export function ChatWidget() {
                   </div>
                 )}
               </div>
-              <div className="flex items-center gap-2 border-t border-white/10 p-3">
+              <div className="flex items-center gap-2 border-t border-brand-dark/10 bg-white p-3">
                 <input
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && send()}
                   maxLength={500}
                   placeholder="Escribe tu consulta..."
-                  className="glass-input min-w-0 flex-1 rounded-full px-4 py-2 text-sm text-white outline-none focus:ring-2 focus:ring-brand-primary/50"
+                  className="min-w-0 flex-1 rounded-xl border border-brand-dark/15 bg-paper px-4 py-2.5 text-sm text-ink outline-none transition-colors placeholder:text-ink/40 focus:border-brand-dark focus:bg-white focus:ring-2 focus:ring-brand-dark/15"
                 />
                 <button
                   type="button"
                   onClick={send}
                   aria-label="Enviar"
-                  className="btn-glow flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white transition-transform hover:scale-105 active:scale-95"
+                  disabled={!draft.trim() || typing}
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary text-white shadow-md shadow-brand-dark/25 transition-all hover:bg-brand-dark active:scale-95 disabled:opacity-40"
                 >
                   <SendHorizontal className="h-4 w-4" strokeWidth={2} />
                 </button>

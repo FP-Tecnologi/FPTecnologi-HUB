@@ -176,7 +176,7 @@ nunca gris/negra), hover que sube (`hover:-translate-y-1`/`-1.5`).
 
 ## 7. Widgets globales (layout)
 
-- **Chat** (`site/ChatWidget`): asistente con Groq (`/api/chat`); burbujas
+- **Chat** (`site/ChatWidget`): panel claro (`bg-paper`, borde y sombra azul de marca), header `brand-mesh` con chip de vidrio + "En línea"; asistente con Groq (`/api/chat`); burbujas
   asistente azul FP / persona blanca con esquina recta; opciones y links;
   historial por navegador; vista WhatsApp con asesor por área.
 - **Favoritos** (`site/FavoritesWidget`): pestaña compacta a la derecha
