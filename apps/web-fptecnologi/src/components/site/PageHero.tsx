@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { StickyNav } from '@/components/home/StickyNav';
 import { Navbar9 } from '@/components/home/Navbar9';
 import { ParticlesBackground } from '@/components/home/ParticlesBackground';
-import { SparkleIcon } from '@/components/site/icons';
+import { Home } from 'lucide-react';
 
 /*
  * Portada de páginas internas (Nosotros, Servicios, Contacto...) con el mismo
@@ -14,7 +14,6 @@ import { SparkleIcon } from '@/components/site/icons';
  */
 export function PageHero({
   crumbs,
-  badge,
   titulo,
   destacado,
   descripcion,
@@ -23,7 +22,8 @@ export function PageHero({
   children,
 }: {
   crumbs: { label: string; href: string }[];
-  badge: string;
+  /** Ya no se muestra (las migas de pan hacen de etiqueta); se deja por compatibilidad. */
+  badge?: string;
   titulo: string;
   destacado: string;
   descripcion?: string;
@@ -55,30 +55,32 @@ export function PageHero({
             </div>
 
             <div className="flex flex-1 flex-col items-center justify-center px-6 pb-14 pt-4 text-center">
-              {/* Migas de pan en vidrio. */}
+              {/* Migas de pan = etiqueta: cápsula de vidrio con el contorno que
+                  gira (mismo efecto del badge del banner), casita de Inicio y
+                  la ruta hasta esta página -- así el nombre no se repite. */}
               <nav
                 aria-label="Migas de pan"
-                className="v9-appear v9-appear--fade mb-4 flex flex-wrap items-center justify-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-3 py-1 text-xs text-white/70 backdrop-blur-md"
+                className="v9-appear v9-appear--up relative mx-auto mb-4 flex w-fit flex-wrap items-center justify-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm text-white/75 backdrop-blur-md"
               >
+                <span className="spin-border spin-border--thin" aria-hidden />
                 {crumbs.map((c, i) => (
-                  <span key={c.href} className="flex items-center gap-1.5">
+                  <span key={c.href} className="relative flex items-center gap-2">
                     {i > 0 && <span className="text-white/40">/</span>}
-                    {i === crumbs.length - 1 ? (
-                      <span className="text-white">{c.label}</span>
+                    {i === 0 ? (
+                      <a href={c.href} className="flex items-center gap-1.5 transition-colors hover:text-white">
+                        <Home className="h-4 w-4 text-white" strokeWidth={2} />
+                        {c.label}
+                      </a>
+                    ) : i === crumbs.length - 1 ? (
+                      <span className="font-semibold text-white">{c.label}</span>
                     ) : (
-                      <a href={c.href} className="hover:text-white">
+                      <a href={c.href} className="transition-colors hover:text-white">
                         {c.label}
                       </a>
                     )}
                   </span>
                 ))}
               </nav>
-
-              <div className="v9-appear v9-appear--up relative mx-auto mb-3 flex w-fit items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 backdrop-blur-md">
-                <span className="spin-border spin-border--thin" aria-hidden />
-                <SparkleIcon className="h-4 w-4 text-white" />
-                <span className="text-sm text-white">{badge}</span>
-              </div>
 
               <h1
                 className="v9-appear v9-appear--scale mx-auto mb-3 max-w-4xl text-4xl font-normal leading-[1.05] tracking-tight text-white sm:text-5xl md:text-6xl 2xl:max-w-5xl 2xl:text-[80px]"
