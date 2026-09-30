@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { COTIZADOR_URL, SOCIAL_LINKS, SOLUTIONS } from '@/lib/content';
+import { LEGAL_LINKS } from '@/lib/legal';
 import { FacebookIcon, InstagramIcon, LinkedinIcon, YoutubeIcon } from '@/components/site/icons';
 import { whatsappHref } from '@/lib/chatActions';
 
@@ -14,7 +15,6 @@ const NAV = [
 
 const SOCIAL_ICON = { facebook: FacebookIcon, instagram: InstagramIcon, linkedin: LinkedinIcon, youtube: YoutubeIcon };
 
-const LEGAL_LINKS = ['Política de privacidad', 'Devoluciones', 'Términos y condiciones', 'Libro de reclamaciones'];
 
 function ColumnTitle({ children }: { children: string }) {
   return (
@@ -76,8 +76,7 @@ export function Footer() {
               marcas del mercado.
             </p>
             {/* Solo redes sociales (los datos de contacto ya están en la sección Contacto). */}
-            <p className="mt-6 text-xs font-bold uppercase tracking-[0.18em] text-white">Síguenos</p>
-            <div className="mt-3 flex items-center gap-2.5">
+            <div className="mt-6 flex items-center gap-2.5">
               {SOCIAL_LINKS.map((s) => {
                 const Icon = SOCIAL_ICON[s.red];
                 return (
@@ -124,10 +123,14 @@ export function Footer() {
           </div>
 
           <div className="lg:border-l lg:border-white/10 lg:pl-8">
-            <ColumnTitle>Enlaces útiles</ColumnTitle>
+            <ColumnTitle>Legales</ColumnTitle>
             <ul className="mt-5 space-y-2.5 text-sm">
-              {LEGAL_LINKS.map((label) => (
-                <li key={label}>{label}</li>
+              {LEGAL_LINKS.map((l) => (
+                <li key={l.href}>
+                  <a href={l.href} className="transition-colors hover:text-white">
+                    {l.label}
+                  </a>
+                </li>
               ))}
             </ul>
           </div>
