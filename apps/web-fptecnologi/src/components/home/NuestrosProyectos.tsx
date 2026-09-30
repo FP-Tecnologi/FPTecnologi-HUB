@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
-import { Building2, Info, MapPin, RotateCcw } from 'lucide-react';
+import { Building2, MapPin, MousePointerClick, RotateCcw } from 'lucide-react';
 import { PERU_DEPARTMENTS, PERU_VIEWBOX } from '@/lib/peruDepartments';
 import { PROJECTS, type Project } from '@/lib/projects';
 import { MoreInfoButton } from './MoreInfoButton';
@@ -12,13 +12,13 @@ import { SectionBadge } from './SectionBadge';
 const [, , VB_W, VB_H] = PERU_VIEWBOX.split(' ').map(Number);
 
 /*
- * Tarjeta de proyecto que se da vuelta: arriba a la derecha un botón de
- * vidrio "Más información"; al click gira 180° en 3D y atrás muestra, sobre
- * la misma foto desenfocada, cliente, año, descripción y alcance centrados.
- * El botón de cerrar queda en la misma esquina para volver al frente.
+ * Tarjeta de proyecto que se da vuelta: toda la tarjeta es clickeable y gira
+ * 180° en 3D. Arriba a la derecha, una etiqueta de vidrio informativa
+ * ("Click para ver detalles" / "Click para volver"). Atrás, sobre la misma
+ * foto desenfocada, cliente, año, descripción y alcance centrados.
  */
-const GLASS_BTN =
-  'absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-lg border border-white/30 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/30 backdrop-blur-md transition-colors hover:border-white/50 hover:bg-white/20 sm:text-xs';
+const GLASS_TAG =
+  'pointer-events-none absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-lg border border-white/30 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/30 backdrop-blur-md transition-colors group-hover:border-white/50 group-hover:bg-white/20 sm:text-xs';
 
 function ProjectCard({
   project: p,
@@ -33,7 +33,20 @@ function ProjectCard({
 }) {
   const face = 'absolute inset-0 overflow-hidden rounded-xl [backface-visibility:hidden]';
   return (
-    <div className="group relative aspect-[16/10] shrink-0 [perspective:1200px] sm:aspect-[16/8]">
+    <div
+      role="button"
+      tabIndex={0}
+      aria-pressed={flipped}
+      aria-label={`${p.title}: ${flipped ? 'volver' : 'ver detalles'}`}
+      onClick={() => onFlip(!flipped)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onFlip(!flipped);
+        }
+      }}
+      className="group relative aspect-[16/10] shrink-0 cursor-pointer rounded-xl [perspective:1200px] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-dark sm:aspect-[16/8]"
+    >
       <div
         className={`relative h-full w-full transition-transform duration-700 ease-in-out [transform-style:preserve-3d] ${
           flipped ? '[transform:rotateY(180deg)]' : ''
@@ -46,10 +59,10 @@ function ProjectCard({
           <span className="absolute left-3 top-3 flex h-8 w-8 items-center justify-center rounded-lg bg-brand-primary text-sm font-bold text-white shadow-lg shadow-brand-dark/40">
             {index}
           </span>
-          <button type="button" onClick={() => onFlip(true)} tabIndex={flipped ? -1 : 0} className={GLASS_BTN}>
-            <Info className="h-3.5 w-3.5" strokeWidth={2.2} />
-            Más información
-          </button>
+          <span className={GLASS_TAG}>
+            <MousePointerClick className="h-3.5 w-3.5" strokeWidth={2.2} />
+            Click para ver detalles
+          </span>
           <p className="absolute inset-x-4 bottom-3 text-sm font-bold uppercase leading-snug text-white">{p.title}</p>
         </div>
 
@@ -57,10 +70,10 @@ function ProjectCard({
         <div className={`${face} text-white [transform:rotateY(180deg)]`} aria-hidden={!flipped}>
           <Image src={p.image} alt="" fill sizes="(min-width: 1024px) 40vw, 100vw" className="scale-110 object-cover blur-md" />
           <div className="absolute inset-0 bg-gradient-to-br from-brand-primary/90 via-ink/90 to-ink/95" />
-          <button type="button" onClick={() => onFlip(false)} tabIndex={flipped ? 0 : -1} className={GLASS_BTN}>
+          <span className={GLASS_TAG}>
             <RotateCcw className="h-3.5 w-3.5" strokeWidth={2.2} />
-            Volver
-          </button>
+            Click para volver
+          </span>
           <div className="relative flex h-full flex-col items-center justify-center overflow-y-auto px-6 pb-4 pt-12 text-center [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#8fe0ee]">
               <Building2 className="h-3.5 w-3.5" strokeWidth={2} />
