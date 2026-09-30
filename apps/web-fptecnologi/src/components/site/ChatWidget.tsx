@@ -533,7 +533,7 @@ export function ChatWidget() {
                 <p className={variant.labelClass}>{view === 'choose' ? '¿Cómo te ayudamos?' : view === 'whatsapp' ? 'Habla con un asesor' : view === 'sessions' ? 'Conversaciones' : 'Asistente virtual'}</p>
                 <p className="flex items-center gap-1.5 whitespace-nowrap text-[11px] text-white/75">
                   <span className="online-dot h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                  {view === 'whatsapp' ? 'Lunes a viernes, 9:00 a 18:00' : view === 'sessions' ? 'Guardadas en este navegador' : 'En línea · responde al instante'}
+                  {view === 'whatsapp' ? 'Lunes a viernes, 9:00 a 18:00' : view === 'sessions' ? 'Guardadas en este navegador' : 'En línea'}
                 </p>
               </div>
             </div>
