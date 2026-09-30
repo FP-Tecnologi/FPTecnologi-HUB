@@ -1,13 +1,12 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Search, SlidersHorizontal, X } from 'lucide-react';
+import { Home, Search, SlidersHorizontal, X } from 'lucide-react';
 import { CATALOG, discountOf, type CatalogProduct } from '@/lib/catalog';
 import { TIENDA_CATEGORIES } from '@/lib/content';
 import { useCurrency } from '@/context/CurrencyContext';
 import { ProductCardFinal } from '@/components/home/ProductCardFinal';
 import { CompareDock, useCompare } from '@/components/home/CompareDock';
-import { SectionBadge } from '@/components/home/SectionBadge';
 import { StickyNav } from '@/components/home/StickyNav';
 import { Navbar9 } from '@/components/home/Navbar9';
 
@@ -164,30 +163,44 @@ export function StoreCatalog({ initialCategory }: { initialCategory?: string }) 
           invisible reserva el lugar del encabezado fijo). */}
       <div className="bg-paper p-3 md:p-5">
         <section className="relative overflow-hidden rounded-[1.25rem] bg-brand-dark text-white md:rounded-[2.25rem]">
-          {/* Foto de fondo (sala de equipos + productos) con degradado de marca:
-              oscuro a la izquierda, donde va el texto, y se abre hacia la derecha. */}
+          {/* Fondo limpio: degradado de marca con resplandores suaves y los
+              productos (PNG transparente) flotando a la derecha. */}
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-br from-brand-primary via-brand-dark to-brand-petrol" />
+          <div aria-hidden className="pointer-events-none absolute -right-20 top-10 h-[28rem] w-[28rem] rounded-full bg-white/15 blur-3xl" />
+          <div aria-hidden className="pointer-events-none absolute -bottom-40 left-1/4 h-96 w-96 rounded-full bg-brand-teal/40 blur-3xl" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/herobanner/tienda derecho.jpg" alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover object-right" />
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-ink via-ink/85 to-brand-primary/30" />
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent" />
-          <div aria-hidden className="pointer-events-none absolute -bottom-32 left-1/4 h-80 w-80 rounded-full bg-brand-teal/25 blur-3xl" />
+          <img
+            src="/herobanner/tienda.png"
+            alt=""
+            aria-hidden
+            className="pointer-events-none absolute bottom-0 right-4 hidden w-[420px] drop-shadow-[0_30px_40px_rgba(11,27,38,0.45)] lg:block xl:right-16 xl:w-[480px]"
+          />
           <div className="invisible" aria-hidden>
             <Navbar9 store />
           </div>
-          <div className="relative mx-auto max-w-7xl px-6 pb-14 pt-6 md:px-10">
-            <nav className="mb-5 flex items-center gap-1.5 text-xs text-white/60">
-              <a href="/" className="hover:text-white">Inicio</a>
-              <span>/</span>
-              <a href="/tienda" className="hover:text-white">Tienda</a>
-              {initialCategory && (
+          <div className="relative mx-auto max-w-7xl px-6 pb-14 pt-6 md:px-10 lg:pr-[440px]! xl:pr-[560px]!">
+            {/* Migas de pan = etiqueta de vidrio con casita (igual que las páginas internas). */}
+            <nav
+              aria-label="Migas de pan"
+              className="relative flex w-fit flex-wrap items-center gap-2 rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm text-white/75 backdrop-blur-md"
+            >
+              <span className="spin-border spin-border--thin" aria-hidden />
+              <a href="/" className="relative flex items-center gap-1.5 transition-colors hover:text-white">
+                <Home className="h-4 w-4 text-white" strokeWidth={2} />
+                Inicio
+              </a>
+              <span className="relative text-white/40">/</span>
+              {initialCategory ? (
                 <>
-                  <span>/</span>
-                  <span className="text-white">{heading}</span>
+                  <a href="/tienda" className="relative transition-colors hover:text-white">Tienda</a>
+                  <span className="relative text-white/40">/</span>
+                  <span className="relative font-semibold text-white">{heading}</span>
                 </>
+              ) : (
+                <span className="relative font-semibold text-white">Tienda</span>
               )}
             </nav>
-            <SectionBadge tone="dark">Stock local · Distribución autorizada</SectionBadge>
-            <h1 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-5xl">
+            <h1 className="mt-4 font-display text-3xl font-bold leading-tight sm:text-5xl">
               <span className="text-white">{initialCategory ? heading : 'Equipamiento TI'}</span>{' '}
               <span className="title-shimmer-dark">{initialCategory ? 'con stock local' : 'listo para despachar'}</span>
             </h1>
