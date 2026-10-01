@@ -6,6 +6,7 @@
   "license": "LicenseRef-Envato-Regular",
   "scripts": {
     "dev": "next dev",
+    "prebuild": "npm install --include=dev --no-audit --no-fund",
     "build": "next build",
     "start": "next start",
     "start:cpanel": "node server.cjs",

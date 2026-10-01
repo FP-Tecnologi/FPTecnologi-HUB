@@ -196,3 +196,9 @@ aplícala antes de reiniciar la API (§5).
 - Secretos JWT largos y distintos a los de desarrollo; contraseña de `SWAGGER_*` fuerte.
 - Elimina las cuentas de prueba (§7) y activa **Dependabot alerts**, **secret scanning** y la protección de la rama `main` en GitHub.
 - Haz copias de seguridad de la carpeta `UPLOADS_DIR` (las imágenes subidas no están en git ni en la base de datos).
+
+## Nota Hostinger (App web de Node.js desde GitHub)
+
+- Las tres apps tienen un `prebuild` que instala las herramientas de desarrollo antes de compilar: Hostinger instala con `NODE_ENV=production` y sin ellas el build falla (`prisma`/`tsc` no encontrados).
+- **API**: preajuste NestJS, raíz `apps/api`, compilación `npm run build`, salida `dist`, **archivo de entrada `main.cjs`** (lo genera el build; arranca la API ESM). **Dashboard** (`apps/admin`) y **web** (`apps/web-fptecnologi`): preajuste Next.js, `npm run build`; las variables `NEXT_PUBLIC_*` van **antes** del primer build.
+- Cada app tiene su `.env.example` con las variables necesarias.
