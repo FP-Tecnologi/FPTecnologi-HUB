@@ -5,7 +5,8 @@
   "description": "Web pública de fptecnologi.com (Next.js 16 + React 19 + Tailwind v4) — sin login, consume /public/* de la API central.",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "prebuild": "npm install --include=dev --no-audit --no-fund",
+    "build": "next build --webpack",
     "start": "next start",
     "start:cpanel": "node server.cjs",
     "lint": "next lint"

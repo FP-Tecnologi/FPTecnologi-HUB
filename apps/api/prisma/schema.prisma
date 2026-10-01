@@ -7,6 +7,8 @@
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
+  // El hosting (Linux) usa OpenSSL 1.1 y el equipo de compilación OpenSSL 3: se generan los motores de ambos.
+  binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x"]
 }
 
 datasource db {

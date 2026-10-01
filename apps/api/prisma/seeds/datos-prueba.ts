@@ -62,7 +62,8 @@ const EMPRESAS = [
   'Transportes Andinos S.A.C.', 'Bodegas El Roble S.A.C.', 'Restaurante La Barranca E.I.R.L.',
   'Municipalidad de Arequipa',
 ];
-const DEPARTAMENTOS = ['Lima', 'Arequipa', 'Cusco', 'Trujillo', 'Piura', 'Chiclayo'];
+// Nombres del directorio de Shalom (departamentos, no ciudades): si no, no coinciden con las agencias.
+const DEPARTAMENTOS = ['Lima', 'Arequipa', 'Cusco', 'La Libertad', 'Piura', 'Lambayeque'];
 const METODOS_PAGO = ['YAPE', 'TRANSFERENCIA', 'PLIN', 'EFECTIVO'];
 const ESTADOS_PEDIDO = ['PAGADO', 'PAGADO', 'PAGADO', 'ENVIADO', 'ENTREGADO', 'PENDIENTE', 'CANCELADO'] as const;
 const CORREOS_RECLAMO = [
