@@ -2,7 +2,7 @@
 import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
 
 import { useState } from 'react';
-import { Mail, MapPin, MessageCircle, Phone, type LucideIcon } from 'lucide-react';
+import { Building2, Mail, MapPin, MessageCircle, MessageSquareText, Phone, Send, User, type LucideIcon } from 'lucide-react';
 import { CONTACT_INFO } from '@/lib/content';
 import { whatsappHref } from '@/lib/chatActions';
 import { ScrollReveal } from './ScrollReveal';
@@ -65,18 +65,24 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
   };
 
   const input =
-    'mt-1.5 w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none transition-colors placeholder:text-white/30 focus:border-brand-teal-light focus:bg-white/10';
+    'mt-1.5 w-full rounded-xl border border-white/20 bg-white/10 py-3 pl-12 pr-4 text-sm text-white outline-none transition-all placeholder:text-white/40 focus:border-white/60 focus:bg-white/15 focus:ring-4 focus:ring-white/10';
+  const iconCls = 'pointer-events-none absolute left-4 h-5 w-5 text-white/55 transition-colors group-focus-within/field:text-white';
 
   return (
-    <section id="contacto" className="bg-ink py-20 text-white">
-      <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-2 lg:items-start">
+    <section id="contacto" className="relative overflow-hidden bg-gradient-to-br from-brand-primary via-brand-petrol to-brand-teal py-20 text-white">
+      {/* Fondo propio (azul de marca) para separar esta sección del pie de página (bg-ink). */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.10)_1px,transparent_0)] [background-size:26px_26px]" />
+      <div aria-hidden className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-brand-teal-light/30 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-24 right-0 h-80 w-80 rounded-full bg-ink/40 blur-3xl" />
+
+      <div className="relative mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-2 lg:items-start">
         <ScrollReveal direction="left">
           <SectionBadge tone="dark">{c.badge}</SectionBadge>
           <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
             <span className="text-white">{c.titulo}</span>{' '}
             <span className="title-shimmer-dark">{c.destacado}</span>
           </h2>
-          <p className="mt-4 max-w-lg text-white/70">
+          <p className="mt-4 max-w-lg text-white/80">
             {c.descripcion}
           </p>
 
@@ -87,13 +93,15 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
                 href={href}
                 target={href.startsWith('http') ? '_blank' : undefined}
                 rel={href.startsWith('http') ? 'noreferrer' : undefined}
-                className="group flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-primary/50 hover:bg-white/10"
+                className="group relative block overflow-hidden rounded-xl border border-white/15 bg-white/10 py-3.5 pl-[4.25rem] pr-4 shadow-lg shadow-black/10 backdrop-blur-sm transition-all duration-500 hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/15 hover:pl-4 hover:pr-[4.25rem] hover:shadow-xl hover:shadow-black/20"
               >
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-dark text-white transition-colors group-hover:bg-brand-primary">
-                  <Icon className="h-5 w-5" strokeWidth={1.8} />
+                {/* Mismo gesto del botón del hero: el ícono viaja de lado a lado
+                    (acá al pasar el cursor) mientras el texto ocupa su lugar. */}
+                <span className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg bg-white text-brand-primary shadow-md shadow-black/20 transition-all duration-500 ease-out group-hover:left-[calc(100%-3.25rem)] group-hover:bg-brand-primary group-hover:text-white">
+                  <Icon className="h-5 w-5 transition-transform duration-500 group-hover:rotate-[360deg]" strokeWidth={1.8} />
                 </span>
-                <span className="min-w-0">
-                  <span className="block text-xs uppercase tracking-wide text-white/50">{label}</span>
+                <span className="block min-w-0">
+                  <span className="block text-xs uppercase tracking-wide text-white/60">{label}</span>
                   <span className="block break-words text-sm font-medium">{value.replace('@', '​@')}</span>
                 </span>
               </a>
@@ -102,57 +110,72 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
         </ScrollReveal>
 
         <ScrollReveal direction="right" delayMs={120}>
-          <form onSubmit={handleSubmit} className="rounded-2xl border border-white/10 bg-white/5 p-6 shadow-2xl shadow-black/20 backdrop-blur-md sm:p-8">
+          <form onSubmit={handleSubmit} className="rounded-2xl border border-white/20 bg-ink/35 p-6 shadow-2xl shadow-black/25 backdrop-blur-md sm:p-8">
             <div className="space-y-4">
               {success && (
-                <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-center text-sm font-medium text-emerald-400">
+                <div role="status" className="rounded-xl border border-emerald-400/40 bg-emerald-400/15 p-4 text-center text-sm font-medium text-emerald-200">
                   ¡Gracias! Tu mensaje ha sido enviado exitosamente. Un asesor te responderá pronto.
                 </div>
               )}
               {errorMsg && (
-                <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-center text-sm font-medium text-rose-400">
+                <div role="alert" className="rounded-xl border border-rose-400/40 bg-rose-400/15 p-4 text-center text-sm font-medium text-rose-200">
                   {errorMsg}
                 </div>
               )}
-              <div>
-                <label className="text-sm text-white/70" htmlFor="c-name">Nombre completo</label>
-                <input id="c-name" required value={name} onChange={(e) => setName(e.target.value)} className={input} placeholder="Tu nombre y apellido" />
+              <div className="group/field">
+                <label className="text-sm text-white/80" htmlFor="c-name">Nombre completo</label>
+                <div className="relative flex items-center">
+                  <User className={iconCls} strokeWidth={1.8} />
+                  <input id="c-name" required autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} className={input} placeholder="Tu nombre y apellido" />
+                </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="text-sm text-white/70" htmlFor="c-email">Correo electrónico</label>
-                  <input id="c-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={input} placeholder="correo@empresa.com" />
+                <div className="group/field">
+                  <label className="text-sm text-white/80" htmlFor="c-email">Correo electrónico</label>
+                  <div className="relative flex items-center">
+                    <Mail className={iconCls} strokeWidth={1.8} />
+                    <input id="c-email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className={input} placeholder="correo@empresa.com" />
+                  </div>
                 </div>
-                <div>
-                  <label className="text-sm text-white/70" htmlFor="c-phone">Teléfono / WhatsApp</label>
-                  <input id="c-phone" value={phone} onChange={(e) => setPhone(e.target.value)} className={input} placeholder="+51 987 654 321" />
+                <div className="group/field">
+                  <label className="text-sm text-white/80" htmlFor="c-phone">Teléfono / WhatsApp</label>
+                  <div className="relative flex items-center">
+                    <Phone className={iconCls} strokeWidth={1.8} />
+                    <input id="c-phone" type="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className={input} placeholder="+51 987 654 321" />
+                  </div>
                 </div>
               </div>
-              <div>
-                <label className="text-sm text-white/70" htmlFor="c-company">Empresa (opcional)</label>
-                <input id="c-company" value={company} onChange={(e) => setCompany(e.target.value)} className={input} placeholder="Nombre de tu empresa" />
+              <div className="group/field">
+                <label className="text-sm text-white/80" htmlFor="c-company">Empresa (opcional)</label>
+                <div className="relative flex items-center">
+                  <Building2 className={iconCls} strokeWidth={1.8} />
+                  <input id="c-company" autoComplete="organization" value={company} onChange={(e) => setCompany(e.target.value)} className={input} placeholder="Nombre de tu empresa" />
+                </div>
               </div>
-              <div>
-                <label className="text-sm text-white/70" htmlFor="c-message">Mensaje</label>
-                <textarea
-                  id="c-message"
-                  required
-                  rows={4}
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  className={`${input} resize-none`}
-                  placeholder="Cuéntanos qué solución o equipamiento necesita tu empresa"
-                />
+              <div className="group/field">
+                <label className="text-sm text-white/80" htmlFor="c-message">Mensaje</label>
+                <div className="relative flex items-start">
+                  <MessageSquareText className={`${iconCls} top-[1.15rem]`} strokeWidth={1.8} />
+                  <textarea
+                    id="c-message"
+                    required
+                    rows={4}
+                    value={message}
+                    onChange={(e) => setMessage(e.target.value)}
+                    className={`${input} resize-none`}
+                    placeholder="Cuéntanos qué solución o equipamiento necesita tu empresa"
+                  />
+                </div>
               </div>
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-white text-sm font-semibold uppercase tracking-wide text-brand-dark transition-colors duration-300 hover:bg-brand-primary hover:text-white disabled:opacity-50"
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-white text-sm font-semibold uppercase tracking-wide text-brand-dark shadow-lg shadow-black/20 transition-colors duration-300 hover:bg-ink hover:text-white disabled:opacity-50"
               >
-                <Mail className="h-5 w-5" strokeWidth={2} />
+                <Send className="h-5 w-5" strokeWidth={2} />
                 {submitting ? 'Enviando...' : 'Enviar mensaje'}
               </button>
-              <p className="text-center text-xs text-white/40">
+              <p className="text-center text-xs text-white/55">
                 Tu solicitud será enviada a nuestro equipo de ventas y registrada en el sistema de leads.
               </p>
             </div>

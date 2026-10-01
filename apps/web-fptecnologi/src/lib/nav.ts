@@ -5,7 +5,13 @@ import { SOLUTIONS, TIENDA_CATEGORIES } from './content';
 
 export const NAV_LINKS = [
   { label: 'Inicio', href: '/' },
-  { label: 'Nosotros', href: '/nosotros' },
+  {
+    label: 'Nosotros',
+    href: '/nosotros',
+    children: [
+      { label: 'Quiénes somos', href: '/nosotros' },
+        ],
+  },
   {
     label: 'Servicios',
     href: '/servicios',
@@ -13,7 +19,6 @@ export const NAV_LINKS = [
     viewAllHref: '/servicios',
     viewAllLabel: 'Ver todos los servicios',
   },
-  { label: 'Proyectos', href: '/proyectos' },
   {
     label: 'Tienda',
     href: '/tienda',
@@ -21,5 +26,13 @@ export const NAV_LINKS = [
     viewAllHref: '/tienda',
     viewAllLabel: 'Ver catálogo completo',
   },
-  { label: 'Contacto', href: '/contacto' },
+  { label: 'Blog', href: '/blog' },
+  {
+    label: 'Contacto',
+    href: '/contacto',
+    children: [
+      { label: 'Contáctanos', href: '/contacto' },
+      { label: 'Cotizador', href: '/cotizador' },
+    ],
+  },
 ] as const;

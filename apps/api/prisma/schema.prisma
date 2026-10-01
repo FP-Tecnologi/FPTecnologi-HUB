@@ -43,6 +43,7 @@ model Marca {
   contenidos         ContenidoWeb[]
   blogArticulos      BlogArticulo[]
   leadsCotizador     LeadCotizador[]
+  suscriptores       SuscriptorBoletin[]
 }
 
 model Sitio {
@@ -482,4 +483,20 @@ model LeadCotizador {
   updatedAt     DateTime    @updatedAt
 
   @@index([marcaId, estado, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Boletín: suscriptores del formulario del pie de página de la web
+// ---------------------------------------------------------------------------
+
+model SuscriptorBoletin {
+  id        String   @id @default(uuid())
+  marcaId   String
+  marca     Marca    @relation(fields: [marcaId], references: [id])
+  email     String
+  origen    String? // página donde se suscribió
+  createdAt DateTime @default(now())
+
+  @@unique([marcaId, email])
+  @@index([marcaId, createdAt])
 }

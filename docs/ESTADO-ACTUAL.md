@@ -617,3 +617,24 @@ sesión/máquina)**:
   y contacto directo (WhatsApp, ventas, correo, mapa); debajo "Cómo funciona"
   (3 pasos), servicios, marcas y preguntas frecuentes (acordeón). Nuevas
   secciones editables en el CMS: `proceso` y `faq`.
+
+### 2026-10-01 — Contacto, navegación y boletín
+
+- **Sección Contacto** (`home/Contact.tsx`, usada en home, servicios, contacto,
+  nosotros, proyectos, blog): fondo azul de marca (se distingue del pie, que
+  sigue en `ink`), campos con ícono según el dato (usuario, correo, teléfono,
+  empresa, mensaje) y tarjetas de datos donde el ícono viaja de lado a lado al
+  pasar el cursor (mismo gesto del botón del hero).
+- **Pie de página**: el bloque "¿Tienes un proyecto en mente?" (Cotizar /
+  WhatsApp) pasó a ser suscripción al boletín (`NewsletterForm`). La columna
+  Navegación quedó: Nosotros, Servicios, Tienda, Blog, Contacto.
+- **Encabezado**: se agregó Blog; Proyectos pasó a un submenú de Nosotros;
+  Cotizador es submenú de Contacto (así sigue accesible en la tienda, donde el
+  botón Cotizar no se muestra).
+- **API**: módulo `boletin` + modelo `SuscriptorBoletin` (migración
+  `20261001180000_boletin`, **por aplicar**). Público
+  `POST /public/boletin/suscribir` (idempotente, honeypot, tope por IP);
+  dashboard `GET/DELETE /boletin/suscriptores` (admin/marketing). Web: proxy
+  `/api/hub/boletin`. Dashboard: Boletín → Suscriptores (lista, buscar, CSV).
+- Pendiente: baja del boletín (no hay enlace de baja todavía) y envío de
+  campañas (hoy solo se recolectan correos).

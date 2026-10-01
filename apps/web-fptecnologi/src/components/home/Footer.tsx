@@ -1,14 +1,13 @@
 import Image from 'next/image';
-import { COTIZADOR_URL, SOCIAL_LINKS, SOLUTIONS } from '@/lib/content';
+import { SOCIAL_LINKS, SOLUTIONS } from '@/lib/content';
 import { LEGAL_LINKS } from '@/lib/legal';
 import { FacebookIcon, InstagramIcon, LinkedinIcon, YoutubeIcon } from '@/components/site/icons';
-import { whatsappHref } from '@/lib/chatActions';
+import { NewsletterForm } from './NewsletterForm';
 
 // Solo páginas (no anclas de la home): pedido del usuario.
 const NAV = [
   { label: 'Nosotros', href: '/nosotros' },
   { label: 'Servicios', href: '/servicios' },
-  { label: 'Proyectos', href: '/proyectos' },
   { label: 'Tienda', href: '/tienda' },
   { label: 'Blog', href: '/blog' },
   { label: 'Contacto', href: '/contacto' },
@@ -29,7 +28,7 @@ function ColumnTitle({ children }: { children: string }) {
 
 /*
  * Footer en 3 franjas separadas por líneas con degradé:
- * 1) prefooter: frase + CTAs (Cotizar / WhatsApp),
+ * 1) prefooter: suscripción al boletín (correo),
  * 2) columnas: marca + contacto rápido, navegación (solo páginas),
  *    servicios y enlaces útiles, con separadores verticales en desktop,
  * 3) barra legal.
@@ -43,28 +42,13 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-6">
         {divider}
 
-        {/* Prefooter */}
-        <div className="flex flex-col items-start justify-between gap-6 py-10 md:flex-row md:items-center">
-          <div>
-            <p className="font-display text-xl font-bold text-white sm:text-2xl">¿Tienes un proyecto en mente?</p>
-            <p className="mt-1 text-sm">Cotiza sin compromiso o escríbenos y te respondemos hoy mismo.</p>
+        {/* Prefooter: suscripción al boletín */}
+        <div className="flex flex-col items-start justify-between gap-6 py-10 lg:flex-row lg:items-center">
+          <div className="max-w-md">
+            <p className="font-display text-xl font-bold text-white sm:text-2xl">Recibe ofertas y novedades</p>
+            <p className="mt-1 text-sm">Suscríbete a nuestro boletín y entérate primero de promociones, lanzamientos y consejos de tecnología para tu empresa.</p>
           </div>
-          <div className="flex flex-wrap gap-3">
-            <a
-              href={COTIZADOR_URL}
-              className="inline-flex h-11 items-center rounded-xl bg-white px-5 text-sm font-semibold uppercase tracking-wide text-brand-dark transition-colors hover:bg-brand-primary hover:text-white"
-            >
-              Cotizar
-            </a>
-            <a
-              href={whatsappHref()}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex h-11 items-center rounded-xl border border-white/20 px-5 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:border-brand-primary hover:bg-brand-primary"
-            >
-              WhatsApp
-            </a>
-          </div>
+          <NewsletterForm />
         </div>
 
         {divider}
