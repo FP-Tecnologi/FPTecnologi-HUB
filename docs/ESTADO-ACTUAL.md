@@ -877,3 +877,15 @@ sesión/máquina)**:
   y 12 de 2FA (código por correo, app autenticadora, código de respaldo, desactivar, alternativa por correo) — todas OK; los
   datos de prueba se borraron. `apps/leads` eliminado del repo (vive en `centralizacion-leads`).
 
+### 2026-10-01 — Agencias Shalom por ubicación y blog más completo
+
+- **Agencias Shalom reales en el checkout**: se reutilizó el directorio del proyecto MemoAI-SCROLL (544 agencias con dirección,
+  horario, teléfono y coordenadas; `apps/api/src/envios/shalom-agencias.data.ts`). API pública `GET /public/envios/agencias/provincias`,
+  `/agencias?departamento&provincia` y `/agencias/cercanas?lat&lng[&departamento]` (haversine). El checkout permite elegir
+  departamento → provincia → agencia, o **"Usar mi ubicación"**, que propone las 5 más cercanas y autoselecciona la primera
+  (la ubicación no se guarda). El servidor valida que la agencia exista y pertenezca al departamento (`EnviosService.cotizar`);
+  el pedido guarda "zona — dirección (provincia, departamento)". Se quitó la carga manual de agencias del dashboard. 128 tests.
+- **Blog**: detalle con barra de progreso, índice lateral (anclas en los títulos), recientes, categorías con conteo, etiquetas
+  enlazadas, newsletter, autor y anterior/siguiente; listado con buscador, filtros `?categoria=`/`?etiqueta=`/`?q=`, etiquetas
+  en tarjetas y 3 columnas desde 1024 px con paginación de 9.
+

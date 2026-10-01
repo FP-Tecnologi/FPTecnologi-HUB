@@ -8,7 +8,8 @@ export const metadata = { title: 'Blog' };
 // Lo que se publica en el dashboard aparece al instante.
 export const dynamic = 'force-dynamic';
 
-export default async function BlogPage() {
+export default async function BlogPage({ searchParams }: { searchParams: Promise<{ categoria?: string; etiqueta?: string; q?: string }> }) {
+  const { categoria, etiqueta, q } = await searchParams;
   const articulos = await getArticulos();
   return (
     <>
@@ -23,7 +24,7 @@ export default async function BlogPage() {
         imagen="/images/modelo9/hero-office.jpg"
       />
       <main>
-        <BlogListado articulos={articulos} />
+        <BlogListado articulos={articulos} inicial={{ categoria, etiqueta, q }} />
         <Contact />
       </main>
       <Footer />

@@ -981,6 +981,10 @@ body {
 .blog-prose > * + * {
   margin-top: 1.15em;
 }
+.blog-prose h2,
+.blog-prose h3 {
+  scroll-margin-top: 7rem;
+}
 .blog-prose h2 {
   margin-top: 1.8em;
   font-size: 1.6rem;

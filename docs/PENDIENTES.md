@@ -23,11 +23,11 @@ ecommerce (catálogo público, checkout invitado, importador WooCommerce) ·
 verifique las **sedes disponibles** y el **costo del envío**, mostrarlo en el
 checkout y **sumarlo al total**.
 
-**Estado (2026-10-01): implementado con tarifario propio; falta la API de Shalom.** Dashboard → Ecommerce → **Envíos**
+**Estado (2026-10-01): tarifario propio + directorio real de agencias Shalom (544, reutilizado de MemoAI-SCROLL).** Dashboard → Ecommerce → **Envíos**
 carga una tarifa por departamento (costo USD, plazo, agencias de recojo); el checkout ofrece "Envío por Shalom", el
 servidor **recotiza** (`EnviosService.cotizar`) y suma el envío al total; el pedido guarda courier, departamento, agencia,
 plazo y código de seguimiento (editable en Pedidos). **Pendiente:** (a) cargar las tarifas y agencias reales (no hay datos
-inventados en la base), (b) confirmar con Shalom si hay API para reemplazar el tarifario (basta otra implementación de
+inventados en la base), (b) el directorio de agencias es una foto estática (`apps/api/src/envios/shalom-agencias.data.ts`): refrescarlo cuando Shalom abra/cierre agencias; confirmar con Shalom si hay API de costos para reemplazar el tarifario (basta otra implementación de
 `cotizar`), (c) peso/dimensiones por producto, (d) decidir IGV del envío (hoy el costo va sin IGV adicional).
 Antes de esto el envío era "a coordinar por WhatsApp": el checkout
 ofrece *recojo en tienda* o *envío a domicilio (costo a coordinar)*, el total
@@ -119,8 +119,10 @@ solo a sedes Shalom o también domicilio?
 ### Blog y SEO (Fase 5 — en curso)
 - **Hecho 2026-10-01**: `/blog` muestra los 10 artículos publicados (verificado contra la API, filtros por categoría, sin
   imágenes rotas); cada artículo con `canonical`, Open Graph/Twitter y JSON-LD `Article`; `sitemap.xml` (fijas, blog,
-  servicios y productos) y `robots.txt`. Variable `SITE_URL` (ver `.env.example`). Falta: subir portada desde el dashboard,
-  programar publicación y OG propio por página (hoy solo blog).
+  servicios y productos) y `robots.txt`. Variable `SITE_URL` (ver `.env.example`). Detalle del artículo mejorado (2026-10-01): barra de progreso, índice lateral con
+  resalte, compartir, recientes, categorías con conteo, etiquetas (enlazan a `/blog?etiqueta=`), newsletter, autor y
+  anterior/siguiente; listado con buscador, filtros por URL y etiquetas en las tarjetas; paginación de 9. Falta: subir
+  portada desde el dashboard, programar publicación, página de autor y OG propio por página (hoy solo blog).
 - ~~Chat con IA: rate limit~~ **Hecho**: 30 mensajes / 10 min por IP, en memoria (mover a Redis si hay varias instancias).
 - Reemplazar datos de ejemplo por reales: `CONTACT_INFO`, fotos y teléfonos de asesores, proyectos y clientes
   (marcados "de ejemplo" en `src/lib/*.ts`).

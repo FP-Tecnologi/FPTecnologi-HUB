@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { ArrowUpRight, CalendarDays } from 'lucide-react';
+import { ArrowUpRight, CalendarDays, Search, X } from 'lucide-react';
 import { fechaLarga, PORTADA_DEFECTO, type ArticuloResumen } from '@/lib/blog';
 import { SectionBadge } from '@/components/home/SectionBadge';
 import { ScrollReveal } from '@/components/home/ScrollReveal';
@@ -23,6 +23,13 @@ export function ArticuloCard({ a }: { a: ArticuloResumen }) {
           {fechaLarga(a.publicadoEn)}
         </p>
         <h3 className="mt-2 font-display text-lg font-bold leading-snug text-ink transition-colors group-hover:text-brand-primary">{a.titulo}</h3>
+        {a.etiquetas.length > 0 && (
+          <p className="mt-2 flex flex-wrap gap-1.5">
+            {a.etiquetas.slice(0, 3).map((t) => (
+              <span key={t} className="rounded-md bg-brand-primary/10 px-2 py-0.5 text-[11px] font-semibold text-brand-primary">#{t}</span>
+            ))}
+          </p>
+        )}
         <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-ink/60">{a.resumen}</p>
         <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold text-brand-primary">
           Leer artículo
@@ -37,16 +44,31 @@ export function ArticuloCard({ a }: { a: ArticuloResumen }) {
 const POR_PAGINA = 9;
 
 /* Destacado arriba (o el más reciente) + grilla con filtro por categoría y paginación. */
-export function BlogListado({ articulos }: { articulos: ArticuloResumen[] }) {
-  const [cat, setCat] = useState<string | null>(null);
+export function BlogListado({ articulos, inicial }: { articulos: ArticuloResumen[]; inicial?: { categoria?: string; etiqueta?: string; q?: string } }) {
+  const [cat, setCat] = useState<string | null>(inicial?.categoria ?? null);
+  const [etiqueta, setEtiqueta] = useState<string | null>(inicial?.etiqueta ?? null);
+  const [q, setQ] = useState(inicial?.q ?? '');
   const [pagina, setPagina] = useState(1);
   const destacado = articulos.find((a) => a.destacado) ?? articulos[0];
   const categorias = useMemo(() => [...new Set(articulos.map((a) => a.categoria))], [articulos]);
-  const resto = articulos.filter((a) => a !== destacado && (!cat || a.categoria === cat));
+  const texto = q.trim().toLowerCase();
+  const filtrando = !!(cat || etiqueta || texto);
+  const coincide = (a: ArticuloResumen) =>
+    (!cat || a.categoria === cat) &&
+    (!etiqueta || a.etiquetas.includes(etiqueta)) &&
+    (!texto || `${a.titulo} ${a.resumen} ${a.etiquetas.join(' ')}`.toLowerCase().includes(texto));
+  // Con filtros activos se listan todos los que coinciden (el destacado también); sin filtros va arriba aparte.
+  const resto = articulos.filter((a) => (filtrando ? coincide(a) : a !== destacado));
   const paginas = Math.max(1, Math.ceil(resto.length / POR_PAGINA));
   const visibles = resto.slice((Math.min(pagina, paginas) - 1) * POR_PAGINA, Math.min(pagina, paginas) * POR_PAGINA);
   const elegirCategoria = (c: string | null) => {
     setCat(c);
+    setPagina(1);
+  };
+  const limpiar = () => {
+    setCat(null);
+    setEtiqueta(null);
+    setQ('');
     setPagina(1);
   };
 
@@ -67,7 +89,7 @@ export function BlogListado({ articulos }: { articulos: ArticuloResumen[] }) {
 
   return (
     <>
-      {destacado && (
+      {destacado && !filtrando && (
         <section className="mx-auto max-w-7xl px-6 pt-20">
           <ScrollReveal direction="up">
             <a
@@ -102,6 +124,31 @@ export function BlogListado({ articulos }: { articulos: ArticuloResumen[] }) {
             <span className="text-ink">Últimas</span> <span className="title-shimmer-light">publicaciones</span>
           </h2>
         </ScrollReveal>
+        <div className="mx-auto mb-6 max-w-xl">
+          <label htmlFor="blog-buscar" className="sr-only">Buscar en el blog</label>
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-ink/40" strokeWidth={1.8} />
+            <input
+              id="blog-buscar"
+              type="search"
+              value={q}
+              onChange={(e) => {
+                setQ(e.target.value);
+                setPagina(1);
+              }}
+              placeholder="Buscar artículos, temas o etiquetas…"
+              className="h-12 w-full rounded-xl border border-ink/10 bg-white pl-12 pr-4 text-sm text-ink shadow-sm shadow-brand-dark/10 outline-none transition-all placeholder:text-ink/40 focus:border-brand-dark focus:ring-4 focus:ring-brand-dark/10"
+            />
+          </div>
+        </div>
+        {etiqueta && (
+          <div className="mb-6 flex justify-center">
+            <button type="button" onClick={() => { setEtiqueta(null); setPagina(1); }} className="inline-flex items-center gap-2 rounded-lg bg-brand-primary/10 px-3.5 py-2 text-sm font-semibold text-brand-primary transition-colors hover:bg-brand-primary hover:text-white">
+              #{etiqueta}
+              <X className="h-4 w-4" strokeWidth={2.2} aria-label="Quitar etiqueta" />
+            </button>
+          </div>
+        )}
         {categorias.length > 1 && (
           <div className="mb-10 flex flex-wrap justify-center gap-2.5">
             <button type="button" className={chip(cat === null)} onClick={() => elegirCategoria(null)}>
@@ -115,7 +162,14 @@ export function BlogListado({ articulos }: { articulos: ArticuloResumen[] }) {
           </div>
         )}
         {resto.length === 0 ? (
-          <p className="text-center text-ink/50">No hay más artículos en esta categoría.</p>
+          <div className="text-center text-ink/55">
+            <p>{filtrando ? 'No encontramos artículos con esos filtros.' : 'No hay más artículos en esta categoría.'}</p>
+            {filtrando && (
+              <button type="button" onClick={limpiar} className="mt-4 rounded-lg bg-brand-dark px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-primary">
+                Limpiar filtros
+              </button>
+            )}
+          </div>
         ) : (
           <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
             {visibles.map((a, i) => (

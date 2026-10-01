@@ -24,8 +24,28 @@ function inline(text: string): string {
     .replace(/`([^`]+)`/g, '<code>$1</code>');
 }
 
+/** Identificador de ancla para un título (sin tildes, minúsculas, guiones). */
+const anclaDe = (t: string) =>
+  t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'seccion';
+
+/** Títulos ## y ### del artículo con su ancla, para el índice lateral. */
+export function indiceArticulo(md: string): { nivel: 2 | 3; texto: string; id: string }[] {
+  const usados = new Map<string, number>();
+  const out: { nivel: 2 | 3; texto: string; id: string }[] = [];
+  for (const raw of md.replace(/\r/g, '').split('\n')) {
+    const m = raw.trim().match(/^(#{2,3})\s+(.*)$/);
+    if (!m) continue;
+    const base = anclaDe(m[2]);
+    const n = (usados.get(base) ?? 0) + 1;
+    usados.set(base, n);
+    out.push({ nivel: m[1].length as 2 | 3, texto: m[2].replace(/[*`]/g, ''), id: n > 1 ? `${base}-${n}` : base });
+  }
+  return out;
+}
+
 export function markdownToHtml(md: string): string {
   const out: string[] = [];
+  const idsUsados = new Map<string, number>();
   let lista: { tipo: 'ul' | 'ol'; items: string[] } | null = null;
   let parrafo: string[] = [];
   let cita: string[] = [];
@@ -43,7 +63,10 @@ export function markdownToHtml(md: string): string {
       cerrar();
     } else if ((m = line.match(/^(#{2,3})\s+(.*)$/))) {
       cerrar();
-      out.push(`<h${m[1].length}>${inline(m[2])}</h${m[1].length}>`);
+      const base = anclaDe(m[2]);
+      const n = (idsUsados.get(base) ?? 0) + 1;
+      idsUsados.set(base, n);
+      out.push(`<h${m[1].length} id="${n > 1 ? `${base}-${n}` : base}">${inline(m[2])}</h${m[1].length}>`);
     } else if ((m = line.match(/^>\s?(.*)$/))) {
       if (parrafo.length || lista) cerrar();
       cita.push(m[1]);
