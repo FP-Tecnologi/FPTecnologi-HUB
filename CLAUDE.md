@@ -20,7 +20,7 @@ scripts **dentro de la app** (`cd apps/<app>`), siempre con npm (no pnpm/yarn).
 | `apps/web` (dashboard, Next 15) | 3000 | `npm run dev` | `npm run build` | `npm run lint` |
 | `apps/web-fptecnologi` (web pública, Next 16) | 3002 | `npm run dev -- --port 3002` | `npm run build` | `npm run lint` |
 
-`.claude/launch.json` define estos servidores (`api`, `web`, `web-fptecnologi`, `leads`) para
+`.claude/launch.json` define estos servidores (`api`, `web`, `web-fptecnologi`, `leads` → repo aparte) para
 `preview_start`.
 
 Tests (solo `apps/api`, Vitest, `*.spec.ts` junto al archivo probado):
@@ -55,8 +55,7 @@ Prisma (en `apps/api`, requiere `.env` con `DATABASE_URL`; ver `.env.example`):
   hablan con la API real; el resto de `src/screens/auth/` es demo.
 - `apps/web-fptecnologi` aún usa contenido hardcodeado en `src/lib/content.ts` (y defaults del CMS
   en `src/lib/homeContenido.ts`) en vez de consumir `GET /public/*`.
-- `apps/leads` es una copia congelada: los cambios van en el repo `centralizacion-leads`
-  (otra base Supabase).
+- El sistema de leads vive solo en el repo `centralizacion-leads` (otra base Supabase); aquí no hay copia.
 
 ## Flujo de trabajo
 
