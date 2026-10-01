@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { PageHead } from '../components/shell/PageHead';
 import { Avatar } from '../components/ui/Avatar';
 import { useAuth, ApiError } from '../context/AuthContext';
+import { AutenticadorCard } from '../components/ajustes/AutenticadorCard';
 
 // ponytail: sin backend de storage todavía -- la foto se manda como data:
 // URI (base64) en la columna de texto avatarUrl. Tope generoso pero bajo:
@@ -281,6 +282,8 @@ export function Ajustes() {
             </Link>
           </div>
         </section>
+
+        <AutenticadorCard />
 
         <section className="ax-card ax-col--12" role="region" aria-label="Avisos">
           <div className="ax-card__header"><div className="ax-card__titles"><h2 className="ax-card__title">Avisos</h2><p className="ax-card__subtitle">Elige qué avisos quieres recibir. Se guardan solo en este navegador por ahora.</p></div></div>

@@ -43,7 +43,7 @@ describe('UsuariosService.updatePerfil', () => {
     expect(prisma.usuario.update).toHaveBeenCalledWith({
       where: { id: 'u1' },
       data: { nombre: 'Ana Nueva' },
-      select: { id: true, email: true, nombre: true, avatarUrl: true },
+      select: { id: true, email: true, nombre: true, avatarUrl: true, dni: true, telefono: true, cargo: true },
     });
     expect(result).toEqual({ id: 'u1', email: 'a@b.com', nombre: 'Ana Nueva' });
   });
@@ -67,7 +67,7 @@ describe('UsuariosService.updatePerfil', () => {
     expect(prisma.usuario.update).toHaveBeenCalledWith({
       where: { id: 'u1' },
       data: { email: 'new@b.com' },
-      select: { id: true, email: true, nombre: true, avatarUrl: true },
+      select: { id: true, email: true, nombre: true, avatarUrl: true, dni: true, telefono: true, cargo: true },
     });
     expect(result.email).toBe('new@b.com');
   });
@@ -110,7 +110,7 @@ describe('UsuariosService.updatePerfil', () => {
     expect(prisma.usuario.update).toHaveBeenCalledWith({
       where: { id: 'u1' },
       data: {},
-      select: { id: true, email: true, nombre: true, avatarUrl: true },
+      select: { id: true, email: true, nombre: true, avatarUrl: true, dni: true, telefono: true, cargo: true },
     });
   });
 

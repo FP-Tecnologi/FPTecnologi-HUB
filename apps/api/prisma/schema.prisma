@@ -45,6 +45,7 @@ model Marca {
   leadsCotizador     LeadCotizador[]
   contactosWeb       ContactoWeb[]
   suscriptores       SuscriptorBoletin[]
+  invitaciones       Invitacion[]
 }
 
 model Sitio {
@@ -157,9 +158,28 @@ model OtpCode {
 // ---------------------------------------------------------------------------
 
 model Rol {
-  id       String            @id @default(uuid())
-  nombre   String            @unique // admin, marketing, ventas, etc.
-  usuarios UsuarioMarcaRol[]
+  id           String            @id @default(uuid())
+  nombre       String            @unique // admin, marketing, ventas, etc.
+  usuarios     UsuarioMarcaRol[]
+  invitaciones Invitacion[]
+}
+
+// Invitación por correo a un miembro del equipo. Solo se guarda el hash del
+// token (el enlace con el token en claro viaja únicamente por correo). No está
+// en TENANT_MODELS a propósito: el invitado la consulta por token sin marcaId.
+model Invitacion {
+  id         String    @id @default(uuid())
+  marcaId    String
+  marca      Marca     @relation(fields: [marcaId], references: [id])
+  rolId      String
+  rol        Rol       @relation(fields: [rolId], references: [id])
+  email      String
+  tokenHash  String    @unique
+  expiresAt  DateTime
+  aceptadaAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([marcaId, createdAt])
 }
 
 model UsuarioMarcaRol {
@@ -191,31 +211,31 @@ model Categoria {
   productos  Producto[]
   createdAt  DateTime   @default(now())
 
-  @@index([marcaId])
   @@unique([marcaId, slug])
+  @@index([marcaId])
 }
 
 model Producto {
-  id          String       @id @default(uuid())
-  marcaId     String
-  marca       Marca        @relation(fields: [marcaId], references: [id])
-  categoriaId String?
-  categoria   Categoria?   @relation(fields: [categoriaId], references: [id])
-  nombre      String
-  descripcion String?
-  sku         String
-  slug        String? // URL amigable por marca (importador WooCommerce lo genera)
-  precio      Decimal
-  precioAntes Decimal? // precio tachado (oferta), null = sin oferta
-  moneda      String       @default("USD") // precios base en USD sin IGV
+  id             String       @id @default(uuid())
+  marcaId        String
+  marca          Marca        @relation(fields: [marcaId], references: [id])
+  categoriaId    String?
+  categoria      Categoria?   @relation(fields: [categoriaId], references: [id])
+  nombre         String
+  descripcion    String?
+  sku            String
+  slug           String? // URL amigable por marca (importador WooCommerce lo genera)
+  precio         Decimal
+  precioAntes    Decimal? // precio tachado (oferta), null = sin oferta
+  moneda         String       @default("USD") // precios base en USD sin IGV
   marcaComercial String? // marca del fabricante (Dell, HP, Lenovo…) — distinto de Marca (tenant)
-  imagenes    String[]     @default([]) // URLs de fotos, la primera es la portada
-  destacado   Boolean      @default(false)
-  stock       Int          @default(0)
-  activo      Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  pedidoItems PedidoItem[]
+  imagenes       String[]     @default([]) // URLs de fotos, la primera es la portada
+  destacado      Boolean      @default(false)
+  stock          Int          @default(0)
+  activo         Boolean      @default(true)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  pedidoItems    PedidoItem[]
 
   @@unique([marcaId, sku])
   @@unique([marcaId, slug])
@@ -261,8 +281,8 @@ model Pedido {
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
 
-  @@index([marcaId])
   @@unique([marcaId, numeroPedido])
+  @@index([marcaId])
 }
 
 model PedidoItem {
@@ -273,10 +293,10 @@ model PedidoItem {
   producto       Producto @relation(fields: [productoId], references: [id])
   cantidad       Int
   precioUnitario Decimal // precio al momento de la compra (sin IGV)
-  nombreSnapshot String  @default("") // nombre del producto al momento de la compra
+  nombreSnapshot String   @default("") // nombre del producto al momento de la compra
   skuSnapshot    String   @default("") // SKU al momento de la compra
-  igvUnitario    Decimal @default(0)
-  subtotal       Decimal @default(0) // (precioUnitario + igvUnitario) * cantidad
+  igvUnitario    Decimal  @default(0)
+  subtotal       Decimal  @default(0) // (precioUnitario + igvUnitario) * cantidad
 }
 
 // ---------------------------------------------------------------------------

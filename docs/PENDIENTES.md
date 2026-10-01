@@ -114,7 +114,6 @@ solo a sedes Shalom o también domicilio?
   confirmar el dueño.
 
 ### Calidad / infraestructura
-- **3 tests fallan** desde antes: `apps/api/src/usuarios/usuarios.service.spec.ts` (`updatePerfil`).
 - **Lint de `web-fptecnologi` no corre**: `typescript-eslint` no soporta TypeScript 7 (fijar TS 6 o actualizar).
 - **Rate limiting global** deshabilitado (`@nestjs/throttler` comentado): hoy cada endpoint público tiene su
   propio tope en memoria (cotizador, boletín, pedidos), que se reinicia con cada despliegue y no se comparte
@@ -171,3 +170,10 @@ solo a sedes Shalom o también domicilio?
 3. Cada cambio: tests de la API (`npm test`), `npx tsc --noEmit` en las webs, y actualizar
    [`ESTADO-ACTUAL.md`](ESTADO-ACTUAL.md) y este archivo (tachar lo hecho).
 4. Reglas del repo en [`../AGENTS.md`](../AGENTS.md): `marcaId` siempre del servidor, nunca del cliente.
+
+### Usuarios, invitaciones y 2FA (hecho 2026-10-01; queda)
+- **Asignar un miembro como asesor del chat** (`ChatAsesor`: área, WhatsApp, foto) al invitarlo o desde la tabla de Usuarios — pendiente de definir con el dueño.
+- Invitación: hoy solo roles de equipo (no `cliente`). Falta cambiar de marca varios roles a la vez y auditar quién invitó a quién (`Invitacion` no guarda `invitadoPorId`).
+- `POST /auth/otp/request` y `/auth/otp/verify` no exigen la contraseña; con la opción "código por correo" del login TOTP, quien tenga el correo evita la app. Evaluar atar el OTP a un paso de contraseña ya validado.
+- Probar de punta a punta con un admin real: invitar → correo → aceptar → entrar → cambiar rol/desactivar/quitar (solo se verificó la página de aceptación con token inválido y los tests de servicio).
+

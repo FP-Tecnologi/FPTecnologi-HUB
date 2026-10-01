@@ -1,4 +1,4 @@
-import { Body, Controller, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, Post, UseGuards } from '@nestjs/common';
 import { UsuariosService } from './usuarios.service.js';
 import { UpdatePerfilDto } from './dto/update-perfil.dto.js';
 import { Reset2faDto } from './dto/reset-2fa.dto.js';
@@ -17,6 +17,11 @@ import type { AuthenticatedUser } from '../auth/types/authenticated-user.js';
 @Controller('usuarios')
 export class UsuariosController {
   constructor(private readonly usuariosService: UsuariosService) {}
+
+  @Get('me/seguridad')
+  seguridad(@CurrentUser() user: AuthenticatedUser) {
+    return this.usuariosService.seguridad(user.sub);
+  }
 
   @Patch('me')
   updateMe(@CurrentUser() user: AuthenticatedUser, @Body() dto: UpdatePerfilDto) {

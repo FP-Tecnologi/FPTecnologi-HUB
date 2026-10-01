@@ -14,6 +14,13 @@ import { UpdatePerfilDto } from './dto/update-perfil.dto.js';
 export class UsuariosService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /** Estado del 2FA por app autenticadora del propio usuario (la pantalla de Ajustes lo muestra). */
+  async seguridad(usuarioId: string) {
+    const u = await this.prisma.usuario.findUnique({ where: { id: usuarioId }, select: { totpEnabled: true } });
+    if (!u) throw new NotFoundException('Usuario no encontrado');
+    return { totpEnabled: u.totpEnabled };
+  }
+
   /**
    * El propio usuario edita su perfil. El nombre se actualiza directo; el
    * correo (identidad de login) exige la contraseña actual y debe estar

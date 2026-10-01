@@ -158,3 +158,15 @@ export function contactoNuevoEmail(titulo: string, nombre: string, mensaje: stri
     `),
   };
 }
+
+export function invitacionEmail(marca: string, rol: string, url: string, dias: number): { subject: string; html: string } {
+  return {
+    subject: `Te invitaron a ${marca} en FPTecnologi HUB`,
+    html: layout(`
+      <h1 style="margin:0 0 12px;font-size:20px;">Te invitaron a unirte al equipo</h1>
+      <p style="margin:0 0 12px;color:${MUTED_COLOR};">Te sumaron a <b>${escapeHtml(marca)}</b> con el rol <b>${escapeHtml(rol)}</b>. Acepta la invitación para crear tu acceso al dashboard.</p>
+      <p style="margin:20px 0;"><a href="${escapeHtml(url)}" style="display:inline-block;background:${BRAND_COLOR};color:#FFFFFF;text-decoration:none;font-weight:700;padding:12px 20px;border-radius:8px;">Aceptar invitación</a></p>
+      <p style="margin:0;color:${MUTED_COLOR};">El enlace vence en ${dias} días.</p>
+    `),
+  };
+}

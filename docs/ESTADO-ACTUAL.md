@@ -797,3 +797,12 @@ sesión/máquina)**:
   código), Fase 4, Fase 5 (SEO/blog), deudas técnicas, y los datos y decisiones que
   dependen del dueño. `tasks/plan.md` marca lo ya hecho y agrega la Fase 2.5 (envío).
 - Estado del envío hoy: "a coordinar por WhatsApp", `Pedido.envio = 0`, total sin envío.
+
+### 2026-10-01 — Gestión de usuarios, invitaciones y autenticador
+
+- **Invitaciones por correo**: modelo `Invitacion` (solo hash del token, vence en 7 días; migración `20261001200000_invitaciones`). API: `GET/POST /invitaciones`, `POST /invitaciones/:id/reenviar`, `DELETE /invitaciones/:id` (admin) y públicas `GET /public/invitaciones/:token`, `POST /public/invitaciones/aceptar`. Página `/auth/invitacion` (cuenta nueva: nombre+contraseña; existente: un clic). 3 tests.
+- **Usuarios y equipo con datos reales** (`apps/web/src/screens/pages/Team.tsx`): pestañas Equipo / Invitaciones / Clientes de las webs (`GET /roles/clientes`); cambiar rol, activar/desactivar, quitar de la marca y restablecer 2FA (`PATCH/DELETE /roles/equipo/:usuarioId`). No se puede desactivar a quien está en otras marcas ni auto-modificarse.
+- **Fix de seguridad**: `asignar`, `quitarAsignacion` y `equipoDeMarca` aceptaban un `marcaId` distinto al de la cabecera (un admin de A podía actuar en B); ahora deben coincidir.
+- **Autenticador (TOTP)**: tarjeta en Ajustes (QR → código → códigos de respaldo → desactivar) con `GET /usuarios/me/seguridad`; en el login TOTP se agregó "Recibir un código por correo".
+- Arreglados los 3 tests de `updatePerfil` que fallaban desde antes.
+

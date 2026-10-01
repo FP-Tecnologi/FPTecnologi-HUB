@@ -60,9 +60,11 @@ Prisma (en `apps/api`, requiere `.env` con `DATABASE_URL`; ver `.env.example`):
 
 ## Flujo de trabajo
 
-- Tras cada cambio verificado (tsc + navegador), commit y push a `develop`, y luego fast-forward
-  de `main` (`git pull --rebase origin develop`; push develop; `checkout main`;
-  `merge --ff-only develop`; push main; volver a develop). No preguntar antes.
+- Se trabaja en `develop`; `main` es **producción**. Tras cada cambio terminado y verificado
+  (tsc + navegador, todo bien), commit y push a `develop`, y luego fast-forward de `main`
+  (`git pull --rebase origin develop`; push develop; `checkout main`; `merge --ff-only develop`;
+  push main; volver a develop). No preguntar antes. Si algo no está bien, no pasa a `main`.
+- Las ramas que ya no sirven (mergeadas o abandonadas) se eliminan; no dejar ramas viejas.
 - Antes de `git add`, revisa `git status` por archivos de otras sesiones; nunca subas
   `envs/.env` ni `envs/.env.local`.
 - Nombres de negocio (modelos, campos, rutas) en español; nombres técnicos internos en inglés.

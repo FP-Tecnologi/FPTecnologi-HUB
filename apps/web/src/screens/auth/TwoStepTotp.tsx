@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AuthStandalone, OffappTools, BrandCentered } from './authShared';
 import { useAuth, ApiError } from '../../context/AuthContext';
+import { api } from '../../lib/api';
 
 function TwoStepTotpInner() {
   const router = useRouter();
@@ -21,6 +22,13 @@ function TwoStepTotpInner() {
   const [loading, setLoading] = useState(false);
   const [invalid, setInvalid] = useState(false);
   const [invalidMessage, setInvalidMessage] = useState('Código inválido. Intenta de nuevo.');
+
+  // Alternativa a la app: el mismo 2FA pero con código al correo.
+  function enviarCodigoCorreo() {
+    if (!email) return;
+    api.post('/auth/otp/request', { email }, { auth: false }).catch(() => { /* best-effort */ });
+    router.push(`/auth/two-step?email=${encodeURIComponent(email)}`);
+  }
 
   function verify(ev: React.FormEvent) {
     ev.preventDefault();
@@ -90,7 +98,8 @@ function TwoStepTotpInner() {
               </form>
 
               <div className="ax-center" style={{ flexDirection: 'column', gap: 'var(--ax-space-2)' }}>
-                <Link className="ax-link" href="/auth/sign-in" style={{ fontSize: 'var(--ax-text-sm)' }}>Usar otro método</Link>
+                <button type="button" className="ax-link" style={{ fontSize: 'var(--ax-text-sm)', background: 'none', border: 0, cursor: 'pointer' }} onClick={enviarCodigoCorreo}>Recibir un código por correo</button>
+                <Link className="ax-link" href="/auth/sign-in" style={{ fontSize: 'var(--ax-text-sm)' }}>Volver a iniciar sesión</Link>
               </div>
             </div>
           </section>
