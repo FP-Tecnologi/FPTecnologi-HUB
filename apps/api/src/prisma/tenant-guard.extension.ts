@@ -42,6 +42,7 @@ const TENANT_MODELS = new Set([
   'ContactoWeb',
   'SuscriptorBoletin',
   'TarifaEnvio',
+  'CotizacionEnvio',
   'Proyecto',
   'Cliente',
 ]);

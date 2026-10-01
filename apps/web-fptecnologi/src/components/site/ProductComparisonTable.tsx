@@ -21,7 +21,7 @@ export function ProductComparisonTable({ products }: { products: (typeof FEATURE
             <th className="w-28" />
             {products.map((p) => (
               <th key={p.sku} className="p-4 text-center">
-                <div className="mx-auto mb-2 h-16 w-16 overflow-hidden rounded-lg bg-brand-primary/6">
+                <div className="mx-auto mb-2 h-16 w-16 overflow-hidden rounded-lg bg-producto">
                   <img src={p.image} alt={p.name} className="h-full w-full object-contain p-2" />
                 </div>
                 <p className="text-[10px] font-semibold uppercase text-brand-primary">{p.brand}</p>

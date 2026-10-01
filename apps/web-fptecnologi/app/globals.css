@@ -1051,3 +1051,9 @@ body {
 }
 .cot-step { animation: cot-step-in 0.35s ease both; }
 @media (prefers-reduced-motion: reduce) { .cot-step { animation: none; } }
+
+/* Fondo de las fotos de producto: sólido (no translúcido) para que los puntitos del body no se vean
+   por encima/detrás de la imagen. Mismo celeste suave de siempre. */
+.bg-producto {
+  background-color: color-mix(in srgb, var(--color-brand-primary) 8%, white);
+}

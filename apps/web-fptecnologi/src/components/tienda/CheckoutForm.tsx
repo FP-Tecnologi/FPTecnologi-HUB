@@ -6,6 +6,7 @@ import { useCart } from '@/context/CartContext';
 import { useCurrency } from '@/context/CurrencyContext';
 import { CONTACT_INFO } from '@/lib/content';
 import { ShalomAgencias, type TarifaEnvio } from './ShalomAgencias';
+import { guardarResumenPedido } from '@/lib/pedidoWhatsapp';
 
 type Comprobante = 'BOLETA' | 'FACTURA';
 type Entrega = 'RECOJO' | 'ENVIO' | 'SHALOM';
@@ -110,6 +111,7 @@ export function CheckoutForm() {
   const [enviando, setEnviando] = useState(false);
   const [errorGeneral, setErrorGeneral] = useState('');
   const [trampa, setTrampa] = useState('');
+  const [agenciaTexto, setAgenciaTexto] = useState('');
 
   const set = <K extends keyof V>(k: K, val: V[K]) => {
     setV((p) => ({ ...p, [k]: val }));
@@ -172,6 +174,30 @@ export function CheckoutForm() {
       });
       const cuerpo = (await res.json().catch(() => ({}))) as { message?: string | string[]; data?: { numeroPedido?: string | null; total?: number } };
       if (res.ok && cuerpo.data?.numeroPedido) {
+        // Resumen completo para armar el mensaje de WhatsApp en la página de gracias.
+        const entregaTexto =
+          v.entrega === 'SHALOM'
+            ? `Envío por Shalom a ${v.envioDepartamento}${agenciaTexto ? ` — recoge en ${agenciaTexto}` : ''}`
+            : v.entrega === 'ENVIO'
+              ? `Envío a domicilio: ${v.direccion.trim()}, ${v.distrito.trim()} (costo a coordinar)`
+              : 'Recojo en tienda';
+        guardarResumenPedido({
+          numero: cuerpo.data.numeroPedido,
+          nombre: v.nombre.trim(),
+          email: v.email.trim(),
+          celular: celularLimpio(v.celular),
+          comprobante: factura ? 'Factura' : 'Boleta',
+          documento: v.documento,
+          razonSocial: factura ? v.razonSocial.trim() : undefined,
+          entrega: entregaTexto,
+          pago: v.pago === 'TRANSFERENCIA' ? 'Transferencia' : v.pago === 'YAPE_PLIN' ? 'Yape / Plin' : 'Efectivo en tienda',
+          notas: v.notas.trim() || undefined,
+          items: items.map((i) => ({ sku: i.sku, nombre: i.name, qty: i.qty, subtotal: format(i.price * i.qty) })),
+          subtotal: format(subtotal),
+          igv: format(igv),
+          envio: tarifa ? format(envioCosto) : v.entrega === 'RECOJO' ? 'Gratis' : 'A coordinar',
+          total: format(cuerpo.data.total ?? totalConEnvio),
+        });
         clear();
         // El estado del carrito se guarda en un efecto; como se redirige enseguida, se borra también acá.
         try {
@@ -266,6 +292,7 @@ export function CheckoutForm() {
                 errorAgencia={errores.envioSede}
                 onDepartamento={(d) => setV((p) => ({ ...p, envioDepartamento: d }))}
                 onAgencia={(id) => set('envioSede', id)}
+                onEtiqueta={setAgenciaTexto}
               />
               {tarifa && (
                 <p className="rounded-xl bg-paper p-4 text-sm text-ink/70">

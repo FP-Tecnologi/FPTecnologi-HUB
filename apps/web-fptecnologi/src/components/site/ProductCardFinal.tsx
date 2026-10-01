@@ -36,7 +36,7 @@ export function ProductCardFinal({
   return (
     <>
       <div className="group overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm transition-shadow duration-300 hover:shadow-xl">
-        <div className="relative aspect-square overflow-hidden bg-brand-primary/8">
+        <div className="relative aspect-square overflow-hidden bg-producto">
           <span className="absolute left-2 top-2 z-10 rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white">-{discount}%</span>
 
           <button

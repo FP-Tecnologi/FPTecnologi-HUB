@@ -25,6 +25,7 @@ import { ChatModule } from './chat/chat.module.js';
 import { BoletinModule } from './boletin/boletin.module.js';
 import { InvitacionesModule } from './invitaciones/invitaciones.module.js';
 import { CotizadorModule } from './cotizador/cotizador.module.js';
+import { ClientesTiendaModule } from './clientes-tienda/clientes-tienda.module.js';
 import { EnviosModule } from './envios/envios.module.js';
 import { ContactoWebModule } from './contacto-web/contacto-web.module.js';
 import { ContenidoModule } from './contenido/contenido.module.js';
@@ -56,6 +57,7 @@ import { ClientesModule } from './clientes/clientes.module.js';
     CotizadorModule,
     ContactoWebModule,
     EnviosModule,
+    ClientesTiendaModule,
     BoletinModule,
     InvitacionesModule,
     BlogModule,

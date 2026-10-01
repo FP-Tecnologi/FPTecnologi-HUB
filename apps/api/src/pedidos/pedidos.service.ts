@@ -188,7 +188,7 @@ export class PedidosService {
       }
     }
 
-    this.avisarEquipo(marcaId, numeroPedido, dto.nombre.trim(), total).catch((e) =>
+    this.avisarEquipo(marcaId, numeroPedido, dto.nombre.trim(), total, envioCotizado ? `Envío por ${envioCotizado.proveedor} · ${envioCotizado.departamento}` : (dto.direccion ? 'Envío a domicilio (a coordinar)' : 'Recojo en tienda'), itemsData.map((i) => `${i.cantidad} × ${i.nombreSnapshot}`)).catch((e) =>
       this.logger.error('No se pudo avisar al equipo del pedido nuevo', e as Error),
     );
     this.mail.sendPedidoConfirmado(dto.email.trim().toLowerCase(), numeroPedido).catch((e) =>
@@ -270,21 +270,31 @@ export class PedidosService {
     if (intentos.size > 5000) for (const [k, v] of intentos) if (!v.some((t) => ahora - t < VENTANA_MS)) intentos.delete(k);
   }
 
-  private async avisarEquipo(marcaId: string, numero: string, nombre: string, total: number) {
+  /**
+   * Avisa al equipo (admin y ventas) de un pedido nuevo: notificación en el dashboard y correo con el
+   * detalle y el enlace para gestionarlo. Un fallo aquí nunca debe tumbar la compra (se captura arriba).
+   */
+  private async avisarEquipo(marcaId: string, numero: string, nombre: string, total: number, entrega: string, lineas: string[]) {
     const asignaciones = await this.prisma.usuarioMarcaRol.findMany({
       where: { marcaId, rol: { nombre: { in: ROLES_AVISO } } },
-      include: { usuario: { select: { id: true, activo: true } } },
+      include: { usuario: { select: { id: true, email: true, activo: true } } },
     });
-    const ids = [...new Set(asignaciones.filter((a) => a.usuario.activo).map((a) => a.usuario.id))];
-    if (ids.length === 0) return;
+    const usuarios = [...new Map(asignaciones.filter((a) => a.usuario.activo).map((a) => [a.usuario.id, a.usuario])).values()];
+    if (usuarios.length === 0) return;
     await this.prisma.notificacion.createMany({
-      data: ids.map((usuarioId) => ({
+      data: usuarios.map((u) => ({
         marcaId,
-        usuarioId,
+        usuarioId: u.id,
         tipo: 'PEDIDO' as const,
         titulo: `Nuevo pedido ${numero}`,
-        mensaje: `${nombre} compró por USD ${total.toFixed(2)} (pago por confirmar)`.slice(0, 140),
+        mensaje: `${nombre} compró por USD ${total.toFixed(2)} · ${entrega} (pago por confirmar)`.slice(0, 140),
       })),
     });
+    const url = `${process.env.WEB_ORIGIN ?? 'http://localhost:3000'}/ecommerce/pedidos`;
+    await Promise.all(
+      usuarios.map((u) =>
+        this.mail.sendPedidoNuevoEquipo(u.email, { numero, cliente: nombre, total: `USD ${total.toFixed(2)}`, entrega, items: lineas, url }),
+      ),
+    );
   }
 }

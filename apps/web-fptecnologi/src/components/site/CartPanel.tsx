@@ -45,7 +45,7 @@ export function CartPanel({ onNavigate }: { onNavigate?: () => void }) {
       <div className="flex max-h-72 flex-col gap-4 overflow-y-auto">
         {items.map((item) => (
           <div key={item.sku} className="flex gap-3">
-            <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-brand-primary/6">
+            <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-producto">
               <img src={item.image} alt={item.name} className="h-full w-full object-contain p-1.5" />
             </div>
             <div className="min-w-0 flex-1">

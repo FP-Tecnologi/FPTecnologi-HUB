@@ -53,7 +53,7 @@ export function ProductDetail({ product, relacionados }: { product: CatalogProdu
         <div className="grid gap-10 lg:grid-cols-2">
           {/* Galería */}
           <div>
-            <div className="group relative aspect-square overflow-hidden rounded-2xl bg-brand-primary/8 shadow-lg shadow-brand-dark/10">
+            <div className="group relative aspect-square overflow-hidden rounded-2xl bg-producto shadow-lg shadow-brand-dark/10">
               {discount > 0 && <span className="absolute left-4 top-4 z-10 rounded-md bg-red-500 px-2.5 py-1 text-xs font-bold text-white">-{discount}%</span>}
               <button type="button" onClick={() => setZoom(true)} aria-label="Ampliar foto" className="block h-full w-full cursor-zoom-in">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -78,7 +78,7 @@ export function ProductDetail({ product, relacionados }: { product: CatalogProdu
                     type="button"
                     onClick={() => setActive(i)}
                     aria-label={`Foto ${i + 1}`}
-                    className={`h-20 w-20 overflow-hidden rounded-xl bg-brand-primary/8 p-2 transition-all ${i === active ? 'ring-2 ring-brand-primary' : 'opacity-70 hover:opacity-100'}`}
+                    className={`h-20 w-20 overflow-hidden rounded-xl bg-producto p-2 transition-all ${i === active ? 'ring-2 ring-brand-primary' : 'opacity-70 hover:opacity-100'}`}
                   >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={src} alt="" className="h-full w-full object-contain mix-blend-multiply" />

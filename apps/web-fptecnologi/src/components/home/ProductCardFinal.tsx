@@ -60,7 +60,7 @@ export function ProductCardFinal({
       <div className="group h-full overflow-hidden rounded-2xl border border-black/5 bg-white shadow-lg shadow-brand-dark/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand-dark/25">
         {/* Fondo celeste suave (azul bajo); el blanco de las fotos se funde
             con mix-blend-multiply. */}
-        <div className="relative aspect-square overflow-hidden bg-brand-primary/8">
+        <div className="relative aspect-square overflow-hidden bg-producto">
           {discount > 0 && (
             <span className="absolute left-3 top-3 z-10 rounded-md bg-red-500 px-2 py-0.5 text-[11px] font-bold text-white">-{discount}%</span>
           )}
@@ -137,7 +137,7 @@ export function ProductCardFinal({
               type="button"
               onClick={() => setActive(i)}
               aria-label={`Ver foto ${i + 1}`}
-              className={`h-11 w-11 shrink-0 overflow-hidden rounded-lg border-2 bg-brand-primary/8 transition-colors ${
+              className={`h-11 w-11 shrink-0 overflow-hidden rounded-lg border-2 bg-producto transition-colors ${
                 active === i ? 'border-brand-primary' : 'border-transparent hover:border-brand-primary/40'
               }`}
             >

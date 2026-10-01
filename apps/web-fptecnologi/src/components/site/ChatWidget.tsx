@@ -260,7 +260,7 @@ const ACTION_ICON: Record<ChatActionKind, LucideIcon | typeof WhatsAppIcon> = {
 };
 
 /*
- * Dos looks del panel: claro en la tienda (/tienda...) y oscuro tipo Hero
+ * Dos looks del panel: claro en la tienda (/tienda, ficha de producto, marcas, carrito y checkout) y oscuro tipo Hero
  * (vidrio ink + acentos de marca) en el resto de la web informativa.
  */
 const THEMES = {
@@ -447,7 +447,7 @@ function OptionCard({ icon: Icon, tint, title, text, onClick, extra, t }: {
 export function ChatWidget() {
   const pathname = usePathname();
   const variant = getVariant(pathname);
-  const t = THEMES[pathname?.startsWith('/tienda') ? 'light' : 'dark'];
+  const t = THEMES[/^\/(tienda|producto|marcas|carrito|checkout)(\/|$)/.test(pathname ?? '') ? 'light' : 'dark'];
   const { subscribeAskAI } = useChatWidget();
 
   const [open, setOpen] = useState(false);

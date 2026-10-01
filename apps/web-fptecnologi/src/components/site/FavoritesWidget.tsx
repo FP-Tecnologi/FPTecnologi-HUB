@@ -69,7 +69,7 @@ export function FavoritesWidget() {
                 return (
                   // Fila resumida: foto, marca, nombre, precio y 2 acciones.
                   <div key={p.sku} className="flex items-center gap-3 rounded-xl border border-black/5 bg-white p-2.5 shadow-sm shadow-brand-dark/10">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-brand-primary/8">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-producto">
                       <img src={p.image} alt={p.name} className="h-full w-full object-contain p-1.5 mix-blend-multiply" />
                     </div>
                     <div className="min-w-0 flex-1">

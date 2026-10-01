@@ -31,6 +31,7 @@ export function ShalomAgencias({
   errorAgencia,
   onDepartamento,
   onAgencia,
+  onEtiqueta,
 }: {
   tarifas: TarifaEnvio[];
   departamento: string;
@@ -39,6 +40,8 @@ export function ShalomAgencias({
   errorAgencia?: string;
   onDepartamento: (d: string) => void;
   onAgencia: (id: string) => void;
+  /** Texto legible de la agencia elegida (para el resumen del pedido). */
+  onEtiqueta?: (texto: string) => void;
 }) {
   const [provincias, setProvincias] = useState<{ provincia: string; agencias: number }[]>([]);
   const [provincia, setProvincia] = useState('');
@@ -68,6 +71,11 @@ export function ShalomAgencias({
   }, [departamento, provincia]);
 
   const elegida = agencias.find((a) => a.id === agenciaId) ?? cercanas.find((a) => a.id === agenciaId);
+
+  useEffect(() => {
+    onEtiqueta?.(elegida ? `${elegida.zona} — ${elegida.direccion} (${elegida.provincia}, ${departamento})` : '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [elegida?.id, departamento]);
 
   function usarUbicacion() {
     setAvisoUbicacion('');

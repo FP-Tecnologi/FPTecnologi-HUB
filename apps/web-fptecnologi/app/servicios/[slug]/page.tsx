@@ -8,6 +8,7 @@ import { SectionBadge } from '@/components/home/SectionBadge';
 import { ScrollReveal } from '@/components/home/ScrollReveal';
 import { MoreInfoButton } from '@/components/home/MoreInfoButton';
 import { ServiceCardFinal } from '@/components/home/ServiceCardFinal';
+import { CotizarServicioForm } from '@/components/site/CotizarServicioForm';
 import { Contact } from '@/components/home/Contact';
 import { Footer } from '@/components/home/Footer';
 
@@ -38,7 +39,7 @@ export default async function ServicioDetailPage({ params }: { params: Promise<{
         descripcion={s.description}
         imagen={s.image}
       >
-        <MoreInfoButton tone="dark" href="/cotizador" label="Cotizar este servicio" />
+        <MoreInfoButton tone="dark" href="#cotizar" label="Cotizar este servicio" />
         <WhatsAppCta label="Hablar con un especialista" texto={`Hola, quiero información sobre ${s.title}`} />
       </PageHero>
 
@@ -131,6 +132,21 @@ export default async function ServicioDetailPage({ params }: { params: Promise<{
             </div>
           </section>
         )}
+
+        <section id="cotizar" className="scroll-mt-28 py-20">
+          <div className="mx-auto grid max-w-7xl items-start gap-10 px-6 lg:grid-cols-[minmax(0,380px)_1fr]">
+            <ScrollReveal direction="left">
+              <SectionBadge>Cotiza este servicio</SectionBadge>
+              <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
+                <span className="text-ink">Pide tu</span> <span className="title-shimmer-light">cotización</span>
+              </h2>
+              <p className="mt-4 text-ink/60">Cuéntanos qué necesitas de {s.title}. Un especialista prepara la propuesta y te la envía por correo o WhatsApp.</p>
+            </ScrollReveal>
+            <ScrollReveal direction="right" delayMs={120}>
+              <CotizarServicioForm servicioSlug={s.slug} servicioTitulo={s.title} />
+            </ScrollReveal>
+          </div>
+        </section>
 
         <section className="bg-white py-20">
           <div className="mx-auto max-w-7xl px-6">

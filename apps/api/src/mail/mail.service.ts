@@ -13,6 +13,9 @@ import {
   leadNuevoEmail,
   contactoNuevoEmail,
   invitacionEmail,
+  cotizacionServicioEmail,
+  type CotizacionCorreo,
+  pedidoNuevoEquipoEmail,
 } from './templates.js';
 
 @Injectable()
@@ -77,6 +80,20 @@ export class MailService {
 
   async sendInvitacion(to: string, marca: string, rol: string, url: string, dias: number): Promise<void> {
     await this.send(to, invitacionEmail(marca, rol, url, dias));
+  }
+
+  async sendPedidoNuevoEquipo(to: string, datos: Parameters<typeof pedidoNuevoEquipoEmail>[0]): Promise<void> {
+    await this.send(to, pedidoNuevoEquipoEmail(datos));
+  }
+
+  /** Envía la cotización de un servicio al cliente. A diferencia de los avisos, el error SÍ se propaga (el equipo debe saber si no salió). */
+  async sendCotizacionServicio(to: string, datos: CotizacionCorreo): Promise<void> {
+    const { subject, html } = cotizacionServicioEmail(datos);
+    if (this.driver === 'resend') {
+      await this.resend!.emails.send({ from: this.fromEmail, to, subject, html });
+    } else {
+      await this.smtpTransport!.sendMail({ from: this.fromEmail, to, subject, html });
+    }
   }
 
   private async send(to: string, { subject, html }: { subject: string; html: string }): Promise<void> {

@@ -170,3 +170,54 @@ export function invitacionEmail(marca: string, rol: string, url: string, dias: n
     `),
   };
 }
+
+export interface CotizacionCorreo {
+  numero: string;
+  cliente: string;
+  servicio: string;
+  propuesta: string | null;
+  monto: string | null; // ya formateado: "USD 1,200.00"
+  validezHasta: string | null; // ya formateada
+  mensajeExtra?: string | null;
+}
+
+export function cotizacionServicioEmail(c: CotizacionCorreo): { subject: string; html: string } {
+  const filas = [
+    c.monto ? `<tr><td style="padding:6px 0;color:${MUTED_COLOR};">Inversión</td><td style="padding:6px 0;text-align:right;font-weight:700;">${escapeHtml(c.monto)}</td></tr>` : '',
+    c.validezHasta ? `<tr><td style="padding:6px 0;color:${MUTED_COLOR};">Válida hasta</td><td style="padding:6px 0;text-align:right;">${escapeHtml(c.validezHasta)}</td></tr>` : '',
+  ].join('');
+  return {
+    subject: `Tu cotización ${c.numero} · ${c.servicio}`,
+    html: layout(`
+      <h1 style="margin:0 0 12px;font-size:20px;">Tu cotización de ${escapeHtml(c.servicio)}</h1>
+      <p style="margin:0 0 12px;color:${MUTED_COLOR};">Hola ${escapeHtml(c.cliente)}, gracias por tu interés. Esta es nuestra propuesta (referencia <b>${escapeHtml(c.numero)}</b>):</p>
+      ${c.mensajeExtra ? `<p style="margin:0 0 12px;">${escapeHtml(c.mensajeExtra).replace(/\n/g, '<br>')}</p>` : ''}
+      ${c.propuesta ? `<div style="margin:16px 0;padding:14px 20px;background:${CODE_BG};border-radius:8px;color:${TEXT_COLOR};">${escapeHtml(c.propuesta).replace(/\n/g, '<br>')}</div>` : ''}
+      ${filas ? `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:8px 0 16px;border-top:1px solid #E6EBEF;">${filas}</table>` : ''}
+      <p style="margin:0;color:${MUTED_COLOR};">Si quieres avanzar o ajustar algo, responde este correo o escríbenos por WhatsApp y un asesor te atiende.</p>
+    `),
+  };
+}
+
+export function pedidoNuevoEquipoEmail(d: {
+  numero: string;
+  cliente: string;
+  total: string;
+  entrega: string;
+  items: string[];
+  url: string;
+}): { subject: string; html: string } {
+  return {
+    subject: `Nuevo pedido ${d.numero} · ${d.total}`,
+    html: layout(`
+      <h1 style="margin:0 0 12px;font-size:20px;">Un cliente realizó un pedido</h1>
+      <p style="margin:0 0 12px;color:${MUTED_COLOR};"><b>${escapeHtml(d.cliente)}</b> confirmó el pedido <b>${escapeHtml(d.numero)}</b> en la tienda. Falta confirmar el pago y coordinar la entrega.</p>
+      <div style="margin:16px 0;padding:14px 20px;background:${CODE_BG};border-radius:8px;color:${TEXT_COLOR};">
+        ${d.items.map((i) => `${escapeHtml(i)}<br/>`).join('')}
+        <div style="margin-top:10px;font-weight:700;">Total: ${escapeHtml(d.total)}</div>
+        <div style="color:${MUTED_COLOR};font-size:13px;">Entrega: ${escapeHtml(d.entrega)}</div>
+      </div>
+      <a href="${escapeHtml(d.url)}" style="display:inline-block;background:${BRAND_COLOR};color:#FFFFFF;text-decoration:none;font-weight:700;padding:12px 20px;border-radius:8px;">Gestionar pedido</a>
+    `),
+  };
+}

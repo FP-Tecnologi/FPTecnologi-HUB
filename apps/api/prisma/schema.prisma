@@ -49,6 +49,7 @@ model Marca {
   suscriptores       SuscriptorBoletin[]
   invitaciones       Invitacion[]
   tarifasEnvio       TarifaEnvio[]
+  cotizacionEnvios   CotizacionEnvio[]
 }
 
 model Sitio {
@@ -396,20 +397,50 @@ enum EstadoCotizacion {
 }
 
 model Cotizacion {
-  id              String           @id @default(uuid())
+  id              String            @id @default(uuid())
   marcaId         String
-  marca           Marca            @relation(fields: [marcaId], references: [id])
+  marca           Marca             @relation(fields: [marcaId], references: [id])
+  numero          String? // correlativo humano COT-AAAA-XXXXXX, único por marca
   servicioId      String
-  servicio        Servicio         @relation(fields: [servicioId], references: [id])
+  servicio        Servicio          @relation(fields: [servicioId], references: [id])
   clienteNombre   String
   clienteEmail    String
   clienteTelefono String?
-  mensaje         String?
-  estado          EstadoCotizacion @default(PENDIENTE)
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
+  clienteEmpresa  String?
+  mensaje         String? // lo que pidió el cliente
+  origen          String? // página desde donde llegó
+  estado          EstadoCotizacion  @default(PENDIENTE)
+  // Propuesta que prepara el equipo y se envía al cliente (correo o WhatsApp)
+  propuesta       String?
+  monto           Decimal?
+  moneda          String            @default("USD")
+  validezHasta    DateTime?
+  notas           String? // internas
+  atendidoPor     String? // email del usuario que la gestionó por última vez
+  enviadaAt       DateTime?
+  envios          CotizacionEnvio[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
 
+  @@unique([marcaId, numero])
   @@index([marcaId])
+  @@index([marcaId, clienteEmail])
+}
+
+// Cada vez que se envía una cotización al cliente (historial por cliente).
+model CotizacionEnvio {
+  id           String     @id @default(uuid())
+  marcaId      String
+  marca        Marca      @relation(fields: [marcaId], references: [id])
+  cotizacionId String
+  cotizacion   Cotizacion @relation(fields: [cotizacionId], references: [id], onDelete: Cascade)
+  canal        String // EMAIL | WHATSAPP
+  destinatario String // correo o celular
+  mensaje      String
+  enviadoPor   String // email del usuario
+  createdAt    DateTime   @default(now())
+
+  @@index([marcaId, cotizacionId])
 }
 
 // ---------------------------------------------------------------------------

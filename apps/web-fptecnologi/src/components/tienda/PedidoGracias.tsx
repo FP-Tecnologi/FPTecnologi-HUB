@@ -1,12 +1,13 @@
 'use client';
 
 import { CheckCircle2, Copy, Headset, Mail, MapPin, MessageCircle, PackageCheck, Phone, ReceiptText, Check } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useCurrency } from '@/context/CurrencyContext';
 import { whatsappHref } from '@/lib/chatActions';
 import { CONTACT_INFO } from '@/lib/content';
 import { MoreInfoButton } from '@/components/home/MoreInfoButton';
 import { PasosCompra } from './PasosCompra';
+import { leerResumenPedido, whatsappPedidoHref, type ResumenPedido } from '@/lib/pedidoWhatsapp';
 
 const SIGUIENTES = [
   { Icon: MessageCircle, titulo: 'Te escribimos por WhatsApp', texto: 'Un asesor confirma tu pedido y los datos de pago.' },
@@ -19,6 +20,10 @@ export function PedidoGracias({ numero, total }: { numero: string; total: number
   const { format } = useCurrency();
   const [copiado, setCopiado] = useState(false);
   const mensaje = `Hola, acabo de hacer el pedido ${numero} en la web de FPTecnologi y quiero coordinar el pago y la entrega.`;
+  // Con el resumen guardado por el checkout, el mensaje lleva todos los datos del pedido.
+  const [resumen, setResumen] = useState<ResumenPedido | null>(null);
+  useEffect(() => setResumen(leerResumenPedido(numero)), [numero]);
+  const hrefWhatsapp = resumen ? whatsappPedidoHref(resumen) : whatsappHref(mensaje);
 
   return (
     <div role="status">
@@ -33,7 +38,7 @@ export function PedidoGracias({ numero, total }: { numero: string; total: number
               </span>
               <div>
                 <h2 className="font-display text-3xl font-bold leading-tight text-ink">¡Recibimos tu pedido!</h2>
-                <p className="mt-1.5 text-ink/60">Gracias por comprar en FPTecnologi. Te enviamos la confirmación a tu correo y un asesor te escribirá en breve.</p>
+                <p className="mt-1.5 text-ink/60">Gracias por comprar en FPTecnologi. Te enviamos la confirmación a tu correo. Para agilizar la atención, envía el detalle de tu pedido a nuestro WhatsApp: un asesor te responde enseguida.</p>
               </div>
             </div>
 
@@ -69,12 +74,12 @@ export function PedidoGracias({ numero, total }: { numero: string; total: number
 
             <div className="relative mt-8 flex flex-col gap-3 sm:flex-row">
               <a
-                href={whatsappHref(mensaje)}
+                href={hrefWhatsapp}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-whatsapp px-6 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-whatsapp/25 transition-colors hover:bg-whatsapp-dark"
               >
-                <MessageCircle className="h-5 w-5" strokeWidth={2} /> Escribir por WhatsApp
+                <MessageCircle className="h-5 w-5" strokeWidth={2} /> {resumen ? 'Enviar mi pedido por WhatsApp' : 'Escribir por WhatsApp'}
               </a>
               <MoreInfoButton href="/tienda" label="Seguir comprando" />
             </div>
