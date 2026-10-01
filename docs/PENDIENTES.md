@@ -46,8 +46,13 @@ ofrece *recojo en tienda* o *envío a domicilio (costo a coordinar)*, el total
   `shalom:<ter_id>`); `GET /public/envios/agencias*` prueba lo vivo primero y
   cae al directorio estático si falla o tarda (>8s, caché 24h/10min);
   `cotizar` acepta sedes vivas. Alcance: **solo agencias** — tarifas y guías
-  siguen propias/a mano hasta tener key con plan. Ojo: la API viva trae
-  mojibake en tildes (ej. `Convenci�n`) y no tiene sandbox.
+   siguen propias/a mano hasta tener key con plan. Ojo: la API viva trae
+   mojibake en tildes (ej. `Convenci�n`) y no tiene sandbox.
+- **Pendiente (tildes de agencias vivas):** los textos que vienen de
+  shalom-api.lat traen caracteres rotos en tildes/ñ. Decisión del dueño
+  (2026-10-01): se deja así por ahora y se corrige después. Opciones:
+  normalizar al mapear en `ShalomApiProvider` (reemplazo de secuencias
+  rotas) o reportarlo al proveedor.
 - Sigue pendiente preguntarle a Shalom (convenio corporativo) por API/costos
   oficiales, o pedir la key de shalom-api.lat para cotizar y crear guías de
   verdad. **No inventar** tarifas ni endpoints.
