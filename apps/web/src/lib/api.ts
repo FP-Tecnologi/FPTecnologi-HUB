@@ -128,7 +128,9 @@ async function refreshAccessToken(): Promise<boolean> {
 
 async function request<T>(path: string, options: RequestOptions = {}, _retried = false): Promise<T> {
   const { method = 'GET', body, auth = true, marcaId, signal } = options;
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const esForm = typeof FormData !== 'undefined' && body instanceof FormData;
+  // Con FormData el navegador arma el Content-Type (multipart + boundary): no se debe fijar a mano.
+  const headers: Record<string, string> = esForm ? {} : { 'Content-Type': 'application/json' };
 
   if (auth) {
     const accessToken = tokenStore.getAccessToken();
@@ -140,7 +142,7 @@ async function request<T>(path: string, options: RequestOptions = {}, _retried =
   const res = await fetch(`${API_URL}${path}`, {
     method,
     headers,
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+    body: body === undefined ? undefined : esForm ? (body as FormData) : JSON.stringify(body),
     signal,
     // Necesario para que el navegador guarde/envíe la cookie httpOnly de
     // "dispositivo confiable" (ax_device) — la API está en otro origen.

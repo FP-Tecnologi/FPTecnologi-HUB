@@ -14,3 +14,6 @@ envs/
 .env
 .env.local
 .env.*.local
+
+# Imágenes subidas desde el dashboard (se guardan en el servidor, no en git)
+apps/api/uploads/

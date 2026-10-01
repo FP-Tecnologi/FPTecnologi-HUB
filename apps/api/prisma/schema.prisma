@@ -50,6 +50,9 @@ model Marca {
   invitaciones       Invitacion[]
   tarifasEnvio       TarifaEnvio[]
   cotizacionEnvios   CotizacionEnvio[]
+  campanas           Campana[]
+  landings           Landing[]
+  landingRegistros   LandingRegistro[]
 }
 
 model Sitio {
@@ -712,4 +715,76 @@ model TarifaEnvio {
 
   @@unique([marcaId, proveedor, departamento])
   @@index([marcaId])
+}
+
+// ---------------------------------------------------------------------------
+// Campañas y landing pages (eventos, ofertas, captación). El contenido y el
+// formulario de cada landing son JSON editables desde el dashboard; los
+// registros guardan lo que respondió cada persona.
+// ---------------------------------------------------------------------------
+
+enum EstadoCampana {
+  BORRADOR
+  ACTIVA
+  FINALIZADA
+}
+
+enum EstadoLanding {
+  BORRADOR
+  PUBLICADA
+}
+
+model Campana {
+  id          String        @id @default(uuid())
+  marcaId     String
+  marca       Marca         @relation(fields: [marcaId], references: [id])
+  nombre      String
+  descripcion String?
+  objetivo    String?
+  estado      EstadoCampana @default(BORRADOR)
+  inicio      DateTime?
+  fin         DateTime?
+  presupuesto Decimal?
+  moneda      String        @default("PEN")
+  landings    Landing[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([marcaId, estado])
+}
+
+model Landing {
+  id         String            @id @default(uuid())
+  marcaId    String
+  marca      Marca             @relation(fields: [marcaId], references: [id])
+  campanaId  String?
+  campana    Campana?          @relation(fields: [campanaId], references: [id], onDelete: SetNull)
+  slug       String // URL pública: /l/<slug>
+  nombre     String
+  plantilla  String // evento | oferta | captacion
+  estado     EstadoLanding     @default(BORRADOR)
+  contenido  Json
+  formulario Json
+  registros  LandingRegistro[]
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+
+  @@unique([marcaId, slug])
+  @@index([marcaId, estado])
+}
+
+model LandingRegistro {
+  id        String   @id @default(uuid())
+  marcaId   String
+  marca     Marca    @relation(fields: [marcaId], references: [id])
+  landingId String
+  landing   Landing  @relation(fields: [landingId], references: [id], onDelete: Cascade)
+  datos     Json // respuestas por id de campo
+  nombre    String?
+  email     String?
+  celular   String?
+  origen    String? // utm / página de origen
+  createdAt DateTime @default(now())
+
+  @@index([marcaId, landingId, createdAt])
 }

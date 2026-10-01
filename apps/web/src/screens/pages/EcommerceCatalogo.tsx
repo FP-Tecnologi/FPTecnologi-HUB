@@ -9,6 +9,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { SubirImagen } from '../../components/ui/SubirImagen';
 
 interface Categoria { id: string; nombre: string; slug: string | null; orden: number; activo: boolean; portadaUrl: string | null; _count: { productos: number } }
 interface MarcaCom { nombre: string; productos: number }
@@ -160,7 +161,7 @@ export function EcommerceCatalogo() {
               <div className="ax-field"><label className="ax-label" htmlFor="cat-nombre">Nombre</label><input id="cat-nombre" className="ax-input" required value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} /></div>
               <div className="ax-field"><label className="ax-label" htmlFor="cat-slug">Slug (opcional)</label><input id="cat-slug" className="ax-input" placeholder="se genera del nombre" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} /></div>
               <div className="ax-field"><label className="ax-label" htmlFor="cat-orden">Orden</label><input id="cat-orden" type="number" min={0} className="ax-input" value={form.orden} onChange={(e) => setForm({ ...form, orden: e.target.value })} /></div>
-              <div className="ax-field"><label className="ax-label" htmlFor="cat-img">URL de portada</label><input id="cat-img" className="ax-input" value={form.portadaUrl} onChange={(e) => setForm({ ...form, portadaUrl: e.target.value })} /></div>
+              <div className="ax-field"><label className="ax-label" htmlFor="cat-img">URL de portada</label><input id="cat-img" className="ax-input" value={form.portadaUrl} onChange={(e) => setForm({ ...form, portadaUrl: e.target.value })} /><SubirImagen onSubida={(urls) => setForm({ ...form, portadaUrl: urls[0]! })} etiqueta="Subir portada" /></div>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'flex-end' }}>
                 <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEditId(null)}>Cancelar</button>
                 <button type="submit" className="ax-btn ax-btn--primary">Guardar</button>

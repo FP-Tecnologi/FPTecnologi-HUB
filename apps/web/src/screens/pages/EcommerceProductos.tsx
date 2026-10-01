@@ -9,6 +9,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
@@ -292,7 +293,32 @@ export function EcommerceProductos() {
                 </select>
               </div>
               <div className="ax-field">
-                <label className="ax-label" htmlFor="p-img">Imágenes (una URL por línea; la primera es la portada)</label>
+                <span className="ax-label">Imágenes (la primera es la portada)</span>
+                {(() => {
+                  const lista = edit.form.imagenes.split('\n').map((l) => l.trim()).filter(Boolean);
+                  const guardar = (nueva: string[]) => set('imagenes', nueva.join('\n'));
+                  return (
+                    <>
+                      {lista.length > 0 && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--ax-space-2)', marginBlockEnd: 'var(--ax-space-2)' }}>
+                          {lista.map((u, i) => (
+                            <div key={u + i} style={{ position: 'relative', inlineSize: 84, blockSize: 84, borderRadius: 'var(--ax-radius-md)', border: i === 0 ? '2px solid var(--ax-accent)' : '1px solid var(--ax-border)', background: 'var(--ax-surface-subtle)', overflow: 'hidden' }}>
+                              {/* eslint-disable-next-line @next/next/no-img-element */}
+                              <img src={urlImagen(u)} alt="" style={{ inlineSize: '100%', blockSize: '100%', objectFit: 'contain' }} />
+                              {i === 0 && <span style={{ position: 'absolute', insetBlockStart: 2, insetInlineStart: 2, fontSize: 10, background: 'var(--ax-accent)', color: 'var(--ax-on-accent)', borderRadius: 4, paddingInline: 4 }}>Portada</span>}
+                              <div style={{ position: 'absolute', insetBlockEnd: 0, insetInline: 0, display: 'flex', justifyContent: 'space-between', background: 'rgba(0,0,0,.55)' }}>
+                                <button type="button" aria-label="Poner de portada" disabled={i === 0} onClick={() => guardar([u, ...lista.filter((_, j) => j !== i)])} style={{ color: '#fff', fontSize: 12, padding: '2px 6px', opacity: i === 0 ? 0.3 : 1 }}>★</button>
+                                <button type="button" aria-label="Quitar imagen" onClick={() => guardar(lista.filter((_, j) => j !== i))} style={{ color: '#fff', fontSize: 12, padding: '2px 6px' }}>✕</button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <SubirImagen multiple onSubida={(urls) => guardar([...lista, ...urls])} />
+                    </>
+                  );
+                })()}
+                <label className="ax-label" htmlFor="p-img" style={{ marginBlockStart: 'var(--ax-space-3)' }}>…o pega URLs (una por línea)</label>
                 <textarea id="p-img" className="ax-textarea" rows={3} value={edit.form.imagenes} onChange={(e) => set('imagenes', e.target.value)} placeholder="https://…" />
               </div>
               <div className="ax-field">
