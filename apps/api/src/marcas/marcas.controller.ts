@@ -14,6 +14,7 @@ import { UpdateMarcaDto } from './dto/update-marca.dto.js';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import { MarcaRolGuard } from '../common/guards/marca-rol.guard.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
+import { SuperAdminGuard } from '../common/guards/super-admin.guard.js';
 
 /**
  * Marca (brand/tenant) management. Listing/creating brands is an
@@ -26,6 +27,7 @@ import { Roles } from '../common/decorators/roles.decorator.js';
 export class MarcasController {
   constructor(private readonly marcasService: MarcasService) {}
 
+  @UseGuards(SuperAdminGuard)
   @Post()
   create(@Body() dto: CreateMarcaDto) {
     return this.marcasService.create(dto);
@@ -49,8 +51,7 @@ export class MarcasController {
     return this.marcasService.update(id, dto);
   }
 
-  @UseGuards(MarcaRolGuard)
-  @Roles('admin')
+  @UseGuards(SuperAdminGuard)
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.marcasService.remove(id);

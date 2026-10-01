@@ -188,6 +188,7 @@ model Invitacion {
   tokenHash  String    @unique
   expiresAt  DateTime
   aceptadaAt DateTime?
+  invitadoPor String? // correo de quien envió la invitación
   createdAt  DateTime  @default(now())
 
   @@index([marcaId, createdAt])

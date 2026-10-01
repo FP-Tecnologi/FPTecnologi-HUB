@@ -14,7 +14,7 @@ import { api } from '../../lib/api';
 interface Rol { id: string; nombre: string }
 interface Usuario { id: string; email: string; nombre: string | null; activo: boolean; telefono: string | null; cargo: string | null; totpEnabled: boolean; createdAt: string }
 interface Fila { usuarioId: string; rolId: string; usuario: Usuario; rol: Rol; createdAt: string }
-interface Invitacion { id: string; email: string; expiresAt: string; rol: Rol }
+interface Invitacion { id: string; email: string; expiresAt: string; rol: Rol; invitadoPor?: string | null }
 type Tab = 'equipo' | 'invitaciones' | 'clientes';
 
 const errMsg = (e: unknown, fallback: string) => (e instanceof ApiError ? e.message : fallback);
@@ -242,7 +242,7 @@ export function Team() {
                       const vencida = new Date(i.expiresAt) < new Date();
                       return (
                         <tr key={i.id} className="ax-table__row">
-                          <td className="ax-table__td">{i.email}</td>
+                          <td className="ax-table__td">{i.email}{i.invitadoPor && <div style={{ fontSize: "var(--ax-text-xs)", color: "var(--ax-text-subtle)" }}>Invitó: {i.invitadoPor}</div>}</td>
                           <td className="ax-table__td"><span className="ax-badge ax-badge--soft ax-badge--neutral ax-badge--pill">{i.rol.nombre}</span></td>
                           <td className="ax-table__td" style={{ color: vencida ? 'var(--ax-danger-500)' : 'var(--ax-text-muted)' }}>{vencida ? 'Vencida' : fecha(i.expiresAt)}</td>
                           <td className="ax-table__td" style={{ textAlign: 'right' }}>

@@ -5,6 +5,8 @@ import { MarcaRolGuard } from '../common/guards/marca-rol.guard.js';
 import { MarcaActual } from '../common/decorators/marca-actual.decorator.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
 import { Public } from '../common/decorators/public.decorator.js';
+import { CurrentUser } from '../common/decorators/current-user.decorator.js';
+import type { AuthenticatedUser } from '../auth/types/authenticated-user.js';
 
 /** Dashboard: invitaciones pendientes de la marca activa (solo admin). */
 @UseGuards(MarcaRolGuard)
@@ -19,8 +21,8 @@ export class InvitacionesController {
   }
 
   @Post()
-  crear(@MarcaActual() marcaId: string, @Body() dto: CrearInvitacionDto) {
-    return this.invitaciones.crear(marcaId, dto);
+  crear(@MarcaActual() marcaId: string, @Body() dto: CrearInvitacionDto, @CurrentUser() user: AuthenticatedUser) {
+    return this.invitaciones.crear(marcaId, dto, user.email);
   }
 
   @Post(':id/reenviar')

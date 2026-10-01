@@ -963,3 +963,10 @@ Se copiaron al dashboard (`apps/admin/public/mailing-fp/`, con `catalogo.json`) 
 ## 2026-10-01 — Campanita de notificaciones en el encabezado
 
 Junto al perfil, en el encabezado del dashboard, hay una campanita con contador de no leídas y un panel con las últimas 8 (marcar una o todas como leídas, «Ver todas» → `/notificaciones`). Consulta `GET /notificaciones?limite=30` cada 30 s (solo con la pestaña visible) y, cuando llega una nueva, muestra un aviso flotante arriba a la derecha (7 s, máx. 3). Son las mismas notificaciones del sistema (pedidos, cotizaciones, chat, equipo, stock). Código: `apps/admin/src/components/shell/NotificationBell.tsx`; la API ganó el parámetro opcional `limite` (tope 100). Sin sonido ni notificaciones del navegador por ahora.
+
+## 2026-10-01 — Super administrador y usuarios globales
+
+- **Super admin** = usuario con rol `admin` en **todas** las marcas (se deduce de las asignaciones; no hay un rol aparte). `SuperAdminGuard` (`apps/api/src/common/guards/super-admin.guard.ts`) protege lo que cruza marcas: **crear y borrar marcas** (antes cualquier usuario con sesión podía crear una marca por `POST /marcas`) y `GET/PATCH/POST/DELETE /usuarios/global/*`.
+- **Dashboard → Configuración → Todos los usuarios** (`/admin/usuarios`): cuentas de todas las marcas con sus roles por marca, búsqueda y filtros por marca/rol, activar/desactivar la cuenta, agregar/quitar un rol en una marca (nadie se quita su propio admin ni se desactiva a sí mismo).
+- **Invitaciones**: ahora guardan quién invitó (`Invitacion.invitadoPor`, migración `20261001290000`) y la pestaña Invitaciones lo muestra.
+- `jaimetr1309@gmail.com` es super admin (admin de las 5 marcas); su contraseña se actualizó en la base. Quedan sin hacer: invitar con rol `cliente`, varios roles en una sola invitación y asignar asesores del chat desde Usuarios.

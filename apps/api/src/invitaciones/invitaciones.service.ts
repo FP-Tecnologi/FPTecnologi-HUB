@@ -28,7 +28,7 @@ export class InvitacionesService {
   }
 
   /** Una sola invitación pendiente por correo+marca: invitar de nuevo reemplaza la anterior. */
-  async crear(marcaId: string, dto: CrearInvitacionDto) {
+  async crear(marcaId: string, dto: CrearInvitacionDto, invitadoPor?: string) {
     const email = normalizeEmail(dto.email);
     const rol = await this.prisma.rol.findUnique({ where: { id: dto.rolId } });
     if (!rol || rol.nombre === ROL_CLIENTE) {
@@ -42,7 +42,7 @@ export class InvitacionesService {
     }
 
     await this.prisma.invitacion.deleteMany({ where: { marcaId, email, aceptadaAt: null } });
-    const inv = await this.emitir(marcaId, email, dto.rolId);
+    const inv = await this.emitir(marcaId, email, dto.rolId, invitadoPor);
     return { id: inv.id, email, rolId: dto.rolId, expiresAt: inv.expiresAt };
   }
 
@@ -50,7 +50,7 @@ export class InvitacionesService {
     const inv = await this.prisma.invitacion.findFirst({ where: { id, marcaId, aceptadaAt: null } });
     if (!inv) throw new NotFoundException('Invitación no encontrada');
     await this.prisma.invitacion.deleteMany({ where: { id, marcaId } });
-    const nueva = await this.emitir(marcaId, inv.email, inv.rolId);
+    const nueva = await this.emitir(marcaId, inv.email, inv.rolId, inv.invitadoPor ?? undefined);
     return { id: nueva.id, email: inv.email, expiresAt: nueva.expiresAt };
   }
 
@@ -104,13 +104,14 @@ export class InvitacionesService {
     return inv;
   }
 
-  private async emitir(marcaId: string, email: string, rolId: string) {
+  private async emitir(marcaId: string, email: string, rolId: string, invitadoPor?: string) {
     const token = randomBytes(32).toString('hex');
     const inv = await this.prisma.invitacion.create({
       data: {
         marcaId,
         rolId,
         email,
+        invitadoPor,
         tokenHash: hashToken(token),
         expiresAt: new Date(Date.now() + VIGENCIA_DIAS * 24 * 60 * 60 * 1000),
       },
