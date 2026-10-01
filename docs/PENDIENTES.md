@@ -89,11 +89,14 @@ solo a sedes Shalom o también domicilio?
   `999 999 999` (`WHATSAPP_AREAS` en `content.ts`).
 - **T3.2** `Team.tsx` real (`GET /marcas/:marcaId/equipo`, `POST /roles/equipo|asignaciones`, `DELETE`, reset 2FA) y
   **alinear `nav-manifest.json` con los permisos de la API** (hay ítems visibles que responden 403).
-- **T3.3 (seguridad, hacer pronto)** Quitar `apps/web-fptecnologi/app/api/contacto/route.ts`: tiene una
-  **clave `anon` de Supabase escrita en el código** y escribe en otra base (leads). Migrarlo al patrón proxy
-  `app/api/hub/*` (o al cotizador) y **rotar esa clave**.
-- **`sitios.remove`** (`apps/api/src/sitios/sitios.service.ts`) usa `findUnique/delete` por `id` sin `marcaId`:
-  el tenant-guard lo rechazaría (mismo defecto que ya se corrigió en productos, servicios y cotizaciones).
+- ~~**T3.3**~~ **Hecho 2026-10-01**: `app/api/contacto/route.ts` ya no trae la clave escrita; usa
+  `LEADS_SUPABASE_URL`/`LEADS_SUPABASE_ANON_KEY` (solo servidor) y responde 503 si faltan. Se quitó la llamada muerta a
+  `/cotizaciones` (exige JWT). **Falta (lo hace el dueño): rotar la clave `anon` antigua** — sigue en el historial de git
+  — y cargar las dos variables en el hosting.
+- ~~**`sitios`**~~ **Hecho 2026-10-01**: el controller solo exigía JWT (cualquier usuario podía crear/borrar sitios de
+  cualquier marca) y `remove`/`findAll`/`resolver` habrían fallado con el tenant-guard. Ahora `MarcaRolGuard` + `admin`
+  para crear/borrar, todo con `marcaId` del servidor (el DTO ya no lo acepta) y el tenant-guard permite
+  el lookup por `dominio` (único global) para `resolver`.
 - Posible: `Cotizacion` (por servicio) y `LeadCotizador` conviven; definir si se unifican.
 
 ### Cotizador, contacto y boletín

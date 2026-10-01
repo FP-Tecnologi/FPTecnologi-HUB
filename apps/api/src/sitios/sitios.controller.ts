@@ -1,22 +1,26 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { SitiosService } from './sitios.service.js';
 import { CreateSitioDto } from './dto/create-sitio.dto.js';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
+import { MarcaRolGuard } from '../common/guards/marca-rol.guard.js';
+import { Roles } from '../common/decorators/roles.decorator.js';
+import { MarcaActual } from '../common/decorators/marca-actual.decorator.js';
 import { Public } from '../common/decorators/public.decorator.js';
 
 @Controller('sitios')
 export class SitiosController {
   constructor(private readonly sitiosService: SitiosService) {}
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, MarcaRolGuard)
+  @Roles('admin')
   @Post()
-  create(@Body() dto: CreateSitioDto) {
-    return this.sitiosService.create(dto);
+  create(@MarcaActual() marcaId: string, @Body() dto: CreateSitioDto) {
+    return this.sitiosService.create(marcaId, dto);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, MarcaRolGuard)
   @Get()
-  findAll(@Query('marcaId') marcaId?: string) {
+  findAll(@MarcaActual() marcaId: string) {
     return this.sitiosService.findAll(marcaId);
   }
 
@@ -28,9 +32,10 @@ export class SitiosController {
     return this.sitiosService.findByDominio(dominio);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, MarcaRolGuard)
+  @Roles('admin')
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.sitiosService.remove(id);
+  remove(@MarcaActual() marcaId: string, @Param('id') id: string) {
+    return this.sitiosService.remove(marcaId, id);
   }
 }

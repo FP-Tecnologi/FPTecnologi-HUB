@@ -6,12 +6,12 @@ import { CreateSitioDto } from './dto/create-sitio.dto.js';
 export class SitiosService {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(dto: CreateSitioDto) {
-    return this.prisma.sitio.create({ data: dto });
+  create(marcaId: string, dto: CreateSitioDto) {
+    return this.prisma.sitio.create({ data: { ...dto, marcaId } });
   }
 
-  findAll(marcaId?: string) {
-    return this.prisma.sitio.findMany({ where: marcaId ? { marcaId } : undefined });
+  findAll(marcaId: string) {
+    return this.prisma.sitio.findMany({ where: { marcaId }, orderBy: { dominio: 'asc' } });
   }
 
   async findByDominio(dominio: string) {
@@ -22,11 +22,11 @@ export class SitiosService {
     return sitio;
   }
 
-  async remove(id: string) {
-    const sitio = await this.prisma.sitio.findUnique({ where: { id } });
+  async remove(marcaId: string, id: string) {
+    const sitio = await this.prisma.sitio.findFirst({ where: { id, marcaId } });
     if (!sitio) {
       throw new NotFoundException('Sitio no encontrado');
     }
-    return this.prisma.sitio.delete({ where: { id } });
+    return this.prisma.sitio.delete({ where: { id, marcaId } });
   }
 }

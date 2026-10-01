@@ -806,3 +806,11 @@ sesión/máquina)**:
 - **Autenticador (TOTP)**: tarjeta en Ajustes (QR → código → códigos de respaldo → desactivar) con `GET /usuarios/me/seguridad`; en el login TOTP se agregó "Recibir un código por correo".
 - Arreglados los 3 tests de `updatePerfil` que fallaban desde antes.
 
+### 2026-10-01 — Seguridad: `contacto` sin credencial en el código y módulo `sitios` multi-tenant
+
+- `web-fptecnologi/app/api/contacto`: se quitó la clave `anon` de Supabase que estaba escrita en el código; ahora
+  `LEADS_SUPABASE_URL`/`LEADS_SUPABASE_ANON_KEY` (servidor, ver `.env.example`; resuelto en el commit f36835d), y sin la
+  llamada a `/cotizaciones` (siempre devolvía 401). **Pendiente del dueño: rotar la clave antigua** (queda en el historial).
+- API `sitios`: `POST/GET/DELETE` ahora con `MarcaRolGuard` (crear/borrar solo `admin`), `marcaId` del servidor, 4 tests.
+  El tenant-guard permite consultar `Sitio` por `dominio` (para `GET /sitios/resolver/:dominio`).
+

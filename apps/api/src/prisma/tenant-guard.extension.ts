@@ -20,6 +20,10 @@ import { Prisma } from '../generated/prisma/client.js';
  * user belong to" (the marca-switcher's `/usuarios/me/marcas`) has to be
  * queried — it's deliberately cross-marca for that one user, and it can't
  * leak another user's rows since it's still pinned to a single usuarioId.
+ *
+ * `Sitio` has the same kind of allowance for `dominio` (globally unique):
+ * `GET /sitios/resolver/:dominio` is how a public web discovers *which*
+ * marca it is, so it cannot know the marcaId beforehand.
  */
 const TENANT_MODELS = new Set([
   'Sitio',
@@ -38,6 +42,12 @@ const TENANT_MODELS = new Set([
   'ContactoWeb',
   'SuscriptorBoletin',
 ]);
+
+/** Models whose where may be pinned by this key instead of marcaId (see above). */
+const UNSCOPED_LOOKUP_KEY: Record<string, string> = {
+  UsuarioMarcaRol: 'usuarioId',
+  Sitio: 'dominio',
+};
 
 const WHERE_OPS = new Set([
   'findMany',
@@ -82,8 +92,9 @@ export const tenantGuardExtension = Prisma.defineExtension({
         if (model && TENANT_MODELS.has(model)) {
           const typedArgs = args as { where?: unknown; data?: unknown };
 
-          const usuarioScoped = model === 'UsuarioMarcaRol' && hasKey(typedArgs.where, 'usuarioId');
-          if (WHERE_OPS.has(operation) && !hasMarcaId(typedArgs.where) && !usuarioScoped) {
+          const lookupKey = UNSCOPED_LOOKUP_KEY[model];
+          const pinnedLookup = !!lookupKey && hasKey(typedArgs.where, lookupKey);
+          if (WHERE_OPS.has(operation) && !hasMarcaId(typedArgs.where) && !pinnedLookup) {
             throw new Error(
               `[tenant-guard] ${model}.${operation} sin marcaId en el where — ` +
                 'rompe el aislamiento multi-tenant. Agrega marcaId al filtro.',
