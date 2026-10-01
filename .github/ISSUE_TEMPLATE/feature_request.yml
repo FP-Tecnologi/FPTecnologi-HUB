@@ -6,7 +6,7 @@ body:
     id: area
     attributes:
       label: Área afectada
-      description: apps/api, apps/web, docs, etc.
+      description: apps/api, apps/admin, docs, etc.
     validations:
       required: true
   - type: textarea

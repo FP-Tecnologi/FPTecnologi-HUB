@@ -1,6 +1,6 @@
 # Dashboard — FPTecnologi-HUB (Next.js)
 
-Dashboard administrativo único para las 5 marcas (`apps/web` en este repo).
+Dashboard administrativo único para las 5 marcas (`apps/admin` en este repo).
 Next.js 15 (App Router) + React 19 + Tailwind v4, con el sistema visual
 `--ax-*` heredado de la plantilla comercial Vireo (ver
 [`VIREO-REFERENCE.md`](../../VIREO-REFERENCE.md) antes de construir una

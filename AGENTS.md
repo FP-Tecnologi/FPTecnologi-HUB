@@ -28,7 +28,7 @@ Mapa navegable del código + docs (comunidades, nodos más conectados,
 conexiones no obvias entre la documentación y la implementación real) en
 [`graphify-out/GRAPH_REPORT.md`](graphify-out/GRAPH_REPORT.md) — generado con
 `graphify` (ver `~/.claude/skills/graphify`), cubre hoy `apps/api` + los docs
-de contexto (no incluye `apps/web`, que es boilerplate de Vireo). Regenerar
+de contexto (no incluye `apps/admin`, que es boilerplate de Vireo). Regenerar
 con `/graphify --update` cuando el código avance bastante.
 
 ## Principio de arquitectura (no romper esto)
@@ -79,7 +79,7 @@ contactos al sistema de leads con `LEADS_SUPABASE_URL` y `LEADS_SUPABASE_ANON_KE
 (variables de entorno del servidor, nunca en el código).
 
 No hay `packages/shared-types`, `turbo` ni npm workspaces — cada app
-(`apps/api`, `apps/web`, `apps/web-fptecnologi`) es un proyecto npm
+(`apps/api`, `apps/admin`, `apps/web-fptecnologi`) es un proyecto npm
 independiente con su propio `node_modules`/`package-lock.json`. Se probó un
 `package.json` raíz con workspaces y se revirtió: npm hoisteaba paquetes de
 forma inconsistente (un paquete en `node_modules` raíz, su propia
@@ -94,7 +94,7 @@ vez del contenido hardcodeado que usa hoy).
 - **API**: NestJS 12 (ESM, `"type": "module"`), Prisma 6 + PostgreSQL
   (Supabase), `@nestjs/jwt` + `passport-jwt`, `bcrypt`, `class-validator`,
   Resend (correo transaccional), Swagger en `/docs`.
-- **Dashboard** (`apps/web`): Next.js 15 (App Router) + React 19 +
+- **Dashboard** (`apps/admin`): Next.js 15 (App Router) + React 19 +
   Tailwind v4, plantilla comercial Vireo (Envato). Ver
   [`VIREO-REFERENCE.md`](VIREO-REFERENCE.md) antes de construir una pantalla
   nueva — probablemente Vireo ya trae un patrón parecido. **Auth ya está
@@ -102,7 +102,7 @@ vez del contenido hardcodeado que usa hoy).
   `src/lib/api.ts` hablan con la API real (login → OTP/TOTP → tokens en
   localStorage + refresh-on-401), y el selector de marca
   (`HeaderUtils.tsx`/`Sidebar.tsx`/`manifest.ts`) ya filtra el menú por
-  rol vía `GET /usuarios/me/marcas`. `middleware.ts` (raíz de `apps/web`)
+  rol vía `GET /usuarios/me/marcas`. `middleware.ts` (raíz de `apps/admin`)
   protege las rutas — lee una cookie liviana `ax_session` (nunca el JWT
   real, que sigue solo en localStorage) porque el runtime Edge no puede
   leer localStorage. De las 15 pantallas en `src/screens/auth/`, solo
@@ -192,7 +192,7 @@ sin rediseño — no construir nada de esto de forma anticipada.
   confiar en un campo `marcaId` del body.
 - Tests: Vitest, unitarios primero para lo sensible (auth, guards de
   permisos) antes de sumar features nuevas encima.
-- Antes de construir una pantalla nueva en `apps/web`, revisar si Vireo ya
+- Antes de construir una pantalla nueva en `apps/admin`, revisar si Vireo ya
   trae un patrón parecido (ver `VIREO-REFERENCE.md`).
 - Secrets viven en `.env` (gitignorado), nunca en el código ni en
   `.env.example`.
@@ -204,7 +204,7 @@ Backend (Fase 1 del plan) funcionalmente completo y con hardening básico
 conectado y migrado.
 
 CI/CD y seguridad del repo (ver `.github/`):
-- `workflows/ci.yml`: build + lint + test de `apps/api` y `apps/web` en
+- `workflows/ci.yml`: build + lint + test de `apps/api` y `apps/admin` en
   cada push/PR a `main`.
 - `workflows/codeql.yml`: análisis estático de seguridad (CodeQL) en
   push/PR a `main` y semanal.
@@ -213,7 +213,7 @@ CI/CD y seguridad del repo (ver `.github/`):
 - `workflows/copilot-setup-steps.yml`: preinstala Node + deps + Prisma
   client para el entorno del Copilot coding agent (cloud).
 - `dependabot.yml`: actualizaciones semanales de npm (`apps/api`,
-  `apps/web`) y de GitHub Actions.
+  `apps/admin`) y de GitHub Actions.
 - `SECURITY.md`: política de reporte de vulnerabilidades y checklist de
   configuración recomendada a nivel de repo (branch protection, secret
   scanning, etc. — requieren rol admin, no se pueden setear por código).

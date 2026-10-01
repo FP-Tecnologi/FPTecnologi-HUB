@@ -1,6 +1,6 @@
 # API central — FPTecnologi-HUB (NestJS)
 
-API multi-marca (multi-tenant) para el dashboard administrativo (`apps/web`)
+API multi-marca (multi-tenant) para el dashboard administrativo (`apps/admin`)
 y la futura web pública (fptecnologi.com). Vende
 productos (ecommerce) y servicios de soluciones IT.
 
@@ -100,6 +100,6 @@ cotización).
 ## Próximos pasos (fuera de este alcance inicial)
 
 - Conectar pasarela de pago a `Pedidos`.
-- Conectar el dashboard (`apps/web`) a esta API (login + OTP, selector
+- Conectar el dashboard (`apps/admin`) a esta API (login + OTP, selector
   de marca, menú dinámico, gestión de productos/usuarios, notificaciones).
 - Publicar endpoints de esta API para consumo desde la web pública con ISR.

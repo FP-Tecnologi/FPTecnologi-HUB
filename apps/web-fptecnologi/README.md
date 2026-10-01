@@ -4,7 +4,7 @@ Web pública de fptecnologi.com (`apps/web-fptecnologi` en este repo,
 Fase 2 del plan). Next.js 16 (App Router) + React 19 + Tailwind v4,
 **sin login**. Toma prestado el ADN visual (glassmorfismo, botones con
 degradé+glow) de la plantilla comercial Vireo/Aurora ya adaptada en
-`apps/web/src/styles/components.css` — ver
+`apps/admin/src/styles/components.css` — ver
 [`VIREO-REFERENCE.md`](../../VIREO-REFERENCE.md).
 
 **Contenido hoy hardcodeado en `src/lib/content.ts`** (productos, marcas,

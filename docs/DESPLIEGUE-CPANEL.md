@@ -11,7 +11,7 @@ base de datos externa (Supabase / PostgreSQL):
 | App | Carpeta | Qué es | Dominio sugerido | Archivo de inicio |
 | --- | --- | --- | --- | --- |
 | API | `apps/api` | NestJS: todo el negocio, usuarios, pedidos, landings, uploads | `api.tudominio.com` | `app.cjs` |
-| Dashboard | `apps/web` | Next.js: panel de administración | `panel.tudominio.com` | `server.cjs` |
+| Dashboard | `apps/admin` | Next.js: panel de administración | `panel.tudominio.com` | `server.cjs` |
 | Web pública | `apps/web-fptecnologi` | Next.js: sitio, tienda, blog, landings (`/l/<url>`) | `www.tudominio.com` | `server.cjs` |
 
 La **web pública y el dashboard hablan con la API**; la API habla con la base de datos. Las tres apps van por HTTPS
@@ -55,7 +55,7 @@ Se cargan en cPanel (cada app tiene su sección *Environment variables*) o en un
 | `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_CALLBACK_URL` | Solo si usas login con Google (`https://api.tudominio.com/auth/google/callback`) |
 | `PORT` | Lo pone Passenger; no la definas |
 
-### Dashboard (`apps/web`) — **se leen al compilar** (`npm run build`)
+### Dashboard (`apps/admin`) — **se leen al compilar** (`npm run build`)
 | Variable | Valor |
 | --- | --- |
 | `NEXT_PUBLIC_API_URL` | `https://api.tudominio.com` |
@@ -91,7 +91,7 @@ luego *Update from Remote* cuando haya cambios. También sirve subir un `.zip` y
 Repite para las tres (cPanel → **Setup Node.js App → Create Application**):
 
 1. **Node.js version:** 22 · **Application mode:** Production.
-2. **Application root:** `fptecnologi-web/apps/api` (o `…/apps/web`, `…/apps/web-fptecnologi`).
+2. **Application root:** `fptecnologi-web/apps/api` (o `…/apps/admin`, `…/apps/web-fptecnologi`).
 3. **Application URL:** el subdominio de la tabla (créalo antes en *Dominios → Subdominios*).
 4. **Application startup file:** `app.cjs` para la API; `server.cjs` para las dos webs.
 5. Agrega las variables de entorno de la sección 2 y pulsa **Create**.
@@ -109,7 +109,7 @@ npm run build              # crea la carpeta dist/
 
 **Dashboard y web pública** (cada una en su carpeta)
 ```bash
-cd ~/fptecnologi-web/apps/web            # y luego apps/web-fptecnologi
+cd ~/fptecnologi-web/apps/admin            # y luego apps/web-fptecnologi
 source …/bin/activate
 npm ci
 npm run build                            # lee las variables NEXT_PUBLIC_* (dashboard)
@@ -141,7 +141,7 @@ y márcala con `npx prisma migrate resolve --applied <carpeta>`.
 ```bash
 cd ~/fptecnologi-web && git pull
 cd apps/api && npm ci && npx prisma generate && npm run build && touch tmp/restart.txt
-cd ../web && npm ci && npm run build && touch tmp/restart.txt
+cd ../admin && npm ci && npm run build && touch tmp/restart.txt
 cd ../web-fptecnologi && npm ci && npm run build && touch tmp/restart.txt
 ```
 

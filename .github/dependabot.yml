@@ -1,8 +1,8 @@
 version: 2
 updates:
-  # Dashboard (apps/web) — Next.js / React / Tailwind
+  # Dashboard (apps/admin) — Next.js / React / Tailwind
   - package-ecosystem: 'npm'
-    directory: '/apps/web'
+    directory: '/apps/admin'
     schedule:
       interval: 'weekly'
       day: 'monday'

@@ -9,6 +9,6 @@ Reglas rápidas que aplican también a sugerencias de Copilot:
   `marcaId` en la misma API/base de datos.
 - No confiar en un `marcaId` que venga del cliente sin validar contra
   `MarcaRolGuard`/JWT.
-- Antes de un componente nuevo en `apps/web`, revisar
+- Antes de un componente nuevo en `apps/admin`, revisar
   [`VIREO-REFERENCE.md`](../VIREO-REFERENCE.md) por si ya existe un patrón.
 - npm en todo el repo (no pnpm/yarn).

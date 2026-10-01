@@ -1,6 +1,6 @@
 # Referencia: plantilla Vireo
 
-`apps/web` nació como copia de la edición Next.js de la plantilla **Vireo**
+`apps/admin` nació como copia de la edición Next.js de la plantilla **Vireo**
 (Envato, licencia comercial). La plantilla original completa vive **fuera
 de este repo** (paquete comercial, no se commitea) — la ruta depende de la
 máquina/perfil de Windows, ya cambió una vez entre sesiones:
@@ -23,7 +23,7 @@ falta para este proyecto.
 
 `apps/web-fptecnologi` (Fase 2, web pública) también toma prestado el ADN
 visual de Vireo/Aurora (glassmorfismo, botones con degradé+glow) pero vía
-las clases ya adaptadas en `apps/web/src/styles/components.css` — no hace
+las clases ya adaptadas en `apps/admin/src/styles/components.css` — no hace
 falta ir a la plantilla original para eso, solo para buscar un patrón de
 pantalla/componente que todavía no se adaptó.
 
@@ -54,7 +54,7 @@ en `vireo/Templates/Next/src/styles/tokens/`.
 1. Al empezar un módulo nuevo (ej. campañas, leads), buscar primero en la
    tabla de arriba si ya existe algo parecido.
 2. Si existe: copiar la pantalla/componente desde `vireo/Templates/Next` a
-   `apps/web` y adaptar datos/lógica al backend real de este proyecto (en
+   `apps/admin` y adaptar datos/lógica al backend real de este proyecto (en
    Vireo los datos son mock estáticos en `src/data/demo/`).
 3. Si no existe: construir nuevo siguiendo los mismos tokens `--ax-*` y
    componentes de `src/components/ui/` para mantener consistencia visual.

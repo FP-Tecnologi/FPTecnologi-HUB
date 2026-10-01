@@ -111,7 +111,7 @@ velocidad.
 
 ## Fase 3 — checklist real (arrancó antes de tiempo)
 
-Sorpresa al revisar `apps/web`: el login real (`AuthContext.tsx`,
+Sorpresa al revisar `apps/admin`: el login real (`AuthContext.tsx`,
 `api.ts`) y el selector de marca ya estaban construidos — no quedó
 registrado quién/cuándo, probablemente otra sesión trabajando en paralelo
 sobre este mismo repo. Estado real hoy:
@@ -230,7 +230,7 @@ sesión/máquina)**:
 - **Distinto**: `OtpCode` es tabla propia (con expiración e historial) en
   vez de dos campos inline en `Usuario` como sugería el plan original —
   permite reintentos/expiración sin pisar el código anterior.
-- **Distinto de nombres**: `apps/web` contiene el dashboard (copia de
+- **Distinto de nombres**: `apps/admin` contiene el dashboard (copia de
   Vireo), no la web pública — el plan original asumía `apps/dashboard` +
   `apps/web-fptecnologi` desde el día uno. La web pública real vive en
   `apps/web-fptecnologi` (creada en Fase 2, ver checklist arriba).
@@ -296,7 +296,7 @@ sesión/máquina)**:
   sin sesión), y un bug de backend donde `issueTokens` nunca devolvía
   `usuario` pese a que el dashboard ya lo esperaba. Ver checklist de
   Fase 3 arriba.
-- **Rebrand de plantilla a FPTecnologi-HUB**: `apps/web/package.json`
+- **Rebrand de plantilla a FPTecnologi-HUB**: `apps/admin/package.json`
   `vireo-next@1.1.0` → `fptecnologi-dashboard@0.1.0` (el terminal mostraba el
   nombre viejo en `npm run dev`), `apps/api` `backend` → `fptecnologi-api`
   (+ `package-lock.json` regenerados). Sidebar y AppBar usaban wordmark
@@ -801,7 +801,7 @@ sesión/máquina)**:
 ### 2026-10-01 — Gestión de usuarios, invitaciones y autenticador
 
 - **Invitaciones por correo**: modelo `Invitacion` (solo hash del token, vence en 7 días; migración `20261001200000_invitaciones`). API: `GET/POST /invitaciones`, `POST /invitaciones/:id/reenviar`, `DELETE /invitaciones/:id` (admin) y públicas `GET /public/invitaciones/:token`, `POST /public/invitaciones/aceptar`. Página `/auth/invitacion` (cuenta nueva: nombre+contraseña; existente: un clic). 3 tests.
-- **Usuarios y equipo con datos reales** (`apps/web/src/screens/pages/Team.tsx`): pestañas Equipo / Invitaciones / Clientes de las webs (`GET /roles/clientes`); cambiar rol, activar/desactivar, quitar de la marca y restablecer 2FA (`PATCH/DELETE /roles/equipo/:usuarioId`). No se puede desactivar a quien está en otras marcas ni auto-modificarse.
+- **Usuarios y equipo con datos reales** (`apps/admin/src/screens/pages/Team.tsx`): pestañas Equipo / Invitaciones / Clientes de las webs (`GET /roles/clientes`); cambiar rol, activar/desactivar, quitar de la marca y restablecer 2FA (`PATCH/DELETE /roles/equipo/:usuarioId`). No se puede desactivar a quien está en otras marcas ni auto-modificarse.
 - **Fix de seguridad**: `asignar`, `quitarAsignacion` y `equipoDeMarca` aceptaban un `marcaId` distinto al de la cabecera (un admin de A podía actuar en B); ahora deben coincidir.
 - **Autenticador (TOTP)**: tarjeta en Ajustes (QR → código → códigos de respaldo → desactivar) con `GET /usuarios/me/seguridad`; en el login TOTP se agregó "Recibir un código por correo".
 - Arreglados los 3 tests de `updatePerfil` que fallaban desde antes.
@@ -946,3 +946,7 @@ Todo usa el CMS genérico (`ContenidoWeb`) y el editor de Web informativa; sin c
 - **Textos legales**: privacidad, términos y devoluciones en markdown (`## Título` abre sección); vacío = texto base de `lib/legal.ts`. El asistente lee la versión editada.
 - **SEO por página**: título y descripción de Inicio, Nosotros, Servicios, Proyectos, Contacto, Tienda, Cotizador y Blog (`lib/seo.ts`).
 - Pendiente: los números de WhatsApp **por asesor** siguen en Chat y asesores → Asesores de WhatsApp; el aviso `ponytail` en `chatActions.ts` explica que el contacto vigente es estado de módulo (una marca por despliegue).
+
+## 2026-10-01 — La carpeta del dashboard pasa de `apps/web` a `apps/admin`
+
+El dashboard (administra todas las webs, no solo una) ahora vive en `apps/admin`; `apps/web-fptecnologi` sigue siendo la web pública. Se actualizaron CI, dependabot, docker-compose, `.claude/launch.json` (servidor `admin`), README, AGENTS/CLAUDE y la guía de cPanel (Application root: `fptecnologi-web/apps/admin`). Las entradas anteriores de este documento conservan el nombre antiguo.

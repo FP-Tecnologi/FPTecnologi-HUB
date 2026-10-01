@@ -171,14 +171,14 @@ solo a sedes Shalom o también domicilio?
 **Variables de entorno a configurar** (nunca en el repo):
 - `apps/web-fptecnologi/.env.local`: `HUB_API_URL`, `HUB_MARCA_ID` (obligatorio para blog, cotizador, boletín,
   tienda y checkout), `DASHBOARD_ORIGIN`, `TIPO_CAMBIO_USD_PEN` (opcional).
-- `apps/web/.env.local`: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_WEB_PUBLICA_URL`.
+- `apps/admin/.env.local`: `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_WEB_PUBLICA_URL`.
 - Cuando se integre Shalom: sus credenciales solo en el `.env` de `apps/api`.
 
 ---
 
 ## 4. Cómo continuar
 
-1. `git pull origin main`, instalar dependencias en `apps/api`, `apps/web` y `apps/web-fptecnologi`
+1. `git pull origin main`, instalar dependencias en `apps/api`, `apps/admin` y `apps/web-fptecnologi`
    (no hay workspace raíz) y `cd apps/api && npx prisma generate`.
 2. Orden sugerido: **T3.3** (seguridad) → **Envío Shalom** (primero resolver la sección 1) → **T3.1/T3.2** →
    conectar home y chat al catálogo real → **Fase 5** (SEO/blog).

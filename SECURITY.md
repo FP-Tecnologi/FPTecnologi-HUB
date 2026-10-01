@@ -21,14 +21,14 @@ antes de hacer pública cualquier información.
 
 - `apps/api`: API central (NestJS + Prisma). Autenticación JWT + Refresh
   Token + OTP, autorización por `marcaId` vía `MarcaRolGuard`.
-- `apps/web`: Dashboard administrativo (Next.js).
+- `apps/admin`: Dashboard administrativo (Next.js).
 
 ## Automatización de seguridad activa
 
 - **CodeQL** (`.github/workflows/codeql.yml`): análisis estático de
   JavaScript/TypeScript en cada push/PR a `main` y semanalmente.
 - **Dependabot** (`.github/dependabot.yml`): actualizaciones automáticas de
-  dependencias npm (`apps/api`, `apps/web`) y de GitHub Actions, semanales.
+  dependencias npm (`apps/api`, `apps/admin`) y de GitHub Actions, semanales.
 - **Dependency Audit** (`.github/workflows/dependency-audit.yml`):
   `npm audit` en cada push/PR y semanalmente (informativo).
 - **CI** (`.github/workflows/ci.yml`): build, lint y tests en cada push/PR

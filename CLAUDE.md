@@ -17,10 +17,10 @@ scripts **dentro de la app** (`cd apps/<app>`), siempre con npm (no pnpm/yarn).
 | App | Puerto | Dev | Build | Lint |
 | --- | --- | --- | --- | --- |
 | `apps/api` (NestJS) | 3001 | `npm run start:dev` | `npm run build` | `npm run lint` (oxlint) |
-| `apps/web` (dashboard, Next 15) | 3000 | `npm run dev` | `npm run build` | `npm run lint` |
+| `apps/admin` (dashboard, Next 15) | 3000 | `npm run dev` | `npm run build` | `npm run lint` |
 | `apps/web-fptecnologi` (web pública, Next 16) | 3002 | `npm run dev -- --port 3002` | `npm run build` | `npm run lint` |
 
-`.claude/launch.json` define estos servidores (`api`, `web`, `web-fptecnologi`, `leads` → repo aparte) para
+`.claude/launch.json` define estos servidores (`api`, `admin`, `web-fptecnologi`, `leads` → repo aparte) para
 `preview_start`.
 
 Tests (solo `apps/api`, Vitest, `*.spec.ts` junto al archivo probado):
@@ -50,7 +50,7 @@ Prisma (en `apps/api`, requiere `.env` con `DATABASE_URL`; ver `.env.example`):
   (`{ success, statusCode, data, timestamp }`).
 - `Marca` (negocio) ≠ `Sitio` (dominio → `marcaId`). El dashboard es único con selector de marca;
   una web nueva solo necesita una fila en `Sitio`.
-- `apps/web` parte de la plantilla Vireo: antes de una pantalla nueva revisa
+- `apps/admin` parte de la plantilla Vireo: antes de una pantalla nueva revisa
   [`VIREO-REFERENCE.md`](VIREO-REFERENCE.md). Solo `SignInBasic`, `TwoStepBasic` y `TwoStepTotp`
   hablan con la API real; el resto de `src/screens/auth/` es demo.
 - `apps/web-fptecnologi` aún usa contenido hardcodeado en `src/lib/content.ts` (y defaults del CMS

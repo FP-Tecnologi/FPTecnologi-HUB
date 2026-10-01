@@ -19,7 +19,7 @@ services:
 
   web:
     build:
-      context: ./apps/web
+      context: ./apps/admin
       dockerfile: Dockerfile
     container_name: fptecnologi-dashboard
     restart: always

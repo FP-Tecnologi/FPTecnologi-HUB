@@ -3,7 +3,7 @@
  * dashboard). Subconjunto chico y seguro: todo el texto se escapa ANTES de
  * convertir, así que no entra HTML del autor; los links solo aceptan
  * http(s), rutas internas y mailto. La misma función vive en
- * apps/web/src/lib/markdown.ts (vista previa del editor) -- mantenerlas iguales.
+ * apps/admin/src/lib/markdown.ts (vista previa del editor) -- mantenerlas iguales.
  *
  * Soporta: ## / ### títulos, párrafos, **negrita**, *cursiva*, `código`,
  * [links](url), ![imagen](url), listas "- " y "1. ", citas "> ".

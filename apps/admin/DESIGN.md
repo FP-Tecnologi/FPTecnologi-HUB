@@ -1,4 +1,4 @@
-# DESIGN.md — Sistema de diseño del dashboard (apps/web)
+# DESIGN.md — Sistema de diseño del dashboard (apps/admin)
 
 Base: plantilla **Vireo** (clases `ax-*`, ver [`VIREO-REFERENCE.md`](../../VIREO-REFERENCE.md))
 con un estilo **fijo** para todo el sistema. Toda pantalla nueva se arma con
