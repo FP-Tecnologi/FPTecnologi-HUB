@@ -5,6 +5,7 @@ import { CreatePedidoDto } from './dto/create-pedido.dto.js';
 import { UpdateEstadoPedidoDto } from './dto/update-estado-pedido.dto.js';
 import { CrearPedidoPublicoDto } from './dto/crear-pedido-publico.dto.js';
 import { normalizarCelular } from '../cotizador/cotizador.service.js';
+import { EnviosService } from '../envios/envios.service.js';
 
 // Roles del dashboard que reciben el aviso de pedido nuevo.
 const ROLES_AVISO = ['admin', 'ventas'];
@@ -28,6 +29,7 @@ export class PedidosService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
+    private readonly envios: EnviosService,
   ) {}
 
   async create(marcaId: string, dto: CreatePedidoDto) {
@@ -118,7 +120,12 @@ export class PedidosService {
         subtotal: sub,
       };
     });
-    const total = redondear(subtotal + igv);
+    // Envío por courier: el costo sale del tarifario del servidor, nunca del cliente.
+    const envioCotizado = dto.envioDepartamento
+      ? await this.envios.cotizar(marcaId, dto.envioDepartamento, dto.envioSede)
+      : null;
+    const envio = envioCotizado ? redondear(envioCotizado.costo) : 0;
+    const total = redondear(subtotal + igv + envio);
 
     // Sin transacción interactiva a propósito: el pooler :6543 de Supabase no
     // la soporta. El descuento es atómico y condicional (updateMany solo toca
@@ -161,7 +168,11 @@ export class PedidosService {
             estadoPago: 'POR_CONFIRMAR',
             subtotal,
             igv,
-            envio: 0,
+            envio,
+            envioProveedor: envioCotizado?.proveedor ?? null,
+            envioDepartamento: envioCotizado?.departamento ?? null,
+            envioSede: envioCotizado?.sede ?? null,
+            envioPlazo: envioCotizado?.plazo ?? null,
             descuento: 0,
             total,
             moneda: 'USD',
@@ -211,8 +222,8 @@ export class PedidosService {
    * ya volvió al inventario y pudo venderse a otro).
    */
   async updateEstado(marcaId: string, id: string, dto: UpdateEstadoPedidoDto) {
-    if (dto.estado === undefined && dto.estadoPago === undefined) {
-      throw new BadRequestException('Indica el estado o el estado de pago');
+    if (dto.estado === undefined && dto.estadoPago === undefined && dto.trackingCodigo === undefined) {
+      throw new BadRequestException('Indica el estado, el estado de pago o el código de seguimiento');
     }
     const pedido = await this.prisma.pedido.findFirst({ where: { id, marcaId }, include: { items: true } });
     if (!pedido) throw new NotFoundException('Pedido no encontrado');
@@ -227,6 +238,7 @@ export class PedidosService {
       data: {
         ...(dto.estado !== undefined ? { estado: dto.estado } : {}),
         ...(dto.estadoPago !== undefined ? { estadoPago: dto.estadoPago } : {}),
+        ...(dto.trackingCodigo !== undefined ? { trackingCodigo: dto.trackingCodigo.trim() || null } : {}),
       },
     });
     if (cancelando) await this.devolverStock(marcaId, pedido.items.map((i) => ({ productoId: i.productoId, cantidad: i.cantidad })));

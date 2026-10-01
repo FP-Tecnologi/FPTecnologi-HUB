@@ -18,7 +18,9 @@ type Entrada = {
   documento?: string;
   comprobante?: 'BOLETA' | 'FACTURA';
   razonSocial?: string;
-  entrega?: 'RECOJO' | 'ENVIO';
+  entrega?: 'RECOJO' | 'ENVIO' | 'SHALOM';
+  envioDepartamento?: string;
+  envioSede?: string;
   direccion?: string;
   distrito?: string;
   metodoPago?: string;
@@ -55,7 +57,7 @@ export async function POST(req: Request) {
   // El comprobante, la razón social y la entrega viajan en las notas del pedido.
   const notas = [
     `Comprobante: ${b.comprobante === 'FACTURA' ? 'Factura' : 'Boleta'}${b.razonSocial ? ` — ${b.razonSocial.trim()}` : ''}`,
-    `Entrega: ${b.entrega === 'ENVIO' ? 'Envío a domicilio (costo a coordinar)' : 'Recojo en tienda'}`,
+    `Entrega: ${b.entrega === 'SHALOM' ? 'Envío por Shalom (agencia)' : b.entrega === 'ENVIO' ? 'Envío a domicilio (costo a coordinar)' : 'Recojo en tienda'}`,
     b.notas?.trim() ? `Notas: ${b.notas.trim()}` : '',
   ]
     .filter(Boolean)
@@ -78,6 +80,9 @@ export async function POST(req: Request) {
         distrito: b.entrega === 'ENVIO' ? b.distrito || undefined : undefined,
         metodoPago: b.metodoPago,
         notas,
+        // El costo lo calcula la API desde el tarifario: solo se manda dónde.
+        envioDepartamento: b.entrega === 'SHALOM' ? b.envioDepartamento : undefined,
+        envioSede: b.entrega === 'SHALOM' ? b.envioSede : undefined,
         items,
         website: b.website,
       }),

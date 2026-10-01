@@ -861,3 +861,19 @@ sesión/máquina)**:
   licenciamiento de software. Íconos nuevos en el catálogo de la web (llave inglesa, red, candado, llave).
 - Se quitó del menú el nodo placeholder "Web informativa → Servicios" (duplicaba Soluciones → Servicios).
 
+### 2026-10-01 — Envíos, catálogo, blog/SEO y limpieza (sesión de cierre)
+
+- **Envío por Shalom (tarifario propio)**: modelo `TarifaEnvio` + columnas de envío en `Pedido` (migración `20261001230000_envios`).
+  API `GET/POST/PATCH/DELETE /envios/tarifas` (admin/ventas) y pública `GET /public/envios/tarifas`; `POST /public/pedidos`
+  acepta `envioDepartamento`/`envioSede` y el servidor suma el costo (nunca confía en el cliente). Checkout con tercera
+  opción "Envío por Shalom" (departamento → agencia → costo y plazo en el resumen) y proxy `app/api/hub/envios`. Dashboard:
+  Ecommerce → Envíos (tarifario) y, en Pedidos, courier, agencia y código de seguimiento. Verificado en el navegador
+  (806 + IGV 145.08 + envío 12.50 = 963.58) y por API (departamento sin tarifa → 400; agencia inválida → 400).
+- **Ecommerce → Catálogo**: categorías y marcas comerciales (`/catalogo/*`).
+- **Blog y SEO**: metadatos OG/canonical, JSON-LD, `sitemap.xml`, `robots.txt`.
+- **Modelos de home archivados**: `app/modelo-*`, `modelos`, `guia-estilos*`, `preview` y los componentes `site2..site11`,
+  `site-claude`, `riteflow` se movieron a `temporal/modelos-home/` (ver su `LEEME.md`); fuera de build y rutas.
+- **Prueba punta a punta (API real + cuenta de prueba)**: 30 comprobaciones de usuarios/invitaciones/equipo/catálogo/envíos
+  y 12 de 2FA (código por correo, app autenticadora, código de respaldo, desactivar, alternativa por correo) — todas OK; los
+  datos de prueba se borraron. `apps/leads` eliminado del repo (vive en `centralizacion-leads`).
+

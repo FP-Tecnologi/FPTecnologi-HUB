@@ -64,6 +64,17 @@ export class CrearPedidoPublicoDto {
   @MaxLength(500)
   notas?: string;
 
+  /** Envío por courier: departamento (y agencia) elegidos; el costo lo calcula el servidor. */
+  @IsOptional()
+  @IsString()
+  @MaxLength(60)
+  envioDepartamento?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(120)
+  envioSede?: string;
+
   @IsOptional()
   @IsString()
   @MaxLength(30)

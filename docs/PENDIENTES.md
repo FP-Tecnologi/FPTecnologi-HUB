@@ -23,7 +23,13 @@ ecommerce (catálogo público, checkout invitado, importador WooCommerce) ·
 verifique las **sedes disponibles** y el **costo del envío**, mostrarlo en el
 checkout y **sumarlo al total**.
 
-**Estado:** sin empezar. Hoy el envío es "a coordinar por WhatsApp": el checkout
+**Estado (2026-10-01): implementado con tarifario propio; falta la API de Shalom.** Dashboard → Ecommerce → **Envíos**
+carga una tarifa por departamento (costo USD, plazo, agencias de recojo); el checkout ofrece "Envío por Shalom", el
+servidor **recotiza** (`EnviosService.cotizar`) y suma el envío al total; el pedido guarda courier, departamento, agencia,
+plazo y código de seguimiento (editable en Pedidos). **Pendiente:** (a) cargar las tarifas y agencias reales (no hay datos
+inventados en la base), (b) confirmar con Shalom si hay API para reemplazar el tarifario (basta otra implementación de
+`cotizar`), (c) peso/dimensiones por producto, (d) decidir IGV del envío (hoy el costo va sin IGV adicional).
+Antes de esto el envío era "a coordinar por WhatsApp": el checkout
 ofrece *recojo en tienda* o *envío a domicilio (costo a coordinar)*, el total
 **no** incluye envío y `Pedido.envio` se guarda siempre en `0`
 (`apps/api/src/pedidos/pedidos.service.ts`, `crearPublico`).
@@ -77,6 +83,7 @@ solo a sedes Shalom o también domicilio?
 - **Fotos de productos**: se sirven desde `fptecnologi.com/wp-content/uploads` (hotlink al WordPress viejo). Si
   ese sitio se apaga se pierden. Subirlas a Storage (Supabase) y guardar la URL nueva.
 - **Subida de imágenes** en el dashboard de Productos: hoy se pegan URLs.
+- ~~Gestión de categorías y marcas comerciales~~ **Hecho 2026-10-01**: Dashboard → Ecommerce → **Catálogo** (categorías: crear, editar, ordenar, ocultar, borrar si están vacías; marcas comerciales: ver, renombrar/fusionar, quitar). Falta: logo por marca comercial y descuentos/cupones.
 - **Dashboard → Ecommerce → Clientes** sigue siendo un placeholder (hay que decidir qué es "cliente": compradores
   invitados agrupados por correo/documento).
 - `igvUnitario` guarda ruido de coma flotante (ej. `539.8200000000001`): redondear al guardar.
@@ -109,9 +116,11 @@ solo a sedes Shalom o también domicilio?
   (ver `AGENTS.md`).
 - Sección Contacto/home: ya pide nombre, correo, teléfono, empresa y mensaje por `/api/contacto` (ver T3.3).
 
-### Blog y SEO (Fase 5 — sin empezar)
-- Subir portada desde el dashboard (hoy URL), `generateMetadata` con OG/Twitter/canonical por artículo,
-  JSON-LD `Article`, **sitemap** (`sitemap.xml`) y `robots`, programar publicación.
+### Blog y SEO (Fase 5 — en curso)
+- **Hecho 2026-10-01**: `/blog` muestra los 10 artículos publicados (verificado contra la API, filtros por categoría, sin
+  imágenes rotas); cada artículo con `canonical`, Open Graph/Twitter y JSON-LD `Article`; `sitemap.xml` (fijas, blog,
+  servicios y productos) y `robots.txt`. Variable `SITE_URL` (ver `.env.example`). Falta: subir portada desde el dashboard,
+  programar publicación y OG propio por página (hoy solo blog).
 - ~~Chat con IA: rate limit~~ **Hecho**: 30 mensajes / 10 min por IP, en memoria (mover a Redis si hay varias instancias).
 - Reemplazar datos de ejemplo por reales: `CONTACT_INFO`, fotos y teléfonos de asesores, proyectos y clientes
   (marcados "de ejemplo" en `src/lib/*.ts`).

@@ -33,6 +33,12 @@ interface Pedido {
   direccion: string | null;
   distrito: string | null;
   notas: string | null;
+  envio: string;
+  envioProveedor: string | null;
+  envioDepartamento: string | null;
+  envioSede: string | null;
+  envioPlazo: string | null;
+  trackingCodigo: string | null;
   estado: Estado;
   estadoPago: Pago;
   metodoPago: string | null;
@@ -109,7 +115,7 @@ export function EcommercePedidos() {
   }, [lista, filtro, q]);
   const cuenta = (e: '' | Estado) => lista.filter((p) => !e || p.estado === e).length;
 
-  async function actualizar(p: Pedido, cambios: { estado?: Estado; estadoPago?: Pago }) {
+  async function actualizar(p: Pedido, cambios: { estado?: Estado; estadoPago?: Pago; trackingCodigo?: string }) {
     if (cambios.estado === 'CANCELADO' && !window.confirm(`¿Cancelar el pedido ${numero(p)}? El stock de sus productos volverá al inventario y no se podrá reactivar.`)) return;
     setGuardando(true);
     try {
@@ -213,6 +219,7 @@ export function EcommercePedidos() {
                 <dt style={{ color: 'var(--ax-text-muted)' }}>Correo</dt><dd style={{ margin: 0, wordBreak: 'break-all' }}><a href={`mailto:${sel.email}`}>{sel.email}</a></dd>
                 <dt style={{ color: 'var(--ax-text-muted)' }}>Celular</dt><dd style={{ margin: 0 }}><a href={`https://wa.me/51${sel.celular}`} target="_blank" rel="noreferrer">{sel.celular} (WhatsApp)</a></dd>
                 {(sel.direccion || sel.distrito) && (<><dt style={{ color: 'var(--ax-text-muted)' }}>Envío a</dt><dd style={{ margin: 0 }}>{[sel.direccion, sel.distrito].filter(Boolean).join(', ')}</dd></>)}
+                {sel.envioProveedor && (<><dt style={{ color: 'var(--ax-text-muted)' }}>Courier</dt><dd style={{ margin: 0 }}>{sel.envioProveedor} · {sel.envioDepartamento}{sel.envioSede ? ` · ${sel.envioSede}` : ''}{sel.envioPlazo ? ` (${sel.envioPlazo})` : ''}</dd></>)}
                 <dt style={{ color: 'var(--ax-text-muted)' }}>Pago</dt><dd style={{ margin: 0 }}>{METODOS[sel.metodoPago ?? ''] ?? sel.metodoPago ?? '—'}</dd>
               </dl>
 
@@ -245,6 +252,7 @@ export function EcommercePedidos() {
               <dl style={{ display: 'grid', gridTemplateColumns: '1fr auto', gap: 'var(--ax-space-1) var(--ax-space-4)', fontSize: 'var(--ax-text-sm)', margin: 0 }}>
                 <dt style={{ color: 'var(--ax-text-muted)' }}>Subtotal</dt><dd style={{ margin: 0, textAlign: 'right' }}>{usd(sel.subtotal)}</dd>
                 <dt style={{ color: 'var(--ax-text-muted)' }}>IGV (18%)</dt><dd style={{ margin: 0, textAlign: 'right' }}>{usd(sel.igv)}</dd>
+                {Number(sel.envio) > 0 && (<><dt style={{ color: 'var(--ax-text-muted)' }}>Envío</dt><dd style={{ margin: 0, textAlign: 'right' }}>{usd(sel.envio)}</dd></>)}
                 <dt><strong>Total</strong></dt><dd style={{ margin: 0, textAlign: 'right' }}><strong>{usd(sel.total)}</strong></dd>
               </dl>
 
@@ -255,6 +263,13 @@ export function EcommercePedidos() {
                 </select>
                 {sel.estado === 'CANCELADO' && <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Un pedido cancelado no se puede reactivar.</span>}
               </div>
+              {sel.envioProveedor && (
+                <div className="ax-field">
+                  <label className="ax-label" htmlFor="ped-tracking">Código de seguimiento ({sel.envioProveedor})</label>
+                  <input id="ped-tracking" key={sel.id} className="ax-input" defaultValue={sel.trackingCodigo ?? ''} placeholder="Se guarda al salir del campo" disabled={guardando}
+                    onBlur={(e) => { if (e.target.value.trim() !== (sel.trackingCodigo ?? '')) void actualizar(sel, { trackingCodigo: e.target.value }); }} />
+                </div>
+              )}
               <div className="ax-field">
                 <label className="ax-label" htmlFor="ped-pago">Estado del pago</label>
                 <select id="ped-pago" className="ax-select" value={sel.estadoPago} disabled={guardando} onChange={(e) => actualizar(sel, { estadoPago: e.target.value as Pago })}>

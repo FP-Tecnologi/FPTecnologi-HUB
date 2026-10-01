@@ -48,6 +48,7 @@ model Marca {
   contactosWeb       ContactoWeb[]
   suscriptores       SuscriptorBoletin[]
   invitaciones       Invitacion[]
+  tarifasEnvio       TarifaEnvio[]
 }
 
 model Sitio {
@@ -256,32 +257,38 @@ enum EstadoPedido {
 }
 
 model Pedido {
-  id           String       @id @default(uuid())
-  marcaId      String
-  marca        Marca        @relation(fields: [marcaId], references: [id])
-  numeroPedido String? // correlativo humano (FP-2026-0001), único por marca
-  clienteId    String?
-  cliente      Usuario?     @relation(fields: [clienteId], references: [id])
+  id                String       @id @default(uuid())
+  marcaId           String
+  marca             Marca        @relation(fields: [marcaId], references: [id])
+  numeroPedido      String? // correlativo humano (FP-2026-0001), único por marca
+  clienteId         String?
+  cliente           Usuario?     @relation(fields: [clienteId], references: [id])
   // Datos del comprador invitado (checkout sin pasarela, fase 1)
-  nombre       String       @default("")
-  email        String       @default("")
-  celular      String       @default("")
-  documento    String?
-  direccion    String?
-  distrito     String?
-  notas        String?
-  estado       EstadoPedido @default(PENDIENTE)
-  subtotal     Decimal      @default(0) // suma de items, sin IGV
-  igv          Decimal      @default(0) // 18% del subtotal
-  envio        Decimal      @default(0) // 0 = gratis en fase 1
-  descuento    Decimal      @default(0)
-  total        Decimal      @default(0)
-  moneda       String       @default("USD")
-  estadoPago   String       @default("PENDIENTE") // PENDIENTE | POR_CONFIRMAR (fase 1: se coordina por WhatsApp)
-  metodoPago   String? // TRANSFERENCIA | YAPE | PLIN | EFECTIVO…
-  items        PedidoItem[]
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  nombre            String       @default("")
+  email             String       @default("")
+  celular           String       @default("")
+  documento         String?
+  direccion         String?
+  distrito          String?
+  notas             String?
+  estado            EstadoPedido @default(PENDIENTE)
+  subtotal          Decimal      @default(0) // suma de items, sin IGV
+  igv               Decimal      @default(0) // 18% del subtotal
+  envio             Decimal      @default(0) // 0 = gratis en fase 1
+  descuento         Decimal      @default(0)
+  total             Decimal      @default(0)
+  moneda            String       @default("USD")
+  estadoPago        String       @default("PENDIENTE") // PENDIENTE | POR_CONFIRMAR (fase 1: se coordina por WhatsApp)
+  metodoPago        String? // TRANSFERENCIA | YAPE | PLIN | EFECTIVO…
+  // Envío por courier (Shalom): se fija server-side desde TarifaEnvio al crear el pedido.
+  envioProveedor    String?
+  envioDepartamento String?
+  envioSede         String? // agencia donde recoge el cliente
+  envioPlazo        String? // "2-3 días"
+  trackingCodigo    String? // lo registra el equipo al despachar
+  items             PedidoItem[]
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 
   @@unique([marcaId, numeroPedido])
   @@index([marcaId])
@@ -652,4 +659,26 @@ model ContactoWeb {
   updatedAt   DateTime       @updatedAt
 
   @@index([marcaId, estado, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Envíos: tarifario por departamento (Shalom u otro courier). El costo va en la
+// moneda del pedido (USD), sin IGV adicional: el courier factura aparte.
+// ---------------------------------------------------------------------------
+
+model TarifaEnvio {
+  id           String   @id @default(uuid())
+  marcaId      String
+  marca        Marca    @relation(fields: [marcaId], references: [id])
+  proveedor    String   @default("SHALOM")
+  departamento String
+  costo        Decimal
+  plazoDias    String? // texto libre: "2-3 días"
+  sedes        String[] @default([]) // agencias disponibles en ese departamento
+  activo       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@unique([marcaId, proveedor, departamento])
+  @@index([marcaId])
 }

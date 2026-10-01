@@ -99,3 +99,26 @@ describe('ProductosService — aislamiento multi-tenant en update/remove', () =>
     expect(del).toHaveBeenCalledWith({ where: { id: 'p1', marcaId: 'm1' } });
   });
 });
+
+describe('ProductosService.removeCategoria', () => {
+  it('no borra una categoría que aún tiene productos', async () => {
+    const deleteMany = vi.fn();
+    const prisma = {
+      categoria: { findFirst: vi.fn(async () => ({ id: 'c1' })), deleteMany },
+      producto: { count: vi.fn(async () => 3) },
+    };
+    const service = new ProductosService(prisma as never);
+    await expect(service.removeCategoria('m1', 'c1')).rejects.toThrow('3 producto');
+    expect(deleteMany).not.toHaveBeenCalled();
+  });
+
+  it('borra una categoría vacía', async () => {
+    const deleteMany = vi.fn();
+    const prisma = {
+      categoria: { findFirst: vi.fn(async () => ({ id: 'c1' })), deleteMany },
+      producto: { count: vi.fn(async () => 0) },
+    };
+    await new ProductosService(prisma as never).removeCategoria('m1', 'c1');
+    expect(deleteMany).toHaveBeenCalledWith({ where: { id: 'c1', marcaId: 'm1' } });
+  });
+});

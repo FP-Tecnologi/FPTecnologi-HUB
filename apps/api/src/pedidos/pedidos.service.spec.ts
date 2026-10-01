@@ -22,9 +22,28 @@ function setup(stock = 10) {
     notificacion: { createMany: vi.fn() },
   };
   const mail = { sendPedidoConfirmado: vi.fn(async () => {}) };
-  const service = new PedidosService(prisma as never, mail as never);
-  return { service, prisma, pedidoCreate, updateMany };
+  const envios = { cotizar: vi.fn(async () => ({ proveedor: 'SHALOM', departamento: 'Arequipa', costo: 12.5, plazo: '2-3 días', sede: 'Shalom Arequipa Centro' })) };
+  const service = new PedidosService(prisma as never, mail as never, envios as never);
+  return { service, prisma, pedidoCreate, updateMany, envios };
 }
+
+describe('PedidosService.crearPublico — envío por courier', () => {
+  it('suma el costo del tarifario (calculado en el servidor) al total y guarda la sede', async () => {
+    const { service, pedidoCreate, envios } = setup();
+    const r = await service.crearPublico('m1', { ...base, envioDepartamento: 'Arequipa', envioSede: 'Shalom Arequipa Centro' }, '1.1.1.2');
+    expect(envios.cotizar).toHaveBeenCalledWith('m1', 'Arequipa', 'Shalom Arequipa Centro');
+    expect(r.total).toBe(248.5); // 236 + 12.5
+    const data = (pedidoCreate.mock.calls as unknown as Array<[{ data: Record<string, unknown> }]>)[0][0].data;
+    expect(data).toMatchObject({ envio: 12.5, envioProveedor: 'SHALOM', envioDepartamento: 'Arequipa', envioSede: 'Shalom Arequipa Centro', envioPlazo: '2-3 días' });
+  });
+
+  it('sin envío el total no cambia', async () => {
+    const { service, envios } = setup();
+    const r = await service.crearPublico('m1', base, '1.1.1.3');
+    expect(envios.cotizar).not.toHaveBeenCalled();
+    expect(r.total).toBe(236);
+  });
+});
 
 describe('PedidosService.crearPublico', () => {
   it('calcula totales server-side con IGV y guarda snapshot', async () => {
@@ -104,7 +123,7 @@ describe('PedidosService.updateEstado', () => {
       },
       producto: { updateMany },
     };
-    return { service: new PedidosService(prisma as never, {} as never), update, updateMany };
+    return { service: new PedidosService(prisma as never, {} as never, {} as never), update, updateMany };
   }
 
   it('actualiza solo el estado de pago', async () => {

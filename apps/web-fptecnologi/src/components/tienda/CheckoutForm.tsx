@@ -1,28 +1,29 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Banknote, Building2, Check, Landmark, Loader2, Lock, Mail, MapPin, Phone, Smartphone, Store, Truck, User, FileText } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useCurrency } from '@/context/CurrencyContext';
 import { CONTACT_INFO } from '@/lib/content';
 
 type Comprobante = 'BOLETA' | 'FACTURA';
-type Entrega = 'RECOJO' | 'ENVIO';
+type Entrega = 'RECOJO' | 'ENVIO' | 'SHALOM';
+type Tarifa = { departamento: string; proveedor: string; costo: number; plazoDias: string | null; sedes: string[] };
 type Pago = 'TRANSFERENCIA' | 'YAPE_PLIN' | 'EFECTIVO';
 type V = {
   nombre: string; email: string; celular: string; comprobante: Comprobante; documento: string; razonSocial: string;
-  entrega: Entrega; direccion: string; distrito: string; pago: Pago; notas: string; acepto: boolean;
+  entrega: Entrega; direccion: string; distrito: string; envioDepartamento: string; envioSede: string; pago: Pago; notas: string; acepto: boolean;
 };
 type E = Partial<Record<keyof V, string>>;
 
 const INICIAL: V = {
   nombre: '', email: '', celular: '', comprobante: 'BOLETA', documento: '', razonSocial: '',
-  entrega: 'RECOJO', direccion: '', distrito: '', pago: 'TRANSFERENCIA', notas: '', acepto: false,
+  entrega: 'RECOJO', direccion: '', distrito: '', envioDepartamento: '', envioSede: '', pago: 'TRANSFERENCIA', notas: '', acepto: false,
 };
 
 const celularLimpio = (v: string) => v.replace(/[\s()-]/g, '').replace(/^\+?51(?=9\d{8}$)/, '');
 
-function validar(v: V): E {
+function validar(v: V, tarifa?: Tarifa): E {
   const e: E = {};
   if (v.nombre.trim().length < 2) e.nombre = 'Ingresa tu nombre completo.';
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.email.trim())) e.email = 'Ingresa un correo válido.';
@@ -34,6 +35,10 @@ function validar(v: V): E {
   if (v.entrega === 'ENVIO') {
     if (v.direccion.trim().length < 5) e.direccion = 'Indica la dirección de entrega.';
     if (v.distrito.trim().length < 2) e.distrito = 'Indica el distrito.';
+  }
+  if (v.entrega === 'SHALOM') {
+    if (!tarifa) e.envioDepartamento = 'Elige el departamento de destino.';
+    else if (tarifa.sedes.length > 0 && !v.envioSede) e.envioSede = 'Elige la agencia donde recogerás tu pedido.';
   }
   if (!v.acepto) e.acepto = 'Debes aceptar los términos para continuar.';
   return e;
@@ -108,6 +113,15 @@ export function CheckoutForm() {
   };
   const factura = v.comprobante === 'FACTURA';
 
+  // Tarifario de envío por courier (lo carga el equipo en el dashboard).
+  const [tarifas, setTarifas] = useState<Tarifa[]>([]);
+  useEffect(() => {
+    fetch('/api/hub/envios').then((r) => r.json()).then((j: { data?: Tarifa[] }) => setTarifas(j.data ?? [])).catch(() => setTarifas([]));
+  }, []);
+  const tarifa = v.entrega === 'SHALOM' ? tarifas.find((t) => t.departamento === v.envioDepartamento) : undefined;
+  const envioCosto = tarifa?.costo ?? 0;
+  const totalConEnvio = total + envioCosto;
+
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-xl rounded-3xl border border-ink/5 bg-white p-10 text-center shadow-xl shadow-brand-dark/10">
@@ -122,7 +136,7 @@ export function CheckoutForm() {
 
   async function enviar(e: React.FormEvent) {
     e.preventDefault();
-    const err = validar(v);
+    const err = validar(v, tarifa);
     setErrores(err);
     if (Object.keys(err).length) {
       document.getElementById(`co-${Object.keys(err)[0]}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -144,6 +158,8 @@ export function CheckoutForm() {
           entrega: v.entrega,
           direccion: v.direccion.trim(),
           distrito: v.distrito.trim(),
+          envioDepartamento: v.envioDepartamento,
+          envioSede: v.envioSede,
           metodoPago: v.pago,
           notas: v.notas,
           items: items.map((i) => ({ sku: i.sku, cantidad: i.qty })),
@@ -226,8 +242,9 @@ export function CheckoutForm() {
         </Seccion>
 
         <Seccion n={3} titulo="Entrega">
-          <div role="radiogroup" aria-label="Forma de entrega" className="grid gap-3 sm:grid-cols-2">
+          <div role="radiogroup" aria-label="Forma de entrega" className={`grid gap-3 ${tarifas.length > 0 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
             <Opcion activo={v.entrega === 'RECOJO'} onClick={() => set('entrega', 'RECOJO')} icon={Store} titulo="Recojo en tienda" texto="Breña, Lima" />
+            {tarifas.length > 0 && <Opcion activo={v.entrega === 'SHALOM'} onClick={() => set('entrega', 'SHALOM')} icon={Truck} titulo="Envío por Shalom" texto="Recoges en agencia" />}
             <Opcion activo={v.entrega === 'ENVIO'} onClick={() => set('entrega', 'ENVIO')} icon={Truck} titulo="Envío a domicilio" texto="Costo a coordinar" />
           </div>
           {v.entrega === 'RECOJO' ? (
@@ -235,6 +252,28 @@ export function CheckoutForm() {
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-primary" strokeWidth={2} />
               {CONTACT_INFO.address}. Te avisaremos cuando tu pedido esté listo.
             </p>
+          ) : v.entrega === 'SHALOM' ? (
+            <>
+              <Campo id="co-envioDepartamento" label="Departamento de destino" error={errores.envioDepartamento}>
+                <select id="co-envioDepartamento" value={v.envioDepartamento} onChange={(e) => setV((p) => ({ ...p, envioDepartamento: e.target.value, envioSede: '' }))} aria-invalid={!!errores.envioDepartamento} className={`${input} pl-4`}>
+                  <option value="">Elige un departamento…</option>
+                  {tarifas.map((t) => <option key={t.departamento} value={t.departamento}>{t.departamento}</option>)}
+                </select>
+              </Campo>
+              {tarifa && tarifa.sedes.length > 0 && (
+                <Campo id="co-envioSede" label="Agencia Shalom donde recogerás" error={errores.envioSede}>
+                  <select id="co-envioSede" value={v.envioSede} onChange={(e) => set('envioSede', e.target.value)} aria-invalid={!!errores.envioSede} className={`${input} pl-4`}>
+                    <option value="">Elige una agencia…</option>
+                    {tarifa.sedes.map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </Campo>
+              )}
+              {tarifa && (
+                <p className="rounded-xl bg-paper p-4 text-sm text-ink/70">
+                  Envío por {tarifa.proveedor === 'SHALOM' ? 'Shalom' : tarifa.proveedor}: <b>{format(tarifa.costo)}</b>{tarifa.plazoDias ? ` · llega en ${tarifa.plazoDias}` : ''}. Te avisaremos con el código de seguimiento.
+                </p>
+              )}
+            </>
           ) : (
             <>
               <div className="grid gap-5 sm:grid-cols-[1fr_12rem]">
@@ -292,10 +331,10 @@ export function CheckoutForm() {
           <dl className="mt-5 space-y-2 border-t border-white/10 pt-4 text-sm">
             <div className="flex justify-between"><dt className="text-white/60">Subtotal</dt><dd>{format(subtotal)}</dd></div>
             <div className="flex justify-between"><dt className="text-white/60">IGV (18%)</dt><dd>{format(igv)}</dd></div>
-            <div className="flex justify-between"><dt className="text-white/60">Envío</dt><dd className="text-white/60">A coordinar</dd></div>
+            <div className="flex justify-between"><dt className="text-white/60">Envío</dt><dd className={tarifa ? '' : 'text-white/60'}>{tarifa ? format(envioCosto) : v.entrega === 'RECOJO' ? 'Gratis' : 'A coordinar'}</dd></div>
             <div className="flex items-baseline justify-between border-t border-white/10 pt-3">
               <dt className="font-semibold">Total</dt>
-              <dd className="font-display text-2xl font-bold">{format(total)}</dd>
+              <dd className="font-display text-2xl font-bold">{format(totalConEnvio)}</dd>
             </div>
           </dl>
         </div>
