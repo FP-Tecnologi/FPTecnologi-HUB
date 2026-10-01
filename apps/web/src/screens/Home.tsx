@@ -55,6 +55,9 @@ export function Home() {
       <PageHead title={`¡Hola, ${user?.nombre || 'bienvenido'}! 👋`} subtitle={`Resumen general del estado de la plataforma hoy, ${fechaHoy}.`} />
 
       <div className="ax-dash-grid">
+        {esAdmin && marcas.length > 0 && (
+          <ResumenMarca marcaId={marcas[0].marcaId} marcaIds={marcas.map((m) => m.marcaId)} rol="admin" sinAccesos />
+        )}
         {esAdmin && (
           <section
             className="ax-card ax-col--4"
