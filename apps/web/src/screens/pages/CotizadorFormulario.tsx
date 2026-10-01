@@ -10,7 +10,7 @@ import { CmsEditor, type CmsConfig } from './WebHomeCms';
 const CONFIG: CmsConfig = {
   pagina: 'cotizador',
   titulo: 'Formulario del cotizador',
-  subtitulo: 'Edita los textos y las opciones del formulario que ve el cliente. Los cambios se publican al guardar.',
+  subtitulo: 'Edita los textos, opciones, beneficios, pasos y preguntas frecuentes de la página que ve el cliente. Los cambios se publican al guardar.',
   previewPath: '/cotizador',
   conVisible: false,
   secciones: [
@@ -46,6 +46,28 @@ const CONFIG: CmsConfig = {
       nombre: 'Beneficios (columna lateral)',
       ancla: '',
       campos: [{ key: 'items', label: 'Beneficios', tipo: 'lista-items', itemLabel: 'Beneficio' }],
+    },
+    {
+      key: 'proceso',
+      nombre: 'Cómo funciona',
+      ancla: '',
+      campos: [
+        { key: 'badge', label: 'Etiqueta (badge)', tipo: 'text' },
+        { key: 'titulo', label: 'Título — parte en color sólido', tipo: 'text' },
+        { key: 'destacado', label: 'Título — parte con brillo', tipo: 'text' },
+        { key: 'items', label: 'Pasos del proceso', tipo: 'lista-items', itemLabel: 'Paso' },
+      ],
+    },
+    {
+      key: 'faq',
+      nombre: 'Preguntas frecuentes',
+      ancla: '',
+      campos: [
+        { key: 'badge', label: 'Etiqueta (badge)', tipo: 'text' },
+        { key: 'titulo', label: 'Título — parte en color sólido', tipo: 'text' },
+        { key: 'destacado', label: 'Título — parte con brillo', tipo: 'text' },
+        { key: 'items', label: 'Preguntas (título = pregunta, texto = respuesta)', tipo: 'lista-items', itemLabel: 'Pregunta' },
+      ],
     },
     {
       key: 'gracias',

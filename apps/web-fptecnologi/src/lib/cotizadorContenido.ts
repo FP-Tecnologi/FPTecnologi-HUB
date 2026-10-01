@@ -12,6 +12,8 @@ import { SOLUTIONS } from './content';
 
 export type ItemTexto = { title: string; text: string };
 
+export type Encabezado = { badge: string; titulo: string; destacado: string };
+
 export type CotizadorContenido = {
   hero: { badge: string; titulo: string; destacado: string; descripcion: string };
   /** 3 pasos: ¿qué necesitas? · ¿quién eres? · ¿cómo te contactamos? */
@@ -19,6 +21,8 @@ export type CotizadorContenido = {
   /** Opciones de "servicio o producto de interés". */
   intereses: { items: ItemTexto[]; permitirOtro: boolean; mostrarMensaje: boolean; mensajeLabel: string };
   beneficios: { items: ItemTexto[] };
+  proceso: Encabezado & { items: ItemTexto[] };
+  faq: Encabezado & { items: ItemTexto[] };
   gracias: { titulo: string; mensaje: string; botonTexto: string; botonUrl: string };
 };
 
@@ -50,6 +54,27 @@ export const COTIZADOR_DEFAULTS: CotizadorContenido = {
       { title: 'Asesoría personalizada', text: 'Un especialista arma la propuesta según tu operación.' },
       { title: 'Marcas autorizadas', text: 'Distribución oficial con stock local y garantía.' },
       { title: 'Sin compromiso', text: 'Cotizar es gratis: tú decides si avanzas.' },
+    ],
+  },
+  proceso: {
+    badge: 'Cómo funciona',
+    titulo: 'De tu solicitud a',
+    destacado: 'una propuesta clara',
+    items: [
+      { title: 'Nos cuentas tu necesidad', text: 'Llenas el formulario en menos de 2 minutos: sin llamadas ni papeleo.' },
+      { title: 'Analizamos tu caso', text: 'Un especialista revisa tu requerimiento y arma la solución adecuada.' },
+      { title: 'Recibes tu cotización', text: 'Te contactamos por correo o WhatsApp con una propuesta detallada.' },
+    ],
+  },
+  faq: {
+    badge: 'Preguntas frecuentes',
+    titulo: 'Antes de',
+    destacado: 'cotizar',
+    items: [
+      { title: '¿Tengo que comprometerme al pedir una cotización?', text: 'No. Un especialista te arma la propuesta y tú decides si avanzas — sin compromiso.' },
+      { title: '¿Las marcas que venden son originales?', text: 'Somos distribuidores autorizados: marcas originales con garantía oficial.' },
+      { title: '¿Tienen stock disponible?', text: 'Contamos con stock local para despacho inmediato en los equipos más solicitados.' },
+      { title: '¿Dónde están ubicados?', text: 'Jr. Huaraz 1841, Breña — Lima, Perú. También atendemos por WhatsApp y correo.' },
     ],
   },
   gracias: {

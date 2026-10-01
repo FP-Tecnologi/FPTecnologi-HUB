@@ -612,3 +612,8 @@ sesión/máquina)**:
 - Pendiente: aplicar la migración; no se pudo ver la landing de referencia
   (`landing-cotiza-tu-tiempo`, el proxy bloqueó el dominio) — el diseño sigue
   el de la web; asignar leads a un comercial; sincronizar con el repo de leads.
+- **Rediseño del cotizador (misma fecha)**: la página ya no es solo el
+  formulario. Formulario sobre el borde del hero + panel oscuro con beneficios
+  y contacto directo (WhatsApp, ventas, correo, mapa); debajo "Cómo funciona"
+  (3 pasos), servicios, marcas y preguntas frecuentes (acordeón). Nuevas
+  secciones editables en el CMS: `proceso` y `faq`.
