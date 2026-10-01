@@ -30,11 +30,11 @@ export class ServiciosService {
 
   async update(marcaId: string, id: string, dto: UpdateServicioDto) {
     await this.findOne(marcaId, id);
-    return this.prisma.servicio.update({ where: { id }, data: dto });
+    return this.prisma.servicio.update({ where: { id, marcaId }, data: dto });
   }
 
   async remove(marcaId: string, id: string) {
     await this.findOne(marcaId, id);
-    return this.prisma.servicio.delete({ where: { id } });
+    return this.prisma.servicio.delete({ where: { id, marcaId } });
   }
 }

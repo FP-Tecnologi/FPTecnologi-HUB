@@ -142,14 +142,14 @@ export class ProductosService {
       slug = await this.slugUnicoProducto(marcaId, slug, id);
     }
     return this.prisma.producto.update({
-      where: { id },
+      where: { id, marcaId },
       data: { ...dto, ...(slug ? { slug } : {}) },
     });
   }
 
   async remove(marcaId: string, id: string) {
     await this.findOne(marcaId, id);
-    return this.prisma.producto.delete({ where: { id } });
+    return this.prisma.producto.delete({ where: { id, marcaId } });
   }
 
   async createCategoria(marcaId: string, dto: CreateCategoriaDto) {

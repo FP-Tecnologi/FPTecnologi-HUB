@@ -144,15 +144,17 @@ export function CotizadorLeads() {
       )}
 
       <div className="ax-dash-grid">
-        <section className={`ax-card ${sel ? 'ax-col--8' : 'ax-col--12'}`} role="region" aria-label="Leads">
+        <section className={`ax-card ${sel ? 'ax-col--8' : 'ax-col--12'}`} role="region" aria-label="Leads" style={{ alignSelf: 'start' }}>
           <div className="ax-card__body">
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+              <div style={{ maxWidth: '100%', overflowX: 'auto' }}>
               <div className="ax-btn-group ax-btn-group--segmented" role="radiogroup" aria-label="Filtrar por estado">
                 {([{ v: '' as const, label: 'Todos' }, ...ESTADOS] as { v: '' | Estado; label: string }[]).map((e) => (
                   <button key={e.label} type="button" role="radio" aria-checked={filtro === e.v} className={`ax-btn ax-btn--sm${filtro === e.v ? ' is-selected' : ''}`} onClick={() => setFiltro(e.v)}>
                     {e.label} ({cuenta(e.v)})
                   </button>
                 ))}
+              </div>
               </div>
               <input type="search" className="ax-input" placeholder="Buscar nombre, empresa, documento…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Buscar leads" style={{ maxWidth: 300 }} />
             </div>

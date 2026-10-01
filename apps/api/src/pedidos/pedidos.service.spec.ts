@@ -92,3 +92,44 @@ describe('PedidosService.crearPublico', () => {
     });
   });
 });
+
+describe('PedidosService.updateEstado', () => {
+  function setupEstado(estado = 'PENDIENTE') {
+    const updateMany = vi.fn(async () => ({ count: 1 }));
+    const update = vi.fn(async ({ data }: { data: Record<string, unknown> }) => ({ id: 'ped1', ...data }));
+    const prisma = {
+      pedido: {
+        findFirst: vi.fn(async () => ({ id: 'ped1', estado, items: [{ productoId: 'p1', cantidad: 2 }, { productoId: 'p2', cantidad: 1 }] })),
+        update,
+      },
+      producto: { updateMany },
+    };
+    return { service: new PedidosService(prisma as never, {} as never), update, updateMany };
+  }
+
+  it('actualiza solo el estado de pago', async () => {
+    const { service, update, updateMany } = setupEstado();
+    await service.updateEstado('m1', 'ped1', { estadoPago: 'PAGADO' });
+    expect(update).toHaveBeenCalledWith({ where: { id: 'ped1', marcaId: 'm1' }, data: { estadoPago: 'PAGADO' } });
+    expect(updateMany).not.toHaveBeenCalled();
+  });
+
+  it('cancelar devuelve el stock de cada ítem', async () => {
+    const { service, updateMany } = setupEstado();
+    await service.updateEstado('m1', 'ped1', { estado: 'CANCELADO' });
+    expect(updateMany).toHaveBeenCalledWith({ where: { id: 'p1', marcaId: 'm1' }, data: { stock: { increment: 2 } } });
+    expect(updateMany).toHaveBeenCalledWith({ where: { id: 'p2', marcaId: 'm1' }, data: { stock: { increment: 1 } } });
+  });
+
+  it('un pedido cancelado no se reactiva ni devuelve stock dos veces', async () => {
+    const { service, updateMany } = setupEstado('CANCELADO');
+    await expect(service.updateEstado('m1', 'ped1', { estado: 'PENDIENTE' })).rejects.toBeInstanceOf(BadRequestException);
+    await service.updateEstado('m1', 'ped1', { estado: 'CANCELADO' });
+    expect(updateMany).not.toHaveBeenCalled();
+  });
+
+  it('exige estado o estado de pago', async () => {
+    const { service } = setupEstado();
+    await expect(service.updateEstado('m1', 'ped1', {})).rejects.toBeInstanceOf(BadRequestException);
+  });
+});

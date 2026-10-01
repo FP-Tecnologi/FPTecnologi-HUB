@@ -38,6 +38,6 @@ export class CotizacionesService {
 
   async updateEstado(marcaId: string, id: string, dto: UpdateEstadoCotizacionDto) {
     await this.findOne(marcaId, id);
-    return this.prisma.cotizacion.update({ where: { id }, data: { estado: dto.estado } });
+    return this.prisma.cotizacion.update({ where: { id, marcaId }, data: { estado: dto.estado } });
   }
 }

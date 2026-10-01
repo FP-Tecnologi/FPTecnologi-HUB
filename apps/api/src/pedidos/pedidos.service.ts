@@ -205,9 +205,32 @@ export class PedidosService {
     return pedido;
   }
 
+  /**
+   * Cambia estado y/o estado de pago. Cancelar un pedido devuelve el stock que
+   * se descontó al comprar; un pedido cancelado no se puede reactivar (el stock
+   * ya volvió al inventario y pudo venderse a otro).
+   */
   async updateEstado(marcaId: string, id: string, dto: UpdateEstadoPedidoDto) {
-    await this.findOne(marcaId, id);
-    return this.prisma.pedido.update({ where: { id }, data: { estado: dto.estado } });
+    if (dto.estado === undefined && dto.estadoPago === undefined) {
+      throw new BadRequestException('Indica el estado o el estado de pago');
+    }
+    const pedido = await this.prisma.pedido.findFirst({ where: { id, marcaId }, include: { items: true } });
+    if (!pedido) throw new NotFoundException('Pedido no encontrado');
+
+    const cancelando = dto.estado === 'CANCELADO' && pedido.estado !== 'CANCELADO';
+    if (pedido.estado === 'CANCELADO' && dto.estado !== undefined && dto.estado !== 'CANCELADO') {
+      throw new BadRequestException('Un pedido cancelado no se puede reactivar');
+    }
+
+    const actualizado = await this.prisma.pedido.update({
+      where: { id, marcaId },
+      data: {
+        ...(dto.estado !== undefined ? { estado: dto.estado } : {}),
+        ...(dto.estadoPago !== undefined ? { estadoPago: dto.estadoPago } : {}),
+      },
+    });
+    if (cancelando) await this.devolverStock(marcaId, pedido.items.map((i) => ({ productoId: i.productoId, cantidad: i.cantidad })));
+    return actualizado;
   }
 
   /** Devuelve stock descontado si el pedido no llegó a crearse (best-effort). */

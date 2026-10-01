@@ -75,3 +75,27 @@ describe('ProductosService.buscarPublico', () => {
     expect(calls[calls.length - 1][0]).toMatchObject({ skip: 200, take: 100 });
   });
 });
+
+describe('ProductosService — aislamiento multi-tenant en update/remove', () => {
+  // El tenant-guard de Prisma exige marcaId en el where de update/delete: sin él
+  // editar un producto desde el dashboard fallaba con 500.
+  function setupTenant() {
+    const actual = { id: 'p1', marcaId: 'm1', slug: 'monitor-x' };
+    const update = vi.fn(async () => actual);
+    const del = vi.fn(async () => actual);
+    const prisma = { producto: { findFirst: vi.fn(async () => actual), update, delete: del } };
+    return { service: new ProductosService(prisma as never), update, del };
+  }
+
+  it('update incluye marcaId en el where', async () => {
+    const { service, update } = setupTenant();
+    await service.update('m1', 'p1', { precio: 10 });
+    expect(update).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 'p1', marcaId: 'm1' } }));
+  });
+
+  it('remove incluye marcaId en el where', async () => {
+    const { service, del } = setupTenant();
+    await service.remove('m1', 'p1');
+    expect(del).toHaveBeenCalledWith({ where: { id: 'p1', marcaId: 'm1' } });
+  });
+});

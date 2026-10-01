@@ -753,3 +753,25 @@ sesión/máquina)**:
   descontado, snapshot por ítem, carrito vaciado, errores de stock / producto
   inexistente / carrito vacío.
 - Pendiente de Fase 2: dashboard de Pedidos y Productos (T2.2).
+
+### 2026-10-01 — Dashboard de Pedidos y Productos (Fase 2: T2.2) + bug multi-tenant
+
+- **Dashboard**: Ecommerce → **Pedidos** (`/ecommerce/pedidos`: filtro por
+  estado, búsqueda, detalle con comprador, ítems con copia de la venta, totales,
+  WhatsApp, cambio de estado y de pago, CSV) y Ecommerce → **Productos**
+  (`/ecommerce/productos`: búsqueda, filtros por categoría / activo / sin stock,
+  alta y edición en panel lateral, activar/desactivar con un clic). El grupo
+  Ecommerce ahora se muestra al rol `ventas` (como exige la API) y a `admin`.
+- **API**: `PATCH /pedidos/:id/estado` acepta `estado` y/o `estadoPago`
+  (`PENDIENTE | POR_CONFIRMAR | PAGADO`). **Cancelar un pedido devuelve el stock**
+  de sus ítems y un pedido cancelado no se puede reactivar. 4 tests nuevos.
+- **Bug corregido (anterior a esta sesión)**: `update`/`delete` de `Producto`,
+  `Servicio` y `update` de `Cotizacion` usaban `where: { id }` sin `marcaId` y el
+  tenant-guard los rechazaba con 500: **editar un producto desde el dashboard
+  nunca habría funcionado**. Ahora llevan `marcaId` (+ tests). Queda pendiente
+  revisar `sitios.remove` (mismo patrón, no tocado).
+- Layout: en las listas con panel de detalle (Pedidos, Productos, Leads) la
+  tarjeta ya no se estira a la altura del detalle y los filtros hacen scroll.
+- Verificado de punta a punta con Postgres local y el dashboard real (sesión de
+  prueba): ver pedidos, cambiar pago, cancelar (stock 97→98 y 94→96), crear y
+  editar producto.
