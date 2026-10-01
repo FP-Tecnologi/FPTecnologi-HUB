@@ -638,3 +638,17 @@ sesión/máquina)**:
   `/api/hub/boletin`. Dashboard: Boletín → Suscriptores (lista, buscar, CSV).
 - Pendiente: baja del boletín (no hay enlace de baja todavía) y envío de
   campañas (hoy solo se recolectan correos).
+
+### 2026-10-01 — Blog: artículos de ejemplo reproducibles
+
+- Los "3 artículos de ejemplo" del primer día se habían insertado a mano en una
+  base y nunca quedaron en el repo, por eso una base nueva mostraba el blog
+  vacío. Ahora existe `apps/api/prisma/seeds/blog-ejemplo.sql`: 6 artículos
+  publicados (servidores, videovigilancia, videoconferencia, respaldo, nube,
+  hotelería), con portada (`/images/solutions/*.jpg`) y 1 destacado.
+  Idempotente (`ON CONFLICT (marcaId, slug) DO NOTHING`); se ejecuta en el SQL
+  Editor de Supabase. Toma la marca cuyo nombre contenga "fptecnologi".
+- Verificado de punta a punta con Postgres local: las 12 migraciones aplican en
+  una base vacía, el seed inserta 6 (y 0 al repetirlo), `/public/blog` los
+  devuelve y la web pinta listado, filtros y detalle. También se probó
+  `POST /public/cotizador/leads` y `/public/boletin/suscribir` contra la base.
