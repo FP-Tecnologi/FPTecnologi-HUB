@@ -37,7 +37,9 @@ export function Team() {
   const [aviso, setAviso] = useState<{ ok: boolean; texto: string } | null>(null);
 
   const cargar = useCallback(async () => {
-    if (!activeMarcaId) return;
+    // Sin marca activa (modo super admin) no hay nada que listar: se apaga el
+    // "cargando" para no dejar la pantalla en un spinner eterno.
+    if (!activeMarcaId) { setLoading(false); return; }
     setLoading(true);
     try {
       const [r, e, c, i, a] = await Promise.all([
@@ -220,6 +222,23 @@ export function Team() {
           </tbody>
         </table>
       </div>
+    );
+  }
+
+  // Modo super admin ("Administración"): esta pantalla es por marca. Sin marca activa
+  // no hay equipo que listar, así que se dice en vez de dejar un spinner eterno.
+  if (!activeMarcaId) {
+    return (
+      <>
+        <PageHead title="Usuarios y equipo" subtitle="El equipo, las invitaciones y los clientes pertenecen a una marca." />
+        <div className="ax-dash-grid">
+          <section className="ax-card ax-col--12">
+            <div className="ax-card__body" style={{ textAlign: 'center', paddingBlock: 'var(--ax-space-8)', color: 'var(--ax-text-muted)' }}>
+              Elige una marca en el selector de la barra lateral para ver su equipo, sus invitaciones y sus clientes.
+            </div>
+          </section>
+        </div>
+      </>
     );
   }
 

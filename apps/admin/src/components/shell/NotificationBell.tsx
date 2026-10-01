@@ -2,10 +2,15 @@
 /*
  * Campanita del encabezado: notificaciones del sistema (GET /notificaciones) con contador, panel con las últimas y
  * avisos flotantes cuando llega una nueva mientras el dashboard está abierto. Consulta cada 30 s.
+ *
+ * El panel usa las clases que shell.css ya define para esta pieza (`.ax-notif__menu/__row/__chip/__body/__title/
+ * __text/__time/__dot/__empty/__mark-all`): sin `ax-notif__menu` el panel no recibe `position: absolute` ni la
+ * superficie (fondo, borde, sombra, z-index) y se ve encajado en el flujo del header en vez de flotar encima.
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Dropdown } from '../ui/Dropdown';
+import { Icon } from '../ui/Icon';
 import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 
@@ -14,6 +19,7 @@ interface Notificacion { id: string; titulo: string; mensaje: string; tipo: stri
 const CADA_MS = 30_000;
 const TOAST_MS = 7_000;
 const MAX_TOASTS = 3;
+const MAX_EN_PANEL = 8;
 
 const hace = (iso: string) => {
   const min = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60_000));
@@ -23,9 +29,21 @@ const hace = (iso: string) => {
   return new Date(iso).toLocaleDateString('es-PE', { day: '2-digit', month: 'short' });
 };
 
-const BELL = (
-  <svg className="ax-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" width={24} height={24} aria-hidden="true"><path d="M10 5a2 2 0 1 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6" /><path d="M9 17v1a3 3 0 0 0 6 0v-1" /></svg>
-);
+// Un icono por tipo de notificación (mismos nombres del registro de Icon.tsx).
+const ICONO: Record<string, string> = {
+  SISTEMA: 'bell',
+  PEDIDO: 'shopping-cart',
+  COTIZACION: 'article',
+  EQUIPO: 'users-group',
+  STOCK: 'alert-triangle',
+  CHAT: 'messages',
+};
+// Tono del círculo: lo que requiere acción se destaca.
+const TONO: Record<string, string> = {
+  PEDIDO: 'ax-notif__chip--success',
+  COTIZACION: 'ax-notif__chip--success',
+  STOCK: 'ax-notif__chip--warning',
+};
 
 export function NotificationBell() {
   const { activeMarcaId } = useAuth();
@@ -63,43 +81,80 @@ export function NotificationBell() {
   return (
     <>
       <Dropdown
-        className="ax-notifications"
-        panelClassName="ax-dropdown"
+        className="ax-notif"
+        panelClassName="ax-dropdown ax-notif__menu"
+        panelRole="dialog"
+        panelAriaLabel="Notificaciones"
         trigger={({ open, triggerProps }) => (
-          <button type="button" className="ax-icon-btn" style={{ position: 'relative' }} aria-label={noLeidas ? `Notificaciones (${noLeidas} sin leer)` : 'Notificaciones'} {...triggerProps} aria-expanded={open}>
-            {BELL}
+          <button
+            type="button"
+            className="ax-icon-btn ax-notif__trigger"
+            aria-label={noLeidas ? `Notificaciones (${noLeidas} sin leer)` : 'Notificaciones'}
+            {...triggerProps}
+            aria-expanded={open}
+          >
+            <Icon name="bell" />
             {noLeidas > 0 && (
-              <span aria-hidden="true" style={{ position: 'absolute', top: 2, insetInlineEnd: 0, minWidth: 16, height: 16, padding: '0 4px', borderRadius: 8, background: 'var(--ax-danger-500)', color: '#fff', fontSize: 10, fontWeight: 700, lineHeight: '16px', textAlign: 'center' }}>{noLeidas > 9 ? '9+' : noLeidas}</span>
+              <span
+                aria-hidden="true"
+                style={{
+                  position: 'absolute', top: 2, insetInlineEnd: 0, minWidth: 16, height: 16, padding: '0 4px',
+                  borderRadius: 8, background: 'var(--ax-danger-500)', color: '#fff', fontSize: 10, fontWeight: 700,
+                  lineHeight: '16px', textAlign: 'center',
+                }}
+              >
+                {noLeidas > 9 ? '9+' : noLeidas}
+              </span>
             )}
           </button>
         )}
       >
         {({ close }) => (
-          <div style={{ width: 340, maxWidth: '88vw' }}>
-            <div className="ax-cluster" style={{ justifyContent: 'space-between', padding: 'var(--ax-space-3)' }}>
-              <strong style={{ color: 'var(--ax-text-strong)' }}>Notificaciones</strong>
-              {noLeidas > 0 && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={marcarTodas}>Marcar todas</button>}
+          <>
+            <div className="ax-dropdown__head">
+              <span>Notificaciones{noLeidas > 0 ? ` (${noLeidas})` : ''}</span>
+              {noLeidas > 0 && (
+                <button type="button" className="ax-notif__mark-all" onClick={marcarTodas}>Marcar todas</button>
+              )}
             </div>
-            <div style={{ maxHeight: 360, overflowY: 'auto' }}>
-              {items.length === 0 && <p style={{ padding: 'var(--ax-space-3)', color: 'var(--ax-text-muted)', fontSize: 'var(--ax-text-sm)' }}>No tienes notificaciones.</p>}
-              {items.slice(0, 8).map((n) => (
-                <button key={n.id} type="button" role="menuitem" className="ax-dropdown__item" onClick={() => marcar(n.id)} style={{ display: 'block', width: '100%', textAlign: 'start', background: n.leida ? 'none' : 'var(--ax-surface-subtle)', border: 'none', cursor: 'pointer', whiteSpace: 'normal' }}>
-                  <div className="ax-cluster" style={{ justifyContent: 'space-between', gap: 8, flexWrap: 'nowrap' }}>
-                    <b style={{ fontSize: 'var(--ax-text-sm)' }}>{n.titulo}</b>
-                    <small style={{ color: 'var(--ax-text-subtle)', whiteSpace: 'nowrap' }}>{hace(n.createdAt)}</small>
-                  </div>
-                  <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-muted)' }}>{n.mensaje}</div>
-                </button>
-              ))}
-            </div>
+
+            {items.length === 0 ? (
+              <p className="ax-notif__empty">No tienes notificaciones.</p>
+            ) : (
+              <ul className="ax-notif__list">
+                {items.slice(0, MAX_EN_PANEL).map((n) => (
+                  <li key={n.id}>
+                    <button
+                      type="button"
+                      className={`ax-notif__row${n.leida ? '' : ' is-unread'}`}
+                      onClick={() => marcar(n.id)}
+                      style={{ inlineSize: '100%', textAlign: 'start', border: 0, cursor: 'pointer' }}
+                    >
+                      <span className={`ax-notif__chip ${TONO[n.tipo] ?? ''}`}>
+                        <Icon name={ICONO[n.tipo] ?? 'bell'} />
+                      </span>
+                      <span className="ax-notif__body">
+                        <span className="ax-notif__title">{n.titulo}</span>
+                        <span className="ax-notif__text">{n.mensaje}</span>
+                        <span className="ax-notif__time">{hace(n.createdAt)}</span>
+                      </span>
+                      {!n.leida && <span className="ax-notif__dot" aria-hidden="true" />}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+
             <div className="ax-dropdown__divider" role="separator"></div>
-            <Link className="ax-dropdown__item" role="menuitem" href="/notificaciones" onClick={close} style={{ textAlign: 'center' }}>Ver todas</Link>
-          </div>
+            <Link className="ax-dropdown__item" href="/notificaciones" onClick={close} style={{ justifyContent: 'center' }}>
+              Ver todas
+            </Link>
+          </>
         )}
       </Dropdown>
 
       {toasts.length > 0 && (
-        <div className="ax-toast-region ax-toast-region--top-end" role="region" aria-label="Avisos nuevos" style={{ zIndex: 80 }}>
+        <div className="ax-toast-region ax-toast-region--top-end" role="region" aria-label="Avisos nuevos">
           {toasts.map((n) => (
             <div key={n.id} className="ax-toast" role="status">
               <div className="ax-toast__content">
