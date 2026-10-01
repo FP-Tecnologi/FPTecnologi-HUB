@@ -1007,3 +1007,8 @@ Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «V
 - **Síntoma**: al marcar "comparar" el botón cambiaba de color pero el panel de comparación no se veía (inicio, y a veces en la tienda/fichas/marcas).
 - **Causa**: `main` tenía `animation: pagina-entra … both`; el último fotograma dejaba un `transform` permanente en `main`, y eso hace que cualquier `position: fixed` de adentro (el `CompareDock`) se posicione respecto a `main` y no a la pantalla (quedaba a ~6000 px, fuera de vista). Ahora la animación usa `backwards` y termina limpia (`app/globals.css`).
 - **Extra**: en `home/ProductCardFinal.tsx` las flechas de foto (invisibles hasta el hover) tapaban el botón de comparar en tarjetas chicas (celular); se bajaron a `top-[68%]` y no capturan clics mientras están ocultas.
+
+## 2026-10-01 — Web: color principal `#2898ee`
+
+- `--color-brand-primary` pasa de `#155382` a `#2898ee` (`apps/web-fptecnologi/app/globals.css`); `--color-brand-dark` (`#2181af`, hover y fondos profundos) no cambia. También se actualizaron los valores escritos a mano: sombras de color, `themeColor` del navegador, acento de los radios del libro de reclamaciones y el tema "azul"/"claro" de los popups (web y vista previa del dashboard). Nota: texto blanco sobre `#2898ee` tiene contraste ~3:1.
+- El dashboard (`apps/admin`) conserva su propio acento y no se tocó.

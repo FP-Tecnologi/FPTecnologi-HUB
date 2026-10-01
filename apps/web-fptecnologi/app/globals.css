@@ -6,8 +6,8 @@
  * pasada por el cliente, no inventada.
  */
 @theme {
-  --color-brand-primary: #155382; /* Azul oscuro (ahora primario base de botones) */
-  --color-brand-dark: #2181af; /* Azul vibrante (ahora estado hover de botones) */
+  --color-brand-primary: #2898ee; /* Azul principal de marca (base de botones) */
+  --color-brand-dark: #2181af; /* Azul más profundo (estado hover de botones, fondos oscuros) */
   --color-brand-petrol: #1c6587; /* Pantone 7698 C — azul petróleo */
   --color-brand-teal: #18778b; /* Pantone 7470 C — turquesa petróleo */
   --color-brand-teal-light: #208497; /* Pantone 7474 C — azul turquesa claro */
@@ -30,7 +30,7 @@
  */
 .btn-glow {
   background: linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-petrol) 100%);
-  box-shadow: 0 12px 26px -10px rgba(21, 83, 130, 0.55);
+  box-shadow: 0 12px 26px -10px rgba(40, 152, 238, 0.55);
   transition:
     filter 0.2s ease,
     box-shadow 0.2s ease,
@@ -662,7 +662,7 @@ body {
 }
 
 /* Frase destacada del título del hero (Modelo 9) -- degradé celeste/blanco/
-   brand-dark (#155382, azul oscuro de marca -- ver globals.css @theme) que
+   brand-dark (#2181af, azul profundo de marca -- ver globals.css @theme) que
    se desliza en loop (background-clip: text), en vez de un color celeste
    sólido fijo. El brand-dark se nota más fuerte que el celeste sobre el
    fondo oscuro del video, así el barrido es más visible. Tamaño de fondo
@@ -1035,7 +1035,7 @@ body {
 .blog-prose img {
   width: 100%;
   border-radius: 1rem;
-  box-shadow: 0 20px 40px -20px rgba(21, 83, 130, 0.45);
+  box-shadow: 0 20px 40px -20px rgba(40, 152, 238, 0.45);
 }
 .blog-prose code {
   border-radius: 0.375rem;

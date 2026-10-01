@@ -46,9 +46,9 @@ const DISPOSITIVO: Record<string, string> = { todos: 'Todos', escritorio: 'Solo 
 const ACCION: Record<Accion, string> = { ninguna: 'Solo cierra el popup', url: 'Enlace (página o URL)', producto: 'Ir a un producto', whatsapp: 'Abrir WhatsApp' };
 const TEMA: Record<Tema, string> = { azul: 'Azul', oscuro: 'Oscuro', claro: 'Claro', acento: 'Acento (naranja)' };
 const COLORES: Record<Tema, { bg: string; fg: string; btn: string; btnFg: string }> = {
-  azul: { bg: '#155382', fg: '#fff', btn: '#fff', btnFg: '#155382' },
+  azul: { bg: '#2898ee', fg: '#fff', btn: '#fff', btnFg: '#1673c4' },
   oscuro: { bg: '#0f172a', fg: '#fff', btn: '#38bdf8', btnFg: '#0f172a' },
-  claro: { bg: '#fff', fg: '#0f172a', btn: '#155382', btnFg: '#fff' },
+  claro: { bg: '#fff', fg: '#0f172a', btn: '#2898ee', btnFg: '#fff' },
   acento: { bg: '#f97316', fg: '#fff', btn: '#fff', btnFg: '#c2410c' },
 };
 

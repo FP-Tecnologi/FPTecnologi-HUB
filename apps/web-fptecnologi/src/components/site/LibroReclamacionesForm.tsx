@@ -110,7 +110,7 @@ export function LibroReclamacionesForm() {
               { v: 'Queja', t: 'Disconformidad con la atención recibida.' },
             ].map((o, i) => (
               <label key={o.v} className="flex cursor-pointer gap-3 rounded-xl border border-brand-dark/15 bg-paper p-3.5 has-[:checked]:border-brand-primary has-[:checked]:bg-brand-primary/5">
-                <input type="radio" name="tipo" value={o.v} defaultChecked={i === 0} className="mt-1 accent-[#155382]" />
+                <input type="radio" name="tipo" value={o.v} defaultChecked={i === 0} className="mt-1 accent-[#2898ee]" />
                 <span>
                   <span className="block font-semibold text-ink">{o.v}</span>
                   <span className="block text-xs font-normal text-ink/60">{o.t}</span>
