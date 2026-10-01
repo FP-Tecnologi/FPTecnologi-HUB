@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Headers, Ip, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { type AgenciaShalom } from './agencias-shalom.js';
 import { EnviosService } from './envios.service.js';
 import { ActualizarTarifaDto, CrearTarifaDto } from './envios.dto.js';
@@ -72,6 +72,28 @@ export class PublicAgenciasController {
   provincias(@Query('departamento') departamento: string) {
     if (!departamento) throw new BadRequestException('Falta departamento');
     return this.envios.provincias(departamento);
+  }
+
+  @Get('distritos')
+  distritos(@Query('departamento') departamento: string, @Query('provincia') provincia: string) {
+    if (!departamento || !provincia) throw new BadRequestException('Falta departamento o provincia');
+    return this.envios.distritos(departamento, provincia);
+  }
+
+  /** Agencias según el distrito de destino: las del distrito primero y luego las más cercanas. */
+  @Get('por-distrito')
+  porDistrito(
+    @Query('departamento') departamento: string,
+    @Query('provincia') provincia: string,
+    @Query('distrito') distrito: string,
+    @Ip() ip: string,
+    @Headers('x-forwarded-for') forwarded?: string,
+  ) {
+    if (!departamento || !provincia || !distrito) throw new BadRequestException('Falta departamento, provincia o distrito');
+    return this.envios.porDistrito(departamento, provincia, distrito, forwarded?.split(',')[0]?.trim() || ip).then((r) => ({
+      ...r,
+      agencias: r.agencias.map((a) => ({ ...publica(a), enDistrito: a.enDistrito })),
+    }));
   }
 
   @Get()

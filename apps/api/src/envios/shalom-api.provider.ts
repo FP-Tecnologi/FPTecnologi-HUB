@@ -36,6 +36,7 @@ interface RegistroVivo {
   latitud?: string | number | null;
   longitud?: string | number | null;
   distancia_km?: number | null;
+  ubi_id?: string | number | null;
 }
 
 const norm = (s: string) => s.trim().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
@@ -115,6 +116,7 @@ export class ShalomApiProvider {
       horario: r.hora_atencion?.trim() || '',
       lat: numero(r.latitud),
       lng: numero(r.longitud),
+      ...(r.ubi_id ? { ubigeo: String(r.ubi_id) } : {}),
     };
     this.vivas.set(agencia.id, agencia);
     return agencia;

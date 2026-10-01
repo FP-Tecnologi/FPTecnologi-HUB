@@ -6,6 +6,7 @@ import { Check, Clock, Loader2, LocateFixed, MapPin, Phone } from 'lucide-react'
 export type TarifaEnvio = { departamento: string; proveedor: string; costo: number; plazoDias: string | null };
 type Agencia = { id: string; provincia: string; zona: string; direccion: string; telefono: string | null; horario: string; lat: number | null; lng: number | null; distanciaKm?: number; departamento?: string };
 type Cercana = Agencia & { departamento: string };
+type PorDistrito = { distrito: string; ubicacionAproximada: boolean | null; agencias: (Cercana & { enDistrito?: boolean })[] };
 
 const campo = 'mt-1.5 w-full rounded-xl border border-ink/15 bg-white py-3 pl-4 pr-4 text-base text-ink outline-none transition-all focus:border-brand-dark focus:ring-4 focus:ring-brand-dark/10 aria-[invalid=true]:border-rose-400';
 
@@ -47,12 +48,18 @@ export function ShalomAgencias({
   const [provincia, setProvincia] = useState('');
   const [agencias, setAgencias] = useState<Agencia[]>([]);
   const [cercanas, setCercanas] = useState<Cercana[]>([]);
+  const [distritos, setDistritos] = useState<string[]>([]);
+  const [distrito, setDistrito] = useState('');
+  const [porDistrito, setPorDistrito] = useState<PorDistrito | null>(null);
+  const [buscandoDistrito, setBuscandoDistrito] = useState(false);
   const [ubicando, setUbicando] = useState(false);
   const [avisoUbicacion, setAvisoUbicacion] = useState('');
 
   useEffect(() => {
     setProvincia('');
     setAgencias([]);
+    setDistrito('');
+    setPorDistrito(null);
     if (!departamento) return setProvincias([]);
     let vivo = true;
     pedir<{ provincia: string; agencias: number }>({ departamento }).then((p) => vivo && setProvincias(p));
@@ -60,6 +67,34 @@ export function ShalomAgencias({
       vivo = false;
     };
   }, [departamento]);
+
+  // Distritos de la provincia elegida (ubigeo INEI); al cambiar de provincia se reinicia el distrito.
+  useEffect(() => {
+    setDistrito('');
+    setPorDistrito(null);
+    if (!departamento || !provincia) return setDistritos([]);
+    let vivo = true;
+    pedir<string>({ departamento, provincia, distritos: '1' }).then((d) => vivo && setDistritos(d));
+    return () => {
+      vivo = false;
+    };
+  }, [departamento, provincia]);
+
+  // Agencias según el distrito elegido: las del distrito primero y luego las más cercanas.
+  useEffect(() => {
+    setPorDistrito(null);
+    if (!departamento || !provincia || !distrito) return;
+    let vivo = true;
+    setBuscandoDistrito(true);
+    fetch(`/api/hub/envios/agencias?${new URLSearchParams({ departamento, provincia, distrito })}`)
+      .then((r) => r.json())
+      .then((j: { data?: PorDistrito | null }) => vivo && setPorDistrito(j.data ?? null))
+      .catch(() => undefined)
+      .finally(() => vivo && setBuscandoDistrito(false));
+    return () => {
+      vivo = false;
+    };
+  }, [departamento, provincia, distrito]);
 
   useEffect(() => {
     if (!departamento || !provincia) return setAgencias([]);
@@ -70,7 +105,7 @@ export function ShalomAgencias({
     };
   }, [departamento, provincia]);
 
-  const elegida = agencias.find((a) => a.id === agenciaId) ?? cercanas.find((a) => a.id === agenciaId);
+  const elegida = agencias.find((a) => a.id === agenciaId) ?? cercanas.find((a) => a.id === agenciaId) ?? porDistrito?.agencias.find((a) => a.id === agenciaId);
 
   useEffect(() => {
     onEtiqueta?.(elegida ? `${elegida.zona} — ${elegida.direccion} (${elegida.provincia}, ${departamento})` : '');
@@ -145,19 +180,46 @@ export function ShalomAgencias({
         </div>
         <div>
           <label htmlFor="co-envioProvincia" className="text-sm font-semibold text-ink/80">Provincia</label>
-          <select id="co-envioProvincia" value={provincia} disabled={!departamento} onChange={(e) => { setProvincia(e.target.value); onAgencia(''); }} className={campo}>
+          <select id="co-envioProvincia" value={provincia} disabled={!departamento} onChange={(e) => { setProvincia(e.target.value); setDistrito(''); onAgencia(''); }} className={campo}>
             <option value="">{departamento ? 'Elige una provincia…' : 'Primero el departamento'}</option>
             {provincias.map((p) => <option key={p.provincia} value={p.provincia}>{p.provincia} ({p.agencias})</option>)}
           </select>
         </div>
       </div>
 
+      {provincia && distritos.length > 0 && (
+        <div>
+          <label htmlFor="co-envioDistrito" className="text-sm font-semibold text-ink/80">Distrito donde quieres recoger</label>
+          <select id="co-envioDistrito" value={distrito} onChange={(e) => { setDistrito(e.target.value); onAgencia(''); }} className={campo}>
+            <option value="">Todas las agencias de la provincia</option>
+            {distritos.map((d) => <option key={d} value={d}>{d}</option>)}
+          </select>
+          {buscandoDistrito && <p className="mt-1.5 flex items-center gap-2 text-sm text-ink/60"><Loader2 className="h-4 w-4 animate-spin" />Buscando agencias cerca de {distrito}…</p>}
+          {porDistrito && porDistrito.agencias.length > 0 && !porDistrito.agencias.some((a) => a.enDistrito) && (
+            <p className="mt-1.5 text-sm text-amber-700">No hay agencia en {porDistrito.distrito}; te mostramos las más cercanas.</p>
+          )}
+        </div>
+      )}
+
       {provincia && (
         <div>
           <label htmlFor="co-envioSede" className="text-sm font-semibold text-ink/80">Agencia Shalom donde recogerás</label>
           <select id="co-envioSede" value={agenciaId} onChange={(e) => onAgencia(e.target.value)} aria-invalid={!!errorAgencia} className={campo}>
             <option value="">Elige una agencia…</option>
-            {agencias.map((a) => <option key={a.id} value={a.id}>{a.zona} — {a.direccion.slice(0, 60)}</option>)}
+            {porDistrito && porDistrito.agencias.length > 0 ? (
+              <>
+                {porDistrito.agencias.some((a) => a.enDistrito) && (
+                  <optgroup label={`En ${porDistrito.distrito}`}>
+                    {porDistrito.agencias.filter((a) => a.enDistrito).map((a) => <option key={a.id} value={a.id}>{a.zona} — {a.direccion.slice(0, 60)}</option>)}
+                  </optgroup>
+                )}
+                <optgroup label="Más cercanas">
+                  {porDistrito.agencias.filter((a) => !a.enDistrito).map((a) => <option key={a.id} value={a.id}>{a.zona} — {a.direccion.slice(0, 50)}{a.distanciaKm !== undefined ? ` (${a.distanciaKm} km)` : ''}</option>)}
+                </optgroup>
+              </>
+            ) : (
+              agencias.map((a) => <option key={a.id} value={a.id}>{a.zona} — {a.direccion.slice(0, 60)}</option>)
+            )}
           </select>
         </div>
       )}

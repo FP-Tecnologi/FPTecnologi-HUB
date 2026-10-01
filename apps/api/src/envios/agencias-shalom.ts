@@ -1,6 +1,8 @@
 import { SHALOM_AGENCIAS, type AgenciaShalomRaw } from './shalom-agencias.data.js';
 
 export interface AgenciaShalom extends AgenciaShalomRaw {
+  /** Código ubigeo INEI del distrito; solo lo traen las agencias de la API viva. */
+  ubigeo?: string;
   /** Estable mientras no se regenere el directorio: "Departamento|Provincia|n". */
   id: string;
   departamento: string;

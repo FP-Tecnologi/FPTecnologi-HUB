@@ -19,6 +19,15 @@ export async function GET(req: Request) {
     params.set('lng', q.get('lng')!);
     if (dep) params.set('departamento', dep);
     if (q.get('departamentos')) params.set('departamentos', q.get('departamentos')!);
+  } else if (dep && q.get('provincia') && q.get('distrito')) {
+    ruta = '/por-distrito';
+    params.set('departamento', dep);
+    params.set('provincia', q.get('provincia')!);
+    params.set('distrito', q.get('distrito')!);
+  } else if (dep && q.get('provincia') && q.get('distritos')) {
+    ruta = '/distritos';
+    params.set('departamento', dep);
+    params.set('provincia', q.get('provincia')!);
   } else if (dep && q.get('provincia')) {
     ruta = '';
     params.set('departamento', dep);
@@ -30,9 +39,9 @@ export async function GET(req: Request) {
     return Response.json({ data: [] });
   }
   try {
-    const res = await fetch(`${API_URL}/public/envios/agencias${ruta}?${params}`, ruta === '/cercanas' ? { cache: 'no-store' } : { next: { revalidate: 3600 } });
+    const res = await fetch(`${API_URL}/public/envios/agencias${ruta}?${params}`, ruta === '/cercanas' || ruta === '/por-distrito' ? { cache: 'no-store' } : { next: { revalidate: 3600 } });
     if (!res.ok) return Response.json({ data: [] });
-    return Response.json({ data: (await res.json())?.data ?? [] });
+    return Response.json({ data: (await res.json())?.data ?? (ruta === '/por-distrito' ? null : []) });
   } catch {
     return Response.json({ data: [] });
   }

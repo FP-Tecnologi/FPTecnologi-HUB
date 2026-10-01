@@ -3,6 +3,9 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { ActualizarTarifaDto, CrearTarifaDto } from './envios.dto.js';
 import { agenciaPorId, agenciasCercanas, agenciasDeDepartamento, agenciasDeProvincia, departamentoDelDirectorio, etiquetaAgencia, provinciasConAgencias, type AgenciaShalom } from './agencias-shalom.js';
 import { ShalomApiProvider } from './shalom-api.provider.js';
+import { agenciaEnDistrito, codigoDistrito, distritosDe } from './ubigeo.js';
+import { geocodificar } from './geocodificar.js';
+import { distanciaKm } from './agencias-shalom.js';
 
 export const PROVEEDOR_DEFECTO = 'SHALOM';
 
@@ -63,6 +66,37 @@ export class EnviosService {
   /** Más cercanas a un punto: primero la API viva, si falla el directorio estático. */
   async cercanas(lat: number, lng: number, limite = 5, departamentos?: string[]) {
     return (await this.vivas.cercanas(lat, lng, limite, departamentos)) ?? agenciasCercanas(lat, lng, limite, departamentos);
+  }
+
+  distritos(departamento: string, provincia: string) {
+    return distritosDe(departamento, provincia);
+  }
+
+  /**
+   * Agencias para un distrito de destino: primero las que están EN el distrito y luego las más cercanas
+   * (dentro del mismo departamento, que es el de la tarifa). La ubicación del distrito se obtiene con
+   * OpenStreetMap; si no se puede, se muestran las de la provincia.
+   */
+  async porDistrito(departamento: string, provincia: string, distrito: string, ip: string) {
+    if (!distritosDe(departamento, provincia).some((d) => d.toLowerCase() === distrito.trim().toLowerCase())) {
+      throw new BadRequestException('Distrito no válido para esa provincia');
+    }
+    const deProvincia = await this.agencias(departamento, provincia);
+    const codigo = codigoDistrito(departamento, provincia, distrito);
+    const enDistrito = deProvincia.filter((a) => agenciaEnDistrito(a, distrito, codigo));
+    const ubic = await geocodificar(`${distrito}, ${provincia}, ${departamento}`, ip).catch(() => null);
+    const cercanas = ubic ? await this.cercanas(ubic.lat, ubic.lng, 8, [departamento]) : [];
+    const vistos = new Set(enDistrito.map((a) => a.id));
+    const resto = (cercanas.length ? cercanas : deProvincia.filter((a) => !vistos.has(a.id))).filter((a) => !vistos.has(a.id));
+    const agencias = [
+      ...enDistrito.map((a) => ({
+        ...a,
+        enDistrito: true,
+        ...(ubic && a.lat !== null && a.lng !== null ? { distanciaKm: Math.round(distanciaKm(ubic.lat, ubic.lng, a.lat, a.lng) * 10) / 10 } : {}),
+      })),
+      ...resto.slice(0, Math.max(0, 8 - enDistrito.length)).map((a) => ({ ...a, enDistrito: false })),
+    ];
+    return { distrito, ubicacionAproximada: ubic?.aproximada ?? null, agencias };
   }
 
   async crear(marcaId: string, dto: CrearTarifaDto) {
