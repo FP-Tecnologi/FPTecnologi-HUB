@@ -914,3 +914,12 @@ sesión/máquina)**:
 - **Campañas → Landing pages**: se crea una landing eligiendo plantilla (**Evento/feria** como el registro de EXPOMINA, **Oferta/producto**, **Captación simple**); el editor tiene Contenido (textos, imagen, fecha/lugar, beneficios, programa, FAQ), Formulario (3 formularios prediseñados; campos de tipo texto, texto largo, correo, celular, DNI/RUC, lista y casilla; obligatorio; pasos con barra de avance; reordenar), Ajustes (nombre, URL pública `/l/<slug>`, campaña) y Registros (búsqueda, exportar CSV). Se publica/despublica, tiene vista previa de borrador (token de 20 min) y duplicar. La página pública la dibuja `apps/web-fptecnologi` (`/l/[slug]`, `FormularioLanding`) y el servidor valida cada registro contra el formulario (honeypot + tope por IP + aviso al equipo).
 - **Campañas → Campañas**: agrupan landings con fechas, objetivo y presupuesto y muestran los registros captados por cada una.
 - Modelos `Campana`, `Landing`, `LandingRegistro` (migración `20261001250000_campanas_landings`). 7 tests nuevos y prueba punta a punta (26/26).
+
+### 2026-10-01 — Reportes, dashboard comercial, usuarios de prueba y preparación para cPanel
+
+- **Reportes → Ventas** (`ReportesVentas.tsx`, `GET /reportes/ventas`): rango de fechas en hora de Lima con comparación contra el periodo anterior, ventas por día, pedidos por estado, medio de pago, entrega y departamento, top de productos y de clientes, y exportación a CSV. 5 tests.
+- **Inicio → Dashboards** (`InicioDashboard.tsx`): tablero comercial con lo que hay que atender (pedidos, cotizaciones, leads, contactos, chats, stock bajo), ingresos, embudo leads → cotizaciones → pedidos, campañas y landings con más registros.
+- **Usuarios de prueba por rol**: `apps/api/prisma/seeds/usuarios-prueba.ts` crea una cuenta por cada rol del equipo (`dev+prueba-<rol>@fptecnologi.com`, 2FA a la bandeja de dev@); las contraseñas quedan en `docs/credenciales-prueba.md` (ignorado por git). `--reset` regenera y `--borrar` las elimina.
+- **Despliegue en cPanel**: archivos de arranque `apps/api/app.cjs` y `apps/*/server.cjs` (Passenger), variables nuevas en los `.env.example` y guía completa en [`DESPLIEGUE-CPANEL.md`](DESPLIEGUE-CPANEL.md) (incluye cómo funcionan las invitaciones). Verificado: `nest build` + `node app.cjs` y `next build` + `node server.cjs` arrancan.
+- **Todos los módulos del menú del dashboard ya existen** (se quitó la lista de "módulos vacíos").
+

@@ -28,6 +28,7 @@ import { CotizadorModule } from './cotizador/cotizador.module.js';
 import { ClientesTiendaModule } from './clientes-tienda/clientes-tienda.module.js';
 import { CampanasModule } from './campanas/campanas.module.js';
 import { LandingsModule } from './landings/landings.module.js';
+import { ReportesModule } from './reportes/reportes.module.js';
 import { UploadsModule } from './uploads/uploads.module.js';
 import { EnviosModule } from './envios/envios.module.js';
 import { ContactoWebModule } from './contacto-web/contacto-web.module.js';
@@ -61,6 +62,7 @@ import { ClientesModule } from './clientes/clientes.module.js';
     ContactoWebModule,
     EnviosModule,
     UploadsModule,
+    ReportesModule,
     CampanasModule,
     LandingsModule,
     ClientesTiendaModule,

@@ -82,7 +82,7 @@ solo a sedes Shalom o también domicilio?
   dashboard (hoy solo se marcan al importar desde WooCommerce).
 - **Fotos de productos**: se sirven desde `fptecnologi.com/wp-content/uploads` (hotlink al WordPress viejo). Si
   ese sitio se apaga se pierden. Subirlas a Storage (Supabase) y guardar la URL nueva.
-- **Subida de imágenes** en el dashboard de Productos: hoy se pegan URLs.
+- ~~**Subida de imágenes** en el dashboard~~ **Hecho 2026-10-01**: botón "Subir desde el computador" en productos (galería), categorías, blog y landings (`POST /uploads`, carpeta `UPLOADS_DIR`). Falta: migrar las fotos del WordPress viejo a esa carpeta, redimensionar/optimizar al subir y limpiar archivos huérfanos.
 - ~~Gestión de categorías y marcas comerciales~~ **Hecho 2026-10-01**: Dashboard → Ecommerce → **Catálogo** (categorías: crear, editar, ordenar, ocultar, borrar si están vacías; marcas comerciales: ver, renombrar/fusionar, quitar). Falta: logo por marca comercial y descuentos/cupones.
 - **Dashboard → Ecommerce → Clientes** sigue siendo un placeholder (hay que decidir qué es "cliente": compradores
   invitados agrupados por correo/documento).
@@ -219,3 +219,10 @@ Se agregaron 4 servicios: soporte técnico y postventa, redes y cableado estruct
   Lenovo); seguridad (ZKTeco), videoconferencia (Shure, Nureva, ScreenBeam) o ciberseguridad (Sophos) no tienen producto.
 - Sin precios "desde" ni plazos por servicio (el campo "Desde (USD)" existe pero está vacío).
 - Falta subir imágenes desde el dashboard (hoy se pega la URL o la ruta de la imagen).
+
+### Campañas, reportes y despliegue (hecho 2026-10-01; queda)
+- **Landings**: falta capturar UTM por separado (hoy `origen` guarda el querystring), confetti/animación de éxito, plantillas nuevas (webinar, descarga de catálogo), subdominio propio por landing y reenviar el registro por correo/WhatsApp al asesor.
+- **Reportes**: solo existe Ventas; faltan reportes de cotizaciones/leads por asesor, de campañas (costo por registro) y exportación a Excel (hoy CSV).
+- **Dashboard comercial**: cuando haya más datos, agregar metas por mes y comparación entre marcas.
+- **Despliegue**: seguir `docs/DESPLIEGUE-CPANEL.md`; pendiente definir dominios reales, correo saliente (SMTP/Resend) y las copias de seguridad de `UPLOADS_DIR`. Borrar las cuentas de prueba (`prisma/seeds/usuarios-prueba.ts --borrar`) antes de publicar.
+
