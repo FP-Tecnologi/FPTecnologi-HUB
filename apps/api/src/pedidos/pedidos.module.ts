@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { PedidosService } from './pedidos.service.js';
-import { PedidosController } from './pedidos.controller.js';
+import { PedidosController, PublicPedidosController } from './pedidos.controller.js';
+import { MailModule } from '../mail/mail.module.js';
 
 @Module({
-  controllers: [PedidosController],
+  imports: [MailModule],
+  controllers: [PedidosController, PublicPedidosController],
   providers: [PedidosService],
 })
 export class PedidosModule {}

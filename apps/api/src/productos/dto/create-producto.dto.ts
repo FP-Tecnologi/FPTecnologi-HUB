@@ -1,4 +1,4 @@
-import { IsBoolean, IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { IsArray, IsBoolean, IsNumber, IsOptional, IsString, Matches, Min } from 'class-validator';
 
 export class CreateProductoDto {
   @IsString()
@@ -11,9 +11,38 @@ export class CreateProductoDto {
   @IsString()
   sku!: string;
 
+  @IsOptional()
+  @IsString()
+  @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+    message: 'slug solo admite minúsculas, números y guiones',
+  })
+  slug?: string;
+
   @IsNumber()
   @Min(0)
   precio!: number;
+
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  precioAntes?: number;
+
+  @IsOptional()
+  @IsString()
+  moneda?: string;
+
+  @IsOptional()
+  @IsString()
+  marcaComercial?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  imagenes?: string[];
+
+  @IsOptional()
+  @IsBoolean()
+  destacado?: boolean;
 
   @IsOptional()
   @IsNumber()

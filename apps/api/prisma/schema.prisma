@@ -179,14 +179,19 @@ model UsuarioMarcaRol {
 // ---------------------------------------------------------------------------
 
 model Categoria {
-  id        String     @id @default(uuid())
-  marcaId   String
-  marca     Marca      @relation(fields: [marcaId], references: [id])
-  nombre    String
-  productos Producto[]
-  createdAt DateTime   @default(now())
+  id         String     @id @default(uuid())
+  marcaId    String
+  marca      Marca      @relation(fields: [marcaId], references: [id])
+  nombre     String
+  slug       String? // URL amigable por marca (se genera desde el nombre)
+  orden      Int        @default(0)
+  activo     Boolean    @default(true)
+  portadaUrl String?
+  productos  Producto[]
+  createdAt  DateTime   @default(now())
 
   @@index([marcaId])
+  @@unique([marcaId, slug])
 }
 
 model Producto {
@@ -198,7 +203,13 @@ model Producto {
   nombre      String
   descripcion String?
   sku         String
+  slug        String? // URL amigable por marca (importador WooCommerce lo genera)
   precio      Decimal
+  precioAntes Decimal? // precio tachado (oferta), null = sin oferta
+  moneda      String       @default("USD") // precios base en USD sin IGV
+  marcaComercial String? // marca del fabricante (Dell, HP, Lenovo…) — distinto de Marca (tenant)
+  imagenes    String[]     @default([]) // URLs de fotos, la primera es la portada
+  destacado   Boolean      @default(false)
   stock       Int          @default(0)
   activo      Boolean      @default(true)
   createdAt   DateTime     @default(now())
@@ -206,6 +217,7 @@ model Producto {
   pedidoItems PedidoItem[]
 
   @@unique([marcaId, sku])
+  @@unique([marcaId, slug])
 }
 
 // ---------------------------------------------------------------------------
@@ -221,18 +233,35 @@ enum EstadoPedido {
 }
 
 model Pedido {
-  id        String       @id @default(uuid())
-  marcaId   String
-  marca     Marca        @relation(fields: [marcaId], references: [id])
-  clienteId String?
-  cliente   Usuario?     @relation(fields: [clienteId], references: [id])
-  estado    EstadoPedido @default(PENDIENTE)
-  total     Decimal      @default(0)
-  items     PedidoItem[]
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  id           String       @id @default(uuid())
+  marcaId      String
+  marca        Marca        @relation(fields: [marcaId], references: [id])
+  numeroPedido String? // correlativo humano (FP-2026-0001), único por marca
+  clienteId    String?
+  cliente      Usuario?     @relation(fields: [clienteId], references: [id])
+  // Datos del comprador invitado (checkout sin pasarela, fase 1)
+  nombre       String       @default("")
+  email        String       @default("")
+  celular      String       @default("")
+  documento    String?
+  direccion    String?
+  distrito     String?
+  notas        String?
+  estado       EstadoPedido @default(PENDIENTE)
+  subtotal     Decimal      @default(0) // suma de items, sin IGV
+  igv          Decimal      @default(0) // 18% del subtotal
+  envio        Decimal      @default(0) // 0 = gratis en fase 1
+  descuento    Decimal      @default(0)
+  total        Decimal      @default(0)
+  moneda       String       @default("USD")
+  estadoPago   String       @default("PENDIENTE") // PENDIENTE | POR_CONFIRMAR (fase 1: se coordina por WhatsApp)
+  metodoPago   String? // TRANSFERENCIA | YAPE | PLIN | EFECTIVO…
+  items        PedidoItem[]
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
 
   @@index([marcaId])
+  @@unique([marcaId, numeroPedido])
 }
 
 model PedidoItem {
@@ -242,7 +271,11 @@ model PedidoItem {
   productoId     String
   producto       Producto @relation(fields: [productoId], references: [id])
   cantidad       Int
-  precioUnitario Decimal
+  precioUnitario Decimal // precio al momento de la compra (sin IGV)
+  nombreSnapshot String  @default("") // nombre del producto al momento de la compra
+  skuSnapshot    String   @default("") // SKU al momento de la compra
+  igvUnitario    Decimal @default(0)
+  subtotal       Decimal @default(0) // (precioUnitario + igvUnitario) * cantidad
 }
 
 // ---------------------------------------------------------------------------

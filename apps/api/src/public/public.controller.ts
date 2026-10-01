@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
 import { Public } from '../common/decorators/public.decorator.js';
-import { ProductosService } from '../productos/productos.service.js';
+import { ProductosService, type OrdenCatalogo } from '../productos/productos.service.js';
 import { ServiciosService } from '../servicios/servicios.service.js';
 import { MarcasService } from '../marcas/marcas.service.js';
 
@@ -29,9 +29,53 @@ export class PublicController {
     return marcas.map((m) => ({ id: m.id, nombre: m.nombre }));
   }
 
+  @Get('categorias')
+  categorias(@Query('marcaId') marcaId: string) {
+    return this.productosService.findAllCategorias(marcaId, true);
+  }
+
+  @Get('categorias/:slug')
+  categoria(@Query('marcaId') marcaId: string, @Param('slug') slug: string) {
+    return this.productosService.findCategoriaPorSlug(marcaId, slug);
+  }
+
   @Get('productos')
-  productos(@Query('marcaId') marcaId: string, @Query('categoriaId') categoriaId?: string) {
-    return this.productosService.findAll(marcaId, categoriaId, true);
+  productos(
+    @Query('marcaId') marcaId: string,
+    @Query('q') q?: string,
+    @Query('categoriaId') categoriaId?: string,
+    @Query('categoria') categoriaSlug?: string,
+    @Query('marca') marca?: string,
+    @Query('minPrecio') minPrecio?: string,
+    @Query('maxPrecio') maxPrecio?: string,
+    @Query('ofertas') ofertas?: string,
+    @Query('destacados') destacados?: string,
+    @Query('orden') orden?: OrdenCatalogo,
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const num = (v?: string) => (v !== undefined && v !== '' && !Number.isNaN(Number(v)) ? Number(v) : undefined);
+    const flag = (v?: string) => v === '1' || v === 'true' || v === 'si';
+    return this.productosService.buscarPublico(marcaId, {
+      q,
+      categoriaId,
+      categoriaSlug,
+      marca,
+      minPrecio: num(minPrecio),
+      maxPrecio: num(maxPrecio),
+      soloOfertas: flag(ofertas) || undefined,
+      destacados: flag(destacados) || undefined,
+      orden,
+      page: num(page),
+      limit: num(limit),
+    });
+  }
+
+  // Ojo: esta ruta va ANTES de `productos/:id` para que `slug/…` no caiga
+  // en el `:id` genérico.
+  @Get('productos/slug/:slug')
+  productoPorSlug(@Query('marcaId') marcaId: string, @Param('slug') slug: string) {
+    return this.productosService.findBySlug(marcaId, slug, true);
   }
 
   @Get('productos/:id')

@@ -652,3 +652,38 @@ sesión/máquina)**:
   una base vacía, el seed inserta 6 (y 0 al repetirlo), `/public/blog` los
   devuelve y la web pinta listado, filtros y detalle. También se probó
   `POST /public/cotizador/leads` y `/public/boletin/suscribir` contra la base.
+
+### 2026-10-01 — Ecommerce real fase 0 (API comprable + importador WooCommerce)
+
+- **Migración `20261001190000_ecommerce_real`** (por aplicar en Supabase,
+  como las de cotizador/boletín): `Categoria` +slug/orden/activo/portada;
+  `Producto` +slug/imagenes/marcaComercial/precioAntes/destacado/moneda(USD);
+  `Pedido` +numeroPedido/datos invitado/subtotal-igv-envío-descuento-total/
+  moneda/estadoPago/metodoPago; `PedidoItem` +snapshot(nombre/sku/igv/subtotal).
+  Todo aditivo con defaults; no toca el tenant-guard (sin modelos nuevos).
+- **`GET /public/productos` ahora pagina/filtra** (`q`, `categoria` por slug o
+  `categoriaId`, `marca`, `min/maxPrecio`, `ofertas`, `destacados`, `orden`,
+  `page/limit`) + `GET /public/productos/slug/:slug` y
+  `GET /public/categorias[/:slug]`. `slug` único por marca (se autogenera).
+- **`POST /public/pedidos?marcaId=`** (checkout invitado sin pasarela): valida
+  celular PE + stock, descuenta atómico en transacción (no sobrevende),
+  totales e IGV 18% server-side, correlativo `FP-AAAA-XXXXXX`, snapshot por
+  ítem, notificación `PEDIDO` a admin/ventas + correo al comprador. Honeypot
+  + tope por IP como cotizador/boletín. Queda PENDIENTE/POR_CONFIRMAR (se
+  coordina por WhatsApp).
+- **Importador `apps/api/prisma/import-woocommerce.ts`** (`npx tsx … --csv
+  … --dry-run`): parser CSV propio sin dependencias, upsert por
+  (marcaId,sku), nunca borra ni toca stock en updates. CSV va en
+  `prisma/seeds/woocommerce*.csv` (gitignorado). Precios se toman como USD
+  sin IGV; `Publicado≠1` o sin precio → inactivo (se revisa en dashboard).
+- Tests: 10 nuevos (`productos` 6 + `pedidos` 4), 81/84 OK — los 3 que fallan
+  (`usuarios updatePerfil`) ya fallaban en main limpio, preexistentes.
+- **Aplicado en Supabase real el 2026-10-01**: las 3 migraciones pendientes
+  (cotizador, boletín, ecommerce) ya están en la base (15/15 en
+  `_prisma_migrations`, columnas verificadas). `migrate deploy` y `migrate
+  resolve` se cuelgan en el pooler :6543 (locks), así que se aplicó por SQL
+  directo + registro manual con el mismo checksum de Prisma (sha256 LF) —
+  scripts en `apps/api/prisma/apply-migrations.ts` y `mark-resolved.ts`.
+  Lección para producción: nada de `$transaction` interactiva contra el
+  pooler — `crearPublico` se reescribió a descuento atómico condicional +
+  compensación best-effort (11 tests, 82/85 OK).

@@ -10,3 +10,5 @@ coverage
 # One-off manual seed scripts carry a real bcrypt hash tied to a specific
 # account - never meant to be shared history, generate a fresh one per need.
 prisma/seed-manual.sql
+# Export de WooCommerce (datos reales del catálogo, archivo grande)
+prisma/seeds/woocommerce*.csv
