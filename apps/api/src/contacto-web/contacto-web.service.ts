@@ -32,11 +32,12 @@ export class ContactoWebService {
 
     this.limitar(`${marcaId}:${ip}`);
 
-    let celular: string | null = null;
-    if (dto.celular?.trim()) {
-      celular = normalizarCelular(dto.celular);
-      if (!celular) throw new BadRequestException('Ingresa un celular válido de 9 dígitos');
-    }
+    // Un teléfono que no es celular (fijo, extranjero) no se descarta: queda en el mensaje.
+    const telefono = dto.celular?.trim();
+    const celular = telefono ? normalizarCelular(telefono) : null;
+    const mensaje = telefono && !celular ? `${dto.mensaje.trim()}
+
+Teléfono: ${telefono}` : dto.mensaje.trim();
 
     const tipo = dto.tipo ?? 'CONTACTO';
     const contacto = await this.prisma.contactoWeb.create({
@@ -47,7 +48,7 @@ export class ContactoWebService {
         email: dto.email.trim().toLowerCase(),
         celular,
         empresa: dto.empresa?.trim() || null,
-        mensaje: dto.mensaje.trim(),
+        mensaje,
         origen: dto.origen?.trim() || null,
       },
     });

@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from 'vitest';
-import { BadRequestException } from '@nestjs/common';
 import { ContactoWebService } from './contacto-web.service.js';
 import type { CrearContactoDto } from './contacto-web.dto.js';
 
@@ -43,9 +42,11 @@ describe('ContactoWebService.crearPublico', () => {
     expect(create).not.toHaveBeenCalled();
   });
 
-  it('rechaza un celular inválido', async () => {
-    const { service } = setup();
-    await expect(service.crearPublico('m1', { ...base, celular: '123' }, '3.3.3.3')).rejects.toBeInstanceOf(BadRequestException);
+  it('un teléfono que no es celular queda en el mensaje, sin perder el contacto', async () => {
+    const { service, create } = setup();
+    await service.crearPublico('m1', { ...base, celular: '(01) 555-1234' }, '3.3.3.3');
+    expect(create.mock.calls[0][0].data).toMatchObject({ celular: null });
+    expect(create.mock.calls[0][0].data.mensaje).toContain('Teléfono: (01) 555-1234');
   });
 
   it('frena el spam: el 6.º envío seguido de la misma IP falla', async () => {

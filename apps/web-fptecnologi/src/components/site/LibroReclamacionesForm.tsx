@@ -56,7 +56,7 @@ export function LibroReclamacionesForm() {
       const res = await fetch('/api/contacto', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: f.nombre, email: f.email, phone: f.telefono, company: '', message: detalle }),
+        body: JSON.stringify({ tipo: 'RECLAMO', name: f.nombre, email: f.email, phone: f.telefono, company: '', message: detalle }),
       });
       if (!res.ok) throw new Error();
       setCodigo(cod);
