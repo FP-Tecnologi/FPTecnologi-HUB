@@ -7,6 +7,7 @@
  *
  * Uso:
  *   npx tsx prisma/import-woocommerce.ts --csv prisma/seeds/woocommerce-1.csv,prisma/seeds/woocommerce-2.csv [--marca <id|nombre>] [--dry-run] [--limit N]
+ *   npx tsx prisma/import-woocommerce.ts --csv <archivo> --sql=salida.sql   (sin conexión a la base: genera el SQL)
  *
  * Acepta varios CSV (separados por coma): útil cuando el export viene en
  * partes. El upsert por (marcaId, sku) hace idempotente pasar el mismo
@@ -17,8 +18,9 @@
  *   se revisa en el dashboard) | ¿Está destacado? → destacado |
  *   Precio rebajado → precio + Precio normal → precioAntes (si solo hay
  *   normal, precio=normal sin oferta; sin ningún precio → precio 0 + inactivo) |
- *   Categorías "A > B, C" → primera hoja como principal (todas las hojas se
- *   crean) | Marcas → marcaComercial (normalizada) | Imágenes → imagenes |
+ *   Categorías "A > B, C" → raíz más específica (la última) como principal;
+ *   solo se crean categorías con productos | Marcas (o atributo "Marca" si la columna viene vacía) →
+ *   marcaComercial (normalizada) | Imágenes → imagenes |
  *   Descripción → texto plano (sin HTML, máx. 3000) + Garantía del atributo |
  *   ¿Existencias?=1 → stock 100 solo al crear (el stock se gestiona después
  *   en el dashboard; en updates no se toca).
@@ -26,7 +28,8 @@
  * No usa dependencias nuevas: parser CSV RFC4180 propio (el export trae
  * comillas, comas y saltos de línea dentro de los campos).
  */
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { PrismaClient } from '../src/generated/prisma/client.js';
 
 const args = Object.fromEntries(
@@ -36,7 +39,10 @@ const args = Object.fromEntries(
     .map(([k, v]) => [k.replace(/^--/, ''), v ?? 'true']),
 );
 const CSV_PATHS = ((args.csv as string) ?? '').split(',').map((s) => s.trim()).filter(Boolean);
-const DRY_RUN = args['dry-run'] === 'true';
+const SQL_OUT = typeof args.sql === 'string' && args.sql !== 'true' ? (args.sql as string) : null;
+// --sql=<archivo>: no toca la base; genera un script SQL idempotente para pegar
+// en el SQL Editor de Supabase (misma lógica que el import directo).
+const DRY_RUN = args['dry-run'] === 'true' || SQL_OUT !== null;
 const LIMIT = args.limit ? Number(args.limit) : Infinity;
 if (CSV_PATHS.length === 0) {
   console.error('Falta --csv <ruta>. Ej: npx tsx prisma/import-woocommerce.ts --csv prisma/seeds/woocommerce-1.csv --dry-run');
@@ -44,7 +50,8 @@ if (CSV_PATHS.length === 0) {
 }
 
 // --- mini .env (solo DATABASE_URL, sin traer dotenv) ---
-for (const line of readFileSync(new URL('./.env', `file://${process.cwd()}/`), 'utf8').split('\n')) {
+const envPath = join(process.cwd(), '.env'); // join (no file://): también anda en Windows
+for (const line of existsSync(envPath) ? readFileSync(envPath, 'utf8').split('\n') : []) {
   const m = line.match(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*=\s*(.*)\s*$/);
   if (m && process.env[m[1]] === undefined) {
     process.env[m[1]] = m[2].replace(/^["']|["']$/g, '');
@@ -90,6 +97,7 @@ function textoPlano(html: string, max = 3000): string {
     .replace(/<script[\s\S]*?<\/script>/gi, ' ')
     .replace(/<style[\s\S]*?<\/style>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
+    .replace(/\\[nrt]/g, ' ') // el export de WooCommerce trae \n literales (barra + n)
     .replace(/&nbsp;/gi, ' ')
     .replace(/&amp;/gi, '&')
     .replace(/&lt;/gi, '<')
@@ -120,6 +128,10 @@ const num = (v: string): number | null => {
   const n = Number(v.trim().replace(',', '.'));
   return v.trim() !== '' && !Number.isNaN(n) && n >= 0 ? n : null;
 };
+
+const q = (v: string) => `'${v.replace(/'/g, "''")}'`;
+const qn = (v: string | null) => (v === null ? 'NULL' : q(v));
+const sqlStmts: string[] = [];
 
 const prisma = new PrismaClient();
 
@@ -168,16 +180,24 @@ async function main() {
   });
   for (const a of archivos) console.log(`${a.ruta}: ${a.filas.length} filas`);
 
-  // Marca destino: --marca <id|nombre> o la que contenga "fptecnologi"
+  // Marca destino: --marca <id|nombre> o la que contenga "fptecnologi".
+  // En modo --sql no se conecta a la base: el script resuelve la marca por nombre.
   const marcaArg = args.marca as string | undefined;
-  const marca = marcaArg
-    ? await prisma.marca.findFirst({
-        where: { OR: [{ id: marcaArg }, { nombre: { contains: marcaArg, mode: 'insensitive' } }] },
-      })
-    : await prisma.marca.findFirst({ where: { nombre: { contains: 'fptecnologi', mode: 'insensitive' } } });
-  if (!marca) throw new Error('Marca no encontrada (pasa --marca <id|nombre>)');
-  const marcaId = marca.id;
-  console.log(`Marca: ${marca.nombre} (${marcaId})${DRY_RUN ? ' — DRY RUN (no se escribe)' : ''}`);
+  const marcaNombre = marcaArg ?? 'fptecnologi';
+  let marcaId = 'sql-mode';
+  if (!SQL_OUT) {
+    const marca = marcaArg
+      ? await prisma.marca.findFirst({
+          where: { OR: [{ id: marcaArg }, { nombre: { contains: marcaArg, mode: 'insensitive' } }] },
+        })
+      : await prisma.marca.findFirst({ where: { nombre: { contains: 'fptecnologi', mode: 'insensitive' } } });
+    if (!marca) throw new Error('Marca no encontrada (pasa --marca <id|nombre>)');
+    marcaId = marca.id;
+    console.log(`Marca: ${marca.nombre} (${marcaId})${DRY_RUN ? ' — DRY RUN (no se escribe)' : ''}`);
+  } else {
+    console.log(`Modo SQL: marca por nombre ILIKE '%${marcaNombre}%' (no se conecta a la base)`);
+  }
+  const MARCA_SQL = `(SELECT id FROM "Marca" WHERE nombre ILIKE ${q(`%${marcaNombre}%`)} ORDER BY "createdAt" LIMIT 1)`;
 
   const rep = { filas: 0, creados: 0, actualizados: 0, omitidos: [] as string[], sinPrecio: [] as string[], inactivos: [] as string[] };
   const slugsUso = new Set<string>();
@@ -187,6 +207,11 @@ async function main() {
     const slug = slugify(nombreHoja);
     const hit = catCache.get(slug);
     if (hit) return hit;
+    if (SQL_OUT && !catCache.has(slug)) {
+      sqlStmts.push(
+        `INSERT INTO "Categoria" (id, "marcaId", nombre, slug) SELECT gen_random_uuid()::text, ${MARCA_SQL}, ${q(nombreHoja.trim())}, ${q(slug)} ON CONFLICT ("marcaId", slug) DO NOTHING;`,
+      );
+    }
     if (DRY_RUN) { catCache.set(slug, `dry:${slug}`); return `dry:${slug}`; }
     const cat = await prisma.categoria.upsert({
       where: { marcaId_slug: { marcaId, slug } },
@@ -217,13 +242,27 @@ async function main() {
     if (!tienePrecio) rep.sinPrecio.push(sku);
     if (!activo) rep.inactivos.push(sku);
 
-    const hojas = (r[i.cats] ?? '').split(/\s*,\s*/).map((c) => c.split('>').pop()!.trim()).filter(Boolean);
+    // Categoría = la RAÍZ del árbol de WooCommerce ("Servidores > Rack" → "Servidores"):
+    // la tienda lista por categoría de primer nivel, y como Producto tiene una sola
+    // categoría, la subcategoría dejaría /tienda/servidores casi vacío.
+    const hojas = (r[i.cats] ?? '').split(/\s*,\s*/).map((c) => c.split('>')[0].trim()).filter(Boolean);
     const hojasUnicas = [...new Set(hojas)];
-    const catPrincipal = hojasUnicas[0] ?? 'General';
+    // WooCommerce lista de general a específico ("Computadoras, …, Laptops"): se toma la última raíz.
+    const catPrincipal = hojasUnicas[hojasUnicas.length - 1] ?? 'General';
     const categoriaIdFinal = await categoriaId(catPrincipal);
-    for (const h of hojasUnicas.slice(1)) await categoriaId(h);
 
     const imagenes = (r[i.imagenes] ?? '').split(/\s*,\s*/).map((u) => u.trim()).filter((u) => /^https?:\/\//.test(u));
+    // La marca del fabricante: columna "Marcas" (taxonomía) o, si viene vacía
+    // como en el export de fptecnologi.com, el atributo llamado "Marca".
+    let marcaRaw = celda(r, cMarcas).trim();
+    if (!marcaRaw) {
+      for (const at of attrs) {
+        if ((r[at.n] ?? '').trim().toLowerCase() === 'marca' && (r[at.v] ?? '').trim()) {
+          marcaRaw = (r[at.v] ?? '').split(/\s*[,|]\s*/)[0].trim();
+          break;
+        }
+      }
+    }
     let desc = textoPlano(celda(r, cDescCorta)) + (celda(r, cDescCorta) && celda(r, cDesc) ? '\n\n' : '') + textoPlano(celda(r, cDesc));
     for (const a of attrs) {
       if ((r[a.n] ?? '').trim().toLowerCase() === 'garantía' && (r[a.v] ?? '').trim()) {
@@ -243,12 +282,22 @@ async function main() {
       precio,
       precioAntes,
       moneda: 'USD',
-      marcaComercial: celda(r, cMarcas).trim() ? marcaCanon(celda(r, cMarcas)) : null,
+      marcaComercial: marcaRaw ? marcaCanon(marcaRaw) : null,
       imagenes,
       destacado: (r[i.destacado] ?? '').trim() === '1',
       activo,
       categoriaId: categoriaIdFinal,
     };
+    if (SQL_OUT) {
+      const arr = imagenes.length ? `ARRAY[${imagenes.map(q).join(',')}]::text[]` : `ARRAY[]::text[]`;
+      const stock = celda(r, cExist).trim() === '1' ? 100 : 0;
+      sqlStmts.push(
+        `INSERT INTO "Producto" (id, "marcaId", "categoriaId", nombre, descripcion, sku, slug, precio, "precioAntes", moneda, "marcaComercial", imagenes, destacado, stock, activo, "updatedAt")\n` +
+          `SELECT gen_random_uuid()::text, m.id, (SELECT id FROM "Categoria" WHERE "marcaId" = m.id AND slug = ${q(slugify(catPrincipal))}), ${q(nombre)}, ${qn(base.descripcion)}, ${q(sku)}, ${q(slug)}, ${precio}, ${precioAntes === null ? 'NULL' : precioAntes}, 'USD', ${qn(base.marcaComercial)}, ${arr}, ${base.destacado}, ${stock}, ${activo}, now()\n` +
+          `FROM (SELECT ${MARCA_SQL} AS id) m\n` +
+          `ON CONFLICT ("marcaId", sku) DO UPDATE SET nombre = EXCLUDED.nombre, descripcion = EXCLUDED.descripcion, slug = EXCLUDED.slug, precio = EXCLUDED.precio, "precioAntes" = EXCLUDED."precioAntes", "marcaComercial" = EXCLUDED."marcaComercial", imagenes = EXCLUDED.imagenes, destacado = EXCLUDED.destacado, activo = EXCLUDED.activo, "categoriaId" = EXCLUDED."categoriaId", "updatedAt" = now();`,
+      );
+    }
     if (DRY_RUN) { rep.creados++; continue; }
     const existe = await prisma.producto.findUnique({ where: { marcaId_sku: { marcaId, sku } } });
     if (existe) {
@@ -266,6 +315,11 @@ async function main() {
     }
   }
 
+  if (SQL_OUT) {
+    const cab = `-- Importación de productos WooCommerce (${rep.filas} filas) — generado por import-woocommerce.ts --sql\n-- Idempotente: re-ejecutarlo actualiza por (marca, SKU); no borra y NO toca el stock de los que ya existen.\n-- Marca: la primera cuyo nombre contenga '${marcaNombre}'. Precios = USD sin IGV.\n`;
+    writeFileSync(SQL_OUT, `${cab}BEGIN;\n\n${sqlStmts.join('\n\n')}\n\nCOMMIT;\n`, 'utf8');
+    console.log(`SQL escrito en ${SQL_OUT} (${sqlStmts.length} sentencias)`);
+  }
   console.log(`\nFilas: ${rep.filas} | Creados: ${rep.creados} | Actualizados: ${rep.actualizados} | Omitidos: ${rep.omitidos.length}`);
   if (rep.omitidos.length > 0) console.log('Omitidos:\n- ' + rep.omitidos.join('\n- '));
   if (rep.sinPrecio.length > 0) console.log(`Sin precio (precio 0 + inactivos, revisar): ${rep.sinPrecio.join(', ')}`);

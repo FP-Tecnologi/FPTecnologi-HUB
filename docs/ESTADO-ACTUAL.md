@@ -687,3 +687,29 @@ sesión/máquina)**:
   Lección para producción: nada de `$transaction` interactiva contra el
   pooler — `crearPublico` se reescribió a descuento atómico condicional +
   compensación best-effort (11 tests, 82/85 OK).
+
+### 2026-10-01 — Importación del catálogo WooCommerce (42 productos)
+
+- CSV real revisado (42 productos simples, 111 columnas). Hallazgos y
+  correcciones al importador `prisma/import-woocommerce.ts`:
+  - La columna `Marcas` viene vacía; la marca del fabricante está en el
+    **atributo "Marca"** → ahora se lee de ahí (HP, Dell, Lenovo, Epson,
+    ViewSonic, LG, ASUS, Brother, Samsung, i3 Technologies).
+  - Las descripciones traen `\n` literales → se limpian.
+  - Categoría principal = **la raíz más específica** ("Servidores > Rack" →
+    "Servidores"; los laptops vienen como "Computadoras, …, Laptops" → "Laptops").
+    Antes quedaba la subcategoría y `/tienda/servidores` mostraba 2 de 10.
+  - `.env` se lee con `path.join` (la ruta `file://` fallaba en Windows).
+  - Nuevo modo `--sql=<archivo>`: genera un script SQL idempotente sin
+    conectarse a la base (`prisma/seeds/productos-woocommerce.sql`, listo para
+    pegar en el SQL Editor de Supabase). Uso: `--csv=<archivo>` (con `=`).
+- Resultado (probado en Postgres local, 2 corridas sin duplicar): 42 productos,
+  35 activos, 39 con oferta; categorías: Proyectores & Pantallas Interactivas 13,
+  Servidores 10, Monitores 7, Laptops 6, Impresión 6.
+- Quedan **inactivos** (no se ven en tienda): 4 con `Publicado=-1`, 1 con
+  `Publicado=2`, y 2 sin precio (`LH55QMCEBGCXGO` y el de SKU triple
+  `10010730 / 10010731 / 10010732`, a corregir en el dashboard).
+- Ojo: el CSV no trae inventario; `¿Existencias?=1` crea stock **100 de
+  prueba** (3300 unidades en total). Ajustar el stock real en el dashboard
+  antes de vender. "Proyectores" y "Pantallas Interactivas" están juntos en
+  una categoría; la tienda web tiene "Pantallas" aparte (decidir si se separan).
