@@ -1,3 +1,5 @@
+> **Estado (2026-10-01):** Fases 0, 1 y 2 hechas (checkpoint 2 sin la parte de envío). Lo que falta está en [`docs/PENDIENTES.md`](../docs/PENDIENTES.md).
+
 # Plan: ecommerce real + conexión API ↔ web ↔ dashboard (FPTecnologi-HUB)
 
 ## Overview
@@ -14,25 +16,31 @@ Convertir `web-fptecnologi` de catálogo hardcodeado (`content.ts`/`catalog.ts`,
 ## Task List
 
 ### Fase 0 — Catálogo importable + API pública comprable
-- [ ] T0.1 (M): migración Prisma — `Producto`: `slug unique/marca`, `imagenes String[]`, `marca String?`, `precioAntes Decimal?`, `destacado Bool`, `moneda`; `Categoria`: `slug`, `orden`, `activo`, `portadaUrl?`; `Pedido/Item`: `numeroPedido unique/marca`, `nombre/email/celular/documento/direccion/distrito`, `subtotal/igv/envio/descuento/total`, `moneda`, `estadoPago/metodoPago`; `Item`: `nombreSnapshot/skuSnapshot/igvUnitario/subtotal`. Tenant-guard: añadir modelos nuevos con marcaId al Set.
-- [ ] T0.2 (M): `GET /public/categorias` + paginación/búsqueda en `GET /public/productos` (`?q&categoria&marca&min&max&orden&page&limit`) y `GET /public/productos/slug/:slug`; mismo patrón para blog (`?q&categoria&tag`). Tests Vitest.
-- [ ] T0.3 (M): `POST /public/pedidos` invitado (valida stock con decremento atómico/transacción, calcula totales server-side, crea notificación `PEDIDO`). Rate-limit + honeypot.
-- [ ] T0.4 (S): script importador WooCommerce (CSV nativo) → upsert por `(marcaId,sku)`, descarga/mapea imágenes. Requiere exportación del usuario (ver Preguntas).
+- [x] T0.1 (M): migración Prisma — `Producto`: `slug unique/marca`, `imagenes String[]`, `marca String?`, `precioAntes Decimal?`, `destacado Bool`, `moneda`; `Categoria`: `slug`, `orden`, `activo`, `portadaUrl?`; `Pedido/Item`: `numeroPedido unique/marca`, `nombre/email/celular/documento/direccion/distrito`, `subtotal/igv/envio/descuento/total`, `moneda`, `estadoPago/metodoPago`; `Item`: `nombreSnapshot/skuSnapshot/igvUnitario/subtotal`. Tenant-guard: añadir modelos nuevos con marcaId al Set.
+- [x] T0.2 (M): `GET /public/categorias` + paginación/búsqueda en `GET /public/productos` (`?q&categoria&marca&min&max&orden&page&limit`) y `GET /public/productos/slug/:slug`; mismo patrón para blog (`?q&categoria&tag`). Tests Vitest.
+- [x] T0.3 (M): `POST /public/pedidos` invitado (valida stock con decremento atómico/transacción, calcula totales server-side, crea notificación `PEDIDO`). Rate-limit + honeypot.
+- [x] T0.4 (S): script importador WooCommerce (CSV nativo) → upsert por `(marcaId,sku)`, descarga/mapea imágenes. Requiere exportación del usuario (ver Preguntas).
 
 ### Checkpoint 0
-- [ ] Migraciones aplican en base vacía; tests API OK; `GET /public/productos?q=` pagina y filtra.
+- [x] Migraciones aplican en base vacía; tests API OK; `GET /public/productos?q=` pagina y filtra.
 
 ### Fase 1 — Web catálogo real (mismo DESIGN.md)
-- [ ] T1.1 (M): proxy `app/api/hub/catalogo` + `lib/catalogo.ts` (fetch API con fallback a `catalog.ts`). `StoreCatalog`, ficha `/producto/[slug]`, `/tienda/[slug]` leen API.
-- [ ] T1.2 (M): `/marcas` y `/marcas/[slug]` reales (derivan de productos, no placeholder). SEO: OG/Twitter/JSON-LD producto, `alt` reales, `next/image` donde aplique.
-- [ ] T1.3 (S): moneda/IGV desde servidor (quitar tasa `3.75` fija; `CurrencyContext` consume tasa API/env).
+- [x] T1.1 (M): proxy `app/api/hub/catalogo` + `lib/catalogo.ts` (fetch API con fallback a `catalog.ts`). `StoreCatalog`, ficha `/producto/[slug]`, `/tienda/[slug]` leen API.
+- [x] T1.2 (M): `/marcas` y `/marcas/[slug]` reales (derivan de productos, no placeholder). SEO: OG/Twitter/JSON-LD producto, `alt` reales, `next/image` donde aplique.
+- [x] T1.3 (S): moneda/IGV desde servidor (quitar tasa `3.75` fija; `CurrencyContext` consume tasa API/env).
 
 ### Checkpoint 1
-- [ ] Tienda/ficha/marcas pintan datos de API; build + `tsc --noEmit` OK; visual 375/1024/1920.
+- [x] Tienda/ficha/marcas pintan datos de API; build + `tsc --noEmit` OK; visual 375/1024/1920.
 
 ### Fase 2 — Checkout real
-- [ ] T2.1 (L): `/checkout` (datos + envío + comprobante boleta/factura) → `POST /public/pedidos`; carrito deja de terminar en `/#contacto`. Página de gracias con número de pedido + WhatsApp.
-- [ ] T2.2 (M): dashboard `/ecommerce/pedidos` real (lista/filtros/estados) + `/ecommerce/productos` CRUD (usa `GET/POST/PATCH /productos`, `PATCH /pedidos/:id/estado`). Contadores de `ResumenMarca` ya existen.
+- [x] T2.1 (L): `/checkout` (datos + envío + comprobante boleta/factura) → `POST /public/pedidos`; carrito deja de terminar en `/#contacto`. Página de gracias con número de pedido + WhatsApp.
+- [x] T2.2 (M): dashboard `/ecommerce/pedidos` real (lista/filtros/estados) + `/ecommerce/productos` CRUD (usa `GET/POST/PATCH /productos`, `PATCH /pedidos/:id/estado`). Contadores de `ResumenMarca` ya existen.
+
+### Fase 2.5 — Envío con Shalom (PENDIENTE, sin empezar)
+- [ ] TE.1 (M): definir con Shalom cómo se integra (¿API/convenio corporativo, credenciales, sandbox? — **no está verificado que exista una API pública**) y modelar `EnvioProvider` en la API.
+- [ ] TE.2 (M): sedes/agencias de destino disponibles + costo según origen, destino y peso/volumen → endpoint público `GET /public/envios/cotizar`.
+- [ ] TE.3 (M): `/checkout` elige sede de destino, muestra el costo y lo **suma al total**; `POST /public/pedidos` recalcula el envío en el servidor y lo guarda en `Pedido.envio` (hoy siempre 0).
+- Detalle y preguntas abiertas en [`docs/PENDIENTES.md`](../docs/PENDIENTES.md#envío-con-shalom).
 
 ### Checkpoint 2
 - [ ] Compra invitada end-to-end (web→API→dashboard) con stock descontado.

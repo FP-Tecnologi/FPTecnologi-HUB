@@ -787,3 +787,13 @@ sesión/máquina)**:
 - Fase 1 (tienda real) completa: T1.1, T1.2 y T1.3. Fase 2: checkout (T2.1) y
   dashboard de pedidos/productos (T2.2) completos. Siguen: Fase 3 (asesores y
   equipo), Fase 4 (copy del cotizador) y Fase 5 (blog/SEO/pulido).
+
+### 2026-10-01 — Cierre de sesión: pendientes documentados
+
+- Se creó [`PENDIENTES.md`](PENDIENTES.md) con **todo lo que falta** para que otra
+  persona continúe: integración de **envío con Shalom** (costo y sedes en el
+  checkout y sumado al total — sin empezar; falta confirmar con Shalom si existe
+  API), Fase 3 (fotos, equipo, quitar `api/contacto` con clave de Supabase en el
+  código), Fase 4, Fase 5 (SEO/blog), deudas técnicas, y los datos y decisiones que
+  dependen del dueño. `tasks/plan.md` marca lo ya hecho y agrega la Fase 2.5 (envío).
+- Estado del envío hoy: "a coordinar por WhatsApp", `Pedido.envio = 0`, total sin envío.

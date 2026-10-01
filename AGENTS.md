@@ -225,6 +225,8 @@ CI/CD y seguridad del repo (ver `.github/`):
   configuración recomendada a nivel de repo (branch protection, secret
   scanning, etc. — requieren rol admin, no se pueden setear por código).
 
+**Lista consolidada de pendientes (envío con Shalom, Fase 3, SEO, datos y decisiones): [`docs/PENDIENTES.md`](docs/PENDIENTES.md).** Lo de abajo es un resumen anterior.
+
 Pendiente:
 - `apps/web-fptecnologi` (Fase 2): elegir 1 de los 6 modelos de home como
   definitivo, conectar el contenido hardcodeado a `GET /public/*` en vez de
