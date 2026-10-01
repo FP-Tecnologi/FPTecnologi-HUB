@@ -1,5 +1,5 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
-import { agenciasCercanas, agenciasDeProvincia, provinciasConAgencias, type AgenciaShalom } from './agencias-shalom.js';
+import { type AgenciaShalom } from './agencias-shalom.js';
 import { EnviosService } from './envios.service.js';
 import { ActualizarTarifaDto, CrearTarifaDto } from './envios.dto.js';
 import { MarcaRolGuard } from '../common/guards/marca-rol.guard.js';
@@ -66,16 +66,18 @@ const publica = (a: AgenciaShalom & { distanciaKm?: number }) => ({
 @Public()
 @Controller('public/envios/agencias')
 export class PublicAgenciasController {
+  constructor(private readonly envios: EnviosService) {}
+
   @Get('provincias')
   provincias(@Query('departamento') departamento: string) {
     if (!departamento) throw new BadRequestException('Falta departamento');
-    return provinciasConAgencias(departamento);
+    return this.envios.provincias(departamento);
   }
 
   @Get()
   porProvincia(@Query('departamento') departamento: string, @Query('provincia') provincia: string) {
     if (!departamento || !provincia) throw new BadRequestException('Falta departamento o provincia');
-    return agenciasDeProvincia(departamento, provincia).map(publica);
+    return this.envios.agencias(departamento, provincia).then((a) => a.map(publica));
   }
 
   /** Las más cercanas a la ubicación del cliente (lat/lng del navegador o del mapa), opcionalmente dentro de un departamento. */
@@ -88,6 +90,7 @@ export class PublicAgenciasController {
     }
     // `departamentos` (lista separada por comas) limita la búsqueda a los departamentos con envío activo.
     const lista = departamentos ? departamentos.split(',').map((d) => d.trim()).filter(Boolean).slice(0, 30) : undefined;
-    return agenciasCercanas(la, ln, 5, lista?.length ? lista : departamento || undefined).map(publica);
+    const deps = lista?.length ? lista : departamento ? [departamento] : undefined;
+    return this.envios.cercanas(la, ln, 5, deps).then((a) => a.map(publica));
   }
 }
