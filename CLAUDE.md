@@ -63,9 +63,10 @@ Prisma (en `apps/api`, requiere `.env` con `DATABASE_URL`; ver `.env.example`):
   (tsc + navegador, todo bien), commit y push a `develop`, y luego fast-forward de `main`
   (`git pull --rebase origin develop`; push develop; `checkout main`; `merge --ff-only develop`;
   push main; volver a develop). No preguntar antes. Si algo no está bien, no pasa a `main`.
-- **Los dos repos con los mismos cambios**: tras subir a `develop` y `main` del HUB, publicar también el espejo con
-  `TMPDIR=/tmp bash scripts/publicar-snapshot.sh` (deja el mismo código en `main` y `develop` de
-  `FP-Tecnologi/fptecnologi-web`, el que se clona en el cPanel). Nunca editar a mano ese repo.
+- **Dos repos**: el HUB (este, `FP-Tecnologi/FPTecnologi-HUB`) tiene TODO (API, dashboard, web). El repo
+  `FP-Tecnologi/fptecnologi-web` tiene **solo la web pública** (`apps/web-fptecnologi` en su raíz). Cada vez que un cambio toque
+  `apps/web-fptecnologi`, tras subir a `develop` y `main` del HUB, publicar el espejo con
+  `TMPDIR=/tmp bash scripts/publicar-snapshot.sh` (main y develop del repo web quedan iguales). Nunca editar a mano ese repo.
 - Las ramas que ya no sirven (mergeadas o abandonadas) se eliminan; no dejar ramas viejas.
 - Antes de `git add`, revisa `git status` por archivos de otras sesiones; nunca subas
   `envs/.env` ni `envs/.env.local`.

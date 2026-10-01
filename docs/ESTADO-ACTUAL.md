@@ -950,3 +950,8 @@ Todo usa el CMS genérico (`ContenidoWeb`) y el editor de Web informativa; sin c
 ## 2026-10-01 — La carpeta del dashboard pasa de `apps/web` a `apps/admin`
 
 El dashboard (administra todas las webs, no solo una) ahora vive en `apps/admin`; `apps/web-fptecnologi` sigue siendo la web pública. Se actualizaron CI, dependabot, docker-compose, `.claude/launch.json` (servidor `admin`), README, AGENTS/CLAUDE y la guía de cPanel (Application root: `fptecnologi-web/apps/admin`). Las entradas anteriores de este documento conservan el nombre antiguo.
+
+## 2026-10-01 — Módulo Mailing (demostración) y repos separados
+
+- **Mailing** (dashboard → Mailing → Mailings, rol marketing): se crea un correo desde plantilla (Promoción de productos, Novedades del blog, Servicio y cotización, Bienvenida, En blanco), se edita por bloques (portada, texto, imagen, botón, productos, separador), vista previa en vivo escritorio/móvil, copiar/descargar el HTML, duplicar y «Enviar…» a los suscriptores del boletín o a una lista pegada. **Es visual:** se guarda en el navegador y el envío es simulado. Falta: guardar en la API y conectar un servicio de envío masivo (Resend/SMTP con cola y baja de suscripción).
+- **Repos**: el HUB tiene todo; `fptecnologi-web` pasa a ser un espejo **solo de la web pública** (`apps/web-fptecnologi` en la raíz). `scripts/publicar-snapshot.sh` lo hace.

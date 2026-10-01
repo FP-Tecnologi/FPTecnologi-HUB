@@ -1,7 +1,7 @@
 # Despliegue en cPanel (Node.js) — FPTecnologi HUB
 
 Guía para publicar el sistema en un hosting con **cPanel → "Setup Node.js App"** (Phusion Passenger).
-Repositorio: <https://github.com/FP-Tecnologi/fptecnologi-web>
+Repositorios: **HUB** (API + dashboard + web, `FP-Tecnologi/FPTecnologi-HUB`) y, solo para la web pública, <https://github.com/FP-Tecnologi/fptecnologi-web> (su raíz es la app; al crear la app en cPanel el *Application root* es la carpeta clonada). Las rutas `fptecnologi-web/apps/...` de esta guía corresponden al HUB clonado (`FPTecnologi-HUB/apps/...`).
 
 ## 1. Qué se despliega
 
