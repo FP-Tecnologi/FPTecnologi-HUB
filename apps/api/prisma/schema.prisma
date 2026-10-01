@@ -54,6 +54,9 @@ model Marca {
   landings           Landing[]
   landingRegistros   LandingRegistro[]
   codigosCuenta      CodigoCuenta[]
+  conocimientoDocs   ConocimientoDocumento[]
+  conocimientoFrags  ConocimientoFragmento[]
+  conocimientoPend   ConocimientoPendiente[]
 }
 
 model Sitio {
@@ -247,6 +250,7 @@ model Producto {
 
   @@unique([marcaId, sku])
   @@unique([marcaId, slug])
+  @@index([marcaId, activo, categoriaId])
 }
 
 // ---------------------------------------------------------------------------
@@ -297,6 +301,8 @@ model Pedido {
 
   @@unique([marcaId, numeroPedido])
   @@index([marcaId])
+  @@index([marcaId, createdAt])
+  @@index([marcaId, email])
 }
 
 model PedidoItem {
@@ -311,6 +317,9 @@ model PedidoItem {
   skuSnapshot    String   @default("") // SKU al momento de la compra
   igvUnitario    Decimal  @default(0)
   subtotal       Decimal  @default(0) // (precioUnitario + igvUnitario) * cantidad
+
+  @@index([pedidoId])
+  @@index([productoId])
 }
 
 // ---------------------------------------------------------------------------
@@ -429,6 +438,7 @@ model Cotizacion {
   @@unique([marcaId, numero])
   @@index([marcaId])
   @@index([marcaId, clienteEmail])
+  @@index([marcaId, createdAt])
 }
 
 // Cada vez que se envía una cotización al cliente (historial por cliente).
@@ -473,6 +483,7 @@ model Notificacion {
   createdAt DateTime         @default(now())
 
   @@index([usuarioId])
+  @@index([usuarioId, createdAt])
   @@index([marcaId])
 }
 
@@ -808,4 +819,69 @@ model CodigoCuenta {
   createdAt  DateTime  @default(now())
 
   @@index([marcaId, email, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Conocimiento del asistente virtual: documentos (Word, Excel, PDF, texto) que el
+// equipo sube se leen UNA sola vez al cargarlos y se guardan troceados en
+// fragmentos indexados (búsqueda de texto completo de Postgres, GIN); el chat
+// solo trae los 3-5 fragmentos relevantes a cada pregunta, nunca el documento.
+// Las respuestas oficiales escritas a mano son fragmentos con origen MANUAL.
+// ---------------------------------------------------------------------------
+
+enum OrigenConocimiento {
+  DOCUMENTO
+  MANUAL
+}
+
+model ConocimientoDocumento {
+  id         String                  @id @default(uuid())
+  marcaId    String
+  marca      Marca                   @relation(fields: [marcaId], references: [id])
+  nombre     String
+  tipo       String // docx | xlsx | pdf | txt | md | csv
+  tamano     Int
+  fragmentos Int                     @default(0)
+  activo     Boolean                 @default(true)
+  subidoPor  String?
+  items      ConocimientoFragmento[]
+  createdAt  DateTime                @default(now())
+  updatedAt  DateTime                @updatedAt
+
+  @@index([marcaId, createdAt])
+}
+
+model ConocimientoFragmento {
+  id          String                   @id @default(uuid())
+  marcaId     String
+  marca       Marca                    @relation(fields: [marcaId], references: [id])
+  documentoId String?
+  documento   ConocimientoDocumento?   @relation(fields: [documentoId], references: [id], onDelete: Cascade)
+  origen      OrigenConocimiento       @default(DOCUMENTO)
+  titulo      String
+  texto       String
+  indice      String // titulo + texto en minúsculas y sin tildes: es lo que se indexa
+  // Columna generada por Postgres (to_tsvector('spanish', indice)) + índice GIN: ver la migración.
+  busqueda    Unsupported("tsvector")?
+  activo      Boolean                  @default(true)
+  orden       Int                      @default(0)
+  createdAt   DateTime                 @default(now())
+
+  @@index([marcaId, activo, origen])
+  @@index([documentoId])
+}
+
+// Preguntas que los visitantes hicieron y el asistente no tenía de dónde responder.
+model ConocimientoPendiente {
+  id        String   @id @default(uuid())
+  marcaId   String
+  marca     Marca    @relation(fields: [marcaId], references: [id])
+  pregunta  String
+  clave     String // pregunta normalizada, para contar repetidas
+  veces     Int      @default(1)
+  resuelta  Boolean  @default(false)
+  ultimaVez DateTime @default(now())
+
+  @@unique([marcaId, clave])
+  @@index([marcaId, resuelta, veces])
 }

@@ -47,6 +47,9 @@ const TENANT_MODELS = new Set([
   'Landing',
   'LandingRegistro',
   'CodigoCuenta',
+  'ConocimientoDocumento',
+  'ConocimientoFragmento',
+  'ConocimientoPendiente',
   'Proyecto',
   'Cliente',
 ]);

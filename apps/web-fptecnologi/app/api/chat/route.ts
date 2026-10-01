@@ -49,6 +49,30 @@ function limitado(ip: string): boolean {
   return recientes.length > RATE_MAX;
 }
 
+// Tercera fuente: documentos y respuestas oficiales cargados en el dashboard (búsqueda indexada en la API).
+// Si la API no responde se sigue solo con web + base de datos.
+async function infoAdicional(pregunta: string, ip: string): Promise<string> {
+  const marca = process.env.HUB_MARCA_ID;
+  if (!marca) return '';
+  try {
+    const res = await fetch(`${process.env.HUB_API_URL ?? 'http://localhost:3001'}/public/conocimiento/consultar?marcaId=${encodeURIComponent(marca)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-forwarded-for': ip },
+      body: JSON.stringify({ pregunta: pregunta.slice(0, 300) }),
+      signal: AbortSignal.timeout(2500),
+    });
+    if (!res.ok) return '';
+    const { data } = (await res.json()) as { data?: { fragmentos?: { titulo: string; texto: string }[]; instrucciones?: string } };
+    const frags = (data?.fragmentos ?? []).map((f) => `- ${f.titulo}: ${f.texto}`).join('\n');
+    return [
+      data?.instrucciones ? `INSTRUCCIONES DEL NEGOCIO (respétalas):\n${data.instrucciones}` : '',
+      frags ? `INFORMACIÓN ADICIONAL OFICIAL (úsala si es relevante para lo consultado; tiene prioridad sobre lo demás):\n${frags}` : '',
+    ].filter(Boolean).join('\n\n');
+  } catch {
+    return '';
+  }
+}
+
 type ChatMessage = { role: 'user' | 'assistant'; content: string };
 
 function parseMessages(body: unknown): ChatMessage[] | null {
@@ -104,11 +128,14 @@ export async function POST(req: Request) {
   if (!messages) return Response.json({ error: 'Mensajes inválidos' }, { status: 400 });
 
   try {
-    const conocimiento = await getConocimiento();
+    const ultima = [...messages].reverse().find((m) => m.role === 'user')?.content ?? '';
+    const [conocimiento, extra] = await Promise.all([getConocimiento(), infoAdicional(ultima, ip)]);
     const groq = new Groq();
     const completion = await groq.chat.completions.create({
       model: MODEL,
-      messages: [{ role: 'system', content: buildSystemPrompt(conocimiento.text, actionIdsHelp(conocimiento.servicios)) }, ...messages],
+      messages: [{ role: 'system', content: buildSystemPrompt(extra ? `${conocimiento.text}
+
+${extra}` : conocimiento.text, actionIdsHelp(conocimiento.servicios)) }, ...messages],
       temperature: 0.3,
       max_completion_tokens: 600,
       reasoning_effort: MODEL.startsWith('openai/gpt-oss') ? 'low' : undefined,

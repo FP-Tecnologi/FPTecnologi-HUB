@@ -930,3 +930,11 @@ sesión/máquina)**:
 - Seguridad: código de un solo uso (bcrypt, 10 min, máx. 5 intentos), tope de pedidos de código por correo e IP, token alterado/vencido o de otra marca rechazado. 7 tests + prueba punta a punta (8/8) y verificación visual.
 - **Subdominios**: `NOINDEX=1` hace que la web de pruebas no se indexe (guía de paso al dominio principal en `DESPLIEGUE-CPANEL.md`).
 
+
+## 2026-10-01 — Conocimiento del asistente + índices de base de datos
+
+- **Índices**: migración `20261001270000_indices` (Pedido, PedidoItem, Cotizacion, Notificacion, Producto por marca/estado/fecha) para que las listas y reportes no recorran tablas enteras.
+- **Tercera fuente del chat** (`apps/api/src/conocimiento`): en el dashboard **Chat y asesores → Conocimiento del asistente** se suben Word (.docx), Excel (.xlsx), PDF, .txt/.md/.csv (≤10 MB). Se leen **una sola vez**, se trocean (~900 caracteres, con su título de sección; las filas de Excel quedan como «Columna: valor») y se guardan con índice de texto completo (tsvector + GIN, español, sin tildes). El archivo original no se conserva; el chat solo busca fragmentos.
+- Pestañas: Documentos (activar/desactivar/borrar/ver contenido), Respuestas oficiales (tienen prioridad), Sin respuesta (preguntas que el chat no pudo responder, ordenadas por frecuencia → se responden con un clic), Probador e Instrucciones (tono y políticas).
+- La web (`app/api/chat/route.ts`) consulta `POST /public/conocimiento/consultar` (tope por IP, 2,5 s de timeout; si falla, el chat sigue con web + base de datos) y agrega «INFORMACIÓN ADICIONAL OFICIAL» al prompt.
+- Tests del lector/troceador/términos (`conocimiento.parser.spec.ts`) y prueba contra la base real (subir → buscar → pendiente → borrar).
