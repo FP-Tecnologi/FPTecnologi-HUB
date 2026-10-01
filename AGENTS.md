@@ -116,12 +116,10 @@ vez del contenido hardcodeado que usa hoy).
   Contenido hoy hardcodeado en `src/lib/content.ts` (productos, marcas,
   soluciones, contacto — copiados de fptecnologi.com real, no inventados)
   en vez de consumir `GET /public/*` de la API — pendiente de conectar.
-  Página `/guia-estilos` cataloga en vivo (no capturas) todos los
-  componentes reales de los 6 modelos de home más propuestas de diseño
-  explícitamente marcadas como no aplicadas — usarla como punto de partida
-  antes de tocar el look de cualquier componente. Detalle completo (6
-  modelos, carrito, chat, decisiones de diseño) en `ESTADO-ACTUAL.md` →
-  Fase 2.
+  Los modelos de home, `/guia-estilos` y `/preview` ya no se publican: están
+  archivados en `temporal/modelos-home/` (ver su `LEEME.md` para restaurarlos).
+  La home oficial es `app/page.tsx`. Historia de los modelos y decisiones de
+  diseño en `ESTADO-ACTUAL.md` → Fase 2.
 - **Testing**: Vitest (`*.spec.ts` junto al archivo que prueban).
 - **Package manager**: npm (no pnpm, no yarn) — instalar dentro de cada
   app (`cd apps/api && npm install`), no hay workspace raíz (ver arriba).

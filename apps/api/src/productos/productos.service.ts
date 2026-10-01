@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateProductoDto } from './dto/create-producto.dto.js';
 import { UpdateProductoDto } from './dto/update-producto.dto.js';
 import { CreateCategoriaDto } from './dto/create-categoria.dto.js';
+import { UpdateCategoriaDto } from './dto/update-categoria.dto.js';
 
 export type OrdenCatalogo = 'nuevos' | 'precio_asc' | 'precio_desc' | 'nombre_asc';
 
@@ -162,6 +163,61 @@ export class ProductosService {
       where: { marcaId, ...(soloActivas ? { activo: true } : {}) },
       orderBy: [{ orden: 'asc' }, { nombre: 'asc' }],
     });
+  }
+
+  /** Categorías con su conteo de productos, para la pantalla de gestión del catálogo. */
+  categoriasConConteo(marcaId: string) {
+    return this.prisma.categoria.findMany({
+      where: { marcaId },
+      include: { _count: { select: { productos: true } } },
+      orderBy: [{ orden: 'asc' }, { nombre: 'asc' }],
+    });
+  }
+
+  async updateCategoria(marcaId: string, id: string, dto: UpdateCategoriaDto) {
+    const actual = await this.prisma.categoria.findFirst({ where: { id, marcaId } });
+    if (!actual) throw new NotFoundException('Categoría no encontrada');
+    const data: Record<string, unknown> = { ...dto };
+    if (dto.slug !== undefined && dto.slug !== actual.slug) {
+      const choca = await this.prisma.categoria.findFirst({ where: { marcaId, slug: dto.slug, NOT: { id } } });
+      if (choca) throw new ConflictException('Ya existe otra categoría con ese slug');
+    }
+    await this.prisma.categoria.updateMany({ where: { id, marcaId }, data });
+    return this.prisma.categoria.findFirst({ where: { id, marcaId } });
+  }
+
+  /** Solo se borra una categoría vacía: no dejamos productos huérfanos sin que el admin lo decida. */
+  async removeCategoria(marcaId: string, id: string) {
+    const categoria = await this.prisma.categoria.findFirst({ where: { id, marcaId } });
+    if (!categoria) throw new NotFoundException('Categoría no encontrada');
+    const productos = await this.prisma.producto.count({ where: { marcaId, categoriaId: id } });
+    if (productos > 0) {
+      throw new ConflictException(`La categoría tiene ${productos} producto(s): muévelos o desactívala en lugar de borrarla`);
+    }
+    await this.prisma.categoria.deleteMany({ where: { id, marcaId } });
+    return { eliminada: true };
+  }
+
+  /** Marcas comerciales (fabricantes) en uso, con su conteo de productos. */
+  async marcasComerciales(marcaId: string) {
+    const filas = await this.prisma.producto.groupBy({
+      by: ['marcaComercial'],
+      where: { marcaId, marcaComercial: { not: null } },
+      _count: { _all: true },
+    });
+    return filas
+      .map((f) => ({ nombre: f.marcaComercial as string, productos: f._count._all }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre));
+  }
+
+  /** Renombra o fusiona: todos los productos de `desde` pasan a `hasta` (vacío = quitar la marca). */
+  async renombrarMarcaComercial(marcaId: string, desde: string, hasta: string) {
+    const { count } = await this.prisma.producto.updateMany({
+      where: { marcaId, marcaComercial: desde },
+      data: { marcaComercial: hasta.trim() || null },
+    });
+    if (!count) throw new NotFoundException('Esa marca no tiene productos');
+    return { actualizados: count };
   }
 
   async findCategoriaPorSlug(marcaId: string, slug: string) {

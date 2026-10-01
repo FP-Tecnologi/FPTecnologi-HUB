@@ -12,10 +12,21 @@ import { markdownToHtml, minutosLectura } from '@/lib/markdown';
 
 export const dynamic = 'force-dynamic';
 
+const SITE = process.env.SITE_URL ?? 'https://fptecnologi.com';
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const a = await getArticulo(slug);
-  return a ? { title: a.titulo, description: a.resumen } : { title: 'Blog' };
+  if (!a) return { title: 'Blog' };
+  const url = `${SITE}/blog/${a.slug}`;
+  const imagen = a.portadaUrl || PORTADA_DEFECTO;
+  return {
+    title: a.titulo,
+    description: a.resumen,
+    alternates: { canonical: url },
+    openGraph: { type: 'article', title: a.titulo, description: a.resumen, url, images: [imagen], publishedTime: a.publicadoEn ?? undefined },
+    twitter: { card: 'summary_large_image', title: a.titulo, description: a.resumen, images: [imagen] },
+  };
 }
 
 export default async function ArticuloPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -24,8 +35,21 @@ export default async function ArticuloPage({ params }: { params: Promise<{ slug:
   if (!a) notFound();
   const otros = (await getArticulos()).filter((x) => x.slug !== a.slug).slice(0, 3);
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: a.titulo,
+    description: a.resumen,
+    image: a.portadaUrl || PORTADA_DEFECTO,
+    datePublished: a.publicadoEn ?? undefined,
+    author: { '@type': 'Person', name: a.autorNombre },
+    publisher: { '@type': 'Organization', name: 'FPTecnologi' },
+    mainEntityOfPage: `${SITE}/blog/${a.slug}`,
+  };
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
       <PageHero
         crumbs={[
           { label: 'Inicio', href: '/' },
