@@ -504,12 +504,15 @@ model ChatAsesor {
   telefono  String // como se muestra: "999 999 999"
   whatsapp  String // solo dígitos con código de país, para wa.me: "51999999999"
   fotoUrl   String?
+  // Miembro del equipo al que pertenece el perfil (se asigna desde Usuarios y equipo); null = perfil suelto.
+  usuarioId String?
   activo    Boolean  @default(true)
   orden     Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([marcaId])
+  @@index([marcaId, usuarioId])
 }
 
 enum EstadoChat {

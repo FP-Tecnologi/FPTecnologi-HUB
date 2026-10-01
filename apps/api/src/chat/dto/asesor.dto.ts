@@ -24,6 +24,10 @@ export class CreateChatAsesorDto {
   fotoUrl?: string;
 
   @IsOptional()
+  @IsString()
+  usuarioId?: string;
+
+  @IsOptional()
   @IsBoolean()
   activo?: boolean;
 

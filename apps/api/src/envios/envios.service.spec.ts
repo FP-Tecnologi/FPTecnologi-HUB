@@ -40,6 +40,13 @@ describe('directorio de agencias Shalom', () => {
     expect(r.every((a) => a.departamento === 'Arequipa')).toBe(true);
   });
 
+  it('busca solo entre los departamentos con envío (lista) y entiende Lambayeque, no la ciudad', () => {
+    const r = agenciasCercanas(-6.77, -79.84, 5, ['lambayeque', 'Cusco']); // Chiclayo
+    expect(r.length).toBeGreaterThan(0);
+    expect(r.every((a) => ['Lambayeque', 'Cusco'].includes(a.departamento))).toBe(true);
+    expect(agenciasCercanas(-12.04, -77.04, 5, ['Chiclayo'])).toEqual([]); // "Chiclayo" no es un departamento
+  });
+
   it('lista provincias y agencias sin importar tildes', () => {
     expect(provinciasConAgencias('ancash').length).toBeGreaterThan(0);
     const prov = provinciasConAgencias('Cajamarca')[0].provincia;

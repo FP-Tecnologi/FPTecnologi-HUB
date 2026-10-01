@@ -83,21 +83,21 @@ export function ShalomAgencias({
     setUbicando(true);
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
-        const lista = await pedir<Cercana>({ lat: String(pos.coords.latitude), lng: String(pos.coords.longitude) });
-        // Solo las que están en un departamento con envío activo.
-        const conEnvio = lista.filter((a) => tarifas.some((t) => t.departamento === a.departamento));
+        // Se busca solo entre los departamentos con envío activo (si no, las 5 más cercanas podrían ser de uno sin tarifa).
+        const lista = await pedir<Cercana>({ lat: String(pos.coords.latitude), lng: String(pos.coords.longitude), departamentos: tarifas.map((t) => t.departamento).join(',') });
+        const conEnvio = lista;
         setCercanas(conEnvio);
         if (conEnvio[0]) {
           onDepartamento(conEnvio[0].departamento);
           onAgencia(conEnvio[0].id);
         } else {
-          setAvisoUbicacion('No encontramos agencias Shalom con envío cerca de ti. Elige tu departamento manualmente.');
+          setAvisoUbicacion('Aún no enviamos a tu zona. Elige un departamento de la lista o recoge tu pedido en tienda.');
         }
         setUbicando(false);
       },
       () => {
         setUbicando(false);
-        setAvisoUbicacion('No pudimos obtener tu ubicación. Puedes elegir tu departamento y provincia manualmente.');
+        setAvisoUbicacion('No pudimos obtener tu ubicación (revisa el permiso del navegador; solo funciona en conexión segura https). Puedes elegir tu departamento y provincia manualmente.');
       },
       { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 },
     );

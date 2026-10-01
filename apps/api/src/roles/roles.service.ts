@@ -135,6 +135,8 @@ export class RolesService {
     if (usuarioId === actorId) throw new BadRequestException('No puedes quitarte a ti mismo de la marca');
     const { count } = await this.prisma.usuarioMarcaRol.deleteMany({ where: { marcaId, usuarioId } });
     if (!count) throw new NotFoundException('Ese usuario no pertenece a esta marca');
+    // Si era asesor del chat, su perfil deja de mostrarse en la web.
+    await this.prisma.chatAsesor.deleteMany({ where: { marcaId, usuarioId } });
     return { quitado: true };
   }
 

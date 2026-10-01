@@ -18,6 +18,7 @@ export async function GET(req: Request) {
     params.set('lat', q.get('lat')!);
     params.set('lng', q.get('lng')!);
     if (dep) params.set('departamento', dep);
+    if (q.get('departamentos')) params.set('departamentos', q.get('departamentos')!);
   } else if (dep && q.get('provincia')) {
     ruta = '';
     params.set('departamento', dep);

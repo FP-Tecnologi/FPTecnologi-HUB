@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { randomBytes } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { MailService } from '../mail/mail.service.js';
@@ -32,7 +32,14 @@ export class ChatService {
     });
   }
 
-  createAsesor(marcaId: string, dto: CreateChatAsesorDto) {
+  async createAsesor(marcaId: string, dto: CreateChatAsesorDto) {
+    if (dto.usuarioId) {
+      // Solo miembros del equipo de esta marca, y un único perfil por persona.
+      const miembro = await this.prisma.usuarioMarcaRol.findFirst({ where: { marcaId, usuarioId: dto.usuarioId } });
+      if (!miembro) throw new BadRequestException('Ese usuario no pertenece a esta marca');
+      const ya = await this.prisma.chatAsesor.findFirst({ where: { marcaId, usuarioId: dto.usuarioId } });
+      if (ya) throw new ConflictException('Esa persona ya es asesora del chat');
+    }
     return this.prisma.chatAsesor.create({ data: { ...dto, marcaId } });
   }
 

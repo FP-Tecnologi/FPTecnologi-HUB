@@ -29,7 +29,11 @@ export class EnviosService {
   }
 
   async crear(marcaId: string, dto: CrearTarifaDto) {
-    const departamento = dto.departamento.trim();
+    // Se guarda el nombre del directorio de Shalom ("Junín", "Lambayeque"…): así coincide con las agencias.
+    const departamento = departamentoDelDirectorio(dto.departamento) ?? dto.departamento.trim();
+    if (!departamentoDelDirectorio(departamento)) {
+      throw new BadRequestException('Departamento no válido: usa uno de los 25 departamentos del Perú (ej. Lambayeque, no Chiclayo)');
+    }
     const existe = await this.prisma.tarifaEnvio.findFirst({
       where: { marcaId, proveedor: PROVEEDOR_DEFECTO, departamento },
     });
@@ -69,7 +73,7 @@ export class EnviosService {
    */
   async cotizar(marcaId: string, departamento: string, sede?: string) {
     const tarifa = await this.prisma.tarifaEnvio.findFirst({
-      where: { marcaId, proveedor: PROVEEDOR_DEFECTO, departamento: departamento.trim(), activo: true },
+      where: { marcaId, proveedor: PROVEEDOR_DEFECTO, departamento: departamentoDelDirectorio(departamento) ?? departamento.trim(), activo: true },
     });
     if (!tarifa) throw new BadRequestException('No hay envío disponible a ese departamento');
 

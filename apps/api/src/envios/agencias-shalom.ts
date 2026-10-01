@@ -59,8 +59,9 @@ export function agenciasDeProvincia(departamento: string, provincia: string): Ag
  * Agencias más cercanas a un punto (las que no tienen coordenadas no se pueden ordenar y se omiten).
  * Si se pasa departamento, solo se consideran las de ese departamento.
  */
-export function agenciasCercanas(lat: number, lng: number, limite = 5, departamento?: string): AgenciaCercana[] {
-  const base = departamento ? agenciasDeDepartamento(departamento) : TODAS;
+export function agenciasCercanas(lat: number, lng: number, limite = 5, departamento?: string | string[]): AgenciaCercana[] {
+  const deps = (Array.isArray(departamento) ? departamento : departamento ? [departamento] : []).map(departamentoDelDirectorio);
+  const base = deps.length ? TODAS.filter((a) => deps.includes(a.departamento)) : TODAS;
   return base
     .filter((a) => a.lat !== null && a.lng !== null)
     .map((a) => ({ ...a, distanciaKm: Math.round(distanciaKm(lat, lng, a.lat!, a.lng!) * 10) / 10 }))

@@ -80,12 +80,14 @@ export class PublicAgenciasController {
 
   /** Las más cercanas a la ubicación del cliente (lat/lng del navegador o del mapa), opcionalmente dentro de un departamento. */
   @Get('cercanas')
-  cercanas(@Query('lat') lat: string, @Query('lng') lng: string, @Query('departamento') departamento?: string) {
+  cercanas(@Query('lat') lat: string, @Query('lng') lng: string, @Query('departamento') departamento?: string, @Query('departamentos') departamentos?: string) {
     const la = Number(lat);
     const ln = Number(lng);
     if (!Number.isFinite(la) || !Number.isFinite(ln) || Math.abs(la) > 90 || Math.abs(ln) > 180) {
       throw new BadRequestException('Ubicación inválida');
     }
-    return agenciasCercanas(la, ln, 5, departamento || undefined).map(publica);
+    // `departamentos` (lista separada por comas) limita la búsqueda a los departamentos con envío activo.
+    const lista = departamentos ? departamentos.split(',').map((d) => d.trim()).filter(Boolean).slice(0, 30) : undefined;
+    return agenciasCercanas(la, ln, 5, lista?.length ? lista : departamento || undefined).map(publica);
   }
 }

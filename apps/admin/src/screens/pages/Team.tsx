@@ -15,6 +15,7 @@ interface Rol { id: string; nombre: string }
 interface Usuario { id: string; email: string; nombre: string | null; activo: boolean; telefono: string | null; cargo: string | null; totpEnabled: boolean; createdAt: string }
 interface Fila { usuarioId: string; rolId: string; usuario: Usuario; rol: Rol; createdAt: string }
 interface Invitacion { id: string; email: string; expiresAt: string; rol: Rol; invitadoPor?: string | null }
+interface AsesorChat { id: string; usuarioId: string | null; area: string; telefono: string; whatsapp: string; activo: boolean }
 type Tab = 'equipo' | 'invitaciones' | 'clientes';
 
 const errMsg = (e: unknown, fallback: string) => (e instanceof ApiError ? e.message : fallback);
@@ -28,6 +29,10 @@ export function Team() {
   const [equipo, setEquipo] = useState<Fila[]>([]);
   const [clientes, setClientes] = useState<Fila[]>([]);
   const [invitaciones, setInvitaciones] = useState<Invitacion[]>([]);
+  const [asesores, setAsesores] = useState<AsesorChat[]>([]);
+  const [asesorDe, setAsesorDe] = useState<Usuario | null>(null);
+  const [asesorForm, setAsesorForm] = useState({ area: 'Ventas', telefono: '', whatsapp: '51' });
+  const [asesorErr, setAsesorErr] = useState('');
   const [loading, setLoading] = useState(true);
   const [aviso, setAviso] = useState<{ ok: boolean; texto: string } | null>(null);
 
@@ -35,13 +40,14 @@ export function Team() {
     if (!activeMarcaId) return;
     setLoading(true);
     try {
-      const [r, e, c, i] = await Promise.all([
+      const [r, e, c, i, a] = await Promise.all([
         api.get<Rol[]>('/roles'),
         api.get<Fila[]>(`/marcas/${activeMarcaId}/equipo`),
         api.get<Fila[]>('/roles/clientes'),
         api.get<Invitacion[]>('/invitaciones'),
+        api.get<AsesorChat[]>('/chat/asesores').catch(() => [] as AsesorChat[]),
       ]);
-      setRoles(r); setEquipo(e); setClientes(c); setInvitaciones(i);
+      setRoles(r); setEquipo(e); setClientes(c); setInvitaciones(i); setAsesores(a);
     } catch (err) {
       setAviso({ ok: false, texto: errMsg(err, 'No se pudo cargar el equipo.') });
     } finally {
@@ -101,6 +107,31 @@ export function Team() {
     }
   }
 
+  const asesorDeUsuario = (id: string) => asesores.find((a) => a.usuarioId === id);
+
+  function abrirAsesor(u: Usuario) {
+    const a = asesorDeUsuario(u.id);
+    setAsesorErr('');
+    setAsesorDe(u);
+    setAsesorForm(a ? { area: a.area, telefono: a.telefono, whatsapp: a.whatsapp } : { area: 'Ventas', telefono: u.telefono ?? '', whatsapp: (u.telefono ?? '').replace(/\D/g, '') || '51' });
+  }
+
+  async function guardarAsesor(ev: React.FormEvent) {
+    ev.preventDefault();
+    if (!asesorDe) return;
+    const actual = asesorDeUsuario(asesorDe.id);
+    const body = { area: asesorForm.area.trim(), telefono: asesorForm.telefono.trim(), whatsapp: asesorForm.whatsapp.replace(/\D/g, '') };
+    try {
+      if (actual) await api.patch(`/chat/asesores/${actual.id}`, body);
+      else await api.post('/chat/asesores', { ...body, nombre: asesorDe.nombre || asesorDe.email, usuarioId: asesorDe.id });
+      setAsesorDe(null);
+      setAviso({ ok: true, texto: actual ? 'Perfil de asesor actualizado.' : `${asesorDe.nombre || asesorDe.email} ya aparece como asesor en el chat de la web.` });
+      await cargar();
+    } catch (err) {
+      setAsesorErr(errMsg(err, 'No se pudo guardar el perfil de asesor.'));
+    }
+  }
+
   const fecha = (iso: string) => new Date(iso).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' });
   const iniciales = (u: Usuario) => (u.nombre || u.email).split(/[\s@.]+/).filter(Boolean).slice(0, 2).map((s) => s[0]!.toUpperCase()).join('');
 
@@ -151,6 +182,7 @@ export function Team() {
                     ) : (
                       <span className="ax-badge ax-badge--soft ax-badge--neutral ax-badge--pill">{f.rol.nombre}</span>
                     )}
+                    {esEquipo && asesorDeUsuario(u.id) && <div style={{ marginBlockStart: 4 }}><span className="ax-badge ax-badge--soft ax-badge--success ax-badge--pill">Asesor de chat · {asesorDeUsuario(u.id)!.area}</span></div>}
                   </td>
                   <td className="ax-table__td">
                     <span className={`ax-badge ax-badge--soft ax-badge--pill ${u.activo ? 'ax-badge--success' : 'ax-badge--neutral'}`}>{u.activo ? 'Activo' : 'Desactivado'}</span>
@@ -158,6 +190,11 @@ export function Team() {
                   {esEquipo && <td className="ax-table__td" style={{ color: 'var(--ax-text-muted)' }}>{u.totpEnabled ? 'App' : 'Correo'}</td>}
                   <td className="ax-table__td" style={{ color: 'var(--ax-text-muted)' }}>{fecha(f.createdAt)}</td>
                   <td className="ax-table__td" style={{ textAlign: 'right' }}>
+                    {esEquipo && (
+                      <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => abrirAsesor(u)}>
+                        {asesorDeUsuario(u.id) ? 'Perfil de asesor' : 'Hacer asesor del chat'}
+                      </button>
+                    )}
                     {!yo && (
                       <div className="ax-cluster" style={{ gap: 'var(--ax-space-1)', justifyContent: 'flex-end' }}>
                         {esEquipo && u.totpEnabled && (
@@ -261,6 +298,30 @@ export function Team() {
           )}
         </section>
       </div>
+
+      {asesorDe && (
+        <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 60, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
+          <div onClick={() => setAsesorDe(null)} style={{ position: 'absolute', inset: 0, background: 'rgba(8,10,16,.55)', backdropFilter: 'blur(2px)' }} />
+          <div role="dialog" aria-modal="true" aria-labelledby="as-title" className="ax-card" style={{ position: 'relative', maxWidth: 460, width: '100%' }}>
+            <div className="ax-card__header">
+              <div className="ax-card__titles"><h2 className="ax-card__title" id="as-title">Asesor del chat · {asesorDe.nombre || asesorDe.email}</h2><p className="ax-card__subtitle">Aparece en «Habla con un asesor» de la web de {marcaNombre}.</p></div>
+            </div>
+            <form className="ax-card__body" style={{ paddingTop: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }} onSubmit={guardarAsesor}>
+              {asesorErr && <div role="alert" className="ax-alert ax-alert--danger"><div className="ax-alert__content"><p className="ax-alert__message">{asesorErr}</p></div></div>}
+              <div className="ax-field"><label className="ax-label" htmlFor="as-area">Área</label><input id="as-area" className="ax-input" list="as-areas" required maxLength={40} value={asesorForm.area} onChange={(e) => setAsesorForm({ ...asesorForm, area: e.target.value })} /><datalist id="as-areas">{['Ventas', 'Servicios', 'Tienda', 'Partners', 'Soporte'].map((a) => <option key={a} value={a} />)}</datalist></div>
+              <div className="ax-field"><label className="ax-label" htmlFor="as-tel">Teléfono que se muestra</label><input id="as-tel" className="ax-input" required maxLength={30} placeholder="999 999 999" value={asesorForm.telefono} onChange={(e) => setAsesorForm({ ...asesorForm, telefono: e.target.value })} /></div>
+              <div className="ax-field"><label className="ax-label" htmlFor="as-wa">WhatsApp (con código de país)</label><input id="as-wa" className="ax-input" inputMode="numeric" required placeholder="51999999999" value={asesorForm.whatsapp} onChange={(e) => setAsesorForm({ ...asesorForm, whatsapp: e.target.value })} /></div>
+              <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'space-between' }}>
+                <span>{asesorDeUsuario(asesorDe.id) && <button type="button" className="ax-btn ax-btn--ghost" style={{ color: 'var(--ax-danger-500)' }} onClick={() => { const a = asesorDeUsuario(asesorDe.id)!; setAsesorDe(null); void accion(() => api.delete(`/chat/asesores/${a.id}`), 'Ya no es asesor del chat.'); }}>Quitar de asesores</button>}</span>
+                <span className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
+                  <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setAsesorDe(null)}>Cancelar</button>
+                  <button type="submit" className="ax-btn ax-btn--primary">Guardar</button>
+                </span>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {invite && (
         <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 60, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
