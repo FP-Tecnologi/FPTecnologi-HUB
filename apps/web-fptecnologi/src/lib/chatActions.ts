@@ -9,21 +9,29 @@ import { productHref } from './catalog';
 export type ChatActionKind = 'whatsapp' | 'maps' | 'email' | 'phone' | 'page';
 export type ChatAction = { kind: ChatActionKind; label: string; href: string };
 
-const WHATSAPP_NUMBER = WHATSAPP_AREAS[0].number;
+// Datos de contacto vigentes (los fija lib/sitio.ts al leer los ajustes del dashboard; por defecto, content.ts).
+// ponytail: estado de módulo, válido porque cada despliegue atiende una sola marca.
+let WHATSAPP_NUMBER: string = WHATSAPP_AREAS[0].number;
+let CONTACTO: { address: string; email: string; phoneVentas: string } = CONTACT_INFO;
+
+export function fijarSitio(s: { whatsapp: string; contact: typeof CONTACTO }) {
+  WHATSAPP_NUMBER = s.whatsapp;
+  CONTACTO = s.contact;
+}
 
 export function whatsappHref(text = 'Hola, quiero hablar con un asesor de FPTecnologi') {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`;
 }
 
-const FIXED: Record<string, ChatAction> = {
+const fijas = (): Record<string, ChatAction> => ({
   whatsapp: { kind: 'whatsapp', label: 'Hablar por WhatsApp', href: whatsappHref() },
   maps: {
     kind: 'maps',
     label: 'Ver ubicación en Maps',
-    href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONTACT_INFO.address)}`,
+    href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONTACTO.address)}`,
   },
-  email: { kind: 'email', label: CONTACT_INFO.email, href: `mailto:${CONTACT_INFO.email}` },
-  telefono: { kind: 'phone', label: `Llamar ${CONTACT_INFO.phoneVentas}`, href: `tel:${CONTACT_INFO.phoneVentas.replace(/\s/g, '')}` },
+  email: { kind: 'email', label: CONTACTO.email, href: `mailto:${CONTACTO.email}` },
+  telefono: { kind: 'phone', label: `Llamar ${CONTACTO.phoneVentas}`, href: `tel:${CONTACTO.phoneVentas.replace(/\s/g, '')}` },
   cotizar: { kind: 'page', label: 'Ir al cotizador', href: COTIZADOR_URL },
   servicios: { kind: 'page', label: 'Ver servicios', href: '/servicios' },
   tienda: { kind: 'page', label: 'Ver tienda', href: '/tienda' },
@@ -34,7 +42,7 @@ const FIXED: Record<string, ChatAction> = {
   marcas: { kind: 'page', label: 'Marcas', href: '/marcas' },
   devoluciones: { kind: 'page', label: 'Cambios y devoluciones', href: '/legal/devoluciones' },
   reclamaciones: { kind: 'page', label: 'Libro de reclamaciones', href: '/libro-de-reclamaciones' },
-};
+});
 
 /** Productos reales de la tienda (sku -> nombre/slug) para el id `producto:<sku>`; los pasa el servidor. */
 export type ProductoEnlace = { sku: string; name: string; slug?: string };
@@ -46,7 +54,8 @@ export function resolveAction(
   productos: readonly ProductoEnlace[] = [],
   servicios: readonly ServicioEnlace[] = SOLUTIONS,
 ): ChatAction | null {
-  if (FIXED[id]) return FIXED[id];
+  const fija = fijas()[id];
+  if (fija) return fija;
   const sep = id.indexOf(':');
   const prefix = sep === -1 ? id : id.slice(0, sep);
   const slug = sep === -1 ? '' : id.slice(sep + 1);

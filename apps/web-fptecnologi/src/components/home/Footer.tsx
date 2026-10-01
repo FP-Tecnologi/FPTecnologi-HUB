@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { SOCIAL_LINKS } from '@/lib/content';
+import { getSitio } from '@/lib/sitio';
 import { getServicios } from '@/lib/servicios';
 import { LEGAL_LINKS } from '@/lib/legal';
 import { FacebookIcon, InstagramIcon, LinkedinIcon, YoutubeIcon } from '@/components/site/icons';
@@ -36,7 +36,7 @@ function ColumnTitle({ children }: { children: string }) {
  * Mismo fondo que "Hablemos" (bg-ink); la línea de arriba marca dónde empieza.
  */
 export async function Footer() {
-  const servicios = await getServicios();
+  const [servicios, { social: SOCIAL_LINKS }] = await Promise.all([getServicios(), getSitio()]);
   const divider = <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />;
 
   return (

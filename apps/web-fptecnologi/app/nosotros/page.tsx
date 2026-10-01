@@ -9,11 +9,12 @@ import { WhyChooseUs } from '@/components/home/WhyChooseUs';
 import { NuestrosClientes } from '@/components/home/NuestrosClientes';
 import { Contact } from '@/components/home/Contact';
 import { Footer } from '@/components/home/Footer';
-import { STATS } from '@/lib/content';
+import { getSitio } from '@/lib/sitio';
 import { getPagina } from '@/lib/paginasContenido';
 import { getClientes } from '@/lib/referencias';
+import { metaSeo } from '@/lib/seo';
 
-export const metadata = { title: 'Nosotros' };
+export const generateMetadata = () => metaSeo('nosotros', { title: 'Nosotros' });
 
 /*
  * Nosotros -- mismo lenguaje que la home (DESIGN.md): hero interno, secciones
@@ -25,6 +26,7 @@ const ICONOS_PILAR: LucideIcon[] = [Compass, Eye, HeartHandshake];
 
 export default async function NosotrosPage() {
   const c = await getPagina('nosotros');
+  const { stats: STATS } = await getSitio();
   const clientes = await getClientes();
   return (
     <>

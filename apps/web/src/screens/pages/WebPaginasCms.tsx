@@ -66,3 +66,59 @@ export function WebProyectosCms() {
 export function WebContactoCms() {
   return <CmsEditor config={CONTACTO} />;
 }
+
+const T = (key: string, label: string, ayuda?: string) => ({ key, label, tipo: 'text', ayuda }) as const;
+
+const AJUSTES = base('sitio', 'Ajustes del sitio', '/contacto', [
+  {
+    key: 'contacto',
+    nombre: 'Datos de contacto y WhatsApp',
+    ancla: '',
+    campos: [
+      T('direccion', 'Dirección'),
+      T('telefonoVentas', 'Teléfono de ventas'),
+      T('telefonoWeb', 'Teléfono de ventas web'),
+      T('correo', 'Correo de ventas'),
+      T('whatsapp', 'WhatsApp general (con código de país)', 'Solo números, ej. 51908856286. Lo usan los botones de WhatsApp de toda la web. El horario se edita en Contacto → Visítanos.'),
+    ],
+  },
+  {
+    key: 'redes',
+    nombre: 'Redes sociales',
+    ancla: '',
+    campos: [T('facebook', 'Facebook (URL)', 'Vacío = no se muestra'), T('instagram', 'Instagram (URL)'), T('linkedin', 'LinkedIn (URL)'), T('youtube', 'YouTube (URL)')],
+  },
+  {
+    key: 'cifras',
+    nombre: 'Cifras de la empresa',
+    ancla: '',
+    campos: [{ key: 'items', label: 'Cifras (título = número, ej. 13+; texto = descripción)', tipo: 'lista-items', itemLabel: 'Cifra' }],
+  },
+  { key: 'cambio', nombre: 'Tipo de cambio', ancla: '', campos: [T('tipoCambio', 'Soles por dólar (USD → PEN)', 'Se usa al mostrar precios en soles. Ej. 3.75')] },
+]);
+
+const LEGAL_CAMPOS = [
+  T('resumen', 'Resumen (bajo el título)', 'Vacío = el texto base'),
+  T('actualizado', 'Fecha de actualización', 'Ej. 1 de octubre de 2026'),
+  { key: 'contenido', label: 'Texto completo', tipo: 'textarea', ayuda: 'Cada sección empieza con una línea «## Título»; los párrafos van separados por una línea en blanco. Vacío = se usa el texto base.' },
+] as const;
+const LEGAL = base('legal', 'Textos legales', '/legal/privacidad', [
+  { key: 'privacidad', nombre: 'Política de privacidad', ancla: '', campos: [...LEGAL_CAMPOS] },
+  { key: 'terminos', nombre: 'Términos y condiciones', ancla: '', campos: [...LEGAL_CAMPOS] },
+  { key: 'devoluciones', nombre: 'Cambios y devoluciones', ancla: '', campos: [...LEGAL_CAMPOS] },
+]);
+
+const SEO_CAMPOS = [T('titulo', 'Título en Google', 'Vacío = el de la página. Ideal: hasta 60 caracteres'), { key: 'descripcion', label: 'Descripción en Google', tipo: 'textarea', ayuda: 'Ideal: hasta 155 caracteres' }] as const;
+const SEO = base('seo', 'SEO por página', '/', [
+  ['home', 'Inicio'], ['nosotros', 'Nosotros'], ['servicios', 'Servicios'], ['proyectos', 'Proyectos'], ['contacto', 'Contacto'], ['tienda', 'Tienda'], ['cotizador', 'Cotizador'], ['blog', 'Blog'],
+].map(([key, nombre]) => ({ key, nombre, ancla: '', campos: [...SEO_CAMPOS] })));
+
+export function WebAjustesCms() {
+  return <CmsEditor config={AJUSTES} />;
+}
+export function WebLegalCms() {
+  return <CmsEditor config={LEGAL} />;
+}
+export function WebSeoCms() {
+  return <CmsEditor config={SEO} />;
+}

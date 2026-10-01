@@ -8,22 +8,24 @@ import { ScrollReveal } from '@/components/home/ScrollReveal';
 import { ServiceCardFinal } from '@/components/home/ServiceCardFinal';
 import { BrandMarquee } from '@/components/home/BrandMarquee';
 import { Footer } from '@/components/home/Footer';
-import { CONTACT_INFO } from '@/lib/content';
+import { getSitio } from '@/lib/sitio';
 import { getServicios } from '@/lib/servicios';
 import { whatsappHref } from '@/lib/chatActions';
 import { getCotizadorContenido } from '@/lib/cotizadorContenido';
+import { metaSeo } from '@/lib/seo';
 
-export const metadata = {
-  title: 'Cotizador',
-  description: 'Solicita tu cotización de servicios TI y equipamiento tecnológico en 3 pasos simples.',
-};
+export const generateMetadata = () =>
+  metaSeo('cotizador', {
+    title: 'Cotizador',
+    description: 'Solicita tu cotización de servicios TI y equipamiento tecnológico en 3 pasos simples.',
+  });
 
 // El contenido lo edita el equipo desde el dashboard (Cotizador → Formulario).
 export const dynamic = 'force-dynamic';
 
 const ICONOS: LucideIcon[] = [Sparkles, ShieldCheck, Handshake];
 
-const CONTACTO: { label: string; value: string; href: string; icon: LucideIcon }[] = [
+const contactoDe = (CONTACT_INFO: { address: string; phoneVentas: string; phoneVentasWeb: string; email: string }): { label: string; value: string; href: string; icon: LucideIcon }[] => [
   { label: 'WhatsApp', value: CONTACT_INFO.phoneVentasWeb, href: whatsappHref('Hola, quiero cotizar con FPTecnologi'), icon: MessageCircle },
   { label: 'Ventas', value: CONTACT_INFO.phoneVentas, href: `tel:${CONTACT_INFO.phoneVentas.replace(/\s/g, '')}`, icon: Phone },
   { label: 'Correo', value: CONTACT_INFO.email, href: `mailto:${CONTACT_INFO.email}`, icon: Mail },
@@ -39,7 +41,8 @@ const CONTACTO: { label: string; value: string; href: string; icon: LucideIcon }
    leads llegan al dashboard → Cotizador → Leads) acompañado de información:
    beneficios, cómo funciona, servicios, marcas y preguntas frecuentes. */
 export default async function CotizadorPage({ searchParams }: { searchParams: Promise<{ interes?: string }> }) {
-  const [c, { interes }] = await Promise.all([getCotizadorContenido(), searchParams]);
+  const [c, { interes }, sitio] = await Promise.all([getCotizadorContenido(), searchParams, getSitio()]);
+  const CONTACTO = contactoDe(sitio.contact);
 
   return (
     <>

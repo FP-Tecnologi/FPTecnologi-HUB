@@ -3,12 +3,12 @@ import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
 
 import { useState } from 'react';
 import { Building2, Mail, MapPin, MessageCircle, MessageSquareText, Phone, Send, User, type LucideIcon } from 'lucide-react';
-import { CONTACT_INFO } from '@/lib/content';
+import { useSitio } from '@/context/SitioContext';
 import { whatsappHref } from '@/lib/chatActions';
 import { ScrollReveal } from './ScrollReveal';
 import { SectionBadge } from './SectionBadge';
 
-const ITEMS: { label: string; value: string; href: string; icon: LucideIcon }[] = [
+const itemsDe = (CONTACT_INFO: { address: string; phoneVentas: string; phoneVentasWeb: string; email: string }): { label: string; value: string; href: string; icon: LucideIcon }[] => [
   {
     label: 'Dirección',
     value: CONTACT_INFO.address,
@@ -27,6 +27,7 @@ const ITEMS: { label: string; value: string; href: string; icon: LucideIcon }[] 
  * correo (ver AGENTS.md): el formulario arma el mensaje y abre WhatsApp.
  */
 export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
+  const ITEMS = itemsDe(useSitio().contact);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');

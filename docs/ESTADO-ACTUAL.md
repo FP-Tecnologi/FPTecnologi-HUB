@@ -938,3 +938,11 @@ sesión/máquina)**:
 - Pestañas: Documentos (activar/desactivar/borrar/ver contenido), Respuestas oficiales (tienen prioridad), Sin respuesta (preguntas que el chat no pudo responder, ordenadas por frecuencia → se responden con un clic), Probador e Instrucciones (tono y políticas).
 - La web (`app/api/chat/route.ts`) consulta `POST /public/conocimiento/consultar` (tope por IP, 2,5 s de timeout; si falla, el chat sigue con web + base de datos) y agrega «INFORMACIÓN ADICIONAL OFICIAL» al prompt.
 - Tests del lector/troceador/términos (`conocimiento.parser.spec.ts`) y prueba contra la base real (subir → buscar → pendiente → borrar).
+
+## 2026-10-01 — Ajustes del sitio, textos legales y SEO editables
+
+Todo usa el CMS genérico (`ContenidoWeb`) y el editor de Web informativa; sin cambios en la API. Valores por defecto en `apps/web-fptecnologi/src/lib/paginasContenido.ts` (páginas `sitio`, `legal`, `seo`).
+- **Web informativa → Ajustes del sitio**: dirección, teléfonos, correo, WhatsApp general, redes (vacío = se oculta), cifras de la empresa y tipo de cambio USD→PEN. Lo leen `lib/sitio.ts` (servidor) y `useSitio()` (cliente, `SitioProvider` en el layout); reemplaza los antes fijos `CONTACT_INFO`/`SOCIAL_LINKS`/`STATS` y la variable `TIPO_CAMBIO_USD_PEN` (queda como valor inicial). El chat IA también usa estos datos y el horario de Contacto → Visítanos.
+- **Textos legales**: privacidad, términos y devoluciones en markdown (`## Título` abre sección); vacío = texto base de `lib/legal.ts`. El asistente lee la versión editada.
+- **SEO por página**: título y descripción de Inicio, Nosotros, Servicios, Proyectos, Contacto, Tienda, Cotizador y Blog (`lib/seo.ts`).
+- Pendiente: los números de WhatsApp **por asesor** siguen en Chat y asesores → Asesores de WhatsApp; el aviso `ponytail` en `chatActions.ts` explica que el contacto vigente es estado de módulo (una marca por despliegue).

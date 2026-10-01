@@ -4,7 +4,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { Banknote, Building2, Check, Landmark, Loader2, Lock, Mail, MapPin, Phone, Smartphone, Store, Truck, User, FileText } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useCurrency } from '@/context/CurrencyContext';
-import { CONTACT_INFO } from '@/lib/content';
+import { useSitio } from '@/context/SitioContext';
 import { ShalomAgencias, type TarifaEnvio } from './ShalomAgencias';
 import { guardarResumenPedido } from '@/lib/pedidoWhatsapp';
 
@@ -104,6 +104,7 @@ function Seccion({ n, titulo, sub, children }: { n: number; titulo: string; sub?
  * API en el servidor; lo que se muestra acá es solo una referencia.
  */
 export function CheckoutForm() {
+  const { contact: CONTACT_INFO } = useSitio();
   const { items, subtotal, igv, total, clear } = useCart();
   const { format } = useCurrency();
   const [v, setV] = useState<V>(INICIAL);

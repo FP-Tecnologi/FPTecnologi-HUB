@@ -15,7 +15,6 @@ import {
   NOSOTROS_PILARES,
   PARTNER_BRANDS,
   PARTNER_STEPS,
-  SOCIAL_LINKS,
   WHATSAPP_AREAS,
   WHY_CHOOSE_US,
 } from './content';
@@ -26,7 +25,9 @@ import { getClientes, getProyectos } from './referencias';
 import { PERU_DEPARTMENTS } from './peruDepartments';
 import { getCotizadorContenido } from './cotizadorContenido';
 import { getArticulos } from './blog';
-import { LEGAL_DOCS } from './legal';
+import { getLegalDocs, type LegalDoc } from './legal';
+import { getSitio, type Sitio } from './sitio';
+import { getPagina } from './paginasContenido';
 import type { CatalogProduct } from './catalog';
 
 const CACHE_MS = 60_000;
@@ -35,13 +36,14 @@ const MAX_ARTICULOS = 8;
 
 const lista = (items: readonly string[]) => items.join('; ');
 
-function seccionEmpresa(): string {
+function seccionEmpresa(sitio: Sitio, horario: string): string {
+  const CONTACT_INFO = sitio.contact;
   return `EMPRESA Y CONTACTO
 FP Tecnologi & System (FPTecnologi): distribuidor autorizado de equipamiento TI y proveedor de servicios TI para empresas e instituciones del Perú.
 Dirección: ${CONTACT_INFO.address}. Teléfono ventas: ${CONTACT_INFO.phoneVentas}. Ventas web: ${CONTACT_INFO.phoneVentasWeb}. Correo: ${CONTACT_INFO.email}.
-Horario: lunes a viernes de 9:00 a 18:00.
-WhatsApp de asesores (áreas: ${WHATSAPP_AREAS.map((a) => a.label).join(', ')}): +${WHATSAPP_AREAS[0].number}.
-Redes: ${SOCIAL_LINKS.map((r) => r.label).join(', ')}.
+Horario: ${horario}.
+WhatsApp de asesores (áreas: ${WHATSAPP_AREAS.map((a) => a.label).join(', ')}): +${sitio.whatsapp}.
+Redes: ${sitio.social.map((r) => r.label).join(', ')}.
 Líneas de negocio:
 ${BUSINESS_PATHS.map((b) => `- ${b.title}: ${b.text}`).join('\n')}`;
 }
@@ -116,8 +118,8 @@ async function seccionBlog(): Promise<string> {
 ${arts.map((a) => `- ${a.titulo} (/blog/${a.slug}) [${a.categoria}]: ${a.resumen}`).join('\n')}`;
 }
 
-function seccionLegal(): string {
-  const docs = LEGAL_DOCS.map((d) => {
+function seccionLegal(legal: LegalDoc[]): string {
+  const docs = legal.map((d) => {
     const cuerpo =
       d.slug === 'devoluciones'
         ? ` Contenido: ${d.secciones.map((s) => `${s.titulo}: ${s.parrafos.join(' ')}`).join(' ').slice(0, 1800)}`
@@ -151,15 +153,18 @@ let cache: { at: number; text: string; products: CatalogProduct[]; servicios: Se
 /** Texto completo de conocimiento + los productos (para validar los enlaces `producto:<slug>`). */
 export async function getConocimiento(): Promise<{ text: string; products: CatalogProduct[]; servicios: ServicioPublico[] }> {
   if (cache && Date.now() - cache.at < CACHE_MS) return cache;
-  const [{ products }, servicios, cotizador, blog, referencias] = await Promise.all([
+  const [{ products }, servicios, cotizador, blog, referencias, sitio, contactoPag, legal] = await Promise.all([
     getCatalogo(),
     getServicios(),
     seccionCotizador(),
     seccionBlog(),
     seccionReferencias(),
+    getSitio(),
+    getPagina('contacto'),
+    getLegalDocs(),
   ]);
   const text = [
-    seccionEmpresa(),
+    seccionEmpresa(sitio, contactoPag.visita.horario),
     seccionNosotros(),
     seccionServicios(servicios),
     seccionTienda(products),
@@ -167,7 +172,7 @@ export async function getConocimiento(): Promise<{ text: string; products: Catal
     cotizador,
     blog,
     referencias,
-    seccionLegal(),
+    seccionLegal(legal),
     MAPA_WEB,
   ].join('\n\n');
   cache = { at: Date.now(), text, products, servicios };

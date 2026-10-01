@@ -1,13 +1,10 @@
 /*
- * Configuración comercial que sale del servidor (no hardcodeada en el cliente):
- * tipo de cambio USD→PEN. Se cambia con la variable TIPO_CAMBIO_USD_PEN sin
- * tocar código. (El IGV 18% es ley y vive en el carrito; los precios son USD sin IGV.)
+ * Configuración comercial que sale del servidor: tipo de cambio USD→PEN, editable en el dashboard
+ * (Web informativa → Ajustes del sitio). (El IGV 18% es ley y vive en el carrito; los precios son USD sin IGV.)
  */
-const TIPO_CAMBIO = Number(process.env.TIPO_CAMBIO_USD_PEN);
+import { getSitio } from '@/lib/sitio';
 
 export async function GET() {
-  return Response.json(
-    { tipoCambio: Number.isFinite(TIPO_CAMBIO) && TIPO_CAMBIO > 0 ? TIPO_CAMBIO : 3.75 },
-    { headers: { 'Cache-Control': 'public, max-age=300' } },
-  );
+  const { tipoCambio } = await getSitio();
+  return Response.json({ tipoCambio }, { headers: { 'Cache-Control': 'public, max-age=60' } });
 }

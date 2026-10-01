@@ -4,7 +4,7 @@ import { CheckCircle2, Copy, Headset, Mail, MapPin, MessageCircle, PackageCheck,
 import { useEffect, useState } from 'react';
 import { useCurrency } from '@/context/CurrencyContext';
 import { whatsappHref } from '@/lib/chatActions';
-import { CONTACT_INFO } from '@/lib/content';
+import { useSitio } from '@/context/SitioContext';
 import { MoreInfoButton } from '@/components/home/MoreInfoButton';
 import { PasosCompra } from './PasosCompra';
 import { leerResumenPedido, whatsappPedidoHref, type ResumenPedido } from '@/lib/pedidoWhatsapp';
@@ -17,6 +17,7 @@ const SIGUIENTES = [
 
 /* Confirmación del pedido: número, total, qué pasa ahora y cómo contactarnos. */
 export function PedidoGracias({ numero, total }: { numero: string; total: number }) {
+  const { contact: CONTACT_INFO } = useSitio();
   const { format } = useCurrency();
   const [copiado, setCopiado] = useState(false);
   const mensaje = `Hola, acabo de hacer el pedido ${numero} en la web de FPTecnologi y quiero coordinar el pago y la entrega.`;

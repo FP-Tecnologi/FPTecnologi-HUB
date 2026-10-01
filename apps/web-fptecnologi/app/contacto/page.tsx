@@ -1,5 +1,6 @@
 import { Clock, MapPin } from 'lucide-react';
-import { CONTACT_INFO, WHATSAPP_AREAS } from '@/lib/content';
+import { WHATSAPP_AREAS } from '@/lib/content';
+import { getSitio } from '@/lib/sitio';
 import { PageHero } from '@/components/site/PageHero';
 import { WhatsAppCta } from '@/components/site/WhatsAppCta';
 import { WhatsAppIcon } from '@/components/site/icons';
@@ -9,15 +10,16 @@ import { MoreInfoButton } from '@/components/home/MoreInfoButton';
 import { Contact } from '@/components/home/Contact';
 import { Footer } from '@/components/home/Footer';
 import { getPagina } from '@/lib/paginasContenido';
+import { metaSeo } from '@/lib/seo';
 
-export const metadata = { title: 'Contacto' };
+export const generateMetadata = () => metaSeo('contacto', { title: 'Contacto' });
 
-const MAPA = `https://www.google.com/maps?q=${encodeURIComponent(CONTACT_INFO.address)}&output=embed`;
 
 /* Contacto -- asesores por área, mapa y horario, y al cierre el formulario +
    datos (sección Contacto de la home) (DESIGN.md). */
 export default async function ContactoPage() {
-  const c = await getPagina('contacto');
+  const [c, { contact: CONTACT_INFO }] = await Promise.all([getPagina('contacto'), getSitio()]);
+  const MAPA = `https://www.google.com/maps?q=${encodeURIComponent(CONTACT_INFO.address)}&output=embed`;
   return (
     <>
       <PageHero

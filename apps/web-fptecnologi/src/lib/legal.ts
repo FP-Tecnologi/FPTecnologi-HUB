@@ -4,6 +4,7 @@
  * asesoría legal y completarse con la razón social y el RUC antes de publicar.
  */
 import { CONTACT_INFO } from './content';
+import { getPagina } from './paginasContenido';
 
 export const LEGAL_LINKS = [
   { label: 'Política de privacidad', href: '/legal/privacidad' },
@@ -151,3 +152,25 @@ export const LEGAL_DOCS: LegalDoc[] = [
     ],
   },
 ];
+
+/** "## Título" abre una sección; los párrafos se separan con línea en blanco. */
+export function seccionesDeMarkdown(texto: string): LegalDoc['secciones'] {
+  const out: LegalDoc['secciones'] = [];
+  for (const bloque of texto.replace(/\r/g, '').split(/^##\s+/m)) {
+    const [titulo, ...resto] = bloque.split('\n');
+    const parrafos = resto.join('\n').split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+    if (titulo.trim() && parrafos.length) out.push({ id: `s${out.length + 1}`, titulo: titulo.trim(), parrafos });
+  }
+  return out;
+}
+
+/** Textos base + lo editado en el dashboard (Web informativa → Textos legales). */
+export async function getLegalDocs(): Promise<LegalDoc[]> {
+  const saved = await getPagina('legal');
+  return LEGAL_DOCS.map((d) => {
+    const s = saved[d.slug as keyof typeof saved];
+    const secciones = s ? seccionesDeMarkdown(s.contenido) : [];
+    if (!secciones.length) return d;
+    return { ...d, secciones, resumen: s.resumen.trim() || d.resumen, actualizado: s.actualizado.trim() || d.actualizado };
+  });
+}

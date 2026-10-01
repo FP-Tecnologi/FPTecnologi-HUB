@@ -9,8 +9,9 @@ import { Footer } from '@/components/home/Footer';
 import { HOME_DEFAULTS } from '@/lib/homeContenido';
 import { getPagina } from '@/lib/paginasContenido';
 import { getClientes, getProyectos } from '@/lib/referencias';
+import { metaSeo } from '@/lib/seo';
 
-export const metadata = { title: 'Proyectos' };
+export const generateMetadata = () => metaSeo('proyectos', { title: 'Proyectos' });
 
 /* Proyectos -- listado filtrable por región, mapa del Perú (sección de la
    home) y clientes; cierre con Contacto (DESIGN.md). Datos de ejemplo en

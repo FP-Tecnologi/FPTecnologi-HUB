@@ -3,8 +3,9 @@ import { BlogListado } from '@/components/site/BlogListado';
 import { Contact } from '@/components/home/Contact';
 import { Footer } from '@/components/home/Footer';
 import { getArticulos } from '@/lib/blog';
+import { metaSeo } from '@/lib/seo';
 
-export const metadata = { title: 'Blog' };
+export const generateMetadata = () => metaSeo('blog', { title: 'Blog' });
 // Lo que se publica en el dashboard aparece al instante.
 export const dynamic = 'force-dynamic';
 

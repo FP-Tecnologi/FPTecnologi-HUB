@@ -1,7 +1,7 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import { Fragment, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import {
   ArrowUpRight,
   Bot,
@@ -23,7 +23,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { VARIANTS, DEFAULT_VARIANT, HeaderBg, type Variant } from './chatVariants';
-import { CONTACT_INFO, WHATSAPP_AREAS } from '@/lib/content';
+import { WHATSAPP_AREAS } from '@/lib/content';
+import { useSitio } from '@/context/SitioContext';
 import { WhatsAppIcon } from './icons';
 import { resolveAction, type ChatAction, type ChatActionKind } from '@/lib/chatActions';
 import { useChatWidget } from '@/context/ChatWidgetContext';
@@ -218,7 +219,7 @@ const INTENTS: { keywords: string[]; text: string; actions: string[]; options?: 
   },
   {
     keywords: ['direccion', 'dirección', 'ubicac', 'donde', 'dónde'],
-    text: `Estamos en ${CONTACT_INFO.address}.`,
+    text: 'Te dejo la ubicación de nuestra oficina en el mapa.',
     actions: ['maps'],
   },
   {
@@ -332,24 +333,28 @@ function AdvisorAvatar({ name, photo, size = 'h-8 w-8' }: { name?: string; photo
 
 /* Correos -> mailto, teléfonos +51 -> WhatsApp, la dirección -> Google Maps.
    Solo se aplica cuando el texto terminó de escribirse. */
-const ADDRESS_SHORT = CONTACT_INFO.address.split(',')[0]; // "Jr. Huaraz 1841"
-const LINK_RE = new RegExp(`([\\w.+-]+@[\\w-]+(?:\\.[\\w-]+)+|\\+51[\\d ]{9,12}\\d|${ADDRESS_SHORT.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'g');
+const LINK_BASE = '[\\w.+-]+@[\\w-]+(?:\\.[\\w-]+)+|\\+51[\\d ]{9,12}\\d';
+const linkRe = (address: string) => {
+  const corta = address.split(',')[0]; // "Jr. Huaraz 1841"
+  return new RegExp(`(${LINK_BASE}|${corta.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'g');
+};
 
-function linkHref(part: string) {
+function linkHref(part: string, address: string) {
   if (part.includes('@')) return `mailto:${part}`;
   if (part.startsWith('+51')) return `https://wa.me/${part.replace(/\D/g, '')}`;
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONTACT_INFO.address)}`;
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 }
 
 function Linkified({ text }: { text: string }) {
-  const parts = text.split(LINK_RE);
+  const { address } = useSitio().contact;
+  const parts = text.split(useMemo(() => linkRe(address), [address]));
   return (
     <>
       {parts.map((part, i) =>
         i % 2 === 1 ? (
           <a
             key={i}
-            href={linkHref(part)}
+            href={linkHref(part, address)}
             target={part.includes('@') ? undefined : '_blank'}
             rel="noreferrer"
             className="font-semibold text-white underline decoration-white/50 underline-offset-2 hover:decoration-white"

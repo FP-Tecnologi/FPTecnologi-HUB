@@ -1,7 +1,7 @@
 'use client';
 import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
 
-import { STATS } from '@/lib/content';
+import { useSitio } from '@/context/SitioContext';
 import { MoreInfoButton } from './MoreInfoButton';
 import { ScrollReveal } from './ScrollReveal';
 import { SectionBadge } from './SectionBadge';
@@ -22,6 +22,7 @@ function CheckIcon({ className }: { className?: string }) {
    propio ScrollReveal escalonado (delayMs creciente) para que se sientan
    "en cascada" al hacer scroll, no todos de golpe. */
 export function Nosotros({ c = HOME_DEFAULTS.nosotros }: { c?: Encabezado & { puntos: string[] } }) {
+  const { stats: STATS } = useSitio();
   return (
     // bg-white en la sección completa (no solo en el contenido) -- para que
     // se note como una franja blanca propia, distinta del fondo con

@@ -13,6 +13,9 @@ import { WhyChooseUs } from '@/components/home/WhyChooseUs';
 import { getHomeContenido } from '@/lib/homeContenido';
 import { getDestacados } from '@/lib/catalogo';
 import { getClientes, getProyectos } from '@/lib/referencias';
+import { metaSeo } from '@/lib/seo';
+
+export const generateMetadata = () => metaSeo('home');
 
 /*
  * Home reconstruida desde cero sobre src/components/home/ (ver

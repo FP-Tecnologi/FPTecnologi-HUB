@@ -8,7 +8,9 @@ import { FavoritesProvider } from '@/context/FavoritesContext';
 import { FavoritesWidget } from '@/components/site/FavoritesWidget';
 import { ServiciosProvider } from '@/context/ServiciosContext';
 import { TransicionPagina } from '@/components/site/TransicionPagina';
+import { SitioProvider } from '@/context/SitioContext';
 import { getServicios } from '@/lib/servicios';
+import { getSitio } from '@/lib/sitio';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -33,7 +35,7 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  const servicios = await getServicios();
+  const [servicios, sitio] = await Promise.all([getServicios(), getSitio()]);
   return (
     <html lang="es">
       <head>
@@ -45,6 +47,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         />
       </head>
       <body>
+        <SitioProvider sitio={sitio}>
         <ServiciosProvider servicios={servicios.map((s) => ({ title: s.title, slug: s.slug }))}>
         <CurrencyProvider>
           <CartProvider>
@@ -59,6 +62,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           </CartProvider>
         </CurrencyProvider>
         </ServiciosProvider>
+        </SitioProvider>
       </body>
     </html>
   );

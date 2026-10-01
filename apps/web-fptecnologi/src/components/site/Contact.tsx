@@ -1,9 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { CONTACT_INFO } from '@/lib/content';
+import { useSitio } from '@/context/SitioContext';
 
-const ITEMS = [
+const itemsDe = (CONTACT_INFO: { address: string; phoneVentas: string; phoneVentasWeb: string; email: string }) => [
   { label: 'Dirección', value: CONTACT_INFO.address, icon: 'M12 21s7-6.1 7-11a7 7 0 1 0-14 0c0 4.9 7 11 7 11Zm0-8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z' },
   { label: 'Ventas', value: CONTACT_INFO.phoneVentas, icon: 'M6.6 10.2c1.4 2.7 3.6 4.9 6.3 6.3l2.1-2.1c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.5.6.6 0 1 .4 1 1V19c0 .6-.4 1-1 1C9.6 20 4 14.4 4 7.5c0-.6.4-1 1-1h3.2c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.5.1.4 0 .8-.3 1z' },
   { label: 'Ventas web', value: CONTACT_INFO.phoneVentasWeb, icon: 'M6.6 10.2c1.4 2.7 3.6 4.9 6.3 6.3l2.1-2.1c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.5.6.6 0 1 .4 1 1V19c0 .6-.4 1-1 1C9.6 20 4 14.4 4 7.5c0-.6.4-1 1-1h3.2c.6 0 1 .4 1 1 0 1.2.2 2.4.6 3.5.1.4 0 .8-.3 1z' },
@@ -19,6 +19,7 @@ const ITEMS = [
  * componente.
  */
 export function Contact() {
+  const ITEMS = itemsDe(useSitio().contact);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');

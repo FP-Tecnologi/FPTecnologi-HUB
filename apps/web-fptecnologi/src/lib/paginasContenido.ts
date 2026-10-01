@@ -6,6 +6,8 @@
  * API no responde, la página sale con los defaults. Mismo patrón que
  * homeContenido.ts.
  */
+import { CONTACT_INFO, SOCIAL_LINKS, STATS } from './content';
+
 type Enc = { badge: string; titulo: string; destacado: string; descripcion: string };
 const enc = (o: Partial<Enc>): Enc => ({ badge: '', titulo: '', destacado: '', descripcion: '', ...o });
 
@@ -68,6 +70,36 @@ export const PAGINAS_DEFAULTS = {
     }),
     asesores: enc({ badge: 'Asesores', titulo: 'Habla directo con', destacado: 'el área que necesitas' }),
     visita: { ...enc({ badge: 'Visítanos', titulo: 'Nuestra', destacado: 'oficina' }), horario: 'Lunes a viernes, 9:00 a 18:00' },
+  },
+  // Ajustes generales (dashboard → Web informativa → Ajustes del sitio). Los consume lib/sitio.ts.
+  sitio: {
+    contacto: {
+      direccion: CONTACT_INFO.address,
+      telefonoVentas: CONTACT_INFO.phoneVentas,
+      telefonoWeb: CONTACT_INFO.phoneVentasWeb,
+      correo: CONTACT_INFO.email,
+      whatsapp: '51908856286',
+    },
+    redes: Object.fromEntries(SOCIAL_LINKS.map((r) => [r.red, r.href])) as Record<(typeof SOCIAL_LINKS)[number]['red'], string>,
+    cifras: { items: STATS.map((s) => ({ title: `${s.value}${s.suffix}`, text: s.label })) },
+    cambio: { tipoCambio: process.env.TIPO_CAMBIO_USD_PEN || '3.75' },
+  },
+  // Textos legales en markdown ("## Título" abre una sección). Vacío = se usa el texto base de lib/legal.ts.
+  legal: {
+    privacidad: { resumen: '', actualizado: '', contenido: '' },
+    terminos: { resumen: '', actualizado: '', contenido: '' },
+    devoluciones: { resumen: '', actualizado: '', contenido: '' },
+  },
+  // Título y descripción para buscadores por página. Vacío = el de la página.
+  seo: {
+    home: { titulo: '', descripcion: '' },
+    nosotros: { titulo: '', descripcion: '' },
+    servicios: { titulo: '', descripcion: '' },
+    proyectos: { titulo: '', descripcion: '' },
+    contacto: { titulo: '', descripcion: '' },
+    tienda: { titulo: '', descripcion: '' },
+    cotizador: { titulo: '', descripcion: '' },
+    blog: { titulo: '', descripcion: '' },
   },
 };
 

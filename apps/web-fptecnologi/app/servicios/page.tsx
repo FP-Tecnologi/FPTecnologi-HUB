@@ -11,8 +11,9 @@ import { ServiceCardFinal } from '@/components/home/ServiceCardFinal';
 import { NuestrosProyectos } from '@/components/home/NuestrosProyectos';
 import { Contact } from '@/components/home/Contact';
 import { Footer } from '@/components/home/Footer';
+import { metaSeo } from '@/lib/seo';
 
-export const metadata = { title: 'Servicios' };
+export const generateMetadata = () => metaSeo('servicios', { title: 'Servicios' });
 
 /* Servicios -- listado completo con las mismas tarjetas de la home, el
    proceso de trabajo, proyectos y cierre con Contacto (DESIGN.md). */

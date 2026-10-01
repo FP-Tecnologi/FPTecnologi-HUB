@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import { LEGAL_DOCS } from '@/lib/legal';
+import { LEGAL_DOCS, getLegalDocs } from '@/lib/legal';
 import { PageHero } from '@/components/site/PageHero';
 import { LegalLayout } from '@/components/site/LegalLayout';
 import { Footer } from '@/components/home/Footer';
@@ -10,13 +10,13 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const d = LEGAL_DOCS.find((x) => x.slug === slug);
+  const d = (await getLegalDocs()).find((x) => x.slug === slug);
   return { title: d ? `${d.titulo} ${d.destacado}` : 'Legal' };
 }
 
 export default async function LegalPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const d = LEGAL_DOCS.find((x) => x.slug === slug);
+  const d = (await getLegalDocs()).find((x) => x.slug === slug);
   if (!d) notFound();
   const nombre = `${d.titulo} ${d.destacado}`;
   const href = `/legal/${d.slug}`;
