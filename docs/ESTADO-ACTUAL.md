@@ -589,3 +589,26 @@ sesión/máquina)**:
   Markdown escapando todo el HTML (autochequeo: `npx tsx src/lib/markdown.check.mts`).
 - Pendiente: subida de imágenes (hoy portada por URL), SEO (OG/meta por
   artículo), programar publicación.
+
+### 2026-10-01 — Cotizador (formulario público + leads + CMS)
+
+- **API**: módulo `cotizador` + modelo `LeadCotizador` (migración
+  `20261001120000_cotizador_leads`, **por aplicar en Supabase**). Público
+  `POST /public/cotizador/leads` (valida DNI 8 / RUC 11, jurídica ⇒ RUC +
+  empresa, celular peruano; honeypot; tope 5 envíos/10 min por IP). Dashboard
+  (`admin`/`comercial`): `GET/PATCH/DELETE /cotizador/leads`. Cada lead nuevo
+  genera notificación `COTIZACION` + correo a admin/comercial. Tests en
+  `cotizador.service.spec.ts`.
+- **Web** (`web-fptecnologi`): `/cotizador` reemplaza el placeholder: formulario
+  en 3 pasos (qué necesitas → quién solicita → contacto), tarjetas de interés,
+  toggle natural/jurídica, validación por paso, pantalla de gracias; acepta
+  `?interes=`. Envía por el proxy `/api/hub/cotizador`. Contenido con defaults
+  en `lib/cotizadorContenido.ts` + lo guardado (`/public/contenido/cotizador`).
+- **Dashboard**: grupo "Cotizador" → Leads (`/cotizador/leads`: filtros por
+  estado, búsqueda, detalle con WhatsApp/correo, estado, notas, CSV) y
+  Formulario (`/cotizador/formulario`: CMS de textos, opciones de interés,
+  beneficios y gracias con vista previa). El editor de la home se generalizó
+  (`CmsEditor`) para reutilizarlo.
+- Pendiente: aplicar la migración; no se pudo ver la landing de referencia
+  (`landing-cotiza-tu-tiempo`, el proxy bloqueó el dominio) — el diseño sigue
+  el de la web; asignar leads a un comercial; sincronizar con el repo de leads.

@@ -131,3 +131,17 @@ export function chatNuevoEmail(primerMensaje: string, url: string): { subject: s
     `),
   };
 }
+
+export function leadNuevoEmail(nombre: string, interes: string, url: string): { subject: string; html: string } {
+  return {
+    subject: 'Nuevo lead del cotizador',
+    html: layout(`
+      <h1 style="margin:0 0 12px;font-size:20px;">Nueva solicitud de cotización</h1>
+      <p style="margin:0 0 12px;color:${MUTED_COLOR};">Alguien llenó el cotizador de la web:</p>
+      <div style="margin:20px 0;padding:14px 20px;background:${CODE_BG};border-radius:8px;color:${TEXT_COLOR};">
+        <strong>${escapeHtml(nombre.slice(0, 160))}</strong><br />Interés: ${escapeHtml(interes.slice(0, 200))}
+      </div>
+      <a href="${escapeHtml(url)}" style="display:inline-block;background:${BRAND_COLOR};color:#FFFFFF;text-decoration:none;font-weight:700;padding:12px 20px;border-radius:8px;">Ver lead</a>
+    `),
+  };
+}

@@ -34,6 +34,7 @@ const TENANT_MODELS = new Set([
   'ChatMensaje',
   'ContenidoWeb',
   'BlogArticulo',
+  'LeadCotizador',
 ]);
 
 const WHERE_OPS = new Set([

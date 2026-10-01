@@ -157,6 +157,7 @@ vez del contenido hardcodeado que usa hoy).
 | `chat` | `/chat/asesores` (CRUD), `/chat/conversaciones` (`GET`, `GET /:id`, `POST /:id/tomar`, `PATCH /:id/estado`, `POST /:id/mensajes`); públicos `/public/chat/asesores`, `/public/chat/conversaciones` (+ `/:id`, `/:id/mensajes`, validados por `token`) | Chat de la web: asesores de WhatsApp + conversaciones del asistente que un asesor retoma desde el dashboard. Roles `admin`/`asesores` |
 | `contenido` | `GET /contenido/:pagina`, `PUT /contenido/:pagina/:seccion` (admin/marketing); público `GET /public/contenido/:pagina?marcaId` | CMS de las webs públicas: JSON por marca+página+sección. Los defaults y la forma de cada sección viven en la web (`web-fptecnologi/src/lib/homeContenido.ts`) |
 | `blog` | `GET/POST /blog`, `GET/PATCH/DELETE /blog/:id` (admin/marketing); públicos `GET /public/blog`, `/public/blog/:slug` (solo PUBLICADO) | Blog de las webs: artículos en Markdown, slug único por marca, borrador/publicado, destacado |
+| `cotizador` | `GET/PATCH/DELETE /cotizador/leads[/:id]` (admin/comercial); público `POST /public/cotizador/leads?marcaId` | Leads del formulario `/cotizador` de la web (`LeadCotizador`: nombres, persona natural/jurídica, DNI/RUC, empresa, correo, celular, interés). Estados NUEVO→CONTACTADO→COTIZADO→GANADO/PERDIDO + notas. Honeypot + tope por IP; avisa a admin/comercial (notificación + correo). El formulario se edita como CMS con `contenido` (página `cotizador`) |
 | `mail` | — | Wrapper de Resend, usado por `auth` (OTP) y `pedidos` (confirmación) |
 | `health` | `GET /health` | — |
 
@@ -172,7 +173,7 @@ Ver [`apps/api/prisma/schema.prisma`](apps/api/prisma/schema.prisma) —
 es la fuente de verdad, no la dupliques en prosa aquí porque se desactualiza.
 Modelos clave: `Marca`, `Sitio`, `Usuario`, `OtpCode`, `RefreshToken`, `Rol`,
 `UsuarioMarcaRol`, `Categoria`, `Producto`, `Pedido`/`PedidoItem`,
-`Servicio`, `Cotizacion`, `Notificacion`, `ChatAsesor`, `ChatConversacion`/`ChatMensaje`, `ContenidoWeb`, `BlogArticulo`.
+`Servicio`, `Cotizacion`, `Notificacion`, `ChatAsesor`, `ChatConversacion`/`ChatMensaje`, `ContenidoWeb`, `BlogArticulo`, `LeadCotizador`.
 
 ## Roles del sistema
 

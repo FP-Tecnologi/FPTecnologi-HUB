@@ -42,6 +42,7 @@ model Marca {
   chatMensajes       ChatMensaje[]
   contenidos         ContenidoWeb[]
   blogArticulos      BlogArticulo[]
+  leadsCotizador     LeadCotizador[]
 }
 
 model Sitio {
@@ -437,4 +438,48 @@ model BlogArticulo {
 
   @@unique([marcaId, slug])
   @@index([marcaId, estado, publicadoEn])
+}
+
+// ---------------------------------------------------------------------------
+// Cotizador web: leads del formulario público /cotizador
+// ---------------------------------------------------------------------------
+// Distinto de `Cotizacion` (que cuelga de un Servicio concreto): el lead del
+// cotizador es el primer contacto — "quiero cotizar X" — y el equipo comercial
+// lo gestiona (estado, notas) hasta convertirlo en cotización/venta.
+
+enum TipoPersona {
+  NATURAL
+  JURIDICA
+}
+
+enum EstadoLead {
+  NUEVO
+  CONTACTADO
+  COTIZADO
+  GANADO
+  PERDIDO
+}
+
+model LeadCotizador {
+  id            String      @id @default(uuid())
+  marcaId       String
+  marca         Marca       @relation(fields: [marcaId], references: [id])
+  nombres       String
+  apellidos     String
+  tipoPersona   TipoPersona
+  tipoDocumento String // DNI | RUC
+  nroDocumento  String
+  empresa       String?
+  email         String
+  celular       String
+  interes       String // servicio/producto elegido (texto del momento)
+  mensaje       String?
+  origen        String? // página desde donde llegó
+  estado        EstadoLead  @default(NUEVO)
+  notas         String?
+  atendidoPor   String? // email del usuario que lo gestionó por última vez
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@index([marcaId, estado, createdAt])
 }

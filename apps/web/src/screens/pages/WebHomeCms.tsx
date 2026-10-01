@@ -20,6 +20,7 @@ const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 type Datos = Record<string, unknown>;
 type Campo =
   | { key: string; label: string; tipo: 'text' | 'textarea'; ayuda?: string }
+  | { key: string; label: string; tipo: 'bool'; ayuda?: string }
   | { key: string; label: string; tipo: 'lista-texto' }
   | { key: string; label: string; tipo: 'lista-items'; itemLabel: string }
   | { key: string; label: string; tipo: 'slides' };
@@ -31,7 +32,9 @@ const DESCRIPCION: Campo = { key: 'descripcion', label: 'Descripción', tipo: 't
 const BOTON: Campo = { key: 'botonTexto', label: 'Texto del botón', tipo: 'text', ayuda: 'Vacío = sin botón' };
 const URL: Campo = { key: 'botonUrl', label: 'Enlace del botón', tipo: 'text', ayuda: 'Ej. /servicios o https://…' };
 
-const SECCIONES: { key: string; nombre: string; ancla: string; campos: Campo[] }[] = [
+export type Seccion = { key: string; nombre: string; ancla: string; campos: Campo[] };
+
+const SECCIONES: Seccion[] = [
   { key: 'hero', nombre: 'Banner principal', ancla: '', campos: [{ key: 'slides', label: 'Diapositivas', tipo: 'slides' }] },
   { key: 'marcas', nombre: 'Marcas', ancla: 'marcas', campos: [] },
   { key: 'nosotros', nombre: 'Nosotros', ancla: 'nosotros', campos: [BADGE, TITULO, DESTACADO, DESCRIPCION, { key: 'puntos', label: 'Puntos destacados', tipo: 'lista-texto' }, BOTON, URL] },
@@ -60,11 +63,37 @@ const I_X = <svg {...ICON}><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></svg
 
 const PANEL_H = 'calc(100vh - 370px)';
 
+export interface CmsConfig {
+  /** Página en la API de contenido (`/contenido/:pagina`) y en `{web}/api/cms/:pagina`. */
+  pagina: string;
+  titulo: string;
+  subtitulo: string;
+  secciones: Seccion[];
+  /** Ruta de la web que se muestra en la vista previa. */
+  previewPath: string;
+  /** Mostrar el interruptor "Visible" por sección (la home sí; el cotizador no). */
+  conVisible: boolean;
+}
+
+const HOME_CONFIG: CmsConfig = {
+  pagina: 'home',
+  titulo: 'Home page',
+  subtitulo: 'Edita los textos de cada sección de la página de inicio. Los cambios se publican al guardar.',
+  secciones: SECCIONES,
+  previewPath: '/',
+  conVisible: true,
+};
+
 export function WebHomeCms() {
+  return <CmsEditor config={HOME_CONFIG} />;
+}
+
+export function CmsEditor({ config }: { config: CmsConfig }) {
+  const { pagina, secciones: SECCIONES, conVisible } = config;
   const { activeMarcaId } = useAuth();
   const [guardado, setGuardado] = useState<Record<string, Datos> | null>(null);
   const [borrador, setBorrador] = useState<Record<string, Datos>>({});
-  const [sel, setSel] = useState('hero');
+  const [sel, setSel] = useState(SECCIONES[0].key);
   const [error, setError] = useState('');
   const [ok, setOk] = useState('');
   const [guardando, setGuardando] = useState(false);
@@ -73,7 +102,7 @@ export function WebHomeCms() {
 
   const cargar = useCallback(async () => {
     try {
-      const res = await fetch(`${WEB}/api/cms/home`, { cache: 'no-store' });
+      const res = await fetch(`${WEB}/api/cms/${pagina}`, { cache: 'no-store' });
       const data = (await res.json()) as Record<string, Datos>;
       setGuardado(data);
       setBorrador(structuredClone(data));
@@ -101,7 +130,7 @@ export function WebHomeCms() {
     setOk('');
     setError('');
     try {
-      await api.put(`/contenido/home/${key}`, { datos: datosSeccion });
+      await api.put(`/contenido/${pagina}/${key}`, { datos: datosSeccion });
       setGuardado((g) => ({ ...(g ?? {}), [key]: structuredClone(datosSeccion) }));
       setBorrador((b) => ({ ...b, [key]: structuredClone(datosSeccion) }));
       setOk('Cambios publicados en la web.');
@@ -121,13 +150,13 @@ export function WebHomeCms() {
     guardar(key, nuevo);
   }
 
-  const src = `${WEB}/?cms=${recarga}${seccion.ancla ? `#${seccion.ancla}` : ''}`;
+  const src = `${WEB}${config.previewPath}?cms=${recarga}${seccion.ancla ? `#${seccion.ancla}` : ''}`;
 
   return (
     <>
       <PageHead
-        title="Home page"
-        subtitle="Edita los textos de cada sección de la página de inicio. Los cambios se publican al guardar."
+        title={config.titulo}
+        subtitle={config.subtitulo}
         actions={
           <a className="ax-btn ax-btn--secondary" href={WEB} target="_blank" rel="noreferrer">
             {I_EXT}
@@ -151,14 +180,16 @@ export function WebHomeCms() {
               <select id="cms-sec" className="ax-select" value={sel} onChange={(e) => setSel(e.target.value)} style={{ flex: 1 }}>
                 {SECCIONES.map((s, i) => (
                   <option key={s.key} value={s.key}>
-                    {i + 1}. {s.nombre}{borrador[s.key]?.visible === false ? ' (oculta)' : ''}
+                    {i + 1}. {s.nombre}{conVisible && borrador[s.key]?.visible === false ? ' (oculta)' : ''}
                   </option>
                 ))}
               </select>
-              <label className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap', whiteSpace: 'nowrap', fontSize: 'var(--ax-text-sm)' }}>
-                <input type="checkbox" className="ax-switch" checked={datos.visible !== false} onChange={() => toggleVisible(sel)} disabled={!guardado || guardando} />
-                Visible
-              </label>
+              {conVisible && (
+                <label className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap', whiteSpace: 'nowrap', fontSize: 'var(--ax-text-sm)' }}>
+                  <input type="checkbox" className="ax-switch" checked={datos.visible !== false} onChange={() => toggleVisible(sel)} disabled={!guardado || guardando} />
+                  Visible
+                </label>
+              )}
             </div>
           </div>
 
@@ -226,7 +257,7 @@ function Preview({ src, ancho }: { src: string; ancho: number }) {
     <div ref={boxRef} style={{ flex: '1 1 auto', minHeight: 0, position: 'relative', overflow: 'hidden', background: 'var(--ax-surface-subtle)' }}>
       <iframe
         key={src}
-        title="Vista previa de la home"
+        title="Vista previa de la web"
         src={src}
         style={{
           position: 'absolute',
@@ -256,6 +287,18 @@ function CampoEditor({ campo, valor, onChange }: { campo: Campo; valor: unknown;
           <textarea id={id} className="ax-textarea" rows={4} value={String(valor ?? '')} onChange={(e) => onChange(e.target.value)} />
         )}
         {'ayuda' in campo && campo.ayuda && <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{campo.ayuda}</span>}
+      </div>
+    );
+  }
+
+  if (campo.tipo === 'bool') {
+    return (
+      <div className="ax-field">
+        <label className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap', fontSize: 'var(--ax-text-sm)' }}>
+          <input type="checkbox" className="ax-switch" checked={valor !== false && !!valor} onChange={(e) => onChange(e.target.checked)} />
+          {campo.label}
+        </label>
+        {campo.ayuda && <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{campo.ayuda}</span>}
       </div>
     );
   }
