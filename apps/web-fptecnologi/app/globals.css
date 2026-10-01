@@ -7,8 +7,8 @@
  */
 @theme {
   --color-brand-primary: #2898ee; /* Azul principal de marca (base de botones) */
-  --color-brand-dark: #2181af; /* Azul más profundo (estado hover de botones, fondos oscuros) */
-  --color-brand-petrol: #1c6587; /* Pantone 7698 C — azul petróleo */
+  --color-brand-dark: #107acc; /* Azul secundario (estado hover de botones, degradados) */
+  --color-brand-petrol: #107acc; /* antes azul petróleo oscuro; ahora el secundario, para que los degradados no tengan azul oscuro */
   --color-brand-teal: #18778b; /* Pantone 7470 C — turquesa petróleo */
   --color-brand-teal-light: #208497; /* Pantone 7474 C — azul turquesa claro */
 
@@ -662,7 +662,7 @@ body {
 }
 
 /* Frase destacada del título del hero (Modelo 9) -- degradé celeste/blanco/
-   brand-dark (#2181af, azul profundo de marca -- ver globals.css @theme) que
+   brand-dark (#107acc, azul secundario de marca -- ver globals.css @theme) que
    se desliza en loop (background-clip: text), en vez de un color celeste
    sólido fijo. El brand-dark se nota más fuerte que el celeste sobre el
    fondo oscuro del video, así el barrido es más visible. Tamaño de fondo

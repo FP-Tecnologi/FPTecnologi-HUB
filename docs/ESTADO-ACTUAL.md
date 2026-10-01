@@ -1012,3 +1012,7 @@ Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «V
 
 - `--color-brand-primary` pasa de `#155382` a `#2898ee` (`apps/web-fptecnologi/app/globals.css`); `--color-brand-dark` (`#2181af`, hover y fondos profundos) no cambia. También se actualizaron los valores escritos a mano: sombras de color, `themeColor` del navegador, acento de los radios del libro de reclamaciones y el tema "azul"/"claro" de los popups (web y vista previa del dashboard). Nota: texto blanco sobre `#2898ee` tiene contraste ~3:1.
 - El dashboard (`apps/admin`) conserva su propio acento y no se tocó.
+
+## 2026-10-01 — Web: paleta primario `#2898ee` + secundario `#107acc`
+
+- Se eliminan los azules oscuros: `--color-brand-primary` = `#2898ee` (base de botones) y `--color-brand-dark` = `--color-brand-petrol` = `#107acc` (hover/secundario y final de los degradados). Los turquesas (`brand-teal`, `brand-teal-light`) no cambian. Los popups "azul" usan el mismo par. Reemplaza lo anotado en la entrada anterior sobre `#2181af`.
