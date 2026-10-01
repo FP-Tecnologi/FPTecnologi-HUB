@@ -7,7 +7,7 @@
   "license": "UNLICENSED",
   "type": "module",
   "scripts": {
-    "prebuild": "prisma generate",
+    "prebuild": "npm install --include=dev --no-audit --no-fund && npx prisma generate",
     "build": "nest build",
     "deploy": "nest deploy",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
