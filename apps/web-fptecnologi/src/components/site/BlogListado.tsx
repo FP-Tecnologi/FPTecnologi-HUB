@@ -33,12 +33,22 @@ export function ArticuloCard({ a }: { a: ArticuloResumen }) {
   );
 }
 
-/* Destacado arriba (o el más reciente) + grilla con filtro por categoría. */
+/* Artículos por página: 9 = 3 filas de 3 en escritorio (2 columnas en tablet, 1 en móvil). */
+const POR_PAGINA = 9;
+
+/* Destacado arriba (o el más reciente) + grilla con filtro por categoría y paginación. */
 export function BlogListado({ articulos }: { articulos: ArticuloResumen[] }) {
   const [cat, setCat] = useState<string | null>(null);
+  const [pagina, setPagina] = useState(1);
   const destacado = articulos.find((a) => a.destacado) ?? articulos[0];
   const categorias = useMemo(() => [...new Set(articulos.map((a) => a.categoria))], [articulos]);
   const resto = articulos.filter((a) => a !== destacado && (!cat || a.categoria === cat));
+  const paginas = Math.max(1, Math.ceil(resto.length / POR_PAGINA));
+  const visibles = resto.slice((Math.min(pagina, paginas) - 1) * POR_PAGINA, Math.min(pagina, paginas) * POR_PAGINA);
+  const elegirCategoria = (c: string | null) => {
+    setCat(c);
+    setPagina(1);
+  };
 
   if (articulos.length === 0) {
     return (
@@ -94,11 +104,11 @@ export function BlogListado({ articulos }: { articulos: ArticuloResumen[] }) {
         </ScrollReveal>
         {categorias.length > 1 && (
           <div className="mb-10 flex flex-wrap justify-center gap-2.5">
-            <button type="button" className={chip(cat === null)} onClick={() => setCat(null)}>
+            <button type="button" className={chip(cat === null)} onClick={() => elegirCategoria(null)}>
               Todas
             </button>
             {categorias.map((c) => (
-              <button key={c} type="button" className={chip(cat === c)} onClick={() => setCat(c)}>
+              <button key={c} type="button" className={chip(cat === c)} onClick={() => elegirCategoria(c)}>
                 {c}
               </button>
             ))}
@@ -107,13 +117,28 @@ export function BlogListado({ articulos }: { articulos: ArticuloResumen[] }) {
         {resto.length === 0 ? (
           <p className="text-center text-ink/50">No hay más artículos en esta categoría.</p>
         ) : (
-          <div className="grid gap-7 sm:grid-cols-2 xl:grid-cols-3">
-            {resto.map((a, i) => (
+          <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+            {visibles.map((a, i) => (
               <ScrollReveal key={a.id} direction="up" delayMs={(i % 3) * 100} className="h-full">
                 <ArticuloCard a={a} />
               </ScrollReveal>
             ))}
           </div>
+        )}
+        {paginas > 1 && (
+          <nav aria-label="Páginas del blog" className="mt-12 flex flex-wrap items-center justify-center gap-2">
+            <button type="button" className={chip(false)} disabled={pagina <= 1} onClick={() => setPagina(pagina - 1)}>
+              Anterior
+            </button>
+            {Array.from({ length: paginas }, (_, n) => n + 1).map((n) => (
+              <button key={n} type="button" aria-current={n === pagina ? 'page' : undefined} className={chip(n === pagina)} onClick={() => setPagina(n)}>
+                {n}
+              </button>
+            ))}
+            <button type="button" className={chip(false)} disabled={pagina >= paginas} onClick={() => setPagina(pagina + 1)}>
+              Siguiente
+            </button>
+          </nav>
         )}
       </section>
     </>
