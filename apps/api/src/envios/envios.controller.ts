@@ -1,4 +1,5 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { agenciasCercanas, agenciasDeProvincia, provinciasConAgencias, type AgenciaShalom } from './agencias-shalom.js';
 import { EnviosService } from './envios.service.js';
 import { ActualizarTarifaDto, CrearTarifaDto } from './envios.dto.js';
 import { MarcaRolGuard } from '../common/guards/marca-rol.guard.js';
@@ -44,5 +45,47 @@ export class PublicEnviosController {
   tarifas(@Query('marcaId') marcaId: string) {
     if (!marcaId) throw new BadRequestException('Falta marcaId');
     return this.envios.tarifasPublicas(marcaId);
+  }
+}
+
+/** Datos de agencia que se exponen al checkout (sin el id interno de lat/lng nulos). */
+const publica = (a: AgenciaShalom & { distanciaKm?: number }) => ({
+  id: a.id,
+  departamento: a.departamento,
+  provincia: a.provincia,
+  zona: a.zona,
+  direccion: a.direccion,
+  telefono: a.telefono,
+  horario: a.horario,
+  lat: a.lat,
+  lng: a.lng,
+  ...(a.distanciaKm !== undefined ? { distanciaKm: a.distanciaKm } : {}),
+});
+
+/** Directorio de agencias Shalom para elegir dónde recoger (público, sin marcaId: es información de Shalom). */
+@Public()
+@Controller('public/envios/agencias')
+export class PublicAgenciasController {
+  @Get('provincias')
+  provincias(@Query('departamento') departamento: string) {
+    if (!departamento) throw new BadRequestException('Falta departamento');
+    return provinciasConAgencias(departamento);
+  }
+
+  @Get()
+  porProvincia(@Query('departamento') departamento: string, @Query('provincia') provincia: string) {
+    if (!departamento || !provincia) throw new BadRequestException('Falta departamento o provincia');
+    return agenciasDeProvincia(departamento, provincia).map(publica);
+  }
+
+  /** Las más cercanas a la ubicación del cliente (lat/lng del navegador o del mapa), opcionalmente dentro de un departamento. */
+  @Get('cercanas')
+  cercanas(@Query('lat') lat: string, @Query('lng') lng: string, @Query('departamento') departamento?: string) {
+    const la = Number(lat);
+    const ln = Number(lng);
+    if (!Number.isFinite(la) || !Number.isFinite(ln) || Math.abs(la) > 90 || Math.abs(ln) > 180) {
+      throw new BadRequestException('Ubicación inválida');
+    }
+    return agenciasCercanas(la, ln, 5, departamento || undefined).map(publica);
   }
 }

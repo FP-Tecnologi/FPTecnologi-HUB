@@ -1,4 +1,4 @@
-import { ArrayMaxSize, IsArray, IsBoolean, IsNumber, IsOptional, IsString, MaxLength, Min, MinLength } from 'class-validator';
+import { IsBoolean, IsNumber, IsOptional, IsString, MaxLength, Min, MinLength } from 'class-validator';
 
 export class CrearTarifaDto {
   @IsString()
@@ -16,13 +16,6 @@ export class CrearTarifaDto {
   @MaxLength(40)
   plazoDias?: string;
 
-  /** Agencias del courier donde el cliente puede recoger. */
-  @IsOptional()
-  @IsArray()
-  @ArrayMaxSize(60)
-  @IsString({ each: true })
-  sedes?: string[];
-
   @IsOptional()
   @IsBoolean()
   activo?: boolean;
@@ -38,12 +31,6 @@ export class ActualizarTarifaDto {
   @IsString()
   @MaxLength(40)
   plazoDias?: string;
-
-  @IsOptional()
-  @IsArray()
-  @ArrayMaxSize(60)
-  @IsString({ each: true })
-  sedes?: string[];
 
   @IsOptional()
   @IsBoolean()

@@ -5,10 +5,11 @@ import { Banknote, Building2, Check, Landmark, Loader2, Lock, Mail, MapPin, Phon
 import { useCart } from '@/context/CartContext';
 import { useCurrency } from '@/context/CurrencyContext';
 import { CONTACT_INFO } from '@/lib/content';
+import { ShalomAgencias, type TarifaEnvio } from './ShalomAgencias';
 
 type Comprobante = 'BOLETA' | 'FACTURA';
 type Entrega = 'RECOJO' | 'ENVIO' | 'SHALOM';
-type Tarifa = { departamento: string; proveedor: string; costo: number; plazoDias: string | null; sedes: string[] };
+type Tarifa = TarifaEnvio;
 type Pago = 'TRANSFERENCIA' | 'YAPE_PLIN' | 'EFECTIVO';
 type V = {
   nombre: string; email: string; celular: string; comprobante: Comprobante; documento: string; razonSocial: string;
@@ -38,7 +39,7 @@ function validar(v: V, tarifa?: Tarifa): E {
   }
   if (v.entrega === 'SHALOM') {
     if (!tarifa) e.envioDepartamento = 'Elige el departamento de destino.';
-    else if (tarifa.sedes.length > 0 && !v.envioSede) e.envioSede = 'Elige la agencia donde recogerás tu pedido.';
+    else if (!v.envioSede) e.envioSede = 'Elige la agencia Shalom donde recogerás tu pedido (o usa tu ubicación).';
   }
   if (!v.acepto) e.acepto = 'Debes aceptar los términos para continuar.';
   return e;
@@ -254,20 +255,15 @@ export function CheckoutForm() {
             </p>
           ) : v.entrega === 'SHALOM' ? (
             <>
-              <Campo id="co-envioDepartamento" label="Departamento de destino" error={errores.envioDepartamento}>
-                <select id="co-envioDepartamento" value={v.envioDepartamento} onChange={(e) => setV((p) => ({ ...p, envioDepartamento: e.target.value, envioSede: '' }))} aria-invalid={!!errores.envioDepartamento} className={`${input} pl-4`}>
-                  <option value="">Elige un departamento…</option>
-                  {tarifas.map((t) => <option key={t.departamento} value={t.departamento}>{t.departamento}</option>)}
-                </select>
-              </Campo>
-              {tarifa && tarifa.sedes.length > 0 && (
-                <Campo id="co-envioSede" label="Agencia Shalom donde recogerás" error={errores.envioSede}>
-                  <select id="co-envioSede" value={v.envioSede} onChange={(e) => set('envioSede', e.target.value)} aria-invalid={!!errores.envioSede} className={`${input} pl-4`}>
-                    <option value="">Elige una agencia…</option>
-                    {tarifa.sedes.map((s) => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                </Campo>
-              )}
+              <ShalomAgencias
+                tarifas={tarifas}
+                departamento={v.envioDepartamento}
+                agenciaId={v.envioSede}
+                errorDepartamento={errores.envioDepartamento}
+                errorAgencia={errores.envioSede}
+                onDepartamento={(d) => setV((p) => ({ ...p, envioDepartamento: d }))}
+                onAgencia={(id) => set('envioSede', id)}
+              />
               {tarifa && (
                 <p className="rounded-xl bg-paper p-4 text-sm text-ink/70">
                   Envío por {tarifa.proveedor === 'SHALOM' ? 'Shalom' : tarifa.proveedor}: <b>{format(tarifa.costo)}</b>{tarifa.plazoDias ? ` · llega en ${tarifa.plazoDias}` : ''}. Te avisaremos con el código de seguimiento.

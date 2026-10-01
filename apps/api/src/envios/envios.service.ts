@@ -1,11 +1,9 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ActualizarTarifaDto, CrearTarifaDto } from './envios.dto.js';
+import { agenciaPorId, agenciasDeDepartamento, departamentoDelDirectorio, etiquetaAgencia } from './agencias-shalom.js';
 
 export const PROVEEDOR_DEFECTO = 'SHALOM';
-
-const limpiarSedes = (sedes?: string[]) =>
-  [...new Set((sedes ?? []).map((s) => s.trim()).filter(Boolean))];
 
 @Injectable()
 export class EnviosService {
@@ -27,7 +25,6 @@ export class EnviosService {
       proveedor: t.proveedor,
       costo: Number(t.costo),
       plazoDias: t.plazoDias,
-      sedes: t.sedes,
     }));
   }
 
@@ -44,7 +41,6 @@ export class EnviosService {
         proveedor: PROVEEDOR_DEFECTO,
         costo: dto.costo,
         plazoDias: dto.plazoDias?.trim() || null,
-        sedes: limpiarSedes(dto.sedes),
         activo: dto.activo ?? true,
       },
     });
@@ -54,7 +50,6 @@ export class EnviosService {
     const data: Record<string, unknown> = {};
     if (dto.costo !== undefined) data.costo = dto.costo;
     if (dto.plazoDias !== undefined) data.plazoDias = dto.plazoDias.trim() || null;
-    if (dto.sedes !== undefined) data.sedes = limpiarSedes(dto.sedes);
     if (dto.activo !== undefined) data.activo = dto.activo;
     const { count } = await this.prisma.tarifaEnvio.updateMany({ where: { id, marcaId }, data });
     if (!count) throw new NotFoundException('Tarifa no encontrada');
@@ -69,23 +64,30 @@ export class EnviosService {
 
   /**
    * Cotización server-side para un pedido: el costo NUNCA viene del cliente.
-   * Si el departamento tiene sedes cargadas, la sede elegida debe ser una de ellas.
+   * `sede` es el id de una agencia del directorio de Shalom (ver agencias-shalom.ts): si el
+   * departamento tiene agencias, es obligatoria y debe pertenecer a ese departamento.
    */
   async cotizar(marcaId: string, departamento: string, sede?: string) {
     const tarifa = await this.prisma.tarifaEnvio.findFirst({
       where: { marcaId, proveedor: PROVEEDOR_DEFECTO, departamento: departamento.trim(), activo: true },
     });
     if (!tarifa) throw new BadRequestException('No hay envío disponible a ese departamento');
-    const sedeElegida = sede?.trim() || null;
-    if (tarifa.sedes.length > 0 && (!sedeElegida || !tarifa.sedes.includes(sedeElegida))) {
-      throw new BadRequestException('Elige una agencia de la lista para ese departamento');
+
+    let sedeEtiqueta: string | null = null;
+    if (agenciasDeDepartamento(tarifa.departamento).length > 0) {
+      const agencia = sede ? agenciaPorId(sede.trim()) : undefined;
+      const mismoDepartamento = agencia && agencia.departamento === departamentoDelDirectorio(tarifa.departamento);
+      if (!agencia || !mismoDepartamento) {
+        throw new BadRequestException('Elige una agencia Shalom de ese departamento');
+      }
+      sedeEtiqueta = etiquetaAgencia(agencia);
     }
     return {
       proveedor: tarifa.proveedor,
       departamento: tarifa.departamento,
       costo: Number(tarifa.costo),
       plazo: tarifa.plazoDias,
-      sede: sedeElegida,
+      sede: sedeEtiqueta,
     };
   }
 }

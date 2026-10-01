@@ -10,13 +10,13 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 
-interface Tarifa { id: string; proveedor: string; departamento: string; costo: string; plazoDias: string | null; sedes: string[]; activo: boolean }
+interface Tarifa { id: string; proveedor: string; departamento: string; costo: string; plazoDias: string | null; activo: boolean }
 
 const DEPARTAMENTOS = [
   'Amazonas', 'Áncash', 'Apurímac', 'Arequipa', 'Ayacucho', 'Cajamarca', 'Callao', 'Cusco', 'Huancavelica', 'Huánuco', 'Ica', 'Junín',
   'La Libertad', 'Lambayeque', 'Lima', 'Loreto', 'Madre de Dios', 'Moquegua', 'Pasco', 'Piura', 'Puno', 'San Martín', 'Tacna', 'Tumbes', 'Ucayali',
 ];
-const VACIA = { departamento: '', costo: '', plazoDias: '', sedes: '' };
+const VACIA = { departamento: '', costo: '', plazoDias: '' };
 const errMsg = (e: unknown, fb: string) => (e instanceof ApiError ? e.message : fb);
 
 export function EcommerceEnvios() {
@@ -41,17 +41,16 @@ export function EcommerceEnvios() {
 
   function abrir(t?: Tarifa) {
     setEditId(t ? t.id : 'nueva');
-    setForm(t ? { departamento: t.departamento, costo: String(Number(t.costo)), plazoDias: t.plazoDias ?? '', sedes: t.sedes.join('\n') } : VACIA);
+    setForm(t ? { departamento: t.departamento, costo: String(Number(t.costo)), plazoDias: t.plazoDias ?? '' } : VACIA);
   }
 
   function guardar(ev: React.FormEvent) {
     ev.preventDefault();
     const costo = Number(form.costo);
     if (!form.departamento || Number.isNaN(costo) || costo < 0) return;
-    const sedes = form.sedes.split('\n').map((s) => s.trim()).filter(Boolean);
     return editId === 'nueva'
-      ? accion(() => api.post('/envios/tarifas', { departamento: form.departamento, costo, plazoDias: form.plazoDias, sedes }), 'Tarifa creada.')
-      : accion(() => api.patch(`/envios/tarifas/${editId}`, { costo, plazoDias: form.plazoDias, sedes }), 'Tarifa actualizada.');
+      ? accion(() => api.post('/envios/tarifas', { departamento: form.departamento, costo, plazoDias: form.plazoDias }), 'Tarifa creada.')
+      : accion(() => api.patch(`/envios/tarifas/${editId}`, { costo, plazoDias: form.plazoDias }), 'Tarifa actualizada.');
   }
 
   const usados = new Set(tarifas.map((t) => t.departamento));
@@ -72,21 +71,20 @@ export function EcommerceEnvios() {
         )}
         <section className="ax-card ax-col--12" aria-label="Tarifas de envío">
           <div className="ax-card__body" style={{ paddingBottom: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
-            Un departamento sin tarifa activa no ofrece envío en la tienda (solo recojo). Si cargas agencias, el cliente debe elegir una; si no cargas ninguna, el envío es directo al departamento.
+            Un departamento sin tarifa activa no ofrece envío en la tienda (solo recojo). El cliente elige la agencia Shalom más cercana de un directorio oficial (544 agencias) o con su ubicación; aquí solo defines cuánto cuesta y en cuánto tiempo llega a cada departamento.
           </div>
           {tarifas.length === 0 ? (
             <div className="ax-card__body" style={{ textAlign: 'center', color: 'var(--ax-text-muted)' }}>Aún no hay tarifas: la tienda solo ofrece recojo.</div>
           ) : (
             <div className="ax-table-wrap">
               <table className="ax-table ax-table--hover">
-                <thead className="ax-table__head"><tr>{th('Departamento')}{th('Costo (USD)')}{th('Plazo')}{th('Agencias')}{th('Estado')}{th('Acciones', true)}</tr></thead>
+                <thead className="ax-table__head"><tr>{th('Departamento')}{th('Costo (USD)')}{th('Plazo')}{th('Estado')}{th('Acciones', true)}</tr></thead>
                 <tbody>
                   {tarifas.map((t) => (
                     <tr key={t.id} className="ax-table__row">
                       <td className="ax-table__td" style={{ fontWeight: 'var(--ax-weight-medium)', color: 'var(--ax-text-strong)' }}>{t.departamento}</td>
                       <td className="ax-table__td" style={{ fontVariantNumeric: 'tabular-nums' }}>{Number(t.costo).toFixed(2)}</td>
                       <td className="ax-table__td">{t.plazoDias ?? '—'}</td>
-                      <td className="ax-table__td">{t.sedes.length || '—'}</td>
                       <td className="ax-table__td"><span className={`ax-badge ax-badge--soft ax-badge--pill ${t.activo ? 'ax-badge--success' : 'ax-badge--neutral'}`}>{t.activo ? 'Activa' : 'Inactiva'}</span></td>
                       <td className="ax-table__td" style={{ textAlign: 'right' }}>
                         <div className="ax-cluster" style={{ gap: 'var(--ax-space-1)', justifyContent: 'flex-end' }}>
@@ -120,7 +118,6 @@ export function EcommerceEnvios() {
               )}
               <div className="ax-field"><label className="ax-label" htmlFor="env-costo">Costo de envío (USD)</label><input id="env-costo" type="number" min={0} step="0.01" required className="ax-input" value={form.costo} onChange={(e) => setForm({ ...form, costo: e.target.value })} /></div>
               <div className="ax-field"><label className="ax-label" htmlFor="env-plazo">Plazo (opcional)</label><input id="env-plazo" className="ax-input" placeholder="2-3 días" value={form.plazoDias} onChange={(e) => setForm({ ...form, plazoDias: e.target.value })} /></div>
-              <div className="ax-field"><label className="ax-label" htmlFor="env-sedes">Agencias de recojo (una por línea, opcional)</label><textarea id="env-sedes" rows={5} className="ax-input" placeholder={'Shalom Arequipa - Av. Parra 123\nShalom Arequipa - Terminal'} value={form.sedes} onChange={(e) => setForm({ ...form, sedes: e.target.value })} /></div>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'flex-end' }}>
                 <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEditId(null)}>Cancelar</button>
                 <button type="submit" className="ax-btn ax-btn--primary" disabled={!form.departamento || form.costo === ''}>Guardar</button>
