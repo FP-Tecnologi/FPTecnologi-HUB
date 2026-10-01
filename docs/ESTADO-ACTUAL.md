@@ -889,3 +889,9 @@ sesión/máquina)**:
   enlazadas, newsletter, autor y anterior/siguiente; listado con buscador, filtros `?categoria=`/`?etiqueta=`/`?q=`, etiquetas
   en tarjetas y 3 columnas desde 1024 px con paginación de 9.
 
+
+### 2026-10-01 — Rediseño de carrito, checkout y gracias
+
+- **Carrito** (`components/tienda/CartView.tsx`): ahora usa la franja de la tienda (`TiendaBar`) en vez del encabezado viejo; tarjetas por producto con foto, cantidad (+/−), subtotal y quitar; resumen oscuro con brillo de marca, garantías, medios de pago, "Vaciar carrito", estado vacío con CTA y barra fija con el total en móvil.
+- **Checkout**: indicador de pasos (`PasosCompra`) en carrito → datos y entrega → pedido recibido; secciones con chip degradé y descripción; resumen con enlace "Editar carrito"; barra fija con total y "Confirmar pedido" en móvil.
+- **Gracias** (`PedidoGracias.tsx`): confirmación con número (copiar) y total, "¿Qué sigue?" en 3 pasos, datos de contacto y CTA a WhatsApp / seguir comprando.

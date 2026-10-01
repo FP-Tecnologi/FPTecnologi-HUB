@@ -81,13 +81,16 @@ function Opcion({ activo, onClick, icon: Icon, titulo, texto }: { activo: boolea
   );
 }
 
-function Seccion({ n, titulo, children }: { n: number; titulo: string; children: ReactNode }) {
+function Seccion({ n, titulo, sub, children }: { n: number; titulo: string; sub?: string; children: ReactNode }) {
   return (
     <section className="rounded-3xl border border-ink/5 bg-white p-6 shadow-xl shadow-brand-dark/10 sm:p-8">
-      <h2 className="flex items-center gap-3 font-display text-xl font-bold text-ink">
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-dark text-sm text-white">{n}</span>
-        {titulo}
-      </h2>
+      <div className="flex items-center gap-4">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-primary to-brand-dark font-display text-lg font-bold text-white shadow-lg shadow-brand-dark/25">{n}</span>
+        <div>
+          <h2 className="font-display text-xl font-bold leading-tight text-ink">{titulo}</h2>
+          {sub && <p className="text-sm text-ink/50">{sub}</p>}
+        </div>
+      </div>
       <div className="mt-6 space-y-5">{children}</div>
     </section>
   );
@@ -198,7 +201,7 @@ export function CheckoutForm() {
       <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" value={trampa} onChange={(e) => setTrampa(e.target.value)} className="absolute -left-[9999px] h-0 w-0 opacity-0" />
 
       <div className="space-y-6">
-        <Seccion n={1} titulo="Tus datos">
+        <Seccion n={1} titulo="Tus datos" sub="Para contactarte y enviarte la confirmación.">
           <Campo id="co-nombre" label="Nombre completo" error={errores.nombre}>
             <div className="relative flex items-center">
               <User className={iconCls} strokeWidth={1.8} />
@@ -221,7 +224,7 @@ export function CheckoutForm() {
           </div>
         </Seccion>
 
-        <Seccion n={2} titulo="Comprobante de pago">
+        <Seccion n={2} titulo="Comprobante de pago" sub="Boleta con DNI o factura con RUC.">
           <div role="radiogroup" aria-label="Tipo de comprobante" className="grid gap-3 sm:grid-cols-2">
             <Opcion activo={!factura} onClick={() => { setV((p) => ({ ...p, comprobante: 'BOLETA', documento: '' })); setErrores({}); }} icon={FileText} titulo="Boleta" texto="Con DNI" />
             <Opcion activo={factura} onClick={() => { setV((p) => ({ ...p, comprobante: 'FACTURA', documento: '' })); setErrores({}); }} icon={Building2} titulo="Factura" texto="Con RUC" />
@@ -242,7 +245,7 @@ export function CheckoutForm() {
           )}
         </Seccion>
 
-        <Seccion n={3} titulo="Entrega">
+        <Seccion n={3} titulo="Entrega" sub="Recoge en tienda o recibe en una agencia Shalom cerca de ti.">
           <div role="radiogroup" aria-label="Forma de entrega" className={`grid gap-3 ${tarifas.length > 0 ? 'sm:grid-cols-3' : 'sm:grid-cols-2'}`}>
             <Opcion activo={v.entrega === 'RECOJO'} onClick={() => set('entrega', 'RECOJO')} icon={Store} titulo="Recojo en tienda" texto="Breña, Lima" />
             {tarifas.length > 0 && <Opcion activo={v.entrega === 'SHALOM'} onClick={() => set('entrega', 'SHALOM')} icon={Truck} titulo="Envío por Shalom" texto="Recoges en agencia" />}
@@ -291,7 +294,7 @@ export function CheckoutForm() {
           )}
         </Seccion>
 
-        <Seccion n={4} titulo="Forma de pago">
+        <Seccion n={4} titulo="Forma de pago" sub="El pago se confirma con un asesor, no se cobra en línea.">
           <div role="radiogroup" aria-label="Forma de pago" className="grid gap-3 sm:grid-cols-3">
             <Opcion activo={v.pago === 'TRANSFERENCIA'} onClick={() => set('pago', 'TRANSFERENCIA')} icon={Landmark} titulo="Transferencia" />
             <Opcion activo={v.pago === 'YAPE_PLIN'} onClick={() => set('pago', 'YAPE_PLIN')} icon={Smartphone} titulo="Yape / Plin" />
@@ -309,9 +312,13 @@ export function CheckoutForm() {
 
       {/* Resumen */}
       <aside className="space-y-4 lg:sticky lg:top-28">
-        <div className="rounded-3xl bg-ink p-6 text-white shadow-2xl shadow-brand-dark/30">
-          <h2 className="font-display text-lg font-bold">Resumen del pedido</h2>
-          <ul className="mt-4 max-h-72 space-y-3 overflow-y-auto pr-1">
+        <div className="relative overflow-hidden rounded-3xl bg-ink p-6 text-white shadow-2xl shadow-brand-dark/30">
+          <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-brand-teal/25 blur-3xl" />
+          <div className="relative flex items-center justify-between">
+            <h2 className="font-display text-lg font-bold">Resumen del pedido</h2>
+            <a href="/carrito" className="text-xs font-semibold text-white/60 underline-offset-4 hover:text-white hover:underline">Editar carrito</a>
+          </div>
+          <ul className="relative mt-4 max-h-72 space-y-3 overflow-y-auto pr-1">
             {items.map((i) => (
               <li key={i.sku} className="flex items-center gap-3">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -324,7 +331,7 @@ export function CheckoutForm() {
               </li>
             ))}
           </ul>
-          <dl className="mt-5 space-y-2 border-t border-white/10 pt-4 text-sm">
+          <dl className="relative mt-5 space-y-2 border-t border-white/10 pt-4 text-sm">
             <div className="flex justify-between"><dt className="text-white/60">Subtotal</dt><dd>{format(subtotal)}</dd></div>
             <div className="flex justify-between"><dt className="text-white/60">IGV (18%)</dt><dd>{format(igv)}</dd></div>
             <div className="flex justify-between"><dt className="text-white/60">Envío</dt><dd className={tarifa ? '' : 'text-white/60'}>{tarifa ? format(envioCosto) : v.entrega === 'RECOJO' ? 'Gratis' : 'A coordinar'}</dd></div>
@@ -355,6 +362,19 @@ export function CheckoutForm() {
         </button>
         <p className="text-center text-xs text-ink/50">Precios en dólares sin IGV; el IGV se suma al total. El pedido queda registrado y un asesor te contacta.</p>
       </aside>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-ink/10 bg-white/95 px-4 py-3 shadow-[0_-8px_24px_-12px_rgba(33,129,175,0.35)] backdrop-blur lg:hidden">
+        <div className="mx-auto flex max-w-lg items-center justify-between gap-4 pr-16">
+          <div>
+            <p className="text-xs text-ink/50">Total</p>
+            <p className="font-display text-xl font-bold text-ink">{format(totalConEnvio)}</p>
+          </div>
+          <button type="submit" disabled={enviando} className="inline-flex h-12 items-center gap-2 rounded-xl bg-brand-dark px-6 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-primary disabled:opacity-60">
+            {enviando ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            Confirmar pedido
+          </button>
+        </div>
+      </div>
     </form>
   );
 }
