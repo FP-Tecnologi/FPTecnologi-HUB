@@ -2,8 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Home, Search, SlidersHorizontal, X } from 'lucide-react';
-import { CATALOG, discountOf, type CatalogProduct } from '@/lib/catalog';
-import { TIENDA_CATEGORIES } from '@/lib/content';
+import { discountOf, type CatalogProduct } from '@/lib/catalog';
+import type { Categoria } from '@/lib/catalogo';
 import { useCurrency } from '@/context/CurrencyContext';
 import { ProductCardFinal } from '@/components/home/ProductCardFinal';
 import { CompareDock, useCompare } from '@/components/home/CompareDock';
@@ -28,8 +28,6 @@ const PRICE_RANGES = [
   { id: 'r4', min: 5000, max: Infinity },
 ] as const;
 
-const categoryTitle = (slug: string) => TIENDA_CATEGORIES.find((c) => c.slug === slug)?.title ?? slug;
-const brands = [...new Set(CATALOG.map((p) => p.brand))].sort();
 
 /*
  * Tienda completa (/tienda y /tienda/[categoria]). Hero oscuro de marca con
@@ -39,7 +37,18 @@ const brands = [...new Set(CATALOG.map((p) => p.brand))].sort();
  * activos y la grilla con la tarjeta de producto de la home (comparar,
  * favoritos, galería, carrito). En celular los filtros van en un panel.
  */
-export function StoreCatalog({ initialCategory }: { initialCategory?: string }) {
+export function StoreCatalog({
+  initialCategory,
+  products,
+  categories,
+}: {
+  initialCategory?: string;
+  /** Catálogo ya cargado en el servidor (API central, con respaldo local). */
+  products: CatalogProduct[];
+  categories: Categoria[];
+}) {
+  const categoryTitle = (slug: string) => categories.find((c) => c.slug === slug)?.title ?? slug;
+  const brands = useMemo(() => [...new Set(products.map((p) => p.brand))].sort(), [products]);
   const { format, currency } = useCurrency();
   const compare = useCompare();
 
@@ -63,7 +72,7 @@ export function StoreCatalog({ initialCategory }: { initialCategory?: string }) 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     const r = PRICE_RANGES.find((x) => x.id === range);
-    const out = CATALOG.filter(
+    const out = products.filter(
       (p) =>
         (!q || `${p.name} ${p.brand} ${p.sku}`.toLowerCase().includes(q)) &&
         (cats.length === 0 || cats.includes(p.category)) &&
@@ -77,10 +86,10 @@ export function StoreCatalog({ initialCategory }: { initialCategory?: string }) 
     if (sort === 'descuento') sorted.sort((a, b) => discountOf(b) - discountOf(a));
     if (sort === 'nombre') sorted.sort((a, b) => a.name.localeCompare(b.name));
     return sorted;
-  }, [query, cats, selBrands, range, onlyDeals, sort]);
+  }, [products, query, cats, selBrands, range, onlyDeals, sort]);
 
   // Conteos para cada opción (sobre el catálogo completo).
-  const count = (fn: (p: CatalogProduct) => boolean) => CATALOG.filter(fn).length;
+  const count = (fn: (p: CatalogProduct) => boolean) => products.filter(fn).length;
   const rangeLabel = (r: (typeof PRICE_RANGES)[number]) =>
     r.max === Infinity ? `Más de ${format(r.min)}` : r.min === 0 ? `Hasta ${format(r.max)}` : `${format(r.min)} – ${format(r.max)}`;
 
@@ -109,7 +118,7 @@ export function StoreCatalog({ initialCategory }: { initialCategory?: string }) 
   const filters = (
     <div className="space-y-7">
       <FilterGroup title="Categoría">
-        {TIENDA_CATEGORIES.map((c) => {
+        {categories.map((c) => {
           const on = cats.includes(c.slug);
           return (
             <FilterOption key={c.slug} onClick={() => setCats((l) => toggleIn(l, c.slug))} active={on} count={count((p) => p.category === c.slug)}>
@@ -225,9 +234,9 @@ export function StoreCatalog({ initialCategory }: { initialCategory?: string }) 
                 onClick={() => setCats([])}
                 className={`rounded-lg px-3.5 py-1.5 text-sm font-semibold transition-colors ${cats.length === 0 ? 'bg-white text-brand-dark' : 'bg-white/10 text-white hover:bg-white/20'}`}
               >
-                Todo ({CATALOG.length})
+                Todo ({products.length})
               </button>
-              {TIENDA_CATEGORIES.map((c) => {
+              {categories.map((c) => {
                 const on = cats.length === 1 && cats[0] === c.slug;
                 return (
                   <button
@@ -349,7 +358,7 @@ export function StoreCatalog({ initialCategory }: { initialCategory?: string }) 
         </div>
       )}
 
-      <CompareDock products={CATALOG} compare={compare} />
+      <CompareDock products={products} compare={compare} />
     </>
   );
 }

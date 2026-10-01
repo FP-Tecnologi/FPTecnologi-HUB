@@ -15,6 +15,11 @@ export type ShopProduct = {
   price: number;
   priceBefore?: number | null;
   images: readonly string[];
+  /** Solo si viene de la API (catálogo real): URL amigable, id y datos extra. */
+  slug?: string;
+  id?: string;
+  stock?: number;
+  description?: string | null;
 };
 
 export type CatalogProduct = ShopProduct & { category: string };
@@ -56,5 +61,5 @@ export const discountOf = (p: ShopProduct) =>
 
 /** URL de la ficha de un producto: el SKU en minúsculas y sin símbolos (#, /). */
 export const productSlug = (sku: string) => sku.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-export const productHref = (sku: string) => `/producto/${productSlug(sku)}`;
+export const productHref = (sku: string, slug?: string) => `/producto/${slug || productSlug(sku)}`;
 export const findProduct = (slug: string) => CATALOG.find((p) => productSlug(p.sku) === slug);

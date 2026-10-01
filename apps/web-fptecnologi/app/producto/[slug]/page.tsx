@@ -1,30 +1,53 @@
 import { notFound } from 'next/navigation';
 import { Home } from 'lucide-react';
-import { CATALOG, findProduct, productSlug } from '@/lib/catalog';
-import { TIENDA_CATEGORIES } from '@/lib/content';
+import { categoriasDe, getCatalogo, getProducto } from '@/lib/catalogo';
 import { StickyNav } from '@/components/home/StickyNav';
 import { Navbar9 } from '@/components/home/Navbar9';
 import { ProductDetail } from '@/components/tienda/ProductDetail';
 import { Footer } from '@/components/home/Footer';
 
-export function generateStaticParams() {
-  return CATALOG.map((p) => ({ slug: productSlug(p.sku) }));
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  return { title: findProduct(slug)?.name.split(',')[0] ?? 'Producto' };
+  const p = await getProducto(slug);
+  if (!p) return { title: 'Producto' };
+  const titulo = p.name.split(',')[0];
+  const descripcion = (p.description || p.name).slice(0, 160);
+  const imagen = p.images[0];
+  return {
+    title: titulo,
+    description: descripcion,
+    openGraph: { title: titulo, description: descripcion, type: 'website', images: imagen ? [{ url: imagen }] : undefined },
+    twitter: { card: 'summary_large_image', title: titulo, description: descripcion, images: imagen ? [imagen] : undefined },
+  };
 }
 
 export default async function ProductoPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const product = findProduct(slug);
+  const product = await getProducto(slug);
   if (!product) notFound();
-  const categoria = TIENDA_CATEGORIES.find((c) => c.slug === product.category);
-  const relacionados = CATALOG.filter((p) => p.category === product.category && p.sku !== product.sku).slice(0, 4);
+  const { products } = await getCatalogo();
+  const categoria = categoriasDe(products).find((c) => c.slug === product.category);
+  const relacionados = products.filter((p) => p.category === product.category && p.sku !== product.sku).slice(0, 4);
+  // Datos estructurados (JSON-LD) para buscadores: precio base en USD sin IGV.
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.name,
+    sku: product.sku,
+    brand: { '@type': 'Brand', name: product.brand },
+    image: product.images,
+    description: product.description || product.name,
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'USD',
+      price: product.price,
+      availability: product.stock === 0 ? 'https://schema.org/OutOfStock' : 'https://schema.org/InStock',
+    },
+  };
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
       <StickyNav store />
       {/* Franja de portada corta (mismo marco y degradado que la tienda):
           el encabezado fijo es claro y necesita fondo oscuro detrás. */}

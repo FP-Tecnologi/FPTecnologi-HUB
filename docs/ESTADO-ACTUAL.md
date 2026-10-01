@@ -713,3 +713,19 @@ sesión/máquina)**:
   prueba** (3300 unidades en total). Ajustar el stock real en el dashboard
   antes de vender. "Proyectores" y "Pantallas Interactivas" están juntos en
   una categoría; la tienda web tiene "Pantallas" aparte (decidir si se separan).
+
+### 2026-10-01 — Tienda real conectada a la API (Fase 1: T1.1 y T1.3)
+
+- `src/lib/catalogo.ts` (servidor): lee `GET /public/productos` (pagina de a 100)
+  y `/public/productos/slug/:slug`, cache 60 s; **sin API o sin `HUB_MARCA_ID`
+  usa el catálogo local** (`catalog.ts`). `/tienda`, `/tienda/[slug]` y
+  `/producto/[slug]` ya no son estáticas del catálogo fijo; las categorías y
+  marcas con sus conteos salen de los datos reales.
+- URLs de producto: slug de la API; los enlaces viejos por SKU
+  (`/producto/r360fy26q1`) siguen funcionando.
+- `TIENDA_CATEGORIES` pasó a las 5 reales de la base (Monitores, Laptops,
+  Proyectores y pantallas, Servidores, Impresión); el home muestra 5 tarjetas.
+- Ficha: descripción real (plegable), OG/Twitter y JSON-LD `Product`.
+- T1.3: el tipo de cambio ya no está fijo en el cliente: `GET /api/config`
+  (variable `TIPO_CAMBIO_USD_PEN`, por defecto 3.75) → `CurrencyContext`.
+- Pendiente de Fase 1: `/marcas` reales (T1.2).

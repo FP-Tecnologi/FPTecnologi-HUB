@@ -36,6 +36,7 @@ export function ProductDetail({ product, relacionados }: { product: CatalogProdu
   const compare = useCompare();
   const [active, setActive] = useState(0);
   const [zoom, setZoom] = useState(false);
+  const [descAbierta, setDescAbierta] = useState(false);
   const images = product.images;
   const discount = discountOf(product);
   const categoria = TIENDA_CATEGORIES.find((c) => c.slug === product.category);
@@ -154,6 +155,21 @@ export function ProductDetail({ product, relacionados }: { product: CatalogProdu
                     </li>
                   ))}
                 </ul>
+              </div>
+            )}
+
+            {product.description && (
+              <div className="mt-6 rounded-2xl bg-white p-6 shadow-lg shadow-brand-dark/10">
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-ink">
+                  Descripción
+                  <span className="mt-2 block h-0.5 w-8 rounded-full bg-brand-primary" />
+                </p>
+                <p className={`mt-4 whitespace-pre-line text-sm leading-relaxed text-ink/70 ${descAbierta ? '' : 'line-clamp-6'}`}>{product.description}</p>
+                {product.description.length > 400 && (
+                  <button type="button" onClick={() => setDescAbierta((v) => !v)} className="mt-3 text-sm font-semibold text-brand-primary hover:underline">
+                    {descAbierta ? 'Ver menos' : 'Ver descripción completa'}
+                  </button>
+                )}
               </div>
             )}
 

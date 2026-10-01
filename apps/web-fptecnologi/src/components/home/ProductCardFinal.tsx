@@ -148,7 +148,7 @@ export function ProductCardFinal({
 
         <div className="flex flex-col gap-1.5 p-4">
           <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold text-ink">
-            <a href={productHref(product.sku)} className="transition-colors hover:text-brand-primary">
+            <a href={productHref(product.sku, product.slug)} className="transition-colors hover:text-brand-primary">
               {product.name}
             </a>
           </h3>

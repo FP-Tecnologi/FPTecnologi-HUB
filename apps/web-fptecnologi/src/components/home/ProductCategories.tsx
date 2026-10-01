@@ -1,6 +1,6 @@
 import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
 import Image from 'next/image';
-import { ArrowUpRight, Laptop, Monitor, Presentation, Server, type LucideIcon } from 'lucide-react';
+import { ArrowUpRight, Laptop, Monitor, Presentation, Printer, Server, type LucideIcon } from 'lucide-react';
 import { TIENDA_CATEGORIES } from '@/lib/content';
 import { MoreInfoButton } from './MoreInfoButton';
 import { ScrollReveal } from './ScrollReveal';
@@ -12,6 +12,8 @@ const IMAGES: Record<string, string> = {
   monitores: '/images/categorias/monitores.jpg', // unsplash.com/photos/KZnfwqi-B0U
   laptops: '/images/categorias/laptops.jpg', // unsplash.com/photos/1SAnrIxw5OY
   pantallas: '/images/categorias/pantallas-interactivas.jpg', // unsplash.com/photos/L__MBAI3ucc
+  'proyectores-pantallas-interactivas': '/images/categorias/pantallas-interactivas.jpg',
+  impresion: '/images/modelo9/hero-office.jpg',
   'pantallas-interactivas': '/images/categorias/pantallas-interactivas.jpg',
   servidores: '/images/categorias/servidores.jpg', // unsplash.com/photos/dyUp7WPu5q4
 };
@@ -20,6 +22,8 @@ const ICONS: Record<string, LucideIcon> = {
   monitores: Monitor,
   laptops: Laptop,
   pantallas: Presentation,
+  'proyectores-pantallas-interactivas': Presentation,
+  impresion: Printer,
   'pantallas-interactivas': Presentation,
   servidores: Server,
 };
@@ -54,7 +58,7 @@ export function ProductCategories({ c = HOME_DEFAULTS.categorias }: { c?: Encabe
         </ScrollReveal>
       </div>
 
-      <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-5">
         {TIENDA_CATEGORIES.map((c, i) => {
           const Icon = ICONS[c.slug] ?? Monitor;
           return (

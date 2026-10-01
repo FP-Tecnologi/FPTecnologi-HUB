@@ -5,17 +5,18 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState, t
 export type Currency = 'USD' | 'PEN';
 
 /*
- * Tipo de cambio de referencia (no hay integración con una API de tasas en
- * vivo todavía -- ver docs/estructura-home.md). Un solo número acá para
- * actualizarlo cuando haga falta, en vez de tenerlo repetido en cada lugar
- * que muestra un monto.
+ * Tipo de cambio de referencia: valor por defecto hasta que /api/config
+ * (variable TIPO_CAMBIO_USD_PEN del servidor) responde. Un solo lugar para
+ * cambiarlo, en vez de repetirlo en cada monto.
  */
-const USD_TO_PEN = 3.75;
+const USD_TO_PEN_DEFECTO = 3.75;
 
 type CurrencyContextValue = {
   currency: Currency;
   setCurrency: (c: Currency) => void;
   toggleCurrency: () => void;
+  /** Tipo de cambio USD→PEN vigente (viene del servidor). */
+  rate: number;
   /** Formatea un monto que está en USD (la moneda base de todos los precios reales) a la moneda activa. */
   format: (usdAmount: number) => string;
 };
@@ -25,6 +26,22 @@ const STORAGE_KEY = 'fpt-currency';
 
 export function CurrencyProvider({ children }: { children: ReactNode }) {
   const [currency, setCurrencyState] = useState<Currency>('USD');
+  const [rate, setRate] = useState(USD_TO_PEN_DEFECTO);
+
+  useEffect(() => {
+    let vivo = true;
+    fetch('/api/config')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((c: { tipoCambio?: number } | null) => {
+        if (vivo && c && typeof c.tipoCambio === 'number' && c.tipoCambio > 0) setRate(c.tipoCambio);
+      })
+      .catch(() => {
+        /* sin /api/config se queda con el valor por defecto */
+      });
+    return () => {
+      vivo = false;
+    };
+  }, []);
 
   useEffect(() => {
     try {
@@ -50,9 +67,9 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<CurrencyContextValue>(() => {
     const format = (usdAmount: number) =>
-      currency === 'USD' ? `$${usdAmount.toFixed(2)}` : `S/ ${(usdAmount * USD_TO_PEN).toFixed(2)}`;
-    return { currency, setCurrency, toggleCurrency, format };
-  }, [currency, setCurrency, toggleCurrency]);
+      currency === 'USD' ? `$${usdAmount.toFixed(2)}` : `S/ ${(usdAmount * rate).toFixed(2)}`;
+    return { currency, setCurrency, toggleCurrency, rate, format };
+  }, [currency, setCurrency, toggleCurrency, rate]);
 
   return <CurrencyContext.Provider value={value}>{children}</CurrencyContext.Provider>;
 }
