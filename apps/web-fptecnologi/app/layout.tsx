@@ -7,6 +7,7 @@ import { ChatWidget } from '@/components/site/ChatWidget';
 import { FavoritesProvider } from '@/context/FavoritesContext';
 import { FavoritesWidget } from '@/components/site/FavoritesWidget';
 import { ServiciosProvider } from '@/context/ServiciosContext';
+import { TransicionPagina } from '@/components/site/TransicionPagina';
 import { getServicios } from '@/lib/servicios';
 import './globals.css';
 
@@ -51,6 +52,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
                 {children}
                 <ChatWidget />
                 <FavoritesWidget />
+                <TransicionPagina />
               </ChatWidgetProvider>
             </FavoritesProvider>
           </CartProvider>

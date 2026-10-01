@@ -1057,3 +1057,47 @@ body {
 .bg-producto {
   background-color: color-mix(in srgb, var(--color-brand-primary) 8%, white);
 }
+
+/* ---- Transiciones de página: entrada (main) y salida (ver TransicionPagina) ---- */
+@keyframes pagina-entra {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pagina-sale {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateY(-8px); }
+}
+main {
+  animation: pagina-entra 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+body.pagina-saliendo main,
+body.pagina-saliendo footer {
+  animation: pagina-sale 0.22s ease-in forwards;
+  pointer-events: none;
+}
+
+/* ---- Utilidades de hover reutilizables (mismo lenguaje que las tarjetas del sitio) ---- */
+.hover-lift {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+}
+.hover-slide {
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.3s ease, border-color 0.3s ease;
+}
+.hover-slide:hover {
+  transform: translateX(4px);
+}
+.icon-pop {
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.group:hover .icon-pop,
+.icon-pop:hover {
+  transform: scale(1.12) rotate(-6deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  main { animation: none; }
+  body.pagina-saliendo main, body.pagina-saliendo footer { animation: none; }
+  .hover-lift:hover, .hover-slide:hover, .group:hover .icon-pop, .icon-pop:hover { transform: none; }
+}

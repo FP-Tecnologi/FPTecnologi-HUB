@@ -56,9 +56,9 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
       <main>
         {/* Formulario + panel informativo (alineados bajo el hero) */}
         <section className="bg-paper pb-20 pt-10 lg:pt-14">
-          <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[22rem_1fr] lg:items-start xl:grid-cols-[24rem_1fr]">
+          <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[22rem_1fr] lg:items-center xl:grid-cols-[24rem_1fr]">
             <ScrollReveal direction="left" className="order-2 lg:order-1">
-              <aside className="relative overflow-hidden rounded-3xl bg-ink p-7 text-white shadow-2xl shadow-brand-dark/30 sm:p-8 lg:sticky lg:top-28">
+              <aside className="relative overflow-hidden rounded-3xl bg-ink p-7 text-white shadow-2xl shadow-brand-dark/30 sm:p-8">
                 <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-dark/40 blur-3xl" />
                 <div aria-hidden className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-brand-teal/30 blur-3xl" />
                 <div className="relative">
@@ -71,8 +71,8 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
                     {c.beneficios.items.map((b, i) => {
                       const Icon = ICONOS[i % ICONOS.length];
                       return (
-                        <li key={i} className="flex gap-4">
-                          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-dark text-white shadow-lg shadow-black/30">
+                        <li key={i} className="group hover-slide flex gap-4 rounded-xl" style={{ animation: 'pagina-entra 0.6s cubic-bezier(0.22,1,0.36,1) both', animationDelay: `${200 + i * 120}ms` }}>
+                          <span className="icon-pop flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-dark text-white shadow-lg shadow-black/30">
                             <Icon className="h-5 w-5" strokeWidth={1.8} />
                           </span>
                           <div>
@@ -96,9 +96,9 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
                         href={href}
                         target={href.startsWith('http') ? '_blank' : undefined}
                         rel={href.startsWith('http') ? 'noreferrer' : undefined}
-                        className="group flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3.5 py-3 transition-all duration-300 hover:border-brand-teal-light/50 hover:bg-white/10"
+                        className="group hover-slide flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3.5 py-3 transition-all duration-300 hover:border-brand-teal-light/50 hover:bg-white/10 hover:shadow-lg hover:shadow-black/20"
                       >
-                        <Icon className={`h-5 w-5 shrink-0 ${label === 'WhatsApp' ? 'text-whatsapp' : 'text-brand-teal-light'}`} strokeWidth={1.8} />
+                        <Icon className={`icon-pop h-5 w-5 shrink-0 ${label === 'WhatsApp' ? 'text-whatsapp' : 'text-brand-teal-light'}`} strokeWidth={1.8} />
                         <span className="min-w-0">
                           <span className="block text-[11px] uppercase tracking-wide text-white/45">{label}</span>
                           <span className="block break-words text-sm font-medium">{value.replace('@', '​@')}</span>
@@ -111,7 +111,7 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
             </ScrollReveal>
 
             <ScrollReveal direction="up" className="order-1 lg:order-2">
-              <div className="rounded-3xl border border-ink/5 bg-white p-6 shadow-xl shadow-brand-dark/10 sm:p-10">
+              <div className="hover-lift rounded-3xl border border-ink/5 bg-white p-6 shadow-xl shadow-brand-dark/10 hover:shadow-2xl hover:shadow-brand-dark/20 sm:p-10">
                 <CotizadorForm c={c} interesInicial={interes} />
               </div>
             </ScrollReveal>

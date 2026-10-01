@@ -902,3 +902,8 @@ sesión/máquina)**:
 - **Ecommerce → Clientes** (`EcommerceClientes.tsx`, `GET /clientes-tienda`): compradores agrupados por correo (pedidos, gastado, cotizaciones) con detalle y contacto directo.
 - **Pedido nuevo**: además de la notificación en el dashboard, ahora el equipo (admin y ventas) recibe un **correo** con el detalle y el enlace; al confirmar, la página de gracias ofrece "Enviar mi pedido por WhatsApp" con **todos los datos** (cliente, documento, entrega/agencia, pago, productos, totales, notas).
 - **Ficha de producto**: el fondo de las fotos de producto es sólido (`.bg-producto`), ya no deja ver los puntitos del fondo de la página. El asistente de IA está en el layout raíz (todas las páginas) y usa el look claro en tienda, producto, marcas, carrito y checkout.
+
+### 2026-10-01 — Cotizador y animaciones de página
+
+- **Cotizador**: se quitó la caja "¿Quieres contarnos algo más?" del paso 1 (y sus dos campos del editor Cotizador → Formulario); el cuadro del formulario y el panel "¿Por qué cotizar con nosotros?" comparten el mismo eje horizontal (`lg:items-center`); opciones con entrada escalonada y hover (sube y sombrea), beneficios con entrada escalonada, ícono que "salta" al hover y contactos que se deslizan.
+- **Transiciones de página** (todo el sitio público): entrada con `pagina-entra` sobre `main` y salida con `TransicionPagina` (al hacer clic en un enlace interno el contenido se desvanece ~220 ms antes de navegar; respeta Ctrl/Cmd, anclas, `target=_blank` y `prefers-reduced-motion`). Utilidades `.hover-lift`, `.hover-slide`, `.icon-pop` en `globals.css` para reutilizar.

@@ -226,7 +226,7 @@ export function CotizadorForm({ c, interesInicial }: { c: CotizadorContenido; in
           {paso === 0 && (
             <div className="mt-6">
               <div role="radiogroup" aria-label="Servicio o producto de interés" className="grid gap-3 sm:grid-cols-2">
-                {[...opciones.map((o) => ({ ...o, valor: o.title })), ...(c.intereses.permitirOtro ? [{ title: 'Otro', text: 'Cuéntanos qué necesitas.', valor: OTRO }] : [])].map((o) => {
+                {[...opciones.map((o) => ({ ...o, valor: o.title })), ...(c.intereses.permitirOtro ? [{ title: 'Otro', text: 'Cuéntanos qué necesitas.', valor: OTRO }] : [])].map((o, idx) => {
                   const activo = v.interes === o.valor;
                   return (
                     <button
@@ -235,8 +235,9 @@ export function CotizadorForm({ c, interesInicial }: { c: CotizadorContenido; in
                       role="radio"
                       aria-checked={activo}
                       onClick={() => set('interes', o.valor)}
-                      className={`group relative flex flex-col rounded-2xl border-2 p-4 text-left transition-all duration-200 ${
-                        activo ? 'border-brand-dark bg-brand-dark/[0.06] shadow-lg shadow-brand-dark/10' : 'border-ink/10 bg-white hover:-translate-y-0.5 hover:border-brand-dark/40'
+                      style={{ animationDelay: `${Math.min(idx, 8) * 45}ms` }}
+                      className={`cot-step group relative flex flex-col rounded-2xl border-2 p-4 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-dark/15 active:scale-[0.98] ${
+                        activo ? 'border-brand-dark bg-brand-dark/[0.06] shadow-lg shadow-brand-dark/10' : 'border-ink/10 bg-white hover:border-brand-dark/50'
                       }`}
                     >
                       <span className="pr-7 text-sm font-bold text-ink">{o.title}</span>
@@ -262,13 +263,6 @@ export function CotizadorForm({ c, interesInicial }: { c: CotizadorContenido; in
                 <div className="mt-4">
                   <Campo id="cot-otro" label="¿Qué necesitas cotizar?" error={errores.otro}>
                     <input id="cot-otro" maxLength={120} value={v.otro} onChange={(e) => set('otro', e.target.value)} aria-invalid={!!errores.otro} className={input} placeholder="Ej. Cableado estructurado para una oficina" />
-                  </Campo>
-                </div>
-              )}
-              {c.intereses.mostrarMensaje && (
-                <div className="mt-4">
-                  <Campo id="cot-mensaje" label={c.intereses.mensajeLabel}>
-                    <textarea id="cot-mensaje" rows={3} maxLength={1000} value={v.mensaje} onChange={(e) => set('mensaje', e.target.value)} className={`${input} resize-none`} placeholder="Cantidad, plazos, detalles del proyecto…" />
                   </Campo>
                 </div>
               )}

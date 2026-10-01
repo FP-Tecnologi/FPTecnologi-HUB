@@ -20,7 +20,7 @@ export type CotizadorContenido = {
   /** 3 pasos: ¿qué necesitas? · ¿quién eres? · ¿cómo te contactamos? */
   pasos: { items: ItemTexto[] };
   /** Opciones de "servicio o producto de interés". */
-  intereses: { items: ItemTexto[]; permitirOtro: boolean; mostrarMensaje: boolean; mensajeLabel: string };
+  intereses: { items: ItemTexto[]; permitirOtro: boolean };
   beneficios: { items: ItemTexto[] };
   proceso: Encabezado & { items: ItemTexto[] };
   faq: Encabezado & { items: ItemTexto[] };
@@ -47,8 +47,6 @@ export const COTIZADOR_DEFAULTS: CotizadorContenido = {
       { title: 'Equipamiento TI', text: 'Computadoras, servidores, redes y periféricos de las principales marcas.' },
     ],
     permitirOtro: true,
-    mostrarMensaje: true,
-    mensajeLabel: '¿Quieres contarnos algo más? (opcional)',
   },
   beneficios: {
     items: [

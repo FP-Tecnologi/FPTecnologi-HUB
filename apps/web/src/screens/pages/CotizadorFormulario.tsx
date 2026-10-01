@@ -37,8 +37,6 @@ const CONFIG: CmsConfig = {
       campos: [
         { key: 'items', label: 'Opciones que puede elegir el cliente', tipo: 'lista-items', itemLabel: 'Opción' },
         { key: 'permitirOtro', label: 'Permitir la opción «Otro»', tipo: 'bool' },
-        { key: 'mostrarMensaje', label: 'Mostrar caja de mensaje adicional', tipo: 'bool' },
-        { key: 'mensajeLabel', label: 'Texto de la caja de mensaje', tipo: 'text' },
       ],
     },
     {
