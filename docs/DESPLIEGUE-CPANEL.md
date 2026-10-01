@@ -202,3 +202,5 @@ aplícala antes de reiniciar la API (§5).
 - Las tres apps tienen un `prebuild` que instala las herramientas de desarrollo antes de compilar: Hostinger instala con `NODE_ENV=production` y sin ellas el build falla (`prisma`/`tsc` no encontrados).
 - **API**: preajuste NestJS, raíz `apps/api`, compilación `npm run build`, salida `dist`, **archivo de entrada `main.cjs`** (lo genera el build; arranca la API ESM). **Dashboard** (`apps/admin`) y **web** (`apps/web-fptecnologi`): preajuste Next.js, `npm run build`; las variables `NEXT_PUBLIC_*` van **antes** del primer build.
 - Cada app tiene su `.env.example` con las variables necesarias.
+- **Hostinger y el compilador de Next**: su Linux es antiguo (glibc 2.28) y no carga el compilador nativo de Next 16 (pide 2.29): usa el de WASM, que no lee `next.config.ts` ni compila con Turbopack. Por eso `next.config` es `.mjs` y el build es `next build --webpack` (el `dev` sigue con Turbopack). Probado con `NEXT_TEST_WASM=1`.
+- La API usa OpenSSL 1.1 en ese servidor: el motor de Prisma se genera para 1.1 y 3.0 y se copia a `dist/generated/prisma`.

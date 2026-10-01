@@ -1,5 +1,4 @@
-import type { NextConfig } from 'next';
-
+// Archivo .mjs (no .ts): en el hosting (Linux antiguo, sin el compilador nativo de Next) un next.config.ts no se puede leer.
 /*
  * FPTecnologi-HUB · Dashboard (edición Next.js 15 — App Router + React 19 + Tailwind v4,
  * basada en la plantilla Vireo).
@@ -10,7 +9,8 @@ import type { NextConfig } from 'next';
  * next/image just in case a page opts into <Image> (pages use plain <img> by
  * default, mirroring the reference, so this is permissive, not required).
  */
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'i.pravatar.cc' },
