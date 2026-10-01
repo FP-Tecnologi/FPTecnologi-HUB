@@ -9,6 +9,7 @@
   "scripts": {
     "prebuild": "npm install --include=dev --no-audit --no-fund && npx prisma generate",
     "build": "nest build",
+    "postbuild": "node scripts/crear-entrada.cjs",
     "deploy": "nest deploy",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
