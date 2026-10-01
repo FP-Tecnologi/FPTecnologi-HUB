@@ -114,6 +114,9 @@ export function PedidoGracias({ numero, total }: { numero: string; total: number
               <li className="flex items-start gap-3"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-teal-light" strokeWidth={2} />{CONTACT_INFO.address}</li>
             </ul>
           </div>
+          <a href="/cuenta" className="hover-lift block rounded-2xl border border-brand-dark/20 bg-white p-4 text-center text-sm font-semibold text-brand-primary shadow-md shadow-brand-dark/10 hover:bg-brand-primary hover:text-white">
+            Sigue tu pedido en Mi cuenta (entra con tu correo)
+          </a>
           <a href="/cotizador" className="block rounded-2xl border border-brand-dark/20 bg-brand-primary/5 p-4 text-center text-sm font-semibold text-brand-primary transition-colors hover:bg-brand-primary hover:text-white">
             ¿Necesitas más equipos? Pide una cotización
           </a>

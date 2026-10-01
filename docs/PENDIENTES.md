@@ -226,3 +226,7 @@ Se agregaron 4 servicios: soporte técnico y postventa, redes y cableado estruct
 - **Dashboard comercial**: cuando haya más datos, agregar metas por mes y comparación entre marcas.
 - **Despliegue**: seguir `docs/DESPLIEGUE-CPANEL.md`; pendiente definir dominios reales, correo saliente (SMTP/Resend) y las copias de seguridad de `UPLOADS_DIR`. Borrar las cuentas de prueba (`prisma/seeds/usuarios-prueba.ts --borrar`) antes de publicar.
 
+### Mi cuenta (hecho 2026-10-01; queda)
+- Editar datos y direcciones guardadas, descargar comprobante, reordenar un pedido anterior, aceptar/rechazar una cotización desde Mi cuenta y avisos por correo cuando cambia el estado de un pedido o llega la propuesta.
+- Opcional: cuentas con contraseña o login con Google para clientes (hoy es solo código por correo).
+

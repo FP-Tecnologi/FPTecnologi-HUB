@@ -923,3 +923,10 @@ sesión/máquina)**:
 - **Despliegue en cPanel**: archivos de arranque `apps/api/app.cjs` y `apps/*/server.cjs` (Passenger), variables nuevas en los `.env.example` y guía completa en [`DESPLIEGUE-CPANEL.md`](DESPLIEGUE-CPANEL.md) (incluye cómo funcionan las invitaciones). Verificado: `nest build` + `node app.cjs` y `next build` + `node server.cjs` arrancan.
 - **Todos los módulos del menú del dashboard ya existen** (se quitó la lista de "módulos vacíos").
 
+### 2026-10-01 — Mi cuenta del cliente (web pública)
+
+- **Acceso sin contraseña**: `/cuenta` → el cliente escribe su correo, recibe un código de 6 dígitos (solo si ese correo tiene pedidos o cotizaciones; la respuesta es siempre la misma) y entra. Modelo `CodigoCuenta` (migración `20261001260000_codigo_cuenta`), endpoints `POST /public/cuenta/codigo|verificar` y `GET /public/cuenta/resumen`. No crea usuarios ni da acceso al dashboard: la sesión es un token firmado por correo (30 días) guardado en una **cookie httpOnly** de la web (proxies `app/api/cuenta/*`).
+- **Qué ve**: perfil resumido, **Mis pedidos** (línea de avance Recibido → Pago confirmado → Enviado → Entregado, detalle, agencia Shalom, código de seguimiento, botón de consulta por WhatsApp) y **Mis cotizaciones** (estado y la propuesta con monto y vigencia **solo cuando el equipo ya la envió**; los borradores y notas internas nunca salen de la API). Ícono de cuenta en el menú de la tienda y enlace desde la página de gracias.
+- Seguridad: código de un solo uso (bcrypt, 10 min, máx. 5 intentos), tope de pedidos de código por correo e IP, token alterado/vencido o de otra marca rechazado. 7 tests + prueba punta a punta (8/8) y verificación visual.
+- **Subdominios**: `NOINDEX=1` hace que la web de pruebas no se indexe (guía de paso al dominio principal en `DESPLIEGUE-CPANEL.md`).
+

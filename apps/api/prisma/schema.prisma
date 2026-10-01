@@ -53,6 +53,7 @@ model Marca {
   campanas           Campana[]
   landings           Landing[]
   landingRegistros   LandingRegistro[]
+  codigosCuenta      CodigoCuenta[]
 }
 
 model Sitio {
@@ -787,4 +788,24 @@ model LandingRegistro {
   createdAt DateTime @default(now())
 
   @@index([marcaId, landingId, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// "Mi cuenta" del cliente en la web pública: acceso SIN contraseña con un código
+// de un solo uso enviado al correo (solo si ese correo tiene pedidos o
+// cotizaciones). No crea usuarios: la sesión es un token firmado por correo.
+// ---------------------------------------------------------------------------
+
+model CodigoCuenta {
+  id         String    @id @default(uuid())
+  marcaId    String
+  marca      Marca     @relation(fields: [marcaId], references: [id])
+  email      String
+  codigoHash String
+  intentos   Int       @default(0)
+  expiresAt  DateTime
+  consumedAt DateTime?
+  createdAt  DateTime  @default(now())
+
+  @@index([marcaId, email, createdAt])
 }

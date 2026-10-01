@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import { User } from 'lucide-react';
 import { useState } from 'react';
 import { COTIZADOR_URL } from '@/lib/content';
 import { ArrowUpRightIcon } from '@/components/site/icons';
@@ -55,6 +56,11 @@ export function Navbar9({ compact = false, store = false }: { compact?: boolean;
               Cotizar. Resto del sitio: carrito solo si hay algo agregado. */}
           {store && <CurrencyToggle className={compact ? 'h-9' : 'h-10 lg:h-11 2xl:h-12'} />}
           {(store || count > 0) && <CartButton tone="dark" compact={compact} />}
+          {store && (
+            <a href="/cuenta" aria-label="Mi cuenta: mis pedidos y cotizaciones" title="Mi cuenta" className={`flex items-center justify-center rounded-xl border border-white/25 text-white transition-colors hover:border-white hover:bg-white/5 ${compact ? 'h-9 w-9' : 'h-10 w-10 lg:h-11 lg:w-11 2xl:h-12 2xl:w-12'}`}>
+              <User className="h-5 w-5" strokeWidth={1.8} />
+            </a>
+          )}
           {!store && (
           <>
           {/* Efecto sweep al click (mismo patrón que "Agregar al carrito",

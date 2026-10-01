@@ -20,6 +20,22 @@ La **web pública y el dashboard hablan con la API**; la API habla con la base d
 **Requisitos del hosting:** cPanel con *Setup Node.js App*, **Node 22 o superior** (mínimo 20.9), acceso a Terminal/SSH,
 al menos ~1.5 GB de RAM disponible para compilar Next.js (si no alcanza, ver §8) y poder crear subdominios.
 
+### Subdominios ahora, dominio principal después
+
+Es una buena estrategia: publica las tres apps en subdominios del **mismo dominio** (por ejemplo `api.`, `panel.` y `test.` o `beta.tudominio.com`) y,
+cuando todo esté probado, mueve la web pública al dominio principal (`www.tudominio.com`). Qué cuidar:
+
+- **Ahora (web de pruebas en subdominio):** pon `NOINDEX=1` en la web pública para que Google no indexe la copia y compita con tu sitio actual, y
+  `SITE_URL` con la URL del subdominio. Mantén API y panel en subdominios del mismo dominio: así funciona "confiar en este dispositivo" del 2FA.
+- **Al pasar al dominio principal:** (1) crea la app Node.js de la web pública en `www.tudominio.com` (o cambia su URL en *Setup Node.js App*);
+  (2) pon `NOINDEX=0` y `SITE_URL=https://www.tudominio.com`; (3) en el **panel** cambia `NEXT_PUBLIC_WEB_PUBLICA_URL` y **vuelve a compilar**
+  (`npm run build`); (4) la API y el panel no cambian de lugar, y `HUB_API_URL`/`HUB_MARCA_ID` de la web siguen igual; (5) si usas login con Google,
+  actualiza el *callback* en la consola de Google; (6) redirige el subdominio de pruebas al principal (cPanel → Redirecciones) y envía el sitemap
+  (`/sitemap.xml`) a Google Search Console.
+- Qué se pierde al mover la web: solo las sesiones de **Mi cuenta** de los clientes (la cookie es por dominio): vuelven a entrar con su código.
+- Los enlaces ya enviados (invitaciones, avisos al equipo) usan el dominio del **panel**, que no cambia; los de landings sí cambian de host
+  (`/l/<url>` en el dominio nuevo).
+
 ## 2. Variables de entorno
 
 Se cargan en cPanel (cada app tiene su sección *Environment variables*) o en un `.env` dentro de la carpeta de la app
@@ -54,6 +70,7 @@ Se cargan en cPanel (cada app tiene su sección *Environment variables*) o en un
 | `HUB_MARCA_ID` | Id de la marca FPTecnologi: abre `https://api.tudominio.com/public/marcas` y copia su `id` |
 | `GROQ_API_KEY` | Clave del asistente de IA (<https://console.groq.com/keys>) |
 | `SITE_URL` | `https://www.tudominio.com` (sitemap, canonical, Open Graph) |
+| `NOINDEX` | `1` mientras sea un sitio de pruebas en subdominio (no indexar); `0` o vacío en el dominio principal |
 | `LEADS_SUPABASE_URL`, `LEADS_SUPABASE_ANON_KEY` | Copia de contactos al sistema `centralizacion-leads` (opcional; sin ellas el contacto responde 503) |
 
 ## 3. Subir el código

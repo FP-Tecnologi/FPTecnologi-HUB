@@ -46,6 +46,7 @@ const TENANT_MODELS = new Set([
   'Campana',
   'Landing',
   'LandingRegistro',
+  'CodigoCuenta',
   'Proyecto',
   'Cliente',
 ]);

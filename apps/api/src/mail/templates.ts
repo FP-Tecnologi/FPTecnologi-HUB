@@ -221,3 +221,15 @@ export function pedidoNuevoEquipoEmail(d: {
     `),
   };
 }
+
+export function codigoCuentaEmail(codigo: string, minutos: number): { subject: string; html: string } {
+  return {
+    subject: 'Tu código para ver tus pedidos',
+    html: layout(`
+      <h1 style="margin:0 0 12px;font-size:20px;">Accede a tu cuenta</h1>
+      <p style="margin:0;color:${MUTED_COLOR};">Usa este código para ver tus pedidos y cotizaciones en FPTecnologi:</p>
+      ${codeBlock(codigo)}
+      <p style="margin:0;color:${MUTED_COLOR};">Vence en ${minutos} minutos. Si no lo pediste tú, ignora este correo: nadie puede entrar sin el código.</p>
+    `),
+  };
+}

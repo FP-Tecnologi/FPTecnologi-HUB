@@ -16,6 +16,7 @@ import {
   cotizacionServicioEmail,
   type CotizacionCorreo,
   pedidoNuevoEquipoEmail,
+  codigoCuentaEmail,
 } from './templates.js';
 
 @Injectable()
@@ -80,6 +81,10 @@ export class MailService {
 
   async sendInvitacion(to: string, marca: string, rol: string, url: string, dias: number): Promise<void> {
     await this.send(to, invitacionEmail(marca, rol, url, dias));
+  }
+
+  async sendCodigoCuenta(to: string, codigo: string, minutos: number): Promise<void> {
+    await this.send(to, codigoCuentaEmail(codigo, minutos));
   }
 
   async sendPedidoNuevoEquipo(to: string, datos: Parameters<typeof pedidoNuevoEquipoEmail>[0]): Promise<void> {
