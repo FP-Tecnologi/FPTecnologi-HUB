@@ -1,0 +1,102 @@
+[
+ {
+  "grupo": "Plantillas base",
+  "nombre": "Invitación a evento",
+  "archivo": "plantillas/01-invitacion-evento.html"
+ },
+ {
+  "grupo": "Plantillas base",
+  "nombre": "Producto / promoción",
+  "archivo": "plantillas/02-producto-promocion.html"
+ },
+ {
+  "grupo": "Plantillas base",
+  "nombre": "Boletín de noticias",
+  "archivo": "plantillas/03-boletin-noticias.html"
+ },
+ {
+  "grupo": "Plantillas base",
+  "nombre": "Comunicado",
+  "archivo": "plantillas/04-comunicado.html"
+ },
+ {
+  "grupo": "Plantillas base",
+  "nombre": "Sorteo / dinámica",
+  "archivo": "plantillas/05-sorteo-dinamica.html"
+ },
+ {
+  "grupo": "Campaña: Expomina invitacion (2026-09)",
+  "nombre": "Invitacion stand a133",
+  "archivo": "mailings/2026-09-expomina-invitacion/invitacion-stand-a133.html"
+ },
+ {
+  "grupo": "Campaña: Expomina invitacion (2026-09)",
+  "nombre": "Propuesta v1 glass nocturno",
+  "archivo": "mailings/2026-09-expomina-invitacion/propuesta-v1-glass-nocturno.html"
+ },
+ {
+  "grupo": "Campaña: Expomina invitacion (2026-09)",
+  "nombre": "Propuesta v2 glass aurora standalone",
+  "archivo": "mailings/2026-09-expomina-invitacion/propuesta-v2-glass-aurora-standalone.html"
+ },
+ {
+  "grupo": "Campaña: Expomina invitacion (2026-09)",
+  "nombre": "Propuesta v2 glass aurora",
+  "archivo": "mailings/2026-09-expomina-invitacion/propuesta-v2-glass-aurora.html"
+ },
+ {
+  "grupo": "Campaña: Expomina invitacion (2026-09)",
+  "nombre": "Propuesta v3 glass gold premium",
+  "archivo": "mailings/2026-09-expomina-invitacion/propuesta-v3-glass-gold-premium.html"
+ },
+ {
+  "grupo": "Campaña: Expomina invitacion (2026-09)",
+  "nombre": "Propuesta v4 corporativo claro",
+  "archivo": "mailings/2026-09-expomina-invitacion/propuesta-v4-corporativo-claro.html"
+ },
+ {
+  "grupo": "Campaña: Huawei ideahub (2026-09)",
+  "nombre": "Ideahub 98 educacion v2",
+  "archivo": "mailings/2026-09-huawei-ideahub/ideahub-98-educacion-v2.html"
+ },
+ {
+  "grupo": "Campaña: Huawei ideahub (2026-09)",
+  "nombre": "Ideahub 98 educacion v3",
+  "archivo": "mailings/2026-09-huawei-ideahub/ideahub-98-educacion-v3.html"
+ },
+ {
+  "grupo": "Campaña: Huawei ideahub (2026-09)",
+  "nombre": "Ideahub 98 educacion",
+  "archivo": "mailings/2026-09-huawei-ideahub/ideahub-98-educacion.html"
+ },
+ {
+  "grupo": "Campaña: Propuesta fisi unmsm (2026-09)",
+  "nombre": "V1 propuesta mejorada",
+  "archivo": "mailings/2026-09-propuesta-fisi-unmsm/v1-propuesta-mejorada.html"
+ },
+ {
+  "grupo": "Campaña: Propuesta fisi unmsm (2026-09)",
+  "nombre": "V2 carta ejecutiva",
+  "archivo": "mailings/2026-09-propuesta-fisi-unmsm/v2-carta-ejecutiva.html"
+ },
+ {
+  "grupo": "Campaña: Propuesta fisi unmsm (2026-09)",
+  "nombre": "V3 laboratorios",
+  "archivo": "mailings/2026-09-propuesta-fisi-unmsm/v3-laboratorios.html"
+ },
+ {
+  "grupo": "Campaña: Sorteo asistentes (2026-09)",
+  "nombre": "Sorteo ambos eventos",
+  "archivo": "mailings/2026-09-sorteo-asistentes/sorteo-ambos-eventos.html"
+ },
+ {
+  "grupo": "Campaña: Sorteo asistentes (2026-09)",
+  "nombre": "Sorteo expomina",
+  "archivo": "mailings/2026-09-sorteo-asistentes/sorteo-expomina.html"
+ },
+ {
+  "grupo": "Campaña: Sorteo asistentes (2026-09)",
+  "nombre": "Sorteo semana geologica",
+  "archivo": "mailings/2026-09-sorteo-asistentes/sorteo-semana-geologica.html"
+ }
+]

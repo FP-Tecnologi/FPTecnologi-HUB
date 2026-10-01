@@ -18,7 +18,9 @@ type Bloque =
   | { id: string; tipo: 'productos'; titulo: string; items: { nombre: string; precio: string; url: string; imagen: string }[] }
   | { id: string; tipo: 'separador' };
 
-interface Mailing { id: string; nombre: string; asunto: string; preheader: string; bloques: Bloque[]; actualizado: string }
+// html: mailing completo (de la biblioteca mailing-fp); sus [marcadores] se llenan con `valores`. Sin html: se arma con bloques.
+interface Mailing { id: string; nombre: string; asunto: string; preheader: string; bloques: Bloque[]; actualizado: string; html?: string; valores?: Record<string, string> }
+interface ItemBiblioteca { grupo: string; nombre: string; archivo: string }
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 const COLOR = '#008DC5';
@@ -87,6 +89,17 @@ ${m.bloques.map(bloqueHtml).join('\n')}
 </table></td></tr></table></body></html>`;
 }
 
+/** Textos [entre corchetes] por reemplazar; ignora los condicionales de Outlook ([if mso], [endif]). */
+function marcadores(html: string): string[] {
+  const limpio = html.replace(/<!--\[if[\s\S]*?<!\[endif\]-->/gi, '').replace(/\[(if|endif)[^\]]*\]/gi, '');
+  return [...new Set([...limpio.matchAll(/\[([^[\]<>\n]{2,60})\]/g)].map((m) => m[1]).filter((t) => t !== 'Asunto'))];
+}
+function htmlFinal(m: Mailing): string {
+  let h = (m.html ?? '').split('[Asunto]').join(esc(m.asunto || '[Asunto]'));
+  for (const [k, v] of Object.entries(m.valores ?? {})) if (v.trim()) h = h.split(`[${k}]`).join(esc(v.trim()));
+  return h;
+}
+
 const cargar = (): Mailing[] => { try { return JSON.parse(localStorage.getItem(KEY) ?? '[]'); } catch { return []; } };
 const guardar = (l: Mailing[]) => { try { localStorage.setItem(KEY, JSON.stringify(l)); } catch { /* sin almacenamiento */ } };
 
@@ -109,7 +122,11 @@ export function MailingEditor() {
   }, [activeMarcaId]);
 
   const m = lista.find((x) => x.id === actualId) ?? null;
-  const html = useMemo(() => (m ? renderHtml(m) : ''), [m]);
+  const html = useMemo(() => (!m ? '' : m.html !== undefined ? htmlFinal(m) : renderHtml(m)), [m]);
+  const campos = useMemo(() => (m?.html ? marcadores(m.html) : []), [m?.html]);
+  const [biblioteca, setBiblioteca] = useState<ItemBiblioteca[] | null>(null);
+  const [verBiblioteca, setVerBiblioteca] = useState(false);
+  const [verCodigo, setVerCodigo] = useState(false);
   const emails = useMemo(() => [...new Set(pegados.split(/[\s,;]+/).filter((e) => /^\S+@\S+\.\S+$/.test(e)))], [pegados]);
 
   const nota = (t: string) => { setAviso(t); setTimeout(() => setAviso(''), 3500); };
@@ -117,6 +134,21 @@ export function MailingEditor() {
   const cambiar = (patch: Partial<Mailing>) => m && guardarLista(lista.map((x) => (x.id === m.id ? { ...x, ...patch, actualizado: new Date().toISOString() } : x)));
   const cambiarBloque = (id: string, patch: Record<string, unknown>) => m && cambiar({ bloques: m.bloques.map((b) => (b.id === id ? ({ ...b, ...patch } as Bloque) : b)) });
 
+  async function abrirBiblioteca() {
+    setVerBiblioteca((v) => !v);
+    if (biblioteca) return;
+    try { setBiblioteca(await (await fetch('/mailing-fp/catalogo.json')).json()); } catch { nota('No se pudo cargar la biblioteca'); }
+  }
+  async function importar(it: ItemBiblioteca) {
+    try {
+      const h = await (await fetch(`/mailing-fp/${it.archivo}`)).text();
+      const asunto = (h.match(/<title>([^<]*)<\/title>/i)?.[1] ?? '').replace(/\s*\|\s*FP Tecnologi.*$/i, '').trim();
+      const n: Mailing = { id: uid(), nombre: it.nombre, asunto: asunto.startsWith('[') ? '' : asunto, preheader: '', bloques: [], html: h, valores: {}, actualizado: new Date().toISOString() };
+      guardarLista([n, ...lista]);
+      setActualId(n.id);
+      setVerBiblioteca(false);
+    } catch { nota('No se pudo abrir la plantilla'); }
+  }
   function crear(p: (typeof PLANTILLAS)[number]) {
     const n: Mailing = { id: uid(), nombre: p.nombre, asunto: p.asunto, preheader: '', bloques: p.bloques(), actualizado: new Date().toISOString() };
     guardarLista([n, ...lista]);
@@ -155,6 +187,26 @@ export function MailingEditor() {
         </div>
       </section>
 
+      <section className="ax-card" style={{ padding: 'var(--ax-space-4)', marginBlockEnd: 'var(--ax-space-4)' }}>
+        <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
+          <div>
+            <strong style={{ color: 'var(--ax-text-strong)' }}>Biblioteca mailing-fp</strong>
+            <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Plantillas base y campañas ya diseñadas (responsivas, probadas en Gmail y Outlook). Se copian aquí para editarlas.</div>
+          </div>
+          <button type="button" className="ax-btn ax-btn--ghost" onClick={abrirBiblioteca}>{verBiblioteca ? 'Ocultar' : 'Ver biblioteca'}</button>
+        </div>
+        {verBiblioteca && (biblioteca ?? []).length > 0 && [...new Set(biblioteca!.map((b) => b.grupo))].map((g) => (
+          <div key={g} style={{ marginBlockStart: 'var(--ax-space-3)' }}>
+            <div style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)', marginBlockEnd: 6 }}>{g}</div>
+            <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
+              {biblioteca!.filter((b) => b.grupo === g).map((b) => (
+                <button key={b.archivo} type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => importar(b)}>{b.nombre}</button>
+              ))}
+            </div>
+          </div>
+        ))}
+      </section>
+
       {lista.length === 0 && <p style={{ color: 'var(--ax-text-muted)' }}>Aún no tienes mailings. Elige una plantilla para empezar.</p>}
 
       {m && (
@@ -176,8 +228,17 @@ export function MailingEditor() {
               {campo('ml-nombre', 'Nombre interno', m.nombre, (v) => cambiar({ nombre: v }))}
               {campo('ml-asunto', 'Asunto del correo', m.asunto, (v) => cambiar({ asunto: v }))}
               {campo('ml-pre', 'Texto de vista previa (preheader)', m.preheader, (v) => cambiar({ preheader: v }))}
-              <strong style={{ color: 'var(--ax-text-strong)' }}>Contenido</strong>
-              {m.bloques.map((b, i) => (
+              {m.html !== undefined && (
+                <>
+                  <strong style={{ color: 'var(--ax-text-strong)' }}>Textos por completar</strong>
+                  {campos.length === 0 && <p style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>No quedan [marcadores] por reemplazar. Para cambiar otros textos o imágenes edita el HTML.</p>}
+                  {campos.map((c, k) => campo(`ml-v${k}`, c, m.valores?.[c] ?? '', (v) => cambiar({ valores: { ...m.valores, [c]: v } })))}
+                  <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ alignSelf: 'flex-start' }} onClick={() => setVerCodigo((v) => !v)}>{verCodigo ? 'Ocultar HTML' : 'Editar HTML'}</button>
+                  {verCodigo && <textarea aria-label="Código HTML" className="ax-textarea" rows={16} spellCheck={false} style={{ fontFamily: 'var(--ax-font-mono)', fontSize: 12 }} value={m.html} onChange={(e) => cambiar({ html: e.target.value })} />}
+                </>
+              )}
+              {m.html === undefined && <strong style={{ color: 'var(--ax-text-strong)' }}>Contenido</strong>}
+              {m.html === undefined && m.bloques.map((b, i) => (
                 <div key={b.id} className="ax-card" style={{ padding: 'var(--ax-space-3)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-2)' }}>
                   <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
                     <span className="ax-badge ax-badge--soft ax-badge--neutral ax-badge--pill">{ETIQUETA[b.tipo]}</span>
@@ -205,12 +266,12 @@ export function MailingEditor() {
                   )}
                 </div>
               ))}
-              <div className="ax-cluster" style={{ gap: 'var(--ax-space-1)', flexWrap: 'wrap' }}>
+              {m.html === undefined && <div className="ax-cluster" style={{ gap: 'var(--ax-space-1)', flexWrap: 'wrap' }}>
                 <span style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>Agregar:</span>
                 {(Object.keys(ETIQUETA) as Bloque['tipo'][]).map((t) => (
                   <button key={t} type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => cambiar({ bloques: [...m.bloques, nuevoBloque(t)] })}>{ETIQUETA[t]}</button>
                 ))}
-              </div>
+              </div>}
             </section>
 
             <section className="ax-card" style={{ padding: 'var(--ax-space-3)', flex: '1 1 420px', position: 'sticky', top: 'var(--ax-space-4)' }}>
