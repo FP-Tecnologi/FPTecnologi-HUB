@@ -32,6 +32,7 @@ const ESTADOS_PEDIDO = ['PENDIENTE', 'PAGADO', 'ENVIADO', 'ENTREGADO', 'CANCELAD
 const ESTADOS_LEAD = ['NUEVO', 'CONTACTADO', 'COTIZADO', 'GANADO', 'PERDIDO'];
 const ESTADOS_COTIZ = ['PENDIENTE', 'EN_REVISION', 'ENVIADA', 'ACEPTADA', 'RECHAZADA'];
 const ESTADOS_CHAT = ['BOT', 'ASESOR', 'CERRADA'];
+const ESTADOS_CONTACTO = ['NUEVO', 'CONTACTADO', 'RESUELTO', 'DESCARTADO'];
 const VIZ = ['--ax-viz-amber', '--ax-viz-cyan', '--ax-viz-violet', '--ax-viz-emerald', '--ax-viz-pink'];
 const VIZ_FALLBACK = ['#FBBF24', '#38BDF8', '#A78BFA', '#34D399', '#F472B6'];
 
@@ -169,6 +170,7 @@ export function ResumenMarca({
   const cotizMes = datos.cotizaciones ? contarPorMes(datos.cotizaciones, meses) : null;
   const chatMes = datos.chat ? contarPorMes(datos.chat, meses) : null;
   const boletinMes = datos.boletin ? contarPorMes(datos.boletin, meses) : null;
+  const contactosMes = datos.contactos ? contarPorMes(datos.contactos, meses) : null;
 
   const ventasMes = ingresos ? ingresos[ingresos.length - 1] : null;
   const stockBajo = (datos.productos ?? []).filter((p) => p.activo && p.stock <= 5).sort((a, b) => a.stock - b.stock).slice(0, 5);
@@ -182,6 +184,7 @@ export function ResumenMarca({
     { name: 'Leads', data: leadsMes },
     { name: 'Cotizaciones', data: cotizMes },
     { name: 'Chats', data: chatMes },
+    { name: 'Contactos', data: contactosMes },
     { name: 'Suscriptores', data: boletinMes },
   ].filter((s): s is { name: string; data: number[] } => s.data !== null);
 
@@ -195,7 +198,8 @@ export function ResumenMarca({
             <Kpi icon="shopping-cart" tono="c4" label="Pedidos" valor={num(datos.pedidos?.length ?? null)} pct={pedidosMes ? variacion(pedidosMes) : undefined} />
             <Kpi icon="article" tono="c5" label="Cotizaciones" valor={num(datos.cotizaciones?.length ?? null)} pct={cotizMes ? variacion(cotizMes) : undefined} />
             <Kpi icon="briefcase-2" tono="c3" label="Leads cotizador" valor={num(datos.leads?.length ?? null)} pct={leadsMes ? variacion(leadsMes) : undefined} />
-            <Kpi icon="messages" tono="c6" label="Chats abiertos" valor={num(chatAbiertas)} />
+            <Kpi icon="headset" tono="c6" label="Contactos web" valor={num(datos.contactos?.length ?? null)} pct={contactosMes ? variacion(contactosMes) : undefined} />
+            <Kpi icon="messages" tono="c2" label="Chats abiertos" valor={num(chatAbiertas)} />
             <Kpi icon="users-group" tono="c2" label="Equipo" valor={num(datos.equipo?.length ?? null)} />
           </div>
         </div>
@@ -226,7 +230,7 @@ export function ResumenMarca({
       <Card titulo="Cotizaciones" sub="Solicitudes sobre servicios" cols={4} enlace={{ href: '/soluciones/cotizaciones', label: 'Ver todas' }}>
         <BarrasEstado estados={ESTADOS_COTIZ} valores={datos.cotizaciones ? contarPorEstado(datos.cotizaciones, ESTADOS_COTIZ) : null} nombre="Cotizaciones" />
       </Card>
-      <Card titulo="Actividad" sub="Leads, cotizaciones, chats y suscriptores" cols={4}>
+      <Card titulo="Actividad" sub="Leads, cotizaciones, chats, contactos y suscriptores" cols={4}>
         {actividad.some((s) => s.data.some((v) => v > 0)) ? (
           <ApexChart
             type="bar"
@@ -288,8 +292,18 @@ export function ResumenMarca({
         </div>
       </Card>
 
+      {/* Contactos de la web (formulario de contacto + Libro de Reclamaciones) */}
+      <Card titulo="Contactos" sub="Formulario de contacto y reclamos" cols={4} enlace={{ href: '/web/contactos', label: 'Ver bandeja' }}>
+        <BarrasEstado estados={ESTADOS_CONTACTO} valores={datos.contactos ? contarPorEstado(datos.contactos, ESTADOS_CONTACTO) : null} nombre="Contactos" />
+        {datos.contactos && datos.contactos.some((c) => c.tipo === 'RECLAMO') && (
+          <p style={{ margin: 'var(--ax-space-2) 0 0', fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-muted)' }}>
+            {datos.contactos.filter((c) => c.tipo === 'RECLAMO' && c.estado === 'NUEVO').length} reclamo(s) sin atender.
+          </p>
+        )}
+      </Card>
+
       {/* Notificaciones */}
-      <Card titulo="Notificaciones" cols={12} enlace={{ href: '/notificaciones', label: 'Ver todas' }}>
+      <Card titulo="Notificaciones" cols={8} enlace={{ href: '/notificaciones', label: 'Ver todas' }}>
         {notifs.length ? (
           <ul className="ax-list ax-list--compact">
             {notifs.map((n) => (

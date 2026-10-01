@@ -8,6 +8,7 @@ import { ScrollReveal } from '@/components/home/ScrollReveal';
 import { MoreInfoButton } from '@/components/home/MoreInfoButton';
 import { Contact } from '@/components/home/Contact';
 import { Footer } from '@/components/home/Footer';
+import { getPagina } from '@/lib/paginasContenido';
 
 export const metadata = { title: 'Contacto' };
 
@@ -15,7 +16,8 @@ const MAPA = `https://www.google.com/maps?q=${encodeURIComponent(CONTACT_INFO.ad
 
 /* Contacto -- asesores por área, mapa y horario, y al cierre el formulario +
    datos (sección Contacto de la home) (DESIGN.md). */
-export default function ContactoPage() {
+export default async function ContactoPage() {
+  const c = await getPagina('contacto');
   return (
     <>
       <PageHero
@@ -23,10 +25,10 @@ export default function ContactoPage() {
           { label: 'Inicio', href: '/' },
           { label: 'Contacto', href: '/contacto' },
         ]}
-        badge="Contacto"
-        titulo="Hablemos de"
-        destacado="tu próximo proyecto"
-        descripcion="Escríbenos, llámanos o visítanos en Breña. Un asesor te responde en horario de oficina."
+        badge={c.hero.badge}
+        titulo={c.hero.titulo}
+        destacado={c.hero.destacado}
+        descripcion={c.hero.descripcion}
         imagen="/images/modelo9/hero-office.jpg"
       >
         <WhatsAppCta label="Escríbenos por WhatsApp" />
@@ -38,9 +40,9 @@ export default function ContactoPage() {
         <section className="bg-white py-20">
           <div className="mx-auto max-w-7xl px-6">
             <ScrollReveal direction="up" className="mx-auto mb-12 flex max-w-2xl flex-col items-center text-center">
-              <SectionBadge>Asesores</SectionBadge>
+              <SectionBadge>{c.asesores.badge}</SectionBadge>
               <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
-                <span className="text-ink">Habla directo con</span> <span className="title-shimmer-light">el área que necesitas</span>
+                <span className="text-ink">{c.asesores.titulo}</span> <span className="title-shimmer-light">{c.asesores.destacado}</span>
               </h2>
             </ScrollReveal>
             <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
@@ -82,9 +84,9 @@ export default function ContactoPage() {
             <ScrollReveal direction="right" delayMs={120} className="h-full">
               <div className="flex h-full flex-col gap-6 rounded-2xl bg-white p-7 shadow-lg shadow-brand-dark/10">
                 <div>
-                  <SectionBadge>Visítanos</SectionBadge>
+                  <SectionBadge>{c.visita.badge}</SectionBadge>
                   <h2 className="mt-2 font-display text-2xl font-bold leading-tight">
-                    <span className="text-ink">Nuestra</span> <span className="title-shimmer-light">oficina</span>
+                    <span className="text-ink">{c.visita.titulo}</span> <span className="title-shimmer-light">{c.visita.destacado}</span>
                   </h2>
                 </div>
                 <div className="flex gap-3">
@@ -97,9 +99,7 @@ export default function ContactoPage() {
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary text-white shadow-md shadow-brand-dark/25">
                     <Clock className="h-5 w-5" strokeWidth={1.8} />
                   </span>
-                  <p className="text-sm text-ink/70">
-                    Lunes a viernes, 9:00 a 18:00
-                  </p>
+                  <p className="text-sm text-ink/70">{c.visita.horario}</p>
                 </div>
                 <div className="mt-auto">
                   <MoreInfoButton

@@ -14,6 +14,7 @@ export interface CotizacionRow { estado: string; createdAt: string }
 export interface ChatRow { estado: string; createdAt: string }
 export interface BlogRow { estado: string; createdAt: string }
 export interface ProductoRow { id: string; nombre: string; stock: number; activo: boolean }
+export interface ContactoRow { estado: string; tipo: string; createdAt: string }
 export interface SuscriptorRow { createdAt: string }
 export interface NotifRow { id: string; titulo?: string; mensaje?: string; tipo?: string; leida?: boolean; createdAt: string }
 
@@ -25,11 +26,12 @@ export interface Resumen {
   blog: BlogRow[] | null;
   productos: ProductoRow[] | null;
   boletin: SuscriptorRow[] | null;
+  contactos: ContactoRow[] | null;
   equipo: unknown[] | null;
   notificaciones: NotifRow[] | null;
 }
 
-const VACIO: Resumen = { pedidos: null, leads: null, cotizaciones: null, chat: null, blog: null, productos: null, boletin: null, equipo: null, notificaciones: null };
+const VACIO: Resumen = { pedidos: null, leads: null, cotizaciones: null, chat: null, blog: null, productos: null, boletin: null, contactos: null, equipo: null, notificaciones: null };
 
 /** Une las listas de varias marcas; si todas fallaron (null) devuelve null. */
 function unir<T>(listas: (T[] | null)[]): T[] | null {
@@ -49,7 +51,7 @@ export function useResumen(marcaIds: string[]) {
       const get = <T,>(path: string, marcaId: string) => api.get<T[]>(path, { marcaId }).catch(() => null);
       const porMarca = await Promise.all(
         marcaIds.map(async (id) => {
-          const [pedidos, leads, cotizaciones, chat, blog, productos, boletin, equipo] = await Promise.all([
+          const [pedidos, leads, cotizaciones, chat, blog, productos, boletin, contactos, equipo] = await Promise.all([
             get<PedidoRow>('/pedidos', id),
             get<LeadRow>('/cotizador/leads', id),
             get<CotizacionRow>('/cotizaciones', id),
@@ -57,9 +59,10 @@ export function useResumen(marcaIds: string[]) {
             get<BlogRow>('/blog', id),
             get<ProductoRow>('/productos', id),
             get<SuscriptorRow>('/boletin/suscriptores', id),
+            get<ContactoRow>('/contacto-web', id),
             get<unknown>(`/marcas/${id}/equipo`, id),
           ]);
-          return { pedidos, leads, cotizaciones, chat, blog, productos, boletin, equipo };
+          return { pedidos, leads, cotizaciones, chat, blog, productos, boletin, contactos, equipo };
         }),
       );
       const notificaciones = await api.get<NotifRow[]>('/notificaciones').catch(() => null);
@@ -72,6 +75,7 @@ export function useResumen(marcaIds: string[]) {
         blog: unir(porMarca.map((m) => m.blog)),
         productos: unir(porMarca.map((m) => m.productos)),
         boletin: unir(porMarca.map((m) => m.boletin)),
+        contactos: unir(porMarca.map((m) => m.contactos)),
         equipo: unir(porMarca.map((m) => m.equipo)),
         notificaciones,
       });

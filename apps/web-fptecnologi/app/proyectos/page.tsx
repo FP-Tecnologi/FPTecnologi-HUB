@@ -7,13 +7,15 @@ import { NuestrosClientes } from '@/components/home/NuestrosClientes';
 import { Contact } from '@/components/home/Contact';
 import { Footer } from '@/components/home/Footer';
 import { HOME_DEFAULTS } from '@/lib/homeContenido';
+import { getPagina } from '@/lib/paginasContenido';
 
 export const metadata = { title: 'Proyectos' };
 
 /* Proyectos -- listado filtrable por región, mapa del Perú (sección de la
    home) y clientes; cierre con Contacto (DESIGN.md). Datos de ejemplo en
    lib/projects.ts hasta cargar los reales. */
-export default function ProyectosPage() {
+export default async function ProyectosPage() {
+  const c = await getPagina('proyectos');
   return (
     <>
       <PageHero
@@ -21,9 +23,9 @@ export default function ProyectosPage() {
           { label: 'Inicio', href: '/' },
           { label: 'Proyectos', href: '/proyectos' },
         ]}
-        titulo="Proyectos que ya"
-        destacado="funcionan en todo el Perú"
-        descripcion="Seguridad ciudadana, educación, data centers, videoconferencia y cloud: implementaciones reales, de la visita técnica al soporte."
+        titulo={c.hero.titulo}
+        destacado={c.hero.destacado}
+        descripcion={c.hero.descripcion}
         imagen="/images/solutions/seguridad.jpg"
       >
         <MoreInfoButton tone="dark" href="/cotizador" label="Cotizar un proyecto" />
