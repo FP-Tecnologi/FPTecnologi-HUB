@@ -43,6 +43,7 @@ model Marca {
   contenidos         ContenidoWeb[]
   blogArticulos      BlogArticulo[]
   leadsCotizador     LeadCotizador[]
+  contactosWeb       ContactoWeb[]
   suscriptores       SuscriptorBoletin[]
 }
 
@@ -532,4 +533,41 @@ model SuscriptorBoletin {
 
   @@unique([marcaId, email])
   @@index([marcaId, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Contacto web: consultas del formulario de contacto y reclamos del Libro de
+// Reclamaciones de las webs públicas
+// ---------------------------------------------------------------------------
+
+enum TipoContacto {
+  CONTACTO
+  RECLAMO
+}
+
+enum EstadoContacto {
+  NUEVO
+  CONTACTADO
+  RESUELTO
+  DESCARTADO
+}
+
+model ContactoWeb {
+  id          String         @id @default(uuid())
+  marcaId     String
+  marca       Marca          @relation(fields: [marcaId], references: [id])
+  tipo        TipoContacto   @default(CONTACTO)
+  nombre      String
+  email       String
+  celular     String?
+  empresa     String?
+  mensaje     String
+  origen      String? // página desde donde llegó
+  estado      EstadoContacto @default(NUEVO)
+  notas       String?
+  atendidoPor String? // email del usuario que lo gestionó por última vez
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([marcaId, estado, createdAt])
 }

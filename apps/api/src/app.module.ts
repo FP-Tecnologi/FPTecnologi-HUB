@@ -24,6 +24,7 @@ import { UsuariosModule } from './usuarios/usuarios.module.js';
 import { ChatModule } from './chat/chat.module.js';
 import { BoletinModule } from './boletin/boletin.module.js';
 import { CotizadorModule } from './cotizador/cotizador.module.js';
+import { ContactoWebModule } from './contacto-web/contacto-web.module.js';
 import { ContenidoModule } from './contenido/contenido.module.js';
 import { BlogModule } from './blog/blog.module.js';
 
@@ -49,6 +50,7 @@ import { BlogModule } from './blog/blog.module.js';
     ChatModule,
     ContenidoModule,
     CotizadorModule,
+    ContactoWebModule,
     BoletinModule,
     BlogModule,
   ],

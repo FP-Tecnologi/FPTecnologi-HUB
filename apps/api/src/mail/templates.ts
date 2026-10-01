@@ -145,3 +145,16 @@ export function leadNuevoEmail(nombre: string, interes: string, url: string): { 
     `),
   };
 }
+
+export function contactoNuevoEmail(titulo: string, nombre: string, mensaje: string, url: string): { subject: string; html: string } {
+  return {
+    subject: titulo,
+    html: layout(`
+      <h1 style="margin:0 0 12px;font-size:20px;">${escapeHtml(titulo)}</h1>
+      <div style="margin:20px 0;padding:14px 20px;background:${CODE_BG};border-radius:8px;color:${TEXT_COLOR};">
+        <strong>${escapeHtml(nombre.slice(0, 160))}</strong><br />${escapeHtml(mensaje.slice(0, 300))}
+      </div>
+      <a href="${escapeHtml(url)}" style="display:inline-block;background:${BRAND_COLOR};color:#FFFFFF;text-decoration:none;font-weight:700;padding:12px 20px;border-radius:8px;">Ver en el dashboard</a>
+    `),
+  };
+}
