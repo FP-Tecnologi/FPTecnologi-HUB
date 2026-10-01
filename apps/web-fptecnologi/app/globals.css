@@ -1067,8 +1067,11 @@ body {
   from { opacity: 1; transform: none; }
   to { opacity: 0; transform: translateY(-8px); }
 }
+/* `backwards` (no `both`): al terminar la entrada la animación deja de aplicar. Con `both` el último fotograma
+   mantenía un transform en `main` para siempre y eso hacía que todo `position: fixed` de adentro (p. ej. el panel
+   de comparar) se pegara a `main` en vez de a la pantalla. */
 main {
-  animation: pagina-entra 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: pagina-entra 0.55s cubic-bezier(0.22, 1, 0.36, 1) backwards;
 }
 body.pagina-saliendo main,
 body.pagina-saliendo footer {

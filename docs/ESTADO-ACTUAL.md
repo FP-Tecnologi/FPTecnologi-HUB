@@ -1001,3 +1001,9 @@ Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «V
 - **API**: `GET/POST/PATCH/DELETE /popups`, `GET /popups/plantillas`, `POST /popups/:id/duplicar` (admin/marketing); públicos `GET /public/popups?marcaId&pagina=` (solo ACTIVOS, vigentes y de esa página) y `POST /public/popups/:id/evento` (cuenta vista/clic). El contenido se recorta a una lista blanca (enlaces solo `http(s)://` o `/ruta`) y no deja activar un popup sin página, título o producto.
 - **Web** (`PopupsSitio.tsx` en el layout + proxies `app/api/hub/popups`): muestra como máximo uno por página; la frecuencia se recuerda en el navegador y, si se edita el popup, vuelve a salir. No aparece en las landings `/l/…`.
 - Modelo `Popup` (migración `20261001310000_popups`, tenant-guard incluido). 12 tests nuevos. Pendiente: aplicar la migración en Supabase (`prisma/apply-migrations.ts`) y probar con datos reales.
+
+## 2026-10-01 — Web: arreglo del comparador de productos
+
+- **Síntoma**: al marcar "comparar" el botón cambiaba de color pero el panel de comparación no se veía (inicio, y a veces en la tienda/fichas/marcas).
+- **Causa**: `main` tenía `animation: pagina-entra … both`; el último fotograma dejaba un `transform` permanente en `main`, y eso hace que cualquier `position: fixed` de adentro (el `CompareDock`) se posicione respecto a `main` y no a la pantalla (quedaba a ~6000 px, fuera de vista). Ahora la animación usa `backwards` y termina limpia (`app/globals.css`).
+- **Extra**: en `home/ProductCardFinal.tsx` las flechas de foto (invisibles hasta el hover) tapaban el botón de comparar en tarjetas chicas (celular); se bajaron a `top-[68%]` y no capturan clics mientras están ocultas.

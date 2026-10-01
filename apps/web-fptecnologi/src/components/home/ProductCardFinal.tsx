@@ -102,7 +102,7 @@ export function ProductCardFinal({
                 type="button"
                 onClick={() => go(-1)}
                 aria-label="Foto anterior"
-                className="absolute left-3 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg bg-white/90 text-brand-dark opacity-0 shadow-sm shadow-brand-dark/15 transition-opacity hover:bg-white group-hover:opacity-100"
+                className="absolute left-3 top-[68%] z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg bg-white/90 text-brand-dark opacity-0 pointer-events-none group-hover:pointer-events-auto shadow-sm shadow-brand-dark/15 transition-opacity hover:bg-white group-hover:opacity-100"
               >
                 <ChevronLeft className="h-4 w-4" strokeWidth={2.2} />
               </button>
@@ -110,7 +110,7 @@ export function ProductCardFinal({
                 type="button"
                 onClick={() => go(1)}
                 aria-label="Foto siguiente"
-                className="absolute right-3 top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg bg-white/90 text-brand-dark opacity-0 shadow-sm shadow-brand-dark/15 transition-opacity hover:bg-white group-hover:opacity-100"
+                className="absolute right-3 top-[68%] z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg bg-white/90 text-brand-dark opacity-0 pointer-events-none group-hover:pointer-events-auto shadow-sm shadow-brand-dark/15 transition-opacity hover:bg-white group-hover:opacity-100"
               >
                 <ChevronRight className="h-4 w-4" strokeWidth={2.2} />
               </button>
