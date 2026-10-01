@@ -23,6 +23,8 @@ function mismaMarca(marcaActual: string, marcaPedida: string) {
 export class RolesController {
   constructor(private readonly rolesService: RolesService) {}
 
+  @UseGuards(MarcaRolGuard)
+  @Roles('admin')
   @Post('roles')
   createRol(@Body() dto: CreateRolDto) {
     return this.rolesService.createRol(dto);
