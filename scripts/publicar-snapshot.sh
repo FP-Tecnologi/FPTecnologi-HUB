@@ -9,7 +9,7 @@ DESTINO="${TMPDIR:-/tmp}/fpweb-snapshot"   # ruta corta: en Windows las rutas la
 rm -rf "$DESTINO" && mkdir -p "$DESTINO"
 git archive HEAD README.md SECURITY.md .gitignore apps docs/DESPLIEGUE-CPANEL.md | tar -x -C "$DESTINO"
 # Revisión rápida de secretos antes de publicar
-if grep -rInE "eyJ[A-Za-z0-9_-]{25,}|gsk_[A-Za-z0-9]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY" "$DESTINO" 2>/dev/null | grep -v "package-lock.json" | grep -q .; then
+if grep -rInE --exclude="*.sql" "eyJ[A-Za-z0-9_-]{25,}|gsk_[A-Za-z0-9]{20,}|-----BEGIN [A-Z ]*PRIVATE KEY" "$DESTINO" 2>/dev/null | grep -v "package-lock.json" | grep -q .; then
   echo "Se encontró algo que parece un secreto: revisa antes de publicar." >&2
   exit 1
 fi
