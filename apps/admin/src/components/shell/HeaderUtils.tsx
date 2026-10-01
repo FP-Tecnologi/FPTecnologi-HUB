@@ -30,6 +30,7 @@ import { Avatar } from '../ui/Avatar';
 import { useCustomizer } from '../../context/CustomizerContext';
 import { useOverflowShed } from '../../hooks/useOverflowShed';
 import { useAuth } from '../../context/AuthContext';
+import { NotificationBell } from './NotificationBell';
 
 const ICON = {
   cog: (
@@ -105,6 +106,9 @@ export function HeaderUtils(_props: { onCustomizer: () => void }) {
       </button>
 
       {/* Switch de marca vive en el sidebar (MarcaSwitcher) — el header no lo repite. */}
+
+      {/* Campanita de notificaciones del sistema */}
+      <NotificationBell />
 
       {/* 10 · PROFILE */}
       <Dropdown

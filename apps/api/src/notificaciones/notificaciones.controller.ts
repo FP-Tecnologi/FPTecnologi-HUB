@@ -18,8 +18,8 @@ export class NotificacionesController {
   }
 
   @Get()
-  findMine(@CurrentUser() user: AuthenticatedUser, @Query('tipo') tipo?: string) {
-    return this.notificacionesService.findAllDeUsuario(user.sub, tipo);
+  findMine(@CurrentUser() user: AuthenticatedUser, @Query('tipo') tipo?: string, @Query('limite') limite?: string) {
+    return this.notificacionesService.findAllDeUsuario(user.sub, tipo, Number(limite) || undefined);
   }
 
   @Patch(':id/leida')

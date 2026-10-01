@@ -10,7 +10,7 @@ export class NotificacionesService {
     return this.prisma.notificacion.create({ data: dto });
   }
 
-  findAllDeUsuario(usuarioId: string, tipo?: string) {
+  findAllDeUsuario(usuarioId: string, tipo?: string, limite?: number) {
     const tipos = ['SISTEMA', 'PEDIDO', 'COTIZACION', 'EQUIPO', 'STOCK', 'CHAT'] as const;
     const where: { usuarioId: string; tipo?: (typeof tipos)[number] } = { usuarioId };
     if (tipo && (tipos as readonly string[]).includes(tipo)) {
@@ -19,6 +19,7 @@ export class NotificacionesService {
     return this.prisma.notificacion.findMany({
       where,
       orderBy: { createdAt: 'desc' },
+      ...(limite ? { take: Math.min(Math.max(Math.trunc(limite), 1), 100) } : {}),
     });
   }
 

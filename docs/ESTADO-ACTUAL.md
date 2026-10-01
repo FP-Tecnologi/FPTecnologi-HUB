@@ -959,3 +959,7 @@ El dashboard (administra todas las webs, no solo una) ahora vive en `apps/admin`
 ## 2026-10-01 — Mailing: biblioteca `mailing-fp`
 
 Se copiaron al dashboard (`apps/admin/public/mailing-fp/`, con `catalogo.json`) las 5 plantillas base y los 15 mailings de campañas del repo `FP-Tecnologi/mailing-fp` (HTML responsivo ya probado). En Mailing → «Biblioteca mailing-fp» se elige una y se abre como mailing editable: los `[marcadores]` aparecen como campos a completar, hay «Editar HTML», vista previa escritorio/móvil, copiar/descargar y envío simulado. Las imágenes siguen cargando desde jsDelivr (`FP-Tecnologi/mailing-producto@main`). Revisión con `verificar-mailing.py`: las 5 plantillas y IdeaHub/FISI pasan; fallan por «falta enlace de baja» los de EXPOMINA y sorteos (y varias propuestas EXPOMINA tienen imagen sin `width`).
+
+## 2026-10-01 — Campanita de notificaciones en el encabezado
+
+Junto al perfil, en el encabezado del dashboard, hay una campanita con contador de no leídas y un panel con las últimas 8 (marcar una o todas como leídas, «Ver todas» → `/notificaciones`). Consulta `GET /notificaciones?limite=30` cada 30 s (solo con la pestaña visible) y, cuando llega una nueva, muestra un aviso flotante arriba a la derecha (7 s, máx. 3). Son las mismas notificaciones del sistema (pedidos, cotizaciones, chat, equipo, stock). Código: `apps/admin/src/components/shell/NotificationBell.tsx`; la API ganó el parámetro opcional `limite` (tope 100). Sin sonido ni notificaciones del navegador por ahora.
