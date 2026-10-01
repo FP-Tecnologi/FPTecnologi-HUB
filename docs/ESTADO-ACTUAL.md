@@ -775,3 +775,15 @@ sesión/máquina)**:
 - Verificado de punta a punta con Postgres local y el dashboard real (sesión de
   prueba): ver pedidos, cambiar pago, cancelar (stock 97→98 y 94→96), crear y
   editar producto.
+
+### 2026-10-01 — Marcas reales (Fase 1: T1.2) — Fase 1 completa
+
+- `/marcas`: tarjetas de las marcas aliadas (con logo) y las que tienen
+  productos en la tienda, con el **conteo real** del catálogo, ordenadas por
+  cantidad. `/marcas/[slug]`: grilla de productos de esa marca (con comparador,
+  favoritos y carrito); si no hay productos, ofrece cotizar o WhatsApp.
+  Metadatos OG por marca. Ya no son placeholders ni estáticas.
+- Un producto sin marca comercial se muestra con la marca "FPTecnologi".
+- Fase 1 (tienda real) completa: T1.1, T1.2 y T1.3. Fase 2: checkout (T2.1) y
+  dashboard de pedidos/productos (T2.2) completos. Siguen: Fase 3 (asesores y
+  equipo), Fase 4 (copy del cotizador) y Fase 5 (blog/SEO/pulido).
