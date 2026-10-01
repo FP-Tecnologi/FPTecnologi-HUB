@@ -209,7 +209,7 @@ export function NuestrosProyectos({ c = HOME_DEFAULTS.proyectos, projects: lista
                   encima una base blanca para que los rellenos translúcidos
                   no dejen ver el relieve. */}
               <g aria-hidden className="pointer-events-none">
-                <g transform="translate(6 10)" className="drop-shadow-[0_14px_22px_rgb(40_152_238_/_0.28)]">
+                <g transform="translate(6 10)" className="drop-shadow-[0_14px_22px_rgb(16_122_204_/_0.28)]">
                   {PERU_DEPARTMENTS.map((d) => (
                     <path key={d.id} d={d.d} className="fill-[#b9d1e2] stroke-[#b9d1e2] [stroke-width:1.2]" />
                   ))}

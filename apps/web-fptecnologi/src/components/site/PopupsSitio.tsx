@@ -14,9 +14,9 @@ import { useSitio } from '@/context/SitioContext';
 import { contarEvento, frecuenciaPermite, marcarVisto, paginaDe, type PopupPublico } from '@/lib/popups';
 
 const TEMAS = {
-  azul: { bg: '#2898ee', fg: '#ffffff', btn: '#ffffff', btnFg: '#107acc', suave: 'rgba(255,255,255,.16)' },
+  azul: { bg: '#107acc', fg: '#ffffff', btn: '#ffffff', btnFg: '#107acc', suave: 'rgba(255,255,255,.16)' },
   oscuro: { bg: '#0f172a', fg: '#ffffff', btn: '#38bdf8', btnFg: '#0f172a', suave: 'rgba(255,255,255,.12)' },
-  claro: { bg: '#ffffff', fg: '#0f172a', btn: '#2898ee', btnFg: '#ffffff', suave: 'rgba(15,23,42,.07)' },
+  claro: { bg: '#ffffff', fg: '#0f172a', btn: '#107acc', btnFg: '#ffffff', suave: 'rgba(15,23,42,.07)' },
   acento: { bg: '#f97316', fg: '#ffffff', btn: '#ffffff', btnFg: '#c2410c', suave: 'rgba(255,255,255,.2)' },
 } as const;
 

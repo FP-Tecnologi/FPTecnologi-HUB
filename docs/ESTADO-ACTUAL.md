@@ -1020,3 +1020,8 @@ Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «V
 ## 2026-10-01 — Web: fondos oscuros pasan al color primario
 
 - Todo `bg-/from-/via-/to-ink` sólido o con opacidad ≥ 20 % (footer, contacto, cotizador, carrito, checkout, landing, tienda, navegación, chat…) usa ahora `brand-primary`; `ink` se conserva como color de texto. También `.glass-panel`, los velos del hero (`home/Hero`, `PageHero`, ambos al 80 % para que el texto blanco se lea), las cabeceras `HeaderDark`, el menú móvil de `Navbar9` y el degradado de las tarjetas de servicio. Se dejan en negro los fondos de ventanas modales (galería, popups) y los velos ≤ 10 %.
+
+## 2026-10-01 — Web: color de marca único `#107acc` (el pie de página se queda oscuro)
+
+- Prueba de color único: `--color-brand-primary`, `--color-brand-dark` y `--color-brand-petrol` = `#107acc` (hoy el hover no cambia de tono; separar `brand-dark` en `globals.css` si se quiere uno distinto). Sombras, `themeColor`, libro de reclamaciones y popups "azul" alineados.
+- Por pedido del cliente, el **pie de página** (`Footer` de `home/` y `site/`) y la sección **«Hablemos»** (`home/Contact`) vuelven al fondo oscuro de marca (`bg-ink`); solo el resto de fondos oscuros usa el primario.

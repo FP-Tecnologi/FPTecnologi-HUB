@@ -6,9 +6,9 @@
  * pasada por el cliente, no inventada.
  */
 @theme {
-  --color-brand-primary: #2898ee; /* Azul principal de marca (base de botones) */
-  --color-brand-dark: #107acc; /* Azul secundario (estado hover de botones, degradados) */
-  --color-brand-petrol: #107acc; /* antes azul petróleo oscuro; ahora el secundario, para que los degradados no tengan azul oscuro */
+  --color-brand-primary: #107acc; /* Azul principal de marca */
+  --color-brand-dark: #107acc; /* Hoy igual al primario (prueba de color único); separar aquí si se quiere un hover distinto */
+  --color-brand-petrol: #107acc; /* antes azul petróleo oscuro; ahora el color de marca */
   --color-brand-teal: #18778b; /* Pantone 7470 C — turquesa petróleo */
   --color-brand-teal-light: #208497; /* Pantone 7474 C — azul turquesa claro */
 
@@ -30,7 +30,7 @@
  */
 .btn-glow {
   background: linear-gradient(135deg, var(--color-brand-primary) 0%, var(--color-brand-petrol) 100%);
-  box-shadow: 0 12px 26px -10px rgba(40, 152, 238, 0.55);
+  box-shadow: 0 12px 26px -10px rgba(16, 122, 204, 0.55);
   transition:
     filter 0.2s ease,
     box-shadow 0.2s ease,
@@ -1035,7 +1035,7 @@ body {
 .blog-prose img {
   width: 100%;
   border-radius: 1rem;
-  box-shadow: 0 20px 40px -20px rgba(40, 152, 238, 0.45);
+  box-shadow: 0 20px 40px -20px rgba(16, 122, 204, 0.45);
 }
 .blog-prose code {
   border-radius: 0.375rem;

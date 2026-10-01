@@ -5,7 +5,7 @@ const LEGAL_LINKS = ['Política de privacidad', 'Devoluciones', 'Términos y con
 
 export function Footer() {
   return (
-    <footer className="bg-brand-primary py-14 text-white/60">
+    <footer className="bg-ink py-14 text-white/60">
       <div className="mx-auto max-w-7xl px-6">
         <div className="grid gap-10 sm:grid-cols-3">
           <div>
