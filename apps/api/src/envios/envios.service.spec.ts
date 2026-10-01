@@ -3,7 +3,9 @@ import { EnviosService } from './envios.service.js';
 import { agenciasCercanas, agenciasDeProvincia, provinciasConAgencias } from './agencias-shalom.js';
 
 const tarifa = (extra = {}) => ({ proveedor: 'SHALOM', departamento: 'Cusco', costo: 9, plazoDias: '3-4 días', ...extra });
-const servicio = (t: unknown) => new EnviosService({ tarifaEnvio: { findFirst: vi.fn(async () => t) } } as never);
+const sinVivas = { agenciasDeDepartamento: async () => null, cercanas: async () => null, resolverViva: () => undefined };
+const servicio = (t: unknown, vivas: unknown = sinVivas) =>
+  new EnviosService({ tarifaEnvio: { findFirst: vi.fn(async () => t) } } as never, vivas as never);
 
 describe('EnviosService.cotizar', () => {
   it('rechaza un departamento sin tarifa activa', async () => {
@@ -23,6 +25,25 @@ describe('EnviosService.cotizar', () => {
     const r = await servicio(tarifa()).cotizar('m1', 'Cusco', cusco.id);
     expect(r).toMatchObject({ costo: 9, plazo: '3-4 días' });
     expect(r.sede).toContain('Cusco');
+  });
+
+  it('acepta una agencia viva (shalom:<ter_id>) registrada por el provider', async () => {
+    const viva = { id: 'shalom:392', departamento: 'Lima', provincia: 'Lima', zona: 'MALVINAS', direccion: 'JR. GARCIA VILLON 250', telefono: null, horario: '', lat: -12.04, lng: -77.04 };
+    const vivas = { ...sinVivas, resolverViva: (id: string) => (id === viva.id ? viva : undefined) };
+    const r = await servicio(tarifa({ departamento: 'Lima' }), vivas).cotizar('m1', 'Lima', 'shalom:392');
+    expect(r.sede).toContain('MALVINAS');
+    await expect(servicio(tarifa({ departamento: 'Lima' }), vivas).cotizar('m1', 'Lima', 'shalom:999')).rejects.toThrow('agencia');
+  });
+
+  it('lista provincias y agencias: primero las vivas, si no las estáticas', async () => {
+    const viva = { id: 'shalom:18', departamento: 'Cusco', provincia: 'Cusco', zona: 'CENTRO', direccion: 'AV. SOL 123', telefono: null, horario: '', lat: -13.5, lng: -71.97 };
+    const vivas = { ...sinVivas, agenciasDeDepartamento: async () => [viva] };
+    const s = servicio(tarifa(), vivas);
+    expect(await s.provincias('cusco')).toEqual([{ provincia: 'Cusco', agencias: 1 }]);
+    expect(await s.agencias('cusco', 'CUSCO')).toEqual([viva]);
+    // Sin vivas: cae al directorio estático.
+    expect((await servicio(tarifa()).provincias('cusco')).length).toBeGreaterThan(0);
+    expect((await servicio(tarifa()).agencias('cusco', 'Cusco')).length).toBeGreaterThan(0);
   });
 });
 

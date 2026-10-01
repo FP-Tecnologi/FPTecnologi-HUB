@@ -35,10 +35,22 @@ ofrece *recojo en tienda* o *envío a domicilio (costo a coordinar)*, el total
 (`apps/api/src/pedidos/pedidos.service.ts`, `crearPublico`).
 
 **Lo primero que hay que resolver (bloqueante):**
-- No se verificó que Shalom ofrezca una **API pública**. Hay que preguntarle a
-  Shalom (área comercial / convenio corporativo) si existe API o servicio de
-  cotización, y obtener: documentación, credenciales (token/usuario), ambiente
-  de pruebas, límites de uso y costo. **No inventar** tarifas ni endpoints.
+- shalom-api.lat confirma el modelo: **agencias gratis sin key** (endpoints
+  `/public/*`), **cotizar/crear guías con key + plan de pago** (precio solo por
+  WhatsApp 51920789569). shalom-api-peru.com es otro proveedor con el mismo
+  nombre (la .lat lo desconoce públicamente): todo pide key, límite 60 req/min
+  vs 1000 de la .lat. Ninguna es oficial de Shalom.
+- **Agencias vivas ya integradas (2026-10-01):** `ShalomApiProvider`
+  (`apps/api/src/envios/shalom-api.provider.ts`) consulta
+  `/public/agencies/search` sin key y mapea a la forma canónica (ids
+  `shalom:<ter_id>`); `GET /public/envios/agencias*` prueba lo vivo primero y
+  cae al directorio estático si falla o tarda (>8s, caché 24h/10min);
+  `cotizar` acepta sedes vivas. Alcance: **solo agencias** — tarifas y guías
+  siguen propias/a mano hasta tener key con plan. Ojo: la API viva trae
+  mojibake en tildes (ej. `Convenci�n`) y no tiene sandbox.
+- Sigue pendiente preguntarle a Shalom (convenio corporativo) por API/costos
+  oficiales, o pedir la key de shalom-api.lat para cotizar y crear guías de
+  verdad. **No inventar** tarifas ni endpoints.
 - Si no hay API: alternativa = **tabla de tarifas** propia (origen Lima → destino
   por sede/departamento, por rango de peso/volumen) cargada en el dashboard y
   actualizada a mano. El resto del diseño sirve igual.

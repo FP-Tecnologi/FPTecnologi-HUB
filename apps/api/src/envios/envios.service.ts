@@ -1,13 +1,17 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { ActualizarTarifaDto, CrearTarifaDto } from './envios.dto.js';
-import { agenciaPorId, agenciasDeDepartamento, departamentoDelDirectorio, etiquetaAgencia } from './agencias-shalom.js';
+import { agenciaPorId, agenciasCercanas, agenciasDeDepartamento, agenciasDeProvincia, departamentoDelDirectorio, etiquetaAgencia, provinciasConAgencias, type AgenciaShalom } from './agencias-shalom.js';
+import { ShalomApiProvider } from './shalom-api.provider.js';
 
 export const PROVEEDOR_DEFECTO = 'SHALOM';
 
 @Injectable()
 export class EnviosService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly vivas: ShalomApiProvider,
+  ) {}
 
   /** Tarifario completo (dashboard). */
   tarifas(marcaId: string) {
@@ -26,6 +30,39 @@ export class EnviosService {
       costo: Number(t.costo),
       plazoDias: t.plazoDias,
     }));
+  }
+
+  /**
+   * Provincias con agencias de un departamento: primero la API viva
+   * (shalom-api.lat), si falla el directorio estático.
+   */
+  async provincias(departamento: string) {
+    const vivas = await this.vivas.agenciasDeDepartamento(departamento);
+    if (vivas) {
+      const conteo = new Map<string, number>();
+      for (const a of vivas) conteo.set(a.provincia, (conteo.get(a.provincia) ?? 0) + 1);
+      return [...conteo.entries()]
+        .map(([provincia, agencias]) => ({ provincia, agencias }))
+        .sort((a, b) => a.provincia.localeCompare(b.provincia, 'es'));
+    }
+    return provinciasConAgencias(departamento);
+  }
+
+  /** Agencias de una provincia: primero la API viva, si falla el directorio estático. */
+  async agencias(departamento: string, provincia: string): Promise<AgenciaShalom[]> {
+    const canonico = departamentoDelDirectorio(departamento);
+    const vivas = canonico ? await this.vivas.agenciasDeDepartamento(canonico) : null;
+    if (vivas) {
+      const n = provincia.trim().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+      const norm = (s: string) => s.trim().toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '');
+      return vivas.filter((a) => norm(a.provincia) === n);
+    }
+    return agenciasDeProvincia(departamento, provincia);
+  }
+
+  /** Más cercanas a un punto: primero la API viva, si falla el directorio estático. */
+  async cercanas(lat: number, lng: number, limite = 5, departamentos?: string[]) {
+    return (await this.vivas.cercanas(lat, lng, limite, departamentos)) ?? agenciasCercanas(lat, lng, limite, departamentos);
   }
 
   async crear(marcaId: string, dto: CrearTarifaDto) {
@@ -68,8 +105,9 @@ export class EnviosService {
 
   /**
    * Cotización server-side para un pedido: el costo NUNCA viene del cliente.
-   * `sede` es el id de una agencia del directorio de Shalom (ver agencias-shalom.ts): si el
-   * departamento tiene agencias, es obligatoria y debe pertenecer a ese departamento.
+   * `sede` es el id de una agencia del directorio de Shalom: estático (`Dept|Prov|n`)
+   * o vivo (`shalom:<ter_id>`, registrado al listar agencias). Si el departamento
+   * tiene agencias, la sede es obligatoria y debe pertenecer a ese departamento.
    */
   async cotizar(marcaId: string, departamento: string, sede?: string) {
     const tarifa = await this.prisma.tarifaEnvio.findFirst({
@@ -79,7 +117,9 @@ export class EnviosService {
 
     let sedeEtiqueta: string | null = null;
     if (agenciasDeDepartamento(tarifa.departamento).length > 0) {
-      const agencia = sede ? agenciaPorId(sede.trim()) : undefined;
+      const id = sede?.trim() ?? '';
+      // Solo registro en memoria (sin red): el checkout listó las agencias antes de crear el pedido.
+      const agencia = (id ? agenciaPorId(id) : undefined) ?? this.vivas.resolverViva(id);
       const mismoDepartamento = agencia && agencia.departamento === departamentoDelDirectorio(tarifa.departamento);
       if (!agencia || !mismoDepartamento) {
         throw new BadRequestException('Elige una agencia Shalom de ese departamento');
