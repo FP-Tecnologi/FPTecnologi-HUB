@@ -53,7 +53,7 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
       />
 
       <main>
-        {/* Formulario + panel informativo (el formulario sube sobre el borde del hero) */}
+        {/* Formulario + panel informativo (alineados bajo el hero) */}
         <section className="bg-paper pb-20 pt-10 lg:pt-14">
           <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[22rem_1fr] lg:items-start xl:grid-cols-[24rem_1fr]">
             <ScrollReveal direction="left" className="order-2 lg:order-1">
@@ -110,7 +110,7 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
             </ScrollReveal>
 
             <ScrollReveal direction="up" className="order-1 lg:order-2">
-              <div className="rounded-3xl border border-ink/5 bg-white p-6 shadow-xl shadow-brand-dark/10 sm:p-10 lg:-mt-24">
+              <div className="rounded-3xl border border-ink/5 bg-white p-6 shadow-xl shadow-brand-dark/10 sm:p-10">
                 <CotizadorForm c={c} interesInicial={interes} />
               </div>
             </ScrollReveal>
