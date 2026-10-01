@@ -17,3 +17,6 @@ envs/
 
 # Imágenes subidas desde el dashboard (se guardan en el servidor, no en git)
 apps/api/uploads/
+
+# Paquetes para subir al hosting (se generan con git archive)
+*.zip
