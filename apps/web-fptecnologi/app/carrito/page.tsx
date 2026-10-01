@@ -99,7 +99,10 @@ export default function CarritoPage() {
             </div>
 
             <div className="mt-6 flex flex-wrap gap-4">
-              <a href="/#contacto" className="btn-sweep rounded-full bg-brand-primary px-7 py-3.5 text-sm font-semibold text-white before:bg-brand-dark">
+              <a href="/checkout" className="btn-sweep rounded-full bg-brand-primary px-7 py-3.5 text-sm font-semibold text-white before:bg-brand-dark">
+                Finalizar compra
+              </a>
+              <a href="/cotizador" className="btn-sweep rounded-full border border-black/15 px-7 py-3.5 text-sm font-semibold text-ink before:bg-ink hover:text-white">
                 Cotizar este pedido
               </a>
               <a href="/tienda" className="btn-sweep rounded-full border border-black/15 px-7 py-3.5 text-sm font-semibold text-ink before:bg-ink hover:text-white">

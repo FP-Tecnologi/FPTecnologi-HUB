@@ -20,6 +20,7 @@ type CartContextValue = {
   addItem: (item: Omit<CartItem, 'qty'>) => void;
   removeItem: (sku: string) => void;
   setQty: (sku: string, qty: number) => void;
+  clear: () => void;
   justAddedSku: string | null;
 };
 
@@ -69,6 +70,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prev) => prev.filter((i) => i.sku !== sku));
   }, []);
 
+  const clear = useCallback(() => setItems([]), []);
+
   const setQty = useCallback((sku: string, qty: number) => {
     if (qty < 1) {
       setItems((prev) => prev.filter((i) => i.sku !== sku));
@@ -83,8 +86,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const envio = items.length === 0 ? 0 : ENVIO;
     const igv = subtotal * IGV_RATE;
     const total = subtotal + envio + igv;
-    return { items, count, subtotal, envio, igv, total, addItem, removeItem, setQty, justAddedSku };
-  }, [items, addItem, removeItem, setQty, justAddedSku]);
+    return { items, count, subtotal, envio, igv, total, addItem, removeItem, setQty, clear, justAddedSku };
+  }, [items, addItem, removeItem, setQty, clear, justAddedSku]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

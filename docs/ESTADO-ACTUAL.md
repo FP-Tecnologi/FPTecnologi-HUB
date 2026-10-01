@@ -729,3 +729,27 @@ sesión/máquina)**:
 - T1.3: el tipo de cambio ya no está fijo en el cliente: `GET /api/config`
   (variable `TIPO_CAMBIO_USD_PEN`, por defecto 3.75) → `CurrencyContext`.
 - Pendiente de Fase 1: `/marcas` reales (T1.2).
+
+### 2026-10-01 — Checkout real (Fase 2: T2.1)
+
+- **Web** (`web-fptecnologi`): `/checkout` (datos del comprador, comprobante
+  boleta/factura con DNI/RUC + razón social, recojo en tienda o envío a
+  domicilio, forma de pago, notas, aceptar términos) con resumen del pedido, y
+  `/checkout/gracias` (número de pedido copiable, total, WhatsApp). El carrito
+  (`/carrito`) ahora lleva a "Finalizar compra"; "Cotizar este pedido" quedó
+  como acción secundaria.
+- **Proxy** `app/api/hub/pedidos`: el navegador manda SKU + cantidad; el
+  servidor los traduce a los id del catálogo real y llama a
+  `POST /public/pedidos`. La API recalcula precios, IGV 18% y stock (probado:
+  un precio falso en el carrito se ignora). Con el catálogo local de respaldo
+  no se vende (responde 503).
+- **API**: `POST /public/pedidos` toma la IP real de `x-forwarded-for`
+  (antes todos los compradores compartían la IP del servidor y el tope de
+  5 pedidos / 10 min era global).
+- Comprobante, razón social y tipo de entrega viajan en las `notas` del
+  pedido (no hay columnas propias todavía). **Envío no incluido en el total**:
+  se coordina por WhatsApp (decisión pendiente: costo por distrito).
+- Verificado de punta a punta contra Postgres local: pedido creado, stock
+  descontado, snapshot por ítem, carrito vaciado, errores de stock / producto
+  inexistente / carrito vacío.
+- Pendiente de Fase 2: dashboard de Pedidos y Productos (T2.2).

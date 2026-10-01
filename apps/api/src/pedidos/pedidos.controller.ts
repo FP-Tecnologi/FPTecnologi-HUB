@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Ip, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, Ip, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { PedidosService } from './pedidos.service.js';
 import { CreatePedidoDto } from './dto/create-pedido.dto.js';
 import { UpdateEstadoPedidoDto } from './dto/update-estado-pedido.dto.js';
@@ -51,7 +51,14 @@ export class PublicPedidosController {
   constructor(private readonly pedidosService: PedidosService) {}
 
   @Post()
-  crear(@Query('marcaId') marcaId: string, @Body() dto: CrearPedidoPublicoDto, @Ip() ip: string) {
-    return this.pedidosService.crearPublico(marcaId, dto, ip ?? 'desconocida');
+  crear(
+    @Query('marcaId') marcaId: string,
+    @Body() dto: CrearPedidoPublicoDto,
+    @Ip() ip: string,
+    @Headers('x-forwarded-for') forwarded?: string,
+  ) {
+    // La web llama por su proxy: sin esto todos los compradores compartirían la IP del servidor
+    // y el tope (5 pedidos / 10 min) sería global. Tope suave anti-spam, no una barrera de seguridad.
+    return this.pedidosService.crearPublico(marcaId, dto, forwarded?.split(',')[0]?.trim() || ip || 'desconocida');
   }
 }
