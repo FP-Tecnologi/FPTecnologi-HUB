@@ -13,9 +13,23 @@ export interface AgenciaCercana extends AgenciaShalom {
   distanciaKm: number;
 }
 
+/**
+ * Arregla los textos con codificación dañada que traen las fuentes de Shalom: "N?533" -> "N° 533", una "Â" suelta,
+ * el carácter de reemplazo y una minúscula acentuada dentro de una palabra en mayúsculas ("VILLóN" -> "VILLÓN").
+ */
+export const limpiarTexto = (s: string): string =>
+  s
+    .replace(/\uFFFD/g, '')
+    .replace(/Â/g, '')
+    .replace(/\bN\?\s*(?=\d)/gi, 'N° ')
+    .replace(/\bN\?(?![\w?])/gi, 'N°')
+    .replace(/(?<=[A-ZÁÉÍÓÚÑ])[áéíóúñ](?=[A-ZÁÉÍÓÚÑ])/g, (c) => c.toUpperCase())
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+
 const TODAS: AgenciaShalom[] = Object.entries(SHALOM_AGENCIAS).flatMap(([departamento, provincias]) =>
   Object.entries(provincias).flatMap(([provincia, agencias]) =>
-    agencias.map((a, i) => ({ ...a, id: `${departamento}|${provincia}|${i}`, departamento, provincia })),
+    agencias.map((a, i) => ({ ...a, zona: limpiarTexto(a.zona), direccion: limpiarTexto(a.direccion), horario: limpiarTexto(a.horario), id: `${departamento}|${provincia}|${i}`, departamento, provincia })),
   ),
 );
 const POR_ID = new Map(TODAS.map((a) => [a.id, a]));

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { EnviosService } from './envios.service.js';
-import { agenciasCercanas, agenciasDeProvincia, provinciasConAgencias } from './agencias-shalom.js';
+import { agenciasCercanas, agenciasDeProvincia, limpiarTexto, provinciasConAgencias } from './agencias-shalom.js';
 
 const tarifa = (extra = {}) => ({ proveedor: 'SHALOM', departamento: 'Cusco', costo: 9, plazoDias: '3-4 días', ...extra });
 const sinVivas = { agenciasDeDepartamento: async () => null, cercanas: async () => null, resolverViva: () => undefined };
@@ -72,5 +72,16 @@ describe('directorio de agencias Shalom', () => {
     expect(provinciasConAgencias('ancash').length).toBeGreaterThan(0);
     const prov = provinciasConAgencias('Cajamarca')[0].provincia;
     expect(agenciasDeProvincia('cajamarca', prov.toUpperCase()).length).toBeGreaterThan(0);
+  });
+});
+
+describe('limpiarTexto', () => {
+  it('arregla los símbolos dañados de las fuentes de Shalom', () => {
+    expect(limpiarTexto('AV. JOSE PARDO N?533')).toBe('AV. JOSE PARDO N° 533');
+    expect(limpiarTexto('PRADO ESTE N? 1810 - EST.')).toBe('PRADO ESTE N° 1810 - EST.');
+    expect(limpiarTexto('MIGUEL GRAUÂ MZ. A')).toBe('MIGUEL GRAU MZ. A');
+    expect(limpiarTexto('GARCIA VILLóN')).toBe('GARCIA VILLÓN');
+    expect(limpiarTexto('Convenci�n')).toBe('Convencin');
+    expect(limpiarTexto('Lunes a viernes de 8:00 a. m. a 8:00 p. m. ¿Dónde?')).toBe('Lunes a viernes de 8:00 a. m. a 8:00 p. m. ¿Dónde?'); // no toca texto sano
   });
 });

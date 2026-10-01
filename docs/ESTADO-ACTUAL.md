@@ -989,3 +989,7 @@ Junto al perfil, en el encabezado del dashboard, hay una campanita con contador 
 - Las agencias en vivo traen el código ubigeo (`ubi_id`): el «está en el distrito» es exacto (Miraflores ≠ San Juan de Miraflores). Con el directorio estático se compara la zona y el «DISTRITO - PROVINCIA» de la dirección.
 - La ubicación del distrito se obtiene con OpenStreetMap/Nominatim (`geocodificar.ts`: gratis, 1 consulta/s en cola, caché 7 días, tope por IP; si no encuentra el distrito usa la provincia y lo marca aproximado). Rutas nuevas: `GET /public/envios/agencias/distritos` y `/por-distrito`. 176 tests.
 - Pendiente conocido (de la integración en vivo): algunas direcciones traen tildes rotas («N?533»).
+
+## 2026-10-01 — Agencias Shalom: textos dañados corregidos
+
+Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «VILLóN» con una minúscula en medio). `limpiarTexto` (`apps/api/src/envios/agencias-shalom.ts`) los corrige en zona, dirección y horario, tanto en las agencias en vivo como en el directorio estático («N° 533», «VILLÓN»). Con test. Queda resuelto el pendiente de tildes rotas.

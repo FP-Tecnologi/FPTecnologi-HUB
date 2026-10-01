@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
   departamentoDelDirectorio,
+  limpiarTexto,
   provinciasConAgencias,
   type AgenciaCercana,
   type AgenciaShalom,
@@ -110,10 +111,10 @@ export class ShalomApiProvider {
       id: `shalom:${r.ter_id}`,
       departamento: dep,
       provincia: prov,
-      zona: r.lugar_over?.trim() || r.zona?.trim() || '',
-      direccion: r.direccion?.trim() || '',
+      zona: limpiarTexto(r.lugar_over || r.zona || ''),
+      direccion: limpiarTexto(r.direccion || ''),
       telefono: r.telefono?.trim() || null,
-      horario: r.hora_atencion?.trim() || '',
+      horario: limpiarTexto(r.hora_atencion || ''),
       lat: numero(r.latitud),
       lng: numero(r.longitud),
       ...(r.ubi_id ? { ubigeo: String(r.ubi_id) } : {}),
