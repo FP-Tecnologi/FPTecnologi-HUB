@@ -94,8 +94,7 @@ solo a sedes Shalom o también domicilio?
   grupo Cotizador → `comercial`/`marketing`; `admin` pasa siempre). Además (misma fecha, versión final): editar rol, desactivar, invitaciones por correo y clientes de las webs.
 - ~~**T3.3**~~ **Hecho 2026-10-01**: `app/api/contacto/route.ts` ya no trae la clave escrita; usa
   `LEADS_SUPABASE_URL`/`LEADS_SUPABASE_ANON_KEY` (solo servidor) y responde 503 si faltan. Se quitó la llamada muerta a
-  `/cotizaciones` (exige JWT). **Falta (lo hace el dueño): rotar la clave `anon` antigua** — sigue en el historial de git
-  — y cargar las dos variables en el hosting.
+  `/cotizaciones` (exige JWT). **Clave `anon` antigua rotada (confirmado por el dueño 2026-10-01).** Falta cargar las variables `LEADS_SUPABASE_*` en el hosting.
 - ~~**`sitios`**~~ **Hecho 2026-10-01**: el controller solo exigía JWT (cualquier usuario podía crear/borrar sitios de
   cualquier marca) y `remove`/`findAll`/`resolver` habrían fallado con el tenant-guard. Ahora `MarcaRolGuard` + `admin`
   para crear/borrar, todo con `marcaId` del servidor (el DTO ya no lo acepta) y el tenant-guard permite
