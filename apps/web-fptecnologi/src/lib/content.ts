@@ -321,3 +321,19 @@ export const WHY_CHOOSE_US = [
   { title: 'Cotización sin compromiso', text: 'Un especialista te arma la propuesta, tú decides.' },
   { title: 'Programa de Partners', text: 'Precios y beneficios especiales para integradores.' },
 ] as const;
+
+/* Misión, visión y valores de la página Nosotros (la página les pone el ícono). El asistente virtual los lee de acá. */
+export const NOSOTROS_PILARES = [
+  {
+    titulo: 'Misión',
+    texto: 'Equipar a las empresas peruanas con la tecnología correcta para su operación, con asesoría honesta, stock local y soporte técnico cercano.',
+  },
+  {
+    titulo: 'Visión',
+    texto: 'Ser el aliado tecnológico de referencia para empresas e instituciones del Perú, reconocido por cumplir lo que promete.',
+  },
+  {
+    titulo: 'Valores',
+    texto: 'Transparencia en cada cotización, compromiso con los plazos y relaciones de largo plazo con clientes y partners.',
+  },
+] as const;

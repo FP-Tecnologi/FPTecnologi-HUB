@@ -2,6 +2,7 @@
 import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
 
 import { FEATURED_PRODUCTS } from '@/lib/content';
+import type { ShopProduct } from '@/lib/catalog';
 import { ProductCardFinal } from './ProductCardFinal';
 import { CompareDock, useCompare } from './CompareDock';
 import { MoreInfoButton } from './MoreInfoButton';
@@ -14,7 +15,7 @@ import { SectionBadge } from './SectionBadge';
  * imagen, comparar, ver galería) y la tabla comparativa 12.2 con imagen (ver
  * app/guia-estilos-final).
  */
-export function FeaturedProducts({ c = HOME_DEFAULTS.productos }: { c?: Encabezado }) {
+export function FeaturedProducts({ c = HOME_DEFAULTS.productos, products = FEATURED_PRODUCTS }: { c?: Encabezado; products?: readonly ShopProduct[] }) {
   // Comparar: estado + panel pegado abajo compartidos con la tienda.
   const compare = useCompare();
 
@@ -37,7 +38,7 @@ export function FeaturedProducts({ c = HOME_DEFAULTS.productos }: { c?: Encabeza
         </div>
 
         <div className="grid grid-cols-2 gap-5 sm:gap-7 lg:grid-cols-4">
-          {FEATURED_PRODUCTS.map((p, i) => (
+          {products.map((p, i) => (
             <ScrollReveal key={p.sku} direction="up" delayMs={i * 100} className="h-full">
               <ProductCardFinal product={p} compared={compare.skus.includes(p.sku)} onToggleCompare={compare.toggle} />
             </ScrollReveal>
@@ -45,7 +46,7 @@ export function FeaturedProducts({ c = HOME_DEFAULTS.productos }: { c?: Encabeza
         </div>
       </div>
 
-      <CompareDock products={FEATURED_PRODUCTS} compare={compare} />
+      <CompareDock products={products} compare={compare} />
     </section>
   );
 }

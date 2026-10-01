@@ -234,7 +234,7 @@ function fallbackReply(text: string): BotReply {
   const ids = hit?.actions ?? ['whatsapp'];
   return {
     text: hit?.text ?? 'No tengo una respuesta para eso todavía. Te paso con un asesor por WhatsApp para ayudarte mejor.',
-    actions: ids.map(resolveAction).filter((a): a is ChatAction => a !== null),
+    actions: ids.map((id) => resolveAction(id)).filter((a): a is ChatAction => a !== null),
     options: hit?.options ?? [],
   };
 }

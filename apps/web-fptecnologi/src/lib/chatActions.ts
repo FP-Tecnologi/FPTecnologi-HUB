@@ -1,4 +1,5 @@
-import { CONTACT_INFO, COTIZADOR_URL, SOLUTIONS, TIENDA_CATEGORIES, WHATSAPP_AREAS } from './content';
+import { CONTACT_INFO, COTIZADOR_URL, PARTNER_BRANDS, SOLUTIONS, TIENDA_CATEGORIES, WHATSAPP_AREAS, brandSlug } from './content';
+import { productHref } from './catalog';
 
 /*
  * Botones/enlaces que el asistente virtual puede adjuntar a una respuesta.
@@ -28,11 +29,21 @@ const FIXED: Record<string, ChatAction> = {
   tienda: { kind: 'page', label: 'Ver tienda', href: '/tienda' },
   contacto: { kind: 'page', label: 'Contacto', href: '/contacto' },
   nosotros: { kind: 'page', label: 'Nosotros', href: '/nosotros' },
+  proyectos: { kind: 'page', label: 'Proyectos', href: '/proyectos' },
+  blog: { kind: 'page', label: 'Blog', href: '/blog' },
+  marcas: { kind: 'page', label: 'Marcas', href: '/marcas' },
+  devoluciones: { kind: 'page', label: 'Cambios y devoluciones', href: '/legal/devoluciones' },
+  reclamaciones: { kind: 'page', label: 'Libro de reclamaciones', href: '/libro-de-reclamaciones' },
 };
 
-export function resolveAction(id: string): ChatAction | null {
+/** Productos reales de la tienda (sku -> nombre/slug) para el id `producto:<sku>`; los pasa el servidor. */
+export type ProductoEnlace = { sku: string; name: string; slug?: string };
+
+export function resolveAction(id: string, productos: readonly ProductoEnlace[] = []): ChatAction | null {
   if (FIXED[id]) return FIXED[id];
-  const [prefix, slug] = id.split(':');
+  const sep = id.indexOf(':');
+  const prefix = sep === -1 ? id : id.slice(0, sep);
+  const slug = sep === -1 ? '' : id.slice(sep + 1);
   if (prefix === 'servicio') {
     const s = SOLUTIONS.find((x) => x.slug === slug);
     if (s) return { kind: 'page', label: s.title, href: `/servicios/${s.slug}` };
@@ -40,6 +51,14 @@ export function resolveAction(id: string): ChatAction | null {
   if (prefix === 'tienda') {
     const c = TIENDA_CATEGORIES.find((x) => x.slug === slug);
     if (c) return { kind: 'page', label: c.title, href: `/tienda/${c.slug}` };
+  }
+  if (prefix === 'marca') {
+    const b = PARTNER_BRANDS.find((x) => brandSlug(x.name) === slug);
+    if (b) return { kind: 'page', label: b.name, href: `/marcas/${brandSlug(b.name)}` };
+  }
+  if (prefix === 'producto') {
+    const p = productos.find((x) => x.sku === slug);
+    if (p) return { kind: 'page', label: p.name.slice(0, 40), href: productHref(p.sku, p.slug) };
   }
   return null;
 }
@@ -51,7 +70,10 @@ export const ACTION_IDS_HELP = [
   'email (correo de ventas)',
   'telefono (llamar a ventas)',
   'cotizar (cotizador)',
-  'servicios, tienda, contacto, nosotros (páginas)',
+  'servicios, tienda, contacto, nosotros, proyectos, blog, marcas (páginas)',
+  'devoluciones (cambios y devoluciones), reclamaciones (libro de reclamaciones)',
+  'producto:<SKU exacto del producto> (ficha de un producto de la lista)',
+  'marca:<nombre en minúsculas> (ej. marca:dell)',
   ...SOLUTIONS.map((s) => `servicio:${s.slug} (${s.title})`),
   ...TIENDA_CATEGORIES.map((c) => `tienda:${c.slug} (${c.title})`),
 ].join('\n');

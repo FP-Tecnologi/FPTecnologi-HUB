@@ -12,7 +12,7 @@ export type ServicioDetalle = {
   faqs: { p: string; r: string }[];
 };
 
-const FAQ_COMUNES = {
+export const FAQ_COMUNES = {
   visita: { p: '¿La visita técnica tiene costo?', r: 'No. Visitamos tu sede, levantamos la información y te enviamos una propuesta sin compromiso.' },
   soporte: { p: '¿Qué pasa después de la instalación?', r: 'Te acompañamos con soporte técnico local y gestionamos la garantía oficial de los equipos con cada marca.' },
 };

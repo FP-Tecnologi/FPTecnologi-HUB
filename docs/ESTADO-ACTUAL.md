@@ -814,3 +814,29 @@ sesión/máquina)**:
 - API `sitios`: `POST/GET/DELETE` ahora con `MarcaRolGuard` (crear/borrar solo `admin`), `marcaId` del servidor, 4 tests.
   El tenant-guard permite consultar `Sitio` por `dominio` (para `GET /sitios/resolver/:dominio`).
 
+
+### 2026-10-01 — Equipo real (T3.2) + cierre de escalada de privilegios en `roles`
+
+- **Seguridad (API `roles`)**: `MarcaRolGuard` solo valida la marca del header `x-marca-id`, pero tres rutas usaban
+  otra marca sin validar: `POST /roles/asignaciones` (marcaId del body) y `DELETE /roles/asignaciones/:usuarioId/:marcaId/:rolId`
+  (marcaId de la URL) permitían a un admin de la marca A asignarse/quitar roles en la marca B, y
+  `GET /marcas/:marcaId/equipo` dejaba a cualquier miembro leer el equipo de otra marca. Ahora `asignar` y `quitar`
+  usan solo la marca activa (el DTO ya no trae `marcaId`; la ruta de borrado pasó a `/roles/asignaciones/:usuarioId/:rolId`)
+  y `equipo` exige que la marca de la URL coincida con la activa. `POST /roles` (crear rol) pasó a solo admin.
+  4 tests nuevos.
+- **Dashboard**: `Team.tsx` ya no usa datos de ejemplo (ver `PENDIENTES.md` → T3.2); menú alineado con la API.
+- Tests: se arreglaron los 3 de `usuarios.service.spec.ts` (estaban desactualizados); API 99/99.
+
+### 2026-10-01 — Asistente virtual conectado a toda la web y a la base de datos; home con productos reales
+
+- **Asistente** (`web-fptecnologi/app/api/chat`): ya no usa un resumen fijo. `src/lib/chatConocimiento.ts` reúne, cacheado 60 s:
+  empresa y contacto, Nosotros (misión/visión/valores), los 8 servicios con su detalle (qué incluye, beneficios, sectores,
+  preguntas), servicios cargados en la BD (`GET /public/servicios`), la tienda (categorías, marcas y hasta 80 productos con
+  marca, SKU, precio y oferta desde `GET /public/productos`, cómo comprar y envío), Partners, cotizador (CMS), artículos del
+  blog, resumen de los textos legales (devoluciones completo) y el mapa de páginas. Proyectos y clientes **no** se le pasan
+  (son de ejemplo). Nuevos botones que puede adjuntar: `producto:<SKU>`, `marca:<nombre>`, proyectos, blog, marcas,
+  devoluciones y libro de reclamaciones. Tope de 30 mensajes / 10 min por IP.
+  Ojo: el prompt pesa ~5–6 mil tokens; si Groq está en un plan con poco límite por minuto, bajar `MAX_PRODUCTOS`.
+- **Home**: "Productos destacados" lee la API (`getDestacados`): marcados como destacado → primeros del catálogo → fijos.
+- `NOSOTROS_PILARES` pasó a `content.ts` para que la página y el asistente compartan el texto.
+

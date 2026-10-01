@@ -5,8 +5,8 @@
  * local de `catalog.ts` para que la tienda no quede vacía. Precios en USD sin
  * IGV. El catálogo se cachea 60 s (ISR) para no pegarle a la API en cada visita.
  */
-import { CATALOG, productSlug, type CatalogProduct } from './catalog';
-import { TIENDA_CATEGORIES } from './content';
+import { CATALOG, productSlug, type CatalogProduct, type ShopProduct } from './catalog';
+import { FEATURED_PRODUCTS, TIENDA_CATEGORIES } from './content';
 
 const API_URL = process.env.HUB_API_URL ?? 'http://localhost:3001';
 const MARCA_ID = process.env.HUB_MARCA_ID ?? '';
@@ -72,6 +72,18 @@ export async function getCatalogo(): Promise<{ products: CatalogProduct[]; fuent
   return { products: todos.map(mapear), fuente: 'api' };
 }
 
+/**
+ * Productos del home: los marcados como destacados en la API; si no hay
+ * ninguno marcado, los primeros del catálogo; sin API, los fijos de content.ts.
+ */
+export async function getDestacados(n = 4): Promise<{ products: ShopProduct[]; fuente: 'api' | 'local' }> {
+  const marcados = await api<{ data: ApiProducto[] }>(`/productos?destacados=1&limit=${n}`);
+  if (marcados?.data.length) return { products: marcados.data.map(mapear), fuente: 'api' };
+  const primeros = await api<{ data: ApiProducto[] }>(`/productos?limit=${n}`);
+  if (primeros?.data.length) return { products: primeros.data.map(mapear), fuente: 'api' };
+  return { products: FEATURED_PRODUCTS.slice(0, n), fuente: 'local' };
+}
+
 /** Un producto por su URL: slug de la API o, para enlaces viejos, el slug del SKU. */
 export async function getProducto(slug: string): Promise<CatalogProduct | null> {
   const directo = await api<ApiProducto>(`/productos/slug/${encodeURIComponent(slug)}`);
@@ -95,4 +107,11 @@ export function categoriasDe(products: CatalogProduct[]): Categoria[] {
       imageFit: c?.imageFit ?? 'cover',
     };
   });
+}
+
+export type ServicioApi = { id: string; nombre: string; descripcion: string | null; precioDesde: string | number | null };
+
+/** Servicios activos cargados en la base de datos (dashboard → Soluciones → Servicios). Vacío si la API no responde. */
+export async function getServiciosApi(): Promise<ServicioApi[]> {
+  return (await api<ServicioApi[]>('/servicios')) ?? [];
 }

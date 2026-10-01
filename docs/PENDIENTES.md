@@ -70,9 +70,10 @@ solo a sedes Shalom o también domicilio?
 - **Comprobante (boleta/factura), razón social y tipo de entrega** viajan en `Pedido.notas`. Moverlos a
   columnas propias (`comprobante`, `razonSocial`, `entrega`) para poder filtrarlos y facturar.
 - **Pago**: no hay pasarela ni SUNAT (fuera de alcance por ahora); el pago se confirma por WhatsApp.
-- **Home aún usa productos fijos** (`FEATURED_PRODUCTS` en `src/lib/content.ts`) y el chat con IA
-  (`app/api/chat/route.ts`) también lista productos/categorías fijas: conectarlos al catálogo real
-  (`getCatalogo()` ya existe; los destacados salen con `?destacados=1`).
+- ~~**Home y chat con productos fijos**~~ **Hecho 2026-10-01**: el home muestra los productos marcados como
+  destacados en la API (si no hay ninguno marcado, los primeros del catálogo; sin API, los fijos) y el asistente
+  virtual arma su conocimiento con `lib/chatConocimiento.ts` (ver ESTADO-ACTUAL). Falta **marcar destacados** en el
+  dashboard (hoy solo se marcan al importar desde WooCommerce).
 - **Fotos de productos**: se sirven desde `fptecnologi.com/wp-content/uploads` (hotlink al WordPress viejo). Si
   ese sitio se apaga se pierden. Subirlas a Storage (Supabase) y guardar la URL nueva.
 - **Subida de imágenes** en el dashboard de Productos: hoy se pegan URLs.
@@ -84,11 +85,13 @@ solo a sedes Shalom o también domicilio?
 - Notificación de pedido nuevo: agregar enlace directo al pedido en el dashboard (`/ecommerce/pedidos?id=`).
 
 ### Asesores, equipo y seguridad (Fase 3 del plan — sin empezar)
-- **T3.1** Subir fotos (Storage) para `ChatAsesor.fotoUrl` y `Usuario.avatarUrl`; vincular `ChatAsesor.usuarioId?`
-  (opcional) sin romper el widget. Hoy el widget usa fotos de ejemplo (Unsplash) y teléfonos provisionales
-  `999 999 999` (`WHATSAPP_AREAS` en `content.ts`).
-- **T3.2** `Team.tsx` real (`GET /marcas/:marcaId/equipo`, `POST /roles/equipo|asignaciones`, `DELETE`, reset 2FA) y
-  **alinear `nav-manifest.json` con los permisos de la API** (hay ítems visibles que responden 403).
+- **T3.1** (redefinida 2026-10-01 por el dueño): las fotos de los asesores **se quedan como están por ahora**; más
+  adelante cada asesor tendrá su **perfil** (`Usuario.avatarUrl`) y desde ahí gestionará su foto. Eso implica vincular
+  `ChatAsesor.usuarioId?` (opcional) para que el widget tome nombre y foto del perfil. Sin empezar. Siguen los teléfonos
+  provisionales `999 999 999` (`WHATSAPP_AREAS` en `content.ts`).
+- ~~**T3.2**~~ **Hecho 2026-10-01**: `Team.tsx` real (lista de la marca activa, alta de miembro, quitar rol, buscar/filtrar,
+  desbloqueo 2FA) y `nav-manifest.json` alineado con los `@Roles` de la API (Blogs y Web informativa → `marketing`,
+  grupo Cotizador → `comercial`/`marketing`; `admin` pasa siempre). Además (misma fecha, versión final): editar rol, desactivar, invitaciones por correo y clientes de las webs.
 - ~~**T3.3**~~ **Hecho 2026-10-01**: `app/api/contacto/route.ts` ya no trae la clave escrita; usa
   `LEADS_SUPABASE_URL`/`LEADS_SUPABASE_ANON_KEY` (solo servidor) y responde 503 si faltan. Se quitó la llamada muerta a
   `/cotizaciones` (exige JWT). **Falta (lo hace el dueño): rotar la clave `anon` antigua** — sigue en el historial de git
@@ -110,7 +113,7 @@ solo a sedes Shalom o también domicilio?
 ### Blog y SEO (Fase 5 — sin empezar)
 - Subir portada desde el dashboard (hoy URL), `generateMetadata` con OG/Twitter/canonical por artículo,
   JSON-LD `Article`, **sitemap** (`sitemap.xml`) y `robots`, programar publicación.
-- Chat con IA: **rate limit** en el endpoint.
+- ~~Chat con IA: rate limit~~ **Hecho**: 30 mensajes / 10 min por IP, en memoria (mover a Redis si hay varias instancias).
 - Reemplazar datos de ejemplo por reales: `CONTACT_INFO`, fotos y teléfonos de asesores, proyectos y clientes
   (marcados "de ejemplo" en `src/lib/*.ts`).
 - Verificar el texto del CTA del blog/ficha ("Visita técnica sin costo"): es un compromiso comercial que debe
@@ -180,3 +183,17 @@ solo a sedes Shalom o también domicilio?
 - `POST /auth/otp/request` y `/auth/otp/verify` no exigen la contraseña; con la opción "código por correo" del login TOTP, quien tenga el correo evita la app. Evaluar atar el OTP a un paso de contraseña ya validado.
 - Probar de punta a punta con un admin real: invitar → correo → aceptar → entrar → cambiar rol/desactivar/quitar (solo se verificó la página de aceptación con token inválido y los tests de servicio).
 
+
+## 5. Servicios: qué falta (revisión 2026-10-01)
+
+- Las **8 páginas de servicio** están completas en estructura (introducción, qué incluye, beneficios, sectores, preguntas
+  frecuentes, proceso, cotizar/WhatsApp), pero el contenido está **escrito en código** (`content.ts` +
+  `serviciosDetalle.ts`), no en la base de datos: no se puede editar desde el dashboard y la tabla `Servicio` no se usa
+  en la web (tampoco hay pantalla "Soluciones → Servicios" real; el modelo no tiene slug, imagen ni detalle).
+- **Sin validar por el negocio**: textos redactados por nosotros; "visita técnica sin costo" y los plazos son un
+  compromiso comercial a confirmar. No hay precios "desde" ni plazos por servicio.
+- **Sin casos reales**: proyectos y clientes son de ejemplo y las fotos son de stock.
+- **Servicios sin productos en la tienda**: la tienda solo tiene 5 marcas (ASUS, Dell, HP, LG, Lenovo) de las 13
+  distribuidas; Seguridad (ZKTeco), Videoconferencia (Shure, Nureva, ScreenBeam) o Datos (Sophos) no tienen producto asociado.
+- A confirmar con el dueño si faltan líneas: soporte técnico / mantenimiento / postventa, redes y cableado como servicio
+  propio, ciberseguridad, licenciamiento. (No se contrastó con el sitio actual fptecnologi.com.)
