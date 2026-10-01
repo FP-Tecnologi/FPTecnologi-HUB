@@ -4,6 +4,7 @@ import { CartProvider } from '@/context/CartContext';
 import { CurrencyProvider } from '@/context/CurrencyContext';
 import { ChatWidgetProvider } from '@/context/ChatWidgetContext';
 import { ChatWidget } from '@/components/site/ChatWidget';
+import { PopupsSitio } from '@/components/site/PopupsSitio';
 import { FavoritesProvider } from '@/context/FavoritesContext';
 import { FavoritesWidget } from '@/components/site/FavoritesWidget';
 import { ServiciosProvider } from '@/context/ServiciosContext';
@@ -55,6 +56,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
               <ChatWidgetProvider>
                 {children}
                 <ChatWidget />
+                <PopupsSitio />
                 <FavoritesWidget />
                 <TransicionPagina />
               </ChatWidgetProvider>

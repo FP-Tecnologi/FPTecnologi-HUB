@@ -52,6 +52,7 @@ model Marca {
   cotizacionEnvios   CotizacionEnvio[]
   campanas           Campana[]
   landings           Landing[]
+  popups             Popup[]
   landingRegistros   LandingRegistro[]
   codigosCuenta      CodigoCuenta[]
   conocimientoDocs   ConocimientoDocumento[]
@@ -888,4 +889,52 @@ model ConocimientoPendiente {
 
   @@unique([marcaId, clave])
   @@index([marcaId, resuelta, veces])
+}
+
+// ---------------------------------------------------------------------------
+// Popups de aviso de la web pública (Web informativa → Popups)
+// ---------------------------------------------------------------------------
+
+enum EstadoPopup {
+  BORRADOR
+  ACTIVO
+  PAUSADO
+}
+
+model Popup {
+  id              String      @id @default(uuid())
+  marcaId         String
+  marca           Marca       @relation(fields: [marcaId], references: [id])
+  /// Nombre interno (solo se ve en el dashboard).
+  nombre          String
+  /// aviso | promocion | descuento | evento | producto — define los campos del contenido.
+  plantilla       String
+  /// modal | esquina | barra — cómo se presenta en la web.
+  formato         String      @default("modal")
+  estado          EstadoPopup @default(BORRADOR)
+  /// Título, texto, imagen, código, botón, colores… (forma en popups.modelo.ts).
+  contenido       Json
+  /// Producto al que redirige el botón (si la acción es "producto").
+  productoId      String?
+  /// Mayor número = se muestra primero cuando coinciden varios en una página.
+  prioridad       Int         @default(0)
+  /// carga | retraso | scroll | salida
+  disparador      String      @default("retraso")
+  /// Segundos (retraso) o % de scroll (scroll).
+  disparadorValor Int         @default(5)
+  /// siempre | sesion | una_vez | horas | dias
+  frecuencia      String      @default("sesion")
+  frecuenciaValor Int         @default(1)
+  /// Claves de página donde aparece (home, tienda, producto…) o "todas".
+  paginas         String[]    @default([])
+  /// todos | escritorio | movil
+  dispositivo     String      @default("todos")
+  inicio          DateTime?
+  fin             DateTime?
+  vistas          Int         @default(0)
+  clics           Int         @default(0)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@index([marcaId, estado])
 }
