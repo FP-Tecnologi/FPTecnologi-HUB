@@ -106,7 +106,7 @@ export function PedidoGracias({ numero, total }: { numero: string; total: number
         </div>
 
         <aside className="space-y-4">
-          <div className="relative overflow-hidden rounded-3xl bg-ink p-6 text-white shadow-2xl shadow-brand-dark/30">
+          <div className="relative overflow-hidden rounded-3xl bg-brand-primary p-6 text-white shadow-2xl shadow-brand-dark/30">
             <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-brand-teal/25 blur-3xl" />
             <p className="relative flex items-center gap-2 font-display text-lg font-bold"><Headset className="h-5 w-5" strokeWidth={1.9} /> ¿Necesitas ayuda?</p>
             <ul className="relative mt-4 space-y-3 text-sm text-white/75">

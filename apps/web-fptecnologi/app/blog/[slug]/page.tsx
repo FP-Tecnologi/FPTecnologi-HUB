@@ -225,7 +225,7 @@ export default async function ArticuloPage({ params }: { params: Promise<{ slug:
               </div>
             </div>
 
-            <div className="relative overflow-hidden rounded-2xl bg-ink p-6 text-white shadow-xl shadow-brand-dark/25">
+            <div className="relative overflow-hidden rounded-2xl bg-brand-primary p-6 text-white shadow-xl shadow-brand-dark/25">
               <p className="font-display text-lg font-bold leading-snug">Recibe nuevas guías en tu correo</p>
               <p className="mb-4 mt-1.5 text-sm text-white/60">Artículos y novedades de tecnología para empresas. Sin spam.</p>
               <NewsletterForm />

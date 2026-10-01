@@ -35,7 +35,7 @@ export function PageHero({
     <>
       <StickyNav />
       <div className="bg-paper p-3 md:p-5">
-        <section className="relative flex w-full flex-col overflow-hidden rounded-[1.25rem] bg-ink md:rounded-[2.25rem]">
+        <section className="relative flex w-full flex-col overflow-hidden rounded-[1.25rem] bg-brand-primary md:rounded-[2.25rem]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={imagen} alt="" aria-hidden className="absolute inset-0 z-0 h-full w-full object-cover" />
           {video && (
@@ -43,7 +43,7 @@ export function PageHero({
               <source src={video} type="video/mp4" />
             </video>
           )}
-          <div className="absolute inset-0 z-[1] bg-black/50" />
+          <div className="absolute inset-0 z-[1] bg-brand-primary/80" />
           <div className="absolute inset-0 z-[1] bg-[radial-gradient(ellipse_60%_50%_at_50%_45%,rgba(0,0,0,0.35),transparent)]" />
           <div className="absolute inset-0 z-[2]">
             <ParticlesBackground />

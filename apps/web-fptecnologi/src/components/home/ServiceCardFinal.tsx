@@ -29,7 +29,7 @@ export function ServiceCardFinal({ item }: { item: ServicioTarjeta }) {
       {/* Mismo degradé que el Modelo 3: negro neutro, oscuro solo abajo
           (donde va el texto) y transparente arriba -- la foto se ve con sus
           colores reales, sin el tinte azul. */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/85 via-brand-primary/25 to-transparent" />
       {/* Contorno celeste que gira al hover (ver .spin-border en globals.css). */}
       <span className="spin-border" aria-hidden />
 

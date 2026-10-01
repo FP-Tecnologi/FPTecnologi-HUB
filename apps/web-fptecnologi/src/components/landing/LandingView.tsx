@@ -5,8 +5,8 @@ import { FormularioLanding } from './FormularioLanding';
 import { imagenLanding, type LandingPublica } from '@/lib/landings';
 
 const FONDO = {
-  azul: { hero: 'bg-gradient-to-br from-ink via-brand-primary to-brand-dark text-white', desc: 'text-white/80', badge: 'border-white/25 bg-white/10 text-white', chip: 'bg-white/10 text-white border-white/20', shimmer: 'title-shimmer-dark', cta: 'bg-white text-brand-dark hover:bg-brand-primary hover:text-white' },
-  oscuro: { hero: 'bg-ink text-white', desc: 'text-white/70', badge: 'border-white/20 bg-white/10 text-white', chip: 'bg-white/10 text-white border-white/20', shimmer: 'title-shimmer-dark', cta: 'bg-brand-dark text-white hover:bg-brand-primary' },
+  azul: { hero: 'bg-gradient-to-br from-brand-primary via-brand-primary to-brand-dark text-white', desc: 'text-white/80', badge: 'border-white/25 bg-white/10 text-white', chip: 'bg-white/10 text-white border-white/20', shimmer: 'title-shimmer-dark', cta: 'bg-white text-brand-dark hover:bg-brand-primary hover:text-white' },
+  oscuro: { hero: 'bg-brand-primary text-white', desc: 'text-white/70', badge: 'border-white/20 bg-white/10 text-white', chip: 'bg-white/10 text-white border-white/20', shimmer: 'title-shimmer-dark', cta: 'bg-brand-dark text-white hover:bg-brand-primary' },
   claro: { hero: 'bg-white text-ink', desc: 'text-ink/65', badge: 'border-brand-primary/20 bg-brand-primary/10 text-brand-primary', chip: 'bg-paper text-ink border-ink/10', shimmer: 'title-shimmer-light', cta: 'bg-brand-dark text-white hover:bg-brand-primary' },
 } as const;
 
@@ -164,7 +164,7 @@ export function LandingView({ landing, vistaPrevia = false }: { landing: Landing
         </section>
       )}
 
-      <footer className="bg-ink px-6 py-8 text-center text-sm text-white/60">
+      <footer className="bg-brand-primary px-6 py-8 text-center text-sm text-white/60">
         © {new Date().getFullYear()} FPTecnologi &amp; System · <a href="/legal/privacidad" className="underline hover:text-white">Privacidad</a> · <a href="https://fptecnologi.com" className="underline hover:text-white">fptecnologi.com</a>
       </footer>
     </div>

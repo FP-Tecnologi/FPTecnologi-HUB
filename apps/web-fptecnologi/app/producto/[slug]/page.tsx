@@ -53,7 +53,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
           el encabezado fijo es claro y necesita fondo oscuro detrás. */}
       <div className="bg-paper p-3 md:p-5">
         <section className="relative overflow-hidden rounded-[1.25rem] text-white md:rounded-[2.25rem]">
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-br from-ink via-brand-primary to-brand-dark" />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-br from-brand-primary via-brand-primary to-brand-dark" />
           <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-brand-teal/30 blur-3xl" />
           <div className="invisible" aria-hidden>
             <Navbar9 store />

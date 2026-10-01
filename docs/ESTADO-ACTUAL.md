@@ -1016,3 +1016,7 @@ Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «V
 ## 2026-10-01 — Web: paleta primario `#2898ee` + secundario `#107acc`
 
 - Se eliminan los azules oscuros: `--color-brand-primary` = `#2898ee` (base de botones) y `--color-brand-dark` = `--color-brand-petrol` = `#107acc` (hover/secundario y final de los degradados). Los turquesas (`brand-teal`, `brand-teal-light`) no cambian. Los popups "azul" usan el mismo par. Reemplaza lo anotado en la entrada anterior sobre `#2181af`.
+
+## 2026-10-01 — Web: fondos oscuros pasan al color primario
+
+- Todo `bg-/from-/via-/to-ink` sólido o con opacidad ≥ 20 % (footer, contacto, cotizador, carrito, checkout, landing, tienda, navegación, chat…) usa ahora `brand-primary`; `ink` se conserva como color de texto. También `.glass-panel`, los velos del hero (`home/Hero`, `PageHero`, ambos al 80 % para que el texto blanco se lea), las cabeceras `HeaderDark`, el menú móvil de `Navbar9` y el degradado de las tarjetas de servicio. Se dejan en negro los fondos de ventanas modales (galería, popups) y los velos ≤ 10 %.

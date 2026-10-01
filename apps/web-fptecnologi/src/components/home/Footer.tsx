@@ -33,14 +33,14 @@ function ColumnTitle({ children }: { children: string }) {
  * 2) columnas: marca + contacto rápido, navegación (solo páginas),
  *    servicios y enlaces útiles, con separadores verticales en desktop,
  * 3) barra legal.
- * Mismo fondo que "Hablemos" (bg-ink); la línea de arriba marca dónde empieza.
+ * Mismo fondo que "Hablemos" (bg-brand-primary); la línea de arriba marca dónde empieza.
  */
 export async function Footer() {
   const [servicios, { social: SOCIAL_LINKS }] = await Promise.all([getServicios(), getSitio()]);
   const divider = <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />;
 
   return (
-    <footer className="bg-ink text-white/60">
+    <footer className="bg-brand-primary text-white/60">
       <div className="mx-auto max-w-7xl px-6">
         {divider}
 

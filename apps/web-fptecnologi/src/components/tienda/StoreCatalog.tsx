@@ -176,8 +176,8 @@ export function StoreCatalog({
               marca: oscuro a la izquierda, donde va el texto. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/images/categorias/monitores.jpg" alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover object-[center_55%]" />
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-ink via-ink/80 to-brand-primary/20" />
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent" />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-brand-primary via-brand-primary/80 to-brand-primary/20" />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-brand-primary/60 via-transparent to-transparent" />
           <div className="invisible" aria-hidden>
             <Navbar9 store />
           </div>
@@ -337,7 +337,7 @@ export function StoreCatalog({
 
       {/* Filtros en celular: panel lateral */}
       {drawer && (
-        <div className="fixed inset-0 z-[70] flex bg-ink/40 backdrop-blur-sm lg:hidden" onClick={() => setDrawer(false)}>
+        <div className="fixed inset-0 z-[70] flex bg-brand-primary/40 backdrop-blur-sm lg:hidden" onClick={() => setDrawer(false)}>
           <div className="animate-pop-in flex h-full w-[min(340px,88vw)] flex-col bg-white shadow-2xl shadow-brand-dark/30" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b border-black/5 px-5 py-4">
               <p className="flex items-center gap-2 font-display text-base font-bold text-ink">

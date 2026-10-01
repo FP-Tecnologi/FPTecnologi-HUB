@@ -119,7 +119,7 @@ export function Navbar9({ compact = false, store = false }: { compact?: boolean;
       </div>
 
       {open && (
-        <div className="mt-3 flex flex-col gap-1 rounded-2xl border border-white/15 bg-black/70 p-3 backdrop-blur-xl lg:hidden">
+        <div className="mt-3 flex flex-col gap-1 rounded-2xl border border-white/15 bg-brand-primary/90 p-3 backdrop-blur-xl lg:hidden">
           <MobileNav tone="dark" onNavigate={() => setOpen(false)} />
         </div>
       )}

@@ -23,7 +23,7 @@ export function ProcesoServicio() {
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
           {PASOS.map(({ icon: Icon, titulo, texto }, i) => (
             <ScrollReveal key={titulo} direction="up" delayMs={i * 100} className="h-full">
-              <div className="group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-ink p-7 shadow-lg shadow-brand-dark/25 transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-primary/60 hover:shadow-2xl hover:shadow-brand-dark/45">
+              <div className="group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-brand-primary p-7 shadow-lg shadow-brand-dark/25 transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-primary/60 hover:shadow-2xl hover:shadow-brand-dark/45">
                 <span aria-hidden className="absolute -right-2 -top-4 font-display text-7xl font-bold text-white/5">
                   0{i + 1}
                 </span>

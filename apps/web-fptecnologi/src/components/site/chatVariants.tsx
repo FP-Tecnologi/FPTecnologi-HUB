@@ -30,7 +30,7 @@ export function getVariant(pathname: string | null): Variant {
 export function HeaderBg({ look }: { look: HeaderLook }) {
   if (look === 'dark') {
     return (
-      <div className="absolute inset-0 bg-ink" aria-hidden>
+      <div className="absolute inset-0 bg-brand-primary" aria-hidden>
         <div className="absolute -right-8 -top-10 h-28 w-28 rounded-full bg-brand-primary/40 blur-2xl" />
         <svg className="absolute inset-0 h-full w-full opacity-[0.12]" viewBox="0 0 200 80">
           <defs>

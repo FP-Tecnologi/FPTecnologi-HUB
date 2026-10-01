@@ -284,7 +284,7 @@ const THEMES = {
     input: 'border-brand-dark/15 bg-paper text-ink placeholder:text-ink/40 focus:border-brand-dark focus:bg-white focus:ring-brand-dark/15',
   },
   dark: {
-    panel: 'border border-white/10 bg-ink/90 shadow-2xl shadow-brand-dark/40 backdrop-blur-xl',
+    panel: 'border border-white/10 bg-brand-primary/90 shadow-2xl shadow-brand-dark/40 backdrop-blur-xl',
     card: 'border border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10 hover:shadow-lg hover:shadow-brand-dark/30',
     title: 'text-white',
     muted: 'text-white/60',
@@ -294,7 +294,7 @@ const THEMES = {
     link: 'border-white/15 bg-white/10 text-white hover:border-brand-dark hover:bg-brand-dark',
     whatsapp: 'border-whatsapp/40 bg-whatsapp/15 text-white hover:border-whatsapp hover:bg-whatsapp',
     chip: 'border-white/20 bg-white/10 text-white backdrop-blur-md hover:border-brand-dark hover:bg-brand-dark',
-    inputBar: 'border-white/10 bg-ink/60',
+    inputBar: 'border-white/10 bg-brand-primary/60',
     notice: 'border-white/15 bg-white/10 shadow-lg shadow-brand-dark/30 backdrop-blur-md',
     divider: 'bg-white/10',
     time: 'text-white/40',

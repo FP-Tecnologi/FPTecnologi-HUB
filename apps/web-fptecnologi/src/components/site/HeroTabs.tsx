@@ -5,7 +5,7 @@ type Tone = 'light' | 'dark';
 const TONE = {
   light: {
     wrap: 'bg-ink/5 ring-1 ring-black/10',
-    active: 'bg-ink text-white',
+    active: 'bg-brand-primary text-white',
     idle: 'text-ink/60 hover:text-ink',
   },
   dark: {

@@ -19,7 +19,7 @@ export function HeaderDark() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-black/40 backdrop-blur-md">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-brand-primary/80 backdrop-blur-md">
       <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-6 px-6 py-3">
         <a href="#inicio" className="flex items-center gap-2">
           <Image src="/logo-fptecnologi.svg" alt="FPTecnologi & System" width={168} height={40} priority className="h-8 w-auto brightness-0 invert" />
@@ -66,7 +66,7 @@ export function HeaderDark() {
       </div>
 
       {open && (
-        <div className="flex flex-col gap-1 border-t border-white/10 bg-black/70 px-6 py-4 backdrop-blur-xl lg:hidden">
+        <div className="flex flex-col gap-1 border-t border-white/10 bg-brand-primary/90 px-6 py-4 backdrop-blur-xl lg:hidden">
           <MobileNav tone="dark" onNavigate={() => setOpen(false)} />
           <a
             href={COTIZADOR_URL}

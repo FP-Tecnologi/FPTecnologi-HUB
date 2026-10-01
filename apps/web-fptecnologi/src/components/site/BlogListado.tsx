@@ -15,7 +15,7 @@ export function ArticuloCard({ a }: { a: ArticuloResumen }) {
       <div className="relative aspect-[16/10] overflow-hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={a.portadaUrl || PORTADA_DEFECTO} alt="" className="h-full w-full object-cover transition-transform duration-700 group-hover:rotate-1 group-hover:scale-110" />
-        <span className="absolute left-3 top-3 rounded-lg border border-white/30 bg-ink/40 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-md">{a.categoria}</span>
+        <span className="absolute left-3 top-3 rounded-lg border border-white/30 bg-brand-primary/40 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-md">{a.categoria}</span>
       </div>
       <div className="flex flex-1 flex-col p-6">
         <p className="flex items-center gap-1.5 text-xs text-ink/50">

@@ -28,7 +28,7 @@ export function CartView() {
         <p className="mt-2 text-ink/60">Explora la tienda y agrega los equipos que necesitas. También puedes pedirnos una cotización a medida.</p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <MoreInfoButton href="/tienda" label="Ir a la tienda" />
-          <a href="/cotizador" className="inline-flex h-11 items-center rounded-xl border border-ink/15 px-6 text-sm font-semibold uppercase tracking-wide text-ink transition-colors hover:bg-ink hover:text-white">
+          <a href="/cotizador" className="inline-flex h-11 items-center rounded-xl border border-ink/15 px-6 text-sm font-semibold uppercase tracking-wide text-ink transition-colors hover:bg-brand-primary hover:text-white">
             Cotizar
           </a>
         </div>
@@ -113,7 +113,7 @@ export function CartView() {
         </div>
 
         <aside className="space-y-4 lg:sticky lg:top-28">
-          <div className="relative overflow-hidden rounded-3xl bg-ink p-6 text-white shadow-2xl shadow-brand-dark/30">
+          <div className="relative overflow-hidden rounded-3xl bg-brand-primary p-6 text-white shadow-2xl shadow-brand-dark/30">
             <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-brand-teal/25 blur-3xl" />
             <h2 className="relative font-display text-lg font-bold">Resumen del pedido</h2>
             <dl className="relative mt-5 space-y-2.5 text-sm">

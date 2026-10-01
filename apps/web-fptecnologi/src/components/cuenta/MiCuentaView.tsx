@@ -157,7 +157,7 @@ export function MiCuentaView({ cuenta }: { cuenta: ResumenCuenta }) {
   return (
     <div className="grid gap-8 lg:grid-cols-[20rem_1fr] lg:items-start">
       <aside className="space-y-4 lg:sticky lg:top-28">
-        <div className="relative overflow-hidden rounded-3xl bg-ink p-6 text-white shadow-2xl shadow-brand-dark/30">
+        <div className="relative overflow-hidden rounded-3xl bg-brand-primary p-6 text-white shadow-2xl shadow-brand-dark/30">
           <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-brand-teal/25 blur-3xl" />
           <span className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 font-display text-2xl font-bold">{(cuenta.nombre ?? cuenta.email).trim().charAt(0).toUpperCase()}</span>
           <p className="relative mt-4 font-display text-xl font-bold leading-tight">{cuenta.nombre ?? 'Mi cuenta'}</p>

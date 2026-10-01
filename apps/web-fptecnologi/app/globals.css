@@ -227,7 +227,7 @@ body {
 }
 
 .glass-panel {
-  background: color-mix(in srgb, #050b12 80%, transparent);
+  background: color-mix(in srgb, var(--color-brand-primary) 85%, transparent);
   backdrop-filter: blur(28px) saturate(140%);
   -webkit-backdrop-filter: blur(28px) saturate(140%);
   border: 1px solid color-mix(in srgb, white 10%, transparent);

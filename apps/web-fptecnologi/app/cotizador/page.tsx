@@ -61,7 +61,7 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
         <section className="bg-paper pb-20 pt-10 lg:pt-14">
           <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[22rem_1fr] lg:items-center xl:grid-cols-[24rem_1fr]">
             <ScrollReveal direction="left" className="order-2 lg:order-1">
-              <aside className="relative overflow-hidden rounded-3xl bg-ink p-7 text-white shadow-2xl shadow-brand-dark/30 sm:p-8">
+              <aside className="relative overflow-hidden rounded-3xl bg-brand-primary p-7 text-white shadow-2xl shadow-brand-dark/30 sm:p-8">
                 <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-dark/40 blur-3xl" />
                 <div aria-hidden className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-brand-teal/30 blur-3xl" />
                 <div className="relative">
@@ -133,7 +133,7 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
             <div className="grid gap-6 md:grid-cols-3">
               {c.proceso.items.map((p, i) => (
                 <ScrollReveal key={i} direction="up" delayMs={i * 100} className="h-full">
-                  <div className="group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-ink p-7 text-center shadow-lg shadow-brand-dark/25 transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-primary/60 hover:shadow-2xl hover:shadow-brand-dark/45">
+                  <div className="group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-brand-primary p-7 text-center shadow-lg shadow-brand-dark/25 transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-primary/60 hover:shadow-2xl hover:shadow-brand-dark/45">
                     <span aria-hidden className="absolute -right-2 -top-4 font-display text-7xl font-bold text-white/5">
                       0{i + 1}
                     </span>

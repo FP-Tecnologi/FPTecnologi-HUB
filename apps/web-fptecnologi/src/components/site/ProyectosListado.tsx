@@ -54,12 +54,12 @@ export function ProyectosListado({ projects: todos = PROJECTS }: { projects?: Pr
               <div className="relative aspect-[16/10] overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={p.image} alt={p.title} className="h-full w-full object-cover transition-transform duration-700 group-hover:rotate-1 group-hover:scale-110" />
-                <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/70 via-transparent to-transparent" />
                 <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-lg border border-white/30 bg-white/15 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-md">
                   <MapPin className="h-3.5 w-3.5" strokeWidth={2} />
                   {deptName(p.department)}
                 </span>
-                <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-lg border border-white/30 bg-ink/45 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-md">
+                <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-lg border border-white/30 bg-brand-primary/45 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-md">
                   <CalendarDays className="h-3.5 w-3.5" strokeWidth={2} />
                   {p.year}
                 </span>

@@ -23,7 +23,7 @@ const itemsDe = (CONTACT_INFO: { address: string; phoneVentas: string; phoneVent
 /*
  * "Hablemos" -- 2 columnas: título + datos de contacto (cada uno es un link:
  * Maps, llamada, WhatsApp, correo) y el formulario. Fondo del color del
- * footer (bg-ink) para que cierre la página junto con él. No hay backend de
+ * footer (bg-brand-primary) para que cierre la página junto con él. No hay backend de
  * correo (ver AGENTS.md): el formulario arma el mensaje y abre WhatsApp.
  */
 export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
@@ -71,10 +71,10 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
 
   return (
     <section id="contacto" className="relative overflow-hidden bg-gradient-to-br from-brand-primary via-brand-petrol to-brand-teal py-20 text-white">
-      {/* Fondo propio (azul de marca) para separar esta sección del pie de página (bg-ink). */}
+      {/* Fondo propio (azul de marca) para separar esta sección del pie de página (bg-brand-primary). */}
       <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.10)_1px,transparent_0)] [background-size:26px_26px]" />
       <div aria-hidden className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-brand-teal-light/30 blur-3xl" />
-      <div aria-hidden className="pointer-events-none absolute -bottom-24 right-0 h-80 w-80 rounded-full bg-ink/40 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-24 right-0 h-80 w-80 rounded-full bg-brand-primary/40 blur-3xl" />
 
       <div className="relative mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-2 lg:items-start">
         <ScrollReveal direction="left">
@@ -111,7 +111,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
         </ScrollReveal>
 
         <ScrollReveal direction="right" delayMs={120}>
-          <form onSubmit={handleSubmit} className="rounded-2xl border border-white/20 bg-ink/35 p-6 shadow-2xl shadow-black/25 backdrop-blur-md sm:p-8">
+          <form onSubmit={handleSubmit} className="rounded-2xl border border-white/20 bg-brand-primary/35 p-6 shadow-2xl shadow-black/25 backdrop-blur-md sm:p-8">
             <div className="space-y-4">
               {success && (
                 <div role="status" className="rounded-xl border border-emerald-400/40 bg-emerald-400/15 p-4 text-center text-sm font-medium text-emerald-200">
@@ -171,7 +171,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-white text-sm font-semibold uppercase tracking-wide text-brand-dark shadow-lg shadow-black/20 transition-colors duration-300 hover:bg-ink hover:text-white disabled:opacity-50"
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-white text-sm font-semibold uppercase tracking-wide text-brand-dark shadow-lg shadow-black/20 transition-colors duration-300 hover:bg-brand-primary hover:text-white disabled:opacity-50"
               >
                 <Send className="h-5 w-5" strokeWidth={2} />
                 {submitting ? 'Enviando...' : 'Enviar mensaje'}

@@ -13,10 +13,10 @@ type DropdownVariant = 'default' | 'dark' | 'sharp' | 'minimal' | 'accent' | 'gl
 
 const DROPDOWN_PANEL: Record<DropdownVariant, string> = {
   default: 'rounded-xl border border-black/5 bg-white shadow-xl shadow-black/10',
-  dark: 'rounded-xl border border-white/10 bg-ink shadow-2xl shadow-black/50',
+  dark: 'rounded-xl border border-white/10 bg-brand-primary shadow-2xl shadow-black/50',
   sharp: 'rounded-lg border-x border-b border-black/5 border-t-2 border-t-brand-primary bg-white shadow-xl shadow-black/10',
   minimal: 'rounded-none border-0 border-t-2 border-t-ink/10 bg-white shadow-lg shadow-black/5',
-  accent: 'rounded-xl border-x border-b border-white/10 border-t-2 border-t-brand-primary bg-ink shadow-2xl shadow-black/50',
+  accent: 'rounded-xl border-x border-b border-white/10 border-t-2 border-t-brand-primary bg-brand-primary shadow-2xl shadow-black/50',
   glass: 'rounded-2xl border border-white/50 bg-white/80 shadow-xl shadow-black/10 backdrop-blur-md',
 };
 

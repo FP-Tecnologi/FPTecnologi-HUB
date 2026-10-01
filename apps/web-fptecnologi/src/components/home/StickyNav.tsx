@@ -50,7 +50,7 @@ export function StickyNav({ store = false }: { store?: boolean } = {}) {
       <div
         className={`border transition-all duration-500 ease-in-out ${
           scrolled
-            ? 'rounded-2xl border-white/10 bg-ink/80 shadow-xl shadow-black/30 backdrop-blur-xl'
+            ? 'rounded-2xl border-white/10 bg-brand-primary/80 shadow-xl shadow-black/30 backdrop-blur-xl'
             : 'rounded-[1.25rem] border-transparent bg-transparent shadow-none md:rounded-[2.25rem]'
         }`}
       >

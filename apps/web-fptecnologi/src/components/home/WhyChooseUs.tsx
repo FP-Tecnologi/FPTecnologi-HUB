@@ -34,9 +34,9 @@ export function WhyChooseUs({ c = HOME_DEFAULTS.porque }: { c?: Encabezado & { i
             const Icon = ICONS[i] ?? BadgeCheck;
             return (
               <ScrollReveal key={item.title} direction="up" delayMs={i * 100} className="h-full">
-                {/* La tarjeta conserva el look oscuro (bg-ink + resplandor de
+                {/* La tarjeta conserva el look oscuro (bg-brand-primary + resplandor de
                     marca) aunque la sección sea blanca. */}
-                <div className="group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-ink p-7 shadow-lg shadow-brand-dark/25 transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-primary/60 hover:shadow-2xl hover:shadow-brand-dark/45">
+                <div className="group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-brand-primary p-7 shadow-lg shadow-brand-dark/25 transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-primary/60 hover:shadow-2xl hover:shadow-brand-dark/45">
                   <div
                     aria-hidden
                     className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full bg-brand-primary/25 blur-3xl transition-opacity duration-300 group-hover:bg-brand-primary/40"

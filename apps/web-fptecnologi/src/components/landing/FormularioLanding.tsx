@@ -159,7 +159,7 @@ export function FormularioLanding({ slug, formulario, contenido, vistaPrevia = f
         {errorGeneral && <p role="alert" className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">{errorGeneral}</p>}
         <div className="mt-6 flex items-center gap-3">
           {paso > 0 && (
-            <button type="button" onClick={() => setPaso(paso - 1)} className="inline-flex h-12 items-center gap-2 rounded-xl border border-ink/15 px-5 text-sm font-semibold text-ink transition-colors hover:bg-ink hover:text-white">
+            <button type="button" onClick={() => setPaso(paso - 1)} className="inline-flex h-12 items-center gap-2 rounded-xl border border-ink/15 px-5 text-sm font-semibold text-ink transition-colors hover:bg-brand-primary hover:text-white">
               <ArrowLeft className="h-4 w-4" strokeWidth={2.2} /> Atrás
             </button>
           )}

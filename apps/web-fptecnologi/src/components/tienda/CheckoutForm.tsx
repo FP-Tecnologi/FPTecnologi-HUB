@@ -340,7 +340,7 @@ export function CheckoutForm() {
 
       {/* Resumen */}
       <aside className="space-y-4 lg:sticky lg:top-28">
-        <div className="relative overflow-hidden rounded-3xl bg-ink p-6 text-white shadow-2xl shadow-brand-dark/30">
+        <div className="relative overflow-hidden rounded-3xl bg-brand-primary p-6 text-white shadow-2xl shadow-brand-dark/30">
           <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-brand-teal/25 blur-3xl" />
           <div className="relative flex items-center justify-between">
             <h2 className="font-display text-lg font-bold">Resumen del pedido</h2>
