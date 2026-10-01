@@ -3,6 +3,19 @@
 Guía para publicar el sistema en un hosting con **cPanel → "Setup Node.js App"** (Phusion Passenger).
 Repositorios: **HUB** (API + dashboard + web, `FP-Tecnologi/FPTecnologi-HUB`) y, solo para la web pública, <https://github.com/FP-Tecnologi/fptecnologi-web> (su raíz es la app; al crear la app en cPanel el *Application root* es la carpeta clonada). Las rutas `fptecnologi-web/apps/...` de esta guía corresponden al HUB clonado (`FPTecnologi-HUB/apps/...`).
 
+## 0. Resumen para desplegar en dominios temporales (pruebas)
+
+Orden obligatorio, uno por uno: **1) API → 2) Dashboard → 3) Web pública** (cada una necesita la URL de la anterior).
+Los tres salen del mismo repo público `FP-Tecnologi/FPTecnologi-HUB` (carpetas `apps/api`, `apps/admin`, `apps/web-fptecnologi`).
+
+| App | Carpeta | Compilación | Inicio | Variables clave |
+| --- | --- | --- | --- | --- |
+| API | `apps/api` | `npm ci --include=dev && npx prisma generate && npm run build` | `node app.cjs` | `DATABASE_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `WEB_ORIGIN` (= URL del dashboard), `PUBLIC_API_URL` (= URL de la API), `UPLOADS_DIR`, `SWAGGER_USER`, `SWAGGER_PASSWORD`, correo |
+| Dashboard | `apps/admin` | `npm ci && npm run build` | `node server.cjs` | `NEXT_PUBLIC_API_URL` y `NEXT_PUBLIC_WEB_PUBLICA_URL` (**antes** de compilar) |
+| Web | `apps/web-fptecnologi` | `npm ci && npm run build` | `node server.cjs` | `HUB_API_URL`, `HUB_MARCA_ID`, `GROQ_API_KEY`, `SITE_URL`, `NOINDEX=1`, `DASHBOARD_ORIGIN` (= URL del dashboard) |
+
+Con dominios distintos entre sí (no subdominios de uno solo), «confiar en este dispositivo» del 2FA no persiste: se pedirá el código en cada ingreso. En pruebas es normal.
+
 ## 1. Qué se despliega
 
 El proyecto son **tres aplicaciones Node.js independientes** (cada una con su `package.json`, sin workspaces) y una
