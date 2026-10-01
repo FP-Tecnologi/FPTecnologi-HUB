@@ -1,5 +1,6 @@
-import { SOLUTIONS } from '@/lib/content';
 import { getPagina } from '@/lib/paginasContenido';
+import { getServicios } from '@/lib/servicios';
+import { getProyectos } from '@/lib/referencias';
 import { PageHero } from '@/components/site/PageHero';
 import { WhatsAppCta } from '@/components/site/WhatsAppCta';
 import { ProcesoServicio } from '@/components/site/ProcesoServicio';
@@ -17,6 +18,7 @@ export const metadata = { title: 'Servicios' };
    proceso de trabajo, proyectos y cierre con Contacto (DESIGN.md). */
 export default async function ServiciosPage() {
   const c = await getPagina('servicios');
+  const [servicios, proyectos] = await Promise.all([getServicios(), getProyectos()]);
   return (
     <>
       <PageHero
@@ -44,7 +46,7 @@ export default async function ServiciosPage() {
             {c.listado.descripcion && <p className="mt-3 text-ink/60">{c.listado.descripcion}</p>}
           </ScrollReveal>
           <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-4">
-            {SOLUTIONS.map((item, i) => (
+            {servicios.map((item, i) => (
               <ScrollReveal key={item.slug} direction="up" delayMs={(i % 4) * 100}>
                 <ServiceCardFinal item={item} />
               </ScrollReveal>
@@ -53,7 +55,7 @@ export default async function ServiciosPage() {
         </section>
 
         <ProcesoServicio />
-        <NuestrosProyectos />
+        <NuestrosProyectos projects={proyectos} />
         <Contact />
       </main>
       <Footer />

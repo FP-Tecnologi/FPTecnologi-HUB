@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { Icon } from './Icon';
 import { MoreInfoButton } from './MoreInfoButton';
-import type { SOLUTIONS } from '@/lib/content';
+import type { ServicioTarjeta } from '@/lib/servicios';
 
 /**
  * Tarjeta de servicio final -- diseño "Modelo 1" de la guía de estilos
@@ -13,7 +13,7 @@ import type { SOLUTIONS } from '@/lib/content';
  * líneas con "..." (line-clamp), y botón "Más información" con el mismo
  * sweep que Cotizar/Nosotros, que lleva al detalle del servicio.
  */
-export function ServiceCardFinal({ item }: { item: (typeof SOLUTIONS)[number] }) {
+export function ServiceCardFinal({ item }: { item: ServicioTarjeta }) {
   return (
     // Sombra en azul oscuro de marca (brand-dark), no gris/negra: suave en
     // reposo y más marcada al hover.

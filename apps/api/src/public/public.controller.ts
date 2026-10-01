@@ -3,6 +3,8 @@ import { Public } from '../common/decorators/public.decorator.js';
 import { ProductosService, type OrdenCatalogo } from '../productos/productos.service.js';
 import { ServiciosService } from '../servicios/servicios.service.js';
 import { MarcasService } from '../marcas/marcas.service.js';
+import { ProyectosService } from '../proyectos/proyectos.service.js';
+import { ClientesService } from '../clientes/clientes.service.js';
 
 /**
  * Endpoints de solo lectura, sin autenticación, para la web pública
@@ -18,6 +20,8 @@ export class PublicController {
     private readonly productosService: ProductosService,
     private readonly serviciosService: ServiciosService,
     private readonly marcasService: MarcasService,
+    private readonly proyectosService: ProyectosService,
+    private readonly clientesService: ClientesService,
   ) {}
 
   // Solo id+nombre — lo que necesita un formulario público (registro,
@@ -91,5 +95,15 @@ export class PublicController {
   @Get('servicios/:id')
   servicio(@Query('marcaId') marcaId: string, @Param('id') id: string) {
     return this.serviciosService.findOne(marcaId, id, true);
+  }
+
+  @Get('proyectos')
+  proyectos(@Query('marcaId') marcaId: string) {
+    return this.proyectosService.list(marcaId, true);
+  }
+
+  @Get('clientes')
+  clientes(@Query('marcaId') marcaId: string) {
+    return this.clientesService.list(marcaId, true);
   }
 }

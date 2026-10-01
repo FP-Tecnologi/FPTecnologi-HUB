@@ -840,3 +840,24 @@ sesión/máquina)**:
 - **Home**: "Productos destacados" lee la API (`getDestacados`): marcados como destacado → primeros del catálogo → fijos.
 - `NOSOTROS_PILARES` pasó a `content.ts` para que la página y el asistente compartan el texto.
 
+### 2026-10-01 — Servicios, proyectos y clientes pasan a la base de datos (gestionables desde el dashboard)
+
+- **Base de datos**: `Servicio` ganó el contenido de su página (slug, etiqueta, ícono, imagen, intro, incluye, beneficios,
+  sectores, faqs, orden) y hay modelos nuevos `Proyecto` y `Cliente` (con `esEjemplo`). Migración
+  `20261001200000_servicios_proyectos_clientes` (verificada: aplica sobre una base vacía y coincide con el esquema de
+  Prisma) + seed idempotente `seeds/servicios-proyectos-clientes.sql` generado desde lo que traía la web.
+  Tenant-guard extendido a los dos modelos nuevos.
+- **API**: `servicios` ampliado (slug único por marca, JSON validado, búsqueda por id o slug); módulos `proyectos` y
+  `clientes`; públicos `GET /public/servicios[/:slug]`, `/public/proyectos`, `/public/clientes`. Probado contra Postgres
+  local: permisos por rol (marketing crea, solo admin borra servicios, ventas no toca proyectos), validaciones, aislamiento
+  por marca. 112 tests (13 archivos).
+- **Dashboard**: pantallas Soluciones → Servicios, Web informativa → Lista de proyectos y → Clientes (lista, filtros, panel
+  de edición, activar/ocultar, eliminar). Probadas en un navegador real (crear, editar, validar, eliminar).
+- **Web pública**: `lib/servicios.ts` y `lib/referencias.ts` leen la API (cache 60 s) con respaldo local. El menú toma los
+  servicios por un contexto (`ServiciosProvider` en el layout); home, `/servicios`, página de cada servicio, footer,
+  cotizador (opciones de interés) y asistente usan la base de datos, y los servicios nuevos aparecen en todos. El asistente
+  solo cita proyectos y clientes que no sean de muestra.
+- **4 servicios nuevos** (borrador de texto): soporte técnico y postventa, redes y cableado estructurado, ciberseguridad,
+  licenciamiento de software. Íconos nuevos en el catálogo de la web (llave inglesa, red, candado, llave).
+- Se quitó del menú el nodo placeholder "Web informativa → Servicios" (duplicaba Soluciones → Servicios).
+

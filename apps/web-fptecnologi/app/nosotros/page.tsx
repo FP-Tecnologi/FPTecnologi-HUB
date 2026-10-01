@@ -11,6 +11,7 @@ import { Contact } from '@/components/home/Contact';
 import { Footer } from '@/components/home/Footer';
 import { STATS } from '@/lib/content';
 import { getPagina } from '@/lib/paginasContenido';
+import { getClientes } from '@/lib/referencias';
 
 export const metadata = { title: 'Nosotros' };
 
@@ -24,6 +25,7 @@ const ICONOS_PILAR: LucideIcon[] = [Compass, Eye, HeartHandshake];
 
 export default async function NosotrosPage() {
   const c = await getPagina('nosotros');
+  const clientes = await getClientes();
   return (
     <>
       <PageHero
@@ -106,7 +108,7 @@ export default async function NosotrosPage() {
 
         <WhyChooseUs />
         <BrandMarquee />
-        <NuestrosClientes />
+        <NuestrosClientes sectors={clientes} />
         <Contact />
       </main>
       <Footer />

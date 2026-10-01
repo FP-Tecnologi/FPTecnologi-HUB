@@ -21,7 +21,7 @@ import { MarcaActual } from '../common/decorators/marca-actual.decorator.js';
 export class ServiciosController {
   constructor(private readonly serviciosService: ServiciosService) {}
 
-  @Roles('admin', 'ventas')
+  @Roles('admin', 'marketing', 'ventas')
   @Post()
   create(@MarcaActual() marcaId: string, @Body() dto: CreateServicioDto) {
     return this.serviciosService.create(marcaId, dto);
@@ -37,7 +37,7 @@ export class ServiciosController {
     return this.serviciosService.findOne(marcaId, id);
   }
 
-  @Roles('admin', 'ventas')
+  @Roles('admin', 'marketing', 'ventas')
   @Patch(':id')
   update(@MarcaActual() marcaId: string, @Param('id') id: string, @Body() dto: UpdateServicioDto) {
     return this.serviciosService.update(marcaId, id, dto);

@@ -35,6 +35,8 @@ model Marca {
   productos          Producto[]
   pedidos            Pedido[]
   servicios          Servicio[]
+  proyectos          Proyecto[]
+  clientes           Cliente[]
   cotizaciones       Cotizacion[]
   notificaciones     Notificacion[]
   chatAsesores       ChatAsesor[]
@@ -308,12 +310,72 @@ model Servicio {
   marcaId      String
   marca        Marca        @relation(fields: [marcaId], references: [id])
   nombre       String
+  /// Descripción corta (tarjeta y encabezado de la página del servicio).
   descripcion  String?
   precioDesde  Decimal?
   activo       Boolean      @default(true)
+  // --- Contenido de la página pública (/servicios/[slug]), editable desde el dashboard ---
+  slug         String?
+  /// Etiqueta sobre el título ("Somos expertos en", "Soluciones para"…).
+  etiqueta     String?
+  /// Clave del ícono del catálogo de la web (shield, server, cloud…).
+  icono        String?
+  imagenUrl    String?
+  intro        String?
+  incluye      String[]     @default([])
+  /// [{ titulo, texto }]
+  beneficios   Json         @default("[]")
+  sectores     String[]     @default([])
+  /// [{ p, r }] (pregunta, respuesta)
+  faqs         Json         @default("[]")
+  orden        Int          @default(0)
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   cotizaciones Cotizacion[]
+
+  @@unique([marcaId, slug])
+  @@index([marcaId])
+}
+
+/// Proyecto de referencia que se muestra en /proyectos y en el home.
+model Proyecto {
+  id           String   @id @default(uuid())
+  marcaId      String
+  marca        Marca    @relation(fields: [marcaId], references: [id])
+  titulo       String
+  /// Id del departamento (lib/peruDepartments.ts de la web): lima, cajamarca…
+  departamento String
+  imagenUrl    String?
+  cliente      String
+  anio         Int
+  descripcion  String   @default("")
+  alcance      String[] @default([])
+  orden        Int      @default(0)
+  activo       Boolean  @default(true)
+  /// Dato de muestra: no se le pasa al asistente virtual como caso real.
+  esEjemplo    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([marcaId])
+}
+
+/// Cliente que se muestra en la sección "Nuestros clientes".
+model Cliente {
+  id        String   @id @default(uuid())
+  marcaId   String
+  marca     Marca    @relation(fields: [marcaId], references: [id])
+  nombre    String
+  /// Iniciales para el logo provisional cuando no hay logoUrl.
+  sigla     String
+  logoUrl   String?
+  /// gobierno | educacion | privado
+  sector    String
+  orden     Int      @default(0)
+  activo    Boolean  @default(true)
+  esEjemplo Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([marcaId])
 }

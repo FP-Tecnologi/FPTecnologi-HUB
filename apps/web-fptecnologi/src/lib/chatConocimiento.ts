@@ -6,8 +6,8 @@
  * (precio, marca, categoría), servicios cargados en el dashboard y artículos
  * del blog. Se cachea 60 s para no pegarle a la API en cada mensaje.
  *
- * Los PROYECTOS y CLIENTES de la web son datos de ejemplo (ver projects.ts y
- * clients.ts): no se le pasan al asistente como reales.
+ * Proyectos y clientes: solo los que NO estén marcados como ejemplo en el
+ * dashboard; si no hay ninguno real, se le indica que no cite casos.
  */
 import {
   BUSINESS_PATHS,
@@ -16,12 +16,14 @@ import {
   PARTNER_BRANDS,
   PARTNER_STEPS,
   SOCIAL_LINKS,
-  SOLUTIONS,
   WHATSAPP_AREAS,
   WHY_CHOOSE_US,
 } from './content';
-import { FAQ_COMUNES, SERVICIOS_DETALLE } from './serviciosDetalle';
-import { getCatalogo, getServiciosApi, categoriasDe } from './catalogo';
+import { FAQ_COMUNES } from './serviciosDetalle';
+import { getCatalogo, categoriasDe } from './catalogo';
+import { getServicios, type ServicioPublico } from './servicios';
+import { getClientes, getProyectos } from './referencias';
+import { PERU_DEPARTMENTS } from './peruDepartments';
 import { getCotizadorContenido } from './cotizadorContenido';
 import { getArticulos } from './blog';
 import { LEGAL_DOCS } from './legal';
@@ -52,27 +54,22 @@ Por qué elegirnos:
 ${WHY_CHOOSE_US.map((w) => `- ${w.title}: ${w.text}`).join('\n')}`;
 }
 
-type ServicioBD = { nombre: string; descripcion: string | null; precioDesde: string | number | null };
-
-function seccionServicios(extra: ServicioBD[]): string {
-  const detalle = SOLUTIONS.map((s) => {
-    const d = SERVICIOS_DETALLE[s.slug];
-    const propias = d?.faqs.filter((f) => f !== FAQ_COMUNES.visita && f !== FAQ_COMUNES.soporte) ?? [];
+function seccionServicios(servicios: ServicioPublico[]): string {
+  const comunes = new Set([FAQ_COMUNES.visita.p, FAQ_COMUNES.soporte.p]);
+  const detalle = servicios.map((s) => {
+    const d = s.detalle;
+    const propias = d?.faqs.filter((f) => !comunes.has(f.p)) ?? [];
     return [
-      `- ${s.title} (página /servicios/${s.slug}): ${d?.intro ?? s.description}`,
-      d && `  Incluye: ${lista(d.incluye)}.`,
+      `- ${s.title} (página /servicios/${s.slug}): ${d?.intro ?? s.description}${s.precioDesde ? ` Desde USD ${s.precioDesde}.` : ''}`,
+      d && d.incluye.length > 0 && `  Incluye: ${lista(d.incluye)}.`,
       d && `  Beneficios: ${lista(d.beneficios.map((b) => b.titulo))}. Sectores: ${lista(d.sectores)}.`,
       ...propias.map((f) => `  P: ${f.p} R: ${f.r}`),
     ]
       .filter(Boolean)
       .join('\n');
   });
-  const conocidos = new Set(SOLUTIONS.map((s) => s.title.toLowerCase()));
-  const adicionales = extra
-    .filter((s) => !conocidos.has(s.nombre.toLowerCase()))
-    .map((s) => `- ${s.nombre}${s.descripcion ? `: ${s.descripcion}` : ''}${s.precioDesde ? ` (desde USD ${Number(s.precioDesde)})` : ''}`);
   return `SERVICIOS TI (página /servicios; todos se cotizan por proyecto: botón Cotizar o cotizador)
-${detalle.join('\n')}${adicionales.length ? `\nOtros servicios cargados en el sistema:\n${adicionales.join('\n')}` : ''}
+${detalle.join('\n')}
 Preguntas comunes de todos los servicios:
 P: ${FAQ_COMUNES.visita.p} R: ${FAQ_COMUNES.visita.r}
 P: ${FAQ_COMUNES.soporte.p} R: ${FAQ_COMUNES.soporte.r}
@@ -132,32 +129,47 @@ ${docs.join('\n')}
 - Libro de reclamaciones virtual (/libro-de-reclamaciones): formulario conforme a la Ley N.° 29571; responden en un máximo de 15 días hábiles.`;
 }
 
-const PAGINAS = `MAPA DE LA WEB
-Inicio (/), Servicios (/servicios y /servicios/<servicio>), Tienda (/tienda, /tienda/<categoría>, /producto/<producto>), Marcas (/marcas), Nosotros (/nosotros), Proyectos (/proyectos), Blog (/blog), Cotizador (/cotizador), Contacto (/contacto), Carrito y compra (/carrito, /checkout), textos legales y libro de reclamaciones.
-Proyectos y clientes: la web aún no tiene casos de éxito ni clientes reales cargados; no cites proyectos ni clientes concretos, y si piden referencias, deriva a un asesor.`;
+const MAPA_WEB = `MAPA DE LA WEB
+Inicio (/), Servicios (/servicios y /servicios/<servicio>), Tienda (/tienda, /tienda/<categoría>, /producto/<producto>), Marcas (/marcas), Nosotros (/nosotros), Proyectos (/proyectos), Blog (/blog), Cotizador (/cotizador), Contacto (/contacto), Carrito y compra (/carrito, /checkout), textos legales y libro de reclamaciones.`;
 
-let cache: { at: number; text: string; products: CatalogProduct[] } | null = null;
+
+/** Solo proyectos y clientes reales (los marcados como ejemplo en el dashboard no se citan). */
+async function seccionReferencias(): Promise<string> {
+  const [proyectos, sectores] = await Promise.all([getProyectos(), getClientes()]);
+  const reales = proyectos.filter((p) => p.ejemplo === false);
+  const clientes = sectores.flatMap((s) => s.clients.filter((c) => c.ejemplo === false).map((c) => c.name));
+  if (reales.length === 0 && clientes.length === 0) {
+    return 'PROYECTOS Y CLIENTES (páginas /proyectos y /nosotros)\nLa web aún no tiene casos de éxito ni clientes reales confirmados; no cites proyectos ni clientes concretos y, si piden referencias, deriva a un asesor.';
+  }
+  const dept = (id: string) => PERU_DEPARTMENTS.find((d) => d.id === id)?.name ?? id;
+  return `PROYECTOS Y CLIENTES (página /proyectos)
+${reales.map((p) => `- ${p.title} — ${p.client}, ${dept(p.department)}, ${p.year}: ${p.description} Alcance: ${lista(p.scope)}.`).join('\n')}${clientes.length ? `\nClientes: ${clientes.join(', ')}.` : ''}`;
+}
+
+let cache: { at: number; text: string; products: CatalogProduct[]; servicios: ServicioPublico[] } | null = null;
 
 /** Texto completo de conocimiento + los productos (para validar los enlaces `producto:<slug>`). */
-export async function getConocimiento(): Promise<{ text: string; products: CatalogProduct[] }> {
+export async function getConocimiento(): Promise<{ text: string; products: CatalogProduct[]; servicios: ServicioPublico[] }> {
   if (cache && Date.now() - cache.at < CACHE_MS) return cache;
-  const [{ products }, serviciosBd, cotizador, blog] = await Promise.all([
+  const [{ products }, servicios, cotizador, blog, referencias] = await Promise.all([
     getCatalogo(),
-    getServiciosApi(),
+    getServicios(),
     seccionCotizador(),
     seccionBlog(),
+    seccionReferencias(),
   ]);
   const text = [
     seccionEmpresa(),
     seccionNosotros(),
-    seccionServicios(serviciosBd),
+    seccionServicios(servicios),
     seccionTienda(products),
     seccionMarcasYPartners(),
     cotizador,
     blog,
+    referencias,
     seccionLegal(),
-    PAGINAS,
+    MAPA_WEB,
   ].join('\n\n');
-  cache = { at: Date.now(), text, products };
+  cache = { at: Date.now(), text, products, servicios };
   return cache;
 }

@@ -20,8 +20,9 @@ const SECTOR_ICONS: Record<ClientSector['key'], LucideIcon> = {
  * dentro de cada caja los logos se desplazan en bucle (marquesina, se pausa
  * al pasar el cursor). Clientes de ejemplo en lib/clients.ts.
  */
-export function NuestrosClientes({ c = HOME_DEFAULTS.clientes }: { c?: Encabezado }) {
-  const [gobierno, ...resto] = CLIENT_SECTORS;
+export function NuestrosClientes({ c = HOME_DEFAULTS.clientes, sectors = CLIENT_SECTORS }: { c?: Encabezado; sectors?: ClientSector[] }) {
+  const [gobierno, ...resto] = sectors;
+  if (!gobierno) return null;
 
   return (
     <section id="clientes" className="bg-white py-20">

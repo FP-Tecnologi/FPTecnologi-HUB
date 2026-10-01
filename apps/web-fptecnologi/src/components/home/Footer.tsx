@@ -1,5 +1,6 @@
 import Image from 'next/image';
-import { SOCIAL_LINKS, SOLUTIONS } from '@/lib/content';
+import { SOCIAL_LINKS } from '@/lib/content';
+import { getServicios } from '@/lib/servicios';
 import { LEGAL_LINKS } from '@/lib/legal';
 import { FacebookIcon, InstagramIcon, LinkedinIcon, YoutubeIcon } from '@/components/site/icons';
 import { NewsletterForm } from './NewsletterForm';
@@ -34,7 +35,8 @@ function ColumnTitle({ children }: { children: string }) {
  * 3) barra legal.
  * Mismo fondo que "Hablemos" (bg-ink); la línea de arriba marca dónde empieza.
  */
-export function Footer() {
+export async function Footer() {
+  const servicios = await getServicios();
   const divider = <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />;
 
   return (
@@ -98,7 +100,7 @@ export function Footer() {
           <div className="lg:border-l lg:border-white/10 lg:px-8">
             <ColumnTitle>Servicios</ColumnTitle>
             <ul className="mt-5 space-y-2.5 text-sm">
-              {SOLUTIONS.slice(0, 5).map((s) => (
+              {servicios.slice(0, 5).map((s) => (
                 <li key={s.slug}>
                   <a href={`/servicios/${s.slug}`} className="transition-colors hover:text-white">
                     {s.title}

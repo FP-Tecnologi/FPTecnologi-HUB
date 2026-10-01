@@ -13,6 +13,8 @@ export type Project = {
   year: number;
   description: string;
   scope: string[];
+  /** Dato de muestra (no es un caso real). */
+  ejemplo?: boolean;
 };
 
 export const PROJECTS: Project[] = [

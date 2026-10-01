@@ -126,8 +126,7 @@ solo a sedes Shalom o también domicilio?
   entre instancias. Si hay más de una instancia, mover a Redis/throttler.
 - **Pooler de Supabase (:6543)**: `migrate deploy`/`resolve` y `$transaction` interactiva se cuelgan; ver
   `apps/api/prisma/apply-migrations.ts` y `mark-resolved.ts`.
-- **13 ramas remotas atrasadas** (`feat/leads-*`, `fix/leads-modales`, `deploy/leads`, `dependabot/*`, etc.,
-  ~56 commits detrás de `main`): decidir cuáles se borran. El sistema de leads vive ahora en otro repo.
+- Ramas: se integró `claude/modest-bohr` (servicios/proyectos/clientes en BD, asistente, seguridad) y se limpiaron las ramas de leads y dependabot (2026-10-01). Solo `main` (producción) y `develop` (trabajo).
 - Activar en GitHub (requiere admin): Dependabot alerts, secret scanning + push protection y branch protection
   en `main` (ver `SECURITY.md`).
 - Infra externa (Cloudflare, Hostinger, Sentry): fuera del alcance de un agente de código.
@@ -186,14 +185,27 @@ solo a sedes Shalom o también domicilio?
 
 ## 5. Servicios: qué falta (revisión 2026-10-01)
 
-- Las **8 páginas de servicio** están completas en estructura (introducción, qué incluye, beneficios, sectores, preguntas
-  frecuentes, proceso, cotizar/WhatsApp), pero el contenido está **escrito en código** (`content.ts` +
-  `serviciosDetalle.ts`), no en la base de datos: no se puede editar desde el dashboard y la tabla `Servicio` no se usa
-  en la web (tampoco hay pantalla "Soluciones → Servicios" real; el modelo no tiene slug, imagen ni detalle).
-- **Sin validar por el negocio**: textos redactados por nosotros; "visita técnica sin costo" y los plazos son un
-  compromiso comercial a confirmar. No hay precios "desde" ni plazos por servicio.
-- **Sin casos reales**: proyectos y clientes son de ejemplo y las fotos son de stock.
-- **Servicios sin productos en la tienda**: la tienda solo tiene 5 marcas (ASUS, Dell, HP, LG, Lenovo) de las 13
-  distribuidas; Seguridad (ZKTeco), Videoconferencia (Shure, Nureva, ScreenBeam) o Datos (Sophos) no tienen producto asociado.
-- A confirmar con el dueño si faltan líneas: soporte técnico / mantenimiento / postventa, redes y cableado como servicio
-  propio, ciberseguridad, licenciamiento. (No se contrastó con el sitio actual fptecnologi.com.)
+## 5. Servicios, proyectos y clientes en la base de datos (2026-10-01)
+
+**Hecho (código):** los servicios (con el contenido completo de su página), los proyectos y los clientes ya viven en la
+base de datos y se gestionan desde el dashboard (**Soluciones → Servicios**, **Web informativa → Proyectos** y
+**→ Clientes**). La web (menú, home, `/servicios`, `/servicios/[slug]`, cotizador, `/proyectos`, Nosotros), el cotizador
+y el asistente virtual los leen de la API; si la API no responde, la web usa el contenido local de respaldo.
+Se agregaron 4 servicios: soporte técnico y postventa, redes y cableado estructurado, ciberseguridad y licenciamiento de software.
+
+**Para activarlo en Supabase (hacerlo en este orden, antes de desplegar la web nueva):**
+1. Aplicar la migración `apps/api/prisma/migrations/20261001200000_servicios_proyectos_clientes/migration.sql`
+   (SQL Editor de Supabase o `apply-migrations.ts`; es idempotente).
+2. Ejecutar `apps/api/prisma/seeds/servicios-proyectos-clientes.sql` (12 servicios, 12 proyectos, 20 clientes; idempotente,
+   no pisa lo que ya editaste).
+3. Desplegar API y web. (Si la web se despliega antes del seed, muestra el contenido local de respaldo.)
+
+**A revisar por el negocio:**
+- Los **4 servicios nuevos son un borrador de texto** (redactados por nosotros); ajustarlos o desactivarlos desde el dashboard.
+  "Visita técnica sin costo" y los plazos son un compromiso comercial a confirmar.
+- **Proyectos y clientes siguen siendo de muestra** (`esEjemplo = true`): reemplazarlos por los reales y desmarcar
+  "dato de muestra" para que el asistente virtual los pueda citar. Las fotos de servicios y proyectos son de stock.
+- **Servicios sin productos en la tienda**: la tienda solo tiene 5 de las 13 marcas distribuidas (ASUS, Dell, HP, LG,
+  Lenovo); seguridad (ZKTeco), videoconferencia (Shure, Nureva, ScreenBeam) o ciberseguridad (Sophos) no tienen producto.
+- Sin precios "desde" ni plazos por servicio (el campo "Desde (USD)" existe pero está vacío).
+- Falta subir imágenes desde el dashboard (hoy se pega la URL o la ruta de la imagen).

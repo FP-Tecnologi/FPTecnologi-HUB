@@ -47,7 +47,7 @@ function mapear(p: ApiProducto): CatalogProduct {
   };
 }
 
-async function api<T>(path: string): Promise<T | null> {
+export async function api<T>(path: string): Promise<T | null> {
   if (!MARCA_ID) return null;
   try {
     const sep = path.includes('?') ? '&' : '?';
@@ -107,11 +107,4 @@ export function categoriasDe(products: CatalogProduct[]): Categoria[] {
       imageFit: c?.imageFit ?? 'cover',
     };
   });
-}
-
-export type ServicioApi = { id: string; nombre: string; descripcion: string | null; precioDesde: string | number | null };
-
-/** Servicios activos cargados en la base de datos (dashboard → Soluciones → Servicios). Vacío si la API no responde. */
-export async function getServiciosApi(): Promise<ServicioApi[]> {
-  return (await api<ServicioApi[]>('/servicios')) ?? [];
 }

@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import { CheckCircle2, Plus } from 'lucide-react';
-import { SOLUTIONS } from '@/lib/content';
-import { SERVICIOS_DETALLE } from '@/lib/serviciosDetalle';
+import { getServicio, getServicios } from '@/lib/servicios';
 import { PageHero } from '@/components/site/PageHero';
 import { WhatsAppCta } from '@/components/site/WhatsAppCta';
 import { ProcesoServicio } from '@/components/site/ProcesoServicio';
@@ -12,22 +11,18 @@ import { ServiceCardFinal } from '@/components/home/ServiceCardFinal';
 import { Contact } from '@/components/home/Contact';
 import { Footer } from '@/components/home/Footer';
 
-export function generateStaticParams() {
-  return SOLUTIONS.map((s) => ({ slug: s.slug }));
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const solution = SOLUTIONS.find((s) => s.slug === slug);
-  return { title: solution?.title ?? 'Servicio' };
+  const servicio = await getServicio(slug);
+  return { title: servicio?.title ?? 'Servicio', description: servicio?.description || undefined };
 }
 
 export default async function ServicioDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const s = SOLUTIONS.find((x) => x.slug === slug);
+  const [s, todos] = await Promise.all([getServicio(slug), getServicios()]);
   if (!s) notFound();
-  const d = SERVICIOS_DETALLE[s.slug];
-  const otros = SOLUTIONS.filter((x) => x.slug !== s.slug).slice(0, 4);
+  const d = s.detalle;
+  const otros = todos.filter((x) => x.slug !== s.slug).slice(0, 4);
 
   return (
     <>

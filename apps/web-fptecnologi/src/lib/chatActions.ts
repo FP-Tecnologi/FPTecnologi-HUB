@@ -39,13 +39,19 @@ const FIXED: Record<string, ChatAction> = {
 /** Productos reales de la tienda (sku -> nombre/slug) para el id `producto:<sku>`; los pasa el servidor. */
 export type ProductoEnlace = { sku: string; name: string; slug?: string };
 
-export function resolveAction(id: string, productos: readonly ProductoEnlace[] = []): ChatAction | null {
+export type ServicioEnlace = { slug: string; title: string };
+
+export function resolveAction(
+  id: string,
+  productos: readonly ProductoEnlace[] = [],
+  servicios: readonly ServicioEnlace[] = SOLUTIONS,
+): ChatAction | null {
   if (FIXED[id]) return FIXED[id];
   const sep = id.indexOf(':');
   const prefix = sep === -1 ? id : id.slice(0, sep);
   const slug = sep === -1 ? '' : id.slice(sep + 1);
   if (prefix === 'servicio') {
-    const s = SOLUTIONS.find((x) => x.slug === slug);
+    const s = servicios.find((x) => x.slug === slug);
     if (s) return { kind: 'page', label: s.title, href: `/servicios/${s.slug}` };
   }
   if (prefix === 'tienda') {
@@ -64,7 +70,7 @@ export function resolveAction(id: string, productos: readonly ProductoEnlace[] =
 }
 
 /** Lista de IDs válidos, para el prompt de la IA. */
-export const ACTION_IDS_HELP = [
+export const actionIdsHelp = (servicios: readonly ServicioEnlace[] = SOLUTIONS) => [
   'whatsapp (hablar con un asesor)',
   'maps (ubicación de la oficina)',
   'email (correo de ventas)',
@@ -74,6 +80,6 @@ export const ACTION_IDS_HELP = [
   'devoluciones (cambios y devoluciones), reclamaciones (libro de reclamaciones)',
   'producto:<SKU exacto del producto> (ficha de un producto de la lista)',
   'marca:<nombre en minúsculas> (ej. marca:dell)',
-  ...SOLUTIONS.map((s) => `servicio:${s.slug} (${s.title})`),
+  ...servicios.map((s) => `servicio:${s.slug} (${s.title})`),
   ...TIENDA_CATEGORIES.map((c) => `tienda:${c.slug} (${c.title})`),
 ].join('\n');

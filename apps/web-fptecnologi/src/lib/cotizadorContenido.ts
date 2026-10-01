@@ -9,6 +9,7 @@
  * mensaje de agradecimiento.
  */
 import { SOLUTIONS } from './content';
+import { getServicios } from './servicios';
 
 export type ItemTexto = { title: string; text: string };
 
@@ -88,12 +89,29 @@ export const COTIZADOR_DEFAULTS: CotizadorContenido = {
 const API_URL = process.env.HUB_API_URL ?? 'http://localhost:3001';
 const MARCA_ID = process.env.HUB_MARCA_ID ?? '';
 
+/**
+ * Si el dashboard no guardó opciones de interés propias, se ofrecen los servicios
+ * activos de la base de datos (así los nuevos aparecen en el formulario) + Equipamiento TI.
+ */
+async function conServiciosDeLaBd(c: CotizadorContenido, guardoIntereses: boolean): Promise<CotizadorContenido> {
+  if (guardoIntereses) return c;
+  const servicios = await getServicios();
+  const equipamiento = c.intereses.items.find((i) => i.title === 'Equipamiento TI');
+  return {
+    ...c,
+    intereses: {
+      ...c.intereses,
+      items: [...servicios.map((s) => ({ title: s.title, text: s.description })), ...(equipamiento ? [equipamiento] : [])],
+    },
+  };
+}
+
 /** Defaults + lo guardado en el dashboard (se mezcla campo por campo, por sección). */
 export async function getCotizadorContenido(): Promise<CotizadorContenido> {
-  if (!MARCA_ID) return COTIZADOR_DEFAULTS;
+  if (!MARCA_ID) return conServiciosDeLaBd(COTIZADOR_DEFAULTS, false);
   try {
     const res = await fetch(`${API_URL}/public/contenido/cotizador?marcaId=${MARCA_ID}`, { cache: 'no-store' });
-    if (!res.ok) return COTIZADOR_DEFAULTS;
+    if (!res.ok) return conServiciosDeLaBd(COTIZADOR_DEFAULTS, false);
     const saved = ((await res.json())?.data ?? {}) as Record<string, Record<string, unknown>>;
     const out = { ...COTIZADOR_DEFAULTS } as Record<string, unknown>;
     for (const key of Object.keys(COTIZADOR_DEFAULTS)) {
@@ -101,8 +119,9 @@ export async function getCotizadorContenido(): Promise<CotizadorContenido> {
         out[key] = { ...(COTIZADOR_DEFAULTS as unknown as Record<string, object>)[key], ...saved[key] };
       }
     }
-    return out as CotizadorContenido;
+    const guardoIntereses = !!saved.intereses && typeof saved.intereses === 'object' && 'items' in saved.intereses;
+    return conServiciosDeLaBd(out as CotizadorContenido, guardoIntereses);
   } catch {
-    return COTIZADOR_DEFAULTS;
+    return conServiciosDeLaBd(COTIZADOR_DEFAULTS, false);
   }
 }

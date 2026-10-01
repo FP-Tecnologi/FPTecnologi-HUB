@@ -6,6 +6,8 @@ import { ChatWidgetProvider } from '@/context/ChatWidgetContext';
 import { ChatWidget } from '@/components/site/ChatWidget';
 import { FavoritesProvider } from '@/context/FavoritesContext';
 import { FavoritesWidget } from '@/components/site/FavoritesWidget';
+import { ServiciosProvider } from '@/context/ServiciosContext';
+import { getServicios } from '@/lib/servicios';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -28,7 +30,8 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  const servicios = await getServicios();
   return (
     <html lang="es">
       <head>
@@ -40,6 +43,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body>
+        <ServiciosProvider servicios={servicios.map((s) => ({ title: s.title, slug: s.slug }))}>
         <CurrencyProvider>
           <CartProvider>
             <FavoritesProvider>
@@ -51,6 +55,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             </FavoritesProvider>
           </CartProvider>
         </CurrencyProvider>
+        </ServiciosProvider>
       </body>
     </html>
   );

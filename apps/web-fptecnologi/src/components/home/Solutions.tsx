@@ -1,5 +1,5 @@
 import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
-import { SOLUTIONS } from '@/lib/content';
+import { getServicios } from '@/lib/servicios';
 import { ServiceCardFinal } from './ServiceCardFinal';
 import { MoreInfoButton } from './MoreInfoButton';
 import { ScrollReveal } from './ScrollReveal';
@@ -15,7 +15,8 @@ import { SectionBadge } from './SectionBadge';
  * entra desde la izquierda, descripción+botón desde la derecha, y las
  * tarjetas suben en cascada por columna (delay creciente).
  */
-export function Solutions({ c = HOME_DEFAULTS.servicios }: { c?: Encabezado }) {
+export async function Solutions({ c = HOME_DEFAULTS.servicios }: { c?: Encabezado }) {
+  const servicios = await getServicios();
   return (
     <section id="servicios" className="mx-auto max-w-7xl px-6 py-20">
       {/* Encabezado con el mismo lenguaje que Nosotros: badge de vidrio con
@@ -38,7 +39,7 @@ export function Solutions({ c = HOME_DEFAULTS.servicios }: { c?: Encabezado }) {
           ~225px y el botón "Más información" (mismo tamaño que Nosotros) no
           entraba. Debajo de xl van 2 columnas con tarjeta apaisada. */}
       <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-4">
-        {SOLUTIONS.map((item, i) => (
+        {servicios.map((item, i) => (
           <ScrollReveal key={item.slug} direction="up" delayMs={(i % 4) * 100}>
             <ServiceCardFinal item={item} />
           </ScrollReveal>

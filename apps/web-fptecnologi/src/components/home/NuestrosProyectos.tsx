@@ -117,12 +117,12 @@ function ProjectCard({
  * izquierda, el contenedor lista los proyectos del departamento elegido.
  * Datos de ejemplo en lib/projects.ts (reemplazar por los reales).
  */
-export function NuestrosProyectos({ c = HOME_DEFAULTS.proyectos }: { c?: Encabezado }) {
+export function NuestrosProyectos({ c = HOME_DEFAULTS.proyectos, projects: lista = PROJECTS }: { c?: Encabezado; projects?: Project[] }) {
   const counts = useMemo(() => {
     const m = new Map<string, number>();
-    for (const p of PROJECTS) m.set(p.department, (m.get(p.department) ?? 0) + 1);
+    for (const p of lista) m.set(p.department, (m.get(p.department) ?? 0) + 1);
     return m;
-  }, []);
+  }, [lista]);
   const withProjects = PERU_DEPARTMENTS.filter((d) => counts.has(d.id));
 
   const [selected, setSelected] = useState(withProjects.find((d) => d.id === 'lima')?.id ?? withProjects[0]?.id);
@@ -135,7 +135,7 @@ export function NuestrosProyectos({ c = HOME_DEFAULTS.proyectos }: { c?: Encabez
   };
 
   const current = PERU_DEPARTMENTS.find((d) => d.id === selected);
-  const projects = PROJECTS.filter((p) => p.department === selected);
+  const projects = lista.filter((p) => p.department === selected);
   const tip = PERU_DEPARTMENTS.find((d) => d.id === (hovered ?? selected));
   const tipCount = tip ? (counts.get(tip.id) ?? 0) : 0;
   // La línea sale de costado hacia el lado con más espacio (el tooltip mide
@@ -143,6 +143,8 @@ export function NuestrosProyectos({ c = HOME_DEFAULTS.proyectos }: { c?: Encabez
   // El tooltip se engancha por su borde lateral al final de la línea.
   const toRight = tip ? tip.cx < VB_W / 2 : true;
   const anchor = tip ? { x: tip.cx + (toRight ? 60 : -60), y: Math.max(40, tip.cy - 18) } : { x: 0, y: 0 };
+
+  if (lista.length === 0) return null;
 
   return (
     <section id="proyectos" className="mx-auto max-w-7xl px-6 py-20">

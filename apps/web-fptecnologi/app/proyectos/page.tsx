@@ -8,6 +8,7 @@ import { Contact } from '@/components/home/Contact';
 import { Footer } from '@/components/home/Footer';
 import { HOME_DEFAULTS } from '@/lib/homeContenido';
 import { getPagina } from '@/lib/paginasContenido';
+import { getClientes, getProyectos } from '@/lib/referencias';
 
 export const metadata = { title: 'Proyectos' };
 
@@ -16,6 +17,7 @@ export const metadata = { title: 'Proyectos' };
    lib/projects.ts hasta cargar los reales. */
 export default async function ProyectosPage() {
   const c = await getPagina('proyectos');
+  const [proyectos, clientes] = await Promise.all([getProyectos(), getClientes()]);
   return (
     <>
       <PageHero
@@ -32,9 +34,12 @@ export default async function ProyectosPage() {
         <WhatsAppCta label="Hablar con un especialista" texto="Hola, quiero información sobre un proyecto" />
       </PageHero>
       <main>
-        <ProyectosListado />
-        <NuestrosProyectos c={{ ...HOME_DEFAULTS.proyectos, badge: 'Mapa de proyectos', titulo: 'Presencia en', destacado: 'todo el país' }} />
-        <NuestrosClientes />
+        <ProyectosListado projects={proyectos} />
+        <NuestrosProyectos
+          c={{ ...HOME_DEFAULTS.proyectos, badge: 'Mapa de proyectos', titulo: 'Presencia en', destacado: 'todo el país' }}
+          projects={proyectos}
+        />
+        <NuestrosClientes sectors={clientes} />
         <Contact />
       </main>
       <Footer />

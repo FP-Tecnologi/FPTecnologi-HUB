@@ -5,7 +5,7 @@
  * se muestra un logo provisional con las iniciales de `short`).
  * Orden en la home: gobierno arriba a lo ancho; educación y privado debajo.
  */
-export type Client = { name: string; short: string; logo?: string };
+export type Client = { name: string; short: string; logo?: string; ejemplo?: boolean };
 export type ClientSector = { key: 'gobierno' | 'educacion' | 'privado'; label: string; clients: Client[] };
 
 export const CLIENT_SECTORS: ClientSector[] = [

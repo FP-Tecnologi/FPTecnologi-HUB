@@ -1,5 +1,5 @@
 import Groq from 'groq-sdk';
-import { ACTION_IDS_HELP, resolveAction, type ChatAction, type ProductoEnlace } from '@/lib/chatActions';
+import { actionIdsHelp, resolveAction, type ChatAction, type ProductoEnlace, type ServicioEnlace } from '@/lib/chatActions';
 import { getConocimiento } from '@/lib/chatConocimiento';
 
 /*
@@ -13,7 +13,7 @@ const MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
 const MAX_MESSAGES = 12;
 const MAX_CHARS = 2000;
 
-const buildSystemPrompt = (siteData: string) => `Eres el asistente virtual de la web de FP Tecnologi & System.
+const buildSystemPrompt = (siteData: string, idsAcciones: string) => `Eres el asistente virtual de la web de FP Tecnologi & System.
 Responde en español neutro de Perú (tú, no vos), breve (2-4 oraciones), claro y amable.
 Texto plano en un solo párrafo: sin markdown (nada de **, #, listas ni saltos de línea), el chat no lo renderiza.
 Si en la conversación todavía no hay un saludo tuyo, empieza con un saludo breve ("¡Hola! 👋") y responde directo a lo consultado.
@@ -27,7 +27,7 @@ Responde SIEMPRE con un objeto JSON, sin nada más:
 - options: 0 a 4 respuestas cortas (máx. 5 palabras) que el USUARIO puede tocar para seguir, escritas desde el usuario, no preguntas tuyas. Úsalas cuando le pides elegir algo (ej. si preguntas qué servicio: ["Videoconferencia", "Data centers", "Soluciones cloud"]; qué marca: ["Dell", "HP", "Lenovo"]). Si no hay nada que elegir, [].
 
 IDs de acciones válidos:
-${ACTION_IDS_HELP}
+${idsAcciones}
 
 ${siteData}`;
 
@@ -71,7 +71,7 @@ function parseMessages(body: unknown): ChatMessage[] | null {
 
 // Valida el JSON de la IA: IDs de acción desconocidos se descartan (la IA
 // nunca decide URLs), opciones recortadas a 3 textos cortos.
-function parseReply(raw: string | null | undefined, productos: readonly ProductoEnlace[]): { reply: string; actions: ChatAction[]; options: string[] } | null {
+function parseReply(raw: string | null | undefined, productos: readonly ProductoEnlace[], servicios: readonly ServicioEnlace[]): { reply: string; actions: ChatAction[]; options: string[] } | null {
   let data: { text?: unknown; actions?: unknown; options?: unknown };
   try {
     data = JSON.parse(raw ?? '');
@@ -81,7 +81,7 @@ function parseReply(raw: string | null | undefined, productos: readonly Producto
   if (typeof data.text !== 'string' || !data.text.trim()) return null;
   const actions = (Array.isArray(data.actions) ? data.actions : [])
     .filter((id): id is string => typeof id === 'string')
-    .map((id) => resolveAction(id, productos))
+    .map((id) => resolveAction(id, productos, servicios))
     .filter((a): a is ChatAction => a !== null)
     .slice(0, 3);
   const options = (Array.isArray(data.options) ? data.options : [])
@@ -108,13 +108,13 @@ export async function POST(req: Request) {
     const groq = new Groq();
     const completion = await groq.chat.completions.create({
       model: MODEL,
-      messages: [{ role: 'system', content: buildSystemPrompt(conocimiento.text) }, ...messages],
+      messages: [{ role: 'system', content: buildSystemPrompt(conocimiento.text, actionIdsHelp(conocimiento.servicios)) }, ...messages],
       temperature: 0.3,
       max_completion_tokens: 600,
       reasoning_effort: MODEL.startsWith('openai/gpt-oss') ? 'low' : undefined,
       response_format: { type: 'json_object' },
     });
-    const parsed = parseReply(completion.choices[0]?.message?.content, conocimiento.products);
+    const parsed = parseReply(completion.choices[0]?.message?.content, conocimiento.products, conocimiento.servicios);
     if (!parsed) return Response.json({ error: 'Respuesta vacía' }, { status: 502 });
     return Response.json(parsed);
   } catch (err) {

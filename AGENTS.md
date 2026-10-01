@@ -150,7 +150,8 @@ vez del contenido hardcodeado que usa hoy).
 | `roles` | `/roles`, `/roles/asignaciones`, `/marcas/:marcaId/equipo`, `/usuarios/me/marcas` | Rol por usuario+marca (`UsuarioMarcaRol`) |
 | `productos` | CRUD `/productos`, `/productos/categorias*` | Filtrado server-side por marcaId |
 | `pedidos` | CRUD `/pedidos`, `PATCH /pedidos/:id/estado` | `cliente` reusa el modelo `Usuario`, no hay `Cliente` aparte |
-| `servicios` | CRUD `/servicios` | Catálogo de servicios TI (B2B) |
+| `servicios` | CRUD `/servicios` (admin/marketing/ventas; borrar solo admin); público `GET /public/servicios[/:slug]` | Servicios TI (B2B) **con el contenido de su página** (slug, ícono, imagen, intro, qué incluye, beneficios, sectores, FAQ, orden): la web, el menú, el cotizador y el asistente los leen de aquí |
+| `proyectos`, `clientes` | CRUD `/proyectos`, `/clientes` (admin/marketing); públicos `GET /public/proyectos`, `/public/clientes` | Referencias de la web (mapa/listado de proyectos y logos de clientes). `esEjemplo` = dato de muestra que el asistente no cita |
 | `cotizaciones` | CRUD `/cotizaciones`, `PATCH /:id/estado` | Solicitudes de cotización sobre un servicio |
 | `notificaciones` | `/notificaciones`, `PATCH /:id/leida`, `/leidas/todas` | Centro de notificaciones del dashboard |
 | `public` | `GET /public/productos`, `/public/productos/:id`, `/public/servicios`, `/public/servicios/:id` | Sin auth — para las webs públicas |
@@ -173,7 +174,7 @@ Ver [`apps/api/prisma/schema.prisma`](apps/api/prisma/schema.prisma) —
 es la fuente de verdad, no la dupliques en prosa aquí porque se desactualiza.
 Modelos clave: `Marca`, `Sitio`, `Usuario`, `OtpCode`, `RefreshToken`, `Rol`,
 `UsuarioMarcaRol`, `Categoria`, `Producto`, `Pedido`/`PedidoItem`,
-`Servicio`, `Cotizacion`, `Notificacion`, `ChatAsesor`, `ChatConversacion`/`ChatMensaje`, `ContenidoWeb`, `BlogArticulo`, `LeadCotizador`.
+`Servicio`, `Proyecto`, `Cliente`, `Cotizacion`, `Notificacion`, `ChatAsesor`, `ChatConversacion`/`ChatMensaje`, `ContenidoWeb`, `BlogArticulo`, `LeadCotizador`.
 
 ## Roles del sistema
 

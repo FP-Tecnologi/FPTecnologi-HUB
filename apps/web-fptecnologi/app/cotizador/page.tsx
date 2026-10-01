@@ -8,7 +8,8 @@ import { ScrollReveal } from '@/components/home/ScrollReveal';
 import { ServiceCardFinal } from '@/components/home/ServiceCardFinal';
 import { BrandMarquee } from '@/components/home/BrandMarquee';
 import { Footer } from '@/components/home/Footer';
-import { CONTACT_INFO, SOLUTIONS } from '@/lib/content';
+import { CONTACT_INFO } from '@/lib/content';
+import { getServicios } from '@/lib/servicios';
 import { whatsappHref } from '@/lib/chatActions';
 import { getCotizadorContenido } from '@/lib/cotizadorContenido';
 
@@ -156,7 +157,7 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
               <p className="mt-3 text-ink/60">Conoce lo que hacemos y pide tu cotización a medida.</p>
             </ScrollReveal>
             <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-4">
-              {SOLUTIONS.slice(0, 4).map((item, i) => (
+              {(await getServicios()).slice(0, 4).map((item, i) => (
                 <ScrollReveal key={item.slug} direction="up" delayMs={i * 100}>
                   <ServiceCardFinal item={item} />
                 </ScrollReveal>

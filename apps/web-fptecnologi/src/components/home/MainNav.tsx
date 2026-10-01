@@ -1,4 +1,6 @@
-import { NAV_LINKS } from '@/lib/nav';
+'use client';
+
+import { useNavLinks } from '@/context/ServiciosContext';
 
 // `darkAccent` -- mismo fondo oscuro que `dark`, pero pensado para el nav
 // del Hero (Navbar9): blanco en mayúscula, siempre el mismo color (el
@@ -83,9 +85,10 @@ function Chevron() {
  * navegar el sitemap completo). `dropdownVariant` da a cada modelo su propio
  * estilo de submenú (no todos comparten la misma tarjeta blanca genérica). */
 export function DesktopNav({ tone = 'light', dropdownVariant = 'default' }: { tone?: Tone; dropdownVariant?: DropdownVariant }) {
+  const links = useNavLinks();
   return (
     <nav className="hidden items-center gap-1 lg:flex">
-      {NAV_LINKS.map((link) => {
+      {links.map((link) => {
         const hasChildren = 'children' in link && link.children.length > 0;
         return (
           <div key={link.href} className={hasChildren ? 'group relative' : ''}>
@@ -141,9 +144,10 @@ export function DesktopNav({ tone = 'light', dropdownVariant = 'default' }: { to
 
 /** Nav de mobile — acordeón simple: tocar el label expande los hijos in-place. */
 export function MobileNav({ tone = 'light', onNavigate }: { tone?: Tone; onNavigate?: () => void }) {
+  const links = useNavLinks();
   return (
     <nav className="flex flex-col gap-1">
-      {NAV_LINKS.map((link) => {
+      {links.map((link) => {
         const hasChildren = 'children' in link && link.children.length > 0;
 
         if (!hasChildren) {

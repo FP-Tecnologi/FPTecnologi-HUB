@@ -28,6 +28,8 @@ import { CotizadorModule } from './cotizador/cotizador.module.js';
 import { ContactoWebModule } from './contacto-web/contacto-web.module.js';
 import { ContenidoModule } from './contenido/contenido.module.js';
 import { BlogModule } from './blog/blog.module.js';
+import { ProyectosModule } from './proyectos/proyectos.module.js';
+import { ClientesModule } from './clientes/clientes.module.js';
 
 @Module({
   imports: [
@@ -55,6 +57,8 @@ import { BlogModule } from './blog/blog.module.js';
     BoletinModule,
     InvitacionesModule,
     BlogModule,
+    ProyectosModule,
+    ClientesModule,
   ],
   controllers: [HealthController],
   providers: [
