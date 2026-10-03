@@ -1,6 +1,10 @@
 'use client';
 
+import { usePathname } from 'next/navigation';
 import { useNavLinks } from '@/context/ServiciosContext';
+
+const isActive = (pathname: string | null, href: string) =>
+  href === '/' ? pathname === '/' : pathname === href || !!pathname?.startsWith(`${href}/`);
 
 // `darkAccent` -- mismo fondo oscuro que `dark`, pero pensado para el nav
 // del Hero (Navbar9): blanco en mayúscula, siempre el mismo color (el
@@ -86,14 +90,17 @@ function Chevron() {
  * estilo de submenú (no todos comparten la misma tarjeta blanca genérica). */
 export function DesktopNav({ tone = 'light', dropdownVariant = 'default' }: { tone?: Tone; dropdownVariant?: DropdownVariant }) {
   const links = useNavLinks();
+  const pathname = usePathname();
   return (
     <nav className="hidden items-center gap-1 lg:flex">
       {links.map((link) => {
         const hasChildren = 'children' in link && link.children.length > 0;
+        const active = isActive(pathname, link.href);
         return (
           <div key={link.href} className={hasChildren ? 'group relative' : ''}>
             <a
               href={link.href}
+              aria-current={active ? 'page' : undefined}
               // Sin subrayado (.nav-underline) cuando tiene submenú -- ya
               // se nota que está "activo" porque se abre el submenú, tener
               // las dos cosas a la vez era redundante. En darkAccent el
@@ -102,7 +109,7 @@ export function DesktopNav({ tone = 'light', dropdownVariant = 'default' }: { to
               // Tamaño por vista: tablet horizontal (lg), laptop (xl, 15px =
               // mismo que Cotizar) y pantalla grande (2xl). Debajo de lg este
               // nav no se muestra (va MobileNav).
-              className={`flex items-center gap-1 px-3 py-2 font-medium transition-[font-size] duration-200 2xl:px-4 ${hasChildren ? '' : 'nav-underline'} ${TRIGGER_TONE[tone]} ${
+              className={`flex items-center gap-1 px-3 py-2 font-medium transition-[font-size] duration-200 2xl:px-4 ${hasChildren && !active ? '' : 'nav-underline'} ${TRIGGER_TONE[tone]} ${
                 tone === 'darkAccent'
                   ? 'text-[13px] uppercase tracking-wide hover:text-sm xl:text-[15px] xl:hover:text-base 2xl:text-base 2xl:hover:text-[17px]'
                   : 'text-sm 2xl:text-base'
@@ -145,6 +152,7 @@ export function DesktopNav({ tone = 'light', dropdownVariant = 'default' }: { to
 /** Nav de mobile — acordeón simple: tocar el label expande los hijos in-place. */
 export function MobileNav({ tone = 'light', onNavigate }: { tone?: Tone; onNavigate?: () => void }) {
   const links = useNavLinks();
+  const pathname = usePathname();
   return (
     <nav className="flex flex-col gap-1">
       {links.map((link) => {
@@ -152,7 +160,7 @@ export function MobileNav({ tone = 'light', onNavigate }: { tone?: Tone; onNavig
 
         if (!hasChildren) {
           return (
-            <a key={link.href} href={link.href} onClick={onNavigate} className={`block rounded-lg px-3 py-2.5 text-sm font-medium md:text-base ${MOBILE_TOP_TONE[tone]}`}>
+            <a key={link.href} href={link.href} onClick={onNavigate} aria-current={isActive(pathname, link.href) ? 'page' : undefined} className={`block rounded-lg px-3 py-2.5 text-sm font-medium md:text-base ${MOBILE_TOP_TONE[tone]} ${isActive(pathname, link.href) ? 'bg-white/15 font-semibold' : ''}`}>
               {link.label}
             </a>
           );

@@ -233,7 +233,8 @@ body {
   transition: width 0.3s ease;
 }
 
-.nav-underline:hover::after {
+.nav-underline:hover::after,
+.nav-underline[aria-current='page']::after {
   width: 100%;
 }
 

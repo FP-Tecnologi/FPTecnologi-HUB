@@ -9,9 +9,6 @@ export function buildNavLinks(servicios: readonly { title: string; slug: string 
   {
     label: 'Nosotros',
     href: '/nosotros',
-    children: [
-      { label: 'Quiénes somos', href: '/nosotros' },
-        ],
   },
   {
     label: 'Servicios',

@@ -34,13 +34,25 @@ export function Navbar9({ compact = false, store = false }: { compact?: boolean;
     <nav className={`relative z-10 w-full transition-[padding] duration-500 ease-in-out ${compact ? 'px-4 py-2.5 md:px-5' : 'px-6 py-6 md:px-10 2xl:px-14 2xl:py-8'}`}>
       <div className="flex w-full items-center justify-between">
         <a href="/" aria-label="FPTecnologi & System" className="flex flex-1 items-center">
-          <Image
-            src="/logo-fptecnologi.svg"
-            alt="FPTecnologi & System"
-            width={168}
-            height={40}
-            className={`w-auto brightness-0 invert transition-[height] duration-500 ease-in-out ${compact ? 'h-6 2xl:h-7' : 'h-8 md:h-10 2xl:h-[60px]'}`}
-          />
+          {/* Sobre el hero (fondo oscuro con imagen) el logo va en el azul
+              primario; en la barra sólida de al bajar (que ya es primaria)
+              va blanco para que se lea. */}
+          {compact ? (
+            <Image
+              src="/logo-fptecnologi.svg"
+              alt="FPTecnologi & System"
+              width={168}
+              height={40}
+              className="h-6 w-auto brightness-0 invert transition-[height] duration-500 ease-in-out 2xl:h-7"
+            />
+          ) : (
+            <span
+              role="img"
+              aria-label="FPTecnologi & System"
+              className="block aspect-[1519/360] h-8 bg-brand-primary md:h-10 2xl:h-[60px]"
+              style={{ WebkitMask: 'url(/logo-fptecnologi.svg) left center / contain no-repeat', mask: 'url(/logo-fptecnologi.svg) left center / contain no-repeat' }}
+            />
+          )}
         </a>
 
         <div className="hidden lg:flex">
