@@ -26,10 +26,10 @@ export function ServiceCardFinal({ item }: { item: ServicioTarjeta }) {
         // Mismo hover de imagen que el Modelo 3: zoom + giro leve.
         className="object-cover transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
       />
-      {/* Mismo degradé que el Modelo 3: negro neutro, oscuro solo abajo
+      {/* Degradé azul muy oscuro de marca (brand-950/900), fuerte solo abajo
           (donde va el texto) y transparente arriba -- la foto se ve con sus
           colores reales, sin el tinte azul. */}
-      <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/85 via-brand-primary/25 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-t from-brand-950/90 via-brand-900/45 to-transparent" />
       {/* Contorno celeste que gira al hover (ver .spin-border en globals.css). */}
       <span className="spin-border" aria-hidden />
 

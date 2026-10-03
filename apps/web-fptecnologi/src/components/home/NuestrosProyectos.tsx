@@ -57,7 +57,7 @@ function ProjectCard({
         <div className={face} aria-hidden={flipped}>
           {/* Foto: acercamiento + giro suave al hover (igual que Servicios). */}
           <Image src={p.image} alt={p.title} fill sizes="(min-width: 1024px) 40vw, 100vw" className="object-cover transition-transform duration-700 ease-out group-hover:rotate-2 group-hover:scale-110" />
-          <div className="absolute inset-0 bg-gradient-to-t from-brand-primary/95 via-brand-primary/35 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-brand-950/95 via-brand-900/45 to-transparent" />
           {/* Numeración: vidrio oscuro (legible sobre fotos claras). */}
           <span className="absolute left-3 top-3 z-10 flex h-9 min-w-9 items-center justify-center rounded-lg border border-white/25 bg-brand-primary/45 px-2.5 font-display text-base font-bold tabular-nums text-white shadow-lg shadow-brand-dark/30 backdrop-blur-md">
             {String(index).padStart(2, '0')}
@@ -82,7 +82,7 @@ function ProjectCard({
         {/* Reverso: misma foto desenfocada + velo de marca, contenido centrado. */}
         <div className={`${face} text-white [transform:rotateY(180deg)]`} aria-hidden={!flipped}>
           <Image src={p.image} alt="" fill sizes="(min-width: 1024px) 40vw, 100vw" className="scale-110 object-cover blur-md" />
-          <div className="absolute inset-0 bg-gradient-to-br from-brand-primary/90 via-brand-primary/90 to-brand-primary/95" />
+          <div className="absolute inset-0 bg-gradient-to-br from-brand-900/90 via-brand-900/90 to-brand-950/95" />
           <span className={GLASS_TAG}>
             <RotateCcw className="h-3.5 w-3.5" strokeWidth={2.2} />
             Volver
