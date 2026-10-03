@@ -89,12 +89,8 @@ export function Navbar9({ compact = false, store = false }: { compact?: boolean;
             // Sin alto/ancho fijo en desktop: el botón se ajusta al texto
             // (padding parejo). h-10 solo debajo de lg, para alinear con la
             // hamburguesa.
-            className={`hidden items-center rounded-xl font-normal uppercase tracking-wide text-white transition-colors duration-200 sm:flex ${compact ? "bg-[#0b68b8] hover:bg-[#0958a0]" : "bg-brand-primary hover:bg-[#0b68b8]"} ${
-              compact ? 'h-9 pl-1.5 pr-3 text-[11px] 2xl:text-xs' : COTIZAR_SIZE
-            }`}
-            doneClassName={`hidden items-center rounded-xl font-normal uppercase tracking-wide text-white sm:flex ${compact ? "bg-[#0b68b8]" : "bg-brand-primary"} ${
-              compact ? 'h-9 pl-1.5 pr-3 text-[11px] 2xl:text-xs' : COTIZAR_SIZE
-            }`}
+            className={`hidden items-center rounded-xl font-normal uppercase tracking-wide text-white transition-colors duration-200 sm:flex ${compact ? "bg-[#0b68b8] hover:bg-[#0958a0]" : "bg-brand-primary hover:bg-[#0b68b8]"} ${COTIZAR_SIZE}`}
+            doneClassName={`hidden items-center rounded-xl font-normal uppercase tracking-wide text-white sm:flex ${compact ? "bg-[#0b68b8]" : "bg-brand-primary"} ${COTIZAR_SIZE}`}
           />
           </>
           )}
