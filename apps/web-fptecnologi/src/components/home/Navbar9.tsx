@@ -33,17 +33,18 @@ export function Navbar9({ compact = false, store = false }: { compact?: boolean;
   return (
     <nav className={`relative z-10 w-full transition-[padding] duration-500 ease-in-out ${compact ? 'px-4 py-2.5 md:px-5' : 'px-6 py-6 md:px-10 2xl:px-14 2xl:py-8'}`}>
       <div className="flex w-full items-center justify-between">
-        <a href="/" aria-label="FPTecnologi & System" className="flex flex-1 items-center">
+        <a href="/" aria-label="FPTecnologi & System" className={`flex flex-1 items-center ${open ? 'max-lg:invisible' : ''}`}>
           {/* Sobre el hero (fondo oscuro con imagen) el logo va en el azul
               primario; en la barra sólida de al bajar (que ya es primaria)
-              va blanco para que se lea. */}
-          {compact ? (
+              va blanco para que se lea; en la tienda (banda azul, no foto oscura) también
+              blanco, porque el logo primario se perdería sobre ese azul. */}
+          {compact || store ? (
             <Image
               src="/logo-fptecnologi.svg"
               alt="FPTecnologi & System"
               width={168}
               height={40}
-              className="h-6 w-auto brightness-0 invert transition-[height] duration-500 ease-in-out 2xl:h-7"
+              className={`w-auto brightness-0 invert transition-[height] duration-500 ease-in-out ${compact ? 'h-7 2xl:h-9' : 'h-8 md:h-10 2xl:h-[60px]'}`}
             />
           ) : (
             <span
@@ -128,15 +129,18 @@ export function Navbar9({ compact = false, store = false }: { compact?: boolean;
 
       {open && (
         <div className="mt-3 flex flex-col gap-1 rounded-2xl border border-white/15 bg-brand-primary p-3 lg:hidden">
-          <MobileNav tone="dark" onNavigate={() => setOpen(false)} />
+          <a href="/" onClick={() => setOpen(false)} aria-label="FPTecnologi & System" className="px-3 pb-2 pt-1">
+            <Image src="/logo-fptecnologi.svg" alt="FPTecnologi & System" width={168} height={40} className="h-8 w-auto brightness-0 invert" />
+          </a>
           {store && (
-            <div className="mt-1 flex items-center justify-between gap-3 border-t border-white/15 pt-3 sm:hidden">
+            <div className="mb-1 flex items-center justify-between gap-3 border-y border-white/15 py-3 sm:hidden">
               <CurrencyToggle className="h-10" />
               <a href="/cuenta" className="flex h-10 items-center gap-2 whitespace-nowrap rounded-xl border border-white/25 px-3 text-sm font-semibold text-white">
                 <User className="h-4 w-4" strokeWidth={1.8} /> Mi cuenta
               </a>
             </div>
           )}
+          <MobileNav tone="dark" onNavigate={() => setOpen(false)} />
         </div>
       )}
     </nav>
