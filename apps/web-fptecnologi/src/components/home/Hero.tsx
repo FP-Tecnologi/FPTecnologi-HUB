@@ -84,8 +84,8 @@ export function Hero({ slides }: { slides?: HeroSlide[] }) {
             claro necesita fondo oscuro para leerse bien encima de un video,
             no de una foto fija de oficina. Degradé extra al centro para que
             el bloque de texto tenga aún más contraste que los bordes. */}
-        <div className="absolute inset-0 z-[1] bg-brand-primary/80" />
-        <div className="absolute inset-0 z-[1] bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,rgba(16,122,204,0.35),transparent)]" />
+        <div className="absolute inset-0 z-[1] bg-gradient-to-b from-ink/75 via-ink/65 to-ink/80" />
+        <div className="absolute inset-0 z-[1] bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,rgba(11,27,38,0.45),transparent)]" />
 
         {/* Mismo efecto de partículas del Hero de Modelo 1 (ver
             ParticlesBackground.tsx) -- puntos conectados encima del video,

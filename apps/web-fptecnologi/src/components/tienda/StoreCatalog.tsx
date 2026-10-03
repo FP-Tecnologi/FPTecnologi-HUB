@@ -207,7 +207,7 @@ export function StoreCatalog({
               <span className="text-white">{initialCategory ? heading : 'Equipamiento TI'}</span>{' '}
               <span className="title-shimmer-dark">{initialCategory ? 'con stock local' : 'listo para despachar'}</span>
             </h1>
-            <p className="mt-3 max-w-xl text-white/70">
+            <p className="mt-3 max-w-xl text-white/90">
               Precios en {currency === 'PEN' ? 'soles' : 'dólares'} sin IGV. El IGV (18%) se suma en el carrito.
             </p>
 

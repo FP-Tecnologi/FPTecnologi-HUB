@@ -43,7 +43,7 @@ export function PageHero({
               <source src={video} type="video/mp4" />
             </video>
           )}
-          <div className="absolute inset-0 z-[1] bg-brand-primary/80" />
+          <div className="absolute inset-0 z-[1] bg-gradient-to-b from-ink/75 via-ink/65 to-ink/80" />
           <div className="absolute inset-0 z-[1] bg-[radial-gradient(ellipse_60%_50%_at_50%_45%,rgba(0,0,0,0.35),transparent)]" />
           <div className="absolute inset-0 z-[2]">
             <ParticlesBackground />
