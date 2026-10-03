@@ -690,16 +690,10 @@ body {
   }
 }
 
-/* Frase destacada del título del hero: degradé de tonos claros de la escala de marca que se desliza en loop
-   (background-clip: text). Tamaño de fondo 220% + loop 200%→-20% para que se sienta continuo, sin salto al reiniciar. */
+/* Frase destacada del título del hero y de las secciones claras: color primario de marca plano
+   (sin degradé animado). Sobre fondos oscuros de marca se usa .title-shimmer-dark. */
 .hero-title-shimmer {
-  background: linear-gradient(90deg, var(--color-brand-200) 0%, #ffffff 35%, var(--color-brand-300) 65%, var(--color-brand-200) 100%);
-  background-size: 220% auto;
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  animation: hero-title-shimmer 4s linear infinite;
+  color: var(--color-brand-primary);
 }
 
 /* Variante para títulos de sección sobre fondos de marca u oscuros (Partners, Contacto). */
@@ -826,19 +820,7 @@ body {
    como el de la sección Nosotros; sobre blanco, un stop blanco en el
    degradé se volvería invisible. */
 .title-shimmer-light {
-  background: linear-gradient(
-    90deg,
-    var(--color-brand-600) 0%,
-    var(--color-brand-500) 35%,
-    var(--color-brand-700) 65%,
-    var(--color-brand-600) 100%
-  );
-  background-size: 220% auto;
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  animation: hero-title-shimmer 4s linear infinite;
+  color: var(--color-brand-primary);
 }
 
 /* Chip de check del checklist de valores (Nosotros) -- degradé de marca en
@@ -876,20 +858,6 @@ body {
     transition: none !important;
     opacity: 1 !important;
     transform: none !important;
-  }
-
-  .hero-title-shimmer {
-    animation: none !important;
-    background: none !important;
-    -webkit-text-fill-color: unset !important;
-    color: var(--color-brand-200) !important;
-  }
-
-  .title-shimmer-light {
-    animation: none !important;
-    background: none !important;
-    -webkit-text-fill-color: unset !important;
-    color: var(--color-brand-600) !important;
   }
 
   .value-check-glow {
