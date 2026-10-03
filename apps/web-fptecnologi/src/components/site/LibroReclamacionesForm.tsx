@@ -10,7 +10,7 @@ import { CheckCircle2, Send } from 'lucide-react';
  * cliente -- agregar un registro propio en la API antes de producción.
  */
 const input =
-  'mt-1.5 w-full rounded-xl border border-brand-dark/15 bg-paper px-4 py-2.5 text-sm text-ink outline-none transition-colors placeholder:text-ink/35 focus:border-brand-dark focus:bg-white focus:ring-2 focus:ring-brand-dark/15';
+  'mt-1.5 w-full rounded-xl border border-brand-dark/15 bg-paper px-4 py-2.5 text-sm text-ink outline-none transition-colors placeholder:text-ink/65 focus:border-brand-dark focus:bg-white focus:ring-2 focus:ring-brand-dark/15';
 
 function Campo({ label, children, full }: { label: string; children: ReactNode; full?: boolean }) {
   return (
@@ -125,7 +125,7 @@ export function LibroReclamacionesForm() {
 
       {error && <p className="text-sm font-medium text-red-600">{error}</p>}
       <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
-        <p className="max-w-md text-xs text-ink/50">
+        <p className="max-w-md text-xs text-ink/65">
           La formulación del reclamo no impide acudir a otras vías de solución de controversias ni es requisito previo para interponer una denuncia ante INDECOPI.
         </p>
         <button

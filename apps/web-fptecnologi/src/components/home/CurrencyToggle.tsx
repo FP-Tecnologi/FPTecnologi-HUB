@@ -18,8 +18,8 @@ function Moneda({ tipo, activa, light }: { tipo: 'USD' | 'PEN'; activa: boolean;
         activa
           ? 'border-white/35 bg-white/20 text-white shadow-[inset_0_1px_0_rgba(255,255,255,.35)]'
           : light
-            ? 'border-brand-dark/10 bg-white/60 text-ink/45'
-            : 'border-white/15 bg-white/5 text-white/55'
+            ? 'border-brand-dark/10 bg-white/60 text-ink/65'
+            : 'border-white/15 bg-white/5 text-white/80'
       }`}
     >
       {tipo === 'PEN' ? 'S/' : '$'}
@@ -34,7 +34,7 @@ export function CurrencyToggle({ tone = 'dark', className = 'h-10' }: { tone?: '
 
   const label = (activo: boolean) =>
     `relative z-10 flex flex-1 items-center justify-center gap-1.5 whitespace-nowrap px-1.5 text-xs font-bold transition-colors duration-300 ${
-      activo ? 'text-white' : light ? 'text-ink/50' : 'text-white/60'
+      activo ? 'text-white' : light ? 'text-ink/65' : 'text-white/80'
     }`;
 
   return (

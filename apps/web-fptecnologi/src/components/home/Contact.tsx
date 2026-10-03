@@ -66,11 +66,11 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
   };
 
   const input =
-    'mt-1.5 w-full rounded-xl border border-white/20 bg-white/10 py-3 pl-12 pr-4 text-sm text-white outline-none transition-all placeholder:text-white/40 focus:border-white/60 focus:bg-white/15 focus:ring-4 focus:ring-white/10';
-  const iconCls = 'pointer-events-none absolute left-4 h-5 w-5 text-white/55 transition-colors group-focus-within/field:text-white';
+    'mt-1.5 w-full rounded-xl border border-white/20 bg-white/10 py-3 pl-12 pr-4 text-sm text-white outline-none transition-all placeholder:text-white/80 focus:border-white/60 focus:bg-white/15 focus:ring-4 focus:ring-white/10';
+  const iconCls = 'pointer-events-none absolute left-4 h-5 w-5 text-white/80 transition-colors group-focus-within/field:text-white';
 
   return (
-    <section id="contacto" className="relative overflow-hidden bg-gradient-to-br from-brand-primary via-brand-petrol to-brand-teal py-20 text-white">
+    <section id="contacto" className="relative overflow-hidden bg-gradient-to-br from-brand-800 via-brand-700 to-brand-600 py-20 text-white">
       {/* Fondo propio (azul de marca) para separar esta sección del pie de página (bg-ink). */}
       <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.10)_1px,transparent_0)] [background-size:26px_26px]" />
       <div aria-hidden className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-brand-teal-light/30 blur-3xl" />
@@ -102,7 +102,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
                   <Icon className="h-5 w-5 transition-transform duration-500 group-hover:rotate-[360deg]" strokeWidth={1.8} />
                 </span>
                 <span className="block min-w-0">
-                  <span className="block text-xs uppercase tracking-wide text-white/60">{label}</span>
+                  <span className="block text-xs uppercase tracking-wide text-white/80">{label}</span>
                   <span className="block break-words text-sm font-medium">{value.replace('@', '​@')}</span>
                 </span>
               </a>
@@ -176,7 +176,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
                 <Send className="h-5 w-5" strokeWidth={2} />
                 {submitting ? 'Enviando...' : 'Enviar mensaje'}
               </button>
-              <p className="text-center text-xs text-white/55">
+              <p className="text-center text-xs text-white/80">
                 Tu solicitud será enviada a nuestro equipo de ventas y registrada en el sistema de leads.
               </p>
             </div>

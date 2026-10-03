@@ -171,13 +171,13 @@ export function StoreCatalog({
       {/* Hero de la tienda: mismo marco que el de la home (el Navbar9
           invisible reserva el lugar del encabezado fijo). */}
       <div className="bg-paper p-3 md:p-5">
-        <section className="relative overflow-hidden rounded-[1.25rem] bg-brand-primary text-white md:rounded-[2.25rem]">
+        <section className="relative overflow-hidden rounded-[1.25rem] bg-brand-700 text-white md:rounded-[2.25rem]">
           {/* Foto de fondo completa (escritorio con monitor) + degradado de
               marca: oscuro a la izquierda, donde va el texto. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/images/categorias/monitores.jpg" alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover object-[center_55%]" />
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-brand-primary via-brand-primary/80 to-brand-primary/20" />
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-brand-primary/60 via-transparent to-transparent" />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-brand-700 via-brand-700/80 to-brand-700/20" />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-brand-700/60 via-transparent to-transparent" />
           <div className="invisible" aria-hidden>
             <Navbar9 store />
           </div>
@@ -192,11 +192,11 @@ export function StoreCatalog({
                 <Home className="h-4 w-4 text-white" strokeWidth={2} />
                 Inicio
               </a>
-              <span className="relative text-white/40">/</span>
+              <span className="relative text-white/80">/</span>
               {initialCategory ? (
                 <>
                   <a href="/tienda" className="relative transition-colors hover:text-white">Tienda</a>
-                  <span className="relative text-white/40">/</span>
+                  <span className="relative text-white/80">/</span>
                   <span className="relative font-semibold text-white">{heading}</span>
                 </>
               ) : (
@@ -218,7 +218,7 @@ export function StoreCatalog({
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Busca por producto, marca o SKU"
-                className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/50"
+                className="w-full bg-transparent text-sm text-white outline-none placeholder:text-white/80"
               />
               {query && (
                 <button type="button" onClick={() => setQuery('')} aria-label="Borrar búsqueda" className="text-white/70 hover:text-white">
@@ -326,7 +326,7 @@ export function StoreCatalog({
             <div className="mt-6 flex flex-col items-center rounded-2xl border border-dashed border-brand-dark/20 bg-white px-6 py-16 text-center">
               <Search className="h-10 w-10 text-brand-700/40" strokeWidth={1.5} />
               <p className="mt-4 font-display text-lg font-bold text-ink">No encontramos productos con esos filtros</p>
-              <p className="mt-1 text-sm text-ink/55">Prueba quitar algún filtro o buscar otra palabra.</p>
+              <p className="mt-1 text-sm text-ink/65">Prueba quitar algún filtro o buscar otra palabra.</p>
               <button type="button" onClick={clearAll} className="mt-5 rounded-xl bg-brand-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-primary">
                 Limpiar filtros
               </button>
@@ -366,7 +366,7 @@ export function StoreCatalog({
 function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <p className="mb-3 text-xs font-bold uppercase tracking-[0.15em] text-ink/50">{title}</p>
+      <p className="mb-3 text-xs font-bold uppercase tracking-[0.15em] text-ink/65">{title}</p>
       <div className="space-y-1">{children}</div>
     </div>
   );
@@ -381,7 +381,7 @@ function FilterOption({ children, onClick, active, count }: { children: React.Re
       className={`flex w-full items-center gap-2.5 rounded-lg px-2 py-1.5 text-left text-sm transition-colors hover:bg-brand-primary/5 ${active ? 'font-semibold text-brand-dark' : 'text-ink/75'}`}
     >
       {children}
-      <span className="ml-auto text-xs text-ink/40">{count}</span>
+      <span className="ml-auto text-xs text-ink/65">{count}</span>
     </button>
   );
 }

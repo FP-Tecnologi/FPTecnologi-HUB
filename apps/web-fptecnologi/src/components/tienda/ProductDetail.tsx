@@ -54,7 +54,7 @@ export function ProductDetail({ product, relacionados }: { product: CatalogProdu
           {/* Galería */}
           <div>
             <div className="group relative aspect-square overflow-hidden rounded-2xl bg-producto shadow-lg shadow-brand-dark/10">
-              {discount > 0 && <span className="absolute left-4 top-4 z-10 rounded-md bg-red-500 px-2.5 py-1 text-xs font-bold text-white">-{discount}%</span>}
+              {discount > 0 && <span className="absolute left-4 top-4 z-10 rounded-md bg-red-600 px-2.5 py-1 text-xs font-bold text-white">-{discount}%</span>}
               <button type="button" onClick={() => setZoom(true)} aria-label="Ampliar foto" className="block h-full w-full cursor-zoom-in">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={images[active]} alt={product.name} className="h-full w-full object-contain p-12 mix-blend-multiply transition-transform duration-500 group-hover:scale-105" />
@@ -94,16 +94,16 @@ export function ProductDetail({ product, relacionados }: { product: CatalogProdu
               {product.brand}
             </a>
             <h1 className="mt-3 font-display text-2xl font-bold leading-snug text-ink sm:text-3xl">{partes[0]}</h1>
-            <p className="mt-2 text-sm text-ink/50">SKU: {product.sku}</p>
+            <p className="mt-2 text-sm text-ink/65">SKU: {product.sku}</p>
 
             <div className="mt-6 flex flex-wrap items-end gap-3">
               <span className="font-display text-4xl font-bold text-ink">{format(product.price)}</span>
-              {discount > 0 && <span className="pb-1 text-lg text-ink/40 line-through">{format(product.priceBefore!)}</span>}
-              {discount > 0 && <span className="mb-1.5 rounded-md bg-red-500/10 px-2 py-0.5 text-xs font-bold text-red-600">Ahorras {discount}%</span>}
+              {discount > 0 && <span className="pb-1 text-lg text-ink/65 line-through">{format(product.priceBefore!)}</span>}
+              {discount > 0 && <span className="mb-1.5 rounded-md bg-red-500/10 px-2 py-0.5 text-xs font-bold text-red-700">Ahorras {discount}%</span>}
             </div>
-            <p className="mt-1 text-xs text-ink/50">Precio en {currency === 'PEN' ? 'soles' : 'dólares'} sin IGV. El IGV (18%) se suma en el carrito.</p>
+            <p className="mt-1 text-xs text-ink/65">Precio en {currency === 'PEN' ? 'soles' : 'dólares'} sin IGV. El IGV (18%) se suma en el carrito.</p>
 
-            <span className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg bg-emerald-500/10 px-3 text-sm font-semibold text-emerald-600">
+            <span className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg bg-whatsapp/10 px-3 text-sm font-semibold text-whatsapp-dark">
               <span className="h-2 w-2 rounded-full bg-emerald-500" /> En stock
             </span>
 

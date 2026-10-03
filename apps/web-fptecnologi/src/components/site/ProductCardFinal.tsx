@@ -45,7 +45,7 @@ export function ProductCardFinal({
             aria-pressed={compared}
             aria-label={compared ? 'Quitar de comparar' : 'Agregar a comparar'}
             className={`absolute right-2 top-2 z-10 flex h-7 w-7 items-center justify-center rounded-full shadow-sm transition-colors ${
-              compared ? 'bg-brand-primary text-white' : 'bg-white text-ink/50 hover:text-ink'
+              compared ? 'bg-brand-primary text-white' : 'bg-white text-ink/65 hover:text-ink'
             }`}
           >
             <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
@@ -63,10 +63,10 @@ export function ProductCardFinal({
           <h3 className="line-clamp-2 min-h-[2.2rem] text-sm font-semibold text-ink">{product.name}</h3>
           <div className="mt-0.5 flex items-baseline gap-2 font-mono">
             <span className="text-base font-bold text-ink">{format(product.price)}</span>
-            <span className="text-xs text-ink/40 line-through">{format(product.priceBefore)}</span>
+            <span className="text-xs text-ink/65 line-through">{format(product.priceBefore)}</span>
           </div>
           <div className="mt-2 flex items-center justify-between">
-            <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-semibold text-emerald-600">En stock</span>
+            <span className="rounded-full bg-whatsapp/10 px-2.5 py-1 text-[10px] font-semibold text-whatsapp-dark">En stock</span>
             <button
               type="button"
               onClick={() => addItem({ sku: product.sku, name: product.name, price: product.price, image: product.image })}

@@ -20,7 +20,7 @@ export function BrandMarquee({ showLabel = true }: { showLabel?: boolean }) {
     // para que no se sienta como un bloque blanco puro distinto del resto.
     <section id="marcas" className="bg-paper py-3">
       {showLabel && (
-        <p className="mx-auto mb-6 max-w-7xl px-6 text-center text-xs font-semibold uppercase tracking-widest text-ink/40">
+        <p className="mx-auto mb-6 max-w-7xl px-6 text-center text-xs font-semibold uppercase tracking-widest text-ink/65">
           Distribución autorizada de las principales marcas
         </p>
       )}

@@ -18,7 +18,7 @@ export function ArticuloCard({ a }: { a: ArticuloResumen }) {
         <span className="absolute left-3 top-3 rounded-lg border border-white/30 bg-brand-primary/40 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-md">{a.categoria}</span>
       </div>
       <div className="flex flex-1 flex-col p-6">
-        <p className="flex items-center gap-1.5 text-xs text-ink/50">
+        <p className="flex items-center gap-1.5 text-xs text-ink/65">
           <CalendarDays className="h-3.5 w-3.5" strokeWidth={2} />
           {fechaLarga(a.publicadoEn)}
         </p>
@@ -127,7 +127,7 @@ export function BlogListado({ articulos, inicial }: { articulos: ArticuloResumen
         <div className="mx-auto mb-6 max-w-xl">
           <label htmlFor="blog-buscar" className="sr-only">Buscar en el blog</label>
           <div className="relative">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-ink/40" strokeWidth={1.8} />
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-ink/65" strokeWidth={1.8} />
             <input
               id="blog-buscar"
               type="search"
@@ -137,7 +137,7 @@ export function BlogListado({ articulos, inicial }: { articulos: ArticuloResumen
                 setPagina(1);
               }}
               placeholder="Buscar artículos, temas o etiquetas…"
-              className="h-12 w-full rounded-xl border border-ink/10 bg-white pl-12 pr-4 text-sm text-ink shadow-sm shadow-brand-dark/10 outline-none transition-all placeholder:text-ink/40 focus:border-brand-dark focus:ring-4 focus:ring-brand-dark/10"
+              className="h-12 w-full rounded-xl border border-ink/10 bg-white pl-12 pr-4 text-sm text-ink shadow-sm shadow-brand-dark/10 outline-none transition-all placeholder:text-ink/65 focus:border-brand-dark focus:ring-4 focus:ring-brand-dark/10"
             />
           </div>
         </div>
@@ -162,7 +162,7 @@ export function BlogListado({ articulos, inicial }: { articulos: ArticuloResumen
           </div>
         )}
         {resto.length === 0 ? (
-          <div className="text-center text-ink/55">
+          <div className="text-center text-ink/65">
             <p>{filtrando ? 'No encontramos artículos con esos filtros.' : 'No hay más artículos en esta categoría.'}</p>
             {filtrando && (
               <button type="button" onClick={limpiar} className="mt-4 rounded-lg bg-brand-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-primary">

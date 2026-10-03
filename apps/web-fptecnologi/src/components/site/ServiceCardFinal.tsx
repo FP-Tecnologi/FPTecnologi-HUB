@@ -20,7 +20,7 @@ export function ServiceCardFinal({ item }: { item: (typeof SOLUTIONS)[number] })
       <div className="p-5">
         <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">{item.tag}</p>
         <h3 className="mt-1 text-base font-semibold text-ink">{item.title}</h3>
-        <p className="mt-2 line-clamp-2 min-h-[2.5rem] text-sm text-ink/55">{item.description}</p>
+        <p className="mt-2 line-clamp-2 min-h-[2.5rem] text-sm text-ink/65">{item.description}</p>
         <a href={`/servicios/${item.slug}`} className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-700 transition-colors hover:text-brand-dark">
           Más información
           <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1">

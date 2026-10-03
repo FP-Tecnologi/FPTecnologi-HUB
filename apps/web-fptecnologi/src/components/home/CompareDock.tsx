@@ -51,7 +51,7 @@ export function CompareDock({
           >
             <GitCompareArrows className="h-5 w-5 shrink-0" strokeWidth={2} />
             <span className="text-sm font-semibold">
-              Comparar <span className="font-normal text-white/60">({selected.length}/{MAX_COMPARE})</span>
+              Comparar <span className="font-normal text-white/80">({selected.length}/{MAX_COMPARE})</span>
             </span>
             <ChevronDown className="h-5 w-5 rotate-180" strokeWidth={2} />
           </button>
@@ -59,7 +59,7 @@ export function CompareDock({
           <div className="flex items-center gap-3 bg-brand-primary px-4 py-2.5 text-white">
             <GitCompareArrows className="h-5 w-5 shrink-0" strokeWidth={2} />
             <p className="flex-1 text-sm font-semibold">
-              Comparar productos <span className="font-normal text-white/60">({selected.length}/{MAX_COMPARE})</span>
+              Comparar productos <span className="font-normal text-white/80">({selected.length}/{MAX_COMPARE})</span>
             </p>
             <button
               type="button"

@@ -52,7 +52,7 @@ export function WhyChooseUs({ c = HOME_DEFAULTS.porque }: { c?: Encabezado & { i
                     <Icon className="h-6 w-6" strokeWidth={1.8} />
                   </span>
                   <h3 className="relative mt-5 text-lg font-semibold text-white">{item.title}</h3>
-                  <p className="relative mt-2 text-sm leading-relaxed text-white/65">{item.text}</p>
+                  <p className="relative mt-2 text-sm leading-relaxed text-white/80">{item.text}</p>
                 </div>
               </ScrollReveal>
             );

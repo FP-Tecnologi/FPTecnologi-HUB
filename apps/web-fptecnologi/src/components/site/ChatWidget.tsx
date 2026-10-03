@@ -270,7 +270,7 @@ const THEMES = {
     card: 'option-card border border-brand-100 bg-white shadow-sm shadow-brand-950/5 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-950/10',
     title: 'text-ink',
     muted: 'text-ink/65',
-    arrow: 'text-ink/45',
+    arrow: 'text-ink/65',
     userAvatar: 'border border-brand-200 bg-white text-brand-700',
     userBubble: 'bg-brand-700 text-white shadow-sm shadow-brand-950/20',
     link: 'border-brand-200 bg-white text-brand-700 hover:border-brand-700 hover:bg-brand-700 hover:text-white',
@@ -279,9 +279,9 @@ const THEMES = {
     inputBar: 'border-brand-100 bg-white',
     notice: 'border-brand-100 bg-white shadow-md shadow-brand-950/10',
     divider: 'bg-brand-100',
-    time: 'text-ink/55',
+    time: 'text-ink/65',
     botRing: 'ring-brand-100',
-    input: 'border-brand-200 bg-white text-ink placeholder:text-ink/55 focus:border-brand-600 focus:ring-brand-600/20',
+    input: 'border-brand-200 bg-white text-ink placeholder:text-ink/65 focus:border-brand-600 focus:ring-brand-600/20',
   },
 };
 type Theme = (typeof THEMES)['light'];

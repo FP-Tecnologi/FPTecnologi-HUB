@@ -48,7 +48,7 @@ export function CartView() {
             <button
               type="button"
               onClick={() => window.confirm('¿Vaciar el carrito?') && clear()}
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink/50 transition-colors hover:text-rose-600"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-ink/65 transition-colors hover:text-rose-600"
             >
               <Trash2 className="h-4 w-4" strokeWidth={1.9} />
               Vaciar carrito
@@ -67,14 +67,14 @@ export function CartView() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="line-clamp-2 font-display text-base font-bold leading-snug text-ink">{item.name}</p>
-                        <p className="mt-1 text-xs text-ink/45">SKU {item.sku} · {format(item.price)} c/u</p>
+                        <p className="mt-1 text-xs text-ink/65">SKU {item.sku} · {format(item.price)} c/u</p>
                       </div>
                       <button
                         type="button"
                         onClick={() => removeItem(item.sku)}
                         aria-label={`Quitar ${item.name}`}
                         title="Quitar"
-                        className="shrink-0 rounded-lg p-2 text-ink/35 transition-colors hover:bg-rose-50 hover:text-rose-600"
+                        className="shrink-0 rounded-lg p-2 text-ink/65 transition-colors hover:bg-rose-50 hover:text-rose-600"
                       >
                         <Trash2 className="h-[18px] w-[18px]" strokeWidth={1.8} />
                       </button>
@@ -105,7 +105,7 @@ export function CartView() {
                 </span>
                 <span>
                   <span className="block text-sm font-bold text-ink">{titulo}</span>
-                  <span className="block text-xs leading-relaxed text-ink/55">{texto}</span>
+                  <span className="block text-xs leading-relaxed text-ink/65">{texto}</span>
                 </span>
               </div>
             ))}
@@ -117,9 +117,9 @@ export function CartView() {
             <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-brand-teal/25 blur-3xl" />
             <h2 className="relative font-display text-lg font-bold">Resumen del pedido</h2>
             <dl className="relative mt-5 space-y-2.5 text-sm">
-              <div className="flex justify-between"><dt className="text-white/60">Subtotal</dt><dd>{format(subtotal)}</dd></div>
-              <div className="flex justify-between"><dt className="text-white/60">IGV (18%)</dt><dd>{format(igv)}</dd></div>
-              <div className="flex justify-between"><dt className="text-white/60">Envío</dt><dd className="text-white/60">Se calcula al elegir la entrega</dd></div>
+              <div className="flex justify-between"><dt className="text-white/80">Subtotal</dt><dd>{format(subtotal)}</dd></div>
+              <div className="flex justify-between"><dt className="text-white/80">IGV (18%)</dt><dd>{format(igv)}</dd></div>
+              <div className="flex justify-between"><dt className="text-white/80">Envío</dt><dd className="text-white/80">Se calcula al elegir la entrega</dd></div>
               <div className="flex items-baseline justify-between border-t border-white/10 pt-4">
                 <dt className="font-semibold">Total</dt>
                 <dd className="font-display text-3xl font-bold">{format(total)}</dd>
@@ -138,7 +138,7 @@ export function CartView() {
               <Lock className="mt-0.5 h-4 w-4 shrink-0 text-brand-700" strokeWidth={2} />
               No se cobra nada en línea: un asesor confirma el pago y la entrega contigo por WhatsApp.
             </p>
-            <p className="mt-3 flex items-center gap-3 text-xs font-semibold text-ink/50">
+            <p className="mt-3 flex items-center gap-3 text-xs font-semibold text-ink/65">
               <span className="inline-flex items-center gap-1"><Landmark className="h-4 w-4" strokeWidth={1.8} /> Transferencia</span>
               <span className="inline-flex items-center gap-1"><Smartphone className="h-4 w-4" strokeWidth={1.8} /> Yape / Plin</span>
               <span className="inline-flex items-center gap-1"><Banknote className="h-4 w-4" strokeWidth={1.8} /> Efectivo</span>
@@ -155,7 +155,7 @@ export function CartView() {
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-ink/10 bg-white/95 px-4 py-3 shadow-[0_-8px_24px_-12px_rgba(33,129,175,0.35)] backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-lg items-center justify-between gap-4 pr-16">
           <div>
-            <p className="text-xs text-ink/50">Total con IGV</p>
+            <p className="text-xs text-ink/65">Total con IGV</p>
             <p className="font-display text-xl font-bold text-ink">{format(total)}</p>
           </div>
           <a href="/checkout" className="inline-flex h-12 items-center rounded-xl bg-brand-primary px-6 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-primary">

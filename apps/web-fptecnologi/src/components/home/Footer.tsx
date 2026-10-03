@@ -40,7 +40,7 @@ export async function Footer() {
   const divider = <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />;
 
   return (
-    <footer className="bg-ink text-white/60">
+    <footer className="bg-ink text-white/80">
       <div className="mx-auto max-w-7xl px-6">
         {divider}
 

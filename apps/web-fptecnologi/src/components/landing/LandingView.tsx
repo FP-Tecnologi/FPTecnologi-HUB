@@ -6,7 +6,7 @@ import { imagenLanding, type LandingPublica } from '@/lib/landings';
 
 const FONDO = {
   azul: { hero: 'bg-gradient-to-br from-brand-primary via-brand-primary to-brand-dark text-white', desc: 'text-white/80', badge: 'border-white/25 bg-white/10 text-white', chip: 'bg-white/10 text-white border-white/20', shimmer: 'title-shimmer-dark', cta: 'bg-white text-brand-dark hover:bg-brand-primary hover:text-white' },
-  oscuro: { hero: 'bg-brand-primary text-white', desc: 'text-white/70', badge: 'border-white/20 bg-white/10 text-white', chip: 'bg-white/10 text-white border-white/20', shimmer: 'title-shimmer-dark', cta: 'bg-brand-primary text-white hover:bg-brand-primary' },
+  oscuro: { hero: 'bg-brand-700 text-white', desc: 'text-white/70', badge: 'border-white/20 bg-white/10 text-white', chip: 'bg-white/10 text-white border-white/20', shimmer: 'title-shimmer-dark', cta: 'bg-brand-primary text-white hover:bg-brand-primary' },
   claro: { hero: 'bg-white text-ink', desc: 'text-ink/65', badge: 'border-brand-primary/20 bg-brand-primary/10 text-brand-700', chip: 'bg-paper text-ink border-ink/10', shimmer: 'title-shimmer-light', cta: 'bg-brand-primary text-white hover:bg-brand-primary' },
 } as const;
 
@@ -21,7 +21,7 @@ export function LandingView({ landing, vistaPrevia = false }: { landing: Landing
   const form = (
     <div id="registro" className="scroll-mt-24 rounded-3xl border border-ink/5 bg-white p-6 text-ink shadow-2xl shadow-brand-dark/25 sm:p-8">
       <h2 className="font-display text-xl font-bold">{c.formTitulo}</h2>
-      {c.formSubtitulo && <p className="mb-5 mt-1 text-sm text-ink/55">{c.formSubtitulo}</p>}
+      {c.formSubtitulo && <p className="mb-5 mt-1 text-sm text-ink/65">{c.formSubtitulo}</p>}
       <FormularioLanding slug={landing.slug} formulario={landing.formulario} contenido={c} vistaPrevia={vistaPrevia} />
     </div>
   );
@@ -164,7 +164,7 @@ export function LandingView({ landing, vistaPrevia = false }: { landing: Landing
         </section>
       )}
 
-      <footer className="bg-brand-primary px-6 py-8 text-center text-sm text-white/60">
+      <footer className="bg-brand-700 px-6 py-8 text-center text-sm text-white/80">
         © {new Date().getFullYear()} FPTecnologi &amp; System · <a href="/legal/privacidad" className="underline hover:text-white">Privacidad</a> · <a href="https://fptecnologi.com" className="underline hover:text-white">fptecnologi.com</a>
       </footer>
     </div>

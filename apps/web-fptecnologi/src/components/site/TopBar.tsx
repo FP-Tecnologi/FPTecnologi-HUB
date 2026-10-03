@@ -29,7 +29,7 @@ export function TopBar() {
           </span>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-white/60">{CONTACT.address}</span>
+          <span className="text-white/80">{CONTACT.address}</span>
           <span className="h-3 w-px bg-white/20" />
           <span className="font-medium text-white">Distribuidor autorizado multi-marca</span>
         </div>

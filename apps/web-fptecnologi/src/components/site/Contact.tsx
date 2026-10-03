@@ -58,7 +58,7 @@ export function Contact() {
   };
 
   return (
-    <section id="contacto" className="relative overflow-hidden bg-brand-primary py-20 text-white">
+    <section id="contacto" className="relative overflow-hidden bg-brand-700 py-20 text-white">
       <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-[1fr_1fr] lg:items-start">
         <div>
           <span className="text-sm font-semibold uppercase tracking-wide text-brand-teal-light">Hablemos</span>
@@ -77,7 +77,7 @@ export function Contact() {
                   <path d={item.icon} stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-white/50">{item.label}</p>
+                  <p className="text-xs uppercase tracking-wide text-white/80">{item.label}</p>
                   <p className="text-sm font-medium">{item.value}</p>
                 </div>
               </div>
@@ -104,7 +104,7 @@ export function Contact() {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="mt-1.5 w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none placeholder:text-white/30 focus:border-brand-teal-light"
+                className="mt-1.5 w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none placeholder:text-white/80 focus:border-brand-teal-light"
                 placeholder="Tu nombre y apellido"
               />
             </div>
@@ -117,7 +117,7 @@ export function Contact() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none placeholder:text-white/30 focus:border-brand-teal-light"
+                  className="mt-1.5 w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none placeholder:text-white/80 focus:border-brand-teal-light"
                   placeholder="correo@empresa.com"
                 />
               </div>
@@ -127,7 +127,7 @@ export function Contact() {
                   id="c-phone"
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none placeholder:text-white/30 focus:border-brand-teal-light"
+                  className="mt-1.5 w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none placeholder:text-white/80 focus:border-brand-teal-light"
                   placeholder="+51 987 654 321"
                 />
               </div>
@@ -138,7 +138,7 @@ export function Contact() {
                 id="c-company"
                 value={company}
                 onChange={(e) => setCompany(e.target.value)}
-                className="mt-1.5 w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none placeholder:text-white/30 focus:border-brand-teal-light"
+                className="mt-1.5 w-full rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none placeholder:text-white/80 focus:border-brand-teal-light"
                 placeholder="Nombre de tu empresa"
               />
             </div>
@@ -150,7 +150,7 @@ export function Contact() {
                 rows={4}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                className="mt-1.5 w-full resize-none rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none placeholder:text-white/30 focus:border-brand-teal-light"
+                className="mt-1.5 w-full resize-none rounded-xl border border-white/15 bg-white/5 px-4 py-2.5 text-sm text-white outline-none placeholder:text-white/80 focus:border-brand-teal-light"
                 placeholder="Cuéntanos qué necesita tu empresa"
               />
             </div>
@@ -165,7 +165,7 @@ export function Contact() {
               </svg>
               {submitting ? 'Enviando...' : 'Enviar mensaje'}
             </button>
-            <p className="text-center text-xs text-white/40">
+            <p className="text-center text-xs text-white/80">
               Tu solicitud será registrada y un asesor especializado te responderá a la brevedad.
             </p>
           </div>

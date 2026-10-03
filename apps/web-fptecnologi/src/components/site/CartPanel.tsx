@@ -37,7 +37,7 @@ export function CartPanel({ onNavigate }: { onNavigate?: () => void }) {
   const { format } = useCurrency();
 
   if (items.length === 0) {
-    return <p className="py-6 text-center text-sm text-ink/50">Todavía no agregaste productos.</p>;
+    return <p className="py-6 text-center text-sm text-ink/65">Todavía no agregaste productos.</p>;
   }
 
   return (
@@ -72,7 +72,7 @@ export function CartPanel({ onNavigate }: { onNavigate?: () => void }) {
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-bold text-ink">{format(item.price * item.qty)}</span>
-                  <button type="button" onClick={() => removeItem(item.sku)} aria-label={`Quitar ${item.name}`} className="text-ink/30 transition-colors hover:text-red-500">
+                  <button type="button" onClick={() => removeItem(item.sku)} aria-label={`Quitar ${item.name}`} className="text-ink/65 transition-colors hover:text-red-500">
                     <TrashIcon />
                   </button>
                 </div>
@@ -84,15 +84,15 @@ export function CartPanel({ onNavigate }: { onNavigate?: () => void }) {
 
       <div className="mt-4 space-y-1.5 border-t border-black/5 pt-3 text-sm">
         <div className="flex justify-between">
-          <span className="text-ink/55">Subtotal</span>
+          <span className="text-ink/65">Subtotal</span>
           <span className="font-medium text-ink">{format(subtotal)}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-ink/55">Envío</span>
+          <span className="text-ink/65">Envío</span>
           <span className="font-medium text-ink">{envio === 0 ? 'Gratis' : format(envio)}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-ink/55">IGV (18%)</span>
+          <span className="text-ink/65">IGV (18%)</span>
           <span className="font-medium text-ink">{format(igv)}</span>
         </div>
         <div className="mt-1.5 flex justify-between border-t border-black/5 pt-2">

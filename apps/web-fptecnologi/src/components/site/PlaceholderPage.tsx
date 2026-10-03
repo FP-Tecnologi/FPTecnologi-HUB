@@ -19,7 +19,7 @@ export function PlaceholderPage({
     <>
       <Header />
       <main className="mx-auto flex min-h-[70vh] max-w-3xl flex-col items-start justify-center px-6 py-24">
-        <nav className="mb-6 flex flex-wrap items-center gap-1.5 text-xs text-ink/45">
+        <nav className="mb-6 flex flex-wrap items-center gap-1.5 text-xs text-ink/65">
           {crumbs.map((c, i) => (
             <span key={c.href} className="flex items-center gap-1.5">
               {i > 0 && <span>/</span>}

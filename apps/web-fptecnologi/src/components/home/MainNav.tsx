@@ -62,14 +62,14 @@ const MOBILE_CHILD_BORDER_TONE: Record<Tone, string> = {
 
 const MOBILE_CHILD_LINK_TONE: Record<Tone, string> = {
   light: 'text-ink/60 hover:bg-brand-primary/5 hover:text-brand-700',
-  dark: 'text-white/60 hover:bg-white/5 hover:text-white',
-  darkAccent: 'text-white/60 hover:bg-white/5 hover:text-white',
+  dark: 'text-white/80 hover:bg-white/5 hover:text-white',
+  darkAccent: 'text-white/80 hover:bg-white/5 hover:text-white',
 };
 
 const MOBILE_CHEVRON_TONE: Record<Tone, string> = {
-  light: 'text-ink/40',
-  dark: 'text-white/40',
-  darkAccent: 'text-white/40',
+  light: 'text-ink/65',
+  dark: 'text-white/80',
+  darkAccent: 'text-white/80',
 };
 
 function Chevron() {

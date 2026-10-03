@@ -7,7 +7,7 @@ export function BrandMarquee({ showLabel = true }: { showLabel?: boolean }) {
   return (
     <section id="marcas" className="border-y border-black/5 bg-white py-12">
       {showLabel && (
-        <p className="mx-auto mb-6 max-w-7xl px-6 text-center text-xs font-semibold uppercase tracking-widest text-ink/40">
+        <p className="mx-auto mb-6 max-w-7xl px-6 text-center text-xs font-semibold uppercase tracking-widest text-ink/65">
           Distribución autorizada de las principales marcas
         </p>
       )}

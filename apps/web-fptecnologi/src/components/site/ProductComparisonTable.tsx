@@ -31,7 +31,7 @@ export function ProductComparisonTable({ products }: { products: (typeof FEATURE
         </thead>
         <tbody className="text-center [&_td]:py-3 [&_th]:py-3">
           <tr className="border-t border-black/5">
-            <th className="pl-4 text-left text-xs font-medium text-ink/45">SKU</th>
+            <th className="pl-4 text-left text-xs font-medium text-ink/65">SKU</th>
             {products.map((p) => (
               <td key={p.sku} className="font-mono text-xs text-ink/70">
                 {p.sku}
@@ -39,7 +39,7 @@ export function ProductComparisonTable({ products }: { products: (typeof FEATURE
             ))}
           </tr>
           <tr className="border-t border-black/5">
-            <th className="pl-4 text-left text-xs font-medium text-ink/45">Precio</th>
+            <th className="pl-4 text-left text-xs font-medium text-ink/65">Precio</th>
             {products.map((p) => (
               <td key={p.sku} className="font-mono text-sm font-bold text-ink">
                 ${p.price.toFixed(2)}
@@ -47,7 +47,7 @@ export function ProductComparisonTable({ products }: { products: (typeof FEATURE
             ))}
           </tr>
           <tr className="border-t border-black/5">
-            <th className="pl-4 text-left text-xs font-medium text-ink/45">Descuento</th>
+            <th className="pl-4 text-left text-xs font-medium text-ink/65">Descuento</th>
             {products.map((p) => (
               <td key={p.sku} className="font-mono text-xs font-semibold text-brand-700">
                 -{Math.round(((p.priceBefore - p.price) / p.priceBefore) * 100)}%
@@ -55,7 +55,7 @@ export function ProductComparisonTable({ products }: { products: (typeof FEATURE
             ))}
           </tr>
           <tr className="border-t border-black/5">
-            <th className="pl-4 text-left text-xs font-medium text-ink/45">Stock local</th>
+            <th className="pl-4 text-left text-xs font-medium text-ink/65">Stock local</th>
             {products.map((p) => (
               <td key={p.sku}>
                 <CheckIcon />

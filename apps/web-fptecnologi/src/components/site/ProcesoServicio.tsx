@@ -31,7 +31,7 @@ export function ProcesoServicio() {
                   <Icon className="h-6 w-6" strokeWidth={1.8} />
                 </span>
                 <h3 className="mt-5 font-display text-lg font-bold text-white">{titulo}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-white/65">{texto}</p>
+                <p className="mt-2 text-sm leading-relaxed text-white/80">{texto}</p>
               </div>
             </ScrollReveal>
           ))}

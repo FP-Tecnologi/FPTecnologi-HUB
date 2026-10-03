@@ -53,7 +53,7 @@ export function NewsletterForm() {
       <div className="flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
           <label htmlFor="news-email" className="sr-only">Correo electrónico</label>
-          <Mail className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/40" strokeWidth={1.8} />
+          <Mail className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/80" strokeWidth={1.8} />
           <input
             id="news-email"
             type="email"
@@ -67,7 +67,7 @@ export function NewsletterForm() {
             }}
             aria-invalid={!!error}
             placeholder="tucorreo@empresa.com"
-            className="h-12 w-full rounded-xl border border-white/15 bg-white/5 pl-12 pr-4 text-sm text-white outline-none transition-colors placeholder:text-white/35 focus:border-brand-teal-light focus:bg-white/10 aria-[invalid=true]:border-rose-400"
+            className="h-12 w-full rounded-xl border border-white/15 bg-white/5 pl-12 pr-4 text-sm text-white outline-none transition-colors placeholder:text-white/80 focus:border-brand-teal-light focus:bg-white/10 aria-[invalid=true]:border-rose-400"
           />
         </div>
         <button
@@ -82,7 +82,7 @@ export function NewsletterForm() {
       {error ? (
         <p role="alert" className="mt-2 text-xs font-medium text-rose-400">{error}</p>
       ) : (
-        <p className="mt-2 text-xs text-white/40">Solo te escribiremos con ofertas y novedades relevantes.</p>
+        <p className="mt-2 text-xs text-white/80">Solo te escribiremos con ofertas y novedades relevantes.</p>
       )}
     </form>
   );

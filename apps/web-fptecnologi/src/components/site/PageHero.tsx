@@ -65,7 +65,7 @@ export function PageHero({
                 <span className="spin-border spin-border--thin" aria-hidden />
                 {crumbs.map((c, i) => (
                   <span key={c.href} className="relative flex items-center gap-2">
-                    {i > 0 && <span className="text-white/40">/</span>}
+                    {i > 0 && <span className="text-white/80">/</span>}
                     {i === 0 ? (
                       <a href={c.href} className="flex items-center gap-1.5 transition-colors hover:text-white">
                         <Home className="h-4 w-4 text-white" strokeWidth={2} />

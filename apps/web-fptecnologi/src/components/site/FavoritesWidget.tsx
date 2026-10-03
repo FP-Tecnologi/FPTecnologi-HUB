@@ -51,7 +51,7 @@ export function FavoritesWidget() {
             <div className="flex items-center gap-3 bg-brand-primary px-4 py-2.5 text-white">
               <Heart className="h-5 w-5 shrink-0" strokeWidth={2} fill="currentColor" />
               <p className="flex-1 text-sm font-semibold">
-                Favoritos <span className="font-normal text-white/60">({items.length})</span>
+                Favoritos <span className="font-normal text-white/80">({items.length})</span>
               </p>
               <button
                 type="button"
@@ -63,7 +63,7 @@ export function FavoritesWidget() {
               </button>
             </div>
             <div className="flex flex-1 flex-col gap-2 overflow-y-auto bg-paper p-3">
-              {items.length === 0 && <p className="py-10 text-center text-sm text-ink/50">Todavía no tienes favoritos.</p>}
+              {items.length === 0 && <p className="py-10 text-center text-sm text-ink/65">Todavía no tienes favoritos.</p>}
               {items.map((p) => {
                 const added = justAddedSku === p.sku;
                 return (
@@ -92,7 +92,7 @@ export function FavoritesWidget() {
                         type="button"
                         onClick={() => remove(p.sku)}
                         aria-label={`Quitar ${p.name} de favoritos`}
-                        className="flex h-9 w-9 items-center justify-center rounded-lg bg-black/5 text-ink/50 transition-colors hover:bg-red-500/10 hover:text-red-500"
+                        className="flex h-9 w-9 items-center justify-center rounded-lg bg-black/5 text-ink/65 transition-colors hover:bg-red-500/10 hover:text-red-500"
                       >
                         <Trash2 className="h-4 w-4" strokeWidth={2} />
                       </button>

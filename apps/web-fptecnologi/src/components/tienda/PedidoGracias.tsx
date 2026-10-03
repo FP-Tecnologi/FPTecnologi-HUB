@@ -45,7 +45,7 @@ export function PedidoGracias({ numero, total }: { numero: string; total: number
 
             <div className="relative mt-8 grid gap-4 rounded-2xl bg-paper p-5 sm:grid-cols-2">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[0.18em] text-ink/50">Número de pedido</p>
+                <p className="text-xs font-bold uppercase tracking-[0.18em] text-ink/65">Número de pedido</p>
                 <p className="mt-1 flex items-center gap-2 font-mono text-xl font-bold tracking-wider text-brand-primary">
                   {numero}
                   <button
@@ -57,18 +57,18 @@ export function PedidoGracias({ numero, total }: { numero: string; total: number
                         window.setTimeout(() => setCopiado(false), 1800);
                       });
                     }}
-                    className="rounded-lg p-1.5 text-ink/40 transition-colors hover:bg-white hover:text-brand-700"
+                    className="rounded-lg p-1.5 text-ink/65 transition-colors hover:bg-white hover:text-brand-700"
                   >
                     {copiado ? <Check className="h-5 w-5 text-whatsapp-dark" strokeWidth={2.4} /> : <Copy className="h-5 w-5" strokeWidth={1.8} />}
                   </button>
                 </p>
-                <p className="text-xs text-ink/45">Guárdalo: lo necesitarás para cualquier consulta.</p>
+                <p className="text-xs text-ink/65">Guárdalo: lo necesitarás para cualquier consulta.</p>
               </div>
               {total > 0 && (
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-ink/50">Total (con IGV)</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.18em] text-ink/65">Total (con IGV)</p>
                   <p className="mt-1 font-display text-2xl font-bold text-ink">{format(total)}</p>
-                  <p className="text-xs text-ink/45">Pago por confirmar con tu asesor.</p>
+                  <p className="text-xs text-ink/65">Pago por confirmar con tu asesor.</p>
                 </div>
               )}
             </div>

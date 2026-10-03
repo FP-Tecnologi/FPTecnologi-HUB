@@ -21,12 +21,12 @@ export function PasosCompra({ actual }: { actual: 1 | 2 | 3 }) {
                   ? 'border-brand-dark bg-brand-primary text-white'
                   : activo
                     ? 'border-brand-dark bg-white text-brand-dark shadow-lg shadow-brand-dark/20'
-                    : 'border-ink/10 bg-white text-ink/35'
+                    : 'border-ink/10 bg-white text-ink/65'
               }`}
             >
               {hecho ? <Check className="h-5 w-5" strokeWidth={3} /> : <p.Icon className="h-5 w-5" strokeWidth={1.9} />}
             </span>
-            <span className={`hidden text-sm font-semibold sm:block ${activo ? 'text-ink' : hecho ? 'text-brand-dark' : 'text-ink/40'}`}>{p.label}</span>
+            <span className={`hidden text-sm font-semibold sm:block ${activo ? 'text-ink' : hecho ? 'text-brand-dark' : 'text-ink/65'}`}>{p.label}</span>
           </>
         );
         return (

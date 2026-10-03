@@ -24,7 +24,7 @@ export function TiendaBar({ crumbs, titulo }: { crumbs: { label: string; href?: 
               </a>
               {crumbs.map((c) => (
                 <span key={c.label} className="relative flex items-center gap-2">
-                  <span className="text-white/40">/</span>
+                  <span className="text-white/80">/</span>
                   {c.href ? (
                     <a href={c.href} className="hover:text-white">{c.label}</a>
                   ) : (

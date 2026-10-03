@@ -160,7 +160,7 @@ export function ShalomAgencias({
             <label key={a.id} className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 text-sm transition-colors ${agenciaId === a.id ? 'border-brand-primary bg-brand-primary/5' : 'border-ink/10 bg-white hover:border-brand-primary/40'}`}>
               <input type="radio" name="agencia-cercana" checked={agenciaId === a.id} onChange={() => { onDepartamento(a.departamento); onAgencia(a.id); }} className="mt-1" />
               <span className="min-w-0 flex-1">
-                <span className="block font-semibold text-ink">{a.zona} <span className="font-normal text-ink/50">· {a.provincia}, {a.departamento}</span></span>
+                <span className="block font-semibold text-ink">{a.zona} <span className="font-normal text-ink/65">· {a.provincia}, {a.departamento}</span></span>
                 <span className="block text-ink/60">{a.direccion}</span>
               </span>
               {a.distanciaKm !== undefined && <span className="shrink-0 rounded-md bg-ink/5 px-2 py-0.5 text-xs font-semibold text-ink/70">{a.distanciaKm} km</span>}

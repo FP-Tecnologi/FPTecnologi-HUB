@@ -57,14 +57,14 @@ export function ProductComparisonTable({
                 <div className="mx-auto mb-2 flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-brand-primary/30 text-[11px] font-medium text-brand-700/50">
                   Libre
                 </div>
-                <p className="text-xs text-ink/35">Elige otro producto</p>
+                <p className="text-xs text-ink/65">Elige otro producto</p>
               </th>
             ))}
           </tr>
         </thead>
         <tbody className="text-center [&_td]:py-2.5 [&_th]:py-2.5">
           <tr className="border-t border-black/5">
-            <th className="pl-4 text-left text-xs font-medium text-ink/45">SKU</th>
+            <th className="pl-4 text-left text-xs font-medium text-ink/65">SKU</th>
             {products.map((p) => (
               <td key={p.sku} className="font-mono text-xs text-ink/70">
                 {p.sku}
@@ -73,7 +73,7 @@ export function ProductComparisonTable({
             {emptyCells('sku')}
           </tr>
           <tr className="border-t border-black/5">
-            <th className="pl-4 text-left text-xs font-medium text-ink/45">Precio</th>
+            <th className="pl-4 text-left text-xs font-medium text-ink/65">Precio</th>
             {products.map((p) => (
               <td key={p.sku} className="font-mono text-sm font-bold text-ink">
                 {format(p.price)}
@@ -82,7 +82,7 @@ export function ProductComparisonTable({
             {emptyCells('precio')}
           </tr>
           <tr className="border-t border-black/5">
-            <th className="pl-4 text-left text-xs font-medium text-ink/45">Descuento</th>
+            <th className="pl-4 text-left text-xs font-medium text-ink/65">Descuento</th>
             {products.map((p) => (
               <td key={p.sku} className="font-mono text-xs font-semibold text-brand-700">
                 {discountOf(p) ? `-${discountOf(p)}%` : '—'}
@@ -91,7 +91,7 @@ export function ProductComparisonTable({
             {emptyCells('desc')}
           </tr>
           <tr className="border-t border-black/5">
-            <th className="pl-4 text-left text-xs font-medium text-ink/45">Stock local</th>
+            <th className="pl-4 text-left text-xs font-medium text-ink/65">Stock local</th>
             {products.map((p) => (
               <td key={p.sku}>
                 <Check className="mx-auto h-4 w-4 text-emerald-500" strokeWidth={2.4} />

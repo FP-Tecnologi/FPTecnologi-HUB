@@ -33,8 +33,8 @@ function Linea({ estado }: { estado: PedidoCuenta['estado'] }) {
       {ETAPAS.map((e, i) => (
         <li key={e.v} className={`flex items-center ${i < ETAPAS.length - 1 ? 'flex-1' : ''}`} aria-current={i === actual ? 'step' : undefined}>
           <span className="flex flex-col items-center gap-1.5">
-            <span className={`flex h-9 w-9 items-center justify-center rounded-xl border-2 ${i <= actual ? 'border-brand-dark bg-brand-primary text-white' : 'border-ink/10 bg-white text-ink/30'}`}><e.Icon className="h-4 w-4" strokeWidth={2} /></span>
-            <span className={`text-[11px] font-semibold ${i <= actual ? 'text-brand-700' : 'text-ink/35'}`}>{e.label}</span>
+            <span className={`flex h-9 w-9 items-center justify-center rounded-xl border-2 ${i <= actual ? 'border-brand-dark bg-brand-primary text-white' : 'border-ink/10 bg-white text-ink/65'}`}><e.Icon className="h-4 w-4" strokeWidth={2} /></span>
+            <span className={`text-[11px] font-semibold ${i <= actual ? 'text-brand-700' : 'text-ink/65'}`}>{e.label}</span>
           </span>
           {i < ETAPAS.length - 1 && <span aria-hidden className={`mx-2 mb-5 h-0.5 flex-1 rounded-full ${i < actual ? 'bg-brand-primary' : 'bg-ink/10'}`} />}
         </li>
@@ -53,11 +53,11 @@ function PedidoCard({ p }: { p: PedidoCuenta }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="font-mono text-lg font-bold tracking-wider text-brand-primary">{p.numeroPedido ?? p.id.slice(0, 8)}</p>
-          <p className="text-sm text-ink/55">{fecha(p.createdAt)} · {p.items.reduce((s, i) => s + i.cantidad, 0)} producto(s)</p>
+          <p className="text-sm text-ink/65">{fecha(p.createdAt)} · {p.items.reduce((s, i) => s + i.cantidad, 0)} producto(s)</p>
         </div>
         <div className="text-right">
           <p className="font-display text-xl font-bold text-ink">{format(total)}</p>
-          <p className="text-xs font-semibold text-ink/50">{PAGO[p.estadoPago] ?? p.estadoPago}{p.metodoPago ? ` · ${METODO[p.metodoPago] ?? p.metodoPago}` : ''}</p>
+          <p className="text-xs font-semibold text-ink/65">{PAGO[p.estadoPago] ?? p.estadoPago}{p.metodoPago ? ` · ${METODO[p.metodoPago] ?? p.metodoPago}` : ''}</p>
         </div>
       </div>
       <div className="mt-5"><Linea estado={p.estado} /></div>
@@ -77,15 +77,15 @@ function PedidoCard({ p }: { p: PedidoCuenta }) {
           <ul className="space-y-2">
             {p.items.map((i, k) => (
               <li key={k} className="flex items-start justify-between gap-4 text-sm">
-                <span className="text-ink/80">{i.cantidad} × {i.nombreSnapshot}<span className="block text-xs text-ink/40">SKU {i.skuSnapshot}</span></span>
+                <span className="text-ink/80">{i.cantidad} × {i.nombreSnapshot}<span className="block text-xs text-ink/65">SKU {i.skuSnapshot}</span></span>
                 <span className="shrink-0 font-semibold text-ink">{format(Number(i.subtotal))}</span>
               </li>
             ))}
           </ul>
           <dl className="space-y-1 text-sm">
-            <div className="flex justify-between"><dt className="text-ink/55">Subtotal</dt><dd>{format(Number(p.subtotal))}</dd></div>
-            <div className="flex justify-between"><dt className="text-ink/55">IGV (18%)</dt><dd>{format(Number(p.igv))}</dd></div>
-            <div className="flex justify-between"><dt className="text-ink/55">Envío</dt><dd>{Number(p.envio) > 0 ? format(Number(p.envio)) : p.envioProveedor ? 'Incluido' : 'Gratis / a coordinar'}</dd></div>
+            <div className="flex justify-between"><dt className="text-ink/65">Subtotal</dt><dd>{format(Number(p.subtotal))}</dd></div>
+            <div className="flex justify-between"><dt className="text-ink/65">IGV (18%)</dt><dd>{format(Number(p.igv))}</dd></div>
+            <div className="flex justify-between"><dt className="text-ink/65">Envío</dt><dd>{Number(p.envio) > 0 ? format(Number(p.envio)) : p.envioProveedor ? 'Incluido' : 'Gratis / a coordinar'}</dd></div>
             <div className="flex justify-between border-t border-ink/10 pt-2 font-bold"><dt>Total</dt><dd>{format(total)}</dd></div>
           </dl>
           <div className="flex items-start gap-2 rounded-xl bg-paper p-4 text-sm text-ink/70">
@@ -113,7 +113,7 @@ function CotizacionCard({ c }: { c: CotizacionCuenta }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="font-display text-lg font-bold text-ink">{c.servicio.nombre}</p>
-          <p className="text-sm text-ink/55"><span className="font-mono">{c.numero ?? ''}</span> · solicitada el {fecha(c.createdAt)}</p>
+          <p className="text-sm text-ink/65"><span className="font-mono">{c.numero ?? ''}</span> · solicitada el {fecha(c.createdAt)}</p>
         </div>
         <span className={`rounded-lg px-3 py-1 text-xs font-bold ${e.clase}`}>{e.label}</span>
       </div>
@@ -129,9 +129,9 @@ function CotizacionCard({ c }: { c: CotizacionCuenta }) {
             <div className="cot-step mt-3 space-y-3 border-t border-ink/10 pt-4">
               {c.propuesta && <p className="whitespace-pre-wrap rounded-xl bg-brand-primary/5 p-4 text-sm leading-relaxed text-ink/80">{c.propuesta}</p>}
               <dl className="grid gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
-                {c.monto != null && <div className="flex justify-between"><dt className="text-ink/55">Inversión</dt><dd className="font-display text-lg font-bold">{c.moneda} {Number(c.monto).toLocaleString('en-US', { minimumFractionDigits: 2 })}</dd></div>}
-                {c.validezHasta && <div className="flex justify-between"><dt className="text-ink/55">Válida hasta</dt><dd>{fecha(c.validezHasta)}</dd></div>}
-                {c.enviadaAt && <div className="flex justify-between"><dt className="text-ink/55">Enviada el</dt><dd>{fecha(c.enviadaAt)}</dd></div>}
+                {c.monto != null && <div className="flex justify-between"><dt className="text-ink/65">Inversión</dt><dd className="font-display text-lg font-bold">{c.moneda} {Number(c.monto).toLocaleString('en-US', { minimumFractionDigits: 2 })}</dd></div>}
+                {c.validezHasta && <div className="flex justify-between"><dt className="text-ink/65">Válida hasta</dt><dd>{fecha(c.validezHasta)}</dd></div>}
+                {c.enviadaAt && <div className="flex justify-between"><dt className="text-ink/65">Enviada el</dt><dd>{fecha(c.enviadaAt)}</dd></div>}
               </dl>
             </div>
           )}
@@ -167,7 +167,7 @@ export function MiCuentaView({ cuenta }: { cuenta: ResumenCuenta }) {
           </ul>
           <div className="relative mt-5 grid grid-cols-3 gap-2 text-center">
             {[[cuenta.pedidos.length, 'Pedidos'], [activos, 'En curso'], [cuenta.cotizaciones.length, 'Cotiz.']].map(([n, l]) => (
-              <div key={l as string} className="rounded-xl bg-white/10 px-2 py-2.5"><p className="font-display text-xl font-bold">{n}</p><p className="text-[11px] text-white/60">{l}</p></div>
+              <div key={l as string} className="rounded-xl bg-white/10 px-2 py-2.5"><p className="font-display text-xl font-bold">{n}</p><p className="text-[11px] text-white/80">{l}</p></div>
             ))}
           </div>
         </div>

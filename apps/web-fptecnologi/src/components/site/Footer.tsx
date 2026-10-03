@@ -5,7 +5,7 @@ const LEGAL_LINKS = ['Política de privacidad', 'Devoluciones', 'Términos y con
 
 export function Footer() {
   return (
-    <footer className="bg-ink py-14 text-white/60">
+    <footer className="bg-ink py-14 text-white/80">
       <div className="mx-auto max-w-7xl px-6">
         <div className="grid gap-10 sm:grid-cols-3">
           <div>
@@ -17,7 +17,7 @@ export function Footer() {
           </div>
 
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-white/40">Navegación</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-white/80">Navegación</p>
             <ul className="mt-4 space-y-2 text-sm">
               {NAV_LINKS.map((link) => (
                 <li key={link.href}>
@@ -30,7 +30,7 @@ export function Footer() {
           </div>
 
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-white/40">Enlaces útiles</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-white/80">Enlaces útiles</p>
             <ul className="mt-4 space-y-2 text-sm">
               {LEGAL_LINKS.map((label) => (
                 <li key={label}>

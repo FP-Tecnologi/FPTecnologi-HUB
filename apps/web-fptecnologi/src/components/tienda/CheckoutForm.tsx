@@ -47,8 +47,8 @@ function validar(v: V, tarifa?: Tarifa): E {
 }
 
 const input =
-  'mt-1.5 w-full rounded-xl border border-ink/15 bg-white py-3 pl-12 pr-4 text-base text-ink outline-none transition-all placeholder:text-ink/35 focus:border-brand-dark focus:ring-4 focus:ring-brand-dark/10 aria-[invalid=true]:border-rose-400 aria-[invalid=true]:ring-4 aria-[invalid=true]:ring-rose-100';
-const iconCls = 'pointer-events-none absolute left-4 h-5 w-5 text-ink/40';
+  'mt-1.5 w-full rounded-xl border border-ink/15 bg-white py-3 pl-12 pr-4 text-base text-ink outline-none transition-all placeholder:text-ink/65 focus:border-brand-dark focus:ring-4 focus:ring-brand-dark/10 aria-[invalid=true]:border-rose-400 aria-[invalid=true]:ring-4 aria-[invalid=true]:ring-rose-100';
+const iconCls = 'pointer-events-none absolute left-4 h-5 w-5 text-ink/65';
 
 function Campo({ id, label, error, children }: { id: string; label: string; error?: string; children: ReactNode }) {
   return (
@@ -71,12 +71,12 @@ function Opcion({ activo, onClick, icon: Icon, titulo, texto }: { activo: boolea
         activo ? 'border-brand-dark bg-brand-primary/[0.06] shadow-lg shadow-brand-dark/10' : 'border-ink/10 bg-white hover:border-brand-dark/40'
       }`}
     >
-      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${activo ? 'bg-brand-primary text-white' : 'bg-ink/5 text-ink/50'}`}>
+      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${activo ? 'bg-brand-primary text-white' : 'bg-ink/5 text-ink/65'}`}>
         <Icon className="h-5 w-5" strokeWidth={1.8} />
       </span>
       <span className="min-w-0">
         <span className="block text-sm font-bold text-ink">{titulo}</span>
-        {texto && <span className="block text-xs text-ink/50">{texto}</span>}
+        {texto && <span className="block text-xs text-ink/65">{texto}</span>}
       </span>
     </button>
   );
@@ -89,7 +89,7 @@ function Seccion({ n, titulo, sub, children }: { n: number; titulo: string; sub?
         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-primary to-brand-dark font-display text-lg font-bold text-white shadow-lg shadow-brand-dark/25">{n}</span>
         <div>
           <h2 className="font-display text-xl font-bold leading-tight text-ink">{titulo}</h2>
-          {sub && <p className="text-sm text-ink/50">{sub}</p>}
+          {sub && <p className="text-sm text-ink/65">{sub}</p>}
         </div>
       </div>
       <div className="mt-6 space-y-5">{children}</div>
@@ -317,7 +317,7 @@ export function CheckoutForm() {
                   </div>
                 </Campo>
               </div>
-              <p className="text-xs text-ink/50">El costo de envío no está incluido en el total: lo coordinamos contigo por WhatsApp según tu distrito.</p>
+              <p className="text-xs text-ink/65">El costo de envío no está incluido en el total: lo coordinamos contigo por WhatsApp según tu distrito.</p>
             </>
           )}
         </Seccion>
@@ -333,7 +333,7 @@ export function CheckoutForm() {
             No se cobra nada en línea: un asesor te escribirá por WhatsApp para confirmar el pago y la entrega.
           </p>
           <Campo id="co-notas" label="Notas del pedido (opcional)">
-            <textarea id="co-notas" rows={3} maxLength={300} value={v.notas} onChange={(e) => set('notas', e.target.value)} className="mt-1.5 w-full resize-none rounded-xl border border-ink/15 bg-white px-4 py-3 text-base text-ink outline-none transition-all placeholder:text-ink/35 focus:border-brand-dark focus:ring-4 focus:ring-brand-dark/10" placeholder="Horario de contacto, indicaciones…" />
+            <textarea id="co-notas" rows={3} maxLength={300} value={v.notas} onChange={(e) => set('notas', e.target.value)} className="mt-1.5 w-full resize-none rounded-xl border border-ink/15 bg-white px-4 py-3 text-base text-ink outline-none transition-all placeholder:text-ink/65 focus:border-brand-dark focus:ring-4 focus:ring-brand-dark/10" placeholder="Horario de contacto, indicaciones…" />
           </Campo>
         </Seccion>
       </div>
@@ -344,7 +344,7 @@ export function CheckoutForm() {
           <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-brand-teal/25 blur-3xl" />
           <div className="relative flex items-center justify-between">
             <h2 className="font-display text-lg font-bold">Resumen del pedido</h2>
-            <a href="/carrito" className="text-xs font-semibold text-white/60 underline-offset-4 hover:text-white hover:underline">Editar carrito</a>
+            <a href="/carrito" className="text-xs font-semibold text-white/80 underline-offset-4 hover:text-white hover:underline">Editar carrito</a>
           </div>
           <ul className="relative mt-4 max-h-72 space-y-3 overflow-y-auto pr-1">
             {items.map((i) => (
@@ -353,16 +353,16 @@ export function CheckoutForm() {
                 <img src={i.image} alt="" className="h-12 w-12 shrink-0 rounded-lg bg-white object-contain p-1" />
                 <span className="min-w-0 flex-1">
                   <span className="line-clamp-2 text-sm font-medium leading-snug">{i.name}</span>
-                  <span className="text-xs text-white/50">{i.qty} × {format(i.price)}</span>
+                  <span className="text-xs text-white/80">{i.qty} × {format(i.price)}</span>
                 </span>
                 <span className="text-sm font-semibold">{format(i.price * i.qty)}</span>
               </li>
             ))}
           </ul>
           <dl className="relative mt-5 space-y-2 border-t border-white/10 pt-4 text-sm">
-            <div className="flex justify-between"><dt className="text-white/60">Subtotal</dt><dd>{format(subtotal)}</dd></div>
-            <div className="flex justify-between"><dt className="text-white/60">IGV (18%)</dt><dd>{format(igv)}</dd></div>
-            <div className="flex justify-between"><dt className="text-white/60">Envío</dt><dd className={tarifa ? '' : 'text-white/60'}>{tarifa ? format(envioCosto) : v.entrega === 'RECOJO' ? 'Gratis' : 'A coordinar'}</dd></div>
+            <div className="flex justify-between"><dt className="text-white/80">Subtotal</dt><dd>{format(subtotal)}</dd></div>
+            <div className="flex justify-between"><dt className="text-white/80">IGV (18%)</dt><dd>{format(igv)}</dd></div>
+            <div className="flex justify-between"><dt className="text-white/80">Envío</dt><dd className={tarifa ? '' : 'text-white/80'}>{tarifa ? format(envioCosto) : v.entrega === 'RECOJO' ? 'Gratis' : 'A coordinar'}</dd></div>
             <div className="flex items-baseline justify-between border-t border-white/10 pt-3">
               <dt className="font-semibold">Total</dt>
               <dd className="font-display text-2xl font-bold">{format(totalConEnvio)}</dd>
@@ -388,13 +388,13 @@ export function CheckoutForm() {
         <button type="submit" disabled={enviando} className="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-brand-primary text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/25 transition-colors hover:bg-brand-primary disabled:opacity-60">
           {enviando ? (<><Loader2 className="h-4 w-4 animate-spin" /> Registrando…</>) : 'Confirmar pedido'}
         </button>
-        <p className="text-center text-xs text-ink/50">Precios en dólares sin IGV; el IGV se suma al total. El pedido queda registrado y un asesor te contacta.</p>
+        <p className="text-center text-xs text-ink/65">Precios en dólares sin IGV; el IGV se suma al total. El pedido queda registrado y un asesor te contacta.</p>
       </aside>
 
       <div className="fixed inset-x-0 bottom-0 z-40 border-t border-ink/10 bg-white/95 px-4 py-3 shadow-[0_-8px_24px_-12px_rgba(33,129,175,0.35)] backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-lg items-center justify-between gap-4 pr-16">
           <div>
-            <p className="text-xs text-ink/50">Total</p>
+            <p className="text-xs text-ink/65">Total</p>
             <p className="font-display text-xl font-bold text-ink">{format(totalConEnvio)}</p>
           </div>
           <button type="submit" disabled={enviando} className="inline-flex h-12 items-center gap-2 rounded-xl bg-brand-primary px-6 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-primary disabled:opacity-60">

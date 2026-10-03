@@ -4,8 +4,8 @@ import { useState } from 'react';
 import { Building2, CheckCircle2, Loader2, Mail, MessageSquareText, Phone, Send, User } from 'lucide-react';
 
 const campo =
-  'mt-1.5 w-full rounded-xl border border-ink/15 bg-white py-3 pl-12 pr-4 text-base text-ink outline-none transition-all placeholder:text-ink/35 focus:border-brand-dark focus:ring-4 focus:ring-brand-dark/10 aria-[invalid=true]:border-rose-400';
-const icono = 'pointer-events-none absolute left-4 h-5 w-5 text-ink/40';
+  'mt-1.5 w-full rounded-xl border border-ink/15 bg-white py-3 pl-12 pr-4 text-base text-ink outline-none transition-all placeholder:text-ink/65 focus:border-brand-dark focus:ring-4 focus:ring-brand-dark/10 aria-[invalid=true]:border-rose-400';
+const icono = 'pointer-events-none absolute left-4 h-5 w-5 text-ink/65';
 
 /*
  * Solicitud de cotización de UN servicio (detalle de cada servicio). Va a Soluciones → Cotizaciones del
@@ -95,7 +95,7 @@ export function CotizarServicioForm({ servicioSlug, servicioTitulo }: { servicio
       <div className="mt-5">
         <label htmlFor="cs-msg" className="text-sm font-semibold text-ink/80">Cuéntanos qué necesitas</label>
         <div className="relative">
-          <MessageSquareText className="pointer-events-none absolute left-4 top-4 h-5 w-5 text-ink/40" strokeWidth={1.8} />
+          <MessageSquareText className="pointer-events-none absolute left-4 top-4 h-5 w-5 text-ink/65" strokeWidth={1.8} />
           <textarea id="cs-msg" rows={4} maxLength={1000} value={v.mensaje} onChange={(e) => set('mensaje', e.target.value)} className={`${campo} resize-none`} placeholder={`Ubicación, cantidad de equipos o sedes, plazos… para cotizar ${servicioTitulo}`} />
         </div>
       </div>
@@ -104,7 +104,7 @@ export function CotizarServicioForm({ servicioSlug, servicioTitulo }: { servicio
         {estado === 'enviando' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" strokeWidth={2.2} />}
         Solicitar cotización
       </button>
-      <p className="mt-3 text-xs text-ink/45">Sin compromiso. Usamos tus datos solo para responder tu solicitud.</p>
+      <p className="mt-3 text-xs text-ink/65">Sin compromiso. Usamos tus datos solo para responder tu solicitud.</p>
     </form>
   );
 }

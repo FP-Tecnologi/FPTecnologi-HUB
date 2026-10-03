@@ -62,7 +62,7 @@ export function ProductCardFinal({
             con mix-blend-multiply. */}
         <div className="relative aspect-square overflow-hidden bg-producto">
           {discount > 0 && (
-            <span className="absolute left-3 top-3 z-10 rounded-md bg-red-500 px-2 py-0.5 text-[11px] font-bold text-white">-{discount}%</span>
+            <span className="absolute left-3 top-3 z-10 rounded-md bg-red-600 px-2 py-0.5 text-[11px] font-bold text-white">-{discount}%</span>
           )}
 
           {/* Comparar + favorito, apilados en la esquina superior derecha. */}
@@ -154,11 +154,11 @@ export function ProductCardFinal({
           </h3>
           <div className="mt-0.5 flex items-baseline gap-2 font-mono">
             <span className="text-base font-bold text-ink">{format(product.price)}</span>
-            {discount > 0 && <span className="text-xs text-ink/40 line-through">{format(product.priceBefore!)}</span>}
+            {discount > 0 && <span className="text-xs text-ink/65 line-through">{format(product.priceBefore!)}</span>}
           </div>
           <div className="mt-2 flex items-center justify-between">
             {/* Mismo alto que el botón del carrito (h-10). */}
-            <span className="flex h-10 items-center rounded-lg bg-emerald-500/10 px-3 text-xs font-semibold text-emerald-600">En stock</span>
+            <span className="flex h-10 items-center rounded-lg bg-whatsapp/10 px-3 text-xs font-semibold text-whatsapp-dark">En stock</span>
             {/* Solo ícono en reposo; al hover se despliega "Añadir al
                 carrito", y al click hace el mismo sweep que "Ver catálogo"
                 antes de agregar y mostrar "Agregado". */}

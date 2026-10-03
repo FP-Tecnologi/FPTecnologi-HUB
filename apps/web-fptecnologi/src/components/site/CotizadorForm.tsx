@@ -72,7 +72,7 @@ function validar(paso: number, v: Valores): Errores {
 }
 
 const input =
-  'mt-1.5 w-full rounded-xl border border-ink/15 bg-white px-4 py-3 text-base text-ink outline-none transition-all placeholder:text-ink/35 focus:border-brand-dark focus:ring-4 focus:ring-brand-dark/10 aria-[invalid=true]:border-rose-400 aria-[invalid=true]:ring-4 aria-[invalid=true]:ring-rose-100';
+  'mt-1.5 w-full rounded-xl border border-ink/15 bg-white px-4 py-3 text-base text-ink outline-none transition-all placeholder:text-ink/65 focus:border-brand-dark focus:ring-4 focus:ring-brand-dark/10 aria-[invalid=true]:border-rose-400 aria-[invalid=true]:ring-4 aria-[invalid=true]:ring-rose-100';
 
 function Campo({ id, label, error, children }: { id: string; label: string; error?: string; children: ReactNode }) {
   return (
@@ -192,7 +192,7 @@ export function CotizadorForm({ c, interesInicial }: { c: CotizadorContenido; in
             <div className="h-1.5 overflow-hidden rounded-full bg-ink/10">
               <div className={`h-full rounded-full bg-brand-primary transition-all duration-500 ${i <= paso ? 'w-full' : 'w-0'}`} />
             </div>
-            <span className={`mt-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide ${i <= paso ? 'text-brand-700' : 'text-ink/35'}`}>
+            <span className={`mt-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide ${i <= paso ? 'text-brand-700' : 'text-ink/65'}`}>
               {i < paso ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : <span>{i + 1}</span>}
               <span className="hidden truncate sm:inline">{['Necesidad', 'Tus datos', 'Contacto'][i]}</span>
             </span>
@@ -241,7 +241,7 @@ export function CotizadorForm({ c, interesInicial }: { c: CotizadorContenido; in
                       }`}
                     >
                       <span className="pr-7 text-sm font-bold text-ink">{o.title}</span>
-                      <span className="mt-1 line-clamp-2 text-xs leading-relaxed text-ink/55">{o.text}</span>
+                      <span className="mt-1 line-clamp-2 text-xs leading-relaxed text-ink/65">{o.text}</span>
                       <span
                         className={`absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full border-2 transition-all ${
                           activo ? 'border-brand-dark bg-brand-primary text-white' : 'border-ink/20 text-transparent'
@@ -293,12 +293,12 @@ export function CotizadorForm({ c, interesInicial }: { c: CotizadorContenido; in
                         activo ? 'border-brand-dark bg-brand-primary/[0.06] shadow-lg shadow-brand-dark/10' : 'border-ink/10 bg-white hover:border-brand-dark/40'
                       }`}
                     >
-                      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${activo ? 'bg-brand-primary text-white' : 'bg-ink/5 text-ink/50'}`}>
+                      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${activo ? 'bg-brand-primary text-white' : 'bg-ink/5 text-ink/65'}`}>
                         <Icon className="h-5 w-5" strokeWidth={1.8} />
                       </span>
                       <span className="min-w-0">
                         <span className="block text-sm font-bold text-ink">{titulo}</span>
-                        <span className="block text-xs text-ink/50">{sub}</span>
+                        <span className="block text-xs text-ink/65">{sub}</span>
                       </span>
                     </button>
                   );
@@ -338,34 +338,34 @@ export function CotizadorForm({ c, interesInicial }: { c: CotizadorContenido; in
             <div className="mt-6 space-y-5">
               <Campo id="cot-email" label="Correo electrónico" error={errores.email}>
                 <div className="relative">
-                  <Mail className="pointer-events-none absolute left-4 top-1/2 mt-[3px] h-5 w-5 -translate-y-1/2 text-ink/35" strokeWidth={1.8} />
+                  <Mail className="pointer-events-none absolute left-4 top-1/2 mt-[3px] h-5 w-5 -translate-y-1/2 text-ink/65" strokeWidth={1.8} />
                   <input id="cot-email" type="email" inputMode="email" autoComplete="email" maxLength={120} value={v.email} onChange={(e) => set('email', e.target.value)} aria-invalid={!!errores.email} className={`${input} pl-12`} placeholder="correo@empresa.com" />
                 </div>
               </Campo>
               <Campo id="cot-celular" label="Celular / WhatsApp" error={errores.celular}>
                 <div className="relative">
-                  <Phone className="pointer-events-none absolute left-4 top-1/2 mt-[3px] h-5 w-5 -translate-y-1/2 text-ink/35" strokeWidth={1.8} />
+                  <Phone className="pointer-events-none absolute left-4 top-1/2 mt-[3px] h-5 w-5 -translate-y-1/2 text-ink/65" strokeWidth={1.8} />
                   <input id="cot-celular" type="tel" inputMode="tel" autoComplete="tel" maxLength={16} value={v.celular} onChange={(e) => set('celular', e.target.value)} aria-invalid={!!errores.celular} className={`${input} pl-12`} placeholder="987 654 321" />
                 </div>
               </Campo>
 
               <dl className="rounded-2xl bg-paper p-4 text-sm">
                 <div className="flex justify-between gap-4 py-1">
-                  <dt className="text-ink/50">Cotización de</dt>
+                  <dt className="text-ink/65">Cotización de</dt>
                   <dd className="text-right font-semibold text-ink">{v.interes === OTRO ? v.otro : v.interes}</dd>
                 </div>
                 <div className="flex justify-between gap-4 py-1">
-                  <dt className="text-ink/50">Solicitante</dt>
+                  <dt className="text-ink/65">Solicitante</dt>
                   <dd className="text-right font-semibold text-ink">
                     {v.nombres} {v.apellidos}
                   </dd>
                 </div>
                 <div className="flex justify-between gap-4 py-1">
-                  <dt className="text-ink/50">{juridica ? 'RUC' : 'DNI'}</dt>
+                  <dt className="text-ink/65">{juridica ? 'RUC' : 'DNI'}</dt>
                   <dd className="text-right font-mono font-semibold text-ink">{v.nroDocumento}</dd>
                 </div>
               </dl>
-              <p className="text-xs text-ink/45">Usaremos tus datos solo para responder a tu solicitud de cotización.</p>
+              <p className="text-xs text-ink/65">Usaremos tus datos solo para responder a tu solicitud de cotización.</p>
             </div>
           )}
         </div>

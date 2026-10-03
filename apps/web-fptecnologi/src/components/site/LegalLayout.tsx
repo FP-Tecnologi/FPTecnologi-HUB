@@ -69,7 +69,7 @@ export function LegalLayout({
       </aside>
 
       <article className="order-1 rounded-2xl bg-white p-7 shadow-lg shadow-brand-dark/10 sm:p-10 lg:order-2">
-        {actualizado && <p className="mb-6 text-xs font-semibold uppercase tracking-wide text-ink/45">Última actualización: {actualizado}</p>}
+        {actualizado && <p className="mb-6 text-xs font-semibold uppercase tracking-wide text-ink/65">Última actualización: {actualizado}</p>}
         {children}
       </article>
     </section>
