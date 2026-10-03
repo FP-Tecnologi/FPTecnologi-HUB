@@ -78,7 +78,7 @@ export function BrandMarquee({ showLabel = true }: { showLabel?: boolean }) {
               <div className="relative h-[52px] w-[84px] transition-transform duration-500 ease-out group-hover:scale-[1.35]">
                 <span
                   aria-hidden
-                  className="absolute inset-0 bg-brand-dark opacity-100 transition-opacity duration-500 ease-out group-hover:opacity-0"
+                  className="absolute inset-0 bg-brand-primary opacity-100 transition-opacity duration-500 ease-out group-hover:opacity-0"
                   style={{
                     WebkitMaskImage: `url(${brand.maskLogo ?? brand.logo})`,
                     maskImage: `url(${brand.maskLogo ?? brand.logo})`,

@@ -69,10 +69,10 @@ function SectorBox({ sector }: { sector: ClientSector }) {
       <div className="mb-4 flex items-center gap-3 text-brand-dark">
         <Icon className="h-5 w-5 shrink-0" strokeWidth={1.8} />
         <p className="text-sm font-bold uppercase tracking-[0.2em]">{sector.label}</p>
-        <span className="h-px flex-1 bg-brand-dark/15" />
+        <span className="h-px flex-1 bg-brand-primary/15" />
       </div>
 
-      <div className="group/box relative overflow-hidden rounded-2xl bg-brand-dark py-7 shadow-xl shadow-brand-dark/25">
+      <div className="group/box relative overflow-hidden rounded-2xl bg-brand-primary py-7 shadow-xl shadow-brand-dark/25">
         {/* Degradé en los bordes para que los logos entren/salgan suave. */}
         <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-brand-dark to-transparent" />
         <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-brand-dark to-transparent" />
@@ -91,7 +91,7 @@ function SectorBox({ sector }: { sector: ClientSector }) {
                 ) : (
                   // Logo provisional: ícono del sector + iniciales.
                   <span className="flex flex-col items-center leading-none text-brand-dark">
-                    <Icon className="mb-1 h-4 w-4 text-brand-primary" strokeWidth={2} />
+                    <Icon className="mb-1 h-4 w-4 text-brand-700" strokeWidth={2} />
                     <span className="font-display text-sm font-bold">{c.short}</span>
                   </span>
                 )}

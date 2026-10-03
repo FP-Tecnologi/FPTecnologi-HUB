@@ -26,12 +26,12 @@ export function ArticuloCard({ a }: { a: ArticuloResumen }) {
         {a.etiquetas.length > 0 && (
           <p className="mt-2 flex flex-wrap gap-1.5">
             {a.etiquetas.slice(0, 3).map((t) => (
-              <span key={t} className="rounded-md bg-brand-primary/10 px-2 py-0.5 text-[11px] font-semibold text-brand-primary">#{t}</span>
+              <span key={t} className="rounded-md bg-brand-primary/10 px-2 py-0.5 text-[11px] font-semibold text-brand-700">#{t}</span>
             ))}
           </p>
         )}
         <p className="mt-2 line-clamp-3 text-sm leading-relaxed text-ink/60">{a.resumen}</p>
-        <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold text-brand-primary">
+        <span className="mt-auto inline-flex items-center gap-1.5 pt-5 text-sm font-semibold text-brand-700">
           Leer artículo
           <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:rotate-45" strokeWidth={2} />
         </span>
@@ -84,7 +84,7 @@ export function BlogListado({ articulos, inicial }: { articulos: ArticuloResumen
 
   const chip = (on: boolean) =>
     `rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors ${
-      on ? 'bg-brand-dark text-white shadow-md shadow-brand-dark/30' : 'bg-white text-ink/70 shadow-sm shadow-brand-dark/10 hover:text-brand-primary'
+      on ? 'bg-brand-primary text-white shadow-md shadow-brand-dark/30' : 'bg-white text-ink/70 shadow-sm shadow-brand-dark/10 hover:text-brand-700'
     }`;
 
   return (
@@ -102,12 +102,12 @@ export function BlogListado({ articulos, inicial }: { articulos: ArticuloResumen
                 <span className="absolute left-4 top-4 rounded-lg bg-brand-primary px-3 py-1 text-xs font-bold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/30">Destacado</span>
               </div>
               <div className="flex flex-col justify-center p-8 lg:p-12">
-                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-brand-primary">
+                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-brand-700">
                   {destacado.categoria} · {fechaLarga(destacado.publicadoEn)}
                 </p>
                 <h2 className="mt-3 font-display text-2xl font-bold leading-tight text-ink transition-colors group-hover:text-brand-primary sm:text-3xl">{destacado.titulo}</h2>
                 <p className="mt-3 leading-relaxed text-ink/60">{destacado.resumen}</p>
-                <span className="mt-6 inline-flex w-fit items-center gap-2 rounded-xl bg-brand-dark px-5 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/30 transition-colors group-hover:bg-brand-primary">
+                <span className="mt-6 inline-flex w-fit items-center gap-2 rounded-xl bg-brand-primary px-5 py-3 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/30 transition-colors group-hover:bg-brand-primary">
                   <ArrowUpRight className="h-4 w-4 transition-transform duration-300 group-hover:rotate-45" strokeWidth={2} />
                   Leer artículo
                 </span>
@@ -143,7 +143,7 @@ export function BlogListado({ articulos, inicial }: { articulos: ArticuloResumen
         </div>
         {etiqueta && (
           <div className="mb-6 flex justify-center">
-            <button type="button" onClick={() => { setEtiqueta(null); setPagina(1); }} className="inline-flex items-center gap-2 rounded-lg bg-brand-primary/10 px-3.5 py-2 text-sm font-semibold text-brand-primary transition-colors hover:bg-brand-primary hover:text-white">
+            <button type="button" onClick={() => { setEtiqueta(null); setPagina(1); }} className="inline-flex items-center gap-2 rounded-lg bg-brand-primary/10 px-3.5 py-2 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-primary hover:text-white">
               #{etiqueta}
               <X className="h-4 w-4" strokeWidth={2.2} aria-label="Quitar etiqueta" />
             </button>
@@ -165,7 +165,7 @@ export function BlogListado({ articulos, inicial }: { articulos: ArticuloResumen
           <div className="text-center text-ink/55">
             <p>{filtrando ? 'No encontramos artículos con esos filtros.' : 'No hay más artículos en esta categoría.'}</p>
             {filtrando && (
-              <button type="button" onClick={limpiar} className="mt-4 rounded-lg bg-brand-dark px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-primary">
+              <button type="button" onClick={limpiar} className="mt-4 rounded-lg bg-brand-primary px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-primary">
                 Limpiar filtros
               </button>
             )}

@@ -7,7 +7,7 @@ const CONTACT = {
 
 export function TopBar() {
   return (
-    <div className="hidden bg-brand-dark text-xs text-white/80 md:block">
+    <div className="hidden bg-brand-primary text-xs text-white/80 md:block">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-2">
         <div className="flex items-center gap-5">
           <span className="flex items-center gap-1.5">

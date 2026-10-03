@@ -19,7 +19,7 @@ export function FaqAcordeon({ items }: { items: Item[] }) {
               aria-expanded={abierto}
               aria-controls={`faq-${i}`}
               onClick={() => setOpen(abierto ? null : i)}
-              className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left text-base font-semibold text-ink transition-colors hover:text-brand-primary"
+              className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left text-base font-semibold text-ink transition-colors hover:text-brand-700"
             >
               {it.title}
               <svg viewBox="0 0 24 24" fill="none" aria-hidden className={`h-5 w-5 shrink-0 text-brand-dark transition-transform duration-200 ${abierto ? 'rotate-180' : ''}`}>

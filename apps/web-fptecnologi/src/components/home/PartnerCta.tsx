@@ -15,7 +15,7 @@ import { SectionBadge } from './SectionBadge';
  */
 export function PartnerCta({ c = HOME_DEFAULTS.partners }: { c?: Encabezado & { pasos: ItemTexto[] } }) {
   return (
-    <section id="partners" className="bg-brand-dark py-20 text-white">
+    <section id="partners" className="bg-brand-primary py-20 text-white">
       <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-[minmax(0,420px)_1fr] lg:items-center">
         <ScrollReveal direction="left">
           <SectionBadge tone="dark">{c.badge}</SectionBadge>

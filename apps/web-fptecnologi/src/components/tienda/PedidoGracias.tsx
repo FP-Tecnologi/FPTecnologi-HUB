@@ -57,7 +57,7 @@ export function PedidoGracias({ numero, total }: { numero: string; total: number
                         window.setTimeout(() => setCopiado(false), 1800);
                       });
                     }}
-                    className="rounded-lg p-1.5 text-ink/40 transition-colors hover:bg-white hover:text-brand-primary"
+                    className="rounded-lg p-1.5 text-ink/40 transition-colors hover:bg-white hover:text-brand-700"
                   >
                     {copiado ? <Check className="h-5 w-5 text-whatsapp-dark" strokeWidth={2.4} /> : <Copy className="h-5 w-5" strokeWidth={1.8} />}
                   </button>
@@ -78,7 +78,7 @@ export function PedidoGracias({ numero, total }: { numero: string; total: number
                 href={hrefWhatsapp}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-whatsapp px-6 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-whatsapp/25 transition-colors hover:bg-whatsapp-dark"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-whatsapp-dark px-6 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-whatsapp/25 transition-colors hover:bg-whatsapp-deep"
               >
                 <MessageCircle className="h-5 w-5" strokeWidth={2} /> {resumen ? 'Enviar mi pedido por WhatsApp' : 'Escribir por WhatsApp'}
               </a>
@@ -91,7 +91,7 @@ export function PedidoGracias({ numero, total }: { numero: string; total: number
             <ol className="mt-6 space-y-6">
               {SIGUIENTES.map(({ Icon, titulo, texto }, i) => (
                 <li key={titulo} className="relative flex gap-4">
-                  {i < SIGUIENTES.length - 1 && <span aria-hidden className="absolute left-5 top-11 h-[calc(100%-1rem)] w-0.5 bg-brand-dark/15" />}
+                  {i < SIGUIENTES.length - 1 && <span aria-hidden className="absolute left-5 top-11 h-[calc(100%-1rem)] w-0.5 bg-brand-primary/15" />}
                   <span className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-brand-primary to-brand-dark text-white shadow-md shadow-brand-dark/25">
                     <Icon className="h-5 w-5" strokeWidth={1.9} />
                   </span>
@@ -115,10 +115,10 @@ export function PedidoGracias({ numero, total }: { numero: string; total: number
               <li className="flex items-start gap-3"><MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-teal-light" strokeWidth={2} />{CONTACT_INFO.address}</li>
             </ul>
           </div>
-          <a href="/cuenta" className="hover-lift block rounded-2xl border border-brand-dark/20 bg-white p-4 text-center text-sm font-semibold text-brand-primary shadow-md shadow-brand-dark/10 hover:bg-brand-primary hover:text-white">
+          <a href="/cuenta" className="hover-lift block rounded-2xl border border-brand-dark/20 bg-white p-4 text-center text-sm font-semibold text-brand-700 shadow-md shadow-brand-dark/10 hover:bg-brand-primary hover:text-white">
             Sigue tu pedido en Mi cuenta (entra con tu correo)
           </a>
-          <a href="/cotizador" className="block rounded-2xl border border-brand-dark/20 bg-brand-primary/5 p-4 text-center text-sm font-semibold text-brand-primary transition-colors hover:bg-brand-primary hover:text-white">
+          <a href="/cotizador" className="block rounded-2xl border border-brand-dark/20 bg-brand-primary/5 p-4 text-center text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-primary hover:text-white">
             ¿Necesitas más equipos? Pide una cotización
           </a>
         </aside>

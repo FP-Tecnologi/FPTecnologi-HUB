@@ -98,7 +98,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
               >
                 {/* Mismo gesto del botón del hero: el ícono viaja de lado a lado
                     (acá al pasar el cursor) mientras el texto ocupa su lugar. */}
-                <span className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg bg-white text-brand-primary shadow-md shadow-black/20 transition-all duration-500 ease-out group-hover:left-[calc(100%-3.25rem)] group-hover:bg-brand-primary group-hover:text-white">
+                <span className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg bg-white text-brand-700 shadow-md shadow-black/20 transition-all duration-500 ease-out group-hover:left-[calc(100%-3.25rem)] group-hover:bg-brand-primary group-hover:text-white">
                   <Icon className="h-5 w-5 transition-transform duration-500 group-hover:rotate-[360deg]" strokeWidth={1.8} />
                 </span>
                 <span className="block min-w-0">

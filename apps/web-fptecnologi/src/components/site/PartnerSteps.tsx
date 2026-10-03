@@ -6,7 +6,7 @@ export function PartnerSteps() {
       <div className="mx-auto max-w-7xl px-6">
         <div className="mb-12 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end">
           <div>
-            <span className="text-sm font-semibold uppercase tracking-wide text-brand-primary">Programa de partners</span>
+            <span className="text-sm font-semibold uppercase tracking-wide text-brand-700">Programa de partners</span>
             <h2 className="mt-2 font-display text-3xl font-bold text-ink sm:text-4xl">Conviértete en Partner FP</h2>
           </div>
           {/* Sin backend de alta de partners todavía (ver AGENTS.md) -- el CTA

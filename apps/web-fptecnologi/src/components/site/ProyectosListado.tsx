@@ -21,7 +21,7 @@ export function ProyectosListado({ projects: todos = PROJECTS }: { projects?: Pr
 
   const chip = (on: boolean) =>
     `rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors ${
-      on ? 'bg-brand-dark text-white shadow-md shadow-brand-dark/30' : 'bg-white text-ink/70 shadow-sm shadow-brand-dark/10 hover:text-brand-primary'
+      on ? 'bg-brand-primary text-white shadow-md shadow-brand-dark/30' : 'bg-white text-ink/70 shadow-sm shadow-brand-dark/10 hover:text-brand-700'
     }`;
 
   if (todos.length === 0) return null;
@@ -65,7 +65,7 @@ export function ProyectosListado({ projects: todos = PROJECTS }: { projects?: Pr
                 </span>
               </div>
               <div className="flex flex-1 flex-col p-6">
-                <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-primary">
+                <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-700">
                   <Building2 className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
                   <span className="truncate">{p.client}</span>
                 </p>
@@ -73,7 +73,7 @@ export function ProyectosListado({ projects: todos = PROJECTS }: { projects?: Pr
                 <p className="mt-2 text-sm leading-relaxed text-ink/60">{p.description}</p>
                 <div className="mt-auto flex flex-wrap gap-1.5 pt-5">
                   {p.scope.map((s) => (
-                    <span key={s} className="rounded-md bg-brand-primary/10 px-2 py-0.5 text-[11px] font-semibold text-brand-primary">
+                    <span key={s} className="rounded-md bg-brand-primary/10 px-2 py-0.5 text-[11px] font-semibold text-brand-700">
                       {s}
                     </span>
                   ))}

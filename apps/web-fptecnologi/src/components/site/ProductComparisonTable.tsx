@@ -24,7 +24,7 @@ export function ProductComparisonTable({ products }: { products: (typeof FEATURE
                 <div className="mx-auto mb-2 h-16 w-16 overflow-hidden rounded-lg bg-producto">
                   <img src={p.image} alt={p.name} className="h-full w-full object-contain p-2" />
                 </div>
-                <p className="text-[10px] font-semibold uppercase text-brand-primary">{p.brand}</p>
+                <p className="text-[10px] font-semibold uppercase text-brand-700">{p.brand}</p>
               </th>
             ))}
           </tr>
@@ -49,7 +49,7 @@ export function ProductComparisonTable({ products }: { products: (typeof FEATURE
           <tr className="border-t border-black/5">
             <th className="pl-4 text-left text-xs font-medium text-ink/45">Descuento</th>
             {products.map((p) => (
-              <td key={p.sku} className="font-mono text-xs font-semibold text-brand-primary">
+              <td key={p.sku} className="font-mono text-xs font-semibold text-brand-700">
                 -{Math.round(((p.priceBefore - p.price) / p.priceBefore) * 100)}%
               </td>
             ))}

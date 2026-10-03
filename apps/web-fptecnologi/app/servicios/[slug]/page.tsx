@@ -57,7 +57,7 @@ export default async function ServicioDetailPage({ params }: { params: Promise<{
               <ul className="mt-6 grid gap-3 sm:grid-cols-2">
                 {(d?.incluye ?? []).map((t) => (
                   <li key={t} className="flex items-start gap-2.5 text-sm font-medium text-ink">
-                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-primary" strokeWidth={2} />
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-brand-700" strokeWidth={2} />
                     {t}
                   </li>
                 ))}
@@ -107,7 +107,7 @@ export default async function ServicioDetailPage({ params }: { params: Promise<{
                 </h2>
                 <div className="mt-6 flex flex-wrap gap-2.5">
                   {d.sectores.map((sec) => (
-                    <span key={sec} className="rounded-lg border border-brand-dark/10 bg-white px-3.5 py-2 text-sm font-semibold text-brand-primary shadow-sm shadow-brand-dark/10">
+                    <span key={sec} className="rounded-lg border border-brand-dark/10 bg-white px-3.5 py-2 text-sm font-semibold text-brand-700 shadow-sm shadow-brand-dark/10">
                       {sec}
                     </span>
                   ))}
@@ -120,7 +120,7 @@ export default async function ServicioDetailPage({ params }: { params: Promise<{
                     <details key={f.p} className="group rounded-2xl bg-white p-5 shadow-md shadow-brand-dark/10 open:shadow-lg">
                       <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink">
                         {f.p}
-                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary transition-transform duration-300 group-open:rotate-45">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-700 transition-transform duration-300 group-open:rotate-45">
                           <Plus className="h-4 w-4" strokeWidth={2.2} />
                         </span>
                       </summary>

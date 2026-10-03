@@ -18,7 +18,7 @@ const ETAPAS: { v: PedidoCuenta['estado']; label: string; Icon: typeof Package }
 const ESTADO_COT: Record<CotizacionCuenta['estado'], { label: string; clase: string }> = {
   PENDIENTE: { label: 'Recibida', clase: 'bg-amber-100 text-amber-800' },
   EN_REVISION: { label: 'En revisión', clase: 'bg-sky-100 text-sky-800' },
-  ENVIADA: { label: 'Propuesta enviada', clase: 'bg-brand-primary/10 text-brand-primary' },
+  ENVIADA: { label: 'Propuesta enviada', clase: 'bg-brand-primary/10 text-brand-700' },
   ACEPTADA: { label: 'Aceptada', clase: 'bg-emerald-100 text-emerald-800' },
   RECHAZADA: { label: 'Rechazada', clase: 'bg-rose-100 text-rose-800' },
 };
@@ -33,10 +33,10 @@ function Linea({ estado }: { estado: PedidoCuenta['estado'] }) {
       {ETAPAS.map((e, i) => (
         <li key={e.v} className={`flex items-center ${i < ETAPAS.length - 1 ? 'flex-1' : ''}`} aria-current={i === actual ? 'step' : undefined}>
           <span className="flex flex-col items-center gap-1.5">
-            <span className={`flex h-9 w-9 items-center justify-center rounded-xl border-2 ${i <= actual ? 'border-brand-dark bg-brand-dark text-white' : 'border-ink/10 bg-white text-ink/30'}`}><e.Icon className="h-4 w-4" strokeWidth={2} /></span>
-            <span className={`text-[11px] font-semibold ${i <= actual ? 'text-brand-primary' : 'text-ink/35'}`}>{e.label}</span>
+            <span className={`flex h-9 w-9 items-center justify-center rounded-xl border-2 ${i <= actual ? 'border-brand-dark bg-brand-primary text-white' : 'border-ink/10 bg-white text-ink/30'}`}><e.Icon className="h-4 w-4" strokeWidth={2} /></span>
+            <span className={`text-[11px] font-semibold ${i <= actual ? 'text-brand-700' : 'text-ink/35'}`}>{e.label}</span>
           </span>
-          {i < ETAPAS.length - 1 && <span aria-hidden className={`mx-2 mb-5 h-0.5 flex-1 rounded-full ${i < actual ? 'bg-brand-dark' : 'bg-ink/10'}`} />}
+          {i < ETAPAS.length - 1 && <span aria-hidden className={`mx-2 mb-5 h-0.5 flex-1 rounded-full ${i < actual ? 'bg-brand-primary' : 'bg-ink/10'}`} />}
         </li>
       ))}
     </ol>
@@ -64,12 +64,12 @@ function PedidoCard({ p }: { p: PedidoCuenta }) {
 
       {p.trackingCodigo && (
         <p className="mt-5 flex items-center gap-2 rounded-xl bg-brand-primary/5 px-4 py-3 text-sm text-ink/75">
-          <Truck className="h-4 w-4 shrink-0 text-brand-primary" strokeWidth={2} />
+          <Truck className="h-4 w-4 shrink-0 text-brand-700" strokeWidth={2} />
           Código de seguimiento {p.envioProveedor === 'SHALOM' ? 'Shalom' : p.envioProveedor ?? ''}: <b className="font-mono tracking-wide text-ink">{p.trackingCodigo}</b>
         </p>
       )}
 
-      <button type="button" onClick={() => setAbierto(!abierto)} aria-expanded={abierto} className="mt-5 flex w-full items-center justify-between text-sm font-semibold text-brand-primary">
+      <button type="button" onClick={() => setAbierto(!abierto)} aria-expanded={abierto} className="mt-5 flex w-full items-center justify-between text-sm font-semibold text-brand-700">
         {abierto ? 'Ocultar detalle' : 'Ver detalle del pedido'} <ChevronDown className={`h-4 w-4 transition-transform duration-300 ${abierto ? 'rotate-180' : ''}`} strokeWidth={2.2} />
       </button>
       {abierto && (
@@ -89,14 +89,14 @@ function PedidoCard({ p }: { p: PedidoCuenta }) {
             <div className="flex justify-between border-t border-ink/10 pt-2 font-bold"><dt>Total</dt><dd>{format(total)}</dd></div>
           </dl>
           <div className="flex items-start gap-2 rounded-xl bg-paper p-4 text-sm text-ink/70">
-            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-primary" strokeWidth={2} />
+            <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-700" strokeWidth={2} />
             <span>
               {p.envioProveedor
                 ? <>Envío por {p.envioProveedor === 'SHALOM' ? 'Shalom' : p.envioProveedor} a {p.envioDepartamento}{p.envioSede ? <> — recoges en <b>{p.envioSede}</b></> : null}{p.envioPlazo ? ` (${p.envioPlazo})` : ''}</>
                 : p.direccion ? <>Envío a domicilio: {p.direccion}{p.distrito ? `, ${p.distrito}` : ''}</> : 'Recojo en tienda (Breña, Lima)'}
             </span>
           </div>
-          <a href={wa} target="_blank" rel="noreferrer" className="inline-flex h-10 items-center gap-2 rounded-xl bg-whatsapp px-4 text-xs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-whatsapp-dark"><MessageCircle className="h-4 w-4" strokeWidth={2} /> Consultar este pedido</a>
+          <a href={wa} target="_blank" rel="noreferrer" className="inline-flex h-10 items-center gap-2 rounded-xl bg-whatsapp-dark px-4 text-xs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-whatsapp-deep"><MessageCircle className="h-4 w-4" strokeWidth={2} /> Consultar este pedido</a>
         </div>
       )}
     </article>
@@ -119,10 +119,10 @@ function CotizacionCard({ c }: { c: CotizacionCuenta }) {
       </div>
       {c.mensaje && <p className="mt-4 rounded-xl bg-paper p-4 text-sm text-ink/70"><span className="font-semibold text-ink/80">Lo que pediste: </span>{c.mensaje}</p>}
       {!tienePropuesta ? (
-        <p className="mt-4 flex items-center gap-2 text-sm text-ink/60"><Clock className="h-4 w-4 text-brand-primary" strokeWidth={2} /> Un especialista está preparando tu propuesta. Te la enviaremos por correo o WhatsApp y también la verás aquí.</p>
+        <p className="mt-4 flex items-center gap-2 text-sm text-ink/60"><Clock className="h-4 w-4 text-brand-700" strokeWidth={2} /> Un especialista está preparando tu propuesta. Te la enviaremos por correo o WhatsApp y también la verás aquí.</p>
       ) : (
         <>
-          <button type="button" onClick={() => setAbierto(!abierto)} aria-expanded={abierto} className="mt-4 flex w-full items-center justify-between text-sm font-semibold text-brand-primary">
+          <button type="button" onClick={() => setAbierto(!abierto)} aria-expanded={abierto} className="mt-4 flex w-full items-center justify-between text-sm font-semibold text-brand-700">
             {abierto ? 'Ocultar propuesta' : 'Ver propuesta'} <ChevronDown className={`h-4 w-4 transition-transform duration-300 ${abierto ? 'rotate-180' : ''}`} strokeWidth={2.2} />
           </button>
           {abierto && (
@@ -137,7 +137,7 @@ function CotizacionCard({ c }: { c: CotizacionCuenta }) {
           )}
         </>
       )}
-      <a href={wa} target="_blank" rel="noreferrer" className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl bg-whatsapp px-4 text-xs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-whatsapp-dark"><MessageCircle className="h-4 w-4" strokeWidth={2} /> {tienePropuesta ? 'Quiero avanzar / ajustar' : 'Consultar'}</a>
+      <a href={wa} target="_blank" rel="noreferrer" className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl bg-whatsapp-dark px-4 text-xs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-whatsapp-deep"><MessageCircle className="h-4 w-4" strokeWidth={2} /> {tienePropuesta ? 'Quiero avanzar / ajustar' : 'Consultar'}</a>
     </article>
   );
 }
@@ -171,14 +171,14 @@ export function MiCuentaView({ cuenta }: { cuenta: ResumenCuenta }) {
             ))}
           </div>
         </div>
-        <a href="/tienda" className="hover-lift flex items-center justify-center gap-2 rounded-2xl border border-brand-dark/20 bg-brand-primary/5 p-4 text-sm font-semibold text-brand-primary hover:bg-brand-primary hover:text-white"><ShoppingBag className="h-4 w-4" strokeWidth={2} /> Seguir comprando</a>
+        <a href="/tienda" className="hover-lift flex items-center justify-center gap-2 rounded-2xl border border-brand-dark/20 bg-brand-primary/5 p-4 text-sm font-semibold text-brand-700 hover:bg-brand-primary hover:text-white"><ShoppingBag className="h-4 w-4" strokeWidth={2} /> Seguir comprando</a>
         <button type="button" onClick={salir} disabled={saliendo} className="flex w-full items-center justify-center gap-2 rounded-2xl border border-ink/10 bg-white p-3 text-sm font-semibold text-ink/60 transition-colors hover:text-rose-600"><LogOut className="h-4 w-4" strokeWidth={2} /> {saliendo ? 'Saliendo…' : 'Cerrar sesión'}</button>
       </aside>
 
       <section>
         <div className="mb-6 inline-flex rounded-2xl bg-white p-1.5 shadow-md shadow-brand-dark/10" role="tablist" aria-label="Mi cuenta">
           {([['pedidos', `Mis pedidos (${cuenta.pedidos.length})`, ShoppingBag], ['cotizaciones', `Mis cotizaciones (${cuenta.cotizaciones.length})`, FileText]] as const).map(([id, label, Icon]) => (
-            <button key={id} type="button" role="tab" aria-selected={tab === id} onClick={() => setTab(id)} className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors ${tab === id ? 'bg-brand-dark text-white shadow-md shadow-brand-dark/25' : 'text-ink/60 hover:text-brand-primary'}`}>
+            <button key={id} type="button" role="tab" aria-selected={tab === id} onClick={() => setTab(id)} className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors ${tab === id ? 'bg-brand-primary text-white shadow-md shadow-brand-dark/25' : 'text-ink/60 hover:text-brand-700'}`}>
               <Icon className="h-4 w-4" strokeWidth={2} /> {label}
             </button>
           ))}
@@ -202,7 +202,7 @@ function Vacio({ titulo, texto, href, accion }: { titulo: string; texto: string;
     <div className="rounded-3xl border border-ink/5 bg-white p-10 text-center shadow-lg shadow-brand-dark/10">
       <h3 className="font-display text-xl font-bold text-ink">{titulo}</h3>
       <p className="mx-auto mt-2 max-w-sm text-sm text-ink/60">{texto}</p>
-      <a href={href} className="mt-6 inline-flex h-11 items-center rounded-xl bg-brand-dark px-6 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-primary">{accion}</a>
+      <a href={href} className="mt-6 inline-flex h-11 items-center rounded-xl bg-brand-primary px-6 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-primary">{accion}</a>
     </div>
   );
 }

@@ -58,7 +58,7 @@ export function Contact() {
   };
 
   return (
-    <section id="contacto" className="relative overflow-hidden bg-brand-dark py-20 text-white">
+    <section id="contacto" className="relative overflow-hidden bg-brand-primary py-20 text-white">
       <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-[1fr_1fr] lg:items-start">
         <div>
           <span className="text-sm font-semibold uppercase tracking-wide text-brand-teal-light">Hablemos</span>

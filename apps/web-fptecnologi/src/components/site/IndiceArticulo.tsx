@@ -36,7 +36,7 @@ export function IndiceArticulo({ items }: { items: Item[] }) {
               href={`#${i.id}`}
               aria-current={activo === i.id ? 'location' : undefined}
               className={`block rounded-lg px-3 py-1.5 leading-snug transition-colors ${
-                activo === i.id ? 'bg-brand-primary/10 font-semibold text-brand-primary' : 'text-ink/65 hover:bg-paper hover:text-brand-primary'
+                activo === i.id ? 'bg-brand-primary/10 font-semibold text-brand-700' : 'text-ink/65 hover:bg-paper hover:text-brand-700'
               }`}
             >
               {i.texto}

@@ -68,10 +68,10 @@ function Opcion({ activo, onClick, icon: Icon, titulo, texto }: { activo: boolea
       aria-checked={activo}
       onClick={onClick}
       className={`flex items-center gap-3 rounded-2xl border-2 p-4 text-left transition-all duration-200 ${
-        activo ? 'border-brand-dark bg-brand-dark/[0.06] shadow-lg shadow-brand-dark/10' : 'border-ink/10 bg-white hover:border-brand-dark/40'
+        activo ? 'border-brand-dark bg-brand-primary/[0.06] shadow-lg shadow-brand-dark/10' : 'border-ink/10 bg-white hover:border-brand-dark/40'
       }`}
     >
-      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${activo ? 'bg-brand-dark text-white' : 'bg-ink/5 text-ink/50'}`}>
+      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${activo ? 'bg-brand-primary text-white' : 'bg-ink/5 text-ink/50'}`}>
         <Icon className="h-5 w-5" strokeWidth={1.8} />
       </span>
       <span className="min-w-0">
@@ -134,7 +134,7 @@ export function CheckoutForm() {
       <div className="mx-auto max-w-xl rounded-3xl border border-ink/5 bg-white p-10 text-center shadow-xl shadow-brand-dark/10">
         <h2 className="font-display text-2xl font-bold text-ink">Tu carrito está vacío</h2>
         <p className="mt-2 text-ink/60">Agrega productos desde la tienda para continuar con tu compra.</p>
-        <a href="/tienda" className="mt-6 inline-flex h-12 items-center rounded-xl bg-brand-dark px-7 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-primary">
+        <a href="/tienda" className="mt-6 inline-flex h-12 items-center rounded-xl bg-brand-primary px-7 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-primary">
           Ir a la tienda
         </a>
       </div>
@@ -280,7 +280,7 @@ export function CheckoutForm() {
           </div>
           {v.entrega === 'RECOJO' ? (
             <p className="flex items-start gap-2 rounded-xl bg-paper p-4 text-sm text-ink/70">
-              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-primary" strokeWidth={2} />
+              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-700" strokeWidth={2} />
               {CONTACT_INFO.address}. Te avisaremos cuando tu pedido esté listo.
             </p>
           ) : v.entrega === 'SHALOM' ? (
@@ -329,7 +329,7 @@ export function CheckoutForm() {
             <Opcion activo={v.pago === 'EFECTIVO'} onClick={() => set('pago', 'EFECTIVO')} icon={Banknote} titulo="Efectivo" texto="En tienda" />
           </div>
           <p className="flex items-start gap-2 text-sm text-ink/60">
-            <Lock className="mt-0.5 h-4 w-4 shrink-0 text-brand-primary" strokeWidth={2} />
+            <Lock className="mt-0.5 h-4 w-4 shrink-0 text-brand-700" strokeWidth={2} />
             No se cobra nada en línea: un asesor te escribirá por WhatsApp para confirmar el pago y la entrega.
           </p>
           <Campo id="co-notas" label="Notas del pedido (opcional)">
@@ -376,7 +376,7 @@ export function CheckoutForm() {
             <Check className="h-3.5 w-3.5" strokeWidth={3.5} />
           </span>
           <span>
-            Acepto los <a href="/legal/terminos" target="_blank" rel="noreferrer" className="font-semibold text-brand-primary underline">términos y condiciones</a> y la <a href="/legal/privacidad" target="_blank" rel="noreferrer" className="font-semibold text-brand-primary underline">política de privacidad</a>.
+            Acepto los <a href="/legal/terminos" target="_blank" rel="noreferrer" className="font-semibold text-brand-700 underline">términos y condiciones</a> y la <a href="/legal/privacidad" target="_blank" rel="noreferrer" className="font-semibold text-brand-700 underline">política de privacidad</a>.
           </span>
         </label>
         {errores.acepto && <p role="alert" className="text-sm font-medium text-rose-600">{errores.acepto}</p>}
@@ -385,7 +385,7 @@ export function CheckoutForm() {
           <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">{errorGeneral}</p>
         )}
 
-        <button type="submit" disabled={enviando} className="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-brand-dark text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/25 transition-colors hover:bg-brand-primary disabled:opacity-60">
+        <button type="submit" disabled={enviando} className="flex h-14 w-full items-center justify-center gap-2 rounded-xl bg-brand-primary text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/25 transition-colors hover:bg-brand-primary disabled:opacity-60">
           {enviando ? (<><Loader2 className="h-4 w-4 animate-spin" /> Registrando…</>) : 'Confirmar pedido'}
         </button>
         <p className="text-center text-xs text-ink/50">Precios en dólares sin IGV; el IGV se suma al total. El pedido queda registrado y un asesor te contacta.</p>
@@ -397,7 +397,7 @@ export function CheckoutForm() {
             <p className="text-xs text-ink/50">Total</p>
             <p className="font-display text-xl font-bold text-ink">{format(totalConEnvio)}</p>
           </div>
-          <button type="submit" disabled={enviando} className="inline-flex h-12 items-center gap-2 rounded-xl bg-brand-dark px-6 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-primary disabled:opacity-60">
+          <button type="submit" disabled={enviando} className="inline-flex h-12 items-center gap-2 rounded-xl bg-brand-primary px-6 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-primary disabled:opacity-60">
             {enviando ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
             Confirmar pedido
           </button>

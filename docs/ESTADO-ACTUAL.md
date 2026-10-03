@@ -1025,3 +1025,10 @@ Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «V
 
 - Prueba de color único: `--color-brand-primary`, `--color-brand-dark` y `--color-brand-petrol` = `#107acc` (hoy el hover no cambia de tono; separar `brand-dark` en `globals.css` si se quiere uno distinto). Sombras, `themeColor`, libro de reclamaciones y popups "azul" alineados.
 - Por pedido del cliente, el **pie de página** (`Footer` de `home/` y `site/`) y la sección **«Hablemos»** (`home/Contact`) vuelven al fondo oscuro de marca (`bg-ink`); solo el resto de fondos oscuros usa el primario.
+
+## 2026-10-03 — Web: sistema de color a partir de `#107acc`
+
+- **Escala tonal** en `apps/web-fptecnologi/app/globals.css` (`--color-brand-50 … 950`, el `600` es exactamente `#107acc`). Nombres semánticos que ya usan los componentes: `brand-primary` = 600 (botones, acentos), `brand-dark` = 700 (hover/presionado y texto de acento chico), `brand-petrol` = 700, `brand-teal` = 500 y `brand-teal-light` = 300 (reemplazan a los turquesas). `paper` (fondo de página) = 50. Sin azules oscuros fuera de la escala; `ink` (`#0b1b26`) sigue siendo el negro de marca para texto y pie de página.
+- **Letras**: acentos de títulos (`title-shimmer-*`, `hero-title-shimmer`) con degradados de la escala (el celeste aqua `#8fe0ee` pasó a `brand-200`); texto de acento chico (`text-brand-primary` en `text-xs/sm/base`, 120 usos) pasa a `brand-700` (6.6:1 sobre blanco) y los títulos grandes quedan en 600; enlaces de blog y citas con 700/800.
+- **Superficies y detalles**: botones sólidos en 600 (antes 700) que se oscurecen a 700 en hover; `.btn-glow` 500→600; puntitos del fondo, selección de texto (`::selection`) y foco (`:focus-visible`) en tonos de la escala; sombras con `rgba(16,122,204,…)`.
+- **Contraste (auditoría con Playwright sobre inicio, tienda, nosotros, servicios, contacto, cotizador, proyectos)**: el verde de WhatsApp con letra blanca daba 2.3:1 → `--color-whatsapp-dark` `#14793e` (5.5:1) para botones y texto, `--color-whatsapp-deep` en hover. Único punto borderline: blanco sobre `#107acc` = 4.49:1 (AA pide 4.5) — es el color de marca, se deja así.

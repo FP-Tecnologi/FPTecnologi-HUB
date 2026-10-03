@@ -6,8 +6,8 @@ import { imagenLanding, type LandingPublica } from '@/lib/landings';
 
 const FONDO = {
   azul: { hero: 'bg-gradient-to-br from-brand-primary via-brand-primary to-brand-dark text-white', desc: 'text-white/80', badge: 'border-white/25 bg-white/10 text-white', chip: 'bg-white/10 text-white border-white/20', shimmer: 'title-shimmer-dark', cta: 'bg-white text-brand-dark hover:bg-brand-primary hover:text-white' },
-  oscuro: { hero: 'bg-brand-primary text-white', desc: 'text-white/70', badge: 'border-white/20 bg-white/10 text-white', chip: 'bg-white/10 text-white border-white/20', shimmer: 'title-shimmer-dark', cta: 'bg-brand-dark text-white hover:bg-brand-primary' },
-  claro: { hero: 'bg-white text-ink', desc: 'text-ink/65', badge: 'border-brand-primary/20 bg-brand-primary/10 text-brand-primary', chip: 'bg-paper text-ink border-ink/10', shimmer: 'title-shimmer-light', cta: 'bg-brand-dark text-white hover:bg-brand-primary' },
+  oscuro: { hero: 'bg-brand-primary text-white', desc: 'text-white/70', badge: 'border-white/20 bg-white/10 text-white', chip: 'bg-white/10 text-white border-white/20', shimmer: 'title-shimmer-dark', cta: 'bg-brand-primary text-white hover:bg-brand-primary' },
+  claro: { hero: 'bg-white text-ink', desc: 'text-ink/65', badge: 'border-brand-primary/20 bg-brand-primary/10 text-brand-700', chip: 'bg-paper text-ink border-ink/10', shimmer: 'title-shimmer-light', cta: 'bg-brand-primary text-white hover:bg-brand-primary' },
 } as const;
 
 /*
@@ -92,7 +92,7 @@ export function LandingView({ landing, vistaPrevia = false }: { landing: Landing
             <details key={f.p} className="group rounded-2xl bg-white p-5 shadow-md shadow-brand-dark/10 open:shadow-lg">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-ink">
                 {f.p}
-                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-primary transition-transform duration-300 group-open:rotate-45"><Plus className="h-4 w-4" strokeWidth={2.2} /></span>
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-brand-primary/10 text-brand-700 transition-transform duration-300 group-open:rotate-45"><Plus className="h-4 w-4" strokeWidth={2.2} /></span>
               </summary>
               <p className="mt-3 text-sm leading-relaxed text-ink/65">{f.r}</p>
             </details>

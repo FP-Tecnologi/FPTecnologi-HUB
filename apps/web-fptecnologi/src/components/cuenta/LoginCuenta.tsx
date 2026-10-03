@@ -59,7 +59,7 @@ export function LoginCuenta() {
             <div className="relative flex items-center"><Mail className="pointer-events-none absolute left-4 h-5 w-5 text-ink/40" strokeWidth={1.8} /><input id="cu-email" type="email" autoComplete="email" autoFocus maxLength={120} value={email} onChange={(e) => { setEmail(e.target.value); setError(''); }} aria-invalid={!!error} className={input} placeholder="correo@empresa.com" /></div>
           </div>
           {error && <p role="alert" className="text-sm font-medium text-rose-600">{error}</p>}
-          <button type="submit" disabled={busy} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-dark text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/25 transition-all hover:-translate-y-0.5 hover:bg-brand-primary disabled:opacity-60">
+          <button type="submit" disabled={busy} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-primary text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/25 transition-all hover:-translate-y-0.5 hover:bg-brand-primary disabled:opacity-60">
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Enviarme el código
           </button>
         </form>
@@ -71,12 +71,12 @@ export function LoginCuenta() {
             <div className="relative flex items-center"><KeyRound className="pointer-events-none absolute left-4 h-5 w-5 text-ink/40" strokeWidth={1.8} /><input id="cu-codigo" inputMode="numeric" autoComplete="one-time-code" autoFocus maxLength={6} value={codigo} onChange={(e) => { setCodigo(e.target.value.replace(/\D/g, '')); setError(''); }} aria-invalid={!!error} className={`${input} font-mono text-xl tracking-[0.4em]`} placeholder="••••••" /></div>
           </div>
           {error && <p role="alert" className="text-sm font-medium text-rose-600">{error}</p>}
-          <button type="submit" disabled={busy || codigo.length !== 6} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-dark text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/25 transition-all hover:-translate-y-0.5 hover:bg-brand-primary disabled:opacity-60">
+          <button type="submit" disabled={busy || codigo.length !== 6} className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-primary text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/25 transition-all hover:-translate-y-0.5 hover:bg-brand-primary disabled:opacity-60">
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : null} Entrar
           </button>
           <div className="flex items-center justify-between text-sm">
-            <button type="button" onClick={() => { setPaso('correo'); setError(''); }} className="inline-flex items-center gap-1.5 font-semibold text-ink/55 hover:text-brand-primary"><ArrowLeft className="h-4 w-4" strokeWidth={2} /> Cambiar correo</button>
-            <button type="button" disabled={busy} onClick={() => pedir()} className="font-semibold text-brand-primary hover:underline">Reenviar código</button>
+            <button type="button" onClick={() => { setPaso('correo'); setError(''); }} className="inline-flex items-center gap-1.5 font-semibold text-ink/55 hover:text-brand-700"><ArrowLeft className="h-4 w-4" strokeWidth={2} /> Cambiar correo</button>
+            <button type="button" disabled={busy} onClick={() => pedir()} className="font-semibold text-brand-700 hover:underline">Reenviar código</button>
           </div>
         </form>
       )}

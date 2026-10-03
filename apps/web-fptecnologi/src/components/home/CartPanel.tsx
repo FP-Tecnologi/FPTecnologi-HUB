@@ -97,7 +97,7 @@ export function CartPanel({ onNavigate }: { onNavigate?: () => void }) {
         </div>
         <div className="mt-1.5 flex justify-between border-t border-black/5 pt-2">
           <span className="font-bold text-ink">Total</span>
-          <span className="text-base font-bold text-brand-primary">{format(total)}</span>
+          <span className="text-base font-bold text-brand-700">{format(total)}</span>
         </div>
       </div>
 

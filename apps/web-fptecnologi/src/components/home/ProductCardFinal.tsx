@@ -148,7 +148,7 @@ export function ProductCardFinal({
 
         <div className="flex flex-col gap-1.5 p-4">
           <h3 className="line-clamp-2 min-h-[2.5rem] text-sm font-semibold text-ink">
-            <a href={productHref(product.sku, product.slug)} className="transition-colors hover:text-brand-primary">
+            <a href={productHref(product.sku, product.slug)} className="transition-colors hover:text-brand-700">
               {product.name}
             </a>
           </h3>
@@ -173,7 +173,7 @@ export function ProductCardFinal({
               )}
               doneLabel="Agregado"
               onConfirm={() => addItem({ sku: product.sku, name: product.name, price: product.price, image: images[0] })}
-              className="h-10 shrink-0 rounded-lg bg-brand-dark px-1.5 text-xs font-semibold text-white hover:bg-brand-primary hover:pr-3"
+              className="h-10 shrink-0 rounded-lg bg-brand-primary px-1.5 text-xs font-semibold text-white hover:bg-brand-primary hover:pr-3"
               doneClassName="h-10 shrink-0 rounded-lg bg-emerald-500 px-1.5 pr-3 text-xs font-semibold text-white"
             />
           </div>

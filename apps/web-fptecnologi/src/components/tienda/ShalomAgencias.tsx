@@ -145,7 +145,7 @@ export function ShalomAgencias({
           type="button"
           onClick={usarUbicacion}
           disabled={ubicando}
-          className="inline-flex items-center gap-2 rounded-xl border border-brand-primary/30 bg-brand-primary/5 px-4 py-2.5 text-sm font-semibold text-brand-primary transition-colors hover:bg-brand-primary/10 disabled:opacity-60"
+          className="inline-flex items-center gap-2 rounded-xl border border-brand-primary/30 bg-brand-primary/5 px-4 py-2.5 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-primary/10 disabled:opacity-60"
         >
           {ubicando ? <Loader2 className="h-4 w-4 animate-spin" /> : <LocateFixed className="h-4 w-4" strokeWidth={2} />}
           Usar mi ubicación para encontrar la agencia más cercana

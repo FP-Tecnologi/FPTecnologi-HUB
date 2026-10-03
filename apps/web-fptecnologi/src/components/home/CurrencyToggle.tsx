@@ -53,7 +53,7 @@ export function CurrencyToggle({ tone = 'dark', className = 'h-10' }: { tone?: '
       <span
         aria-hidden
         className={`absolute inset-y-1 left-1 w-[calc(50%-4px)] rounded-lg shadow-md transition-all duration-300 ease-out ${
-          isUsd ? 'translate-x-0 bg-brand-dark shadow-brand-dark/40' : 'translate-x-full bg-amber-500 shadow-amber-500/40'
+          isUsd ? 'translate-x-0 bg-brand-primary shadow-brand-dark/40' : 'translate-x-full bg-amber-500 shadow-amber-500/40'
         }`}
       />
       <span className={label(isUsd)}>

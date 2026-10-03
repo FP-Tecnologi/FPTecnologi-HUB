@@ -67,13 +67,13 @@ function ProjectCard({
             Click para ver detalles
           </span>
           <div className="absolute inset-x-4 bottom-4">
-            <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#8fe0ee]">
+            <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-brand-200">
               <Building2 className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
               <span className="truncate">{p.client} · {p.year}</span>
             </p>
             <p className="mt-1.5 line-clamp-2 text-sm font-bold uppercase leading-snug text-white sm:text-base">{p.title}</p>
             {/* Línea de acento que se alarga al hover. */}
-            <span aria-hidden className="mt-2.5 block h-0.5 w-8 rounded-full bg-brand-dark transition-all duration-500 group-hover:w-20 group-hover:bg-[#8fe0ee]" />
+            <span aria-hidden className="mt-2.5 block h-0.5 w-8 rounded-full bg-brand-primary transition-all duration-500 group-hover:w-20 group-hover:bg-brand-200" />
           </div>
           {/* Contorno que gira al hover (ver .spin-border en globals.css). */}
           <span className="spin-border" aria-hidden />
@@ -88,12 +88,12 @@ function ProjectCard({
             Volver
           </span>
           <div className="relative flex h-full flex-col items-center justify-center overflow-y-auto px-6 pb-4 pt-12 text-center [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-[#8fe0ee]">
+            <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-brand-200">
               <Building2 className="h-3.5 w-3.5" strokeWidth={2} />
               {p.client} · {p.year}
             </p>
             <h4 className="mt-2 max-w-md text-sm font-bold uppercase leading-snug sm:text-base">{p.title}</h4>
-            <span aria-hidden className="mt-3 h-0.5 w-10 rounded-full bg-brand-dark" />
+            <span aria-hidden className="mt-3 h-0.5 w-10 rounded-full bg-brand-primary" />
             <p className="mt-3 max-w-md text-xs leading-relaxed text-white/75 sm:text-sm">{p.description}</p>
             <div className="mt-4 flex flex-wrap justify-center gap-1.5">
               {p.scope.map((s) => (
@@ -170,7 +170,7 @@ export function NuestrosProyectos({ c = HOME_DEFAULTS.proyectos, projects: lista
                     <MapPin className="h-5 w-5" strokeWidth={2} />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8fe0ee]">Proyectos en</p>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-200">Proyectos en</p>
                     <p className="truncate font-display text-lg font-bold uppercase leading-tight text-white">{current?.name}</p>
                   </div>
                   <span className="shrink-0 rounded-lg border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-md">

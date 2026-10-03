@@ -97,7 +97,7 @@ export function Nosotros({ c = HOME_DEFAULTS.nosotros }: { c?: Encabezado & { pu
           </div>
 
           {/* Botón primario sólido -- mismo estilo que "Cotizar" del Navbar9
-              (bg-brand-dark, mayúscula, ícono que gira 45° al hover), no el
+              (bg-brand-primary, mayúscula, ícono que gira 45° al hover), no el
               link de texto liso que usan las tarjetas de servicio. Redirige
               a la página completa de Nosotros (app/nosotros/page.tsx). */}
           {/* Mismo botón sweep que "Cotizar": ícono a la izquierda, al click

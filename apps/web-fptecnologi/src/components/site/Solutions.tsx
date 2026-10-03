@@ -7,7 +7,7 @@ export function Solutions() {
     <section id="servicios" className="mx-auto max-w-7xl px-6 py-20">
       <div className="mb-12 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <span className="text-sm font-semibold uppercase tracking-wide text-brand-primary">Servicios destacados</span>
+          <span className="text-sm font-semibold uppercase tracking-wide text-brand-700">Servicios destacados</span>
           <h2 className="mt-2 font-display text-3xl font-bold text-ink sm:text-4xl">
             Tecnología para cada tipo de negocio
           </h2>

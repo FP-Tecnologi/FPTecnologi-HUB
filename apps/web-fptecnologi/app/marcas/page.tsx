@@ -65,7 +65,7 @@ export default async function MarcasPage() {
                       )}
                     </span>
                     <span className="mt-4 text-sm font-semibold text-ink">{m.name}</span>
-                    <span className={`mt-1 text-xs ${n > 0 ? 'font-semibold text-brand-primary' : 'text-ink/45'}`}>
+                    <span className={`mt-1 text-xs ${n > 0 ? 'font-semibold text-brand-700' : 'text-ink/45'}`}>
                       {n > 0 ? `${n} producto${n === 1 ? '' : 's'}` : 'Consultar disponibilidad'}
                     </span>
                   </a>

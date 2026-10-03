@@ -90,7 +90,7 @@ export function ProductDetail({ product, relacionados }: { product: CatalogProdu
 
           {/* Información */}
           <div>
-            <a href={`/marcas/${brandSlug(product.brand)}`} className="inline-flex rounded-md bg-brand-primary/10 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-brand-primary hover:bg-brand-primary hover:text-white">
+            <a href={`/marcas/${brandSlug(product.brand)}`} className="inline-flex rounded-md bg-brand-primary/10 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-brand-700 hover:bg-brand-primary hover:text-white">
               {product.brand}
             </a>
             <h1 className="mt-3 font-display text-2xl font-bold leading-snug text-ink sm:text-3xl">{partes[0]}</h1>
@@ -114,7 +114,7 @@ export function ProductDetail({ product, relacionados }: { product: CatalogProdu
                 doneIcon={() => <Check className="h-4 w-4" strokeWidth={2.4} />}
                 doneLabel="Agregado"
                 onConfirm={() => addItem({ sku: product.sku, name: product.name, price: product.price, image: images[0] })}
-                className="h-12 rounded-xl bg-brand-dark px-6 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/30 hover:bg-brand-primary"
+                className="h-12 rounded-xl bg-brand-primary px-6 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/30 hover:bg-brand-primary"
                 doneClassName="h-12 rounded-xl bg-emerald-500 px-6 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-emerald-500/30"
               />
               <button
@@ -134,7 +134,7 @@ export function ProductDetail({ product, relacionados }: { product: CatalogProdu
                 href={whatsappHref(`Hola, quiero información del producto ${product.name} (SKU ${product.sku})`)}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex h-10 items-center gap-2 rounded-xl bg-whatsapp px-4 text-sm font-semibold text-white shadow-md shadow-whatsapp/30 transition-colors hover:bg-whatsapp-dark md:h-11"
+                className="inline-flex h-10 items-center gap-2 rounded-xl bg-whatsapp-dark px-4 text-sm font-semibold text-white shadow-md shadow-whatsapp/30 transition-colors hover:bg-whatsapp-deep md:h-11"
               >
                 <WhatsAppIcon className="h-4 w-4" />
                 Consultar por WhatsApp
@@ -150,7 +150,7 @@ export function ProductDetail({ product, relacionados }: { product: CatalogProdu
                 <ul className="mt-4 grid gap-2.5 sm:grid-cols-2">
                   {caracteristicas.map((c) => (
                     <li key={c} className="flex items-start gap-2 text-sm text-ink/70">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-primary" strokeWidth={2.4} />
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-700" strokeWidth={2.4} />
                       {c}
                     </li>
                   ))}
@@ -166,7 +166,7 @@ export function ProductDetail({ product, relacionados }: { product: CatalogProdu
                 </p>
                 <p className={`mt-4 whitespace-pre-line text-sm leading-relaxed text-ink/70 ${descAbierta ? '' : 'line-clamp-6'}`}>{product.description}</p>
                 {product.description.length > 400 && (
-                  <button type="button" onClick={() => setDescAbierta((v) => !v)} className="mt-3 text-sm font-semibold text-brand-primary hover:underline">
+                  <button type="button" onClick={() => setDescAbierta((v) => !v)} className="mt-3 text-sm font-semibold text-brand-700 hover:underline">
                     {descAbierta ? 'Ver menos' : 'Ver descripción completa'}
                   </button>
                 )}
@@ -176,7 +176,7 @@ export function ProductDetail({ product, relacionados }: { product: CatalogProdu
             <ul className="mt-6 grid gap-3 sm:grid-cols-2">
               {GARANTIAS.map(({ icon: Icon, t }) => (
                 <li key={t} className="flex items-center gap-3 text-sm font-medium text-ink/70">
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-dark text-white shadow-md shadow-brand-dark/25">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-primary text-white shadow-md shadow-brand-dark/25">
                     <Icon className="h-4 w-4" strokeWidth={1.8} />
                   </span>
                   {t}

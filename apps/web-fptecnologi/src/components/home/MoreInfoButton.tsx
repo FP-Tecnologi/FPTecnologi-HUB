@@ -8,8 +8,8 @@ const SIZE = 'h-10 rounded-xl pl-2 pr-5 text-xs font-semibold uppercase tracking
 // light: para fondos claros (azul oscuro -> azul principal). dark: para
 // secciones de fondo oscuro (blanco -> azul principal).
 const TONE = {
-  light: { base: 'bg-brand-dark text-white hover:bg-brand-primary', done: 'bg-brand-primary text-white', chip: 'bg-white/20' },
-  dark: { base: 'bg-white text-brand-dark hover:bg-brand-primary hover:text-white', done: 'bg-brand-primary text-white', chip: 'bg-brand-dark/10' },
+  light: { base: 'bg-brand-primary text-white hover:bg-brand-primary', done: 'bg-brand-primary text-white', chip: 'bg-white/20' },
+  dark: { base: 'bg-white text-brand-dark hover:bg-brand-primary hover:text-white', done: 'bg-brand-primary text-white', chip: 'bg-brand-primary/10' },
 } as const;
 
 /* Botón "Más información" con sweep -- uno solo para Nosotros y las

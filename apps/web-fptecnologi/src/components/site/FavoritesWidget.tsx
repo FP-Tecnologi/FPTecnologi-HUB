@@ -48,7 +48,7 @@ export function FavoritesWidget() {
         <div className="flex max-h-[70vh] w-[min(360px,calc(100vw-1rem))] flex-col">
             {/* Encabezado abierto (como el de comparar): título, cantidad y
                 minimizar. */}
-            <div className="flex items-center gap-3 bg-brand-dark px-4 py-2.5 text-white">
+            <div className="flex items-center gap-3 bg-brand-primary px-4 py-2.5 text-white">
               <Heart className="h-5 w-5 shrink-0" strokeWidth={2} fill="currentColor" />
               <p className="flex-1 text-sm font-semibold">
                 Favoritos <span className="font-normal text-white/60">({items.length})</span>
@@ -73,7 +73,7 @@ export function FavoritesWidget() {
                       <img src={p.image} alt={p.name} className="h-full w-full object-contain p-1.5 mix-blend-multiply" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-brand-primary">{p.brand}</p>
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-brand-700">{p.brand}</p>
                       <h5 className="truncate text-sm font-semibold text-ink">{p.name}</h5>
                       <span className="font-mono text-sm font-bold text-ink">{format(p.price)}</span>
                     </div>
@@ -83,7 +83,7 @@ export function FavoritesWidget() {
                         onClick={() => addItem({ sku: p.sku, name: p.name, price: p.price, image: p.image })}
                         aria-label={`Agregar ${p.name} al carrito`}
                         className={`flex h-9 w-9 items-center justify-center rounded-lg text-white transition-colors ${
-                          added ? 'bg-emerald-500' : 'bg-brand-dark hover:bg-brand-primary'
+                          added ? 'bg-emerald-500' : 'bg-brand-primary hover:bg-brand-primary'
                         }`}
                       >
                         <ShoppingBag className="h-4 w-4" strokeWidth={2} />
@@ -113,7 +113,7 @@ export function FavoritesWidget() {
           onClick={() => setOpen(true)}
           aria-expanded={false}
           aria-label={`Ver favoritos (${items.length})`}
-          className="flex w-11 flex-col items-center justify-center gap-1.5 bg-brand-dark py-3 text-white transition-colors hover:bg-brand-primary"
+          className="flex w-11 flex-col items-center justify-center gap-1.5 bg-brand-primary py-3 text-white transition-colors hover:bg-brand-primary"
         >
           <Heart className="h-5 w-5 shrink-0" strokeWidth={2} fill="currentColor" />
           <span className="rounded-md bg-white/20 px-1.5 text-xs font-bold">{items.length}</span>

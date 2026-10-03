@@ -64,7 +64,7 @@ export default async function ContactoPage() {
                     <span className="mt-4 rounded-md bg-whatsapp/15 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-whatsapp-dark">{a.label}</span>
                     <span className="mt-2 font-display text-lg font-bold text-ink">{a.contact}</span>
                     <span className="text-sm text-ink/60">+51 {a.phone}</span>
-                    <span className="mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-whatsapp px-4 text-sm font-semibold text-white shadow-md shadow-whatsapp/30 transition-colors group-hover:bg-whatsapp-dark">
+                    <span className="mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-whatsapp-dark px-4 text-sm font-semibold text-white shadow-md shadow-whatsapp/30 transition-colors group-hover:bg-whatsapp-deep">
                       <WhatsAppIcon className="h-4 w-4" />
                       Chatear
                     </span>

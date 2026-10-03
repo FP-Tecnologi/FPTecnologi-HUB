@@ -271,14 +271,14 @@ const THEMES = {
     title: 'text-ink',
     muted: 'text-ink/55',
     arrow: 'text-ink/30',
-    userAvatar: 'border border-brand-dark/15 bg-white text-brand-primary',
+    userAvatar: 'border border-brand-dark/15 bg-white text-brand-700',
     userBubble: 'border border-brand-dark/10 bg-white text-ink shadow-md shadow-brand-dark/10',
-    link: 'border-brand-dark/15 bg-white text-brand-primary shadow-sm shadow-brand-dark/10 hover:border-brand-primary hover:bg-brand-primary hover:text-white',
+    link: 'border-brand-dark/15 bg-white text-brand-700 shadow-sm shadow-brand-dark/10 hover:border-brand-primary hover:bg-brand-primary hover:text-white',
     whatsapp: 'border-whatsapp/30 bg-whatsapp/10 text-whatsapp-dark shadow-sm shadow-brand-dark/10 hover:border-whatsapp hover:bg-whatsapp hover:text-white',
-    chip: 'border-brand-dark/15 bg-white text-brand-primary shadow-sm shadow-brand-dark/10 hover:border-brand-primary hover:bg-brand-primary hover:text-white',
+    chip: 'border-brand-dark/15 bg-white text-brand-700 shadow-sm shadow-brand-dark/10 hover:border-brand-primary hover:bg-brand-primary hover:text-white',
     inputBar: 'border-brand-dark/10 bg-white',
     notice: 'border-brand-dark/10 bg-white shadow-md shadow-brand-dark/10',
-    divider: 'bg-brand-dark/10',
+    divider: 'bg-brand-primary/10',
     time: 'text-ink/40',
     botRing: 'ring-brand-dark/10',
     input: 'border-brand-dark/15 bg-paper text-ink placeholder:text-ink/40 focus:border-brand-dark focus:bg-white focus:ring-brand-dark/15',
@@ -289,7 +289,7 @@ const THEMES = {
     title: 'text-white',
     muted: 'text-white/60',
     arrow: 'text-white/40',
-    userAvatar: 'bg-white text-brand-primary',
+    userAvatar: 'bg-white text-brand-700',
     userBubble: 'bg-white text-ink shadow-md shadow-brand-dark/30',
     link: 'border-white/15 bg-white/10 text-white hover:border-brand-dark hover:bg-brand-dark',
     whatsapp: 'border-whatsapp/40 bg-whatsapp/15 text-white hover:border-whatsapp hover:bg-whatsapp',
@@ -851,7 +851,7 @@ export function ChatWidget() {
                       </span>
                       <span className={`mt-0.5 block whitespace-nowrap text-xs ${t.muted}`}>+51 {area.phone}</span>
                     </span>
-                    <span className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-whatsapp px-3.5 text-sm font-semibold text-white shadow-md shadow-whatsapp/30 transition-colors group-hover:bg-whatsapp-dark">
+                    <span className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-xl bg-whatsapp-dark px-3.5 text-sm font-semibold text-white shadow-md shadow-whatsapp/30 transition-colors group-hover:bg-whatsapp-deep">
                       <WhatsAppIcon className="h-4 w-4" />
                       Chatear
                     </span>
@@ -896,10 +896,10 @@ export function ChatWidget() {
                       <div key={i} className="animate-pop-in my-1 flex items-center gap-2">
                         <span className={`h-px flex-1 ${t.divider}`} />
                         {/* Etiqueta de vidrio blanco (glassmorphism). */}
-                        <span className="inline-flex max-w-[85%] items-center gap-1.5 rounded-lg border border-white/70 bg-white/80 px-2.5 py-1 text-[11px] font-semibold text-brand-primary shadow-md shadow-brand-dark/20 backdrop-blur-md">
+                        <span className="inline-flex max-w-[85%] items-center gap-1.5 rounded-lg border border-white/70 bg-white/80 px-2.5 py-1 text-[11px] font-semibold text-brand-700 shadow-md shadow-brand-dark/20 backdrop-blur-md">
                           <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${join ? 'bg-whatsapp' : 'bg-brand-primary/40'}`} />
                           <span className="truncate">{m.text}</span>
-                          {m.at ? <span className="shrink-0 font-normal text-brand-primary/60">· {timeFmt(m.at)}</span> : null}
+                          {m.at ? <span className="shrink-0 font-normal text-brand-700/60">· {timeFmt(m.at)}</span> : null}
                         </span>
                         <span className={`h-px flex-1 ${t.divider}`} />
                       </div>

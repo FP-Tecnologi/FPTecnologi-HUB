@@ -21,27 +21,27 @@ const DROPDOWN_PANEL: Record<DropdownVariant, string> = {
 };
 
 const DROPDOWN_ITEM: Record<DropdownVariant, string> = {
-  default: 'text-ink/75 hover:bg-brand-primary/5 hover:text-brand-primary',
+  default: 'text-ink/75 hover:bg-brand-primary/5 hover:text-brand-700',
   dark: 'text-white/70 hover:bg-white/10 hover:text-white',
   sharp: 'text-ink/75 hover:bg-brand-primary hover:text-white',
-  minimal: 'text-ink/70 hover:text-brand-primary',
+  minimal: 'text-ink/70 hover:text-brand-700',
   // Blanco sólido (antes white/70) -- el usuario pidió que se note más el
   // submenú del Hero (Modelo 5).
   accent: 'text-white hover:bg-brand-primary hover:text-white',
-  glass: 'text-ink/80 hover:bg-white/70 hover:text-brand-primary',
+  glass: 'text-ink/80 hover:bg-white/70 hover:text-brand-700',
 };
 
 const DROPDOWN_VIEWALL: Record<DropdownVariant, string> = {
-  default: 'border-t border-black/5 text-brand-primary hover:bg-brand-primary/5',
+  default: 'border-t border-black/5 text-brand-700 hover:bg-brand-primary/5',
   dark: 'border-t border-white/10 text-brand-teal-light hover:bg-white/5',
-  sharp: 'border-t border-black/5 text-brand-primary hover:bg-brand-primary/5',
-  minimal: 'border-t border-black/5 text-brand-primary hover:bg-transparent',
+  sharp: 'border-t border-black/5 text-brand-700 hover:bg-brand-primary/5',
+  minimal: 'border-t border-black/5 text-brand-700 hover:bg-transparent',
   accent: 'border-t border-white/10 text-brand-teal-light hover:bg-brand-primary hover:text-white',
-  glass: 'border-t border-white/40 text-brand-primary hover:bg-white/40',
+  glass: 'border-t border-white/40 text-brand-700 hover:bg-white/40',
 };
 
 const TRIGGER_TONE: Record<Tone, string> = {
-  light: 'text-ink/70 hover:text-brand-primary',
+  light: 'text-ink/70 hover:text-brand-700',
   dark: 'text-white/85 hover:text-white',
   // Sin cambio de color al hover -- solo el subrayado + tamaño de letra
   // marcan el hover (ver className en DesktopNav).
@@ -61,7 +61,7 @@ const MOBILE_CHILD_BORDER_TONE: Record<Tone, string> = {
 };
 
 const MOBILE_CHILD_LINK_TONE: Record<Tone, string> = {
-  light: 'text-ink/60 hover:bg-brand-primary/5 hover:text-brand-primary',
+  light: 'text-ink/60 hover:bg-brand-primary/5 hover:text-brand-700',
   dark: 'text-white/60 hover:bg-white/5 hover:text-white',
   darkAccent: 'text-white/60 hover:bg-white/5 hover:text-white',
 };
@@ -175,7 +175,7 @@ export function MobileNav({ tone = 'light', onNavigate }: { tone?: Tone; onNavig
                 </a>
               ))}
               {'viewAllHref' in link && (
-                <a href={link.viewAllHref} onClick={onNavigate} className={`rounded-lg px-3 py-2 text-sm font-semibold md:text-base ${tone === 'dark' ? 'text-brand-teal-light' : 'text-brand-primary'}`}>
+                <a href={link.viewAllHref} onClick={onNavigate} className={`rounded-lg px-3 py-2 text-sm font-semibold md:text-base ${tone === 'dark' ? 'text-brand-teal-light' : 'text-brand-700'}`}>
                   {link.viewAllLabel} →
                 </a>
               )}

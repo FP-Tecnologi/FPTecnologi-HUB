@@ -8,7 +8,7 @@ import { CartPanel } from './CartPanel';
 type Tone = 'light' | 'dark';
 
 const TONE = {
-  light: 'border-black/10 text-ink hover:border-brand-primary hover:text-brand-primary',
+  light: 'border-black/10 text-ink hover:border-brand-primary hover:text-brand-700',
   dark: 'border-white/25 text-white hover:border-white hover:bg-white/5',
 } as const;
 

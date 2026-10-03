@@ -88,7 +88,7 @@ export function FormularioLanding({ slug, formulario, contenido, vistaPrevia = f
         <h3 className="mt-5 font-display text-2xl font-bold text-ink">{contenido.exitoTitulo}</h3>
         <p className="mt-2 max-w-sm text-ink/60">{contenido.exitoMensaje}</p>
         {contenido.whatsappTexto && (
-          <a href={whatsappHref(contenido.whatsappTexto)} target="_blank" rel="noreferrer" className="mt-6 inline-flex h-12 items-center gap-2 rounded-xl bg-whatsapp px-6 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-whatsapp-dark">
+          <a href={whatsappHref(contenido.whatsappTexto)} target="_blank" rel="noreferrer" className="mt-6 inline-flex h-12 items-center gap-2 rounded-xl bg-whatsapp-dark px-6 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-whatsapp-deep">
             <MessageCircle className="h-5 w-5" strokeWidth={2} /> Escribir por WhatsApp
           </a>
         )}
@@ -104,9 +104,9 @@ export function FormularioLanding({ slug, formulario, contenido, vistaPrevia = f
           {pasos.map((p, i) => (
             <li key={i} className="min-w-0">
               <div className="h-1.5 overflow-hidden rounded-full bg-ink/10">
-                <div className={`h-full rounded-full bg-brand-dark transition-all duration-500 ${i <= paso ? 'w-full' : 'w-0'}`} />
+                <div className={`h-full rounded-full bg-brand-primary transition-all duration-500 ${i <= paso ? 'w-full' : 'w-0'}`} />
               </div>
-              <span className={`mt-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide ${i <= paso ? 'text-brand-primary' : 'text-ink/35'}`}>
+              <span className={`mt-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide ${i <= paso ? 'text-brand-700' : 'text-ink/35'}`}>
                 {i < paso ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : <span>{i + 1}</span>}
                 <span className="truncate">{p}</span>
               </span>
@@ -163,7 +163,7 @@ export function FormularioLanding({ slug, formulario, contenido, vistaPrevia = f
               <ArrowLeft className="h-4 w-4" strokeWidth={2.2} /> Atrás
             </button>
           )}
-          <button type="submit" disabled={estado === 'enviando'} className="group inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-brand-dark px-6 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/25 transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-primary disabled:opacity-60">
+          <button type="submit" disabled={estado === 'enviando'} className="group inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-brand-primary px-6 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/25 transition-all duration-300 hover:-translate-y-0.5 hover:bg-brand-primary disabled:opacity-60">
             {estado === 'enviando' ? <><Loader2 className="h-4 w-4 animate-spin" /> Enviando…</> : ultimo ? formulario.boton : <>Siguiente <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" strokeWidth={2.2} /></>}
           </button>
         </div>

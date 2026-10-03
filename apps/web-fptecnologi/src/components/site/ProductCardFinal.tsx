@@ -59,7 +59,7 @@ export function ProductCardFinal({
         </div>
 
         <div className="flex flex-col gap-1.5 p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-brand-primary">{product.brand}</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-brand-700">{product.brand}</p>
           <h3 className="line-clamp-2 min-h-[2.2rem] text-sm font-semibold text-ink">{product.name}</h3>
           <div className="mt-0.5 flex items-baseline gap-2 font-mono">
             <span className="text-base font-bold text-ink">{format(product.price)}</span>

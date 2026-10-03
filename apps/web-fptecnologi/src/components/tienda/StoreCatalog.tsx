@@ -171,7 +171,7 @@ export function StoreCatalog({
       {/* Hero de la tienda: mismo marco que el de la home (el Navbar9
           invisible reserva el lugar del encabezado fijo). */}
       <div className="bg-paper p-3 md:p-5">
-        <section className="relative overflow-hidden rounded-[1.25rem] bg-brand-dark text-white md:rounded-[2.25rem]">
+        <section className="relative overflow-hidden rounded-[1.25rem] bg-brand-primary text-white md:rounded-[2.25rem]">
           {/* Foto de fondo completa (escritorio con monitor) + degradado de
               marca: oscuro a la izquierda, donde va el texto. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -259,7 +259,7 @@ export function StoreCatalog({
         <aside className="hidden lg:block">
           <div className="sticky top-28 rounded-2xl border border-black/5 bg-white p-5 shadow-lg shadow-brand-dark/10">
             <p className="mb-5 flex items-center gap-2 font-display text-base font-bold text-ink">
-              <SlidersHorizontal className="h-4 w-4 text-brand-primary" strokeWidth={2} />
+              <SlidersHorizontal className="h-4 w-4 text-brand-700" strokeWidth={2} />
               Filtros
             </p>
             {filters}
@@ -310,7 +310,7 @@ export function StoreCatalog({
                   <X className="h-3.5 w-3.5" strokeWidth={2.4} />
                 </button>
               ))}
-              <button type="button" onClick={clearAll} className="px-2 text-xs font-semibold text-brand-primary hover:underline">
+              <button type="button" onClick={clearAll} className="px-2 text-xs font-semibold text-brand-700 hover:underline">
                 Limpiar todo
               </button>
             </div>
@@ -324,10 +324,10 @@ export function StoreCatalog({
             </div>
           ) : (
             <div className="mt-6 flex flex-col items-center rounded-2xl border border-dashed border-brand-dark/20 bg-white px-6 py-16 text-center">
-              <Search className="h-10 w-10 text-brand-primary/40" strokeWidth={1.5} />
+              <Search className="h-10 w-10 text-brand-700/40" strokeWidth={1.5} />
               <p className="mt-4 font-display text-lg font-bold text-ink">No encontramos productos con esos filtros</p>
               <p className="mt-1 text-sm text-ink/55">Prueba quitar algún filtro o buscar otra palabra.</p>
-              <button type="button" onClick={clearAll} className="mt-5 rounded-xl bg-brand-dark px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-primary">
+              <button type="button" onClick={clearAll} className="mt-5 rounded-xl bg-brand-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand-primary">
                 Limpiar filtros
               </button>
             </div>
@@ -341,7 +341,7 @@ export function StoreCatalog({
           <div className="animate-pop-in flex h-full w-[min(340px,88vw)] flex-col bg-white shadow-2xl shadow-brand-dark/30" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between border-b border-black/5 px-5 py-4">
               <p className="flex items-center gap-2 font-display text-base font-bold text-ink">
-                <SlidersHorizontal className="h-4 w-4 text-brand-primary" strokeWidth={2} />
+                <SlidersHorizontal className="h-4 w-4 text-brand-700" strokeWidth={2} />
                 Filtros
               </p>
               <button type="button" onClick={() => setDrawer(false)} aria-label="Cerrar filtros" className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-black/5">
@@ -350,7 +350,7 @@ export function StoreCatalog({
             </div>
             <div className="flex-1 overflow-y-auto p-5">{filters}</div>
             <div className="border-t border-black/5 p-4">
-              <button type="button" onClick={() => setDrawer(false)} className="h-11 w-full rounded-xl bg-brand-dark text-sm font-semibold text-white transition-colors hover:bg-brand-primary">
+              <button type="button" onClick={() => setDrawer(false)} className="h-11 w-full rounded-xl bg-brand-primary text-sm font-semibold text-white transition-colors hover:bg-brand-primary">
                 Ver {results.length} {results.length === 1 ? 'producto' : 'productos'}
               </button>
             </div>

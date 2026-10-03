@@ -100,7 +100,7 @@ export function CotizarServicioForm({ servicioSlug, servicioTitulo }: { servicio
         </div>
       </div>
       {error && <p role="alert" className="mt-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">{error}</p>}
-      <button type="submit" disabled={estado === 'enviando'} className="mt-6 inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand-dark px-7 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/25 transition-colors hover:bg-brand-primary disabled:opacity-60">
+      <button type="submit" disabled={estado === 'enviando'} className="mt-6 inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-brand-primary px-7 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/25 transition-colors hover:bg-brand-primary disabled:opacity-60">
         {estado === 'enviando' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" strokeWidth={2.2} />}
         Solicitar cotización
       </button>

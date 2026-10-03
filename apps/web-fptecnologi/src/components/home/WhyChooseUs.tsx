@@ -48,7 +48,7 @@ export function WhyChooseUs({ c = HOME_DEFAULTS.porque }: { c?: Encabezado & { i
                   >
                     0{i + 1}
                   </span>
-                  <span className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-brand-dark text-white shadow-lg shadow-brand-dark/40 transition-colors duration-300 group-hover:bg-brand-primary">
+                  <span className="relative flex h-12 w-12 items-center justify-center rounded-xl bg-brand-primary text-white shadow-lg shadow-brand-dark/40 transition-colors duration-300 group-hover:bg-brand-primary">
                     <Icon className="h-6 w-6" strokeWidth={1.8} />
                   </span>
                   <h3 className="relative mt-5 text-lg font-semibold text-white">{item.title}</h3>

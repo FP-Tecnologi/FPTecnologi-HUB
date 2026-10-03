@@ -18,7 +18,7 @@ export function PasosCompra({ actual }: { actual: 1 | 2 | 3 }) {
             <span
               className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border-2 transition-colors ${
                 hecho
-                  ? 'border-brand-dark bg-brand-dark text-white'
+                  ? 'border-brand-dark bg-brand-primary text-white'
                   : activo
                     ? 'border-brand-dark bg-white text-brand-dark shadow-lg shadow-brand-dark/20'
                     : 'border-ink/10 bg-white text-ink/35'
@@ -37,7 +37,7 @@ export function PasosCompra({ actual }: { actual: 1 | 2 | 3 }) {
               <span className="flex items-center gap-3">{contenido}</span>
             )}
             {i < PASOS.length - 1 && (
-              <span aria-hidden className={`mx-2 h-0.5 flex-1 rounded-full ${hecho ? 'bg-brand-dark' : 'bg-ink/10'}`} />
+              <span aria-hidden className={`mx-2 h-0.5 flex-1 rounded-full ${hecho ? 'bg-brand-primary' : 'bg-ink/10'}`} />
             )}
           </li>
         );

@@ -35,7 +35,7 @@ export function ServiceCardFinal({ item }: { item: ServicioTarjeta }) {
 
       {/* Ícono en la esquina superior izquierda, blanco sobre azul oscuro de
           marca (sólido); al hover pasa al azul principal. */}
-      <span className="absolute left-4 top-4 z-10 flex h-12 w-12 items-center justify-center rounded-xl border border-white/20 bg-brand-dark shadow-lg shadow-brand-dark/40 transition-colors duration-300 group-hover:bg-brand-primary">
+      <span className="absolute left-4 top-4 z-10 flex h-12 w-12 items-center justify-center rounded-xl border border-white/20 bg-brand-primary shadow-lg shadow-brand-dark/40 transition-colors duration-300 group-hover:bg-brand-primary">
         <Icon name={item.icon} className="icon-hop h-6 w-6 text-white" />
       </span>
 

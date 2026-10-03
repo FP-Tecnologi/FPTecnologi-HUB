@@ -65,7 +65,7 @@ export function Hero() {
               className="v1-appear v1-appear--mask block font-display text-4xl font-bold leading-[1.15] tracking-tight text-white sm:text-5xl"
               style={{ textShadow: '0 8px 40px rgba(6, 20, 33, 0.35)' }}
             >
-              {slide.titleLead} <span className="text-[#8fe0ee]">{slide.titleAccent}</span>
+              {slide.titleLead} <span className="text-brand-200">{slide.titleAccent}</span>
             </span>
           </h1>
 
@@ -132,7 +132,7 @@ export function Hero() {
               className="v1-appear v1-appear--up absolute -right-1 top-6 flex items-center gap-2.5 rounded-xl bg-white px-4 py-3 text-brand-dark shadow-xl"
               style={{ animationDelay: '640ms' }}
             >
-              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-primary/10 text-brand-primary">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-primary/10 text-brand-700">
                 <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4">
                   <path d="M12 3l7 3v6c0 4.4-3 8.3-7 9-4-.7-7-4.6-7-9V6l7-3Z" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
                   <path d="m9.5 12 1.8 1.8L15 10" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />

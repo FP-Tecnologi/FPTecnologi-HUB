@@ -8,7 +8,7 @@ export function SectionBadge({ children, tone = 'light' }: { children: ReactNode
   return (
     <span
       className={`relative mb-2 inline-flex w-fit items-center gap-2 rounded-xl border px-4 py-2 text-sm font-semibold uppercase tracking-wide backdrop-blur-md ${
-        tone === 'dark' ? 'border-white/20 bg-white/10 text-white' : 'border-brand-primary/20 bg-brand-primary/10 text-brand-primary'
+        tone === 'dark' ? 'border-white/20 bg-white/10 text-white' : 'border-brand-primary/20 bg-brand-primary/10 text-brand-700'
       }`}
     >
       <span className="spin-border spin-border--thin" aria-hidden />

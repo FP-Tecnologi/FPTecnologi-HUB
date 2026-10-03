@@ -47,7 +47,7 @@ export function CompareDock({
             type="button"
             onClick={() => setMinimized(false)}
             aria-label="Mostrar comparación"
-            className="flex items-center gap-3 bg-brand-dark px-4 py-2.5 text-white transition-colors hover:bg-brand-primary"
+            className="flex items-center gap-3 bg-brand-primary px-4 py-2.5 text-white transition-colors hover:bg-brand-primary"
           >
             <GitCompareArrows className="h-5 w-5 shrink-0" strokeWidth={2} />
             <span className="text-sm font-semibold">
@@ -56,7 +56,7 @@ export function CompareDock({
             <ChevronDown className="h-5 w-5 rotate-180" strokeWidth={2} />
           </button>
         ) : (
-          <div className="flex items-center gap-3 bg-brand-dark px-4 py-2.5 text-white">
+          <div className="flex items-center gap-3 bg-brand-primary px-4 py-2.5 text-white">
             <GitCompareArrows className="h-5 w-5 shrink-0" strokeWidth={2} />
             <p className="flex-1 text-sm font-semibold">
               Comparar productos <span className="font-normal text-white/60">({selected.length}/{MAX_COMPARE})</span>

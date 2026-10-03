@@ -174,7 +174,7 @@ export function CotizadorForm({ c, interesInicial }: { c: CotizadorContenido; in
         {c.gracias.botonTexto && (
           <a
             href={c.gracias.botonUrl || '/'}
-            className="mt-8 inline-flex h-12 items-center rounded-xl bg-brand-dark px-7 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-primary"
+            className="mt-8 inline-flex h-12 items-center rounded-xl bg-brand-primary px-7 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-primary"
           >
             {c.gracias.botonTexto}
           </a>
@@ -190,9 +190,9 @@ export function CotizadorForm({ c, interesInicial }: { c: CotizadorContenido; in
         {pasos.slice(0, 3).map((p, i) => (
           <li key={i} className="min-w-0">
             <div className="h-1.5 overflow-hidden rounded-full bg-ink/10">
-              <div className={`h-full rounded-full bg-brand-dark transition-all duration-500 ${i <= paso ? 'w-full' : 'w-0'}`} />
+              <div className={`h-full rounded-full bg-brand-primary transition-all duration-500 ${i <= paso ? 'w-full' : 'w-0'}`} />
             </div>
-            <span className={`mt-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide ${i <= paso ? 'text-brand-primary' : 'text-ink/35'}`}>
+            <span className={`mt-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide ${i <= paso ? 'text-brand-700' : 'text-ink/35'}`}>
               {i < paso ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : <span>{i + 1}</span>}
               <span className="hidden truncate sm:inline">{['Necesidad', 'Tus datos', 'Contacto'][i]}</span>
             </span>
@@ -237,14 +237,14 @@ export function CotizadorForm({ c, interesInicial }: { c: CotizadorContenido; in
                       onClick={() => set('interes', o.valor)}
                       style={{ animationDelay: `${Math.min(idx, 8) * 45}ms` }}
                       className={`cot-step group relative flex flex-col rounded-2xl border-2 p-4 text-left transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-brand-dark/15 active:scale-[0.98] ${
-                        activo ? 'border-brand-dark bg-brand-dark/[0.06] shadow-lg shadow-brand-dark/10' : 'border-ink/10 bg-white hover:border-brand-dark/50'
+                        activo ? 'border-brand-dark bg-brand-primary/[0.06] shadow-lg shadow-brand-dark/10' : 'border-ink/10 bg-white hover:border-brand-dark/50'
                       }`}
                     >
                       <span className="pr-7 text-sm font-bold text-ink">{o.title}</span>
                       <span className="mt-1 line-clamp-2 text-xs leading-relaxed text-ink/55">{o.text}</span>
                       <span
                         className={`absolute right-3 top-3 flex h-5 w-5 items-center justify-center rounded-full border-2 transition-all ${
-                          activo ? 'border-brand-dark bg-brand-dark text-white' : 'border-ink/20 text-transparent'
+                          activo ? 'border-brand-dark bg-brand-primary text-white' : 'border-ink/20 text-transparent'
                         }`}
                         aria-hidden
                       >
@@ -290,10 +290,10 @@ export function CotizadorForm({ c, interesInicial }: { c: CotizadorContenido; in
                         setErrores({});
                       }}
                       className={`flex items-center gap-3 rounded-2xl border-2 p-4 text-left transition-all duration-200 ${
-                        activo ? 'border-brand-dark bg-brand-dark/[0.06] shadow-lg shadow-brand-dark/10' : 'border-ink/10 bg-white hover:border-brand-dark/40'
+                        activo ? 'border-brand-dark bg-brand-primary/[0.06] shadow-lg shadow-brand-dark/10' : 'border-ink/10 bg-white hover:border-brand-dark/40'
                       }`}
                     >
-                      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${activo ? 'bg-brand-dark text-white' : 'bg-ink/5 text-ink/50'}`}>
+                      <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-colors ${activo ? 'bg-brand-primary text-white' : 'bg-ink/5 text-ink/50'}`}>
                         <Icon className="h-5 w-5" strokeWidth={1.8} />
                       </span>
                       <span className="min-w-0">
@@ -395,7 +395,7 @@ export function CotizadorForm({ c, interesInicial }: { c: CotizadorContenido; in
           <button
             type="submit"
             disabled={enviando}
-            className="inline-flex h-12 min-w-40 items-center justify-center gap-2 rounded-xl bg-brand-dark px-7 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/25 transition-colors hover:bg-brand-primary disabled:opacity-60"
+            className="inline-flex h-12 min-w-40 items-center justify-center gap-2 rounded-xl bg-brand-primary px-7 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/25 transition-colors hover:bg-brand-primary disabled:opacity-60"
           >
             {enviando ? (
               <>

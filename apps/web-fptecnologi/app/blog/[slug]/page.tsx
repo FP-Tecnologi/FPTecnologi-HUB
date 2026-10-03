@@ -90,19 +90,19 @@ export default async function ArticuloPage({ params }: { params: Promise<{ slug:
           <div className="min-w-0 space-y-8">
             <article id="articulo" className="rounded-2xl bg-white p-7 shadow-lg shadow-brand-dark/10 sm:p-10">
               <div className="mb-8 flex flex-wrap items-center gap-x-5 gap-y-2 border-b border-brand-dark/10 pb-6 text-sm text-ink/55">
-                <a href={`/blog?categoria=${encodeURIComponent(a.categoria)}`} className="rounded-lg bg-brand-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-brand-primary transition-colors hover:bg-brand-primary hover:text-white">
+                <a href={`/blog?categoria=${encodeURIComponent(a.categoria)}`} className="rounded-lg bg-brand-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-brand-700 transition-colors hover:bg-brand-primary hover:text-white">
                   {a.categoria}
                 </a>
                 <span className="flex items-center gap-1.5">
-                  <UserRound className="h-4 w-4 text-brand-primary" strokeWidth={2} />
+                  <UserRound className="h-4 w-4 text-brand-700" strokeWidth={2} />
                   {a.autorNombre}
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <CalendarDays className="h-4 w-4 text-brand-primary" strokeWidth={2} />
+                  <CalendarDays className="h-4 w-4 text-brand-700" strokeWidth={2} />
                   {fechaLarga(a.publicadoEn)}
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <Clock className="h-4 w-4 text-brand-primary" strokeWidth={2} />
+                  <Clock className="h-4 w-4 text-brand-700" strokeWidth={2} />
                   {minutosLectura(a.contenido)} min de lectura
                 </span>
               </div>
@@ -110,12 +110,12 @@ export default async function ArticuloPage({ params }: { params: Promise<{ slug:
               <div className="blog-prose" dangerouslySetInnerHTML={{ __html: markdownToHtml(a.contenido) }} />
               {a.etiquetas.length > 0 && (
                 <div className="mt-10 flex flex-wrap items-center gap-2 border-t border-brand-dark/10 pt-6">
-                  <Tag className="h-4 w-4 text-brand-primary" strokeWidth={2} />
+                  <Tag className="h-4 w-4 text-brand-700" strokeWidth={2} />
                   {a.etiquetas.map((t) => (
                     <a
                       key={t}
                       href={`/blog?etiqueta=${encodeURIComponent(t)}`}
-                      className="rounded-md bg-brand-primary/10 px-2.5 py-1 text-xs font-semibold text-brand-primary transition-colors hover:bg-brand-primary hover:text-white"
+                      className="rounded-md bg-brand-primary/10 px-2.5 py-1 text-xs font-semibold text-brand-700 transition-colors hover:bg-brand-primary hover:text-white"
                     >
                       #{t}
                     </a>
@@ -130,7 +130,7 @@ export default async function ArticuloPage({ params }: { params: Promise<{ slug:
                 {a.autorNombre.trim().charAt(0).toUpperCase() || 'F'}
               </span>
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-brand-primary">Escrito por</p>
+                <p className="text-xs font-semibold uppercase tracking-[0.15em] text-brand-700">Escrito por</p>
                 <p className="font-display text-lg font-bold text-ink">{a.autorNombre}</p>
                 <p className="text-sm text-ink/55">Equipo de FPTecnologi · soluciones TI para empresas e instituciones del Perú.</p>
               </div>
@@ -141,10 +141,10 @@ export default async function ArticuloPage({ params }: { params: Promise<{ slug:
               <nav aria-label="Más artículos" className="grid gap-4 sm:grid-cols-2">
                 {anterior ? (
                   <a href={`/blog/${anterior.slug}`} className="group flex items-center gap-3 rounded-2xl bg-white p-5 shadow-lg shadow-brand-dark/10 transition-all hover:-translate-y-1 hover:shadow-xl">
-                    <ArrowLeft className="h-5 w-5 shrink-0 text-brand-primary transition-transform group-hover:-translate-x-1" strokeWidth={2} />
+                    <ArrowLeft className="h-5 w-5 shrink-0 text-brand-700 transition-transform group-hover:-translate-x-1" strokeWidth={2} />
                     <span className="min-w-0">
                       <span className="block text-xs font-semibold uppercase tracking-wide text-ink/45">Anterior</span>
-                      <span className="line-clamp-2 font-display font-bold leading-snug text-ink group-hover:text-brand-primary">{anterior.titulo}</span>
+                      <span className="line-clamp-2 font-display font-bold leading-snug text-ink group-hover:text-brand-700">{anterior.titulo}</span>
                     </span>
                   </a>
                 ) : <span />}
@@ -152,9 +152,9 @@ export default async function ArticuloPage({ params }: { params: Promise<{ slug:
                   <a href={`/blog/${siguiente.slug}`} className="group flex items-center justify-end gap-3 rounded-2xl bg-white p-5 text-right shadow-lg shadow-brand-dark/10 transition-all hover:-translate-y-1 hover:shadow-xl">
                     <span className="min-w-0">
                       <span className="block text-xs font-semibold uppercase tracking-wide text-ink/45">Siguiente</span>
-                      <span className="line-clamp-2 font-display font-bold leading-snug text-ink group-hover:text-brand-primary">{siguiente.titulo}</span>
+                      <span className="line-clamp-2 font-display font-bold leading-snug text-ink group-hover:text-brand-700">{siguiente.titulo}</span>
                     </span>
-                    <ArrowRight className="h-5 w-5 shrink-0 text-brand-primary transition-transform group-hover:translate-x-1" strokeWidth={2} />
+                    <ArrowRight className="h-5 w-5 shrink-0 text-brand-700 transition-transform group-hover:translate-x-1" strokeWidth={2} />
                   </a>
                 ) : <span />}
               </nav>
@@ -175,7 +175,7 @@ export default async function ArticuloPage({ params }: { params: Promise<{ slug:
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={r.portadaUrl || PORTADA_DEFECTO} alt="" className="h-16 w-20 shrink-0 rounded-lg object-cover" />
                         <span className="min-w-0">
-                          <span className="line-clamp-2 text-sm font-semibold leading-snug text-ink transition-colors group-hover:text-brand-primary">{r.titulo}</span>
+                          <span className="line-clamp-2 text-sm font-semibold leading-snug text-ink transition-colors group-hover:text-brand-700">{r.titulo}</span>
                           <span className="mt-1 block text-xs text-ink/45">{fechaLarga(r.publicadoEn)}</span>
                         </span>
                       </a>
@@ -191,7 +191,7 @@ export default async function ArticuloPage({ params }: { params: Promise<{ slug:
                 <ul className="mt-4 space-y-1.5 text-sm">
                   {categorias.map(([c, n]) => (
                     <li key={c}>
-                      <a href={`/blog?categoria=${encodeURIComponent(c)}`} className={`flex items-center justify-between rounded-lg px-3 py-2 transition-colors hover:bg-paper hover:text-brand-primary ${c === a.categoria ? 'bg-brand-primary/10 font-semibold text-brand-primary' : 'text-ink/70'}`}>
+                      <a href={`/blog?categoria=${encodeURIComponent(c)}`} className={`flex items-center justify-between rounded-lg px-3 py-2 transition-colors hover:bg-paper hover:text-brand-700 ${c === a.categoria ? 'bg-brand-primary/10 font-semibold text-brand-700' : 'text-ink/70'}`}>
                         {c}
                         <span className="rounded-md bg-ink/5 px-2 py-0.5 text-xs font-semibold text-ink/55">{n}</span>
                       </a>
@@ -206,7 +206,7 @@ export default async function ArticuloPage({ params }: { params: Promise<{ slug:
                 <p className={tituloLateral}>Etiquetas{barra}</p>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {etiquetas.map(([t]) => (
-                    <a key={t} href={`/blog?etiqueta=${encodeURIComponent(t)}`} className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors hover:bg-brand-primary hover:text-white ${a.etiquetas.includes(t) ? 'bg-brand-primary/15 text-brand-primary' : 'bg-paper text-ink/65'}`}>
+                    <a key={t} href={`/blog?etiqueta=${encodeURIComponent(t)}`} className={`rounded-md px-2.5 py-1 text-xs font-semibold transition-colors hover:bg-brand-primary hover:text-white ${a.etiquetas.includes(t) ? 'bg-brand-primary/15 text-brand-700' : 'bg-paper text-ink/65'}`}>
                       #{t}
                     </a>
                   ))}

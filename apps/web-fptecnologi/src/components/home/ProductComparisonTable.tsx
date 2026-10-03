@@ -48,13 +48,13 @@ export function ProductComparisonTable({
                     </button>
                   )}
                 </div>
-                <p className="text-[10px] font-semibold uppercase text-brand-primary">{p.brand}</p>
+                <p className="text-[10px] font-semibold uppercase text-brand-700">{p.brand}</p>
                 <p className="mx-auto mt-0.5 line-clamp-2 max-w-[11rem] text-xs font-medium text-ink">{p.name}</p>
               </th>
             ))}
             {Array.from({ length: empty }).map((_, i) => (
               <th key={`empty-${i}`} className="p-3 text-center">
-                <div className="mx-auto mb-2 flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-brand-primary/30 text-[11px] font-medium text-brand-primary/50">
+                <div className="mx-auto mb-2 flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-brand-primary/30 text-[11px] font-medium text-brand-700/50">
                   Libre
                 </div>
                 <p className="text-xs text-ink/35">Elige otro producto</p>
@@ -84,7 +84,7 @@ export function ProductComparisonTable({
           <tr className="border-t border-black/5">
             <th className="pl-4 text-left text-xs font-medium text-ink/45">Descuento</th>
             {products.map((p) => (
-              <td key={p.sku} className="font-mono text-xs font-semibold text-brand-primary">
+              <td key={p.sku} className="font-mono text-xs font-semibold text-brand-700">
                 {discountOf(p) ? `-${discountOf(p)}%` : '—'}
               </td>
             ))}

@@ -77,17 +77,17 @@ export function ProductCategories({ c = HOME_DEFAULTS.categorias }: { c?: Encabe
                     sizes="(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw"
                     className="object-cover transition-transform duration-500 group-hover:scale-110"
                   />
-                  <span className="absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-xl border border-white/20 bg-brand-dark text-white shadow-lg shadow-brand-dark/40 transition-colors duration-300 group-hover:bg-brand-primary">
+                  <span className="absolute left-4 top-4 flex h-11 w-11 items-center justify-center rounded-xl border border-white/20 bg-brand-primary text-white shadow-lg shadow-brand-dark/40 transition-colors duration-300 group-hover:bg-brand-primary">
                     <Icon className="h-5 w-5" strokeWidth={1.8} />
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between gap-3 p-5">
                   <div>
-                    <p className="text-xs font-semibold uppercase tracking-wide text-brand-primary">Categoría</p>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">Categoría</p>
                     <h3 className="mt-1 text-lg font-semibold text-ink">{c.title}</h3>
                   </div>
-                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-dark/10 text-brand-dark transition-all duration-300 group-hover:rotate-45 group-hover:bg-brand-primary group-hover:text-white">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-dark transition-all duration-300 group-hover:rotate-45 group-hover:bg-brand-primary group-hover:text-white">
                     <ArrowUpRight className="h-5 w-5" strokeWidth={2} />
                   </span>
                 </div>

@@ -31,8 +31,8 @@ export function LegalLayout({
               <ol className="mt-4 space-y-2 text-sm">
                 {indice.map((s, i) => (
                   <li key={s.id}>
-                    <a href={`#${s.id}`} className="flex gap-2 text-ink/65 transition-colors hover:text-brand-primary">
-                      <span className="font-semibold text-brand-primary">{String(i + 1).padStart(2, '0')}</span>
+                    <a href={`#${s.id}`} className="flex gap-2 text-ink/65 transition-colors hover:text-brand-700">
+                      <span className="font-semibold text-brand-700">{String(i + 1).padStart(2, '0')}</span>
                       {s.titulo}
                     </a>
                   </li>
@@ -54,7 +54,7 @@ export function LegalLayout({
                       href={l.href}
                       aria-current={on ? 'page' : undefined}
                       className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                        on ? 'bg-brand-primary text-white shadow-md shadow-brand-dark/25' : 'text-ink/70 hover:bg-paper hover:text-brand-primary'
+                        on ? 'bg-brand-primary text-white shadow-md shadow-brand-dark/25' : 'text-ink/70 hover:bg-paper hover:text-brand-700'
                       }`}
                     >
                       <FileText className="h-4 w-4 shrink-0" strokeWidth={1.8} />

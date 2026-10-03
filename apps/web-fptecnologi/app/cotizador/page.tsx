@@ -62,7 +62,7 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
           <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[22rem_1fr] lg:items-center xl:grid-cols-[24rem_1fr]">
             <ScrollReveal direction="left" className="order-2 lg:order-1">
               <aside className="relative overflow-hidden rounded-3xl bg-brand-primary p-7 text-white shadow-2xl shadow-brand-dark/30 sm:p-8">
-                <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-dark/40 blur-3xl" />
+                <div aria-hidden className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-primary/40 blur-3xl" />
                 <div aria-hidden className="pointer-events-none absolute -bottom-20 -left-10 h-56 w-56 rounded-full bg-brand-teal/30 blur-3xl" />
                 <div className="relative">
                   <SectionBadge tone="dark">{c.hero.badge}</SectionBadge>
@@ -75,7 +75,7 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
                       const Icon = ICONOS[i % ICONOS.length];
                       return (
                         <li key={i} className="group hover-slide flex gap-4 rounded-xl" style={{ animation: 'pagina-entra 0.6s cubic-bezier(0.22,1,0.36,1) both', animationDelay: `${200 + i * 120}ms` }}>
-                          <span className="icon-pop flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-dark text-white shadow-lg shadow-black/30">
+                          <span className="icon-pop flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-primary text-white shadow-lg shadow-black/30">
                             <Icon className="h-5 w-5" strokeWidth={1.8} />
                           </span>
                           <div>

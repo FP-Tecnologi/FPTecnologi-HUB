@@ -21,7 +21,7 @@ export function CartView() {
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-xl rounded-3xl border border-ink/5 bg-white p-10 text-center shadow-xl shadow-brand-dark/10 sm:p-14">
-        <span className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-brand-primary/10 text-brand-primary">
+        <span className="mx-auto flex h-20 w-20 items-center justify-center rounded-2xl bg-brand-primary/10 text-brand-700">
           <ShoppingBag className="h-10 w-10" strokeWidth={1.6} />
         </span>
         <h2 className="mt-6 font-display text-2xl font-bold text-ink">Tu carrito está vacío</h2>
@@ -100,7 +100,7 @@ export function CartView() {
           <div className="grid gap-4 sm:grid-cols-3">
             {GARANTIAS.map(({ Icon, titulo, texto }) => (
               <div key={titulo} className="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-md shadow-brand-dark/10">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-primary">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-primary/10 text-brand-700">
                   <Icon className="h-5 w-5" strokeWidth={1.9} />
                 </span>
                 <span>
@@ -135,7 +135,7 @@ export function CartView() {
 
           <div className="rounded-2xl bg-white p-5 shadow-md shadow-brand-dark/10">
             <p className="flex items-start gap-2 text-sm text-ink/65">
-              <Lock className="mt-0.5 h-4 w-4 shrink-0 text-brand-primary" strokeWidth={2} />
+              <Lock className="mt-0.5 h-4 w-4 shrink-0 text-brand-700" strokeWidth={2} />
               No se cobra nada en línea: un asesor confirma el pago y la entrega contigo por WhatsApp.
             </p>
             <p className="mt-3 flex items-center gap-3 text-xs font-semibold text-ink/50">
@@ -145,7 +145,7 @@ export function CartView() {
             </p>
           </div>
 
-          <a href="/cotizador" className="block rounded-2xl border border-brand-dark/20 bg-brand-primary/5 p-4 text-center text-sm font-semibold text-brand-primary transition-colors hover:bg-brand-primary hover:text-white">
+          <a href="/cotizador" className="block rounded-2xl border border-brand-dark/20 bg-brand-primary/5 p-4 text-center text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-primary hover:text-white">
             ¿Compras en volumen? Cotiza este pedido
           </a>
         </aside>
@@ -158,7 +158,7 @@ export function CartView() {
             <p className="text-xs text-ink/50">Total con IGV</p>
             <p className="font-display text-xl font-bold text-ink">{format(total)}</p>
           </div>
-          <a href="/checkout" className="inline-flex h-12 items-center rounded-xl bg-brand-dark px-6 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-primary">
+          <a href="/checkout" className="inline-flex h-12 items-center rounded-xl bg-brand-primary px-6 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-primary">
             Finalizar compra
           </a>
         </div>

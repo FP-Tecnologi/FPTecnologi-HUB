@@ -70,12 +70,12 @@ export function LibroReclamacionesForm() {
   if (codigo) {
     return (
       <div className="flex flex-col items-center py-10 text-center">
-        <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-whatsapp text-white shadow-lg shadow-whatsapp/30">
+        <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-whatsapp-dark text-white shadow-lg shadow-whatsapp/30">
           <CheckCircle2 className="h-7 w-7" strokeWidth={2} />
         </span>
         <h2 className="mt-5 font-display text-2xl font-bold text-ink">Registramos tu hoja de reclamación</h2>
         <p className="mt-2 max-w-md text-ink/65">
-          Tu código es <span className="font-bold text-brand-primary">{codigo}</span>. Guárdalo: te responderemos en un plazo máximo de 15 días hábiles.
+          Tu código es <span className="font-bold text-brand-700">{codigo}</span>. Guárdalo: te responderemos en un plazo máximo de 15 días hábiles.
         </p>
       </div>
     );
@@ -131,7 +131,7 @@ export function LibroReclamacionesForm() {
         <button
           type="submit"
           disabled={enviando}
-          className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-brand-dark px-6 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/30 transition-colors hover:bg-brand-primary disabled:opacity-50"
+          className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-brand-primary px-6 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/30 transition-colors hover:bg-brand-primary disabled:opacity-50"
         >
           <Send className="h-4 w-4" strokeWidth={2} />
           {enviando ? 'Enviando…' : 'Enviar hoja de reclamación'}

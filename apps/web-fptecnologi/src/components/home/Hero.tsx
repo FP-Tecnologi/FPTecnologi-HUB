@@ -394,7 +394,7 @@ function AskAiCard() {
         <button
           type="submit"
           aria-label="Preguntar a la IA"
-          className="group flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-brand-dark text-white transition-[transform,background-color] hover:scale-105 hover:bg-brand-primary active:scale-95"
+          className="group flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-brand-primary text-white transition-[transform,background-color] hover:scale-105 hover:bg-brand-primary active:scale-95"
         >
           <span className="relative flex h-5 w-5 items-center justify-center">
             <ArrowUpRightIcon
