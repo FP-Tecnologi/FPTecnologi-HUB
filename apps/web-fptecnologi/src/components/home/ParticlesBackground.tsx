@@ -22,11 +22,11 @@ export function ParticlesBackground() {
       fpsLimit: 60,
       particles: {
         number: { value: 70, density: { enable: true, width: 1200, height: 800 } },
-        color: { value: '#ffffff' },
+        color: { value: '#47a9f5' },
         shape: { type: 'circle' },
         opacity: { value: 0.5 },
         size: { value: { min: 1, max: 3 } },
-        links: { enable: true, distance: 150, color: '#b7ddfa', opacity: 0.35, width: 1 },
+        links: { enable: true, distance: 150, color: '#1992f0', opacity: 0.5, width: 1 },
         move: { enable: true, speed: 1.2, direction: 'none', random: false, straight: false, outModes: { default: 'out' } },
       },
       interactivity: {
