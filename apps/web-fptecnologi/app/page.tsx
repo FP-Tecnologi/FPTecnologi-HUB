@@ -2,6 +2,7 @@ import { BrandMarquee } from '@/components/home/BrandMarquee';
 import { Contact } from '@/components/home/Contact';
 import { Footer } from '@/components/home/Footer';
 import { Hero } from '@/components/home/Hero';
+import { PartnerLevels } from '@/components/home/PartnerLevels';
 import { Nosotros } from '@/components/home/Nosotros';
 import { NuestrosClientes } from '@/components/home/NuestrosClientes';
 import { NuestrosProyectos } from '@/components/home/NuestrosProyectos';
@@ -57,6 +58,7 @@ export default async function HomePage() {
     <>
       <main>
         {c.hero.visible && <Hero slides={c.hero.slides} />}
+        <PartnerLevels />
         {c.nosotros.visible && <Nosotros c={c.nosotros} />}
         {c.servicios.visible && <Solutions c={c.servicios} />}
         {c.porque.visible && <WhyChooseUs c={c.porque} />}
