@@ -16,9 +16,9 @@ const SECTOR_ICONS: Record<ClientSector['key'], LucideIcon> = {
 /*
  * "Nuestros clientes" -- clientes por sector (referencia: tactical-it.pe),
  * en 3 cajas: Sector gobierno arriba a lo ancho y, debajo, Educación y
- * Sector privado lado a lado. Sección blanca, cajas azul oscuro de marca, y
- * dentro de cada caja los logos se desplazan en bucle (marquesina, se pausa
- * al pasar el cursor). Clientes de ejemplo en lib/clients.ts.
+ * Sector privado lado a lado. Sección blanca; en cada sector las tarjetas
+ * blancas (logo + nombre) se desplazan en bucle (marquesina, se pausa al pasar
+ * el cursor; al hover la tarjeta sube con sombra azul primaria). Clientes de ejemplo en lib/clients.ts.
  */
 export function NuestrosClientes({ c = HOME_DEFAULTS.clientes, sectors = CLIENT_SECTORS }: { c?: Encabezado; sectors?: ClientSector[] }) {
   const [gobierno, ...resto] = sectors;
@@ -66,16 +66,16 @@ function SectorBox({ sector }: { sector: ClientSector }) {
   return (
     <div>
       {/* Etiqueta del sector + línea. */}
-      <div className="mb-4 flex items-center gap-3 text-brand-dark">
+      <div className="mb-4 flex items-center gap-3 text-brand-700">
         <Icon className="h-5 w-5 shrink-0" strokeWidth={1.8} />
         <p className="text-sm font-bold uppercase tracking-[0.2em]">{sector.label}</p>
         <span className="h-px flex-1 bg-brand-primary/15" />
       </div>
 
-      <div className="group/box relative overflow-hidden rounded-2xl bg-brand-primary py-7 shadow-xl shadow-brand-dark/25">
-        {/* Degradé en los bordes para que los logos entren/salgan suave. */}
-        <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-brand-dark to-transparent" />
-        <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-brand-dark to-transparent" />
+      <div className="relative overflow-hidden py-4">
+        {/* Degradé en los bordes para que las tarjetas entren/salgan suave. */}
+        <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-white to-transparent" />
+        <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-white to-transparent" />
 
         <div
           className="animate-marquee flex w-max gap-4"
@@ -84,19 +84,25 @@ function SectorBox({ sector }: { sector: ClientSector }) {
           onMouseLeave={() => setPaused(false)}
         >
           {track.map((c, i) => (
-            <div key={`${c.name}-${i}`} aria-hidden={i >= sector.clients.length} className="group flex w-32 shrink-0 flex-col items-center gap-3 text-center">
-              <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl bg-white shadow-md shadow-black/20 transition-transform duration-300 group-hover:-translate-y-1 group-hover:scale-105">
+            <div
+              key={`${c.name}-${i}`}
+              aria-hidden={i >= sector.clients.length}
+              className="group flex w-44 shrink-0 flex-col items-center gap-3 rounded-2xl border border-brand-100 bg-white p-4 text-center shadow-sm shadow-brand-950/5 transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-300 hover:shadow-[0_18px_36px_-10px_rgba(16,122,204,0.45)]"
+            >
+              <div className="flex h-16 w-full items-center justify-center">
                 {c.logo ? (
-                  <img src={c.logo} alt={c.name} className="h-full w-full object-contain p-2" />
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={c.logo} alt={c.name} className="max-h-full max-w-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-110" />
                 ) : (
-                  // Logo provisional: ícono del sector + iniciales.
-                  <span className="flex flex-col items-center leading-none text-brand-dark">
-                    <Icon className="mb-1 h-4 w-4 text-brand-700" strokeWidth={2} />
-                    <span className="font-display text-sm font-bold">{c.short}</span>
+                  // Logo de ejemplo: monograma (ícono del sector + siglas) en círculo azul.
+                  <span className="flex h-16 w-16 flex-col items-center justify-center rounded-full bg-gradient-to-br from-brand-primary to-brand-700 leading-none text-white shadow-md shadow-brand-950/20 transition-transform duration-500 group-hover:scale-110">
+                    <Icon className="mb-0.5 h-4 w-4 text-white/90" strokeWidth={2} />
+                    <span className="font-display text-sm font-bold tracking-wide">{c.short}</span>
                   </span>
                 )}
               </div>
-              <p className="line-clamp-2 px-1 text-xs font-semibold uppercase tracking-wide text-white/80">{c.name}</p>
+              <span aria-hidden className="block h-0.5 w-8 rounded-full bg-brand-primary/40 transition-all duration-500 group-hover:w-14 group-hover:bg-brand-primary" />
+              <p className="line-clamp-2 min-h-8 text-xs font-semibold uppercase leading-snug tracking-wide text-ink/75">{c.name}</p>
             </div>
           ))}
         </div>

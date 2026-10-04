@@ -100,11 +100,11 @@ export default async function NosotrosPage() {
           </div>
         </section>
 
-        <WhyChooseUs />
         <CertificacionesISO />
         <PartnerLevels conTitulo />
         <BrandMarquee />
         <NuestrosClientes sectors={clientes} />
+        <WhyChooseUs />
         <Contact />
       </main>
       <Footer />

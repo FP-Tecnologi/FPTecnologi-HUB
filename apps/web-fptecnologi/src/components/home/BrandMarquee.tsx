@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { PARTNER_BRANDS, brandSlug } from '@/lib/content';
 import { ScrollReveal } from './ScrollReveal';
+import { SectionBadge } from './SectionBadge';
 
 export function BrandMarquee({ showLabel = true }: { showLabel?: boolean }) {
   // 3 copias (antes 2) -- con solo 13 marcas, duplicar una vez hace que la
@@ -20,20 +21,14 @@ export function BrandMarquee({ showLabel = true }: { showLabel?: boolean }) {
     // para que no se sienta como un bloque blanco puro distinto del resto.
     <section id="marcas" className="bg-paper py-3">
       {showLabel && (
-        <p className="mx-auto mb-6 max-w-7xl px-6 text-center text-xs font-semibold uppercase tracking-widest text-ink/65">
-          Distribución autorizada de las principales marcas
-        </p>
+        <div className="mx-auto mb-8 flex max-w-4xl flex-col items-center px-6 text-center">
+          <SectionBadge>Distribución autorizada</SectionBadge>
+          <h2 className="mt-2 font-display text-2xl font-bold leading-tight sm:text-3xl">
+            <span className="text-ink">Las principales marcas,</span> <span className="title-shimmer-light">con respaldo oficial</span>
+          </h2>
+          <p className="mt-3 text-ink/65">Equipos originales con garantía de fabricante y soporte local.</p>
+        </div>
       )}
-      {/* `overflow-hidden` normal (no partido en x/y) -- mezclar
-          overflow-x-hidden con overflow-y-visible seguía recortando la
-          sombra del hover en algunos casos (el eje "visible" se computa como
-          "auto" en la práctica, no queda 100% libre). En vez de eso: mismo
-          recorte de siempre en las 2 direcciones, pero con padding vertical
-          de sobra para que la sombra del hover entre completa sin tocar los
-          bordes del contenedor -- pero sí necesita algo (py-2 se quedaba
-          corto y la sombra se veía cortada abajo con un borde duro). Abajo
-          (pb-6) se quedó como estaba porque ya entraba bien la sombra;
-          arriba (pt-3) un poco menos, se sentía con de más aire de sobra. */}
       {/* Entrada/salida con el scroll (fade + subida), igual que Nosotros. */}
       <ScrollReveal direction="up">
       <div className="relative overflow-hidden pb-6 pt-3">
