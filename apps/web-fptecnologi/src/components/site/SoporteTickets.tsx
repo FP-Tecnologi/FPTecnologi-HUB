@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { Building2, FileWarning, ImagePlus, PackageSearch, User, Wrench, X, type LucideIcon } from 'lucide-react';
+import { Building2, FileText, FileWarning, ImagePlus, PackageSearch, User, Wrench, X, type LucideIcon } from 'lucide-react';
 import { ArrowUpRightIcon } from '@/components/site/icons';
 import { ScrollReveal } from '@/components/home/ScrollReveal';
 import { SectionBadge } from '@/components/home/SectionBadge';
@@ -14,10 +14,10 @@ const CASOS: Caso[] = [
   { id: 'soporte', titulo: 'Soporte técnico', texto: 'Falla o consulta técnica sobre un producto adquirido.', pruebas: 'fotos o capturas de la falla, y del equipo con su modelo o número de serie', icono: Wrench },
 ];
 
-const MAX_EVIDENCIAS = 3;
-const MAX_MB = 5;
+const MAX_EVIDENCIAS = 8;
+const MAX_MB = 10;
 
-type Evidencia = { id: string; nombre: string; url: string };
+type Evidencia = { id: string; nombre: string; url: string; pdf: boolean };
 
 const campo =
   'mt-1.5 w-full rounded-xl border border-brand-200 bg-white px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-ink/55 focus:border-brand-primary';
@@ -68,12 +68,13 @@ export function SoporteTickets() {
     if (!files?.length) return;
     setError('');
     const libres = MAX_EVIDENCIAS - evidencias.length;
-    if (libres <= 0) return setError(`Puedes adjuntar hasta ${MAX_EVIDENCIAS} fotos.`);
+    if (libres <= 0) return setError(`Puedes adjuntar hasta ${MAX_EVIDENCIAS} archivos.`);
     setSubiendo(true);
     try {
       for (const f of Array.from(files).slice(0, libres)) {
-        if (!f.type.startsWith('image/')) {
-          setError('Solo se pueden adjuntar imágenes (JPG, PNG, WEBP).');
+        const esPdf = f.type === 'application/pdf';
+        if (!esPdf && !f.type.startsWith('image/')) {
+          setError('Solo se pueden adjuntar fotos (JPG, PNG, WEBP) o PDF.');
           continue;
         }
         if (f.size > MAX_MB * 1024 * 1024) {
@@ -84,7 +85,7 @@ export function SoporteTickets() {
         fd.append('archivo', f);
         const res = await fetch('/api/evidencia', { method: 'POST', body: fd });
         const data = await res.json().catch(() => ({}));
-        if (res.ok && data.url) setEvidencias((prev) => [...prev, { id: `${Date.now()}-${f.name}`, nombre: f.name, url: data.url }]);
+        if (res.ok && data.url) setEvidencias((prev) => [...prev, { id: `${Date.now()}-${f.name}`, nombre: f.name, url: data.url, pdf: esPdf }]);
         else setError(data.error || `No pudimos subir "${f.name}".`);
       }
     } finally {
@@ -289,12 +290,19 @@ export function SoporteTickets() {
                   </div>
 
                   <div>
-                    <p className="text-sm font-medium text-ink/80">Evidencia (fotos, hasta {MAX_EVIDENCIAS})</p>
+                    <p className="text-sm font-medium text-ink/80">Evidencia (fotos o PDF, hasta {MAX_EVIDENCIAS} archivos)</p>
                     <div className="mt-1.5 flex flex-wrap gap-3">
                       {evidencias.map((x) => (
                         <div key={x.id} className="relative h-20 w-20 overflow-hidden rounded-xl border border-brand-200">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img src={x.url} alt={x.nombre} className="h-full w-full object-cover" />
+                          {x.pdf ? (
+                            <a href={x.url} target="_blank" rel="noreferrer" title={x.nombre} className="flex h-full w-full flex-col items-center justify-center gap-1 bg-brand-50 px-1 text-center text-[10px] font-semibold leading-tight text-brand-700">
+                              <FileText className="h-6 w-6" strokeWidth={1.8} />
+                              <span className="line-clamp-2 break-all">{x.nombre}</span>
+                            </a>
+                          ) : (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={x.url} alt={x.nombre} className="h-full w-full object-cover" />
+                          )}
                           <button type="button" onClick={() => setEvidencias((prev) => prev.filter((e) => e.id !== x.id))} aria-label={`Quitar ${x.nombre}`} className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-ink/70 text-white transition-colors hover:bg-red-600">
                             <X className="h-3 w-3" strokeWidth={2.5} />
                           </button>
@@ -307,8 +315,8 @@ export function SoporteTickets() {
                         </button>
                       )}
                     </div>
-                    <input ref={inputFile} type="file" accept="image/*" multiple className="sr-only" onChange={(e) => agregarArchivos(e.target.files)} aria-label="Agregar fotos de evidencia" />
-                    <p className="mt-1.5 text-xs text-ink/65">JPG, PNG o WEBP, máximo {MAX_MB} MB cada una.</p>
+                    <input ref={inputFile} type="file" accept="image/*,application/pdf" multiple className="sr-only" onChange={(e) => agregarArchivos(e.target.files)} aria-label="Agregar fotos o PDF de evidencia" />
+                    <p className="mt-1.5 text-xs text-ink/65">JPG, PNG, WEBP o PDF, máximo {MAX_MB} MB cada archivo.</p>
                   </div>
                 </>
               )}
@@ -330,7 +338,7 @@ export function SoporteTickets() {
                 <p className="flex items-start gap-2 rounded-xl bg-brand-50 p-3 text-xs leading-relaxed text-ink/75">
                   <ImagePlus className="mt-0.5 h-4 w-4 shrink-0 text-brand-primary" strokeWidth={2} />
                   <span>
-                    En el siguiente paso podrás adjuntar pruebas (hasta 3 fotos): <strong className="text-ink">{actual.pruebas}</strong>.
+                    En el siguiente paso podrás adjuntar pruebas (fotos o PDF, hasta {MAX_EVIDENCIAS} archivos): <strong className="text-ink">{actual.pruebas}</strong>.
                   </span>
                 </p>
               )}

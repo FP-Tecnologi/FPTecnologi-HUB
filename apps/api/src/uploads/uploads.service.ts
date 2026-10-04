@@ -4,6 +4,8 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 
 export const MAX_BYTES = 5 * 1024 * 1024;
+/** Evidencias de tickets (web pública): imágenes o PDF, hasta 10 MB. */
+export const MAX_BYTES_EVIDENCIA = 10 * 1024 * 1024;
 
 /** Carpeta donde se guardan las imágenes subidas. En cPanel debe estar FUERA de la carpeta que se reemplaza al desplegar. */
 export const uploadsDir = () => resolve(process.cwd(), process.env.UPLOADS_DIR ?? 'uploads'); // acepta ruta relativa o absoluta
@@ -19,7 +21,7 @@ export function tipoImagen(b: Buffer): { ext: string } | null {
 
 // Tope por IP+marca para la subida pública de evidencias (el throttler global está deshabilitado).
 const VENTANA_MS = 10 * 60_000;
-const MAX_POR_VENTANA = 12;
+const MAX_POR_VENTANA = 30;
 const intentos = new Map<string, number[]>();
 
 @Injectable()
@@ -36,7 +38,22 @@ export class UploadsService {
     recientes.push(ahora);
     intentos.set(clave, recientes);
     if (intentos.size > 5000) for (const [k, v] of intentos) if (!v.some((t) => ahora - t < VENTANA_MS)) intentos.delete(k);
-    return this.guardarImagen(marcaId, archivo, 'evidencias');
+    if (!archivo?.buffer?.length) throw new BadRequestException('Elige un archivo');
+    if (archivo.size > MAX_BYTES_EVIDENCIA) throw new BadRequestException('El archivo pesa más de 10 MB');
+    // PDF por su firma real (%PDF-); si no, debe ser una imagen válida (el nombre y el mimetype del cliente no se usan).
+    const esPdf = archivo.buffer.length > 5 && archivo.buffer.toString('ascii', 0, 5) === '%PDF-';
+    const tipo = esPdf ? { ext: 'pdf' } : tipoImagen(archivo.buffer);
+    if (!tipo) throw new BadRequestException('Formato no válido: usa JPG, PNG, WEBP o PDF');
+    return this.guardarBuffer(marcaId, archivo.buffer, tipo.ext, 'evidencias');
+  }
+
+  private async guardarBuffer(marcaId: string, buffer: Buffer, ext: string, subcarpeta?: string) {
+    const carpeta = [marcaId.replace(/[^a-zA-Z0-9-]/g, ''), subcarpeta?.replace(/[^a-z]/g, '')].filter(Boolean).join('/');
+    const nombre = `${randomUUID()}.${ext}`;
+    await mkdir(join(uploadsDir(), carpeta), { recursive: true });
+    await writeFile(join(uploadsDir(), carpeta, nombre), buffer);
+    const base = (process.env.PUBLIC_API_URL ?? `http://localhost:${process.env.PORT ?? 3001}`).replace(/\/$/, '');
+    return { url: `${base}/uploads/${carpeta}/${nombre}`, ruta: `/uploads/${carpeta}/${nombre}` };
   }
 
   /** Guarda la imagen bajo la carpeta de la marca y devuelve su ruta pública (`/uploads/<marca>/<archivo>`). */
