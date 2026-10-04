@@ -30,6 +30,12 @@ sobre azul va en `brand-700`; texto secundario sobre claro mínimo `text-ink/65`
 sobre oscuro mínimo `text-white/80`. Hover de botón primario: `#0b68b8`
 (azul eléctrico un poco más oscuro, no marino).
 
+### Formas de los controles del encabezado
+
+Los íconos y fichas del encabezado (carrito, avatar de cuenta, símbolo de moneda, chips de ícono) son
+**cuadrados de esquinas suaves** (`rounded-lg` / `rounded-xl`), nunca círculos. Los círculos quedan solo para
+puntos de estado y contadores pequeños.
+
 ### Tipografía
 
 - **Montserrat** es la única fuente del sitio (`font-sans` y `font-display`).

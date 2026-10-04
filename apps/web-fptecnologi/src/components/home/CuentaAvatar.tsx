@@ -36,7 +36,7 @@ export function CuentaAvatar({ className = '' }: { className?: string }) {
       href="/cuenta"
       aria-label={conSesion ? `Mi cuenta: ${sesion!.nombre ?? sesion!.email}` : 'Iniciar sesión'}
       title={conSesion ? 'Mi cuenta' : 'Iniciar sesión'}
-      className={`flex items-center justify-center rounded-full border border-white/40 text-white transition-colors hover:border-white hover:bg-white/20 ${conSesion ? 'bg-white text-brand-700 hover:bg-white' : 'bg-white/10'} ${className}`}
+      className={`flex items-center justify-center rounded-xl border border-white/40 text-white transition-colors hover:border-white hover:bg-white/20 ${conSesion ? 'bg-white text-brand-700 hover:bg-white' : 'bg-white/10'} ${className}`}
     >
       {conSesion ? <span className="text-[13px] font-extrabold leading-none text-brand-700">{iniciales(sesion!)}</span> : <User className="h-5 w-5" strokeWidth={2} />}
     </a>

@@ -44,7 +44,7 @@ export function CurrencyToggle({ tone = 'dark', className = 'h-10' }: { tone?: '
   const simbolo = (txt: string, activo: boolean) => (
     <span
       aria-hidden
-      className={`flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full px-1 text-[12px] font-extrabold leading-none ${
+      className={`flex h-6 min-w-6 shrink-0 items-center justify-center rounded-md px-1 text-[12px] font-extrabold leading-none ${
         activo ? (light ? 'bg-brand-primary text-white' : 'bg-white text-brand-700') : 'bg-brand-50 text-brand-700'
       }`}
     >
