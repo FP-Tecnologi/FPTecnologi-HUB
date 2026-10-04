@@ -9,7 +9,7 @@ import { ScrollReveal } from '@/components/home/ScrollReveal';
 import { MoreInfoButton } from '@/components/home/MoreInfoButton';
 import { Contact } from '@/components/home/Contact';
 import { AreasContacto } from '@/components/site/AreasContacto';
-import { SoporteTickets } from '@/components/site/SoporteTickets';
+import { TicketsCta } from '@/components/site/TicketsCta';
 import { Footer } from '@/components/home/Footer';
 import { getPagina } from '@/lib/paginasContenido';
 import { metaSeo } from '@/lib/seo';
@@ -17,8 +17,8 @@ import { metaSeo } from '@/lib/seo';
 export const generateMetadata = () => metaSeo('contacto', { title: 'Contacto' });
 
 
-/* Contacto -- asesores por área, mapa y horario, y al cierre el formulario +
-   datos (sección Contacto de la home) (DESIGN.md). */
+/* Contacto -- contacto por área, formulario con motivo, mapa y horario, y al cierre
+   la llamada a la página de tickets (/tickets). */
 export default async function ContactoPage() {
   const [c, { contact: CONTACT_INFO }] = await Promise.all([getPagina('contacto'), getSitio()]);
   const MAPA = `https://www.google.com/maps?q=${encodeURIComponent(CONTACT_INFO.address)}&output=embed`;
@@ -41,7 +41,9 @@ export default async function ContactoPage() {
 
       <main>
         <AreasContacto />
-        <SoporteTickets />
+
+        {/* Formulario principal (sin tarjetas de datos: ya están en «Contacto por área»). */}
+        <Contact conDatos={false} />
 
         {/* Mapa + horario */}
         <section className="mx-auto max-w-7xl px-6 py-20">
@@ -82,8 +84,8 @@ export default async function ContactoPage() {
           </div>
         </section>
 
-        {/* Formulario + datos: bloque oscuro al cierre, como en la home. */}
-        <Contact />
+        {/* Cierre: llamada a la página de tickets. */}
+        <TicketsCta />
       </main>
       <Footer />
     </>

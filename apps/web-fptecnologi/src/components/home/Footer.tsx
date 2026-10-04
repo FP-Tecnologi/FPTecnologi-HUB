@@ -13,9 +13,9 @@ const NAV = [
 ];
 
 
-// Columna "Soporte": tickets (sección de la página de contacto), contacto, cotizador y libro de reclamaciones.
+// Columna "Soporte": tickets (/tickets), contacto, cotizador y libro de reclamaciones.
 const SOPORTE = [
-  { label: 'Tickets', href: '/contacto#tickets' },
+  { label: 'Tickets', href: '/tickets' },
   { label: 'Contacto', href: '/contacto' },
   { label: 'Cotizar', href: '/cotizador' },
   { label: 'Libro de reclamaciones', href: '/libro-de-reclamaciones' },

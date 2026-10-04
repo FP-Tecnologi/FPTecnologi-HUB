@@ -27,12 +27,18 @@ const itemsDe = (CONTACT_INFO: { address: string; phoneVentas: string; phoneVent
  * formulario en una tarjeta celeste muy clara (el azul ya no cubre toda la sección). No hay backend de
  * correo (ver AGENTS.md): el formulario arma el mensaje y abre WhatsApp.
  */
-export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
+const MOTIVOS = ['Cotización', 'Servicios TI', 'Ser partner', 'Soporte', 'Otro'] as const;
+
+/* `conDatos`: muestra a la izquierda las tarjetas de dirección/teléfonos/correo (home). En /contacto
+   esos datos ya están en «Contacto por área», así que se pasa conDatos={false}: título arriba y el
+   formulario a todo el ancho. El motivo elegido se antepone al mensaje: «[Motivo: …]». */
+export function Contact({ c = HOME_DEFAULTS.contacto, conDatos = true }: { c?: Encabezado; conDatos?: boolean }) {
   const ITEMS = itemsDe(useSitio().contact);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
+  const [motivo, setMotivo] = useState<(typeof MOTIVOS)[number]>(MOTIVOS[0]);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -45,7 +51,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
       const res = await fetch('/api/contacto', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone, message }),
+        body: JSON.stringify({ name, email, phone, message: `[Motivo: ${motivo}] ${message}` }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -78,17 +84,18 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
       <div aria-hidden className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-brand-500/10 blur-3xl" />
       <div aria-hidden className="pointer-events-none absolute -bottom-24 right-0 h-80 w-80 rounded-full bg-brand-300/20 blur-3xl" />
 
-      <div className="relative mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-2 lg:items-start">
-        <ScrollReveal direction="left">
+      <div className={`relative mx-auto grid gap-12 px-6 ${conDatos ? 'max-w-7xl lg:grid-cols-2 lg:items-start' : 'max-w-3xl'}`}>
+        <ScrollReveal direction="left" className={conDatos ? '' : 'text-center'}>
           <SectionBadge>{c.badge}</SectionBadge>
           <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
             <span className="text-ink">{c.titulo}</span>{' '}
             <span className="title-shimmer-light">{c.destacado}</span>
           </h2>
-          <p className="mt-4 max-w-lg text-ink/65">
+          <p className={`mt-4 max-w-lg text-ink/65 ${conDatos ? '' : 'mx-auto'}`}>
             {c.descripcion}
           </p>
 
+          {conDatos && (
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             {ITEMS.map(({ label, value, href, icon: Icon }) => (
               <a
@@ -110,6 +117,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
               </a>
             ))}
           </div>
+          )}
         </ScrollReveal>
 
         <ScrollReveal direction="right" delayMs={120}>
@@ -120,6 +128,26 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
               <p className="font-display text-xl font-bold text-ink">Déjanos tu mensaje</p>
               <p className="mt-1 text-sm text-ink/65">Un asesor te responderá pronto.</p>
             </div>
+            <fieldset className="mb-5">
+              <legend className="text-sm font-medium text-ink/80">Motivo<span className="text-red-500"> *</span></legend>
+              <div className="mt-2 flex flex-wrap gap-2" role="radiogroup" aria-label="Motivo del mensaje">
+                {MOTIVOS.map((m) => {
+                  const activo = motivo === m;
+                  return (
+                    <button
+                      key={m}
+                      type="button"
+                      role="radio"
+                      aria-checked={activo}
+                      onClick={() => setMotivo(m)}
+                      className={`rounded-lg border px-3.5 py-2 text-sm font-semibold transition-all duration-200 ${activo ? 'border-brand-primary bg-brand-primary text-white' : 'border-brand-200 bg-white text-brand-700 hover:border-brand-primary hover:bg-brand-50'}`}
+                    >
+                      {m}
+                    </button>
+                  );
+                })}
+              </div>
+            </fieldset>
             <div className="space-y-4">
               {success && (
                 <div role="status" className="rounded-xl border border-whatsapp-dark/30 bg-whatsapp/10 p-4 text-center text-sm font-medium text-whatsapp-dark">

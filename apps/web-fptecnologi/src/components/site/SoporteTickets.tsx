@@ -47,7 +47,7 @@ export function SoporteTickets() {
           email,
           phone: telefono,
           tipo: actual.reclamo ? 'RECLAMO' : 'CONTACTO',
-          origen: '/contacto#tickets',
+          origen: '/tickets',
           message: `[Ticket: ${actual.titulo}]${referencia ? ` Pedido/producto: ${referencia}.` : ''}\n${detalle}`,
         }),
       });
