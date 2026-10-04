@@ -34,7 +34,6 @@ export function SoporteTickets() {
   const [caso, setCaso] = useState(CASOS[0].id);
   const [tipo, setTipo] = useState<'PERSONA' | 'EMPRESA'>('PERSONA');
   const [documento, setDocumento] = useState('');
-  const [acepto, setAcepto] = useState(false);
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [telefono, setTelefono] = useState('');
@@ -59,7 +58,6 @@ export function SoporteTickets() {
     if (nombre.trim().length < 2) return setError(esEmpresa ? 'Ingresa la razón social.' : 'Ingresa tus nombres y apellidos.');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) return setError('Ingresa un correo válido.');
     if (!/^9\d{8}$/.test(celularLimpio(telefono))) return setError('Ingresa un celular de 9 dígitos (empieza con 9).');
-    if (!acepto) return setError('Acepta la política de privacidad para continuar.');
     setOk(false);
     setPaso(2);
   }
@@ -129,7 +127,6 @@ export function SoporteTickets() {
         setPaso(1);
         setNombre('');
         setDocumento('');
-        setAcepto(false);
         setEmail('');
         setTelefono('');
         setNumeroCompra('');
@@ -253,14 +250,6 @@ export function SoporteTickets() {
                       <input id="t-tel" type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} className={campo} placeholder="+51 987 654 321" />
                     </div>
                   </div>
-                  <label className="flex cursor-pointer items-start gap-3 text-sm text-ink/70">
-                    <input type="checkbox" checked={acepto} onChange={(e) => setAcepto(e.target.checked)} className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-[#107acc]" />
-                    <span>
-                      Acepto la{' '}
-                      <a href="/legal/privacidad" target="_blank" rel="noreferrer" className="font-semibold text-brand-700 underline underline-offset-2 hover:text-brand-primary">política de privacidad</a>{' '}
-                      y que me contacten.<span className="text-red-500"> *</span>
-                    </span>
-                  </label>
                 </>
               ) : (
                 <>
