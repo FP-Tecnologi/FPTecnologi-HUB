@@ -2,7 +2,7 @@
 import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
 
 import { useState } from 'react';
-import { Briefcase, Building2, FileText, Handshake, Headset, Mail, MapPin, MessageCircle, MessageSquareText, Phone, Receipt, Server, User, type LucideIcon } from 'lucide-react';
+import { Building2, FileText, Handshake, Headset, Mail, MapPin, MessageCircle, MessageSquareText, Phone, Receipt, Server, User, type LucideIcon } from 'lucide-react';
 import { useSitio } from '@/context/SitioContext';
 import { whatsappHref } from '@/lib/chatActions';
 import { ArrowUpRightIcon } from '@/components/site/icons';
@@ -57,9 +57,6 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
   // Formulario completo: persona natural (DNI) o empresa (RUC, razón social, responsable y cargo).
   const [tipo, setTipo] = useState<'PERSONA' | 'EMPRESA'>('PERSONA');
   const [documento, setDocumento] = useState('');
-  const [razonSocial, setRazonSocial] = useState('');
-  const [cargo, setCargo] = useState('');
-  const [ciudad, setCiudad] = useState('');
   const [preferencia, setPreferencia] = useState<(typeof PREFERENCIAS)[number]>(PREFERENCIAS[0]);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -71,19 +68,17 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
     let payload: { name: string; email: string; phone: string; company?: string; message: string };
     if (completo) {
       const esEmpresa = tipo === 'EMPRESA';
-      if (esEmpresa && razonSocial.trim().length < 2) return setErrorMsg('Ingresa la razón social.');
       if (esEmpresa ? !/^(10|15|16|17|20)\d{9}$/.test(documento) : !/^\d{8}$/.test(documento)) return setErrorMsg(esEmpresa ? 'El RUC debe tener 11 dígitos (empieza con 10 o 20).' : 'El DNI debe tener 8 dígitos.');
-      if (name.trim().length < 2) return setErrorMsg(esEmpresa ? 'Ingresa el nombre del responsable.' : 'Ingresa tus nombres y apellidos.');
+      if (name.trim().length < 2) return setErrorMsg(esEmpresa ? 'Ingresa la razón social.' : 'Ingresa tus nombres y apellidos.');
       if (!/^9\d{8}$/.test(celularLimpio(phone))) return setErrorMsg('Ingresa un celular de 9 dígitos (empieza con 9).');
       payload = {
         name,
         email,
         phone: celularLimpio(phone),
-        company: esEmpresa ? razonSocial.trim() : undefined,
+        company: esEmpresa ? name.trim() : undefined,
         message: [
           `[Motivo: ${motivo}]`,
-          esEmpresa ? `Empresa · RUC ${documento}${cargo.trim() ? ` · Cargo: ${cargo.trim()}` : ''}` : `Persona natural · DNI ${documento}`,
-          ciudad.trim() ? `Ciudad: ${ciudad.trim()}` : '',
+          esEmpresa ? `Empresa · RUC ${documento}` : `Persona natural · DNI ${documento}`,
           `Contacto preferido: ${preferencia}`,
           message,
         ].filter(Boolean).join('\n'),
@@ -106,9 +101,6 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
         setPhone('');
         setMessage('');
         setDocumento('');
-        setRazonSocial('');
-        setCargo('');
-        setCiudad('');
       } else {
         setErrorMsg(data.error || 'Ocurrió un error al enviar tu mensaje. Inténtalo nuevamente.');
       }
@@ -241,15 +233,6 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
                     })}
                   </div>
 
-                  {tipo === 'EMPRESA' && (
-                    <div className="group/field">
-                      <label className="text-sm font-medium text-ink/80" htmlFor="c-razon">Razón social<span className="text-red-500"> *</span></label>
-                      <div className="relative flex items-center">
-                        <Building2 className={iconCls} strokeWidth={1.8} />
-                        <input id="c-razon" autoComplete="organization" value={razonSocial} onChange={(e) => setRazonSocial(e.target.value)} className={input} placeholder="Nombre legal de la empresa" />
-                      </div>
-                    </div>
-                  )}
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="group/field">
                       <label className="text-sm font-medium text-ink/80" htmlFor="c-doc">{tipo === 'EMPRESA' ? 'RUC' : 'DNI'}<span className="text-red-500"> *</span></label>
@@ -259,22 +242,13 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
                       </div>
                     </div>
                     <div className="group/field">
-                      <label className="text-sm font-medium text-ink/80" htmlFor="c-name">{tipo === 'EMPRESA' ? 'Nombre del responsable' : 'Nombres y apellidos'}<span className="text-red-500"> *</span></label>
+                      <label className="text-sm font-medium text-ink/80" htmlFor="c-name">{tipo === 'EMPRESA' ? 'Razón social' : 'Nombres y apellidos'}<span className="text-red-500"> *</span></label>
                       <div className="relative flex items-center">
-                        <User className={iconCls} strokeWidth={1.8} />
-                        <input id="c-name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} className={input} placeholder={tipo === 'EMPRESA' ? 'Quién nos contactará' : 'Tu nombre completo'} />
+                        {tipo === 'EMPRESA' ? <Building2 className={iconCls} strokeWidth={1.8} /> : <User className={iconCls} strokeWidth={1.8} />}
+                        <input id="c-name" autoComplete={tipo === 'EMPRESA' ? 'organization' : 'name'} value={name} onChange={(e) => setName(e.target.value)} className={input} placeholder={tipo === 'EMPRESA' ? 'Nombre legal de la empresa' : 'Tu nombre completo'} />
                       </div>
                     </div>
                   </div>
-                  {tipo === 'EMPRESA' && (
-                    <div className="group/field">
-                      <label className="text-sm font-medium text-ink/80" htmlFor="c-cargo">Cargo</label>
-                      <div className="relative flex items-center">
-                        <Briefcase className={iconCls} strokeWidth={1.8} />
-                        <input id="c-cargo" autoComplete="organization-title" value={cargo} onChange={(e) => setCargo(e.target.value)} className={input} placeholder="Ej. Gerente de TI" />
-                      </div>
-                    </div>
-                  )}
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="group/field">
                       <label className="text-sm font-medium text-ink/80" htmlFor="c-email">Correo electrónico<span className="text-red-500"> *</span></label>
@@ -289,13 +263,6 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
                         <Phone className={iconCls} strokeWidth={1.8} />
                         <input id="c-phone" type="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className={input} placeholder="+51 987 654 321" />
                       </div>
-                    </div>
-                  </div>
-                  <div className="group/field">
-                    <label className="text-sm font-medium text-ink/80" htmlFor="c-ciudad">Ciudad o departamento</label>
-                    <div className="relative flex items-center">
-                      <MapPin className={iconCls} strokeWidth={1.8} />
-                      <input id="c-ciudad" autoComplete="address-level1" value={ciudad} onChange={(e) => setCiudad(e.target.value)} className={input} placeholder="Ej. Lima" />
                     </div>
                   </div>
                   <div className="group/field">
