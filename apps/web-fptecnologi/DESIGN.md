@@ -12,20 +12,23 @@ resuelve la home.
 
 ### Colores (tokens en `app/globals.css`, `@theme`)
 
+Un solo matiz de azul con escala 50-950; el `600` es el color de marca (`#107acc`).
+
 | Token (clase Tailwind) | Hex | Uso |
 |---|---|---|
-| `brand-primary` | `#155382` | Azul oscuro. Fondo base de botones, chips de ícono, badges sólidos, sección Partners |
-| `brand-dark` | `#2181af` | Azul vibrante. **Hover** de botones, acentos, burbuja del asistente |
-| `brand-petrol` | `#1c6587` | Degradés |
-| `brand-teal` | `#18778b` | Degradés, resplandores |
-| `brand-teal-light` | `#208497` | Íconos sobre fondo oscuro, detalles |
-| `ink` | `#0b1b26` | Texto principal; fondo de "Hablemos" y del footer |
-| `paper` | `#f6f9fb` | Fondo de página (con textura de puntitos del `body`) |
-| `whatsapp` / `whatsapp-dark` | `#37c472` / `#2ba35d` (hover) | Todo lo de WhatsApp (nunca `emerald` de Tailwind) |
-| celeste de títulos | `#8fe0ee` | Parte con brillo de títulos sobre fondo oscuro |
+| `brand-primary` (= `brand-600`) | `#107acc` | Color de marca: botones, chips de ícono, acentos, palabra destacada de los títulos, logo sobre el hero, barra al bajar |
+| `brand-700` / `brand-dark` | `#0c60a1` | Texto de acento chico (6:1 sobre blanco), usuario en el chat, fondos con texto blanco largo (hero de tienda) |
+| `brand-800` / `900` / `950` | `#0e4c7c` / `#0e3858` / `#0d2233` | Degradés oscuros sobre fotos (`from-brand-950/90`), sombras |
+| `brand-50` / `100` / `200` | `#eff7fd` / `#dceefc` / `#b7ddfa` | Fondos claros, bordes de tarjetas, campos |
+| `brand-500` / `300` | `#1992f0` / `#81c4f8` | Resplandores, partículas del hero; acento claro solo sobre fondos oscuros |
+| `ink` | `#0b1b26` | Texto principal; overlay negro de los hero con video; footer |
+| `paper` (= `brand-50`) | `#eff7fd` | Fondo de página (con puntitos del `body`) |
+| `whatsapp` / `whatsapp-dark` | `#37c472` / `#14793e` | Solo lo de WhatsApp y los estados "en stock" (letra blanca sobre `whatsapp-dark`, nunca `emerald`) |
 
-> Ojo: los nombres están cruzados respecto de su tono (`brand-primary` es el
-> oscuro, `brand-dark` el vibrante). Usar siempre el **token**, nunca el hex.
+Reglas de contraste: blanco sobre `#107acc` da 4,49:1, así que el texto largo
+sobre azul va en `brand-700`; texto secundario sobre claro mínimo `text-ink/65`;
+sobre oscuro mínimo `text-white/80`. Hover de botón primario: `#0b68b8`
+(azul eléctrico un poco más oscuro, no marino).
 
 ### Tipografía
 

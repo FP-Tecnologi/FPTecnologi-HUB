@@ -78,7 +78,7 @@ export function PresupuestoForm() {
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_24rem] lg:items-start">
+    <div className="grid grid-cols-[minmax(0,1fr)] gap-8 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start">
       <form onSubmit={enviar} noValidate className="group/form relative overflow-hidden rounded-2xl border border-brand-100 bg-white p-6 shadow-xl shadow-brand-950/10 sm:p-8">
         <span aria-hidden className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-gradient-to-r from-brand-primary via-brand-500 to-brand-700 transition-transform duration-500 ease-out group-focus-within/form:scale-x-100" />
         <p className="font-display text-xl font-bold text-ink">Datos para tu presupuesto</p>

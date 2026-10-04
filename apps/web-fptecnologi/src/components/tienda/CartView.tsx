@@ -40,7 +40,7 @@ export function CartView() {
   return (
     <>
       <PasosCompra actual={1} />
-      <div className="grid gap-8 pb-24 lg:grid-cols-[1fr_24rem] lg:items-start lg:pb-0">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-8 pb-24 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start lg:pb-0">
         <div className="space-y-6">
           {/* Perfil de compra: cliente final (checkout) o mayorista (presupuesto, desde 6 u. por producto). */}
           <div role="radiogroup" aria-label="Tipo de cliente" className="grid gap-3 sm:grid-cols-2">
@@ -120,7 +120,7 @@ export function CartView() {
                           <Plus className="h-4 w-4" strokeWidth={2.2} />
                         </button>
                       </div>
-                      <p className="font-mono text-lg font-bold text-ink">{format(item.qty * unitPrice(item))}</p>
+                      <p className="font-mono text-base font-bold text-ink sm:text-lg">{format(item.qty * unitPrice(item))}</p>
                     </div>
                   </div>
                 </li>
