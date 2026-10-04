@@ -2,7 +2,7 @@
 import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
 
 import { useState } from 'react';
-import { Handshake, Headset, Mail, MapPin, MessageCircle, MessageSquareText, Phone, Receipt, Server, User, type LucideIcon } from 'lucide-react';
+import { Briefcase, Building2, FileText, Handshake, Headset, Mail, MapPin, MessageCircle, MessageSquareText, Phone, Receipt, Server, User, type LucideIcon } from 'lucide-react';
 import { useSitio } from '@/context/SitioContext';
 import { whatsappHref } from '@/lib/chatActions';
 import { ArrowUpRightIcon } from '@/components/site/icons';
@@ -27,6 +27,9 @@ const itemsDe = (CONTACT_INFO: { address: string; phoneVentas: string; phoneVent
  * formulario en una tarjeta celeste muy clara (el azul ya no cubre toda la sección). No hay backend de
  * correo (ver AGENTS.md): el formulario arma el mensaje y abre WhatsApp.
  */
+const PREFERENCIAS = ['WhatsApp', 'Correo', 'Llamada'] as const;
+const celularLimpio = (v: string) => v.replace(/[\s()-]/g, '').replace(/^\+?51(?=9\d{8}$)/, '');
+
 const MOTIVOS = [
   { id: 'Cotización', texto: 'Equipos o proyectos a medida.', Icono: Receipt },
   { id: 'Servicios TI', texto: 'Seguridad, redes, cloud y más.', Icono: Server },
@@ -43,25 +46,57 @@ const MOTIVOS = [
      contacto ya están en «Contacto por área». */
 export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: Encabezado; completo?: boolean }) {
   const conDatos = !completo;
+  // En /contacto el encabezado es propio y sin descripción (los datos de contacto ya están arriba).
+  const t = completo ? { badge: 'Escríbenos', titulo: 'Cuéntanos qué', destacado: 'necesitas', descripcion: '' } : c;
   const ITEMS = itemsDe(useSitio().contact);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
   const [motivo, setMotivo] = useState<(typeof MOTIVOS)[number]['id']>(MOTIVOS[0].id);
+  // Formulario completo: persona natural (DNI) o empresa (RUC, razón social, responsable y cargo).
+  const [tipo, setTipo] = useState<'PERSONA' | 'EMPRESA'>('PERSONA');
+  const [documento, setDocumento] = useState('');
+  const [razonSocial, setRazonSocial] = useState('');
+  const [cargo, setCargo] = useState('');
+  const [ciudad, setCiudad] = useState('');
+  const [preferencia, setPreferencia] = useState<(typeof PREFERENCIAS)[number]>(PREFERENCIAS[0]);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSubmitting(true);
     setErrorMsg('');
+    let payload: { name: string; email: string; phone: string; company?: string; message: string };
+    if (completo) {
+      const esEmpresa = tipo === 'EMPRESA';
+      if (esEmpresa && razonSocial.trim().length < 2) return setErrorMsg('Ingresa la razón social.');
+      if (esEmpresa ? !/^(10|15|16|17|20)\d{9}$/.test(documento) : !/^\d{8}$/.test(documento)) return setErrorMsg(esEmpresa ? 'El RUC debe tener 11 dígitos (empieza con 10 o 20).' : 'El DNI debe tener 8 dígitos.');
+      if (name.trim().length < 2) return setErrorMsg(esEmpresa ? 'Ingresa el nombre del responsable.' : 'Ingresa tus nombres y apellidos.');
+      if (!/^9\d{8}$/.test(celularLimpio(phone))) return setErrorMsg('Ingresa un celular de 9 dígitos (empieza con 9).');
+      payload = {
+        name,
+        email,
+        phone: celularLimpio(phone),
+        company: esEmpresa ? razonSocial.trim() : undefined,
+        message: [
+          `[Motivo: ${motivo}]`,
+          esEmpresa ? `Empresa · RUC ${documento}${cargo.trim() ? ` · Cargo: ${cargo.trim()}` : ''}` : `Persona natural · DNI ${documento}`,
+          ciudad.trim() ? `Ciudad: ${ciudad.trim()}` : '',
+          `Contacto preferido: ${preferencia}`,
+          message,
+        ].filter(Boolean).join('\n'),
+      };
+    } else {
+      payload = { name, email, phone, message };
+    }
+    setSubmitting(true);
     try {
       const res = await fetch('/api/contacto', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone, message: completo ? `[Motivo: ${motivo}] ${message}` : message, origen: window.location.pathname }),
+        body: JSON.stringify({ ...payload, origen: window.location.pathname }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -70,6 +105,10 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
         setEmail('');
         setPhone('');
         setMessage('');
+        setDocumento('');
+        setRazonSocial('');
+        setCargo('');
+        setCiudad('');
       } else {
         setErrorMsg(data.error || 'Ocurrió un error al enviar tu mensaje. Inténtalo nuevamente.');
       }
@@ -96,14 +135,16 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
 
       <div className="relative mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-2 lg:items-start">
         <ScrollReveal direction="left">
-          <SectionBadge>{c.badge}</SectionBadge>
+          <SectionBadge>{t.badge}</SectionBadge>
           <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
-            <span className="text-ink">{c.titulo}</span>{' '}
-            <span className="title-shimmer-light">{c.destacado}</span>
+            <span className="text-ink">{t.titulo}</span>{' '}
+            <span className="title-shimmer-light">{t.destacado}</span>
           </h2>
-          <p className="mt-4 max-w-lg text-ink/65">
-            {c.descripcion}
-          </p>
+          {t.descripcion && (
+            <p className="mt-4 max-w-lg text-ink/65">
+              {t.descripcion}
+            </p>
+          )}
 
           {completo && (
             <div className="mt-8 grid gap-3" role="radiogroup" aria-label="Motivo del mensaje">
@@ -176,6 +217,110 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
                   {errorMsg}
                 </div>
               )}
+              {completo ? (
+                <>
+                  <div role="radiogroup" aria-label="Tipo de cliente" className="grid grid-cols-2 gap-2">
+                    {([
+                      { id: 'PERSONA', titulo: 'Persona natural', Icono: User },
+                      { id: 'EMPRESA', titulo: 'Empresa', Icono: Building2 },
+                    ] as const).map(({ id, titulo, Icono }) => {
+                      const activo = tipo === id;
+                      return (
+                        <button
+                          key={id}
+                          type="button"
+                          role="radio"
+                          aria-checked={activo}
+                          onClick={() => { setTipo(id); setDocumento(''); }}
+                          className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-semibold transition-all duration-200 ${activo ? 'border-brand-primary bg-brand-primary text-white' : 'border-brand-200 bg-white text-brand-700 hover:border-brand-primary hover:bg-brand-50'}`}
+                        >
+                          <Icono className="h-4 w-4" strokeWidth={2} />
+                          {titulo}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {tipo === 'EMPRESA' && (
+                    <div className="group/field">
+                      <label className="text-sm font-medium text-ink/80" htmlFor="c-razon">Razón social<span className="text-red-500"> *</span></label>
+                      <div className="relative flex items-center">
+                        <Building2 className={iconCls} strokeWidth={1.8} />
+                        <input id="c-razon" autoComplete="organization" value={razonSocial} onChange={(e) => setRazonSocial(e.target.value)} className={input} placeholder="Nombre legal de la empresa" />
+                      </div>
+                    </div>
+                  )}
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="group/field">
+                      <label className="text-sm font-medium text-ink/80" htmlFor="c-doc">{tipo === 'EMPRESA' ? 'RUC' : 'DNI'}<span className="text-red-500"> *</span></label>
+                      <div className="relative flex items-center">
+                        <FileText className={iconCls} strokeWidth={1.8} />
+                        <input id="c-doc" inputMode="numeric" maxLength={tipo === 'EMPRESA' ? 11 : 8} value={documento} onChange={(e) => setDocumento(e.target.value.replace(/\D/g, ''))} className={input} placeholder={tipo === 'EMPRESA' ? '20123456789' : '12345678'} />
+                      </div>
+                    </div>
+                    <div className="group/field">
+                      <label className="text-sm font-medium text-ink/80" htmlFor="c-name">{tipo === 'EMPRESA' ? 'Nombre del responsable' : 'Nombres y apellidos'}<span className="text-red-500"> *</span></label>
+                      <div className="relative flex items-center">
+                        <User className={iconCls} strokeWidth={1.8} />
+                        <input id="c-name" autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} className={input} placeholder={tipo === 'EMPRESA' ? 'Quién nos contactará' : 'Tu nombre completo'} />
+                      </div>
+                    </div>
+                  </div>
+                  {tipo === 'EMPRESA' && (
+                    <div className="group/field">
+                      <label className="text-sm font-medium text-ink/80" htmlFor="c-cargo">Cargo</label>
+                      <div className="relative flex items-center">
+                        <Briefcase className={iconCls} strokeWidth={1.8} />
+                        <input id="c-cargo" autoComplete="organization-title" value={cargo} onChange={(e) => setCargo(e.target.value)} className={input} placeholder="Ej. Gerente de TI" />
+                      </div>
+                    </div>
+                  )}
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="group/field">
+                      <label className="text-sm font-medium text-ink/80" htmlFor="c-email">Correo electrónico<span className="text-red-500"> *</span></label>
+                      <div className="relative flex items-center">
+                        <Mail className={iconCls} strokeWidth={1.8} />
+                        <input id="c-email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className={input} placeholder="correo@empresa.com" />
+                      </div>
+                    </div>
+                    <div className="group/field">
+                      <label className="text-sm font-medium text-ink/80" htmlFor="c-phone">Celular / WhatsApp<span className="text-red-500"> *</span></label>
+                      <div className="relative flex items-center">
+                        <Phone className={iconCls} strokeWidth={1.8} />
+                        <input id="c-phone" type="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className={input} placeholder="+51 987 654 321" />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="group/field">
+                    <label className="text-sm font-medium text-ink/80" htmlFor="c-ciudad">Ciudad o departamento</label>
+                    <div className="relative flex items-center">
+                      <MapPin className={iconCls} strokeWidth={1.8} />
+                      <input id="c-ciudad" autoComplete="address-level1" value={ciudad} onChange={(e) => setCiudad(e.target.value)} className={input} placeholder="Ej. Lima" />
+                    </div>
+                  </div>
+                  <div className="group/field">
+                    <label className="text-sm font-medium text-ink/80" htmlFor="c-message">Mensaje<span className="text-red-500"> *</span></label>
+                    <div className="relative flex items-start">
+                      <MessageSquareText className={`${iconCls} top-[1.15rem]`} strokeWidth={1.8} />
+                      <textarea id="c-message" required rows={4} value={message} onChange={(e) => setMessage(e.target.value)} className={`${input} resize-none`} placeholder="Cuéntanos qué solución o equipamiento necesitas" />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-ink/80">¿Cómo prefieres que te contactemos?</p>
+                    <div className="mt-2 flex flex-wrap gap-2" role="radiogroup" aria-label="Contacto preferido">
+                      {PREFERENCIAS.map((pf) => {
+                        const activo = preferencia === pf;
+                        return (
+                          <button key={pf} type="button" role="radio" aria-checked={activo} onClick={() => setPreferencia(pf)} className={`rounded-lg border px-3.5 py-2 text-sm font-semibold transition-all duration-200 ${activo ? 'border-brand-primary bg-brand-primary text-white' : 'border-brand-200 bg-white text-brand-700 hover:border-brand-primary hover:bg-brand-50'}`}>
+                            {pf}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
               <div className="group/field">
                 <label className="text-sm font-medium text-ink/80" htmlFor="c-name">Nombres o empresa<span className="text-red-500"> *</span></label>
                 <div className="relative flex items-center">
@@ -214,6 +359,8 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
                   />
                 </div>
               </div>
+                </>
+              )}
               <button
                 type="submit"
                 disabled={submitting}
