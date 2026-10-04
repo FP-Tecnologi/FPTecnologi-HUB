@@ -2,7 +2,7 @@
 import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
 
 import { useState } from 'react';
-import { Building2, FileText, Handshake, Headset, Mail, MapPin, MessageCircle, MessageSquareText, Phone, Receipt, Server, User, type LucideIcon } from 'lucide-react';
+import { Building2, FileText, Handshake, Headset, Mail, MapPin, MessageCircle, MessageSquareText, Phone, Server, User, type LucideIcon } from 'lucide-react';
 import { useSitio } from '@/context/SitioContext';
 import { whatsappHref } from '@/lib/chatActions';
 import { ArrowUpRightIcon } from '@/components/site/icons';
@@ -31,7 +31,6 @@ const PREFERENCIAS = ['WhatsApp', 'Correo', 'Llamada'] as const;
 const celularLimpio = (v: string) => v.replace(/[\s()-]/g, '').replace(/^\+?51(?=9\d{8}$)/, '');
 
 const MOTIVOS = [
-  { id: 'Cotización', texto: 'Equipos o proyectos a medida.', Icono: Receipt },
   { id: 'Servicios TI', texto: 'Seguridad, redes, cloud y más.', Icono: Server },
   { id: 'Ser partner', texto: 'Integradores y revendedores.', Icono: Handshake },
   { id: 'Soporte', texto: 'Ayuda con un producto o pedido.', Icono: Headset },
