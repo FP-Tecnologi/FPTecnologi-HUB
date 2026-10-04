@@ -2,7 +2,7 @@
 import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
 
 import { useState } from 'react';
-import { Mail, MapPin, MessageCircle, MessageSquareText, Phone, User, type LucideIcon } from 'lucide-react';
+import { Handshake, Headset, Mail, MapPin, MessageCircle, MessageSquareText, Phone, Receipt, Server, User, type LucideIcon } from 'lucide-react';
 import { useSitio } from '@/context/SitioContext';
 import { whatsappHref } from '@/lib/chatActions';
 import { ArrowUpRightIcon } from '@/components/site/icons';
@@ -27,13 +27,20 @@ const itemsDe = (CONTACT_INFO: { address: string; phoneVentas: string; phoneVent
  * formulario en una tarjeta celeste muy clara (el azul ya no cubre toda la sección). No hay backend de
  * correo (ver AGENTS.md): el formulario arma el mensaje y abre WhatsApp.
  */
-const MOTIVOS = ['Cotización', 'Servicios TI', 'Ser partner', 'Soporte', 'Otro'] as const;
+const MOTIVOS = [
+  { id: 'Cotización', texto: 'Equipos o proyectos a medida.', Icono: Receipt },
+  { id: 'Servicios TI', texto: 'Seguridad, redes, cloud y más.', Icono: Server },
+  { id: 'Ser partner', texto: 'Integradores y revendedores.', Icono: Handshake },
+  { id: 'Soporte', texto: 'Ayuda con un producto o pedido.', Icono: Headset },
+  { id: 'Otro', texto: 'Cualquier otra consulta.', Icono: MessageCircle },
+] as const;
 
 /* Dos versiones del mismo formulario:
    - Simple (por defecto, home y demás páginas): tarjetas de datos a la izquierda y campos básicos. El
      mensaje viaja con la página de origen (`origen` = ruta actual), así se sabe desde dónde escribió.
-   - `completo` (solo /contacto): título arriba, formulario a todo el ancho y selector de motivo, que se
-     antepone al mensaje como «[Motivo: …]». Sus datos de contacto ya están en «Contacto por área». */
+   - `completo` (solo /contacto): título, texto y selector de motivo (tarjetas) a la izquierda y los datos
+     del formulario a la derecha; el motivo se antepone al mensaje como «[Motivo: …]». Sus datos de
+     contacto ya están en «Contacto por área». */
 export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: Encabezado; completo?: boolean }) {
   const conDatos = !completo;
   const ITEMS = itemsDe(useSitio().contact);
@@ -41,7 +48,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
-  const [motivo, setMotivo] = useState<(typeof MOTIVOS)[number]>(MOTIVOS[0]);
+  const [motivo, setMotivo] = useState<(typeof MOTIVOS)[number]['id']>(MOTIVOS[0].id);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -87,17 +94,44 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
       <div aria-hidden className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-brand-500/10 blur-3xl" />
       <div aria-hidden className="pointer-events-none absolute -bottom-24 right-0 h-80 w-80 rounded-full bg-brand-300/20 blur-3xl" />
 
-      <div className={`relative mx-auto grid gap-12 px-6 ${conDatos ? 'max-w-7xl lg:grid-cols-2 lg:items-start' : 'max-w-3xl'}`}>
-        <ScrollReveal direction="left" className={conDatos ? '' : 'text-center'}>
+      <div className="relative mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-2 lg:items-start">
+        <ScrollReveal direction="left">
           <SectionBadge>{c.badge}</SectionBadge>
           <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
             <span className="text-ink">{c.titulo}</span>{' '}
             <span className="title-shimmer-light">{c.destacado}</span>
           </h2>
-          <p className={`mt-4 max-w-lg text-ink/65 ${conDatos ? '' : 'mx-auto'}`}>
+          <p className="mt-4 max-w-lg text-ink/65">
             {c.descripcion}
           </p>
 
+          {completo && (
+            <div className="mt-8 grid gap-3" role="radiogroup" aria-label="Motivo del mensaje">
+              {MOTIVOS.map(({ id, texto, Icono }) => {
+                const activo = motivo === id;
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    role="radio"
+                    aria-checked={activo}
+                    onClick={() => setMotivo(id)}
+                    className={`group flex items-center gap-4 rounded-xl border p-3.5 text-left transition-all duration-300 hover:-translate-y-0.5 ${
+                      activo ? 'border-brand-primary bg-brand-primary text-white shadow-[0_14px_28px_-10px_rgba(16,122,204,0.6)]' : 'border-brand-100 bg-white hover:border-brand-primary/50'
+                    }`}
+                  >
+                    <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors ${activo ? 'bg-white text-brand-primary' : 'bg-brand-50 text-brand-primary'}`}>
+                      <Icono className="icon-hop h-5 w-5" strokeWidth={1.8} />
+                    </span>
+                    <span>
+                      <span className={`block text-sm font-semibold ${activo ? 'text-white' : 'text-ink'}`}>{id}</span>
+                      <span className={`block text-xs ${activo ? 'text-white/90' : 'text-ink/65'}`}>{texto}</span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
           {conDatos && (
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             {ITEMS.map(({ label, value, href, icon: Icon }) => (
@@ -129,30 +163,8 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
             <span aria-hidden className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-gradient-to-r from-brand-primary via-brand-500 to-brand-700 transition-transform duration-500 ease-out group-focus-within/form:scale-x-100" />
             <div className="mb-5">
               <p className="font-display text-xl font-bold text-ink">Déjanos tu mensaje</p>
-              <p className="mt-1 text-sm text-ink/65">Un asesor te responderá pronto.</p>
+              <p className="mt-1 text-sm text-ink/65">{completo ? `Motivo: ${motivo}. Un asesor te responderá pronto.` : 'Un asesor te responderá pronto.'}</p>
             </div>
-            {completo && (
-            <fieldset className="mb-5">
-              <legend className="text-sm font-medium text-ink/80">Motivo<span className="text-red-500"> *</span></legend>
-              <div className="mt-2 flex flex-wrap gap-2" role="radiogroup" aria-label="Motivo del mensaje">
-                {MOTIVOS.map((m) => {
-                  const activo = motivo === m;
-                  return (
-                    <button
-                      key={m}
-                      type="button"
-                      role="radio"
-                      aria-checked={activo}
-                      onClick={() => setMotivo(m)}
-                      className={`rounded-lg border px-3.5 py-2 text-sm font-semibold transition-all duration-200 ${activo ? 'border-brand-primary bg-brand-primary text-white' : 'border-brand-200 bg-white text-brand-700 hover:border-brand-primary hover:bg-brand-50'}`}
-                    >
-                      {m}
-                    </button>
-                  );
-                })}
-              </div>
-            </fieldset>
-            )}
             <div className="space-y-4">
               {success && (
                 <div role="status" className="rounded-xl border border-whatsapp-dark/30 bg-whatsapp/10 p-4 text-center text-sm font-medium text-whatsapp-dark">
