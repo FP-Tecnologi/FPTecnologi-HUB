@@ -179,8 +179,7 @@ export function StoreCatalog({
           <img src="/images/categorias/monitores.jpg" alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover object-[center_55%]" />
           <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-ink/75 via-ink/65 to-ink/80" />
           <div aria-hidden className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_45%,rgba(0,0,0,0.35),transparent)]" />
-          {/* Efecto "TI": retícula, partículas y nodos conectados en el celeste de la marca (como en el resto de heros). */}
-          <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgb(25_146_240/0.18)_1px,transparent_1px),linear-gradient(to_bottom,rgb(25_146_240/0.18)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_80%_90%_at_25%_50%,black,transparent)]" />
+          {/* Efecto "TI": partículas y nodos conectados en el celeste de la marca (como en el resto de heros). */}
           <div aria-hidden className="absolute inset-0"><ParticlesBackground /></div>
           <svg aria-hidden className="pointer-events-none absolute left-6 top-24 hidden h-36 w-72 text-brand-400/70 lg:block" viewBox="0 0 288 144" fill="none">
             <path d="M8 120 L70 84 L132 98 L196 36 L280 58" stroke="currentColor" strokeWidth="1" />
@@ -266,8 +265,8 @@ export function StoreCatalog({
       </div>
 
       <div className="relative overflow-hidden bg-white">
-      {/* Fondo de la tienda: retícula azul tenue que se desvanece + resplandores suaves. */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgb(16_122_204/0.07)_1px,transparent_1px),linear-gradient(to_bottom,rgb(16_122_204/0.07)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_90%_70%_at_70%_20%,black,transparent)]" />
+      {/* Fondo de la tienda: blanco con los mismos puntitos del resto del sitio + resplandores suaves. */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,color-mix(in_srgb,var(--color-brand-600)_16%,transparent)_1px,transparent_1px)] bg-[size:22px_22px]" />
       <div aria-hidden className="pointer-events-none absolute -right-24 top-10 h-80 w-80 rounded-full bg-brand-500/10 blur-3xl" />
       <div aria-hidden className="pointer-events-none absolute -left-24 top-1/2 h-80 w-80 rounded-full bg-brand-300/20 blur-3xl" />
       <main className="relative mx-auto grid max-w-7xl gap-8 px-6 py-12 lg:grid-cols-[260px_1fr]">
