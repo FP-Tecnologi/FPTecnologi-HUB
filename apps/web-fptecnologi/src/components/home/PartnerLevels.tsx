@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useState } from 'react';
+import { SectionBadge } from './SectionBadge';
 
 // Insignias de partner con el nombre y el nivel (Gold, Elite, Platinum...)
 // escritos debajo. Para sumar/quitar una marca se edita esta
@@ -20,11 +21,19 @@ const PARTNERS = [
    copias) que se pausa al pasar el cursor. En reposo sin tarjeta ni bordes
    (`mix-blend-multiply` funde el fondo blanco de las insignias); al hover
    se levanta como una tarjeta blanca con sombra en el azul primario. */
-export function PartnerLevels() {
+export function PartnerLevels({ conTitulo = false }: { conTitulo?: boolean }) {
   const [paused, setPaused] = useState(false);
   const track = [...PARTNERS, ...PARTNERS, ...PARTNERS];
   return (
-    <section id="alianzas" className="bg-paper py-6">
+    <section id="alianzas" className={`bg-paper ${conTitulo ? 'py-16' : 'py-6'}`}>
+      {conTitulo && (
+        <div className="mx-auto mb-6 flex max-w-2xl flex-col items-center px-6 text-center">
+          <SectionBadge>Nuestros Partners</SectionBadge>
+          <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
+            <span className="text-ink">Alianzas con líderes tecnológicos</span> <span className="title-shimmer-light">que impulsan nuestras soluciones</span>
+          </h2>
+        </div>
+      )}
       <div className="relative overflow-hidden py-6">
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-paper to-transparent sm:w-36" />
         <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-paper to-transparent sm:w-36" />

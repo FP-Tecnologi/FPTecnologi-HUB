@@ -5,6 +5,8 @@ import { SectionBadge } from '@/components/home/SectionBadge';
 import { ScrollReveal } from '@/components/home/ScrollReveal';
 import { MoreInfoButton } from '@/components/home/MoreInfoButton';
 import { ImageHoverCard } from '@/components/home/ImageHoverCard';
+import { CertificacionesISO } from '@/components/home/CertificacionesISO';
+import { PartnerLevels } from '@/components/home/PartnerLevels';
 import { BrandMarquee } from '@/components/home/BrandMarquee';
 import { WhyChooseUs } from '@/components/home/WhyChooseUs';
 import { NuestrosClientes } from '@/components/home/NuestrosClientes';
@@ -99,6 +101,8 @@ export default async function NosotrosPage() {
         </section>
 
         <WhyChooseUs />
+        <CertificacionesISO />
+        <PartnerLevels conTitulo />
         <BrandMarquee />
         <NuestrosClientes sectors={clientes} />
         <Contact />
