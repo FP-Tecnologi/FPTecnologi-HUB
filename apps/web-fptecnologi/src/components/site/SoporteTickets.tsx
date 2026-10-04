@@ -6,12 +6,12 @@ import { ArrowUpRightIcon } from '@/components/site/icons';
 import { ScrollReveal } from '@/components/home/ScrollReveal';
 import { SectionBadge } from '@/components/home/SectionBadge';
 
-type Caso = { id: string; titulo: string; texto: string; icono: LucideIcon; reclamo?: boolean };
+type Caso = { id: string; titulo: string; texto: string; pruebas: string; icono: LucideIcon; reclamo?: boolean };
 
 const CASOS: Caso[] = [
-  { id: 'reclamo', titulo: 'Registrar un reclamo', texto: 'Problemas con un pedido, garantía o atención recibida.', icono: FileWarning, reclamo: true },
-  { id: 'verificacion', titulo: 'Verificar un producto', texto: 'Revisión o validación de un equipo que compraste con nosotros.', icono: PackageSearch },
-  { id: 'soporte', titulo: 'Soporte técnico', texto: 'Falla o consulta técnica sobre un producto adquirido.', icono: Wrench },
+  { id: 'reclamo', titulo: 'Registrar un reclamo', texto: 'Problemas con un pedido, garantía o atención recibida.', pruebas: 'fotos del producto o del problema, tu boleta o factura y capturas de la conversación si las tienes', icono: FileWarning, reclamo: true },
+  { id: 'verificacion', titulo: 'Verificar un producto', texto: 'Revisión o validación de un equipo que compraste con nosotros.', pruebas: 'fotos del producto y de su etiqueta o número de serie, y tu comprobante de compra', icono: PackageSearch },
+  { id: 'soporte', titulo: 'Soporte técnico', texto: 'Falla o consulta técnica sobre un producto adquirido.', pruebas: 'fotos o capturas de la falla, y del equipo con su modelo o número de serie', icono: Wrench },
 ];
 
 const MAX_EVIDENCIAS = 3;
@@ -326,6 +326,14 @@ export function SoporteTickets() {
                   {paso === 1 ? 'Continuar' : enviando ? 'Enviando...' : 'Abrir ticket'}
                 </button>
               </div>
+              {paso === 1 && (
+                <p className="flex items-start gap-2 rounded-xl bg-brand-50 p-3 text-xs leading-relaxed text-ink/75">
+                  <ImagePlus className="mt-0.5 h-4 w-4 shrink-0 text-brand-primary" strokeWidth={2} />
+                  <span>
+                    En el siguiente paso podrás adjuntar pruebas (hasta 3 fotos): <strong className="text-ink">{actual.pruebas}</strong>.
+                  </span>
+                </p>
+              )}
             </div>
           </form>
         </ScrollReveal>
