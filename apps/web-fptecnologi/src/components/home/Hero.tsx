@@ -363,7 +363,7 @@ function AskAiCard() {
   return (
     <div className="w-full">
       <span className="mb-1.5 flex items-center gap-1.5 text-xs font-bold text-white/70 sm:text-sm 2xl:mb-2 2xl:text-base">
-        Pregunta a nuestra Inteligencia Artificial
+        Pregunta a nuestra IA
         <SparkleIcon className="h-3.5 w-3.5 2xl:h-4 2xl:w-4" />
       </span>
       <form onSubmit={handleSubmit} className="flex w-full min-w-0 items-center gap-2">
@@ -379,7 +379,7 @@ function AskAiCard() {
         />
         <button
           type="submit"
-          aria-label="Preguntar a la IA"
+          aria-label="Preguntar IA"
           className="group flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-brand-primary text-white transition-[transform,background-color] hover:scale-105 hover:bg-brand-primary active:scale-95"
         >
           <span className="relative flex h-5 w-5 items-center justify-center">

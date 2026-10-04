@@ -27,7 +27,7 @@ export function CartView() {
         <h2 className="mt-6 font-display text-2xl font-bold text-ink">Tu carrito está vacío</h2>
         <p className="mt-2 text-ink/60">Explora la tienda y agrega los equipos que necesitas. También puedes pedirnos una cotización a medida.</p>
         <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <MoreInfoButton href="/tienda" label="Ir a la tienda" />
+          <MoreInfoButton href="/tienda" label="Ver tienda" />
           <a href="/cotizador" className="inline-flex h-11 items-center rounded-xl border border-ink/15 px-6 text-sm font-semibold uppercase tracking-wide text-ink transition-colors hover:bg-brand-primary hover:text-white">
             Cotizar
           </a>

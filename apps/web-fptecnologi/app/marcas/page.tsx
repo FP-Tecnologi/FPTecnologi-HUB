@@ -37,7 +37,7 @@ export default async function MarcasPage() {
         destacado="con distribución autorizada"
         descripcion="Productos originales con garantía oficial y stock local de las principales marcas de tecnología."
       >
-        <MoreInfoButton tone="dark" href="/tienda" label="Ver la tienda" />
+        <MoreInfoButton tone="dark" href="/tienda" label="Ver tienda" />
       </PageHero>
 
       <main className="bg-paper py-20">

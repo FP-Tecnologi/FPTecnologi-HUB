@@ -45,7 +45,7 @@ export const HERO_SLIDES = [
     titleLead: 'Sumate como integrador o',
     titleAccent: 'revendedor autorizado',
     text: 'Precios y beneficios especiales para partners — cotización directa y soporte comercial dedicado.',
-    cta: { label: 'Conocer el programa', href: '#partners' },
+    cta: { label: 'Ver programa', href: '#partners' },
     image: '/herobanner/partner.png',
     imageAlt: 'Programa de Partners FPTecnologi',
     kind: 'photo',

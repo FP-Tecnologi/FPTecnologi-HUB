@@ -33,7 +33,7 @@ export default async function ContactoPage() {
         descripcion={c.hero.descripcion}
         imagen="/images/modelo9/hero-office.jpg"
       >
-        <WhatsAppCta label="Escríbenos por WhatsApp" />
+        <WhatsAppCta label="WhatsApp" />
         <MoreInfoButton tone="dark" href="/cotizador" label="Cotizar" />
       </PageHero>
 

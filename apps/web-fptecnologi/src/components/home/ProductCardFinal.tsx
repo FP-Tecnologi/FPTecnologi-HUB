@@ -165,7 +165,7 @@ export function ProductCardFinal({
             <ClickConfirmButton
               collapsed
               icon={cartIcon}
-              label="Añadir al carrito"
+              label="Al carrito"
               doneIcon={() => (
                 <span className="flex items-center justify-center rounded-md bg-white/20 p-1.5">
                   <Check className="h-4 w-4" strokeWidth={2.4} />

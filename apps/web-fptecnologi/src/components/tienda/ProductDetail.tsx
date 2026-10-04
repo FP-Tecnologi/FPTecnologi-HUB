@@ -110,7 +110,7 @@ export function ProductDetail({ product, relacionados }: { product: CatalogProdu
             <div className="mt-6 flex flex-wrap items-center gap-3">
               <ClickConfirmButton
                 icon={(r) => <ShoppingCart className={`h-4 w-4 transition-transform duration-300 ${r ? '-rotate-12' : ''}`} strokeWidth={2} />}
-                label="Añadir al carrito"
+                label="Al carrito"
                 doneIcon={() => <Check className="h-4 w-4" strokeWidth={2.4} />}
                 doneLabel="Agregado"
                 onConfirm={() => addItem({ sku: product.sku, name: product.name, price: product.price, image: images[0] })}
@@ -129,7 +129,7 @@ export function ProductDetail({ product, relacionados }: { product: CatalogProdu
             </div>
 
             <div className="mt-4 flex flex-wrap items-center gap-3">
-              <MoreInfoButton href={COTIZADOR_URL} label="Cotizar por volumen" />
+              <MoreInfoButton href={COTIZADOR_URL} label="Cotizar volumen" />
               <a
                 href={whatsappHref(`Hola, quiero información del producto ${product.name} (SKU ${product.sku})`)}
                 target="_blank"
@@ -197,7 +197,7 @@ export function ProductDetail({ product, relacionados }: { product: CatalogProdu
                   <span className="text-ink">También te</span> <span className="title-shimmer-light">puede interesar</span>
                 </h2>
               </div>
-              <MoreInfoButton href={categoria ? `/tienda/${categoria.slug}` : '/tienda'} label={`Ver ${categoria?.title.toLowerCase() ?? 'tienda'}`} />
+              <MoreInfoButton href={categoria ? `/tienda/${categoria.slug}` : '/tienda'} label="Ver categoría" />
             </div>
             <div className="grid grid-cols-2 gap-5 sm:gap-7 lg:grid-cols-4">
               {relacionados.map((p) => (

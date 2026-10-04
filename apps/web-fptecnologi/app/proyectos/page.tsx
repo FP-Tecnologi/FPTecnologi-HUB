@@ -31,8 +31,8 @@ export default async function ProyectosPage() {
         descripcion={c.hero.descripcion}
         imagen="/images/solutions/seguridad.jpg"
       >
-        <MoreInfoButton tone="dark" href="/cotizador" label="Cotizar un proyecto" />
-        <WhatsAppCta label="Hablar con un especialista" texto="Hola, quiero información sobre un proyecto" />
+        <MoreInfoButton tone="dark" href="/cotizador" label="Cotizar proyecto" />
+        <WhatsAppCta label="Contactar especialista" texto="Hola, quiero información sobre un proyecto" />
       </PageHero>
       <main>
         <ProyectosListado projects={proyectos} />

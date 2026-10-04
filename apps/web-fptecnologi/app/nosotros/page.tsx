@@ -43,7 +43,7 @@ export default async function NosotrosPage() {
         imagen="/herobanner/partner izquierdo.jpg"
       >
         <MoreInfoButton tone="dark" href="/cotizador" label="Cotizar" />
-        <WhatsAppCta label="Hablar con un asesor" tone="dark" />
+        <WhatsAppCta label="Contactar asesor" tone="dark" />
       </PageHero>
 
       <main>

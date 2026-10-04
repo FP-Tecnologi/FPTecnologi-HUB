@@ -5,7 +5,7 @@ import { whatsappHref } from '@/lib/chatActions';
 
 /** Botón sweep que abre WhatsApp en otra pestaña (única excepción a "no abrir pestañas", DESIGN.md §4). */
 export function WhatsAppCta({
-  label = 'Escríbenos por WhatsApp',
+  label = 'WhatsApp',
   texto,
   tone = 'dark',
 }: {

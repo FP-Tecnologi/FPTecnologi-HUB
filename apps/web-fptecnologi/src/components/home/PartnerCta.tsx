@@ -44,7 +44,7 @@ export function PartnerCta({ c = HOME_DEFAULTS.partners }: { c?: Encabezado & { 
           <div className="mt-8">
             <MoreInfoButton
               tone="light"
-              label={c.botonTexto || 'Sumarme como partner'}
+              label={c.botonTexto || 'Ser partner'}
               onClick={() => window.open(whatsappHref('Hola, quiero saber más sobre el programa de Partners de FPTecnologi'), '_blank', 'noreferrer')}
             />
           </div>

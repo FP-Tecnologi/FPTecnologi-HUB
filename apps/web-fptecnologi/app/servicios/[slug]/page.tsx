@@ -39,8 +39,8 @@ export default async function ServicioDetailPage({ params }: { params: Promise<{
         descripcion={s.description}
         imagen={s.image}
       >
-        <MoreInfoButton tone="dark" href="#cotizar" label="Cotizar este servicio" />
-        <WhatsAppCta label="Hablar con un especialista" texto={`Hola, quiero información sobre ${s.title}`} />
+        <MoreInfoButton tone="dark" href="#cotizar" label="Cotizar servicio" />
+        <WhatsAppCta label="Contactar especialista" texto={`Hola, quiero información sobre ${s.title}`} />
       </PageHero>
 
       <main>

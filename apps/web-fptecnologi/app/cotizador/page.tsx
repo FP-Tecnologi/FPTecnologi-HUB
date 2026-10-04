@@ -181,7 +181,7 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
               </h2>
               <p className="mt-4 text-ink/60">¿No encuentras tu respuesta? Escríbenos y un asesor te ayuda.</p>
               <div className="mt-6">
-                <WhatsAppCta label="Hablar con un asesor" texto="Hola, tengo una consulta sobre cotizar con FPTecnologi" />
+                <WhatsAppCta label="Contactar asesor" texto="Hola, tengo una consulta sobre cotizar con FPTecnologi" />
               </div>
             </ScrollReveal>
             <ScrollReveal direction="right" delayMs={120}>

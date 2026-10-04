@@ -3,7 +3,7 @@
 import { ClickConfirmButton } from './ClickConfirmButton';
 import { ArrowUpRightIcon } from '@/components/site/icons';
 
-const SIZE = 'h-10 rounded-xl pl-2 pr-5 text-xs font-semibold uppercase tracking-wide md:h-11 md:pr-6 md:text-sm 2xl:h-12 2xl:text-base';
+const SIZE = 'h-9 rounded-xl pl-1.5 pr-4 text-xs font-semibold uppercase tracking-wide md:h-10 md:pr-5 md:text-[13px] 2xl:h-11 2xl:text-sm';
 
 // light: para fondos claros (azul oscuro -> azul principal). dark: para
 // secciones de fondo oscuro (blanco -> azul principal).
@@ -30,8 +30,8 @@ export function MoreInfoButton({
 }) {
   const t = TONE[tone];
   const icon = (rotated: boolean) => (
-    <span className={`flex items-center justify-center rounded-lg p-1 md:p-1.5 ${t.chip}`}>
-      <ArrowUpRightIcon className={`h-4 w-4 transition-transform duration-300 md:h-5 md:w-5 ${rotated ? 'rotate-45' : ''}`} />
+    <span className={`flex items-center justify-center rounded-lg p-1 ${t.chip}`}>
+      <ArrowUpRightIcon className={`h-4 w-4 transition-transform duration-300 ${rotated ? 'rotate-45' : ''}`} />
     </span>
   );
 

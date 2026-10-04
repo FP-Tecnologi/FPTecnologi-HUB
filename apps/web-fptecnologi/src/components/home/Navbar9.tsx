@@ -24,7 +24,7 @@ import { useCart } from '@/context/CartContext';
  * dropdownVariant="glass" para que combine con el resto de tarjetas de
  * vidrio blanco del hero en vez del panel blanco sólido del header.
  */
-const COTIZAR_SIZE = 'h-10 pl-2 pr-4 text-xs md:text-sm lg:h-auto lg:py-1.5 lg:pl-1.5 lg:pr-4 xl:text-[15px] 2xl:py-2 2xl:pl-2 2xl:pr-5 2xl:text-base';
+const COTIZAR_SIZE = 'h-9 pl-1.5 pr-3.5 text-xs md:text-[13px] lg:h-auto lg:py-1 lg:pl-1.5 lg:pr-4 xl:text-sm 2xl:py-1.5 2xl:pr-4 2xl:text-[15px]';
 
 export function Navbar9({ compact = false, store = false }: { compact?: boolean; store?: boolean }) {
   const [open, setOpen] = useState(false);
@@ -85,14 +85,14 @@ export function Navbar9({ compact = false, store = false }: { compact?: boolean;
               hamburguesa (h-10) para que queden alineados. */}
           <ClickConfirmButton
             icon={(rotated) => (
-              <span className={`flex items-center justify-center rounded-lg ${compact ? "bg-brand-primary" : "bg-white/20"} p-1 md:p-1.5`}>
-                <ArrowUpRightIcon className={`h-4 w-4 text-white transition-transform duration-300 md:h-5 md:w-5 ${rotated ? 'rotate-45' : ''}`} />
+              <span className={`flex items-center justify-center rounded-lg ${compact ? "bg-brand-primary" : "bg-white/20"} p-1`}>
+                <ArrowUpRightIcon className={`h-4 w-4 text-white transition-transform duration-300 ${rotated ? 'rotate-45' : ''}`} />
               </span>
             )}
             label="Cotizar"
             doneIcon={() => (
-              <span className={`flex items-center justify-center rounded-lg ${compact ? "bg-brand-primary" : "bg-white/20"} p-1 md:p-1.5`}>
-                <ArrowUpRightIcon className="h-4 w-4 text-white md:h-5 md:w-5" />
+              <span className={`flex items-center justify-center rounded-lg ${compact ? "bg-brand-primary" : "bg-white/20"} p-1`}>
+                <ArrowUpRightIcon className="h-4 w-4 text-white" />
               </span>
             )}
             doneLabel="Cotizar"

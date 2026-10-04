@@ -79,7 +79,7 @@ export const COTIZADOR_DEFAULTS: CotizadorContenido = {
   gracias: {
     titulo: '¡Recibimos tu solicitud!',
     mensaje: 'Un asesor de FPTecnologi se pondrá en contacto contigo muy pronto para enviarte tu cotización.',
-    botonTexto: 'Volver al inicio',
+    botonTexto: 'Volver',
     botonUrl: '/',
   },
 };

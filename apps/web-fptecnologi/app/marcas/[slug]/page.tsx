@@ -42,7 +42,7 @@ export default async function MarcaPage({ params }: { params: Promise<{ slug: st
         destacado="distribución autorizada"
         descripcion={productos.length > 0 ? `${productos.length} producto${productos.length === 1 ? '' : 's'} originales con garantía oficial y stock local.` : 'Consúltanos por equipos de esta marca: te cotizamos a medida.'}
       >
-        <MoreInfoButton tone="dark" href="/tienda" label="Ver toda la tienda" />
+        <MoreInfoButton tone="dark" href="/tienda" label="Ver tienda" />
       </PageHero>
 
       <main className="bg-paper py-20">
@@ -60,7 +60,7 @@ export default async function MarcaPage({ params }: { params: Promise<{ slug: st
               <p className="mt-2 text-ink/60">Somos distribuidores autorizados: pídenos una cotización y un asesor te propone la mejor opción.</p>
               <div className="mt-6 flex flex-wrap justify-center gap-3">
                 <MoreInfoButton href="/cotizador" label="Cotizar" />
-                <WhatsAppCta label="Consultar por WhatsApp" texto={`Hola, quiero información de equipos ${nombre}`} tone="light" />
+                <WhatsAppCta label="WhatsApp" texto={`Hola, quiero información de equipos ${nombre}`} tone="light" />
               </div>
             </div>
           )}

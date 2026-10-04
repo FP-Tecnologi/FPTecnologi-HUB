@@ -34,7 +34,7 @@ export default async function ServiciosPage() {
         imagen="/herobanner/Servicios.png"
       >
         <MoreInfoButton tone="dark" href="/cotizador" label="Cotizar servicio" />
-        <WhatsAppCta label="Hablar con un especialista" texto="Hola, quiero información sobre sus servicios TI" />
+        <WhatsAppCta label="Contactar especialista" texto="Hola, quiero información sobre sus servicios TI" />
       </PageHero>
 
       <main>
