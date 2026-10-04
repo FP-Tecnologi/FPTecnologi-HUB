@@ -8,6 +8,8 @@ import { SectionBadge } from '@/components/home/SectionBadge';
 import { ScrollReveal } from '@/components/home/ScrollReveal';
 import { MoreInfoButton } from '@/components/home/MoreInfoButton';
 import { Contact } from '@/components/home/Contact';
+import { AreasContacto } from '@/components/site/AreasContacto';
+import { SoporteTickets } from '@/components/site/SoporteTickets';
 import { Footer } from '@/components/home/Footer';
 import { getPagina } from '@/lib/paginasContenido';
 import { metaSeo } from '@/lib/seo';
@@ -38,42 +40,8 @@ export default async function ContactoPage() {
       </PageHero>
 
       <main>
-        {/* Asesores por área */}
-        <section className="bg-white py-20">
-          <div className="mx-auto max-w-7xl px-6">
-            <ScrollReveal direction="up" className="mx-auto mb-12 flex max-w-2xl flex-col items-center text-center">
-              <SectionBadge>{c.asesores.badge}</SectionBadge>
-              <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
-                <span className="text-ink">{c.asesores.titulo}</span> <span className="title-shimmer-light">{c.asesores.destacado}</span>
-              </h2>
-            </ScrollReveal>
-            <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-4">
-              {WHATSAPP_AREAS.map((a, i) => (
-                <ScrollReveal key={a.label} direction="up" delayMs={i * 100} className="h-full">
-                  <a
-                    href={`https://wa.me/${a.number}?text=${encodeURIComponent(`Hola ${a.contact}, quiero contactar al área de ${a.label} de FPTecnologi`)}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="group flex h-full flex-col items-center rounded-2xl bg-paper p-7 text-center shadow-lg shadow-brand-dark/10 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-brand-dark/25"
-                  >
-                    <span className="relative">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={a.photo} alt={a.contact} className="h-20 w-20 rounded-2xl rounded-bl-md object-cover shadow-lg shadow-brand-dark/25 ring-2 ring-whatsapp/70" />
-                      <span className="absolute -right-1 -top-1 h-3.5 w-3.5 rounded-full bg-whatsapp ring-2 ring-white" />
-                    </span>
-                    <span className="mt-4 rounded-md bg-whatsapp/15 px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-whatsapp-dark">{a.label}</span>
-                    <span className="mt-2 font-display text-lg font-bold text-ink">{a.contact}</span>
-                    <span className="text-sm text-ink/60">+51 {a.phone}</span>
-                    <span className="mt-5 inline-flex h-10 items-center gap-2 rounded-xl bg-whatsapp-dark px-4 text-sm font-semibold text-white shadow-md shadow-whatsapp/30 transition-colors group-hover:bg-whatsapp-deep">
-                      <WhatsAppIcon className="h-4 w-4" />
-                      Chatear
-                    </span>
-                  </a>
-                </ScrollReveal>
-              ))}
-            </div>
-          </div>
-        </section>
+        <AreasContacto />
+        <SoporteTickets />
 
         {/* Mapa + horario */}
         <section className="mx-auto max-w-7xl px-6 py-20">
