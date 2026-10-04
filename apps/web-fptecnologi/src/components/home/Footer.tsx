@@ -1,6 +1,5 @@
 import Image from 'next/image';
 import { getSitio } from '@/lib/sitio';
-import { getServicios } from '@/lib/servicios';
 import { LEGAL_LINKS } from '@/lib/legal';
 import { FacebookIcon, InstagramIcon, LinkedinIcon, YoutubeIcon } from '@/components/site/icons';
 import { NewsletterForm } from './NewsletterForm';
@@ -14,6 +13,13 @@ const NAV = [
   { label: 'Contacto', href: '/contacto' },
 ];
 
+
+// Columna "Soporte": tickets (sección de la página de contacto), contacto y cotizador.
+const SOPORTE = [
+  { label: 'Tickets', href: '/contacto#tickets' },
+  { label: 'Contacto', href: '/contacto' },
+  { label: 'Cotizar', href: '/cotizador' },
+];
 
 const SOCIAL_ICON = { facebook: FacebookIcon, instagram: InstagramIcon, linkedin: LinkedinIcon, youtube: YoutubeIcon };
 
@@ -37,7 +43,7 @@ function ColumnTitle({ children }: { children: string }) {
  * Mismo fondo que "Hablemos" (bg-ink); la línea de arriba marca dónde empieza.
  */
 export async function Footer() {
-  const [servicios, { social: SOCIAL_LINKS }] = await Promise.all([getServicios(), getSitio()]);
+  const { social: SOCIAL_LINKS } = await getSitio();
   const divider = <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />;
 
   return (
@@ -99,12 +105,12 @@ export async function Footer() {
           </div>
 
           <div className="lg:border-l lg:border-white/10 lg:px-8">
-            <ColumnTitle>Servicios</ColumnTitle>
+            <ColumnTitle>Soporte</ColumnTitle>
             <ul className="mt-5 space-y-2.5 text-sm">
-              {servicios.slice(0, 5).map((s) => (
-                <li key={s.slug}>
-                  <a href={`/servicios/${s.slug}`} className="nav-underline inline-block transition-colors hover:text-white">
-                    {s.title}
+              {SOPORTE.map((l) => (
+                <li key={l.href}>
+                  <a href={l.href} className="nav-underline inline-block transition-colors hover:text-white">
+                    {l.label}
                   </a>
                 </li>
               ))}
