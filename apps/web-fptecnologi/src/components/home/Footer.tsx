@@ -3,22 +3,15 @@ import { getSitio } from '@/lib/sitio';
 import { LEGAL_LINKS } from '@/lib/legal';
 import { FacebookIcon, InstagramIcon, LinkedinIcon, YoutubeIcon } from '@/components/site/icons';
 import { NewsletterForm } from './NewsletterForm';
-
-// Solo páginas (no anclas de la home): pedido del usuario.
-const NAV = [
-  { label: 'Nosotros', href: '/nosotros' },
-  { label: 'Servicios', href: '/servicios' },
-  { label: 'Tienda', href: '/tienda' },
-  { label: 'Blog', href: '/blog' },
-];
+import { FooterNav } from './FooterNav';
 
 
-// Columna "Soporte": tickets (/tickets), contacto, cotizador y libro de reclamaciones.
+// Columna "Soporte": tickets (/tickets), contacto, cotizador y reclamaciones (libro de reclamaciones).
 const SOPORTE = [
   { label: 'Tickets', href: '/tickets' },
   { label: 'Contacto', href: '/contacto' },
   { label: 'Cotizar', href: '/cotizador' },
-  { label: 'Libro de reclamaciones', href: '/libro-de-reclamaciones' },
+  { label: 'Reclamaciones', href: '/libro-de-reclamaciones' },
 ];
 
 const SOCIAL_ICON = { facebook: FacebookIcon, instagram: InstagramIcon, linkedin: LinkedinIcon, youtube: YoutubeIcon };
@@ -93,15 +86,7 @@ export async function Footer() {
 
           <div className="lg:border-l lg:border-white/10 lg:px-8">
             <ColumnTitle>Navegación</ColumnTitle>
-            <ul className="mt-5 space-y-2.5 text-sm">
-              {NAV.map((l) => (
-                <li key={l.href}>
-                  <a href={l.href} className="nav-underline inline-block transition-colors hover:text-white">
-                    {l.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <FooterNav />
           </div>
 
           <div className="lg:border-l lg:border-white/10 lg:px-8">
@@ -120,7 +105,7 @@ export async function Footer() {
           <div className="lg:border-l lg:border-white/10 lg:pl-8">
             <ColumnTitle>Legales</ColumnTitle>
             <ul className="mt-5 space-y-2.5 text-sm">
-              {LEGAL_LINKS.map((l) => (
+              {LEGAL_LINKS.filter((l) => l.href !== '/libro-de-reclamaciones').map((l) => (
                 <li key={l.href}>
                   <a href={l.href} className="nav-underline inline-block transition-colors hover:text-white">
                     {l.label}
