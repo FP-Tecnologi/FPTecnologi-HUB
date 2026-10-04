@@ -1,13 +1,8 @@
-import { FileWarning, PackageSearch, Wrench, type LucideIcon } from 'lucide-react';
 import { MoreInfoButton } from '@/components/home/MoreInfoButton';
 import { ScrollReveal } from '@/components/home/ScrollReveal';
 import { SectionBadge } from '@/components/home/SectionBadge';
 
-const CASOS: { titulo: string; icono: LucideIcon }[] = [
-  { titulo: 'Verificar un producto', icono: PackageSearch },
-  { titulo: 'Registrar un reclamo', icono: FileWarning },
-  { titulo: 'Soporte técnico', icono: Wrench },
-];
+const CASOS = [{ titulo: 'Verificar un producto' }, { titulo: 'Registrar un reclamo' }, { titulo: 'Soporte técnico' }];
 
 /* Llamada a la acción de /contacto hacia la página completa de tickets (/tickets):
    texto + botón a la izquierda y una foto de soporte a la derecha. */
@@ -23,27 +18,27 @@ export function TicketsCta() {
           <p className="mt-4 max-w-lg text-ink/65">
             Si compraste con nosotros y necesitas verificar un equipo, registrar un reclamo o recibir soporte, abre un ticket y el área comercial le dará seguimiento.
           </p>
-          <ul className="mt-6 flex flex-wrap gap-3">
-            {CASOS.map(({ titulo, icono: Icono }) => (
-              <li key={titulo} className="flex items-center gap-2 rounded-xl border border-brand-100 bg-white px-3.5 py-2 text-sm font-semibold text-ink shadow-sm shadow-brand-950/5">
-                <Icono className="h-4 w-4 text-brand-primary" strokeWidth={2} />
+          <p className="mt-5 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm font-semibold text-ink">
+            {CASOS.map(({ titulo }, i) => (
+              <span key={titulo} className="flex items-center gap-2">
+                {i > 0 && <span aria-hidden className="h-1.5 w-1.5 rotate-45 bg-brand-primary" />}
                 {titulo}
-              </li>
+              </span>
             ))}
-          </ul>
+          </p>
           <div className="mt-8">
             <MoreInfoButton href="/tickets" label="Abrir ticket" />
           </div>
         </ScrollReveal>
 
         <ScrollReveal direction="right" delayMs={120}>
-          <div className="relative overflow-hidden rounded-2xl shadow-2xl shadow-brand-950/25">
+          <div className="group relative overflow-hidden rounded-2xl shadow-2xl shadow-brand-950/25">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/images/solutions/soporte-tecnico.jpg" alt="Técnico revisando un equipo" className="aspect-[4/3] w-full object-cover" />
-            <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-brand-950/70 via-transparent to-transparent" />
-            <div className="absolute inset-x-4 bottom-4 rounded-xl bg-white p-4 shadow-xl shadow-brand-950/30">
-              <p className="font-display text-base font-bold text-ink">Tu caso, con seguimiento</p>
-              <p className="text-sm text-ink/65">Registramos tu ticket y un asesor te contacta.</p>
+            <img src="/images/solutions/soporte-tecnico.jpg" alt="Técnico revisando un equipo" className="aspect-[4/3] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
+            <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-brand-950/70 via-transparent to-transparent transition-opacity duration-500 group-hover:from-brand-950/85" />
+            <div className="absolute inset-x-4 bottom-4 rounded-xl bg-white p-4 shadow-xl shadow-brand-950/30 transition-all duration-500 ease-out group-hover:-translate-y-1.5 group-hover:shadow-2xl">
+              <p className="font-display text-base font-bold text-ink transition-colors duration-300 group-hover:text-brand-primary">Tu caso, con seguimiento</p>
+              <p className="text-sm text-ink/65">Una vez registres tu reclamo, el personal especializado atenderá tu problema a la brevedad.</p>
             </div>
           </div>
         </ScrollReveal>
