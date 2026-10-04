@@ -91,7 +91,7 @@ export default async function NosotrosPage() {
                   <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-primary text-white shadow-lg shadow-brand-dark/30">
                     <Icon className="h-6 w-6" strokeWidth={1.8} />
                   </span>
-                  <h3 className="mt-5 origin-left font-display text-xl font-bold text-ink transition-all duration-300 ease-out group-hover:scale-105 group-hover:text-brand-primary">{titulo}</h3>
+                  <h3 className="mt-5 origin-left font-display text-xl font-bold text-brand-primary transition-transform duration-300 ease-out group-hover:scale-105">{titulo}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-ink/60">{texto}</p>
                 </div>
               </ScrollReveal>
