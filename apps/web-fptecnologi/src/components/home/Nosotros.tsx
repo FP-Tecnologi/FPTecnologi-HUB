@@ -5,6 +5,7 @@ import { useSitio } from '@/context/SitioContext';
 import { MoreInfoButton } from './MoreInfoButton';
 import { ScrollReveal } from './ScrollReveal';
 import { SectionBadge } from './SectionBadge';
+import { ImageHoverCard } from './ImageHoverCard';
 import { SegmentVideo } from './SegmentVideo';
 
 function CheckIcon({ className }: { className?: string }) {
@@ -34,26 +35,16 @@ export function Nosotros({ c = HOME_DEFAULTS.nosotros }: { c?: Encabezado & { pu
             tonos azules de la paleta; el video de la oficina era verdoso).
             Hover: zoom leve + degradado + tarjeta de vidrio con STATS que
             sube. En pantallas táctiles (sin hover) queda siempre visible. */}
-        <ScrollReveal direction="left" className="group relative aspect-4/3 overflow-hidden rounded-2xl">
-          <SegmentVideo
-            src="/images/home/about.mp4"
-            start={6}
-            end={12}
-            aria-label="Video institucional FPTecnologi"
-            className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transition-none"
-          />
-          <div className="pointer-events-none absolute inset-0 bg-linear-to-t from-brand-dark/80 via-brand-dark/10 to-transparent transition-opacity duration-500 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100" />
-          <div className="pointer-events-none absolute inset-x-4 bottom-4 flex justify-around gap-2 rounded-xl border border-white/20 bg-white/10 px-4 py-3 text-white backdrop-blur-md transition-all duration-500 ease-out motion-reduce:transition-none [@media(hover:hover)]:translate-y-6 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:opacity-100">
-            {STATS.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p className="font-display text-xl font-bold sm:text-2xl">
-                  {stat.value}
-                  {stat.suffix}
-                </p>
-                <p className="text-[11px] leading-tight text-white/80 sm:text-xs">{stat.label}</p>
-              </div>
-            ))}
-          </div>
+        <ScrollReveal direction="left">
+          <ImageHoverCard datos={STATS.map((s) => ({ value: `${s.value}${s.suffix}`, label: s.label }))}>
+            <SegmentVideo
+              src="/images/home/about.mp4"
+              start={6}
+              end={12}
+              aria-label="Video institucional FPTecnologi"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+          </ImageHoverCard>
         </ScrollReveal>
 
         <ScrollReveal direction="right" delayMs={120}>

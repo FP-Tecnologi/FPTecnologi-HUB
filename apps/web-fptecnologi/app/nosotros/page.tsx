@@ -4,6 +4,7 @@ import { WhatsAppCta } from '@/components/site/WhatsAppCta';
 import { SectionBadge } from '@/components/home/SectionBadge';
 import { ScrollReveal } from '@/components/home/ScrollReveal';
 import { MoreInfoButton } from '@/components/home/MoreInfoButton';
+import { ImageHoverCard } from '@/components/home/ImageHoverCard';
 import { BrandMarquee } from '@/components/home/BrandMarquee';
 import { WhyChooseUs } from '@/components/home/WhyChooseUs';
 import { NuestrosClientes } from '@/components/home/NuestrosClientes';
@@ -51,10 +52,10 @@ export default async function NosotrosPage() {
         <section className="bg-white py-20">
           <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2">
             <ScrollReveal direction="left">
-              <div className="overflow-hidden rounded-2xl shadow-2xl shadow-brand-dark/25">
+              <ImageHoverCard datos={STATS.map((s) => ({ value: `${s.value}${s.suffix}`, label: s.label }))}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/herobanner/partner izquierdo.jpg" alt="Equipo de FPTecnologi en reunión con clientes" className="aspect-[4/3] w-full object-cover" />
-              </div>
+                <img src="/herobanner/partner izquierdo.jpg" alt="Equipo de FPTecnologi en reunión con clientes" />
+              </ImageHoverCard>
             </ScrollReveal>
             <ScrollReveal direction="right" delayMs={120}>
               <SectionBadge>{c.quienes.badge}</SectionBadge>
