@@ -71,7 +71,11 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
 
   return (
     <section id="contacto" className="relative overflow-hidden border-t border-brand-100 bg-white py-20 text-ink">
-      {/* Fondo blanco con un resplandor azul muy suave a cada lado; el color lo lleva el formulario. */}
+      {/* Fondo blanco con retícula azul tenue que se desvanece, y resplandores suaves; el color lo lleva el formulario. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgb(16_122_204/0.07)_1px,transparent_1px),linear-gradient(to_bottom,rgb(16_122_204/0.07)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_80%_80%_at_70%_40%,black,transparent)]"
+      />
       <div aria-hidden className="pointer-events-none absolute -left-24 top-10 h-72 w-72 rounded-full bg-brand-500/10 blur-3xl" />
       <div aria-hidden className="pointer-events-none absolute -bottom-24 right-0 h-80 w-80 rounded-full bg-brand-300/20 blur-3xl" />
 
@@ -93,16 +97,15 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
                 href={href}
                 target={href.startsWith('http') ? '_blank' : undefined}
                 rel={href.startsWith('http') ? 'noreferrer' : undefined}
-                className="group relative block overflow-hidden rounded-xl border border-brand-100 bg-white py-3.5 pl-[4.25rem] pr-4 shadow-sm shadow-brand-950/5 transition-all duration-500 hover:-translate-y-0.5 hover:border-brand-300 hover:pl-4 hover:pr-[4.25rem] hover:shadow-[0_14px_30px_-10px_rgba(16,122,204,0.4)]"
+                className="group flex items-center gap-3.5 rounded-xl border border-brand-100 bg-white p-3.5 shadow-sm shadow-brand-950/5 transition-all duration-300 hover:border-brand-primary/40 hover:shadow-md hover:shadow-brand-primary/15"
               >
-                {/* Mismo gesto del botón del hero: el ícono viaja de lado a lado
-                    (acá al pasar el cursor) mientras el texto ocupa su lugar. */}
-                <span className="absolute left-3 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-lg bg-brand-700 text-white transition-all duration-500 ease-out group-hover:left-[calc(100%-3.25rem)] group-hover:bg-brand-primary">
-                  <Icon className="h-5 w-5 transition-transform duration-500 group-hover:rotate-[360deg]" strokeWidth={1.8} />
+                {/* Hover sutil: el ícono y el texto pasan al azul primario. */}
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-primary transition-colors duration-300 group-hover:bg-brand-primary group-hover:text-white">
+                  <Icon className="h-5 w-5" strokeWidth={1.8} />
                 </span>
                 <span className="block min-w-0">
-                  <span className="block text-xs uppercase tracking-wide text-ink/65">{label}</span>
-                  <span className="block break-words text-sm font-semibold text-ink">{value.replace('@', '​@')}</span>
+                  <span className="block text-xs uppercase tracking-wide text-ink/65 transition-colors duration-300 group-hover:text-brand-primary">{label}</span>
+                  <span className="block break-words text-sm font-semibold text-ink transition-colors duration-300 group-hover:text-brand-primary">{value.replace('@', '​@')}</span>
                 </span>
               </a>
             ))}
@@ -110,7 +113,12 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
         </ScrollReveal>
 
         <ScrollReveal direction="right" delayMs={120}>
-          <form onSubmit={handleSubmit} className="rounded-2xl border border-brand-100 bg-paper p-6 shadow-xl shadow-brand-950/10 sm:p-8">
+          <form onSubmit={handleSubmit} className="relative overflow-hidden rounded-2xl border border-brand-100 bg-paper p-6 shadow-xl shadow-brand-950/10 sm:p-8">
+            <span aria-hidden className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand-primary via-brand-500 to-brand-700" />
+            <div className="mb-5">
+              <p className="font-display text-xl font-bold text-ink">Déjanos tu mensaje</p>
+              <p className="mt-1 text-sm text-ink/65">Un asesor te responderá pronto.</p>
+            </div>
             <div className="space-y-4">
               {success && (
                 <div role="status" className="rounded-xl border border-whatsapp-dark/30 bg-whatsapp/10 p-4 text-center text-sm font-medium text-whatsapp-dark">
@@ -170,9 +178,11 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand-primary text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-primary/30 transition-colors duration-300 hover:bg-[#0b68b8] disabled:opacity-50"
+                className="group/btn relative flex h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-brand-primary text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-primary/30 transition-colors duration-300 hover:bg-[#0b68b8] disabled:opacity-50"
               >
-                <Send className="h-5 w-5" strokeWidth={2} />
+                {/* Brillo que se desliza al pasar el cursor. */}
+                <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/4 -skew-x-12 bg-white/25 transition-transform duration-700 ease-out group-hover/btn:translate-x-[520%]" />
+                <Send className="relative h-5 w-5" strokeWidth={2} />
                 {submitting ? 'Enviando...' : 'Enviar mensaje'}
               </button>
               <p className="text-center text-xs text-ink/65">
