@@ -67,17 +67,6 @@ export default async function NosotrosPage() {
                   {t}
                 </p>
               ))}
-              <div className="mt-8 grid grid-cols-3 gap-4">
-                {STATS.map((s) => (
-                  <div key={s.label} className="rounded-2xl border border-brand-dark/10 bg-paper px-4 py-5 text-center shadow-md shadow-brand-dark/10">
-                    <p className="font-display text-3xl font-bold text-brand-primary">
-                      {s.value}
-                      {s.suffix}
-                    </p>
-                    <p className="mt-1 text-xs font-medium leading-snug text-ink/60">{s.label}</p>
-                  </div>
-                ))}
-              </div>
             </ScrollReveal>
           </div>
         </section>
