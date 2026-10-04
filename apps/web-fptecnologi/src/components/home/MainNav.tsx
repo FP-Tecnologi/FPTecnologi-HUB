@@ -161,7 +161,7 @@ export function MobileNav({ tone = 'light', onNavigate }: { tone?: Tone; onNavig
 
         if (!hasChildren) {
           return (
-            <a key={link.href} href={link.href} onClick={onNavigate} aria-current={isActive(pathname, link.href) ? 'page' : undefined} className={`block rounded-lg px-3 py-2.5 text-sm font-medium md:text-base ${MOBILE_TOP_TONE[tone]} ${isActive(pathname, link.href) ? 'bg-white/15 font-semibold' : ''}`}>
+            <a key={link.href} href={link.href} onClick={onNavigate} aria-current={isActive(pathname, link.href) ? 'page' : undefined} className={`block rounded-lg px-3 py-2.5 text-sm font-medium md:text-base ${MOBILE_TOP_TONE[tone]} ${isActive(pathname, link.href) ? (tone === 'light' ? 'bg-brand-50 font-semibold text-brand-700' : 'bg-white/15 font-semibold') : ''}`}>
               {link.label}
             </a>
           );

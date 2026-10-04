@@ -9,6 +9,7 @@ import { DesktopNav, MobileNav } from './MainNav';
 import { ClickConfirmButton } from './ClickConfirmButton';
 import { CartButton } from './CartButton';
 import { CurrencyToggle } from './CurrencyToggle';
+import { CuentaAvatar } from './CuentaAvatar';
 import { useCart } from '@/context/CartContext';
 
 /**
@@ -70,9 +71,7 @@ export function Navbar9({ compact = false, store = false }: { compact?: boolean;
           {store && <CurrencyToggle className={`max-sm:hidden ${compact ? 'h-9' : 'h-10 lg:h-11 2xl:h-12'}`} />}
           {(store || count > 0) && <CartButton tone="dark" compact={compact} />}
           {store && (
-            <a href="/cuenta" aria-label="Mi cuenta: mis pedidos y cotizaciones" title="Mi cuenta" className={`flex items-center justify-center rounded-xl border border-white/25 text-white transition-colors hover:border-white hover:bg-white/5 max-sm:hidden ${compact ? 'h-9 w-9' : 'h-10 w-10 lg:h-11 lg:w-11 2xl:h-12 2xl:w-12'}`}>
-              <User className="h-5 w-5" strokeWidth={1.8} />
-            </a>
+            <CuentaAvatar className={`max-sm:hidden ${compact ? 'h-9 w-9' : 'h-10 w-10 lg:h-11 lg:w-11 2xl:h-12 2xl:w-12'}`} />
           )}
           {!store && (
           <>
@@ -128,19 +127,19 @@ export function Navbar9({ compact = false, store = false }: { compact?: boolean;
       </div>
 
       {open && (
-        <div className="mt-3 flex flex-col gap-1 rounded-2xl border border-white/15 bg-brand-primary p-3 lg:hidden">
+        <div className="mt-3 flex flex-col gap-1 rounded-2xl border border-brand-100 bg-white p-3 shadow-xl shadow-brand-950/25 lg:hidden">
           <a href="/" onClick={() => setOpen(false)} aria-label="FPTecnologi & System" className="px-3 pb-2 pt-1">
-            <Image src="/logo-fptecnologi.svg" alt="FPTecnologi & System" width={168} height={40} className="h-8 w-auto brightness-0 invert" />
+            <Image src="/logo-fptecnologi.svg" alt="FPTecnologi & System" width={168} height={40} className="h-8 w-auto" />
           </a>
           {store && (
-            <div className="mb-1 flex items-center justify-between gap-3 border-y border-white/15 py-3 sm:hidden">
-              <CurrencyToggle className="h-10" />
-              <a href="/cuenta" className="flex h-10 items-center gap-2 whitespace-nowrap rounded-xl border border-white/25 px-3 text-sm font-semibold text-white">
+            <div className="mb-1 flex items-center justify-between gap-3 border-y border-brand-100 py-3 sm:hidden">
+              <CurrencyToggle tone="light" className="h-10" />
+              <a href="/cuenta" className="flex h-10 items-center gap-2 whitespace-nowrap rounded-xl border border-brand-200 px-3 text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-50">
                 <User className="h-4 w-4" strokeWidth={1.8} /> Mi cuenta
               </a>
             </div>
           )}
-          <MobileNav tone="dark" onNavigate={() => setOpen(false)} />
+          <MobileNav tone="light" onNavigate={() => setOpen(false)} />
         </div>
       )}
     </nav>
