@@ -27,6 +27,12 @@ export class CreateProductoDto {
   @Min(0)
   precioAntes?: number;
 
+  /** Precio para clientes mayoristas (mínimo 6 unidades); null = usar `precio`. */
+  @IsOptional()
+  @IsNumber()
+  @Min(0)
+  precioMayorista?: number | null;
+
   @IsOptional()
   @IsString()
   moneda?: string;

@@ -33,7 +33,7 @@ const TrashIcon = () => (
  * dropdown del header (CartButton) como en la página /carrito.
  */
 export function CartPanel({ onNavigate }: { onNavigate?: () => void }) {
-  const { items, subtotal, envio, igv, total, setQty, removeItem } = useCart();
+  const { items, subtotal, envio, igv, total, setQty, removeItem, unitPrice } = useCart();
   const { format } = useCurrency();
 
   if (items.length === 0) {
@@ -71,7 +71,7 @@ export function CartPanel({ onNavigate }: { onNavigate?: () => void }) {
                   </button>
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold text-ink">{format(item.price * item.qty)}</span>
+                  <span className="text-sm font-bold text-ink">{format(unitPrice(item) * item.qty)}</span>
                   <button type="button" onClick={() => removeItem(item.sku)} aria-label={`Quitar ${item.name}`} className="text-ink/65 transition-colors hover:text-red-500">
                     <TrashIcon />
                   </button>

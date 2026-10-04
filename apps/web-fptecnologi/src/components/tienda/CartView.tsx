@@ -1,7 +1,7 @@
 'use client';
 
-import { Banknote, Headset, Landmark, Lock, Minus, Plus, ShieldCheck, ShoppingBag, Smartphone, Trash2, Truck } from 'lucide-react';
-import { useCart } from '@/context/CartContext';
+import { Banknote, Headset, Landmark, Lock, Minus, Plus, ShieldCheck, ShoppingBag, Smartphone, Store, Trash2, Truck, Users } from 'lucide-react';
+import { MIN_MAYORISTA, useCart } from '@/context/CartContext';
 import { useCurrency } from '@/context/CurrencyContext';
 import { MoreInfoButton } from '@/components/home/MoreInfoButton';
 import { ScrollReveal } from '@/components/home/ScrollReveal';
@@ -15,7 +15,8 @@ const GARANTIAS = [
 
 /* Carrito: lista de productos con cantidades + resumen del pedido (mismo lenguaje del checkout). */
 export function CartView() {
-  const { items, count, subtotal, igv, total, setQty, removeItem, clear } = useCart();
+  const { items, count, subtotal, igv, total, setQty, removeItem, clear, perfil, setPerfil, unitPrice } = useCart();
+  const mayorista = perfil === 'mayorista';
   const { format } = useCurrency();
 
   if (items.length === 0) {
@@ -41,6 +42,36 @@ export function CartView() {
       <PasosCompra actual={1} />
       <div className="grid gap-8 pb-24 lg:grid-cols-[1fr_24rem] lg:items-start lg:pb-0">
         <div className="space-y-6">
+          {/* Perfil de compra: cliente final (checkout) o mayorista (presupuesto, desde 6 u. por producto). */}
+          <div role="radiogroup" aria-label="Tipo de cliente" className="grid gap-3 sm:grid-cols-2">
+            {([
+              { id: 'minorista', titulo: 'Cliente final', texto: 'Compra unidades sueltas y paga con checkout.', Icon: Store },
+              { id: 'mayorista', titulo: 'Mayorista', texto: `Desde ${MIN_MAYORISTA} unidades por producto, con presupuesto.`, Icon: Users },
+            ] as const).map(({ id, titulo, texto, Icon }) => {
+              const activo = perfil === id;
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  role="radio"
+                  aria-checked={activo}
+                  onClick={() => setPerfil(id)}
+                  className={`flex items-center gap-3 rounded-2xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
+                    activo ? 'border-brand-primary bg-brand-primary text-white shadow-[0_14px_28px_-10px_rgba(16,122,204,0.6)]' : 'border-brand-100 bg-white hover:border-brand-primary/50'
+                  }`}
+                >
+                  <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${activo ? 'bg-white text-brand-primary' : 'bg-brand-50 text-brand-primary'}`}>
+                    <Icon className="h-5 w-5" strokeWidth={1.8} />
+                  </span>
+                  <span>
+                    <span className={`block font-semibold ${activo ? 'text-white' : 'text-ink'}`}>{titulo}</span>
+                    <span className={`block text-xs ${activo ? 'text-white/90' : 'text-ink/65'}`}>{texto}</span>
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold text-ink/70">
               {count} {count === 1 ? 'producto' : 'productos'} en tu carrito
@@ -67,7 +98,7 @@ export function CartView() {
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
                         <p className="line-clamp-2 font-display text-base font-bold leading-snug text-ink">{item.name}</p>
-                        <p className="mt-1 text-xs text-ink/65">SKU {item.sku} · {format(item.price)} c/u</p>
+                        <p className="mt-1 text-xs text-ink/65">SKU {item.sku} · {format(unitPrice(item))} c/u{mayorista && item.priceMayor != null ? ' · precio mayorista' : ''}</p>
                       </div>
                       <button
                         type="button"
@@ -81,7 +112,7 @@ export function CartView() {
                     </div>
                     <div className="mt-auto flex items-end justify-between gap-3 pt-3">
                       <div className="inline-flex items-center rounded-xl border border-ink/10 bg-paper" role="group" aria-label={`Cantidad de ${item.name}`}>
-                        <button type="button" onClick={() => setQty(item.sku, item.qty - 1)} aria-label="Restar una unidad" className="flex h-9 w-9 items-center justify-center rounded-l-xl text-ink/60 transition-colors hover:bg-brand-dark hover:text-white">
+                        <button type="button" onClick={() => setQty(item.sku, item.qty - 1)} disabled={mayorista && item.qty <= MIN_MAYORISTA} aria-label="Restar una unidad" className="flex h-9 w-9 items-center justify-center rounded-l-xl text-ink/60 transition-colors hover:bg-brand-dark hover:text-white disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-ink/60">
                           <Minus className="h-4 w-4" strokeWidth={2.2} />
                         </button>
                         <span className="w-9 text-center text-sm font-bold text-ink" aria-live="polite">{item.qty}</span>
@@ -89,7 +120,7 @@ export function CartView() {
                           <Plus className="h-4 w-4" strokeWidth={2.2} />
                         </button>
                       </div>
-                      <p className="font-mono text-lg font-bold text-ink">{format(item.qty * item.price)}</p>
+                      <p className="font-mono text-lg font-bold text-ink">{format(item.qty * unitPrice(item))}</p>
                     </div>
                   </div>
                 </li>
@@ -115,7 +146,7 @@ export function CartView() {
         <aside className="space-y-4 lg:sticky lg:top-28">
           <div className="relative overflow-hidden rounded-3xl bg-brand-primary p-6 text-white shadow-2xl shadow-brand-dark/30">
             <div aria-hidden className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-brand-teal/25 blur-3xl" />
-            <h2 className="relative font-display text-lg font-bold">Resumen del pedido</h2>
+            <h2 className="relative font-display text-lg font-bold">{mayorista ? 'Resumen del presupuesto' : 'Resumen del pedido'}</h2>
             <dl className="relative mt-5 space-y-2.5 text-sm">
               <div className="flex justify-between"><dt className="text-white/80">Subtotal</dt><dd>{format(subtotal)}</dd></div>
               <div className="flex justify-between"><dt className="text-white/80">IGV (18%)</dt><dd>{format(igv)}</dd></div>
@@ -125,8 +156,8 @@ export function CartView() {
                 <dd className="font-display text-3xl font-bold">{format(total)}</dd>
               </div>
             </dl>
-            <a href="/checkout" className="relative mt-6 flex h-14 w-full items-center justify-center rounded-xl bg-white text-sm font-semibold uppercase tracking-wide text-brand-dark transition-colors hover:bg-brand-dark hover:text-white">
-              Finalizar compra
+            <a href={mayorista ? '/presupuesto' : '/checkout'} className="relative mt-6 flex h-14 w-full items-center justify-center rounded-xl bg-white text-sm font-semibold uppercase tracking-wide text-brand-dark transition-colors hover:bg-brand-dark hover:text-white">
+              {mayorista ? 'Pedir presupuesto' : 'Finalizar compra'}
             </a>
             <a href="/tienda" className="relative mt-3 block text-center text-sm font-semibold text-white/70 transition-colors hover:text-white">
               ← Seguir comprando
@@ -136,7 +167,9 @@ export function CartView() {
           <div className="rounded-2xl bg-white p-5 shadow-md shadow-brand-dark/10">
             <p className="flex items-start gap-2 text-sm text-ink/65">
               <Lock className="mt-0.5 h-4 w-4 shrink-0 text-brand-700" strokeWidth={2} />
-              No se cobra nada en línea: un asesor confirma el pago y la entrega contigo por WhatsApp.
+              {mayorista
+                ? 'Recibirás un presupuesto con precios de mayorista, IGV y validez de 7 días. Un asesor lo confirma contigo.'
+                : 'No se cobra nada en línea: un asesor confirma el pago y la entrega contigo por WhatsApp.'}
             </p>
             <p className="mt-3 flex items-center gap-3 text-xs font-semibold text-ink/65">
               <span className="inline-flex items-center gap-1"><Landmark className="h-4 w-4" strokeWidth={1.8} /> Transferencia</span>
@@ -145,9 +178,11 @@ export function CartView() {
             </p>
           </div>
 
-          <a href="/cotizador" className="block rounded-2xl border border-brand-dark/20 bg-brand-primary/5 p-4 text-center text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-primary hover:text-white">
-            ¿Compras en volumen? Cotiza este pedido
-          </a>
+          {!mayorista && (
+            <button type="button" onClick={() => setPerfil('mayorista')} className="block w-full rounded-2xl border border-brand-dark/20 bg-brand-primary/5 p-4 text-center text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-primary hover:text-white">
+              ¿Compras en volumen? Pasa a mayorista
+            </button>
+          )}
         </aside>
       </div>
 
@@ -158,8 +193,8 @@ export function CartView() {
             <p className="text-xs text-ink/65">Total con IGV</p>
             <p className="font-display text-xl font-bold text-ink">{format(total)}</p>
           </div>
-          <a href="/checkout" className="inline-flex h-12 items-center rounded-xl bg-brand-primary px-6 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-primary">
-            Finalizar compra
+          <a href={mayorista ? '/presupuesto' : '/checkout'} className="inline-flex h-12 items-center rounded-xl bg-brand-primary px-6 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-primary">
+            {mayorista ? 'Pedir presupuesto' : 'Finalizar compra'}
           </a>
         </div>
       </div>

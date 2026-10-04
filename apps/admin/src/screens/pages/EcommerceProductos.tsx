@@ -21,6 +21,7 @@ interface Producto {
   slug: string | null;
   precio: string;
   precioAntes: string | null;
+  precioMayorista: string | null;
   marcaComercial: string | null;
   imagenes: string[];
   destacado: boolean;
@@ -39,6 +40,7 @@ interface Form {
   slug: string;
   precio: string;
   precioAntes: string;
+  precioMayorista: string;
   stock: string;
   marcaComercial: string;
   categoriaId: string;
@@ -48,11 +50,11 @@ interface Form {
   activo: boolean;
 }
 
-const VACIO: Form = { nombre: '', sku: '', slug: '', precio: '', precioAntes: '', stock: '0', marcaComercial: '', categoriaId: '', imagenes: '', descripcion: '', destacado: false, activo: true };
+const VACIO: Form = { nombre: '', sku: '', slug: '', precio: '', precioAntes: '', precioMayorista: '', stock: '0', marcaComercial: '', categoriaId: '', imagenes: '', descripcion: '', destacado: false, activo: true };
 
 const usd = (v: string | number) => `$${Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const desde = (p: Producto): Form => ({
-  nombre: p.nombre, sku: p.sku, slug: p.slug ?? '', precio: String(Number(p.precio)), precioAntes: p.precioAntes ? String(Number(p.precioAntes)) : '',
+  nombre: p.nombre, sku: p.sku, slug: p.slug ?? '', precio: String(Number(p.precio)), precioAntes: p.precioAntes ? String(Number(p.precioAntes)) : '', precioMayorista: p.precioMayorista ? String(Number(p.precioMayorista)) : '',
   stock: String(p.stock), marcaComercial: p.marcaComercial ?? '', categoriaId: p.categoriaId ?? '', imagenes: p.imagenes.join('\n'),
   descripcion: p.descripcion ?? '', destacado: p.destacado, activo: p.activo,
 });
@@ -108,10 +110,12 @@ export function EcommerceProductos() {
     const f = edit.form;
     const precio = Number(f.precio);
     const precioAntes = f.precioAntes.trim() === '' ? undefined : Number(f.precioAntes);
+    const precioMayorista = f.precioMayorista.trim() === '' ? null : Number(f.precioMayorista);
     const stock = Number(f.stock);
     if (f.nombre.trim().length < 2 || !f.sku.trim()) return setError('El nombre y el SKU son obligatorios.');
     if (!Number.isFinite(precio) || precio < 0) return setError('El precio debe ser un número mayor o igual a 0.');
     if (precioAntes !== undefined && (!Number.isFinite(precioAntes) || precioAntes < 0)) return setError('El precio anterior no es válido.');
+    if (precioMayorista !== null && (!Number.isFinite(precioMayorista) || precioMayorista < 0)) return setError('El precio mayorista no es válido.');
     if (!Number.isInteger(stock) || stock < 0) return setError('El stock debe ser un entero mayor o igual a 0.');
     const imagenes = f.imagenes.split('\n').map((l) => l.trim()).filter(Boolean);
     if (imagenes.some((u) => !/^(https?:\/\/|\/)/.test(u))) return setError('Cada imagen debe ser una URL (https://…) o una ruta que empiece con /.');
@@ -122,6 +126,7 @@ export function EcommerceProductos() {
       ...(f.slug.trim() ? { slug: f.slug.trim() } : {}),
       precio,
       ...(precioAntes !== undefined ? { precioAntes } : {}),
+      precioMayorista,
       stock,
       ...(f.marcaComercial.trim() ? { marcaComercial: f.marcaComercial.trim() } : {}),
       ...(f.categoriaId ? { categoriaId: f.categoriaId } : {}),
@@ -279,6 +284,10 @@ export function EcommerceProductos() {
                 <div className="ax-field" style={{ flex: 1 }}>
                   <label className="ax-label" htmlFor="p-antes">Precio anterior</label>
                   <input id="p-antes" className="ax-input" inputMode="decimal" value={edit.form.precioAntes} onChange={(e) => set('precioAntes', e.target.value)} placeholder="Oferta si es mayor" />
+                </div>
+                <div className="ax-field" style={{ flex: 1 }}>
+                  <label className="ax-label" htmlFor="p-mayor">Precio mayorista</label>
+                  <input id="p-mayor" className="ax-input" inputMode="decimal" value={edit.form.precioMayorista} onChange={(e) => set('precioMayorista', e.target.value)} placeholder="Desde 6 u." />
                 </div>
                 <div className="ax-field" style={{ flex: '0 0 90px' }}>
                   <label className="ax-label" htmlFor="p-stock">Stock</label>

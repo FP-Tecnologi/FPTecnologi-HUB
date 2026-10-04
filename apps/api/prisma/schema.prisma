@@ -5,8 +5,8 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider      = "prisma-client"
+  output        = "../src/generated/prisma"
   // El hosting (Linux) usa OpenSSL 1.1 y el equipo de compilación OpenSSL 3: se generan los motores de ambos.
   binaryTargets = ["native", "debian-openssl-1.1.x", "debian-openssl-3.0.x"]
 }
@@ -60,6 +60,7 @@ model Marca {
   conocimientoDocs   ConocimientoDocumento[]
   conocimientoFrags  ConocimientoFragmento[]
   conocimientoPend   ConocimientoPendiente[]
+  presupuestos       Presupuesto[]
 }
 
 model Sitio {
@@ -182,17 +183,17 @@ model Rol {
 // token (el enlace con el token en claro viaja únicamente por correo). No está
 // en TENANT_MODELS a propósito: el invitado la consulta por token sin marcaId.
 model Invitacion {
-  id         String    @id @default(uuid())
-  marcaId    String
-  marca      Marca     @relation(fields: [marcaId], references: [id])
-  rolId      String
-  rol        Rol       @relation(fields: [rolId], references: [id])
-  email      String
-  tokenHash  String    @unique
-  expiresAt  DateTime
-  aceptadaAt DateTime?
+  id          String    @id @default(uuid())
+  marcaId     String
+  marca       Marca     @relation(fields: [marcaId], references: [id])
+  rolId       String
+  rol         Rol       @relation(fields: [rolId], references: [id])
+  email       String
+  tokenHash   String    @unique
+  expiresAt   DateTime
+  aceptadaAt  DateTime?
   invitadoPor String? // correo de quien envió la invitación
-  createdAt  DateTime  @default(now())
+  createdAt   DateTime  @default(now())
 
   @@index([marcaId, createdAt])
 }
@@ -231,26 +232,27 @@ model Categoria {
 }
 
 model Producto {
-  id             String       @id @default(uuid())
-  marcaId        String
-  marca          Marca        @relation(fields: [marcaId], references: [id])
-  categoriaId    String?
-  categoria      Categoria?   @relation(fields: [categoriaId], references: [id])
-  nombre         String
-  descripcion    String?
-  sku            String
-  slug           String? // URL amigable por marca (importador WooCommerce lo genera)
-  precio         Decimal
-  precioAntes    Decimal? // precio tachado (oferta), null = sin oferta
-  moneda         String       @default("USD") // precios base en USD sin IGV
-  marcaComercial String? // marca del fabricante (Dell, HP, Lenovo…) — distinto de Marca (tenant)
-  imagenes       String[]     @default([]) // URLs de fotos, la primera es la portada
-  destacado      Boolean      @default(false)
-  stock          Int          @default(0)
-  activo         Boolean      @default(true)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  pedidoItems    PedidoItem[]
+  id              String       @id @default(uuid())
+  marcaId         String
+  marca           Marca        @relation(fields: [marcaId], references: [id])
+  categoriaId     String?
+  categoria       Categoria?   @relation(fields: [categoriaId], references: [id])
+  nombre          String
+  descripcion     String?
+  sku             String
+  slug            String? // URL amigable por marca (importador WooCommerce lo genera)
+  precio          Decimal
+  precioAntes     Decimal? // precio tachado (oferta), null = sin oferta
+  precioMayorista Decimal? // precio para clientes mayoristas (min. 6 u.); null = se usa `precio`
+  moneda          String       @default("USD") // precios base en USD sin IGV
+  marcaComercial  String? // marca del fabricante (Dell, HP, Lenovo…) — distinto de Marca (tenant)
+  imagenes        String[]     @default([]) // URLs de fotos, la primera es la portada
+  destacado       Boolean      @default(false)
+  stock           Int          @default(0)
+  activo          Boolean      @default(true)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  pedidoItems     PedidoItem[]
 
   @@unique([marcaId, sku])
   @@unique([marcaId, slug])
@@ -939,4 +941,51 @@ model Popup {
   updatedAt       DateTime    @updatedAt
 
   @@index([marcaId, estado])
+}
+
+// ---------------------------------------------------------------------------
+// Presupuestos de productos (clientes mayoristas): documento tipo boleta con
+// precios de mayorista, generado desde el carrito (mínimo 6 unidades por producto).
+// ---------------------------------------------------------------------------
+
+model Presupuesto {
+  id               String            @id @default(uuid())
+  marcaId          String
+  marca            Marca             @relation(fields: [marcaId], references: [id])
+  numero           String // correlativo humano COT-AAAA-XXXXXX, único por marca
+  estado           EstadoCotizacion  @default(PENDIENTE)
+  clienteNombre    String
+  clienteDocumento String? // RUC o DNI
+  clienteEmail     String
+  clienteTelefono  String?
+  clienteDireccion String?
+  notas            String?
+  moneda           String            @default("USD")
+  subtotal         Decimal
+  igv              Decimal
+  total            Decimal
+  validezHasta     DateTime
+  origen           String?
+  items            PresupuestoItem[]
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@unique([marcaId, numero])
+  @@index([marcaId, createdAt])
+}
+
+model PresupuestoItem {
+  id             String      @id @default(uuid())
+  presupuestoId  String
+  presupuesto    Presupuesto @relation(fields: [presupuestoId], references: [id], onDelete: Cascade)
+  productoId     String?
+  sku            String
+  nombre         String
+  cantidad       Int
+  precioLista    Decimal // precio normal (sin IGV)
+  precioUnitario Decimal // precio aplicado (mayorista si existe)
+  mayorista      Boolean     @default(false)
+  subtotal       Decimal
+
+  @@index([presupuestoId])
 }

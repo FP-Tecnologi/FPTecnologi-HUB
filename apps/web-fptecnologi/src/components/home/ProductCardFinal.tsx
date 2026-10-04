@@ -172,7 +172,7 @@ export function ProductCardFinal({
                 </span>
               )}
               doneLabel="Agregado"
-              onConfirm={() => addItem({ sku: product.sku, name: product.name, price: product.price, image: images[0] })}
+              onConfirm={() => addItem({ sku: product.sku, name: product.name, price: product.price, priceMayor: product.priceMayor, image: images[0] })}
               className="h-10 shrink-0 rounded-lg bg-brand-primary px-1.5 text-xs font-semibold text-white hover:bg-brand-primary hover:pr-3"
               doneClassName="h-10 shrink-0 rounded-lg bg-emerald-500 px-1.5 pr-3 text-xs font-semibold text-white"
             />

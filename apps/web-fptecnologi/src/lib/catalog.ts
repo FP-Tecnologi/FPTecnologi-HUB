@@ -14,6 +14,8 @@ export type ShopProduct = {
   brand: string;
   price: number;
   priceBefore?: number | null;
+  /** Precio para clientes mayoristas (desde 6 u. por producto); null = el mismo `price`. */
+  priceMayor?: number | null;
   images: readonly string[];
   /** Solo si viene de la API (catálogo real): URL amigable, id y datos extra. */
   slug?: string;

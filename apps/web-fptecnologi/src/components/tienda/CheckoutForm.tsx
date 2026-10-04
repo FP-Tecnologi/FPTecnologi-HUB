@@ -105,7 +105,7 @@ function Seccion({ n, titulo, sub, children }: { n: number; titulo: string; sub?
  */
 export function CheckoutForm() {
   const { contact: CONTACT_INFO } = useSitio();
-  const { items, subtotal, igv, total, clear } = useCart();
+  const { items, subtotal, igv, total, clear, perfil, setPerfil } = useCart();
   const { format } = useCurrency();
   const [v, setV] = useState<V>(INICIAL);
   const [errores, setErrores] = useState<E>({});
@@ -137,6 +137,24 @@ export function CheckoutForm() {
         <a href="/tienda" className="mt-6 inline-flex h-12 items-center rounded-xl bg-brand-primary px-7 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-primary">
           Ir a la tienda
         </a>
+      </div>
+    );
+  }
+
+  // El checkout es solo para cliente final: el mayorista pide presupuesto.
+  if (perfil === 'mayorista') {
+    return (
+      <div className="mx-auto max-w-xl rounded-3xl border border-ink/5 bg-white p-10 text-center shadow-xl shadow-brand-dark/10">
+        <h2 className="font-display text-2xl font-bold text-ink">Compra mayorista</h2>
+        <p className="mt-2 text-ink/60">Tu carrito está en modo mayorista: en vez de pagar, te preparamos un presupuesto con precios de mayorista.</p>
+        <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+          <a href="/presupuesto" className="inline-flex h-12 items-center rounded-xl bg-brand-primary px-7 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-[#0b68b8]">
+            Pedir presupuesto
+          </a>
+          <button type="button" onClick={() => setPerfil('minorista')} className="inline-flex h-12 items-center rounded-xl border border-brand-200 px-7 text-sm font-semibold uppercase tracking-wide text-brand-700 transition-colors hover:bg-brand-primary hover:text-white">
+            Soy cliente final
+          </button>
+        </div>
       </div>
     );
   }

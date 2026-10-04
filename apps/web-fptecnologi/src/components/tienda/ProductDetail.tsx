@@ -113,7 +113,7 @@ export function ProductDetail({ product, relacionados }: { product: CatalogProdu
                 label="Al carrito"
                 doneIcon={() => <Check className="h-4 w-4" strokeWidth={2.4} />}
                 doneLabel="Agregado"
-                onConfirm={() => addItem({ sku: product.sku, name: product.name, price: product.price, image: images[0] })}
+                onConfirm={() => addItem({ sku: product.sku, name: product.name, price: product.price, priceMayor: product.priceMayor, image: images[0] })}
                 className="h-12 rounded-xl bg-brand-primary px-6 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/30 hover:bg-brand-primary"
                 doneClassName="h-12 rounded-xl bg-emerald-500 px-6 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-emerald-500/30"
               />

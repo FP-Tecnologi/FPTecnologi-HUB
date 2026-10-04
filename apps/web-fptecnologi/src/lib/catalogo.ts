@@ -22,6 +22,7 @@ type ApiProducto = {
   slug: string | null;
   precio: string | number;
   precioAntes: string | number | null;
+  precioMayorista?: string | number | null;
   marcaComercial: string | null;
   imagenes: string[];
   stock: number;
@@ -41,6 +42,7 @@ function mapear(p: ApiProducto): CatalogProduct {
     category: p.categoria?.slug ?? 'otros',
     price: Number(p.precio),
     priceBefore: antes !== null && antes > Number(p.precio) ? antes : null,
+    priceMayor: p.precioMayorista == null ? null : Number(p.precioMayorista),
     images: p.imagenes.length > 0 ? p.imagenes : [IMAGEN_VACIA],
     stock: p.stock,
     description: p.descripcion,

@@ -53,6 +53,7 @@ const TENANT_MODELS = new Set([
   'Proyecto',
   'Cliente',
   'Popup',
+  'Presupuesto',
 ]);
 
 /** Models whose where may be pinned by this key instead of marcaId (see above). */

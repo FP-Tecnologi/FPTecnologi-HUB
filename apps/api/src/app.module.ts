@@ -18,6 +18,7 @@ import { ProductosModule } from './productos/productos.module.js';
 import { PedidosModule } from './pedidos/pedidos.module.js';
 import { ServiciosModule } from './servicios/servicios.module.js';
 import { CotizacionesModule } from './cotizaciones/cotizaciones.module.js';
+import { PresupuestosModule } from './presupuestos/presupuestos.module.js';
 import { NotificacionesModule } from './notificaciones/notificaciones.module.js';
 import { PublicApiModule } from './public/public.module.js';
 import { UsuariosModule } from './usuarios/usuarios.module.js';
@@ -56,6 +57,7 @@ import { PopupsModule } from './popups/popups.module.js';
     PedidosModule,
     ServiciosModule,
     CotizacionesModule,
+    PresupuestosModule,
     NotificacionesModule,
     PublicApiModule,
     UsuariosModule,
