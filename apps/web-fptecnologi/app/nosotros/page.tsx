@@ -52,7 +52,7 @@ export default async function NosotrosPage() {
         <section className="bg-white py-20">
           <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2">
             <ScrollReveal direction="left">
-              <ImageHoverCard datos={STATS.map((s) => ({ value: `${s.value}${s.suffix}`, label: s.label }))}>
+              <ImageHoverCard siempre datos={STATS.map((s) => ({ value: `${s.value}${s.suffix}`, label: s.label }))}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/herobanner/partner izquierdo.jpg" alt="Equipo de FPTecnologi en reunión con clientes" />
               </ImageHoverCard>
