@@ -54,32 +54,18 @@ export function Hero({ slides }: { slides?: HeroSlide[] }) {
     <>
       <StickyNav />
       <div className="flex w-full items-center justify-center bg-paper p-3 md:p-5">
-        <section className="relative flex h-[92svh] min-h-[560px] w-full flex-col items-center overflow-hidden rounded-[1.25rem] bg-white/10 md:rounded-[2.25rem]">
+        <section className="relative flex h-[92svh] min-h-[560px] w-full flex-col items-center overflow-hidden rounded-[1.25rem] bg-ink md:rounded-[2.25rem]">
         <video
           autoPlay
           muted
           loop
           playsInline
           preload="auto"
-          poster="/images/modelo9/hero-office.jpg"
-          onCanPlay={() => setVideoReady(true)}
           aria-hidden
-          className="absolute inset-0 z-0 h-full w-full object-cover object-[65%_center] lg:object-center"
+          className="absolute inset-0 z-0 h-full w-full bg-ink object-cover"
         >
-          <source src="/videos/soluciones-ti.mp4" type="video/mp4" />
+          <source src="/images/home/about.mp4" type="video/mp4" />
         </video>
-        {/* Imagen de respaldo mientras el video termina de cargar (conexión
-            lenta) -- el atributo `poster` del <video> no siempre cubre ese
-            hueco en todos los navegadores, así que se controla a mano con
-            onCanPlay y se desvanece recién cuando el video puede reproducirse. */}
-        <img
-          src="/images/modelo9/hero-office.jpg"
-          alt=""
-          aria-hidden
-          className={`absolute inset-0 z-0 h-full w-full object-cover object-[65%_center] transition-opacity duration-700 lg:object-center ${
-            videoReady ? 'opacity-0' : 'opacity-100'
-          }`}
-        />
         {/* Overlay negro semitransparente (antes era blanco) -- el texto
             claro necesita fondo oscuro para leerse bien encima de un video,
             no de una foto fija de oficina. Degradé extra al centro para que

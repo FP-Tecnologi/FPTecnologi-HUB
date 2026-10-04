@@ -5,6 +5,7 @@ import { useSitio } from '@/context/SitioContext';
 import { MoreInfoButton } from './MoreInfoButton';
 import { ScrollReveal } from './ScrollReveal';
 import { SectionBadge } from './SectionBadge';
+import { SegmentVideo } from './SegmentVideo';
 
 function CheckIcon({ className }: { className?: string }) {
   return (
@@ -29,18 +30,16 @@ export function Nosotros({ c = HOME_DEFAULTS.nosotros }: { c?: Encabezado & { pu
     // puntitos del resto de la página y del bg-paper de la sección de marcas.
     <section id="nosotros" className="bg-white py-20">
       <div className="mx-auto grid max-w-7xl gap-10 px-6 lg:grid-cols-2 lg:items-center lg:gap-16">
-        {/* Mismo video que el "Sobre nosotros" de /modelo-12 (about.mp4).
-            La foto del equipo queda como poster mientras carga.
+        {/* Fragmento corto (segundos 2 a 9) en bucle del video del hero --
+            el video de la tablet/holograma (about.mp4) pasó al hero.
             Hover: zoom leve + degradado + tarjeta de vidrio con STATS que
             sube. En pantallas táctiles (sin hover) queda siempre visible. */}
         <ScrollReveal direction="left" className="group relative aspect-4/3 overflow-hidden rounded-2xl">
-          <video
-            src="/images/home/about.mp4"
-            poster="/images/modelo7/equipo.jpg"
-            autoPlay
-            loop
-            muted
-            playsInline
+          <SegmentVideo
+            src="/videos/soluciones-ti.mp4"
+            poster="/images/modelo9/hero-office.jpg"
+            start={2}
+            end={9}
             aria-label="Video institucional FPTecnologi"
             className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transition-none"
           />

@@ -57,7 +57,6 @@ export default async function HomePage() {
     <>
       <main>
         {c.hero.visible && <Hero slides={c.hero.slides} />}
-        {c.marcas.visible && <BrandMarquee showLabel={false} />}
         {c.nosotros.visible && <Nosotros c={c.nosotros} />}
         {c.servicios.visible && <Solutions c={c.servicios} />}
         {c.porque.visible && <WhyChooseUs c={c.porque} />}
@@ -67,6 +66,7 @@ export default async function HomePage() {
         {c.clientes.visible && <NuestrosClientes c={c.clientes} sectors={clientes} />}
         {c.partners.visible && <PartnerCta c={c.partners} />}
         {c.contacto.visible && <Contact c={c.contacto} />}
+        {c.marcas.visible && <BrandMarquee showLabel={false} />}
       </main>
       <Footer />
     </>
