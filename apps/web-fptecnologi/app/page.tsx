@@ -4,7 +4,6 @@ import { Footer } from '@/components/home/Footer';
 import { Hero } from '@/components/home/Hero';
 import { PartnerLevels } from '@/components/home/PartnerLevels';
 import { Nosotros } from '@/components/home/Nosotros';
-import { NuestrosClientes } from '@/components/home/NuestrosClientes';
 import { NuestrosProyectos } from '@/components/home/NuestrosProyectos';
 import { PartnerCta } from '@/components/home/PartnerCta';
 import { ProductCategories } from '@/components/home/ProductCategories';
@@ -13,7 +12,7 @@ import { FeaturedProducts } from '@/components/home/FeaturedProducts';
 import { WhyChooseUs } from '@/components/home/WhyChooseUs';
 import { getHomeContenido } from '@/lib/homeContenido';
 import { getDestacados } from '@/lib/catalogo';
-import { getClientes, getProyectos } from '@/lib/referencias';
+import { getProyectos } from '@/lib/referencias';
 import { metaSeo } from '@/lib/seo';
 
 export const generateMetadata = () => metaSeo('home');
@@ -35,7 +34,7 @@ export const generateMetadata = () => metaSeo('home');
  * Estructura pedida por el usuario (orden fijo, no el de estructura-home.md
  * anterior): Hero → Marcas → Nosotros (breve) → Servicios → Por qué
  * elegirnos → Categorías → Productos destacados → Nuestros proyectos →
- * Nuestros clientes → Partners → Contacto → Footer.
+ * Partners → Contacto → Footer.
  *
  * Nosotros, Por qué elegirnos, Categorías de producto y Contacto siguen
  * siendo los componentes viejos de site/site2 (copiados tal cual, sin
@@ -48,11 +47,10 @@ export const generateMetadata = () => metaSeo('home');
 export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
-  const [c, { products: destacados }, proyectos, clientes] = await Promise.all([
+  const [c, { products: destacados }, proyectos] = await Promise.all([
     getHomeContenido(),
     getDestacados(4),
     getProyectos(),
-    getClientes(),
   ]);
   return (
     <>
@@ -65,7 +63,6 @@ export default async function HomePage() {
         {c.categorias.visible && <ProductCategories c={c.categorias} />}
         {c.productos.visible && <FeaturedProducts c={c.productos} products={destacados} />}
         {c.proyectos.visible && <NuestrosProyectos c={c.proyectos} projects={proyectos} />}
-        {c.clientes.visible && <NuestrosClientes c={c.clientes} sectors={clientes} />}
         {c.partners.visible && <PartnerCta c={c.partners} />}
         {c.contacto.visible && <Contact c={c.contacto} />}
         {c.marcas.visible && <BrandMarquee showLabel={false} />}
