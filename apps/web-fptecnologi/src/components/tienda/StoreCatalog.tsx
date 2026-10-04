@@ -171,7 +171,7 @@ export function StoreCatalog({
 
       {/* Hero de la tienda: mismo marco que el de la home (el Navbar9
           invisible reserva el lugar del encabezado fijo). */}
-      <div className="bg-paper p-3 md:p-5">
+      <div className="bg-white p-3 md:p-5">
         <section className="relative overflow-hidden rounded-[1.25rem] bg-ink text-white md:rounded-[2.25rem]">
           {/* Foto de fondo completa (escritorio con monitor) + degradado de
               marca: oscuro a la izquierda, donde va el texto. */}
@@ -265,7 +265,7 @@ export function StoreCatalog({
         </section>
       </div>
 
-      <div className="relative overflow-hidden">
+      <div className="relative overflow-hidden bg-white">
       {/* Fondo de la tienda: retícula azul tenue que se desvanece + resplandores suaves. */}
       <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgb(16_122_204/0.07)_1px,transparent_1px),linear-gradient(to_bottom,rgb(16_122_204/0.07)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_90%_70%_at_70%_20%,black,transparent)]" />
       <div aria-hidden className="pointer-events-none absolute -right-24 top-10 h-80 w-80 rounded-full bg-brand-500/10 blur-3xl" />

@@ -1045,8 +1045,9 @@ body {
 /* Fondo de las fotos de producto: sólido (no translúcido) para que los puntitos del body no se vean
    por encima/detrás de la imagen. Mismo celeste suave de siempre. */
 .bg-producto {
-  /* Fondo blanco: las fotos (PNG con fondo blanco) se funden con mix-blend-multiply. */
-  background: #ffffff;
+  /* Centro blanco que se aclara hacia el borde del producto: se distingue de la tarjeta blanca y de la
+     página; el blanco de las fotos se funde con mix-blend-multiply. */
+  background: radial-gradient(circle at 50% 45%, #ffffff 0%, var(--color-brand-100) 100%);
 }
 
 /* ---- Transiciones de página: entrada (main) y salida (ver TransicionPagina) ---- */
