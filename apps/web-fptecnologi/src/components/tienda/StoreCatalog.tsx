@@ -9,6 +9,7 @@ import { ProductCardFinal } from '@/components/home/ProductCardFinal';
 import { CompareDock, useCompare } from '@/components/home/CompareDock';
 import { StickyNav } from '@/components/home/StickyNav';
 import { Navbar9 } from '@/components/home/Navbar9';
+import { ParticlesBackground } from '@/components/home/ParticlesBackground';
 
 type Sort = 'relevancia' | 'precio-asc' | 'precio-desc' | 'descuento' | 'nombre';
 
@@ -171,17 +172,16 @@ export function StoreCatalog({
       {/* Hero de la tienda: mismo marco que el de la home (el Navbar9
           invisible reserva el lugar del encabezado fijo). */}
       <div className="bg-paper p-3 md:p-5">
-        <section className="relative overflow-hidden rounded-[1.25rem] bg-brand-700 text-white md:rounded-[2.25rem]">
+        <section className="relative overflow-hidden rounded-[1.25rem] bg-ink text-white md:rounded-[2.25rem]">
           {/* Foto de fondo completa (escritorio con monitor) + degradado de
               marca: oscuro a la izquierda, donde va el texto. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/images/categorias/monitores.jpg" alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover object-[center_55%]" />
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-brand-700 via-brand-700/80 to-brand-700/20" />
-          <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-brand-700/60 via-transparent to-transparent" />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-ink/75 via-ink/65 to-ink/80" />
+          <div aria-hidden className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_45%,rgba(0,0,0,0.35),transparent)]" />
           {/* Efecto "TI": retícula clara que se desvanece, resplandores y nodos conectados sobre el azul. */}
           <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgb(255_255_255/0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgb(255_255_255/0.08)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_80%_90%_at_25%_50%,black,transparent)]" />
-          <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-brand-400/40 blur-3xl" />
-          <div aria-hidden className="pointer-events-none absolute -bottom-28 left-1/3 h-72 w-72 rounded-full bg-brand-300/25 blur-3xl" />
+          <div aria-hidden className="absolute inset-0"><ParticlesBackground /></div>
           <svg aria-hidden className="pointer-events-none absolute left-6 top-24 hidden h-36 w-72 text-white/35 lg:block" viewBox="0 0 288 144" fill="none">
             <path d="M8 120 L70 84 L132 98 L196 36 L280 58" stroke="currentColor" strokeWidth="1" />
             <path d="M70 84 L96 22 L196 36" stroke="currentColor" strokeWidth="1" />
