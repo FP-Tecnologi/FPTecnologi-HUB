@@ -165,6 +165,21 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
               })}
             </div>
           )}
+          {completo && (
+              <div className="mt-6">
+                <p className="text-sm font-medium text-ink/80">¿Cómo prefieres que te contactemos?</p>
+                <div className="mt-2 flex flex-wrap gap-2" role="radiogroup" aria-label="Contacto preferido">
+                  {PREFERENCIAS.map((pf) => {
+                    const activo = preferencia === pf;
+                    return (
+                      <button key={pf} type="button" role="radio" aria-checked={activo} onClick={() => setPreferencia(pf)} className={`rounded-lg border px-3.5 py-2 text-sm font-semibold transition-all duration-200 ${activo ? 'border-brand-primary bg-brand-primary text-white' : 'border-brand-200 bg-white text-brand-700 hover:border-brand-primary hover:bg-brand-50'}`}>
+                        {pf}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+          )}
           {conDatos && (
           <div className="mt-8 grid gap-4 sm:grid-cols-2">
             {ITEMS.map(({ label, value, href, icon: Icon }) => (
@@ -270,19 +285,6 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
                     <div className="relative flex items-start">
                       <MessageSquareText className={`${iconCls} top-[1.15rem]`} strokeWidth={1.8} />
                       <textarea id="c-message" required rows={4} value={message} onChange={(e) => setMessage(e.target.value)} className={`${input} resize-none`} placeholder="Cuéntanos qué solución o equipamiento necesitas" />
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-ink/80">¿Cómo prefieres que te contactemos?</p>
-                    <div className="mt-2 flex flex-wrap gap-2" role="radiogroup" aria-label="Contacto preferido">
-                      {PREFERENCIAS.map((pf) => {
-                        const activo = preferencia === pf;
-                        return (
-                          <button key={pf} type="button" role="radio" aria-checked={activo} onClick={() => setPreferencia(pf)} className={`rounded-lg border px-3.5 py-2 text-sm font-semibold transition-all duration-200 ${activo ? 'border-brand-primary bg-brand-primary text-white' : 'border-brand-200 bg-white text-brand-700 hover:border-brand-primary hover:bg-brand-50'}`}>
-                            {pf}
-                          </button>
-                        );
-                      })}
                     </div>
                   </div>
                 </>
