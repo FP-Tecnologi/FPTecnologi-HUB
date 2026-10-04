@@ -67,11 +67,12 @@ export class CuentaService {
     this.limitar(`${marcaId}:${email}`);
     this.limitar(`${marcaId}:ip:${ip}`);
 
-    const [pedidos, cotizaciones] = await Promise.all([
+    const [pedidos, cotizaciones, socios] = await Promise.all([
       this.prisma.pedido.count({ where: { marcaId, email: { equals: email, mode: 'insensitive' } } }),
       this.prisma.cotizacion.count({ where: { marcaId, clienteEmail: { equals: email, mode: 'insensitive' } } }),
+      this.prisma.socio.count({ where: { marcaId, email, activo: true } }), // los socios entran aunque aún no hayan comprado
     ]);
-    if (pedidos + cotizaciones > 0) {
+    if (pedidos + cotizaciones + socios > 0) {
       const codigo = String(randomInt(0, 1_000_000)).padStart(6, '0');
       await this.prisma.codigoCuenta.create({
         data: { marcaId, email, codigoHash: await bcrypt.hash(codigo, 10), expiresAt: new Date(Date.now() + CODIGO_MIN * 60_000) },
@@ -124,8 +125,10 @@ export class CuentaService {
       }),
     ]);
     const nombre = pedidos[0]?.nombre ?? (await this.nombreDeCotizacion(marcaId, email));
+    const socio = (await this.prisma.socio.count({ where: { marcaId, email, activo: true } })) > 0;
     return {
       email,
+      socio,
       nombre,
       celular: pedidos[0]?.celular ?? null,
       pedidos,

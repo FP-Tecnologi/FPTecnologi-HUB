@@ -26,9 +26,7 @@ const celularLimpio = (v: string) => v.replace(/[\s()-]/g, '').replace(/^\+?51(?
 
 /* Soporte por tickets en 2 pasos: (1) tipo de caso y datos de contacto, (2) datos de la compra
    (n.º de compra, fecha, producto, comprobante), evidencia (hasta 3 fotos, se suben a la API) y la
-   descripción. Mientras no exista el módulo de tickets en la API, se registra por el mismo endpoint
-   del formulario de contacto (/api/contacto) con todo el detalle en el mensaje; los reclamos van como
-   RECLAMO. */
+   descripción. Se registra en la API (POST /api/tickets -> /public/tickets) y aparece en el dashboard → Tickets. */
 export function SoporteTickets() {
   const [paso, setPaso] = useState<1 | 2>(1);
   const [caso, setCaso] = useState(CASOS[0].id);
@@ -46,6 +44,7 @@ export function SoporteTickets() {
   const [subiendo, setSubiendo] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [ok, setOk] = useState(false);
+  const [numeroTicket, setNumeroTicket] = useState('');
   const [error, setError] = useState('');
   const inputFile = useRef<HTMLInputElement>(null);
   const actual = CASOS.find((c) => c.id === caso) ?? CASOS[0];
@@ -100,29 +99,28 @@ export function SoporteTickets() {
     if (detalle.trim().length < 5) return setError('Describe brevemente tu caso.');
     setEnviando(true);
     try {
-      const lineas = [
-        `[Ticket: ${actual.titulo}]`,
-        tipo === 'EMPRESA' ? `Empresa · RUC ${documento}` : `Persona natural · DNI ${documento}`,
-        `Compra: N.º ${numeroCompra.trim()}${fechaCompra ? ` · Fecha: ${fechaCompra}` : ''}${comprobante.trim() ? ` · Comprobante: ${comprobante.trim()}` : ''}`,
-        `Producto: ${producto.trim()}`,
-        detalle.trim(),
-        evidencias.length ? `Evidencia: ${evidencias.map((x) => x.url).join(' ')}` : '',
-      ].filter(Boolean);
-      const res = await fetch('/api/contacto', {
+      const res = await fetch('/api/tickets', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name: nombre,
-          email,
-          phone: celularLimpio(telefono),
-          company: tipo === 'EMPRESA' ? nombre.trim() : undefined,
-          tipo: actual.reclamo ? 'RECLAMO' : 'CONTACTO',
+          tipo: actual.id.toUpperCase(),
+          esEmpresa: tipo === 'EMPRESA',
+          documento,
+          nombre: nombre.trim(),
+          email: email.trim(),
+          celular: celularLimpio(telefono),
+          numeroCompra: numeroCompra.trim(),
+          fechaCompra: fechaCompra || undefined,
+          producto: producto.trim(),
+          comprobante: comprobante.trim() || undefined,
+          descripcion: detalle.trim(),
+          evidencias: evidencias.map((x) => x.url),
           origen: '/tickets',
-          message: lineas.join('\n'),
         }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
+        setNumeroTicket(data.numero ?? '');
         setOk(true);
         setPaso(1);
         setNombre('');
@@ -204,7 +202,7 @@ export function SoporteTickets() {
             <p className="mb-5 mt-1 text-sm text-ink/65">{paso === 1 ? 'Primero, cómo te contactamos.' : 'Ahora, los datos de la compra y tu evidencia.'}</p>
 
             <div className="space-y-4">
-              {ok && <div role="status" className="rounded-xl border border-whatsapp-dark/30 bg-whatsapp/10 p-4 text-center text-sm font-medium text-whatsapp-dark">¡Listo! Registramos tu ticket. Un asesor te contactará pronto.</div>}
+              {ok && <div role="status" className="rounded-xl border border-whatsapp-dark/30 bg-whatsapp/10 p-4 text-center text-sm font-medium text-whatsapp-dark">¡Listo! Registramos tu ticket{numeroTicket ? ` ${numeroTicket}` : ''}. Un asesor te contactará pronto.</div>}
               {error && <div role="alert" className="rounded-xl border border-red-300 bg-red-50 p-4 text-center text-sm font-medium text-red-700">{error}</div>}
 
               {paso === 1 ? (

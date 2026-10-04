@@ -10,7 +10,7 @@ const input =
  * Acceso a Mi cuenta sin contraseña: 1) correo → 2) código de 6 dígitos que llega a ese correo. Solo sale un
  * código si ese correo tiene pedidos o cotizaciones; la respuesta es siempre la misma para no revelar quién compró.
  */
-export function LoginCuenta() {
+export function LoginCuenta({ socio = false }: { socio?: boolean }) {
   const [paso, setPaso] = useState<'correo' | 'codigo'>('correo');
   const [email, setEmail] = useState('');
   const [codigo, setCodigo] = useState('');
@@ -48,8 +48,8 @@ export function LoginCuenta() {
       <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-primary to-brand-dark text-white shadow-lg shadow-brand-dark/25">
         <ShieldCheck className="h-7 w-7" strokeWidth={1.8} />
       </span>
-      <h2 className="mt-5 font-display text-2xl font-bold text-ink">Ingresa a tu cuenta</h2>
-      <p className="mt-1.5 text-sm text-ink/60">Sin contraseña: te enviamos un código al correo con el que compraste o pediste una cotización.</p>
+      <h2 className="mt-5 font-display text-2xl font-bold text-ink">{socio ? 'Acceso para socios' : 'Ingresa a tu cuenta'}</h2>
+      <p className="mt-1.5 text-sm text-ink/60">{socio ? 'Sin contraseña: te enviamos un código al correo autorizado como socio de FP Tecnologi.' : 'Sin contraseña: te enviamos un código al correo con el que compraste o pediste una cotización.'}</p>
 
       {paso === 'correo' ? (
         <form onSubmit={pedir} noValidate className="mt-6 space-y-4">
@@ -65,7 +65,7 @@ export function LoginCuenta() {
         </form>
       ) : (
         <form onSubmit={verificar} noValidate className="mt-6 space-y-4">
-          <p className="rounded-xl bg-paper p-4 text-sm text-ink/70">Si <b>{email.trim()}</b> tiene compras o cotizaciones, te enviamos un código (vence en 10 minutos). Revisa también la carpeta de spam.</p>
+          <p className="rounded-xl bg-paper p-4 text-sm text-ink/70">Si <b>{email.trim()}</b> {socio ? 'es un correo de socio' : 'tiene compras o cotizaciones'}, te enviamos un código (vence en 10 minutos). Revisa también la carpeta de spam.</p>
           <div>
             <label htmlFor="cu-codigo" className="text-sm font-semibold text-ink/80">Código de 6 dígitos</label>
             <div className="relative flex items-center"><KeyRound className="pointer-events-none absolute left-4 h-5 w-5 text-ink/65" strokeWidth={1.8} /><input id="cu-codigo" inputMode="numeric" autoComplete="one-time-code" autoFocus maxLength={6} value={codigo} onChange={(e) => { setCodigo(e.target.value.replace(/\D/g, '')); setError(''); }} aria-invalid={!!error} className={`${input} font-mono text-xl tracking-[0.4em]`} placeholder="••••••" /></div>

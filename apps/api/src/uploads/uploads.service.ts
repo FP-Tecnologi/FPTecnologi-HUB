@@ -7,6 +7,9 @@ export const MAX_BYTES = 5 * 1024 * 1024;
 /** Evidencias de tickets (web pública): imágenes o PDF, hasta 10 MB. */
 export const MAX_BYTES_EVIDENCIA = 10 * 1024 * 1024;
 
+/** Material para socios (dashboard → Recursos): imágenes, PDF, video, Office y ZIP, hasta 100 MB. */
+export const MAX_BYTES_RECURSO = 100 * 1024 * 1024;
+
 /** Carpeta donde se guardan las imágenes subidas. En cPanel debe estar FUERA de la carpeta que se reemplaza al desplegar. */
 export const uploadsDir = () => resolve(process.cwd(), process.env.UPLOADS_DIR ?? 'uploads'); // acepta ruta relativa o absoluta
 
@@ -45,6 +48,34 @@ export class UploadsService {
     const tipo = esPdf ? { ext: 'pdf' } : tipoImagen(archivo.buffer);
     if (!tipo) throw new BadRequestException('Formato no válido: usa JPG, PNG, WEBP o PDF');
     return this.guardarBuffer(marcaId, archivo.buffer, tipo.ext, 'evidencias');
+  }
+
+  /** Archivo de un recurso para socios. El tipo se decide por los bytes reales; el nombre solo desambigua los Office/ZIP (comparten firma PK). */
+  async guardarRecurso(marcaId: string, archivo?: { buffer: Buffer; size: number; originalname?: string }) {
+    if (!archivo?.buffer?.length) throw new BadRequestException('Elige un archivo');
+    if (archivo.size > MAX_BYTES_RECURSO) throw new BadRequestException('El archivo pesa más de 100 MB');
+    const b = archivo.buffer;
+    const img = tipoImagen(b);
+    let ext: string;
+    let tipo: 'IMAGEN' | 'PDF' | 'VIDEO' | 'DOCUMENTO' | 'OTRO';
+    let mime: string;
+    if (img) { ext = img.ext; tipo = 'IMAGEN'; mime = img.ext === 'jpg' ? 'image/jpeg' : `image/${img.ext}`; }
+    else if (b.length > 5 && b.toString('ascii', 0, 5) === '%PDF-') { ext = 'pdf'; tipo = 'PDF'; mime = 'application/pdf'; }
+    else if (b.length > 12 && b.toString('ascii', 4, 8) === 'ftyp') { ext = 'mp4'; tipo = 'VIDEO'; mime = 'video/mp4'; }
+    else if (b.length > 4 && b[0] === 0x1a && b[1] === 0x45 && b[2] === 0xdf && b[3] === 0xa3) { ext = 'webm'; tipo = 'VIDEO'; mime = 'video/webm'; }
+    else if (b.length > 4 && b[0] === 0x50 && b[1] === 0x4b && b[2] === 0x03 && b[3] === 0x04) {
+      const e = (archivo.originalname ?? '').split('.').pop()?.toLowerCase() ?? '';
+      const office: Record<string, string> = {
+        docx: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+      };
+      if (office[e]) { ext = e; tipo = 'DOCUMENTO'; mime = office[e]; }
+      else if (e === 'zip') { ext = 'zip'; tipo = 'OTRO'; mime = 'application/zip'; }
+      else throw new BadRequestException('Formato no válido');
+    } else throw new BadRequestException('Formato no válido: usa imagen, PDF, video MP4/WEBM, Word/Excel/PowerPoint o ZIP');
+    const r = await this.guardarBuffer(marcaId, b, ext, 'recursos');
+    return { ...r, tipo, mime, bytes: archivo.size };
   }
 
   private async guardarBuffer(marcaId: string, buffer: Buffer, ext: string, subcarpeta?: string) {

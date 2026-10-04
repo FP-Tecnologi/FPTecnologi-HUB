@@ -61,6 +61,9 @@ model Marca {
   conocimientoFrags  ConocimientoFragmento[]
   conocimientoPend   ConocimientoPendiente[]
   presupuestos       Presupuesto[]
+  tickets            Ticket[]
+  socios             Socio[]
+  recursos           Recurso[]
 }
 
 model Sitio {
@@ -988,4 +991,102 @@ model PresupuestoItem {
   subtotal       Decimal
 
   @@index([presupuestoId])
+}
+
+// ---------------------------------------------------------------------------
+// Tickets de soporte (web pública /tickets): reclamo, verificación o soporte
+// técnico sobre una compra. Aparte de ContactoWeb: llevan datos de la compra,
+// evidencia y un flujo de atención propio.
+// ---------------------------------------------------------------------------
+
+enum TipoTicket {
+  RECLAMO
+  VERIFICACION
+  SOPORTE
+}
+
+enum EstadoTicket {
+  NUEVO
+  EN_REVISION
+  RESUELTO
+  CERRADO
+}
+
+model Ticket {
+  id            String       @id @default(uuid())
+  marcaId       String
+  marca         Marca        @relation(fields: [marcaId], references: [id])
+  numero        String // correlativo humano TCK-AAAA-XXXXXX, único por marca
+  tipo          TipoTicket
+  estado        EstadoTicket @default(NUEVO)
+  esEmpresa     Boolean      @default(false)
+  documento     String? // DNI o RUC
+  nombre        String
+  email         String
+  celular       String?
+  numeroCompra  String?
+  fechaCompra   String?
+  producto      String?
+  comprobante   String?
+  descripcion   String
+  evidencias    String[] // URLs de archivos subidos
+  origen        String?
+  notas         String?
+  atendidoPor   String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  @@unique([marcaId, numero])
+  @@index([marcaId, estado, createdAt])
+  @@index([marcaId, email])
+}
+
+// ---------------------------------------------------------------------------
+// Recursos para socios (partners): material de marcas (logos, fichas, banners,
+// videos, catálogos) que el equipo sube desde el dashboard y los socios
+// descargan en /recursos. Un Socio es un correo autorizado por el equipo.
+// ---------------------------------------------------------------------------
+
+enum TipoRecurso {
+  IMAGEN
+  PDF
+  VIDEO
+  DOCUMENTO
+  OTRO
+}
+
+model Socio {
+  id        String   @id @default(uuid())
+  marcaId   String
+  marca     Marca    @relation(fields: [marcaId], references: [id])
+  email     String
+  nombre    String?
+  empresa   String?
+  ruc       String?
+  activo    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([marcaId, email])
+}
+
+model Recurso {
+  id          String      @id @default(uuid())
+  marcaId     String
+  marca       Marca       @relation(fields: [marcaId], references: [id])
+  titulo      String
+  descripcion String?
+  tipo        TipoRecurso
+  fabricante  String? // marca del fabricante: Dell, HP, Lenovo…
+  categoria   String? // Logos, Fichas técnicas, Banners, Catálogos, Videos…
+  archivoUrl  String
+  mime        String?
+  bytes       Int         @default(0)
+  visible     Boolean     @default(true)
+  orden       Int         @default(0)
+  descargas   Int         @default(0)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  @@index([marcaId, visible, fabricante])
 }

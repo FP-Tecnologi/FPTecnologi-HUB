@@ -37,6 +37,8 @@ import { BlogModule } from './blog/blog.module.js';
 import { ProyectosModule } from './proyectos/proyectos.module.js';
 import { ClientesModule } from './clientes/clientes.module.js';
 import { PopupsModule } from './popups/popups.module.js';
+import { TicketsModule } from './tickets/tickets.module.js';
+import { RecursosModule } from './recursos/recursos.module.js';
 
 @Module({
   imports: [
@@ -72,6 +74,8 @@ import { PopupsModule } from './popups/popups.module.js';
     ProyectosModule,
     ClientesModule,
     PopupsModule,
+    TicketsModule,
+    RecursosModule,
   ],
   controllers: [HealthController],
   providers: [

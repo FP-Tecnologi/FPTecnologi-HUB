@@ -6,6 +6,7 @@ function setup(over: Record<string, unknown> = {}) {
   const prisma = {
     pedido: { count: vi.fn(async () => 1), findMany: vi.fn(async () => []) },
     cotizacion: { count: vi.fn(async () => 0), findMany: vi.fn(async () => []), findFirst: vi.fn(async () => null) },
+    socio: { count: vi.fn(async () => 0) },
     codigoCuenta: { create: vi.fn(async (_a: unknown) => ({})), findFirst: vi.fn(async () => null), updateMany: vi.fn(async (_a: unknown) => ({ count: 1 })) },
     ...over,
   };
