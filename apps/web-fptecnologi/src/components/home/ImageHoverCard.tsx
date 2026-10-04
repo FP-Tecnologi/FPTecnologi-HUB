@@ -6,8 +6,8 @@ export type HoverDato = { value: string; label: string };
    zoom lento de la foto + degradé azul muy oscuro de marca (brand-950) abajo +
    tarjeta blanca SÓLIDA (sin vidrio) que sube con los datos: número en azul
    primario y etiqueta debajo. En pantallas táctiles (sin hover) la tarjeta
-   queda siempre visible (en `siempre` también en escritorio, y el hover se vuelve
-   un cambio de la propia tarjeta: se rellena de azul primario y sube). Uso: <ImageHoverCard datos={[...]}>{<img .../>}</ImageHoverCard>. */
+   queda siempre visible (en `siempre` también en escritorio, y el hover es suave:
+   zoom de la foto, la tarjeta sube un poco y bajo cada número crece una línea azul). Uso: <ImageHoverCard datos={[...]}>{<img .../>}</ImageHoverCard>. */
 export function ImageHoverCard({
   datos,
   titulo,
@@ -17,7 +17,7 @@ export function ImageHoverCard({
 }: {
   datos: HoverDato[];
   titulo?: string;
-  /** true: la tarjeta de datos está siempre visible y al hover cambia (se rellena de azul primario y sube). */
+  /** true: la tarjeta de datos está siempre visible y al hover solo hay zoom de la foto y un efecto suave en la tarjeta. */
   siempre?: boolean;
   children: ReactNode;
   className?: string;
@@ -31,7 +31,7 @@ export function ImageHoverCard({
       <div
         className={`pointer-events-none absolute inset-x-4 bottom-4 rounded-xl p-4 shadow-xl shadow-brand-950/30 transition-all duration-500 ease-out motion-reduce:transition-none ${
           siempre
-            ? 'bg-white text-ink group-hover:-translate-y-1.5 group-hover:bg-brand-primary group-hover:text-white group-hover:shadow-2xl'
+            ? 'bg-white text-ink group-hover:-translate-y-1 group-hover:shadow-2xl'
             : 'bg-white text-ink [@media(hover:hover)]:translate-y-8 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:opacity-100'
         }`}
       >
@@ -43,9 +43,10 @@ export function ImageHoverCard({
         )}
         <div className="grid" style={{ gridTemplateColumns: `repeat(${datos.length}, minmax(0, 1fr))` }}>
           {datos.map((d, i) => (
-            <div key={d.label} className={`px-2 text-center transition-colors duration-500 ${i > 0 ? 'border-l border-brand-100' : ''} ${siempre && i > 0 ? 'group-hover:border-white/30' : ''}`}>
-              <p className={`font-display text-2xl font-bold text-brand-primary transition-all duration-500 sm:text-3xl ${siempre ? 'group-hover:scale-110 group-hover:text-white' : ''}`}>{d.value}</p>
-              <p className={`mt-0.5 text-[11px] font-medium leading-tight text-ink/70 transition-colors duration-500 sm:text-xs ${siempre ? 'group-hover:text-white/90' : ''}`}>{d.label}</p>
+            <div key={d.label} className={`px-2 text-center ${i > 0 ? 'border-l border-brand-100' : ''}`}>
+              <p className={`font-display text-2xl font-bold text-brand-primary transition-transform duration-500 ease-out sm:text-3xl ${siempre ? 'group-hover:scale-105' : ''}`}>{d.value}</p>
+              {siempre && <span aria-hidden className="mx-auto mt-0.5 block h-0.5 w-0 rounded-full bg-brand-primary transition-all duration-500 ease-out group-hover:w-8" />}
+              <p className="mt-0.5 text-[11px] font-medium leading-tight text-ink/70 sm:text-xs">{d.label}</p>
             </div>
           ))}
         </div>
