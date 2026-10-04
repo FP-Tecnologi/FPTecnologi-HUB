@@ -300,7 +300,7 @@ export function StoreCatalog({
                 value={sort}
                 onChange={(e) => setSort(e.target.value as Sort)}
                 aria-label="Ordenar productos"
-                className="h-10 rounded-xl border border-black/10 bg-white px-3 text-sm font-medium text-ink outline-none focus:border-brand-primary"
+                className="h-10 rounded-xl border border-brand-200 bg-brand-100 px-3 text-sm font-semibold text-brand-700 outline-none transition-colors hover:border-brand-primary focus:border-brand-primary"
               >
                 {SORTS.map((s) => (
                   <option key={s.value} value={s.value}>
