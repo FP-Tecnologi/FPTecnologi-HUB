@@ -20,9 +20,10 @@ const SOCIAL_ICON = { facebook: FacebookIcon, instagram: InstagramIcon, linkedin
 
 function ColumnTitle({ children }: { children: string }) {
   return (
-    <p className="text-xs font-bold uppercase tracking-[0.18em] text-white">
+    // Al pasar el cursor, la barra corta bajo el título se extiende hasta cubrir todo el título.
+    <p className="group inline-block text-xs font-bold uppercase tracking-[0.18em] text-white">
       {children}
-      <span className="mt-2 block h-0.5 w-8 rounded-full bg-brand-primary" />
+      <span className="mt-2 block h-0.5 w-8 rounded-full bg-brand-primary transition-all duration-300 ease-out group-hover:w-full" />
     </p>
   );
 }
@@ -75,9 +76,9 @@ export async function Footer() {
                     rel="noreferrer"
                     aria-label={`FPTecnologi en ${s.label}`}
                     title={s.label}
-                    className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-white/5 text-white/80 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-primary hover:bg-brand-primary hover:text-white hover:shadow-lg hover:shadow-brand-primary/30"
+                    className="group flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-white/5 text-white/80 transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-primary hover:bg-brand-primary hover:text-white hover:shadow-lg hover:shadow-brand-primary/30"
                   >
-                    <Icon className="h-[18px] w-[18px]" />
+                    <Icon className="icon-hop h-[18px] w-[18px]" />
                   </a>
                 );
               })}
@@ -89,7 +90,7 @@ export async function Footer() {
             <ul className="mt-5 space-y-2.5 text-sm">
               {NAV.map((l) => (
                 <li key={l.href}>
-                  <a href={l.href} className="transition-colors hover:text-white">
+                  <a href={l.href} className="nav-underline inline-block transition-colors hover:text-white">
                     {l.label}
                   </a>
                 </li>
@@ -102,7 +103,7 @@ export async function Footer() {
             <ul className="mt-5 space-y-2.5 text-sm">
               {servicios.slice(0, 5).map((s) => (
                 <li key={s.slug}>
-                  <a href={`/servicios/${s.slug}`} className="transition-colors hover:text-white">
+                  <a href={`/servicios/${s.slug}`} className="nav-underline inline-block transition-colors hover:text-white">
                     {s.title}
                   </a>
                 </li>
@@ -115,7 +116,7 @@ export async function Footer() {
             <ul className="mt-5 space-y-2.5 text-sm">
               {LEGAL_LINKS.map((l) => (
                 <li key={l.href}>
-                  <a href={l.href} className="transition-colors hover:text-white">
+                  <a href={l.href} className="nav-underline inline-block transition-colors hover:text-white">
                     {l.label}
                   </a>
                 </li>
