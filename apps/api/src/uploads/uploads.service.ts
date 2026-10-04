@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
@@ -17,16 +17,36 @@ export function tipoImagen(b: Buffer): { ext: string } | null {
   return null;
 }
 
+// Tope por IP+marca para la subida pública de evidencias (el throttler global está deshabilitado).
+const VENTANA_MS = 10 * 60_000;
+const MAX_POR_VENTANA = 12;
+const intentos = new Map<string, number[]>();
+
 @Injectable()
 export class UploadsService {
+  /**
+   * Evidencia de un ticket de soporte (web pública, sin login): solo imágenes, mismos límites que el dashboard,
+   * en la subcarpeta `evidencias` de la marca y con un tope por IP.
+   */
+  async guardarEvidencia(marcaId: string, ip: string, archivo?: { buffer: Buffer; size: number }) {
+    const ahora = Date.now();
+    const clave = `${marcaId}:${ip}`;
+    const recientes = (intentos.get(clave) ?? []).filter((t) => ahora - t < VENTANA_MS);
+    if (recientes.length >= MAX_POR_VENTANA) throw new HttpException('Demasiadas subidas seguidas. Intenta de nuevo en unos minutos.', HttpStatus.TOO_MANY_REQUESTS);
+    recientes.push(ahora);
+    intentos.set(clave, recientes);
+    if (intentos.size > 5000) for (const [k, v] of intentos) if (!v.some((t) => ahora - t < VENTANA_MS)) intentos.delete(k);
+    return this.guardarImagen(marcaId, archivo, 'evidencias');
+  }
+
   /** Guarda la imagen bajo la carpeta de la marca y devuelve su ruta pública (`/uploads/<marca>/<archivo>`). */
-  async guardarImagen(marcaId: string, archivo?: { buffer: Buffer; size: number }) {
+  async guardarImagen(marcaId: string, archivo?: { buffer: Buffer; size: number }, subcarpeta?: string) {
     if (!archivo?.buffer?.length) throw new BadRequestException('Elige una imagen');
     if (archivo.size > MAX_BYTES) throw new BadRequestException('La imagen pesa más de 5 MB');
     const tipo = tipoImagen(archivo.buffer);
     if (!tipo) throw new BadRequestException('Formato no válido: usa JPG, PNG, WEBP o GIF');
     // marcaId viene del guard (uuid verificado), pero se sanea igual: nunca debe poder salir de la carpeta.
-    const carpeta = marcaId.replace(/[^a-zA-Z0-9-]/g, '');
+    const carpeta = [marcaId.replace(/[^a-zA-Z0-9-]/g, ''), subcarpeta?.replace(/[^a-z]/g, '')].filter(Boolean).join('/');
     const nombre = `${randomUUID()}.${tipo.ext}`;
     await mkdir(join(uploadsDir(), carpeta), { recursive: true });
     await writeFile(join(uploadsDir(), carpeta, nombre), archivo.buffer);

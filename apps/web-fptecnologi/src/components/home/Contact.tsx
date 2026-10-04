@@ -29,10 +29,13 @@ const itemsDe = (CONTACT_INFO: { address: string; phoneVentas: string; phoneVent
  */
 const MOTIVOS = ['Cotización', 'Servicios TI', 'Ser partner', 'Soporte', 'Otro'] as const;
 
-/* `conDatos`: muestra a la izquierda las tarjetas de dirección/teléfonos/correo (home). En /contacto
-   esos datos ya están en «Contacto por área», así que se pasa conDatos={false}: título arriba y el
-   formulario a todo el ancho. El motivo elegido se antepone al mensaje: «[Motivo: …]». */
-export function Contact({ c = HOME_DEFAULTS.contacto, conDatos = true }: { c?: Encabezado; conDatos?: boolean }) {
+/* Dos versiones del mismo formulario:
+   - Simple (por defecto, home y demás páginas): tarjetas de datos a la izquierda y campos básicos. El
+     mensaje viaja con la página de origen (`origen` = ruta actual), así se sabe desde dónde escribió.
+   - `completo` (solo /contacto): título arriba, formulario a todo el ancho y selector de motivo, que se
+     antepone al mensaje como «[Motivo: …]». Sus datos de contacto ya están en «Contacto por área». */
+export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: Encabezado; completo?: boolean }) {
+  const conDatos = !completo;
   const ITEMS = itemsDe(useSitio().contact);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -51,7 +54,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto, conDatos = true }: { c?: E
       const res = await fetch('/api/contacto', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone, message: `[Motivo: ${motivo}] ${message}` }),
+        body: JSON.stringify({ name, email, phone, message: completo ? `[Motivo: ${motivo}] ${message}` : message, origen: window.location.pathname }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -128,6 +131,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto, conDatos = true }: { c?: E
               <p className="font-display text-xl font-bold text-ink">Déjanos tu mensaje</p>
               <p className="mt-1 text-sm text-ink/65">Un asesor te responderá pronto.</p>
             </div>
+            {completo && (
             <fieldset className="mb-5">
               <legend className="text-sm font-medium text-ink/80">Motivo<span className="text-red-500"> *</span></legend>
               <div className="mt-2 flex flex-wrap gap-2" role="radiogroup" aria-label="Motivo del mensaje">
@@ -148,6 +152,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto, conDatos = true }: { c?: E
                 })}
               </div>
             </fieldset>
+            )}
             <div className="space-y-4">
               {success && (
                 <div role="status" className="rounded-xl border border-whatsapp-dark/30 bg-whatsapp/10 p-4 text-center text-sm font-medium text-whatsapp-dark">

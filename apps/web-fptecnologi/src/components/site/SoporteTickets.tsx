@@ -1,7 +1,7 @@
 'use client';
 
-import { useState } from 'react';
-import { FileWarning, Mail, PackageSearch, Phone, Wrench, type LucideIcon } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { FileWarning, ImagePlus, Mail, PackageSearch, Phone, Wrench, X, type LucideIcon } from 'lucide-react';
 import { ArrowUpRightIcon } from '@/components/site/icons';
 import { ScrollReveal } from '@/components/home/ScrollReveal';
 import { SectionBadge } from '@/components/home/SectionBadge';
@@ -14,51 +14,119 @@ const CASOS: Caso[] = [
   { id: 'soporte', titulo: 'Soporte técnico', texto: 'Falla o consulta técnica sobre un producto adquirido.', icono: Wrench },
 ];
 
+const MAX_EVIDENCIAS = 3;
+const MAX_MB = 5;
+
+type Evidencia = { id: string; nombre: string; url: string };
+
 const campo =
   'mt-1.5 w-full rounded-xl border border-brand-200 bg-white px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-ink/55 focus:border-brand-primary';
 
-/* Soporte por tickets: el cliente elige el tipo de caso (verificación,
-   reclamo o soporte), deja los datos del pedido/producto y se registra como
-   ticket. Mientras no exista el módulo de tickets en la API, se envía por el
-   mismo endpoint del formulario de contacto (/api/contacto) con el tipo de
-   caso al inicio del mensaje; los reclamos van como RECLAMO. */
+const celularLimpio = (v: string) => v.replace(/[\s()-]/g, '').replace(/^\+?51(?=9\d{8}$)/, '');
+
+/* Soporte por tickets en 2 pasos: (1) tipo de caso y datos de contacto, (2) datos de la compra
+   (n.º de compra, fecha, producto, comprobante), evidencia (hasta 3 fotos, se suben a la API) y la
+   descripción. Mientras no exista el módulo de tickets en la API, se registra por el mismo endpoint
+   del formulario de contacto (/api/contacto) con todo el detalle en el mensaje; los reclamos van como
+   RECLAMO. */
 export function SoporteTickets() {
+  const [paso, setPaso] = useState<1 | 2>(1);
   const [caso, setCaso] = useState(CASOS[0].id);
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [telefono, setTelefono] = useState('');
-  const [referencia, setReferencia] = useState('');
+  const [numeroCompra, setNumeroCompra] = useState('');
+  const [fechaCompra, setFechaCompra] = useState('');
+  const [producto, setProducto] = useState('');
+  const [comprobante, setComprobante] = useState('');
   const [detalle, setDetalle] = useState('');
+  const [evidencias, setEvidencias] = useState<Evidencia[]>([]);
+  const [subiendo, setSubiendo] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const [ok, setOk] = useState(false);
   const [error, setError] = useState('');
+  const inputFile = useRef<HTMLInputElement>(null);
   const actual = CASOS.find((c) => c.id === caso) ?? CASOS[0];
+
+  function continuar(e: React.FormEvent) {
+    e.preventDefault();
+    setError('');
+    if (nombre.trim().length < 2) return setError('Ingresa tu nombre o el de tu empresa.');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) return setError('Ingresa un correo válido.');
+    if (telefono.trim() && !/^9\d{8}$/.test(celularLimpio(telefono))) return setError('El celular debe tener 9 dígitos (empieza con 9).');
+    setOk(false);
+    setPaso(2);
+  }
+
+  async function agregarArchivos(files: FileList | null) {
+    if (!files?.length) return;
+    setError('');
+    const libres = MAX_EVIDENCIAS - evidencias.length;
+    if (libres <= 0) return setError(`Puedes adjuntar hasta ${MAX_EVIDENCIAS} fotos.`);
+    setSubiendo(true);
+    try {
+      for (const f of Array.from(files).slice(0, libres)) {
+        if (!f.type.startsWith('image/')) {
+          setError('Solo se pueden adjuntar imágenes (JPG, PNG, WEBP).');
+          continue;
+        }
+        if (f.size > MAX_MB * 1024 * 1024) {
+          setError(`"${f.name}" pesa más de ${MAX_MB} MB.`);
+          continue;
+        }
+        const fd = new FormData();
+        fd.append('archivo', f);
+        const res = await fetch('/api/evidencia', { method: 'POST', body: fd });
+        const data = await res.json().catch(() => ({}));
+        if (res.ok && data.url) setEvidencias((prev) => [...prev, { id: `${Date.now()}-${f.name}`, nombre: f.name, url: data.url }]);
+        else setError(data.error || `No pudimos subir "${f.name}".`);
+      }
+    } finally {
+      setSubiendo(false);
+      if (inputFile.current) inputFile.current.value = '';
+    }
+  }
 
   async function enviar(e: React.FormEvent) {
     e.preventDefault();
-    setEnviando(true);
     setError('');
+    if (!numeroCompra.trim()) return setError('Ingresa el número de tu compra o pedido.');
+    if (!producto.trim()) return setError('Indica el producto de la compra.');
+    if (detalle.trim().length < 5) return setError('Describe brevemente tu caso.');
+    setEnviando(true);
     try {
+      const lineas = [
+        `[Ticket: ${actual.titulo}]`,
+        `Compra: N.º ${numeroCompra.trim()}${fechaCompra ? ` · Fecha: ${fechaCompra}` : ''}${comprobante.trim() ? ` · Comprobante: ${comprobante.trim()}` : ''}`,
+        `Producto: ${producto.trim()}`,
+        detalle.trim(),
+        evidencias.length ? `Evidencia: ${evidencias.map((x) => x.url).join(' ')}` : '',
+      ].filter(Boolean);
       const res = await fetch('/api/contacto', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: nombre,
           email,
-          phone: telefono,
+          phone: celularLimpio(telefono) || undefined,
           tipo: actual.reclamo ? 'RECLAMO' : 'CONTACTO',
           origen: '/tickets',
-          message: `[Ticket: ${actual.titulo}]${referencia ? ` Pedido/producto: ${referencia}.` : ''}\n${detalle}`,
+          message: lineas.join('\n'),
         }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
         setOk(true);
+        setPaso(1);
         setNombre('');
         setEmail('');
         setTelefono('');
-        setReferencia('');
+        setNumeroCompra('');
+        setFechaCompra('');
+        setProducto('');
+        setComprobante('');
         setDetalle('');
+        setEvidencias([]);
       } else setError(data.error || 'No pudimos registrar tu ticket. Inténtalo nuevamente.');
     } catch {
       setError('Error de conexión. Inténtalo más tarde.');
@@ -109,41 +177,114 @@ export function SoporteTickets() {
         </ScrollReveal>
 
         <ScrollReveal direction="right" delayMs={120}>
-          <form onSubmit={enviar} className="group/form relative overflow-hidden rounded-2xl border border-brand-100 bg-white p-6 shadow-xl shadow-brand-950/10 sm:p-8">
+          <form onSubmit={paso === 1 ? continuar : enviar} noValidate className="group/form relative overflow-hidden rounded-2xl border border-brand-100 bg-white p-6 shadow-xl shadow-brand-950/10 sm:p-8">
             <span aria-hidden className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-gradient-to-r from-brand-primary via-brand-500 to-brand-700 transition-transform duration-500 ease-out group-focus-within/form:scale-x-100" />
+
+            {/* Pasos */}
+            <ol className="mb-6 flex items-center gap-3 text-sm font-semibold" aria-label="Pasos del ticket">
+              {['Tus datos', 'Tu compra'].map((t, i) => {
+                const n = i + 1;
+                const hecho = paso > n;
+                const activo = paso === n;
+                return (
+                  <li key={t} className="flex flex-1 items-center gap-2" aria-current={activo ? 'step' : undefined}>
+                    <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${activo || hecho ? 'bg-brand-primary text-white' : 'bg-brand-100 text-brand-700'}`}>{n}</span>
+                    <span className={activo ? 'text-ink' : 'text-ink/65'}>{t}</span>
+                    {i === 0 && <span className={`h-px flex-1 ${hecho ? 'bg-brand-primary' : 'bg-brand-100'}`} />}
+                  </li>
+                );
+              })}
+            </ol>
+
             <p className="font-display text-xl font-bold text-ink">{actual.titulo}</p>
-            <p className="mb-5 mt-1 text-sm text-ink/65">Cuéntanos qué pasó y te contactaremos.</p>
+            <p className="mb-5 mt-1 text-sm text-ink/65">{paso === 1 ? 'Primero, cómo te contactamos.' : 'Ahora, los datos de la compra y tu evidencia.'}</p>
+
             <div className="space-y-4">
               {ok && <div role="status" className="rounded-xl border border-whatsapp-dark/30 bg-whatsapp/10 p-4 text-center text-sm font-medium text-whatsapp-dark">¡Listo! Registramos tu ticket. Un asesor te contactará pronto.</div>}
               {error && <div role="alert" className="rounded-xl border border-red-300 bg-red-50 p-4 text-center text-sm font-medium text-red-700">{error}</div>}
-              <div>
-                <label className="text-sm font-medium text-ink/80" htmlFor="t-nombre">Nombres o empresa<span className="text-red-500"> *</span></label>
-                <input id="t-nombre" required value={nombre} onChange={(e) => setNombre(e.target.value)} className={campo} placeholder="Tu nombre o el de tu empresa" />
+
+              {paso === 1 ? (
+                <>
+                  <div>
+                    <label className="text-sm font-medium text-ink/80" htmlFor="t-nombre">Nombres o empresa<span className="text-red-500"> *</span></label>
+                    <input id="t-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} className={campo} placeholder="Tu nombre o el de tu empresa" />
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="text-sm font-medium text-ink/80" htmlFor="t-email">Correo electrónico<span className="text-red-500"> *</span></label>
+                      <input id="t-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={campo} placeholder="correo@empresa.com" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-ink/80" htmlFor="t-tel">Celular / WhatsApp</label>
+                      <input id="t-tel" type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} className={campo} placeholder="+51 987 654 321" />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="text-sm font-medium text-ink/80" htmlFor="t-compra">N.º de compra o pedido<span className="text-red-500"> *</span></label>
+                      <input id="t-compra" value={numeroCompra} onChange={(e) => setNumeroCompra(e.target.value)} className={campo} placeholder="Ej. 1024" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-ink/80" htmlFor="t-fecha">Fecha de compra</label>
+                      <input id="t-fecha" type="date" max={new Date().toISOString().slice(0, 10)} value={fechaCompra} onChange={(e) => setFechaCompra(e.target.value)} className={campo} />
+                    </div>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="text-sm font-medium text-ink/80" htmlFor="t-prod">Producto<span className="text-red-500"> *</span></label>
+                      <input id="t-prod" value={producto} onChange={(e) => setProducto(e.target.value)} className={campo} placeholder="Ej. Monitor HP E24" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-ink/80" htmlFor="t-comp">Boleta o factura</label>
+                      <input id="t-comp" value={comprobante} onChange={(e) => setComprobante(e.target.value)} className={campo} placeholder="Ej. F001-123" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium text-ink/80" htmlFor="t-detalle">Describe tu caso<span className="text-red-500"> *</span></label>
+                    <textarea id="t-detalle" rows={3} value={detalle} onChange={(e) => setDetalle(e.target.value)} className={`${campo} resize-none`} placeholder="¿Qué problema tienes o qué necesitas verificar?" />
+                  </div>
+
+                  <div>
+                    <p className="text-sm font-medium text-ink/80">Evidencia (fotos, hasta {MAX_EVIDENCIAS})</p>
+                    <div className="mt-1.5 flex flex-wrap gap-3">
+                      {evidencias.map((x) => (
+                        <div key={x.id} className="relative h-20 w-20 overflow-hidden rounded-xl border border-brand-200">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img src={x.url} alt={x.nombre} className="h-full w-full object-cover" />
+                          <button type="button" onClick={() => setEvidencias((prev) => prev.filter((e) => e.id !== x.id))} aria-label={`Quitar ${x.nombre}`} className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-ink/70 text-white transition-colors hover:bg-red-600">
+                            <X className="h-3 w-3" strokeWidth={2.5} />
+                          </button>
+                        </div>
+                      ))}
+                      {evidencias.length < MAX_EVIDENCIAS && (
+                        <button type="button" onClick={() => inputFile.current?.click()} disabled={subiendo} className="flex h-20 w-20 flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-brand-200 text-xs font-semibold text-brand-700 transition-colors hover:border-brand-primary hover:bg-brand-50 disabled:opacity-60">
+                          <ImagePlus className="h-5 w-5" strokeWidth={1.8} />
+                          {subiendo ? 'Subiendo…' : 'Agregar'}
+                        </button>
+                      )}
+                    </div>
+                    <input ref={inputFile} type="file" accept="image/*" multiple className="sr-only" onChange={(e) => agregarArchivos(e.target.files)} aria-label="Agregar fotos de evidencia" />
+                    <p className="mt-1.5 text-xs text-ink/65">JPG, PNG o WEBP, máximo {MAX_MB} MB cada una.</p>
+                  </div>
+                </>
+              )}
+
+              <div className="flex gap-3">
+                {paso === 2 && (
+                  <button type="button" onClick={() => { setError(''); setPaso(1); }} className="inline-flex h-12 items-center rounded-xl border border-brand-200 px-5 text-sm font-semibold uppercase tracking-wide text-brand-700 transition-colors hover:bg-brand-50">
+                    Atrás
+                  </button>
+                )}
+                <button type="submit" disabled={enviando || subiendo} className="group/btn flex h-12 flex-1 items-center justify-center gap-2.5 rounded-xl bg-brand-primary text-sm font-semibold uppercase tracking-wide text-white transition-colors duration-200 hover:bg-[#0b68b8] disabled:opacity-50">
+                  <span className="flex items-center justify-center rounded-lg bg-white/20 p-1">
+                    <ArrowUpRightIcon className="h-4 w-4 transition-transform duration-300 group-hover/btn:rotate-45" />
+                  </span>
+                  {paso === 1 ? 'Continuar' : enviando ? 'Enviando...' : 'Abrir ticket'}
+                </button>
               </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="text-sm font-medium text-ink/80" htmlFor="t-email">Correo electrónico<span className="text-red-500"> *</span></label>
-                  <input id="t-email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} className={campo} placeholder="correo@empresa.com" />
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-ink/80" htmlFor="t-tel">Celular / WhatsApp</label>
-                  <input id="t-tel" type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} className={campo} placeholder="+51 987 654 321" />
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium text-ink/80" htmlFor="t-ref">N.º de pedido o producto</label>
-                <input id="t-ref" value={referencia} onChange={(e) => setReferencia(e.target.value)} className={campo} placeholder="Ej. Pedido 1024 o Monitor HP E24" />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-ink/80" htmlFor="t-detalle">Describe tu caso<span className="text-red-500"> *</span></label>
-                <textarea id="t-detalle" required rows={4} value={detalle} onChange={(e) => setDetalle(e.target.value)} className={`${campo} resize-none`} placeholder="¿Qué problema tienes o qué necesitas verificar?" />
-              </div>
-              <button type="submit" disabled={enviando} className="group/btn flex h-12 w-full items-center justify-center gap-2.5 rounded-xl bg-brand-primary text-sm font-semibold uppercase tracking-wide text-white transition-colors duration-200 hover:bg-[#0b68b8] disabled:opacity-50">
-                <span className="flex items-center justify-center rounded-lg bg-white/20 p-1">
-                  <ArrowUpRightIcon className="h-4 w-4 transition-transform duration-300 group-hover/btn:rotate-45" />
-                </span>
-                {enviando ? 'Enviando...' : 'Abrir ticket'}
-              </button>
             </div>
           </form>
         </ScrollReveal>

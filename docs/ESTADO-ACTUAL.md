@@ -1040,3 +1040,8 @@ Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «V
 - **API**: módulo `presupuestos` (`POST /public/presupuestos` recalcula precios, IGV 18 % y total en el servidor y asigna `COT-AAAA-XXXXXX`; `GET /public/presupuestos/:id`). **BD** (migración `20261002100000_presupuestos`, ya aplicada a Supabase): `Producto.precioMayorista`, tablas `Presupuesto` y `PresupuestoItem`. **Dashboard**: campo «Precio mayorista» en Ecommerce → Productos.
 - **Orden de despliegue**: primero la API (nuevo módulo + DTO de producto), luego dashboard y web; si la web sale antes, «Pedir presupuesto» falla con 404.
 - **Fase 2 pendiente**: PDF generado en servidor, envío por correo al cliente y pantalla de Presupuestos en el dashboard (estado, seguimiento por el área comercial).
+
+## 2026-10-04 — Tickets en 2 pasos con evidencia; formulario de contacto simple vs completo
+
+- **Web**: `/tickets` ahora es un formulario en 2 pasos: (1) tipo de caso + datos de contacto, (2) n.º de compra/pedido, fecha, producto, boleta/factura, descripción y **evidencia** (hasta 3 fotos). Las fotos suben por `POST /api/evidencia` → API `POST /public/uploads/evidencia` (solo JPG/PNG/WEBP/GIF ≤ 5 MB, tope 12 subidas / 10 min por IP, guardadas en `uploads/<marca>/evidencias/` con nombre UUID) y sus URLs viajan en el mensaje del ticket (sigue entrando como contacto/reclamo hasta que exista el módulo de tickets).
+- **Contacto**: el formulario **completo** (selector de motivo, a todo ancho) es solo de `/contacto` (`<Contact completo />`); el resto de páginas usan el **simple** (campos básicos + tarjetas de datos) y mandan la ruta de origen en `origen`.

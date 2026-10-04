@@ -43,7 +43,7 @@ export default async function ContactoPage() {
         <AreasContacto />
 
         {/* Formulario principal (sin tarjetas de datos: ya están en «Contacto por área»). */}
-        <Contact conDatos={false} />
+        <Contact completo />
 
         {/* Mapa + horario */}
         <section className="mx-auto max-w-7xl px-6 py-20">
