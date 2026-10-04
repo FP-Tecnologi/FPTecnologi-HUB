@@ -1,12 +1,5 @@
 import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
-// TODO(THROTTLER): @nestjs/throttler@6.7.0 (última versión publicada) sigue
-// compilado en CJS y hace `require('@nestjs/common')`, pero @nestjs/common@12
-// es ESM puro -- Node no puede resolver ese require (ERR_REQUIRE_ESM), tumba
-// el proceso al arrancar. Deshabilitado hasta que el paquete publique un
-// build compatible con Nest v12 ESM. Restaurar: descomentar este import y
-// cada @Throttle(...) de abajo, y ThrottlerModule/ThrottlerGuard en
-// app.module.ts.
-// import { Throttle } from '@nestjs/throttler';
+import { Limite } from '../common/guards/limite-peticiones.guard.js';
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service.js';
@@ -55,14 +48,14 @@ export class AuthController {
   // rol "cliente" de la marca indicada. Cuentas de equipo/staff las crea
   // un admin desde POST /roles/equipo (ver RolesController), nunca esto.
   @Public()
-  // @Throttle({ default: { ttl: 60_000, limit: 10 } })
+  @Limite(10)
   @Post('register')
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto.email, dto.password, dto.marcaId, dto.nombre);
   }
 
   @Public()
-  // @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  @Limite(5)
   @HttpCode(HttpStatus.OK)
   @Post('password-reset/request')
   requestPasswordReset(@Body() dto: PasswordResetRequestDto) {
@@ -70,7 +63,7 @@ export class AuthController {
   }
 
   @Public()
-  // @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  @Limite(5)
   @HttpCode(HttpStatus.OK)
   @Post('password-reset/confirm')
   confirmPasswordReset(@Body() dto: PasswordResetConfirmDto) {
@@ -78,7 +71,7 @@ export class AuthController {
   }
 
   @Public()
-  // @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  @Limite(5)
   @HttpCode(HttpStatus.OK)
   @Post('login')
   login(@Body() dto: LoginDto, @Req() req: Request) {
@@ -87,7 +80,7 @@ export class AuthController {
   }
 
   @Public()
-  // @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  @Limite(5)
   @HttpCode(HttpStatus.OK)
   @Post('otp/request')
   requestOtp(@Body() dto: RequestOtpDto) {
@@ -95,7 +88,7 @@ export class AuthController {
   }
 
   @Public()
-  // @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  @Limite(5)
   @HttpCode(HttpStatus.OK)
   @Post('otp/verify')
   async verifyOtp(@Body() dto: VerifyOtpDto, @Res({ passthrough: true }) res: Response) {
@@ -105,7 +98,7 @@ export class AuthController {
   }
 
   @Public()
-  // @Throttle({ default: { ttl: 60_000, limit: 5 } })
+  @Limite(5)
   @HttpCode(HttpStatus.OK)
   @Post('totp/verify-login')
   async verifyTotpLogin(@Body() dto: VerifyTotpLoginDto, @Res({ passthrough: true }) res: Response) {

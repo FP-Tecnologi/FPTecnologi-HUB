@@ -4,6 +4,7 @@ import { SuscribirDto } from './boletin.dto.js';
 import { MarcaRolGuard } from '../common/guards/marca-rol.guard.js';
 import { MarcaActual } from '../common/decorators/marca-actual.decorator.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
+import { Limite } from '../common/guards/limite-peticiones.guard.js';
 import { Public } from '../common/decorators/public.decorator.js';
 
 /** Dashboard: suscriptores del boletín (admin y marketing de la marca). */
@@ -30,6 +31,7 @@ export class BoletinController {
 export class PublicBoletinController {
   constructor(private readonly boletin: BoletinService) {}
 
+  @Limite(10)
   @Post('suscribir')
   suscribir(
     @Query('marcaId') marcaId: string,

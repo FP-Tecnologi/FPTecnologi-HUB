@@ -1,4 +1,5 @@
 import { BadRequestException, Controller, Headers, Ip, Post, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Limite } from '../common/guards/limite-peticiones.guard.js';
 import { Public } from '../common/decorators/public.decorator.js';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadsService, MAX_BYTES, MAX_BYTES_EVIDENCIA } from './uploads.service.js';
@@ -26,6 +27,7 @@ export class UploadsController {
 export class PublicUploadsController {
   constructor(private readonly uploads: UploadsService) {}
 
+  @Limite(30)
   @Post('evidencia')
   @UseInterceptors(FileInterceptor('archivo', { limits: { fileSize: MAX_BYTES_EVIDENCIA, files: 1 } }))
   evidencia(

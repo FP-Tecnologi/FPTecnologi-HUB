@@ -13,6 +13,8 @@ async function bootstrap() {
   assertRequiredEnv();
 
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  // Detrás del proxy del hosting req.ip debe ser el cliente real (TRUST_PROXY = saltos de proxy, 0 si se expone directo).
+  app.set('trust proxy', Number(process.env.TRUST_PROXY ?? 1));
   app.use(helmet());
   app.use(cookieParser());
   app.use(swaggerBasicAuth);

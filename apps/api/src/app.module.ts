@@ -1,9 +1,6 @@
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { Module } from '@nestjs/common';
-// TODO(THROTTLER): ver nota en auth.controller.ts -- @nestjs/throttler no
-// tiene build compatible con @nestjs/common@12 (ESM). Deshabilitado hasta
-// que el paquete lo arregle.
-// import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { LimitePeticionesGuard } from './common/guards/limite-peticiones.guard.js';
 import { HealthController } from './health.controller.js';
 import { ConfigModule } from './config/config.module.js';
 import { PrismaModule } from './prisma/prisma.module.js';
@@ -44,10 +41,6 @@ import { PopupsModule } from './popups/popups.module.js';
 @Module({
   imports: [
     ConfigModule,
-    // Límite global; auth.controller pone uno más estricto en login/OTP
-    // (fuerza bruta de un código de 6 dígitos es factible sin esto).
-    // Deshabilitado -- ver TODO(THROTTLER) arriba.
-    // ThrottlerModule.forRoot([{ ttl: 60_000, limit: 60 }]),
     PrismaModule,
     AuthModule,
     MarcasModule,
@@ -85,8 +78,8 @@ import { PopupsModule } from './popups/popups.module.js';
     // Orden de ejecución de guards: JwtAuthGuard corre primero en todas las
     // rutas (salvo @Public()); MarcaRolGuard se aplica explícitamente por
     // módulo/ruta encima de este guard global.
-    // Deshabilitado -- ver TODO(THROTTLER) arriba.
-    // { provide: APP_GUARD, useClass: ThrottlerGuard },
+    // Límite de peticiones por IP (global); @Limite(...) lo endurece en login/OTP y formularios públicos.
+    { provide: APP_GUARD, useClass: LimitePeticionesGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
     { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },

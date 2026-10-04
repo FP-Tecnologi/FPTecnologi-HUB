@@ -1,6 +1,7 @@
 import { BadRequestException, Body, Controller, Get, Headers, Ip, Post, Query } from '@nestjs/common';
 import { IsEmail, IsOptional, IsString, Length, MaxLength } from 'class-validator';
 import { CuentaService } from './cuenta.service.js';
+import { Limite } from '../common/guards/limite-peticiones.guard.js';
 import { Public } from '../common/decorators/public.decorator.js';
 
 class PedirCodigoDto {
@@ -29,6 +30,7 @@ class VerificarDto {
 export class CuentaController {
   constructor(private readonly cuenta: CuentaService) {}
 
+  @Limite(5)
   @Post('codigo')
   codigo(@Query('marcaId') marcaId: string, @Body() dto: PedirCodigoDto, @Ip() ip: string, @Headers('x-forwarded-for') forwarded?: string) {
     if (!marcaId) throw new BadRequestException('Falta marcaId');
@@ -37,6 +39,7 @@ export class CuentaController {
     return this.cuenta.pedirCodigo(marcaId, dto.email, forwarded?.split(',')[0]?.trim() || ip);
   }
 
+  @Limite(8)
   @Post('verificar')
   verificar(@Query('marcaId') marcaId: string, @Body() dto: VerificarDto) {
     if (!marcaId) throw new BadRequestException('Falta marcaId');

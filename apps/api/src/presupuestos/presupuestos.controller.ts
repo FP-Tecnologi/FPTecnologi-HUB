@@ -1,4 +1,5 @@
 import { BadRequestException, Body, Controller, Delete, Get, Headers, Ip, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Limite } from '../common/guards/limite-peticiones.guard.js';
 import { Public } from '../common/decorators/public.decorator.js';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import { MarcaRolGuard } from '../common/guards/marca-rol.guard.js';
@@ -14,6 +15,7 @@ import { CambiarEstadoPresupuestoDto } from './dto/cambiar-estado-presupuesto.dt
 export class PublicPresupuestosController {
   constructor(private readonly presupuestos: PresupuestosService) {}
 
+  @Limite(10)
   @Post()
   crear(@Query('marcaId') marcaId: string, @Body() dto: CrearPresupuestoDto, @Ip() ip: string, @Headers('x-forwarded-for') forwarded?: string) {
     if (!marcaId) throw new BadRequestException('Falta marcaId');

@@ -6,6 +6,7 @@ import { MarcaRolGuard } from '../common/guards/marca-rol.guard.js';
 import { MarcaActual } from '../common/decorators/marca-actual.decorator.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
+import { Limite } from '../common/guards/limite-peticiones.guard.js';
 import { Public } from '../common/decorators/public.decorator.js';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user.js';
 
@@ -92,6 +93,7 @@ export class PublicChatController {
     return rows.map(({ id, nombre, area, telefono, whatsapp, fotoUrl }) => ({ id, nombre, area, telefono, whatsapp, fotoUrl }));
   }
 
+  @Limite(10)
   @Post('conversaciones')
   crear(@Query('marcaId') marcaId: string, @Body() dto: CrearConversacionDto) {
     return this.chat.crearPublica(marcaId, dto.paginaOrigen);
