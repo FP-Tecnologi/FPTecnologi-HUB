@@ -28,10 +28,6 @@ export function buildNavLinks(servicios: readonly { title: string; slug: string 
   {
     label: 'Contacto',
     href: '/contacto',
-    children: [
-      { label: 'Contáctanos', href: '/contacto' },
-      { label: 'Cotizador', href: '/cotizador' },
-    ],
   },
 ] as const;
 }

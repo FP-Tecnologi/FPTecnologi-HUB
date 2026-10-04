@@ -9,7 +9,7 @@ type Tone = 'light' | 'dark';
 
 const TONE = {
   light: 'border-black/10 text-ink hover:border-brand-primary hover:text-brand-700',
-  dark: 'border-white/25 text-white hover:border-white hover:bg-white/5',
+  dark: 'border-white/40 bg-white/10 text-white hover:border-white hover:bg-white/20',
 } as const;
 
 /**
@@ -46,9 +46,9 @@ export function CartButton({ tone = 'light', compact = false }: { tone?: Tone; c
         aria-label={`Carrito, ${count} producto${count === 1 ? '' : 's'}`}
         className={`relative flex items-center justify-center rounded-lg border transition-colors ${compact ? 'h-9 w-9' : 'h-10 w-10 lg:h-11 lg:w-11 2xl:h-12 2xl:w-12'} ${TONE[tone]}`}
       >
-        <ShoppingCart className="h-4.5 w-4.5" strokeWidth={1.8} />
+        <ShoppingCart className={`h-4.5 w-4.5 ${tone === 'dark' ? 'text-white' : ''}`} strokeWidth={tone === 'dark' ? 2.2 : 1.8} />
         {count > 0 && (
-          <span className={`absolute -right-1.5 -top-1.5 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-brand-primary px-1 text-[10px] font-bold text-white transition-transform ${bump ? 'scale-125' : 'scale-100'}`}>
+          <span className={`absolute -right-1.5 -top-1.5 flex h-4.5 min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-bold transition-transform ${tone === 'dark' ? 'bg-white text-brand-700 shadow-sm shadow-black/25' : 'bg-brand-primary text-white'} ${bump ? 'scale-125' : 'scale-100'}`}>
             {count}
           </span>
         )}
