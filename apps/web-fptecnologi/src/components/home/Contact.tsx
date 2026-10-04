@@ -56,6 +56,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
   const [motivo, setMotivo] = useState<(typeof MOTIVOS)[number]['id']>(MOTIVOS[0].id);
   // Formulario completo: persona natural (DNI) o empresa (RUC, razón social, responsable y cargo).
   const [tipo, setTipo] = useState<'PERSONA' | 'EMPRESA'>('PERSONA');
+  const [acepto, setAcepto] = useState(false);
   const [documento, setDocumento] = useState('');
   const [preferencia, setPreferencia] = useState<(typeof PREFERENCIAS)[number]>(PREFERENCIAS[0]);
   const [submitting, setSubmitting] = useState(false);
@@ -65,6 +66,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg('');
+    if (!acepto) return setErrorMsg('Para enviar tu mensaje acepta la política de privacidad y el contacto.');
     let payload: { name: string; email: string; phone: string; company?: string; message: string };
     if (completo) {
       const esEmpresa = tipo === 'EMPRESA';
@@ -101,6 +103,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
         setPhone('');
         setMessage('');
         setDocumento('');
+        setAcepto(false);
       } else {
         setErrorMsg(data.error || 'Ocurrió un error al enviar tu mensaje. Inténtalo nuevamente.');
       }
@@ -330,6 +333,14 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
               </div>
                 </>
               )}
+              <label className="flex cursor-pointer items-start gap-3 text-sm text-ink/70">
+                <input type="checkbox" checked={acepto} onChange={(e) => setAcepto(e.target.checked)} className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-[#107acc]" />
+                <span>
+                  He leído la{' '}
+                  <a href="/legal/privacidad" target="_blank" rel="noreferrer" className="font-semibold text-brand-700 underline underline-offset-2 hover:text-brand-primary">política de privacidad</a>{' '}
+                  y acepto que FPTecnologi me contacte por los medios indicados.<span className="text-red-500"> *</span>
+                </span>
+              </label>
               <button
                 type="submit"
                 disabled={submitting}
