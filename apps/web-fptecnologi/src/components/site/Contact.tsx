@@ -133,7 +133,7 @@ export function Contact() {
               </div>
             </div>
             <div>
-              <label className="text-sm text-white/70" htmlFor="c-company">Empresa (opcional)</label>
+              <label className="text-sm text-white/70" htmlFor="c-company">Empresa</label>
               <input
                 id="c-company"
                 value={company}

@@ -53,7 +53,7 @@ const iconCls = 'pointer-events-none absolute left-4 h-5 w-5 text-ink/65';
 function Campo({ id, label, error, children }: { id: string; label: string; error?: string; children: ReactNode }) {
   return (
     <div>
-      <label htmlFor={id} className="text-sm font-semibold text-ink/80">{label}</label>
+      <label htmlFor={id} className="text-sm font-semibold text-ink/80">{label.endsWith(' *') ? <>{label.slice(0, -2)}<span className="text-red-500"> *</span></> : label}</label>
       {children}
       {error && <p role="alert" className="mt-1.5 text-sm font-medium text-rose-600">{error}</p>}
     </div>
@@ -229,20 +229,20 @@ export function CheckoutForm() {
 
       <div className="space-y-6">
         <Seccion n={1} titulo="Tus datos" sub="Para contactarte y enviarte la confirmación.">
-          <Campo id="co-nombre" label="Nombre completo" error={errores.nombre}>
+          <Campo id="co-nombre" label="Nombre completo *" error={errores.nombre}>
             <div className="relative flex items-center">
               <User className={iconCls} strokeWidth={1.8} />
               <input id="co-nombre" autoComplete="name" maxLength={80} value={v.nombre} onChange={(e) => set('nombre', e.target.value)} aria-invalid={!!errores.nombre} className={input} placeholder="Nombres y apellidos" />
             </div>
           </Campo>
           <div className="grid gap-5 sm:grid-cols-2">
-            <Campo id="co-email" label="Correo electrónico" error={errores.email}>
+            <Campo id="co-email" label="Correo electrónico *" error={errores.email}>
               <div className="relative flex items-center">
                 <Mail className={iconCls} strokeWidth={1.8} />
                 <input id="co-email" type="email" autoComplete="email" maxLength={120} value={v.email} onChange={(e) => set('email', e.target.value)} aria-invalid={!!errores.email} className={input} placeholder="correo@empresa.com" />
               </div>
             </Campo>
-            <Campo id="co-celular" label="Celular / WhatsApp" error={errores.celular}>
+            <Campo id="co-celular" label="Celular / WhatsApp *" error={errores.celular}>
               <div className="relative flex items-center">
                 <Phone className={iconCls} strokeWidth={1.8} />
                 <input id="co-celular" type="tel" autoComplete="tel" maxLength={16} value={v.celular} onChange={(e) => set('celular', e.target.value)} aria-invalid={!!errores.celular} className={input} placeholder="987 654 321" />
@@ -256,14 +256,14 @@ export function CheckoutForm() {
             <Opcion activo={!factura} onClick={() => { setV((p) => ({ ...p, comprobante: 'BOLETA', documento: '' })); setErrores({}); }} icon={FileText} titulo="Boleta" texto="Con DNI" />
             <Opcion activo={factura} onClick={() => { setV((p) => ({ ...p, comprobante: 'FACTURA', documento: '' })); setErrores({}); }} icon={Building2} titulo="Factura" texto="Con RUC" />
           </div>
-          <Campo id="co-documento" label={factura ? 'RUC' : 'DNI'} error={errores.documento}>
+          <Campo id="co-documento" label={factura ? 'RUC *' : 'DNI *'} error={errores.documento}>
             <div className="relative flex items-center">
               <FileText className={iconCls} strokeWidth={1.8} />
               <input id="co-documento" inputMode="numeric" autoComplete="off" value={v.documento} onChange={(e) => set('documento', e.target.value.replace(/\D/g, '').slice(0, factura ? 11 : 8))} aria-invalid={!!errores.documento} className={`${input} font-mono tracking-wider`} placeholder={factura ? '20123456789' : '12345678'} />
             </div>
           </Campo>
           {factura && (
-            <Campo id="co-razonSocial" label="Razón social" error={errores.razonSocial}>
+            <Campo id="co-razonSocial" label="Razón social *" error={errores.razonSocial}>
               <div className="relative flex items-center">
                 <Building2 className={iconCls} strokeWidth={1.8} />
                 <input id="co-razonSocial" autoComplete="organization" maxLength={120} value={v.razonSocial} onChange={(e) => set('razonSocial', e.target.value)} aria-invalid={!!errores.razonSocial} className={input} placeholder="Nombre de la empresa" />
@@ -304,13 +304,13 @@ export function CheckoutForm() {
           ) : (
             <>
               <div className="grid gap-5 sm:grid-cols-[1fr_12rem]">
-                <Campo id="co-direccion" label="Dirección" error={errores.direccion}>
+                <Campo id="co-direccion" label="Dirección *" error={errores.direccion}>
                   <div className="relative flex items-center">
                     <MapPin className={iconCls} strokeWidth={1.8} />
                     <input id="co-direccion" autoComplete="street-address" maxLength={200} value={v.direccion} onChange={(e) => set('direccion', e.target.value)} aria-invalid={!!errores.direccion} className={input} placeholder="Calle, número, referencia" />
                   </div>
                 </Campo>
-                <Campo id="co-distrito" label="Distrito" error={errores.distrito}>
+                <Campo id="co-distrito" label="Distrito *" error={errores.distrito}>
                   <div className="relative flex items-center">
                     <MapPin className={iconCls} strokeWidth={1.8} />
                     <input id="co-distrito" maxLength={80} value={v.distrito} onChange={(e) => set('distrito', e.target.value)} aria-invalid={!!errores.distrito} className={input} placeholder="Distrito" />
@@ -332,7 +332,7 @@ export function CheckoutForm() {
             <Lock className="mt-0.5 h-4 w-4 shrink-0 text-brand-700" strokeWidth={2} />
             No se cobra nada en línea: un asesor te escribirá por WhatsApp para confirmar el pago y la entrega.
           </p>
-          <Campo id="co-notas" label="Notas del pedido (opcional)">
+          <Campo id="co-notas" label="Notas del pedido">
             <textarea id="co-notas" rows={3} maxLength={300} value={v.notas} onChange={(e) => set('notas', e.target.value)} className="mt-1.5 w-full resize-none rounded-xl border border-ink/15 bg-white px-4 py-3 text-base text-ink outline-none transition-all placeholder:text-ink/65 focus:border-brand-dark focus:ring-4 focus:ring-brand-dark/10" placeholder="Horario de contacto, indicaciones…" />
           </Campo>
         </Seccion>

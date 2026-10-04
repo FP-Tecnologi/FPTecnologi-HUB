@@ -2,7 +2,7 @@
 import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
 
 import { useState } from 'react';
-import { Building2, Mail, MapPin, MessageCircle, MessageSquareText, Phone, User, type LucideIcon } from 'lucide-react';
+import { Mail, MapPin, MessageCircle, MessageSquareText, Phone, User, type LucideIcon } from 'lucide-react';
 import { useSitio } from '@/context/SitioContext';
 import { whatsappHref } from '@/lib/chatActions';
 import { ArrowUpRightIcon } from '@/components/site/icons';
@@ -32,7 +32,6 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [company, setCompany] = useState('');
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -46,7 +45,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
       const res = await fetch('/api/contacto', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone, company, message }),
+        body: JSON.stringify({ name, email, phone, message }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
@@ -54,7 +53,6 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
         setName('');
         setEmail('');
         setPhone('');
-        setCompany('');
         setMessage('');
       } else {
         setErrorMsg(data.error || 'Ocurrió un error al enviar tu mensaje. Inténtalo nuevamente.');
@@ -134,15 +132,15 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
                 </div>
               )}
               <div className="group/field">
-                <label className="text-sm font-medium text-ink/80" htmlFor="c-name">Nombre completo</label>
+                <label className="text-sm font-medium text-ink/80" htmlFor="c-name">Nombres o empresa<span className="text-red-500"> *</span></label>
                 <div className="relative flex items-center">
                   <User className={iconCls} strokeWidth={1.8} />
-                  <input id="c-name" required autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} className={input} placeholder="Tu nombre y apellido" />
+                  <input id="c-name" required autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} className={input} placeholder="Tu nombre o el de tu empresa" />
                 </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="group/field">
-                  <label className="text-sm font-medium text-ink/80" htmlFor="c-email">Correo electrónico</label>
+                  <label className="text-sm font-medium text-ink/80" htmlFor="c-email">Correo electrónico<span className="text-red-500"> *</span></label>
                   <div className="relative flex items-center">
                     <Mail className={iconCls} strokeWidth={1.8} />
                     <input id="c-email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className={input} placeholder="correo@empresa.com" />
@@ -157,14 +155,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
                 </div>
               </div>
               <div className="group/field">
-                <label className="text-sm font-medium text-ink/80" htmlFor="c-company">Empresa (opcional)</label>
-                <div className="relative flex items-center">
-                  <Building2 className={iconCls} strokeWidth={1.8} />
-                  <input id="c-company" autoComplete="organization" value={company} onChange={(e) => setCompany(e.target.value)} className={input} placeholder="Nombre de tu empresa" />
-                </div>
-              </div>
-              <div className="group/field">
-                <label className="text-sm font-medium text-ink/80" htmlFor="c-message">Mensaje</label>
+                <label className="text-sm font-medium text-ink/80" htmlFor="c-message">Mensaje<span className="text-red-500"> *</span></label>
                 <div className="relative flex items-start">
                   <MessageSquareText className={`${iconCls} top-[1.15rem]`} strokeWidth={1.8} />
                   <textarea

@@ -78,7 +78,7 @@ function Campo({ id, label, error, children }: { id: string; label: string; erro
   return (
     <div>
       <label htmlFor={id} className="text-sm font-semibold text-ink/80">
-        {label}
+        {label.endsWith(' *') ? <>{label.slice(0, -2)}<span className="text-red-500"> *</span></> : label}
       </label>
       {children}
       {error && (
@@ -261,7 +261,7 @@ export function CotizadorForm({ c, interesInicial }: { c: CotizadorContenido; in
               )}
               {v.interes === OTRO && (
                 <div className="mt-4">
-                  <Campo id="cot-otro" label="¿Qué necesitas cotizar?" error={errores.otro}>
+                  <Campo id="cot-otro" label="¿Qué necesitas cotizar? *" error={errores.otro}>
                     <input id="cot-otro" maxLength={120} value={v.otro} onChange={(e) => set('otro', e.target.value)} aria-invalid={!!errores.otro} className={input} placeholder="Ej. Cableado estructurado para una oficina" />
                   </Campo>
                 </div>
@@ -305,7 +305,7 @@ export function CotizadorForm({ c, interesInicial }: { c: CotizadorContenido; in
                 })}
               </div>
 
-              <Campo id="cot-doc" label={juridica ? 'RUC' : 'DNI'} error={errores.nroDocumento}>
+              <Campo id="cot-doc" label={juridica ? 'RUC *' : 'DNI *'} error={errores.nroDocumento}>
                 <input
                   id="cot-doc"
                   inputMode="numeric"
@@ -320,15 +320,15 @@ export function CotizadorForm({ c, interesInicial }: { c: CotizadorContenido; in
               </Campo>
 
               <div className="grid gap-5 sm:grid-cols-2">
-                <Campo id="cot-nombres" label="Nombres" error={errores.nombres}>
+                <Campo id="cot-nombres" label="Nombres *" error={errores.nombres}>
                   <input id="cot-nombres" autoComplete="given-name" maxLength={80} value={v.nombres} onChange={(e) => set('nombres', e.target.value)} aria-invalid={!!errores.nombres} className={input} placeholder="Tus nombres" />
                 </Campo>
-                <Campo id="cot-apellidos" label="Apellidos" error={errores.apellidos}>
+                <Campo id="cot-apellidos" label="Apellidos *" error={errores.apellidos}>
                   <input id="cot-apellidos" autoComplete="family-name" maxLength={80} value={v.apellidos} onChange={(e) => set('apellidos', e.target.value)} aria-invalid={!!errores.apellidos} className={input} placeholder="Tus apellidos" />
                 </Campo>
               </div>
 
-              <Campo id="cot-empresa" label={juridica ? 'Empresa' : 'Empresa (opcional)'} error={errores.empresa}>
+              <Campo id="cot-empresa" label={juridica ? 'Empresa *' : 'Empresa'} error={errores.empresa}>
                 <input id="cot-empresa" autoComplete="organization" maxLength={120} value={v.empresa} onChange={(e) => set('empresa', e.target.value)} aria-invalid={!!errores.empresa} className={input} placeholder="Razón social o nombre comercial" />
               </Campo>
             </div>
@@ -336,13 +336,13 @@ export function CotizadorForm({ c, interesInicial }: { c: CotizadorContenido; in
 
           {paso === 2 && (
             <div className="mt-6 space-y-5">
-              <Campo id="cot-email" label="Correo electrónico" error={errores.email}>
+              <Campo id="cot-email" label="Correo electrónico *" error={errores.email}>
                 <div className="relative">
                   <Mail className="pointer-events-none absolute left-4 top-1/2 mt-[3px] h-5 w-5 -translate-y-1/2 text-ink/65" strokeWidth={1.8} />
                   <input id="cot-email" type="email" inputMode="email" autoComplete="email" maxLength={120} value={v.email} onChange={(e) => set('email', e.target.value)} aria-invalid={!!errores.email} className={`${input} pl-12`} placeholder="correo@empresa.com" />
                 </div>
               </Campo>
-              <Campo id="cot-celular" label="Celular / WhatsApp" error={errores.celular}>
+              <Campo id="cot-celular" label="Celular / WhatsApp *" error={errores.celular}>
                 <div className="relative">
                   <Phone className="pointer-events-none absolute left-4 top-1/2 mt-[3px] h-5 w-5 -translate-y-1/2 text-ink/65" strokeWidth={1.8} />
                   <input id="cot-celular" type="tel" inputMode="tel" autoComplete="tel" maxLength={16} value={v.celular} onChange={(e) => set('celular', e.target.value)} aria-invalid={!!errores.celular} className={`${input} pl-12`} placeholder="987 654 321" />

@@ -15,7 +15,7 @@ const input =
 function Campo({ label, children, full }: { label: string; children: ReactNode; full?: boolean }) {
   return (
     <label className={`block text-sm font-medium text-ink ${full ? 'sm:col-span-2' : ''}`}>
-      {label}
+      {label.endsWith(' *') ? <>{label.slice(0, -2)}<span className="text-red-500"> *</span></> : label}
       {children}
     </label>
   );
@@ -84,11 +84,11 @@ export function LibroReclamacionesForm() {
   return (
     <form onSubmit={enviar} className="space-y-6">
       <Bloque n={1} titulo="Identificación del consumidor">
-        <Campo label="Nombre completo"><input name="nombre" required className={input} /></Campo>
-        <Campo label="DNI / CE / RUC"><input name="documento" required className={input} /></Campo>
-        <Campo label="Correo electrónico"><input name="email" type="email" required className={input} /></Campo>
-        <Campo label="Teléfono"><input name="telefono" required className={input} /></Campo>
-        <Campo label="Domicilio" full><input name="domicilio" required className={input} /></Campo>
+        <Campo label="Nombre completo *"><input name="nombre" required className={input} /></Campo>
+        <Campo label="DNI / CE / RUC *"><input name="documento" required className={input} /></Campo>
+        <Campo label="Correo electrónico *"><input name="email" type="email" required className={input} /></Campo>
+        <Campo label="Teléfono *"><input name="telefono" required className={input} /></Campo>
+        <Campo label="Domicilio *" full><input name="domicilio" required className={input} /></Campo>
       </Bloque>
 
       <Bloque n={2} titulo="Bien contratado">
@@ -98,8 +98,8 @@ export function LibroReclamacionesForm() {
             <option>Servicio</option>
           </select>
         </Campo>
-        <Campo label="Monto reclamado (opcional)"><input name="monto" placeholder="S/ o US$" className={input} /></Campo>
-        <Campo label="Descripción del producto o servicio" full><input name="descripcion" required className={input} /></Campo>
+        <Campo label="Monto reclamado"><input name="monto" placeholder="S/ o US$" className={input} /></Campo>
+        <Campo label="Descripción del producto o servicio *" full><input name="descripcion" required className={input} /></Campo>
       </Bloque>
 
       <Bloque n={3} titulo="Detalle de la reclamación">
@@ -119,8 +119,8 @@ export function LibroReclamacionesForm() {
             ))}
           </div>
         </Campo>
-        <Campo label="Detalle" full><textarea name="detalle" required rows={4} className={input} /></Campo>
-        <Campo label="Pedido (qué solicitas)" full><textarea name="pedido" required rows={3} className={input} /></Campo>
+        <Campo label="Detalle *" full><textarea name="detalle" required rows={4} className={input} /></Campo>
+        <Campo label="Pedido (qué solicitas) *" full><textarea name="pedido" required rows={3} className={input} /></Campo>
       </Bloque>
 
       {error && <p className="text-sm font-medium text-red-600">{error}</p>}

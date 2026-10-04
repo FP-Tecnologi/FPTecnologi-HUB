@@ -13,7 +13,7 @@ const icono = 'pointer-events-none absolute left-4 h-5 w-5 text-ink/65';
  * general (/cotizador), que captura leads sin servicio concreto.
  */
 export function CotizarServicioForm({ servicioSlug, servicioTitulo }: { servicioSlug: string; servicioTitulo: string }) {
-  const [v, setV] = useState({ nombre: '', email: '', telefono: '', empresa: '', mensaje: '' });
+  const [v, setV] = useState({ nombre: '', email: '', telefono: '', mensaje: '' });
   const [trampa, setTrampa] = useState('');
   const [estado, setEstado] = useState<'idle' | 'enviando' | 'ok'>('idle');
   const [numero, setNumero] = useState('');
@@ -38,7 +38,6 @@ export function CotizarServicioForm({ servicioSlug, servicioTitulo }: { servicio
           clienteNombre: v.nombre.trim(),
           clienteEmail: v.email.trim(),
           clienteTelefono: v.telefono.trim() || undefined,
-          clienteEmpresa: v.empresa.trim() || undefined,
           mensaje: v.mensaje.trim() || undefined,
           origen: window.location.pathname,
           website: trampa,
@@ -76,19 +75,15 @@ export function CotizarServicioForm({ servicioSlug, servicioTitulo }: { servicio
       <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" value={trampa} onChange={(e) => setTrampa(e.target.value)} className="absolute -left-[9999px] h-0 w-0 opacity-0" />
       <div className="grid gap-5 sm:grid-cols-2">
         <div>
-          <label htmlFor="cs-nombre" className="text-sm font-semibold text-ink/80">Nombre completo</label>
-          <div className="relative flex items-center"><User className={icono} strokeWidth={1.8} /><input id="cs-nombre" autoComplete="name" maxLength={80} value={v.nombre} onChange={(e) => set('nombre', e.target.value)} className={campo} placeholder="Nombres y apellidos" /></div>
+          <label htmlFor="cs-nombre" className="text-sm font-semibold text-ink/80">Nombres o empresa<span className="text-red-500"> *</span></label>
+          <div className="relative flex items-center"><User className={icono} strokeWidth={1.8} /><input id="cs-nombre" autoComplete="name" maxLength={80} value={v.nombre} onChange={(e) => set('nombre', e.target.value)} className={campo} placeholder="Tu nombre o el de tu empresa" /></div>
         </div>
         <div>
-          <label htmlFor="cs-empresa" className="text-sm font-semibold text-ink/80">Empresa o institución (opcional)</label>
-          <div className="relative flex items-center"><Building2 className={icono} strokeWidth={1.8} /><input id="cs-empresa" autoComplete="organization" maxLength={120} value={v.empresa} onChange={(e) => set('empresa', e.target.value)} className={campo} placeholder="Nombre de tu organización" /></div>
-        </div>
-        <div>
-          <label htmlFor="cs-email" className="text-sm font-semibold text-ink/80">Correo electrónico</label>
+          <label htmlFor="cs-email" className="text-sm font-semibold text-ink/80">Correo electrónico<span className="text-red-500"> *</span></label>
           <div className="relative flex items-center"><Mail className={icono} strokeWidth={1.8} /><input id="cs-email" type="email" autoComplete="email" maxLength={120} value={v.email} onChange={(e) => set('email', e.target.value)} className={campo} placeholder="correo@empresa.com" /></div>
         </div>
-        <div>
-          <label htmlFor="cs-tel" className="text-sm font-semibold text-ink/80">Celular / WhatsApp (opcional)</label>
+        <div className="sm:col-span-2">
+          <label htmlFor="cs-tel" className="text-sm font-semibold text-ink/80">Celular / WhatsApp</label>
           <div className="relative flex items-center"><Phone className={icono} strokeWidth={1.8} /><input id="cs-tel" type="tel" autoComplete="tel" maxLength={16} value={v.telefono} onChange={(e) => set('telefono', e.target.value)} className={campo} placeholder="987 654 321" /></div>
         </div>
       </div>
