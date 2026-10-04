@@ -47,18 +47,18 @@ const MOTIVOS = [
 export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: Encabezado; completo?: boolean }) {
   const conDatos = !completo;
   // En /contacto el encabezado es propio y sin descripción (los datos de contacto ya están arriba).
-  const t = completo ? { badge: 'Escríbenos', titulo: 'Cuéntanos qué', destacado: 'necesitas', descripcion: '' } : c;
+  const t = completo ? { badge: 'Escríbenos', titulo: 'Puedes contactarnos y', destacado: 'te respondemos a la brevedad', descripcion: '' } : c;
   const ITEMS = itemsDe(useSitio().contact);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [message, setMessage] = useState('');
-  const [motivo, setMotivo] = useState<(typeof MOTIVOS)[number]['id']>(MOTIVOS[0].id);
+  const [motivo, setMotivo] = useState<(typeof MOTIVOS)[number]['id'] | ''>('');
   // Formulario completo: persona natural (DNI) o empresa (RUC, razón social, responsable y cargo).
   const [tipo, setTipo] = useState<'PERSONA' | 'EMPRESA'>('PERSONA');
   const [acepto, setAcepto] = useState(false);
   const [documento, setDocumento] = useState('');
-  const [preferencia, setPreferencia] = useState<(typeof PREFERENCIAS)[number]>(PREFERENCIAS[0]);
+  const [preferencia, setPreferencia] = useState<(typeof PREFERENCIAS)[number] | ''>('');
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -70,6 +70,8 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
     let payload: { name: string; email: string; phone: string; company?: string; message: string };
     if (completo) {
       const esEmpresa = tipo === 'EMPRESA';
+      if (!motivo) return setErrorMsg('Selecciona el motivo de tu contacto.');
+      if (!preferencia) return setErrorMsg('Selecciona cómo prefieres que te contactemos.');
       if (esEmpresa ? !/^(10|15|16|17|20)\d{9}$/.test(documento) : !/^\d{8}$/.test(documento)) return setErrorMsg(esEmpresa ? 'El RUC debe tener 11 dígitos (empieza con 10 o 20).' : 'El DNI debe tener 8 dígitos.');
       if (name.trim().length < 2) return setErrorMsg(esEmpresa ? 'Ingresa la razón social.' : 'Ingresa tus nombres y apellidos.');
       if (!/^9\d{8}$/.test(celularLimpio(phone))) return setErrorMsg('Ingresa un celular de 9 dígitos (empieza con 9).');
@@ -142,7 +144,9 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
           )}
 
           {completo && (
-            <div className="mt-8 grid gap-3" role="radiogroup" aria-label="Motivo del mensaje">
+            <div className="mt-8">
+              <p className="font-display text-lg font-bold text-ink">Selecciona el motivo de contacto<span className="text-red-500"> *</span></p>
+              <div className="mt-3 grid gap-3" role="radiogroup" aria-label="Motivo del mensaje">
               {MOTIVOS.map(({ id, texto, Icono }) => {
                 const activo = motivo === id;
                 return (
@@ -166,16 +170,17 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
                   </button>
                 );
               })}
+              </div>
             </div>
           )}
           {completo && (
               <div className="mt-6">
-                <p className="text-sm font-medium text-ink/80">¿Cómo prefieres que te contactemos?</p>
-                <div className="mt-2 flex flex-wrap gap-2" role="radiogroup" aria-label="Contacto preferido">
+                <p className="font-display text-lg font-bold text-ink">¿Cómo prefieres que te contactemos?<span className="text-red-500"> *</span></p>
+                <div className="mt-3 flex flex-wrap gap-2" role="radiogroup" aria-label="Contacto preferido">
                   {PREFERENCIAS.map((pf) => {
                     const activo = preferencia === pf;
                     return (
-                      <button key={pf} type="button" role="radio" aria-checked={activo} onClick={() => setPreferencia(pf)} className={`rounded-lg border px-3.5 py-2 text-sm font-semibold transition-all duration-200 ${activo ? 'border-brand-primary bg-brand-primary text-white' : 'border-brand-200 bg-white text-brand-700 hover:border-brand-primary hover:bg-brand-50'}`}>
+                      <button key={pf} type="button" role="radio" aria-checked={activo} onClick={() => setPreferencia(pf)} className={`rounded-lg border px-4 py-2.5 text-sm font-semibold transition-all duration-200 ${activo ? 'border-brand-primary bg-brand-primary text-white' : 'border-brand-200 bg-white text-brand-700 hover:border-brand-primary hover:bg-brand-50'}`}>
                         {pf}
                       </button>
                     );
@@ -214,7 +219,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
             <span aria-hidden className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-gradient-to-r from-brand-primary via-brand-500 to-brand-700 transition-transform duration-500 ease-out group-focus-within/form:scale-x-100" />
             <div className="mb-5">
               <p className="font-display text-xl font-bold text-ink">Déjanos tu mensaje</p>
-              <p className="mt-1 text-sm text-ink/65">{completo ? `Motivo: ${motivo}. Un asesor te responderá pronto.` : 'Un asesor te responderá pronto.'}</p>
+              <p className="mt-1 text-sm text-ink/65">{completo && motivo ? `Motivo: ${motivo}. Un asesor te responderá pronto.` : 'Un asesor te responderá pronto.'}</p>
             </div>
             <div className="space-y-4">
               {success && (
@@ -336,9 +341,9 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
               <label className="flex cursor-pointer items-start gap-3 text-sm text-ink/70">
                 <input type="checkbox" checked={acepto} onChange={(e) => setAcepto(e.target.checked)} className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-[#107acc]" />
                 <span>
-                  He leído la{' '}
+                  Acepto la{' '}
                   <a href="/legal/privacidad" target="_blank" rel="noreferrer" className="font-semibold text-brand-700 underline underline-offset-2 hover:text-brand-primary">política de privacidad</a>{' '}
-                  y acepto que FPTecnologi me contacte por los medios indicados.<span className="text-red-500"> *</span>
+                  y que me contacten.<span className="text-red-500"> *</span>
                 </span>
               </label>
               <button
