@@ -99,9 +99,10 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
                 rel={href.startsWith('http') ? 'noreferrer' : undefined}
                 className="group flex items-center gap-3.5 rounded-xl border border-brand-100 bg-white p-3.5 shadow-sm shadow-brand-950/5 transition-all duration-300 hover:-translate-y-1 hover:border-brand-primary hover:bg-brand-primary hover:shadow-[0_16px_32px_-10px_rgba(16,122,204,0.6)]"
               >
-                {/* Hover notorio: la tarjeta se rellena de azul primario y el texto pasa a blanco. */}
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-primary transition-colors duration-300 group-hover:bg-white group-hover:text-brand-primary">
-                  <Icon className="h-5 w-5" strokeWidth={1.8} />
+                {/* Hover notorio: la tarjeta se rellena de azul primario, el texto pasa a blanco y el ícono flota y gira un poco. */}
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-primary transition-all duration-300 group-hover:-rotate-6 group-hover:scale-110 group-hover:bg-white group-hover:text-brand-primary">
+                  {/* .icon-hop: el ícono "salta" flotando al pasar el cursor (efecto definido en globals.css). */}
+                  <Icon className="icon-hop h-5 w-5" strokeWidth={1.8} />
                 </span>
                 <span className="block min-w-0">
                   <span className="block text-xs uppercase tracking-wide text-ink/65 transition-colors duration-300 group-hover:text-white/90">{label}</span>
