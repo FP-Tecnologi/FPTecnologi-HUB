@@ -39,19 +39,13 @@ export function MapaVisita({ address, horario, badge, titulo, destacado }: { add
               <Navigation className="h-3.5 w-3.5" strokeWidth={2.2} />
               Pasa el cursor para ver rutas
             </span>
-            {/* Opciones de ruta: suben al pasar el cursor (en táctil quedan visibles). */}
-            <div className="absolute inset-x-3 bottom-3 rounded-2xl bg-white p-3 shadow-2xl shadow-brand-950/30 ring-1 ring-brand-100 transition-all duration-500 ease-out [@media(hover:hover)]:translate-y-[125%] [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:opacity-100">
-              <p className="flex items-center gap-2 px-1 pb-2 text-xs font-bold uppercase tracking-widest text-brand-700">
-                <span aria-hidden className="h-0.5 w-5 rounded-full bg-brand-primary" />
-                Cómo llegar con
-              </p>
-              <ul className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {/* Opciones de ruta: barra compacta que sube al pasar el cursor (en táctil queda visible). */}
+            <div className="absolute bottom-3 right-3 max-w-[calc(100%-1.5rem)] rounded-xl bg-white p-1.5 shadow-xl shadow-brand-950/25 ring-1 ring-brand-100 transition-all duration-500 ease-out [@media(hover:hover)]:translate-y-[150%] [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:opacity-100">
+              <ul className="flex flex-wrap items-center gap-1">
                 {opciones.map(({ nombre, href, icono: Icono }) => (
                   <li key={nombre}>
-                    <a href={href} target="_blank" rel="noreferrer" className="group/op flex flex-col items-center gap-1.5 rounded-xl border border-brand-100 bg-paper px-2 py-3 text-sm font-semibold text-ink transition-all duration-300 hover:-translate-y-1 hover:border-brand-primary hover:bg-brand-primary hover:text-white hover:shadow-[0_12px_24px_-8px_rgba(16,122,204,0.6)]">
-                      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-brand-primary shadow-sm transition-all duration-300 group-hover/op:scale-110 group-hover/op:-rotate-6">
-                        <Icono className="icon-hop h-4.5 w-4.5" strokeWidth={2} />
-                      </span>
+                    <a href={href} target="_blank" rel="noreferrer" className="group/op flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-ink transition-colors duration-200 hover:bg-brand-primary hover:text-white">
+                      <Icono className="h-3.5 w-3.5 text-brand-primary transition-colors group-hover/op:text-white" strokeWidth={2.2} />
                       {nombre}
                     </a>
                   </li>
