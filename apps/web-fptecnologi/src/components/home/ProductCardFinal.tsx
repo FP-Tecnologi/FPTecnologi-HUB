@@ -57,7 +57,7 @@ export function ProductCardFinal({
 
   return (
     <>
-      <div className="group h-full overflow-hidden rounded-2xl border border-black/5 bg-white shadow-lg shadow-brand-dark/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand-dark/25">
+      <div className="group h-full overflow-hidden rounded-2xl border border-brand-200 bg-white shadow-lg shadow-brand-950/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand-dark/25">
         {/* Fondo celeste suave (azul bajo); el blanco de las fotos se funde
             con mix-blend-multiply. */}
         <div className="relative aspect-square overflow-hidden bg-producto">

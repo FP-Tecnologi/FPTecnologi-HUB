@@ -178,6 +178,17 @@ export function StoreCatalog({
           <img src="/images/categorias/monitores.jpg" alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover object-[center_55%]" />
           <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-brand-700 via-brand-700/80 to-brand-700/20" />
           <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-brand-700/60 via-transparent to-transparent" />
+          {/* Efecto "TI": retícula clara que se desvanece, resplandores y nodos conectados sobre el azul. */}
+          <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgb(255_255_255/0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgb(255_255_255/0.08)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_80%_90%_at_25%_50%,black,transparent)]" />
+          <div aria-hidden className="pointer-events-none absolute -left-24 -top-24 h-80 w-80 rounded-full bg-brand-400/40 blur-3xl" />
+          <div aria-hidden className="pointer-events-none absolute -bottom-28 left-1/3 h-72 w-72 rounded-full bg-brand-300/25 blur-3xl" />
+          <svg aria-hidden className="pointer-events-none absolute left-6 top-24 hidden h-36 w-72 text-white/35 lg:block" viewBox="0 0 288 144" fill="none">
+            <path d="M8 120 L70 84 L132 98 L196 36 L280 58" stroke="currentColor" strokeWidth="1" />
+            <path d="M70 84 L96 22 L196 36" stroke="currentColor" strokeWidth="1" />
+            {[[8, 120], [70, 84], [132, 98], [196, 36], [280, 58], [96, 22]].map(([x, y]) => (
+              <circle key={`${x}-${y}`} cx={x} cy={y} r="3.5" fill="currentColor" />
+            ))}
+          </svg>
           <div className="invisible" aria-hidden>
             <Navbar9 store />
           </div>
@@ -254,7 +265,12 @@ export function StoreCatalog({
         </section>
       </div>
 
-      <main className="mx-auto grid max-w-7xl gap-8 px-6 py-12 lg:grid-cols-[260px_1fr]">
+      <div className="relative overflow-hidden">
+      {/* Fondo de la tienda: retícula azul tenue que se desvanece + resplandores suaves. */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgb(16_122_204/0.07)_1px,transparent_1px),linear-gradient(to_bottom,rgb(16_122_204/0.07)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_90%_70%_at_70%_20%,black,transparent)]" />
+      <div aria-hidden className="pointer-events-none absolute -right-24 top-10 h-80 w-80 rounded-full bg-brand-500/10 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -left-24 top-1/2 h-80 w-80 rounded-full bg-brand-300/20 blur-3xl" />
+      <main className="relative mx-auto grid max-w-7xl gap-8 px-6 py-12 lg:grid-cols-[260px_1fr]">
         {/* Filtros (desktop) */}
         <aside className="hidden lg:block">
           <div className="sticky top-28 rounded-2xl border border-black/5 bg-white p-5 shadow-lg shadow-brand-dark/10">
@@ -334,6 +350,7 @@ export function StoreCatalog({
           )}
         </div>
       </main>
+      </div>
 
       {/* Filtros en celular: panel lateral */}
       {drawer && (
