@@ -2,9 +2,10 @@
 import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
 
 import { useState } from 'react';
-import { Building2, Mail, MapPin, MessageCircle, MessageSquareText, Phone, Send, User, type LucideIcon } from 'lucide-react';
+import { Building2, Mail, MapPin, MessageCircle, MessageSquareText, Phone, User, type LucideIcon } from 'lucide-react';
 import { useSitio } from '@/context/SitioContext';
 import { whatsappHref } from '@/lib/chatActions';
+import { ArrowUpRightIcon } from '@/components/site/icons';
 import { ScrollReveal } from './ScrollReveal';
 import { SectionBadge } from './SectionBadge';
 
@@ -180,11 +181,12 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
               <button
                 type="submit"
                 disabled={submitting}
-                className="group/btn relative flex h-12 w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-brand-primary text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-primary/30 transition-colors duration-300 hover:bg-[#0b68b8] disabled:opacity-50"
+                className="group/btn flex h-12 w-full items-center justify-center gap-2.5 rounded-xl bg-brand-primary text-sm font-semibold uppercase tracking-wide text-white transition-colors duration-200 hover:bg-[#0b68b8] disabled:opacity-50"
               >
-                {/* Brillo que se desliza al pasar el cursor. */}
-                <span aria-hidden className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/4 -skew-x-12 bg-white/25 transition-transform duration-700 ease-out group-hover/btn:translate-x-[520%]" />
-                <Send className="relative h-5 w-5" strokeWidth={2} />
+                {/* Mismo gesto que los demás botones: chip con la flecha, que gira 45° al hover. */}
+                <span className="flex items-center justify-center rounded-lg bg-white/20 p-1">
+                  <ArrowUpRightIcon className="h-4 w-4 transition-transform duration-300 group-hover/btn:rotate-45" />
+                </span>
                 {submitting ? 'Enviando...' : 'Enviar mensaje'}
               </button>
               <p className="text-center text-xs text-ink/65">
