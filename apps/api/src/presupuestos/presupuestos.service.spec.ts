@@ -9,17 +9,19 @@ const productos = [
 function setup() {
   const prisma = {
     producto: { findMany: vi.fn(async (a: { where: { sku: { in: string[] } } }) => productos.filter((p) => a.where.sku.in.includes(p.sku))) },
-    presupuesto: { create: vi.fn(async (a: { data: Record<string, unknown> }) => ({ id: 'x1', numero: a.data.numero })) },
+    presupuesto: { create: vi.fn(async (a: { data: Record<string, unknown> }) => ({ id: 'x1', ...a.data })) },
   };
-  return { service: new PresupuestosService(prisma as never), prisma };
+  const mail = { sendPresupuestoCliente: vi.fn(async () => {}), sendLeadNuevo: vi.fn(async () => {}) };
+  return { service: new PresupuestosService(prisma as never, mail as never), prisma, mail };
 }
 
 const cliente = { clienteNombre: 'Acme SAC', clienteEmail: 'a@acme.com', clienteTelefono: '987654321' };
 
 describe('PresupuestosService.crear', () => {
   it('aplica el precio mayorista (o el normal si falta) y calcula IGV y total en el servidor', async () => {
-    const { service, prisma } = setup();
+    const { service, prisma, mail } = setup();
     await service.crear('m1', { ...cliente, items: [{ sku: 'A1', cantidad: 6 }, { sku: 'B2', cantidad: 6 }] }, 'ip-1');
+    expect(mail.sendPresupuestoCliente).toHaveBeenCalledWith('a@acme.com', expect.objectContaining({ total: 'US$ 8,354.40' }));
     const data = prisma.presupuesto.create.mock.calls[0][0].data as { subtotal: number; igv: number; total: number; items: { create: { precioUnitario: number; mayorista: boolean }[] } };
     expect(data.items.create.map((i) => [i.precioUnitario, i.mayorista])).toEqual([[180, true], [1000, false]]);
     expect(data.subtotal).toBe(7080); // 6*180 + 6*1000

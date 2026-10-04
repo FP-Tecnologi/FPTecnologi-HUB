@@ -16,6 +16,7 @@ import {
   cotizacionServicioEmail,
   type CotizacionCorreo,
   pedidoNuevoEquipoEmail,
+  presupuestoClienteEmail,
   codigoCuentaEmail,
 } from './templates.js';
 
@@ -94,6 +95,16 @@ export class MailService {
   /** Envía la cotización de un servicio al cliente. A diferencia de los avisos, el error SÍ se propaga (el equipo debe saber si no salió). */
   async sendCotizacionServicio(to: string, datos: CotizacionCorreo): Promise<void> {
     const { subject, html } = cotizacionServicioEmail(datos);
+    if (this.driver === 'resend') {
+      await this.resend!.emails.send({ from: this.fromEmail, to, subject, html });
+    } else {
+      await this.smtpTransport!.sendMail({ from: this.fromEmail, to, subject, html });
+    }
+  }
+
+  /** Envía el presupuesto mayorista al cliente (enlace al documento). El error se propaga: el equipo debe saber si no salió. */
+  async sendPresupuestoCliente(to: string, datos: Parameters<typeof presupuestoClienteEmail>[0]): Promise<void> {
+    const { subject, html } = presupuestoClienteEmail(datos);
     if (this.driver === 'resend') {
       await this.resend!.emails.send({ from: this.fromEmail, to, subject, html });
     } else {

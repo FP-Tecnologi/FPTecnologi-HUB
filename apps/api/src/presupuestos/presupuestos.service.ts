@@ -1,7 +1,12 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { MailService } from '../mail/mail.service.js';
+import { EstadoCotizacion } from '../generated/prisma/enums.js';
 import { normalizarCelular } from '../cotizador/cotizador.service.js';
 import { CrearPresupuestoDto } from './dto/crear-presupuesto.dto.js';
+
+// Roles del dashboard que reciben el aviso de presupuesto nuevo.
+const ROLES_AVISO = ['admin', 'comercial', 'ventas'];
 
 // IGV Perú 18%: los precios del catálogo son sin IGV y se suma aquí, en el servidor.
 const TASA_IGV = 0.18;
@@ -16,7 +21,12 @@ const redondear = (n: number) => Math.round(n * 100) / 100;
 
 @Injectable()
 export class PresupuestosService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(PresupuestosService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly mail: MailService,
+  ) {}
 
   async crear(marcaId: string, dto: CrearPresupuestoDto, ip = '') {
     // Honeypot: se responde "ok" sin guardar para no darle pistas al bot.
@@ -80,6 +90,9 @@ export class PresupuestosService {
             items: { create: items },
           },
         });
+        // Avisos en segundo plano: un fallo de correo no debe impedir que el cliente vea su presupuesto.
+        this.avisarEquipo(marcaId, p.id, p.clienteNombre, p.numero, total).catch((e) => this.logger.error('No se pudo avisar al equipo del presupuesto nuevo', e as Error));
+        this.enviarAlCliente(p).catch((e) => this.logger.error(`No se pudo enviar el presupuesto ${p.numero} al cliente`, e as Error));
         return { ok: true as const, id: p.id, numero: p.numero };
       } catch (e) {
         // P2002 = chocó el correlativo con otra solicitud simultánea: reintentar.
@@ -98,6 +111,79 @@ export class PresupuestosService {
     });
     if (!p) throw new NotFoundException('Presupuesto no encontrado');
     return p;
+  }
+
+  // ---------------------------------------------------------------- dashboard
+
+  findAll(marcaId: string) {
+    return this.prisma.presupuesto.findMany({
+      where: { marcaId },
+      include: { _count: { select: { items: true } } },
+      orderBy: { createdAt: 'desc' },
+      take: 1000,
+    });
+  }
+
+  async findOne(marcaId: string, id: string) {
+    const p = await this.prisma.presupuesto.findFirst({ where: { id, marcaId }, include: { items: { orderBy: { nombre: 'asc' } } } });
+    if (!p) throw new NotFoundException('Presupuesto no encontrado');
+    return p;
+  }
+
+  async cambiarEstado(marcaId: string, id: string, estado: EstadoCotizacion) {
+    await this.findOne(marcaId, id);
+    await this.prisma.presupuesto.updateMany({ where: { id, marcaId }, data: { estado } });
+    return this.findOne(marcaId, id);
+  }
+
+  /** Reenvía el presupuesto al correo del cliente (el error se informa al equipo). */
+  async reenviar(marcaId: string, id: string) {
+    const p = await this.findOne(marcaId, id);
+    try {
+      await this.enviarAlCliente(p);
+    } catch (e) {
+      this.logger.error(`No se pudo enviar el presupuesto ${p.numero}`, e as Error);
+      throw new BadRequestException('No se pudo enviar el correo. Revisa la configuración de correo e inténtalo de nuevo.');
+    }
+    if (p.estado === EstadoCotizacion.PENDIENTE) await this.prisma.presupuesto.updateMany({ where: { id, marcaId }, data: { estado: EstadoCotizacion.ENVIADA } });
+    return { ok: true as const, destinatario: p.clienteEmail };
+  }
+
+  async eliminar(marcaId: string, id: string) {
+    await this.findOne(marcaId, id);
+    await this.prisma.presupuesto.deleteMany({ where: { id, marcaId } });
+    return { eliminado: true };
+  }
+
+  private enviarAlCliente(p: { id: string; numero: string; clienteNombre: string; clienteEmail: string; total: unknown; validezHasta: Date }) {
+    const web = process.env.WEB_PUBLICA_URL ?? 'https://fptecnologi.com';
+    return this.mail.sendPresupuestoCliente(p.clienteEmail, {
+      numero: p.numero,
+      cliente: p.clienteNombre,
+      total: `US$ ${Number(p.total).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+      validezHasta: p.validezHasta.toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' }),
+      url: `${web}/presupuesto/${p.id}`,
+    });
+  }
+
+  private async avisarEquipo(marcaId: string, id: string, cliente: string, numero: string, total: number) {
+    const asignaciones = await this.prisma.usuarioMarcaRol.findMany({
+      where: { marcaId, rol: { nombre: { in: ROLES_AVISO } } },
+      include: { usuario: { select: { id: true, email: true, activo: true } } },
+    });
+    const usuarios = [...new Map(asignaciones.filter((a) => a.usuario.activo).map((a) => [a.usuario.id, a.usuario])).values()];
+    if (usuarios.length === 0) return;
+    const url = `${process.env.WEB_ORIGIN ?? 'http://localhost:3000'}/ecommerce/presupuestos?id=${id}`;
+    await this.prisma.notificacion.createMany({
+      data: usuarios.map((u) => ({
+        marcaId,
+        usuarioId: u.id,
+        tipo: 'COTIZACION' as const,
+        titulo: 'Nuevo presupuesto mayorista',
+        mensaje: `${cliente} pidió el presupuesto ${numero} por US$ ${total.toFixed(2)}`.slice(0, 140),
+      })),
+    });
+    await Promise.all(usuarios.map((u) => this.mail.sendLeadNuevo(u.email, cliente, `Presupuesto mayorista ${numero}`, url)));
   }
 
   private limitar(clave: string) {

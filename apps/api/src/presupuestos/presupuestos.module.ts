@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { PresupuestosService } from './presupuestos.service.js';
-import { PublicPresupuestosController } from './presupuestos.controller.js';
+import { PresupuestosController, PublicPresupuestosController } from './presupuestos.controller.js';
+import { MailModule } from '../mail/mail.module.js';
 
 @Module({
-  controllers: [PublicPresupuestosController],
+  imports: [MailModule],
+  controllers: [PresupuestosController, PublicPresupuestosController],
   providers: [PresupuestosService],
 })
 export class PresupuestosModule {}

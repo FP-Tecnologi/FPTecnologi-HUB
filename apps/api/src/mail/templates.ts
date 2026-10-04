@@ -199,6 +199,22 @@ export function cotizacionServicioEmail(c: CotizacionCorreo): { subject: string;
   };
 }
 
+export function presupuestoClienteEmail(d: { numero: string; cliente: string; total: string; validezHasta: string; url: string }): { subject: string; html: string } {
+  return {
+    subject: `Tu presupuesto ${d.numero} · FPTecnologi`,
+    html: layout(`
+      <h1 style="margin:0 0 12px;font-size:20px;">Tu presupuesto ${escapeHtml(d.numero)}</h1>
+      <p style="margin:0 0 12px;color:${MUTED_COLOR};">Hola ${escapeHtml(d.cliente)}, preparamos tu presupuesto con precios de mayorista. Un asesor se comunicará contigo para confirmarlo.</p>
+      <div style="margin:16px 0;padding:14px 20px;background:${CODE_BG};border-radius:8px;color:${TEXT_COLOR};">
+        <div style="font-weight:700;">Total: ${escapeHtml(d.total)}</div>
+        <div style="color:${MUTED_COLOR};font-size:13px;">Válido hasta ${escapeHtml(d.validezHasta)}</div>
+      </div>
+      <a href="${escapeHtml(d.url)}" style="display:inline-block;background:${BRAND_COLOR};color:#FFFFFF;text-decoration:none;font-weight:700;padding:12px 20px;border-radius:8px;">Ver presupuesto</a>
+      <p style="margin:16px 0 0;color:${MUTED_COLOR};font-size:13px;">Desde esa página puedes imprimirlo o guardarlo como PDF.</p>
+    `),
+  };
+}
+
 export function pedidoNuevoEquipoEmail(d: {
   numero: string;
   cliente: string;
