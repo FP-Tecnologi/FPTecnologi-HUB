@@ -1045,3 +1045,15 @@ Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «V
 
 - **Web**: `/tickets` ahora es un formulario en 2 pasos: (1) tipo de caso + datos de contacto, (2) n.º de compra/pedido, fecha, producto, boleta/factura, descripción y **evidencia** (fotos o PDF, hasta 8 archivos de 10 MB). Las fotos suben por `POST /api/evidencia` → API `POST /public/uploads/evidencia` (imágenes JPG/PNG/WEBP/GIF o PDF ≤ 10 MB, validados por su firma real; tope 30 subidas / 10 min por IP, guardadas en `uploads/<marca>/evidencias/` con nombre UUID) y sus URLs viajan en el mensaje del ticket (sigue entrando como contacto/reclamo hasta que exista el módulo de tickets).
 - **Contacto**: el formulario **completo** (selector de motivo, a todo ancho) es solo de `/contacto` (`<Contact completo />`); el resto de páginas usan el **simple** (campos básicos + tarjetas de datos) y mandan la ruta de origen en `origen`.
+
+### 2026-10-04 — revisión de seguridad, Tickets y Recursos
+- Seguridad: rate limiting propio (`LimitePeticionesGuard`, `@Limite(n)`) reemplaza al throttler que estaba
+  desactivado; `trust proxy` (`TRUST_PROXY`); `next` 16.3.8 (RCE en `next/og`).
+- Módulo **Tickets**: modelo `Ticket`, `POST /public/tickets`, `/tickets` del dashboard, web `/tickets` conectada
+  (`/api/tickets`), pantalla Web → Tickets.
+- Módulo **Recursos para socios**: modelos `Socio` y `Recurso`, `POST /recursos/archivo` (100 MB, tipo por bytes),
+  `/public/recursos` (requiere sesión de «Mi cuenta» de un socio activo), pantalla Web → Recursos, web `/recursos`.
+  Los socios reciben el código por correo aunque no tengan compras.
+- Índices (migración `20261004110000_indices_optimizacion`): 7 redundantes fuera, nuevos por estado/fecha y trigram
+  en productos. Menú Tienda con categorías de la base. `about.mp4` 4.6 → 1.2 MB.
+- Lista de mejoras y pendientes: [`MEJORAS-PENDIENTES.md`](MEJORAS-PENDIENTES.md).

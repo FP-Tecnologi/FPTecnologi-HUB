@@ -12,6 +12,7 @@ import { TransicionPagina } from '@/components/site/TransicionPagina';
 import { SitioProvider } from '@/context/SitioContext';
 import { getServicios } from '@/lib/servicios';
 import { getSitio } from '@/lib/sitio';
+import { api } from '@/lib/catalogo';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -36,7 +37,7 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
-  const [servicios, sitio] = await Promise.all([getServicios(), getSitio()]);
+  const [servicios, sitio, categorias] = await Promise.all([getServicios(), getSitio(), api<{ nombre: string; slug: string | null }[]>('/categorias')]);
   return (
     <html lang="es">
       <head>
@@ -49,7 +50,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
       </head>
       <body>
         <SitioProvider sitio={sitio}>
-        <ServiciosProvider servicios={servicios.map((s) => ({ title: s.title, slug: s.slug }))}>
+        <ServiciosProvider servicios={servicios.map((s) => ({ title: s.title, slug: s.slug }))} categorias={(categorias ?? []).filter((c) => c.slug).map((c) => ({ title: c.nombre, slug: c.slug as string }))}>
         <CurrencyProvider>
           <CartProvider>
             <FavoritesProvider>

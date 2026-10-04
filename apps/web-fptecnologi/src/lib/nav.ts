@@ -3,7 +3,11 @@ import { SOLUTIONS, TIENDA_CATEGORIES } from './content';
 // Cada item va a su página (antes eran anclas de la home: desde otra página
 // no llevaban a ningún lado).
 
-export function buildNavLinks(servicios: readonly { title: string; slug: string }[]) {
+type Item = { title: string; slug: string };
+const CATEGORIAS_RESPALDO: readonly Item[] = TIENDA_CATEGORIES;
+
+/** `categorias`: las de la base de datos (menú Tienda); sin ellas, las de respaldo de content.ts. */
+export function buildNavLinks(servicios: readonly Item[], categorias: readonly Item[] = CATEGORIAS_RESPALDO) {
   return [
   { label: 'Inicio', href: '/' },
   {
@@ -20,7 +24,7 @@ export function buildNavLinks(servicios: readonly { title: string; slug: string 
   {
     label: 'Tienda',
     href: '/tienda',
-    children: TIENDA_CATEGORIES.map((c) => ({ label: c.title, href: `/tienda/${c.slug}` })),
+    children: categorias.map((c) => ({ label: c.title, href: `/tienda/${c.slug}` })),
     viewAllHref: '/tienda',
     viewAllLabel: 'Ver catálogo completo',
   },

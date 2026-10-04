@@ -231,7 +231,7 @@ model Categoria {
   createdAt  DateTime   @default(now())
 
   @@unique([marcaId, slug])
-  @@index([marcaId])
+  
 }
 
 model Producto {
@@ -309,9 +309,9 @@ model Pedido {
   updatedAt         DateTime     @updatedAt
 
   @@unique([marcaId, numeroPedido])
-  @@index([marcaId])
   @@index([marcaId, createdAt])
   @@index([marcaId, email])
+  @@index([marcaId, estado, createdAt])
 }
 
 model PedidoItem {
@@ -364,7 +364,7 @@ model Servicio {
   cotizaciones Cotizacion[]
 
   @@unique([marcaId, slug])
-  @@index([marcaId])
+  
 }
 
 /// Proyecto de referencia que se muestra en /proyectos y en el home.
@@ -445,9 +445,9 @@ model Cotizacion {
   updatedAt       DateTime          @updatedAt
 
   @@unique([marcaId, numero])
-  @@index([marcaId])
   @@index([marcaId, clienteEmail])
   @@index([marcaId, createdAt])
+  @@index([marcaId, estado, createdAt])
 }
 
 // Cada vez que se envía una cotización al cliente (historial por cliente).
@@ -491,9 +491,9 @@ model Notificacion {
   leida     Boolean          @default(false)
   createdAt DateTime         @default(now())
 
-  @@index([usuarioId])
   @@index([usuarioId, createdAt])
   @@index([marcaId])
+  @@index([usuarioId, leida])
 }
 
 // ---------------------------------------------------------------------------
@@ -519,7 +519,6 @@ model ChatAsesor {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([marcaId])
   @@index([marcaId, usuarioId])
 }
 
@@ -738,7 +737,7 @@ model TarifaEnvio {
   updatedAt    DateTime @updatedAt
 
   @@unique([marcaId, proveedor, departamento])
-  @@index([marcaId])
+  
 }
 
 // ---------------------------------------------------------------------------
@@ -975,6 +974,7 @@ model Presupuesto {
 
   @@unique([marcaId, numero])
   @@index([marcaId, createdAt])
+  @@index([marcaId, estado, createdAt])
 }
 
 model PresupuestoItem {
