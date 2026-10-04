@@ -179,10 +179,10 @@ export function StoreCatalog({
           <img src="/images/categorias/monitores.jpg" alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover object-[center_55%]" />
           <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-ink/75 via-ink/65 to-ink/80" />
           <div aria-hidden className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_45%,rgba(0,0,0,0.35),transparent)]" />
-          {/* Efecto "TI": retícula clara que se desvanece, resplandores y nodos conectados sobre el azul. */}
-          <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgb(255_255_255/0.08)_1px,transparent_1px),linear-gradient(to_bottom,rgb(255_255_255/0.08)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_80%_90%_at_25%_50%,black,transparent)]" />
+          {/* Efecto "TI": retícula, partículas y nodos conectados en el celeste de la marca (como en el resto de heros). */}
+          <div aria-hidden className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_right,rgb(25_146_240/0.18)_1px,transparent_1px),linear-gradient(to_bottom,rgb(25_146_240/0.18)_1px,transparent_1px)] bg-[size:44px_44px] [mask-image:radial-gradient(ellipse_80%_90%_at_25%_50%,black,transparent)]" />
           <div aria-hidden className="absolute inset-0"><ParticlesBackground /></div>
-          <svg aria-hidden className="pointer-events-none absolute left-6 top-24 hidden h-36 w-72 text-white/35 lg:block" viewBox="0 0 288 144" fill="none">
+          <svg aria-hidden className="pointer-events-none absolute left-6 top-24 hidden h-36 w-72 text-brand-400/70 lg:block" viewBox="0 0 288 144" fill="none">
             <path d="M8 120 L70 84 L132 98 L196 36 L280 58" stroke="currentColor" strokeWidth="1" />
             <path d="M70 84 L96 22 L196 36" stroke="currentColor" strokeWidth="1" />
             {[[8, 120], [70, 84], [132, 98], [196, 36], [280, 58], [96, 22]].map(([x, y]) => (
