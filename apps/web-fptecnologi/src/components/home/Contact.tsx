@@ -97,15 +97,15 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
                 href={href}
                 target={href.startsWith('http') ? '_blank' : undefined}
                 rel={href.startsWith('http') ? 'noreferrer' : undefined}
-                className="group flex items-center gap-3.5 rounded-xl border border-brand-100 bg-white p-3.5 shadow-sm shadow-brand-950/5 transition-all duration-300 hover:border-brand-primary/40 hover:shadow-md hover:shadow-brand-primary/15"
+                className="group flex items-center gap-3.5 rounded-xl border border-brand-100 bg-white p-3.5 shadow-sm shadow-brand-950/5 transition-all duration-300 hover:-translate-y-1 hover:border-brand-primary hover:bg-brand-primary hover:shadow-[0_16px_32px_-10px_rgba(16,122,204,0.6)]"
               >
-                {/* Hover sutil: el ícono y el texto pasan al azul primario. */}
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-primary transition-colors duration-300 group-hover:bg-brand-primary group-hover:text-white">
+                {/* Hover notorio: la tarjeta se rellena de azul primario y el texto pasa a blanco. */}
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-primary transition-colors duration-300 group-hover:bg-white group-hover:text-brand-primary">
                   <Icon className="h-5 w-5" strokeWidth={1.8} />
                 </span>
                 <span className="block min-w-0">
-                  <span className="block text-xs uppercase tracking-wide text-ink/65 transition-colors duration-300 group-hover:text-brand-primary">{label}</span>
-                  <span className="block break-words text-sm font-semibold text-ink transition-colors duration-300 group-hover:text-brand-primary">{value.replace('@', '​@')}</span>
+                  <span className="block text-xs uppercase tracking-wide text-ink/65 transition-colors duration-300 group-hover:text-white/90">{label}</span>
+                  <span className="block break-words text-sm font-semibold text-ink transition-colors duration-300 group-hover:text-white">{value.replace('@', '​@')}</span>
                 </span>
               </a>
             ))}
@@ -113,8 +113,9 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
         </ScrollReveal>
 
         <ScrollReveal direction="right" delayMs={120}>
-          <form onSubmit={handleSubmit} className="relative overflow-hidden rounded-2xl border border-brand-100 bg-paper p-6 shadow-xl shadow-brand-950/10 sm:p-8">
-            <span aria-hidden className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-brand-primary via-brand-500 to-brand-700" />
+          <form onSubmit={handleSubmit} className="group/form relative overflow-hidden rounded-2xl border border-brand-100 bg-paper p-6 shadow-xl shadow-brand-950/10 transition-colors duration-300 focus-within:border-brand-primary/50 sm:p-8">
+            {/* La línea azul superior solo aparece (crece desde la izquierda) cuando se empieza a escribir. */}
+            <span aria-hidden className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-gradient-to-r from-brand-primary via-brand-500 to-brand-700 transition-transform duration-500 ease-out group-focus-within/form:scale-x-100" />
             <div className="mb-5">
               <p className="font-display text-xl font-bold text-ink">Déjanos tu mensaje</p>
               <p className="mt-1 text-sm text-ink/65">Un asesor te responderá pronto.</p>
