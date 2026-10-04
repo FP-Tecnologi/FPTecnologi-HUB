@@ -10,6 +10,7 @@ export const LEGAL_LINKS = [
   { label: 'Política de privacidad', href: '/legal/privacidad' },
   { label: 'Términos y condiciones', href: '/legal/terminos' },
   { label: 'Cambios y devoluciones', href: '/legal/devoluciones' },
+  { label: 'Política de cookies', href: '/legal/cookies' },
   { label: 'Libro de reclamaciones', href: '/libro-de-reclamaciones' },
 ] as const;
 
@@ -113,6 +114,41 @@ export const LEGAL_DOCS: LegalDoc[] = [
         id: 'cambios',
         titulo: 'Cambios a estos términos',
         parrafos: ['Podemos actualizar estos términos. La versión vigente es la publicada en esta página, con su fecha de actualización.'],
+      },
+    ],
+  },
+  {
+    slug: 'cookies',
+    titulo: 'Política de',
+    destacado: 'cookies',
+    resumen: 'Qué datos guarda este sitio en tu navegador y para qué.',
+    actualizado: '4 de octubre de 2026',
+    secciones: [
+      {
+        id: 'que-son',
+        titulo: 'Qué son las cookies',
+        parrafos: ['Las cookies y el almacenamiento local son pequeños archivos o datos que el sitio guarda en tu navegador para recordar información entre una visita y otra.'],
+      },
+      {
+        id: 'que-usamos',
+        titulo: 'Qué usamos',
+        parrafos: [
+          'Usamos únicamente almacenamiento necesario para que el sitio funcione: tu carrito y el tipo de cliente (final o mayorista), la moneda elegida, tus favoritos y comparaciones de productos, el historial del chat de ayuda y la sesión de "Mi cuenta" cuando ingresas con tu correo.',
+          'Estos datos se guardan en tu propio navegador y no se usan para publicidad ni para seguirte en otros sitios.',
+        ],
+      },
+      {
+        id: 'terceros',
+        titulo: 'Contenido de terceros',
+        parrafos: ['Algunas secciones incrustan servicios externos, como el mapa de Google en la página de contacto o los videos de YouTube. Esos proveedores pueden guardar sus propias cookies según sus políticas.'],
+      },
+      {
+        id: 'controlar',
+        titulo: 'Cómo controlarlas',
+        parrafos: [
+          'Puedes borrar o bloquear las cookies y el almacenamiento local desde la configuración de tu navegador. Si lo haces, algunas funciones, como el carrito o el inicio de sesión en "Mi cuenta", pueden dejar de funcionar.',
+          `Si tienes dudas sobre esta política, escríbenos a ${CORREO}.`,
+        ],
       },
     ],
   },

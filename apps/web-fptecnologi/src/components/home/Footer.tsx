@@ -10,15 +10,15 @@ const NAV = [
   { label: 'Servicios', href: '/servicios' },
   { label: 'Tienda', href: '/tienda' },
   { label: 'Blog', href: '/blog' },
-  { label: 'Contacto', href: '/contacto' },
 ];
 
 
-// Columna "Soporte": tickets (sección de la página de contacto), contacto y cotizador.
+// Columna "Soporte": tickets (sección de la página de contacto), contacto, cotizador y libro de reclamaciones.
 const SOPORTE = [
   { label: 'Tickets', href: '/contacto#tickets' },
   { label: 'Contacto', href: '/contacto' },
   { label: 'Cotizar', href: '/cotizador' },
+  { label: 'Libro de reclamaciones', href: '/libro-de-reclamaciones' },
 ];
 
 const SOCIAL_ICON = { facebook: FacebookIcon, instagram: InstagramIcon, linkedin: LinkedinIcon, youtube: YoutubeIcon };
