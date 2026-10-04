@@ -11,7 +11,7 @@ export function ImprimirBoton() {
       className="inline-flex h-11 items-center gap-2 rounded-xl bg-brand-primary px-5 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-[#0b68b8]"
     >
       <Printer className="h-4 w-4" strokeWidth={2} />
-      Imprimir o PDF
+      Imprimir PDF
     </button>
   );
 }

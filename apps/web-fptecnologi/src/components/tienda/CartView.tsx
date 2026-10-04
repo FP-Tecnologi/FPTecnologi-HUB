@@ -180,7 +180,7 @@ export function CartView() {
 
           {!mayorista && (
             <button type="button" onClick={() => setPerfil('mayorista')} className="block w-full rounded-2xl border border-brand-dark/20 bg-brand-primary/5 p-4 text-center text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-primary hover:text-white">
-              ¿Compras en volumen? Pasa a mayorista
+              Ser mayorista
             </button>
           )}
         </aside>

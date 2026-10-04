@@ -36,7 +36,7 @@ export function PresupuestoForm() {
             : `Elige el perfil Mayorista en el carrito y lleva al menos ${MIN_MAYORISTA} unidades de cada producto.`}
         </p>
         <a href={items.length === 0 ? '/tienda' : '/carrito'} className="mt-6 inline-flex h-12 items-center rounded-xl bg-brand-primary px-7 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-[#0b68b8]">
-          {items.length === 0 ? 'Ver tienda' : 'Ir al carrito'}
+          {items.length === 0 ? 'Ver tienda' : 'Ver carrito'}
         </a>
       </div>
     );

@@ -152,7 +152,7 @@ export function CheckoutForm() {
             Pedir presupuesto
           </a>
           <button type="button" onClick={() => setPerfil('minorista')} className="inline-flex h-12 items-center rounded-xl border border-brand-200 px-7 text-sm font-semibold uppercase tracking-wide text-brand-700 transition-colors hover:bg-brand-primary hover:text-white">
-            Soy cliente final
+            Cliente final
           </button>
         </div>
       </div>

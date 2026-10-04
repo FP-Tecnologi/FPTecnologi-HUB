@@ -35,6 +35,7 @@ function Bloque({ n, titulo, children }: { n: number; titulo: string; children: 
 
 export function LibroReclamacionesForm() {
   const [enviando, setEnviando] = useState(false);
+  const [tipo, setTipo] = useState('Reclamo');
   const [codigo, setCodigo] = useState<string | null>(null);
   const [error, setError] = useState('');
 
@@ -110,7 +111,7 @@ export function LibroReclamacionesForm() {
               { v: 'Queja', t: 'Disconformidad con la atención recibida.' },
             ].map((o, i) => (
               <label key={o.v} className="flex cursor-pointer gap-3 rounded-xl border border-brand-dark/15 bg-paper p-3.5 has-[:checked]:border-brand-primary has-[:checked]:bg-brand-primary/5">
-                <input type="radio" name="tipo" value={o.v} defaultChecked={i === 0} className="mt-1 accent-[#107acc]" />
+                <input type="radio" name="tipo" value={o.v} defaultChecked={i === 0} onChange={() => setTipo(o.v)} className="mt-1 accent-[#107acc]" />
                 <span>
                   <span className="block font-semibold text-ink">{o.v}</span>
                   <span className="block text-xs font-normal text-ink/60">{o.t}</span>
@@ -134,7 +135,7 @@ export function LibroReclamacionesForm() {
           className="inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-brand-primary px-6 text-sm font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/30 transition-colors hover:bg-brand-primary disabled:opacity-50"
         >
           <Send className="h-4 w-4" strokeWidth={2} />
-          {enviando ? 'Enviando…' : 'Enviar hoja de reclamación'}
+          {enviando ? 'Enviando…' : `Enviar ${tipo.toLowerCase()}`}
         </button>
       </div>
     </form>
