@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { FileWarning, ImagePlus, Mail, PackageSearch, Phone, Wrench, X, type LucideIcon } from 'lucide-react';
+import { Building2, FileWarning, ImagePlus, Mail, PackageSearch, Phone, User, Wrench, X, type LucideIcon } from 'lucide-react';
 import { ArrowUpRightIcon } from '@/components/site/icons';
 import { ScrollReveal } from '@/components/home/ScrollReveal';
 import { SectionBadge } from '@/components/home/SectionBadge';
@@ -32,6 +32,8 @@ const celularLimpio = (v: string) => v.replace(/[\s()-]/g, '').replace(/^\+?51(?
 export function SoporteTickets() {
   const [paso, setPaso] = useState<1 | 2>(1);
   const [caso, setCaso] = useState(CASOS[0].id);
+  const [tipo, setTipo] = useState<'PERSONA' | 'EMPRESA'>('PERSONA');
+  const [documento, setDocumento] = useState('');
   const [nombre, setNombre] = useState('');
   const [email, setEmail] = useState('');
   const [telefono, setTelefono] = useState('');
@@ -51,9 +53,11 @@ export function SoporteTickets() {
   function continuar(e: React.FormEvent) {
     e.preventDefault();
     setError('');
-    if (nombre.trim().length < 2) return setError('Ingresa tu nombre o el de tu empresa.');
+    const esEmpresa = tipo === 'EMPRESA';
+    if (esEmpresa ? !/^(10|15|16|17|20)\d{9}$/.test(documento) : !/^\d{8}$/.test(documento)) return setError(esEmpresa ? 'El RUC debe tener 11 dígitos (empieza con 10 o 20).' : 'El DNI debe tener 8 dígitos.');
+    if (nombre.trim().length < 2) return setError(esEmpresa ? 'Ingresa la razón social.' : 'Ingresa tus nombres y apellidos.');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) return setError('Ingresa un correo válido.');
-    if (telefono.trim() && !/^9\d{8}$/.test(celularLimpio(telefono))) return setError('El celular debe tener 9 dígitos (empieza con 9).');
+    if (!/^9\d{8}$/.test(celularLimpio(telefono))) return setError('Ingresa un celular de 9 dígitos (empieza con 9).');
     setOk(false);
     setPaso(2);
   }
@@ -97,6 +101,7 @@ export function SoporteTickets() {
     try {
       const lineas = [
         `[Ticket: ${actual.titulo}]`,
+        tipo === 'EMPRESA' ? `Empresa · RUC ${documento}` : `Persona natural · DNI ${documento}`,
         `Compra: N.º ${numeroCompra.trim()}${fechaCompra ? ` · Fecha: ${fechaCompra}` : ''}${comprobante.trim() ? ` · Comprobante: ${comprobante.trim()}` : ''}`,
         `Producto: ${producto.trim()}`,
         detalle.trim(),
@@ -108,7 +113,8 @@ export function SoporteTickets() {
         body: JSON.stringify({
           name: nombre,
           email,
-          phone: celularLimpio(telefono) || undefined,
+          phone: celularLimpio(telefono),
+          company: tipo === 'EMPRESA' ? nombre.trim() : undefined,
           tipo: actual.reclamo ? 'RECLAMO' : 'CONTACTO',
           origen: '/tickets',
           message: lineas.join('\n'),
@@ -119,6 +125,7 @@ export function SoporteTickets() {
         setOk(true);
         setPaso(1);
         setNombre('');
+        setDocumento('');
         setEmail('');
         setTelefono('');
         setNumeroCompra('');
@@ -205,9 +212,36 @@ export function SoporteTickets() {
 
               {paso === 1 ? (
                 <>
-                  <div>
-                    <label className="text-sm font-medium text-ink/80" htmlFor="t-nombre">Nombres o empresa<span className="text-red-500"> *</span></label>
-                    <input id="t-nombre" value={nombre} onChange={(e) => setNombre(e.target.value)} className={campo} placeholder="Tu nombre o el de tu empresa" />
+                  <div role="radiogroup" aria-label="Tipo de cliente" className="grid grid-cols-2 gap-2">
+                    {([
+                      { id: 'PERSONA', titulo: 'Persona natural', Icono: User },
+                      { id: 'EMPRESA', titulo: 'Empresa', Icono: Building2 },
+                    ] as const).map(({ id, titulo, Icono }) => {
+                      const activo = tipo === id;
+                      return (
+                        <button
+                          key={id}
+                          type="button"
+                          role="radio"
+                          aria-checked={activo}
+                          onClick={() => { setTipo(id); setDocumento(''); }}
+                          className={`flex items-center justify-center gap-2 rounded-xl border px-3 py-3 text-sm font-semibold transition-all duration-200 ${activo ? 'border-brand-primary bg-brand-primary text-white' : 'border-brand-200 bg-white text-brand-700 hover:border-brand-primary hover:bg-brand-50'}`}
+                        >
+                          <Icono className="h-4 w-4" strokeWidth={2} />
+                          {titulo}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="text-sm font-medium text-ink/80" htmlFor="t-doc">{tipo === 'EMPRESA' ? 'RUC' : 'DNI'}<span className="text-red-500"> *</span></label>
+                      <input id="t-doc" inputMode="numeric" maxLength={tipo === 'EMPRESA' ? 11 : 8} value={documento} onChange={(e) => setDocumento(e.target.value.replace(/\D/g, ''))} className={campo} placeholder={tipo === 'EMPRESA' ? '20123456789' : '12345678'} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-ink/80" htmlFor="t-nombre">{tipo === 'EMPRESA' ? 'Razón social' : 'Nombres y apellidos'}<span className="text-red-500"> *</span></label>
+                      <input id="t-nombre" autoComplete={tipo === 'EMPRESA' ? 'organization' : 'name'} value={nombre} onChange={(e) => setNombre(e.target.value)} className={campo} placeholder={tipo === 'EMPRESA' ? 'Nombre legal de la empresa' : 'Tu nombre completo'} />
+                    </div>
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div>
@@ -215,7 +249,7 @@ export function SoporteTickets() {
                       <input id="t-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={campo} placeholder="correo@empresa.com" />
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-ink/80" htmlFor="t-tel">Celular / WhatsApp</label>
+                      <label className="text-sm font-medium text-ink/80" htmlFor="t-tel">Celular / WhatsApp<span className="text-red-500"> *</span></label>
                       <input id="t-tel" type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} className={campo} placeholder="+51 987 654 321" />
                     </div>
                   </div>
