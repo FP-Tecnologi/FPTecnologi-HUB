@@ -66,7 +66,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
   };
 
   const input =
-    'mt-1.5 w-full rounded-xl border border-brand-200 bg-white py-3 pl-12 pr-4 text-sm text-ink outline-none transition-all placeholder:text-ink/55 focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/15';
+    'mt-1.5 w-full rounded-xl border border-brand-200 bg-white py-3 pl-12 pr-4 text-sm text-ink outline-none transition-all placeholder:text-ink/55 focus:border-brand-primary';
   const iconCls = 'pointer-events-none absolute left-4 h-5 w-5 text-brand-primary/70 transition-colors group-focus-within/field:text-brand-primary';
 
   return (
@@ -113,7 +113,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto }: { c?: Encabezado }) {
         </ScrollReveal>
 
         <ScrollReveal direction="right" delayMs={120}>
-          <form onSubmit={handleSubmit} className="group/form relative overflow-hidden rounded-2xl border border-brand-100 bg-paper p-6 shadow-xl shadow-brand-950/10 transition-colors duration-300 focus-within:border-brand-primary/50 sm:p-8">
+          <form onSubmit={handleSubmit} className="group/form relative overflow-hidden rounded-2xl border border-brand-100 bg-paper p-6 shadow-xl shadow-brand-950/10 sm:p-8">
             {/* La línea azul superior solo aparece (crece desde la izquierda) cuando se empieza a escribir. */}
             <span aria-hidden className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-gradient-to-r from-brand-primary via-brand-500 to-brand-700 transition-transform duration-500 ease-out group-focus-within/form:scale-x-100" />
             <div className="mb-5">
