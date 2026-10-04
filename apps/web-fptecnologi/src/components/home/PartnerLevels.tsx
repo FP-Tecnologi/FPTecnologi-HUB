@@ -11,7 +11,6 @@ const PARTNERS = [
   { name: 'Dell', logo: '/images/partners/dell.png', level: 'Gold' },
   { name: 'Genetec', logo: '/images/partners/genetec.png', level: 'Elite' },
   { name: 'Hanwha', logo: '/images/partners/hanwha.png', level: 'Platinum' },
-  { name: 'Hikvision', logo: '/images/partners/hikvision.png', level: '' },
   { name: 'Milestone Systems', logo: '/images/partners/milestone.png', level: 'Premier' },
   { name: 'Vertiv', logo: '/images/partners/vertiv.png', level: 'Platinum' },
 ];
@@ -44,7 +43,13 @@ export function PartnerLevels() {
                 <Image src={p.logo} alt={`${p.name}${p.level ? ` — ${p.level} Partner` : ''}`} fill sizes="208px" className="object-contain mix-blend-multiply" />
               </div>
               <p className="text-[11px] font-semibold uppercase tracking-wide text-ink/70">{p.name}</p>
-              <p className="h-4 text-xs font-extrabold uppercase tracking-widest text-brand-700">{p.level}</p>
+              {/* Separador: línea fina con un rombo al centro entre el nombre y el nivel. */}
+              <span aria-hidden className="flex w-24 items-center gap-1.5">
+                <span className="h-px flex-1 bg-gradient-to-r from-transparent to-brand-primary/50" />
+                <span className="h-1.5 w-1.5 rotate-45 bg-brand-primary" />
+                <span className="h-px flex-1 bg-gradient-to-l from-transparent to-brand-primary/50" />
+              </span>
+              <p className="text-xs font-extrabold uppercase tracking-widest text-brand-700">{p.level}</p>
             </div>
           ))}
         </div>
