@@ -20,7 +20,8 @@ const DROPDOWN_PANEL: Record<DropdownVariant, string> = {
   dark: 'rounded-xl border border-white/10 bg-brand-primary shadow-2xl shadow-black/50',
   sharp: 'rounded-lg border-x border-b border-black/5 border-t-2 border-t-brand-primary bg-white shadow-xl shadow-black/10',
   minimal: 'rounded-none border-0 border-t-2 border-t-ink/10 bg-white shadow-lg shadow-black/5',
-  accent: 'rounded-xl border-x border-b border-white/10 border-t-2 border-t-brand-primary bg-brand-primary shadow-2xl shadow-black/50',
+  // Panel blanco con borde celeste y sombra azul de marca; el item resaltado se rellena de azul primario.
+  accent: 'rounded-xl border border-brand-100 bg-white shadow-[0_18px_40px_-12px_rgba(14,56,88,0.35)]',
   glass: 'rounded-2xl border border-white/50 bg-white/80 shadow-xl shadow-black/10 backdrop-blur-md',
 };
 
@@ -31,7 +32,7 @@ const DROPDOWN_ITEM: Record<DropdownVariant, string> = {
   minimal: 'text-ink/70 hover:text-brand-700',
   // Blanco sólido (antes white/70) -- el usuario pidió que se note más el
   // submenú del Hero (Modelo 5).
-  accent: 'text-white hover:bg-brand-primary hover:text-white',
+  accent: 'font-medium text-ink/80 hover:bg-brand-primary hover:text-white',
   glass: 'text-ink/80 hover:bg-white/70 hover:text-brand-700',
 };
 
@@ -40,7 +41,7 @@ const DROPDOWN_VIEWALL: Record<DropdownVariant, string> = {
   dark: 'border-t border-white/10 text-brand-teal-light hover:bg-white/5',
   sharp: 'border-t border-black/5 text-brand-700 hover:bg-brand-primary/5',
   minimal: 'border-t border-black/5 text-brand-700 hover:bg-transparent',
-  accent: 'border-t border-white/10 text-brand-teal-light hover:bg-brand-primary hover:text-white',
+  accent: 'border-t border-brand-100 text-brand-700 hover:bg-brand-primary hover:text-white',
   glass: 'border-t border-white/40 text-brand-700 hover:bg-white/40',
 };
 
