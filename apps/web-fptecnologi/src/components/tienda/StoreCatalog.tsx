@@ -273,7 +273,7 @@ export function StoreCatalog({
       <main className="relative mx-auto grid max-w-7xl gap-8 px-6 py-12 lg:grid-cols-[260px_1fr]">
         {/* Filtros (desktop) */}
         <aside className="hidden lg:block">
-          <div className="sticky top-28 rounded-2xl border border-black/5 bg-white p-5 shadow-lg shadow-brand-dark/10">
+          <div className="sticky top-28 rounded-2xl bg-brand-100 p-5">
             <p className="mb-5 flex items-center gap-2 font-display text-base font-bold text-ink">
               <SlidersHorizontal className="h-4 w-4 text-brand-700" strokeWidth={2} />
               Filtros
