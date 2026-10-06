@@ -28,6 +28,7 @@ export default function TicketsPage() {
         descripcion="Registra un caso sobre un producto que compraste con nosotros y el área comercial le dará seguimiento."
         imagen="/images/modelo9/hero-office.jpg"
       >
+        <MoreInfoButton tone="dark" href="/tickets/seguimiento" label="Ver seguimiento" />
         <MoreInfoButton tone="dark" href="/libro-de-reclamaciones" label="Libro reclamos" />
       </PageHero>
 

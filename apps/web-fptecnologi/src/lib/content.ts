@@ -20,7 +20,7 @@ export const HERO_SLIDES = [
     titleAccent: 'para tu empresa',
     text: 'Seguridad, videoconferencia, cloud y data centers — diseñados e implementados a medida de tu empresa.',
     cta: { label: 'Ver servicios', href: '#servicios' },
-    image: '/herobanner/Servicios.png',
+    image: '/herobanner/Servicios.webp',
     imageAlt: 'Rack de servidores — servicios TI FPTecnologi',
     kind: 'photo',
   },
@@ -33,7 +33,7 @@ export const HERO_SLIDES = [
     titleAccent: 'listo para despachar',
     text: 'Monitores, laptops y servidores de las principales marcas, con distribución autorizada y precio real.',
     cta: { label: 'Ver catálogo', href: '#catalogo' },
-    image: '/herobanner/tienda.png',
+    image: '/herobanner/tienda.webp',
     imageAlt: 'Equipos de la tienda B2B FPTecnologi',
     kind: 'photo',
   },
@@ -46,7 +46,7 @@ export const HERO_SLIDES = [
     titleAccent: 'revendedor autorizado',
     text: 'Precios y beneficios especiales para partners — cotización directa y soporte comercial dedicado.',
     cta: { label: 'Ver programa', href: '#partners' },
-    image: '/herobanner/partner.png',
+    image: '/herobanner/partner.webp',
     imageAlt: 'Programa de Partners FPTecnologi',
     kind: 'photo',
   },
@@ -126,8 +126,8 @@ export const SOLUTIONS = [
  * acorde al rubro, pedida y verificada visualmente por el usuario. */
 export const TIENDA_CATEGORIES = [
   { title: 'Monitores', slug: 'monitores', image: '/images/products/dell-p2724deb.png', imageFit: 'contain' },
-  { title: 'Laptops', slug: 'laptops', image: '/images/modelo7/cat-laptops.jpg', imageFit: 'cover' },
-  { title: 'Proyectores y pantallas', slug: 'proyectores-pantallas-interactivas', image: '/images/modelo7/cat-pantallas.jpg', imageFit: 'cover' },
+  { title: 'Laptops', slug: 'laptops', image: '/images/modelo7/cat-laptops.webp', imageFit: 'cover' },
+  { title: 'Proyectores y pantallas', slug: 'proyectores-pantallas-interactivas', image: '/images/modelo7/cat-pantallas.webp', imageFit: 'cover' },
   { title: 'Servidores', slug: 'servidores', image: '/images/solutions/servidores.jpg', imageFit: 'cover' },
   { title: 'Impresión', slug: 'impresion', image: '/images/modelo9/hero-office.jpg', imageFit: 'cover' },
 ] as const;

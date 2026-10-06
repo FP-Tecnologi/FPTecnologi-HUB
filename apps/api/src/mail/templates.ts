@@ -249,3 +249,15 @@ export function codigoCuentaEmail(codigo: string, minutos: number): { subject: s
     `),
   };
 }
+
+/** Aviso genérico (tickets, socios…): título, párrafos de texto y un botón opcional. Todo se escapa. */
+export function avisoEmail(d: { asunto: string; titulo: string; parrafos: string[]; boton?: { texto: string; url: string } }): { subject: string; html: string } {
+  return {
+    subject: d.asunto,
+    html: layout(`
+      <h1 style="margin:0 0 12px;font-size:20px;">${escapeHtml(d.titulo)}</h1>
+      ${d.parrafos.map((p) => `<p style="margin:0 0 12px;color:${MUTED_COLOR};white-space:pre-wrap;">${escapeHtml(p.slice(0, 2000))}</p>`).join('')}
+      ${d.boton ? `<a href="${escapeHtml(d.boton.url)}" style="display:inline-block;margin-top:8px;background:${BRAND_COLOR};color:#FFFFFF;text-decoration:none;font-weight:700;padding:12px 20px;border-radius:8px;">${escapeHtml(d.boton.texto)}</a>` : ''}
+    `),
+  };
+}

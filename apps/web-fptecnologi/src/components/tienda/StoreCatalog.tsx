@@ -176,7 +176,7 @@ export function StoreCatalog({
           {/* Foto de fondo completa (escritorio con monitor) + degradado de
               marca: oscuro a la izquierda, donde va el texto. */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/images/categorias/monitores.jpg" alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover object-[center_55%]" />
+          <img src="/images/categorias/monitores.webp" alt="" aria-hidden className="absolute inset-0 h-full w-full object-cover object-[center_55%]" />
           <div aria-hidden className="absolute inset-0 bg-gradient-to-b from-ink/75 via-ink/65 to-ink/80" />
           <div aria-hidden className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_45%,rgba(0,0,0,0.35),transparent)]" />
           {/* Efecto "TI": partículas y nodos conectados en el celeste de la marca (como en el resto de heros). */}

@@ -2,7 +2,7 @@
 /*
  * FPTecnologi-HUB — Ecommerce → Envíos: tarifario por departamento del courier
  * (Shalom). El checkout de la tienda toma de aquí el costo, el plazo y las
- * agencias; el servidor vuelve a cotizar al crear el pedido. El costo va en USD
+ * agencias; el servidor vuelve a cotizar al crear el pedido. El costo va en soles (S/); la tienda lo convierte con el tipo de cambio del sitio
  * (moneda del pedido) y sin IGV adicional: el courier factura aparte.
  */
 import { useCallback, useEffect, useState } from 'react';
@@ -10,7 +10,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 
-interface Tarifa { id: string; proveedor: string; departamento: string; costo: string; plazoDias: string | null; activo: boolean }
+interface Tarifa { id: string; proveedor: string; departamento: string; costo: string; moneda: string; plazoDias: string | null; activo: boolean }
 
 const DEPARTAMENTOS = [
   'Amazonas', 'Áncash', 'Apurímac', 'Arequipa', 'Ayacucho', 'Cajamarca', 'Callao', 'Cusco', 'Huancavelica', 'Huánuco', 'Ica', 'Junín',
@@ -83,7 +83,7 @@ export function EcommerceEnvios() {
                   {tarifas.map((t) => (
                     <tr key={t.id} className="ax-table__row">
                       <td className="ax-table__td" style={{ fontWeight: 'var(--ax-weight-medium)', color: 'var(--ax-text-strong)' }}>{t.departamento}</td>
-                      <td className="ax-table__td" style={{ fontVariantNumeric: 'tabular-nums' }}>{Number(t.costo).toFixed(2)}</td>
+                      <td className="ax-table__td" style={{ fontVariantNumeric: 'tabular-nums' }}>{t.moneda === 'PEN' ? 'S/ ' : 'US$ '}{Number(t.costo).toFixed(2)}</td>
                       <td className="ax-table__td">{t.plazoDias ?? '—'}</td>
                       <td className="ax-table__td"><span className={`ax-badge ax-badge--soft ax-badge--pill ${t.activo ? 'ax-badge--success' : 'ax-badge--neutral'}`}>{t.activo ? 'Activa' : 'Inactiva'}</span></td>
                       <td className="ax-table__td" style={{ textAlign: 'right' }}>
@@ -116,7 +116,7 @@ export function EcommerceEnvios() {
                   </select>
                 </div>
               )}
-              <div className="ax-field"><label className="ax-label" htmlFor="env-costo">Costo de envío (USD)</label><input id="env-costo" type="number" min={0} step="0.01" required className="ax-input" value={form.costo} onChange={(e) => setForm({ ...form, costo: e.target.value })} /></div>
+              <div className="ax-field"><label className="ax-label" htmlFor="env-costo">Costo de envío (S/, tarifa de Shalom)</label><input id="env-costo" type="number" min={0} step="0.01" required className="ax-input" value={form.costo} onChange={(e) => setForm({ ...form, costo: e.target.value })} /></div>
               <div className="ax-field"><label className="ax-label" htmlFor="env-plazo">Plazo (opcional)</label><input id="env-plazo" className="ax-input" placeholder="2-3 días" value={form.plazoDias} onChange={(e) => setForm({ ...form, plazoDias: e.target.value })} /></div>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'flex-end' }}>
                 <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEditId(null)}>Cancelar</button>

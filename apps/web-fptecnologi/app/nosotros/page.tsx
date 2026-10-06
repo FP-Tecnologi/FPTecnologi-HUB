@@ -43,7 +43,7 @@ export default async function NosotrosPage() {
         destacado={c.hero.destacado}
         descripcion={c.hero.descripcion}
         video="/images/home/about.mp4"
-        imagen="/herobanner/partner izquierdo.jpg"
+        imagen="/herobanner/partner izquierdo.webp"
       >
         <MoreInfoButton tone="dark" href="/cotizador" label="Cotizar" />
         <WhatsAppCta label="Contactar asesor" tone="dark" />
@@ -56,7 +56,7 @@ export default async function NosotrosPage() {
             <ScrollReveal direction="left">
               <ImageHoverCard siempre datos={STATS.map((s) => ({ value: `${s.value}${s.suffix}`, label: s.label }))}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/herobanner/partner izquierdo.jpg" alt="Equipo de FPTecnologi en reunión con clientes" />
+                <img src="/herobanner/partner izquierdo.webp" alt="Equipo de FPTecnologi en reunión con clientes" />
               </ImageHoverCard>
             </ScrollReveal>
             <ScrollReveal direction="right" delayMs={120}>

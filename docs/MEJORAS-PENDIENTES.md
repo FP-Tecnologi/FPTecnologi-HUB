@@ -3,7 +3,7 @@
 Lista viva de lo que falta o se puede mejorar. Se marca `[x]` cuando se hace (con fecha). El historial de avance está
 en [`ESTADO-ACTUAL.md`](ESTADO-ACTUAL.md); los pendientes de negocio más antiguos en [`PENDIENTES.md`](PENDIENTES.md).
 
-Última revisión completa: **2026-10-04**.
+Última revisión completa: **2026-10-05**.
 
 ## Hecho
 
@@ -11,71 +11,77 @@ en [`ESTADO-ACTUAL.md`](ESTADO-ACTUAL.md); los pendientes de negocio más antigu
 - [x] Rate limiting de la API (estaba desactivado: login/OTP/reset se podían forzar). Guard propio
       `LimitePeticionesGuard` + `@Limite(n)`: 600 lecturas / 90 escrituras por minuto por IP, 5 en login/OTP/código de
       cuenta, 10 en formularios públicos (2026-10-04)
-- [x] `trust proxy` configurable (`TRUST_PROXY`, por defecto 1) para que la IP del cliente sea la real tras el proxy
-      del hosting (2026-10-04)
+- [x] `trust proxy` configurable (`TRUST_PROXY`, por defecto 1) para leer la IP real tras el proxy del hosting (2026-10-04)
 - [x] `next` de la web 16.3.4 → 16.3.8 (RCE crítico en `next/og`); `npm audit` en 0 en las tres apps (2026-10-04)
 - [x] Revisión de secretos versionados: no hay claves reales en git (2026-10-04)
+- [x] Recursos de socios y evidencias de tickets en almacén **privado** (`UPLOADS_PRIVADO_DIR`): sin URL pública, se
+      entregan solo con sesión (2026-10-05)
+- [x] Antivirus: filtro propio siempre activo (ejecutables, EICAR, PDF con JavaScript, macros, ZIP con .exe) y ClamAV
+      opcional con `CLAMAV_HOST`; si está configurado y no responde, rechaza (2026-10-05)
 
-### Módulos nuevos
-- [x] **Tickets** (API `tickets`, web `/tickets` conectado, dashboard Web → Tickets): reclamo, verificación y soporte
-      con datos de la compra, evidencia, estados y notas; correlativo `TCK-AAAA-XXXXXX` (2026-10-04)
-- [x] **Recursos para socios** (API `recursos`, dashboard Web → Recursos con pestañas Recursos y Socios, web
-      `/recursos`): el equipo sube imágenes, PDF, video, Office y ZIP (hasta 100 MB, tipo validado por bytes);
-      los socios (correos autorizados) entran con el código por correo de «Mi cuenta» (2026-10-04)
+### Módulos
+- [x] **Tickets** completos: estados (Nuevo, En revisión, Esperando cliente, Resuelto, Cerrado), prioridad,
+      responsable, conversación con el cliente, notas internas, historial; seguimiento público
+      (`/tickets/seguimiento`, número + correo) donde el cliente responde; correos de confirmación, respuesta y
+      resuelto (salen cuando haya SMTP) (2026-10-05)
+- [x] **Intranet de socios** (`/socios`): registro público (`/socios/registro`, queda Pendiente), aprobación en el
+      dashboard (aprobar, rechazar, suspender, notas, último acceso), portal con Inicio, Recursos, Soporte y Mi empresa;
+      entra con código por correo (2026-10-05)
+- [x] **Recursos**: subida por lotes (varios archivos, ZIP como pack), contador de descargas, ícono SVG con fondo por
+      tipo, filtros por marca del fabricante y tipo (2026-10-05)
+- [x] Envíos: tarifas en soles (S/) convertidas a USD con el tipo de cambio del sitio (2026-10-05)
 
 ### Base de datos
-- [x] Índices: se quitaron 7 redundantes y se agregaron (marcaId, estado, createdAt) en pedidos, cotizaciones y
-      presupuestos, (usuarioId, leida) en notificaciones y trigram (`pg_trgm`) en nombre/SKU/marca de producto
-      para la búsqueda de la tienda (2026-10-04)
+- [x] Índices: 7 redundantes fuera; (marcaId, estado, createdAt) en pedidos, cotizaciones y presupuestos;
+      (usuarioId, leida) en notificaciones; trigram (`pg_trgm`) en nombre/SKU/marca de producto (2026-10-04)
 
 ### Datos desde la base (no hardcodeados)
-- [x] Menú Tienda con las categorías de la base de datos (antes lista fija en `content.ts`) (2026-10-04)
+- [x] Menú Tienda con las categorías de la base de datos (2026-10-04)
 
-### Rendimiento
-- [x] `about.mp4` (hero y Nosotros) 4.6 MB → 1.2 MB (720p, sin audio, faststart) (2026-10-04)
+### Rendimiento y limpieza
+- [x] `about.mp4` 4.6 MB → 1.2 MB (720p, sin audio, faststart) (2026-10-04)
+- [x] Imágenes grandes a WebP (3.4 MB → 1.5 MB) y recompresión de las referenciadas por la base (2026-10-05)
+- [x] Borrado de código muerto (`_riteflow-original`, 9 componentes/hooks), ~26 MB de imágenes sin uso,
+      `soluciones-ti.mp4`, `temporal/` y el zip de la raíz (2026-10-05)
 
 ## Pendiente
 
-### Limpieza (requiere tu visto bueno: borra archivos)
-- [ ] `apps/web-fptecnologi/src/_riteflow-original` (plantilla muerta, 110 archivos; nada la importa) y el alias
-      `@riteflow` de `tsconfig.json`
-- [ ] Componentes/hooks sin importadores: `home/HeaderDark`, `home/TopBar`, `site/HeaderDark`, `site/HeroTabs`,
-      `site/PartnerSteps`, `site/PlaceholderPage`, `site/TopBar`, `hooks/useRiteflowReveal`, `hooks/useRiteflowStagger`
-- [ ] ~26 MB de imágenes sin referencias: `public/Home-new - FP Tecnologi System` (178 archivos), `images/modelo12`,
-      `images/demo`, `images/features`, `images/home-v2`, `public/graph.html`, `images/pricing.jpg`,
-      `images/home/banner-bg.jpg`, `images/home/home-v1-banner.webp`, `images/home/banner-circles-shape.png`
-- [ ] `public/videos/soluciones-ti.mp4` (6.6 MB, ya nadie lo usa; el hero usa `about.mp4`)
-- [ ] `temporal/` (modelos de home archivados), `api-fptecnologi.zip` de la raíz (se regenera con `git archive`)
+### Correos (bloquea producción)
+- [ ] Configurar SMTP (`MAIL_DRIVER=smtp`, `SMTP_HOST/PORT/SECURE/USER/PASS`, `MAIL_FROM_EMAIL`) con un buzón de cPanel,
+      o `MAIL_DRIVER=resend` con `RESEND_API_KEY`. Sin esto no salen los códigos de «Mi cuenta» (los socios no pueden
+      entrar) ni los avisos de tickets y socios. Definir también `WEB_PUBLICA_URL` (enlaces de los correos)
 
 ### Seguridad
+- [ ] Instalar ClamAV en el servidor y definir `CLAMAV_HOST` (hoy solo corre el filtro básico)
 - [ ] Rate limit en memoria: si la API pasa a varias instancias, moverlo a Redis
-- [ ] Los archivos de `/uploads` son públicos por URL (UUID impredecible). Si algún recurso de socios es sensible,
-      servirlo con URL firmada o tras el guard de socio
-- [ ] Antivirus/escaneo de los archivos que sube el equipo (hoy solo se valida el tipo por bytes)
+- [ ] Cabeceras de seguridad de la web pública (CSP, HSTS) en `next.config` / Cloudflare
+- [ ] Las sesiones de «Mi cuenta» se firman con `JWT_ACCESS_SECRET`: separarlas en un secreto propio
 - [ ] Rotar las claves antiguas antes de hacer público el repo del HUB
+- [ ] `/uploads` (productos, blog, landings) sigue siendo público a propósito: es contenido de la web
 
 ### Módulos y funcionalidad
-- [ ] Recursos: contador de descargas, miniaturas de PDF/video generadas en el servidor, carpetas por marca de
-      fabricante con logo, subida por lotes
-- [ ] Socios: decidir alta automática (RUC) o por aprobación; hoy los agrega el equipo a mano
-- [ ] Tickets: correo de confirmación al cliente con su número y consulta de estado en «Mi cuenta»; respuestas del
-      equipo con historial
+- [ ] Recursos: miniaturas reales de PDF y video generadas en el servidor, logo por marca de fabricante, carpetas
+- [ ] Intranet: novedades para socios, precios o descuentos de socios, pedidos y presupuestos del socio
+- [ ] Tickets: adjuntos en las respuestas del equipo, SLA (tiempos de respuesta) y reporte de tickets
 - [ ] Dashboard: pantalla de **Invitaciones** y gestión de **roles/permisos** (hoy solo desde Team)
-- [ ] Envíos Shalom: cargar tarifas reales; corregir tildes rotas de la API viva (ver `PENDIENTES.md` §1)
+- [ ] Envíos Shalom: cargar las tarifas en soles por departamento con la calculadora de shalom.com.pe/tarifas
+      (depende del peso/tamaño del paquete tipo: hay que definirlo); corregir tildes rotas de la API viva
+      (ver `PENDIENTES.md` §1)
 - [ ] Registro de errores (Sentry) y métricas
 
 ### Datos hardcodeados → base de datos
-- [ ] `PARTNER_BRANDS` (logos de marcas) y `PARTNER_STEPS`: llevarlos al CMS/Recursos
+- [ ] `PARTNER_BRANDS` (logos de marcas) y `PARTNER_STEPS`: llevarlos al CMS
 - [ ] `WHATSAPP_AREAS` (fallback del chat con teléfonos provisionales 999 999 999): cargar asesores reales
 - [ ] `SOLUTIONS` y `FEATURED_PRODUCTS` de `content.ts` solo sirven de respaldo; quitarlos cuando la API sea
       obligatoria en producción
 - [ ] Textos legales (`lib/legal.ts`) ya tienen CMS (Web → Textos legales): confirmar que producción lo usa
 
 ### Rendimiento
-- [ ] Imágenes: pasar JPG/PNG grandes de `public/herobanner` (2.4 MB en total) a WebP/AVIF
+- [ ] JavaScript de la web: la home carga ~276 KB gzip (tienda 247, socios 213, tickets 245). Bajar a <200 KB:
+      cargar `motion`/`gsap`/`swiper` solo donde se usan y unificar los dos `ParticlesBackground` duplicados
+      (`components/home/` y `components/site/`)
 - [ ] Compresión automática de videos subidos desde el dashboard (ffmpeg en el servidor)
-- [ ] `apps/web-fptecnologi`: revisar el peso de JS de la home (`next build` + analyzer)
 
 ### Infraestructura
-- [ ] Cloudflare (5 dominios), Hostinger (entornos), Sentry, `RESEND_API_KEY` real
+- [ ] Cloudflare (5 dominios), Hostinger (entornos), Sentry
 - [ ] GitHub Actions (delegado a Copilot)

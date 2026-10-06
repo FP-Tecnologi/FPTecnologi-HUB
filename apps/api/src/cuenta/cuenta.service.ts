@@ -70,7 +70,7 @@ export class CuentaService {
     const [pedidos, cotizaciones, socios] = await Promise.all([
       this.prisma.pedido.count({ where: { marcaId, email: { equals: email, mode: 'insensitive' } } }),
       this.prisma.cotizacion.count({ where: { marcaId, clienteEmail: { equals: email, mode: 'insensitive' } } }),
-      this.prisma.socio.count({ where: { marcaId, email, activo: true } }), // los socios entran aunque aún no hayan comprado
+      this.prisma.socio.count({ where: { marcaId, email, estado: 'ACTIVO' } }), // los socios entran aunque aún no hayan comprado
     ]);
     if (pedidos + cotizaciones + socios > 0) {
       const codigo = String(randomInt(0, 1_000_000)).padStart(6, '0');
@@ -125,7 +125,7 @@ export class CuentaService {
       }),
     ]);
     const nombre = pedidos[0]?.nombre ?? (await this.nombreDeCotizacion(marcaId, email));
-    const socio = (await this.prisma.socio.count({ where: { marcaId, email, activo: true } })) > 0;
+    const socio = (await this.prisma.socio.count({ where: { marcaId, email, estado: 'ACTIVO' } })) > 0;
     return {
       email,
       socio,

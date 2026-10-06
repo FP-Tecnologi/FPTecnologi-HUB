@@ -1,7 +1,6 @@
 'use client';
 import { HOME_DEFAULTS, type Encabezado, type ItemTexto } from '@/lib/homeContenido';
 
-import { whatsappHref } from '@/lib/chatActions';
 import { MoreInfoButton } from './MoreInfoButton';
 import { ScrollReveal } from './ScrollReveal';
 import { SectionBadge } from './SectionBadge';
@@ -45,7 +44,7 @@ export function PartnerCta({ c = HOME_DEFAULTS.partners }: { c?: Encabezado & { 
             <MoreInfoButton
               tone="light"
               label={c.botonTexto || 'Ser partner'}
-              onClick={() => window.open(whatsappHref('Hola, quiero saber más sobre el programa de Partners de FPTecnologi'), '_blank', 'noreferrer')}
+              href="/socios/registro"
             />
           </div>
         </ScrollReveal>

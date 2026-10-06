@@ -3,7 +3,8 @@ import { ArrayMaxSize, IsArray, IsBoolean, IsEmail, IsIn, IsOptional, IsString, 
 const TEXTO = /^[^<>]*$/; // sin etiquetas: se muestran en el dashboard y en correos
 
 export const TIPOS_TICKET = ['RECLAMO', 'VERIFICACION', 'SOPORTE'] as const;
-export const ESTADOS_TICKET = ['NUEVO', 'EN_REVISION', 'RESUELTO', 'CERRADO'] as const;
+export const ESTADOS_TICKET = ['NUEVO', 'EN_REVISION', 'ESPERANDO_CLIENTE', 'RESUELTO', 'CERRADO'] as const;
+export const PRIORIDADES_TICKET = ['BAJA', 'NORMAL', 'ALTA', 'URGENTE'] as const;
 
 export class CrearTicketDto {
   @IsIn(TIPOS_TICKET)
@@ -39,8 +40,8 @@ export class CrearTicketDto {
   @IsString() @MinLength(5) @MaxLength(4000) @Matches(TEXTO)
   descripcion!: string;
 
-  // Solo URLs de archivos subidos por /public/uploads/evidencia (se revisa en el servicio).
-  @IsOptional() @IsArray() @ArrayMaxSize(8) @IsString({ each: true }) @MaxLength(400, { each: true })
+  // Solo claves de archivos subidos por /public/uploads/evidencia (se revisan en el servicio).
+  @IsOptional() @IsArray() @ArrayMaxSize(8) @IsString({ each: true }) @MaxLength(200, { each: true })
   evidencias?: string[];
 
   @IsOptional() @IsString() @MaxLength(200)
@@ -51,10 +52,45 @@ export class CrearTicketDto {
   website?: string;
 }
 
+/** Seguimiento público: el número de ticket + el correo con el que se abrió hacen de «contraseña». */
+export class SeguimientoTicketDto {
+  @IsString() @MinLength(6) @MaxLength(30)
+  numero!: string;
+
+  @IsEmail() @MaxLength(120)
+  email!: string;
+}
+
+export class ResponderTicketDto extends SeguimientoTicketDto {
+  @IsString() @MinLength(2) @MaxLength(4000) @Matches(TEXTO)
+  texto!: string;
+
+  @IsOptional() @IsArray() @ArrayMaxSize(4) @IsString({ each: true }) @MaxLength(200, { each: true })
+  adjuntos?: string[];
+}
+
 export class ActualizarTicketDto {
   @IsOptional() @IsIn(ESTADOS_TICKET)
   estado?: (typeof ESTADOS_TICKET)[number];
 
+  @IsOptional() @IsIn(PRIORIDADES_TICKET)
+  prioridad?: (typeof PRIORIDADES_TICKET)[number];
+
+  @IsOptional() @IsString() @MaxLength(120)
+  asignadoA?: string;
+
   @IsOptional() @IsString() @MaxLength(2000)
   notas?: string;
+}
+
+export class MensajeEquipoDto {
+  @IsString() @MinLength(1) @MaxLength(4000) @Matches(TEXTO)
+  texto!: string;
+
+  /** true = nota interna (el cliente no la ve ni se le envía correo). */
+  @IsOptional() @IsBoolean()
+  interno?: boolean;
+
+  @IsOptional() @IsIn(ESTADOS_TICKET)
+  estado?: (typeof ESTADOS_TICKET)[number];
 }

@@ -37,23 +37,35 @@ export const marcaConfigurada = () => !!MARCA_ID;
 
 export interface RecursoSocio {
   id: string; titulo: string; descripcion: string | null; tipo: 'IMAGEN' | 'PDF' | 'VIDEO' | 'DOCUMENTO' | 'OTRO';
-  fabricante: string | null; categoria: string | null; archivoUrl: string; mime: string | null; bytes: number; createdAt: string;
+  fabricante: string | null; categoria: string | null; mime: string | null; bytes: number; createdAt: string;
 }
+export interface TicketSocio { id: string; numero: string; tipo: 'RECLAMO' | 'VERIFICACION' | 'SOPORTE'; estado: string; producto: string | null; createdAt: string }
+export interface PortalSocio {
+  socio: { nombre: string | null; empresa: string | null; ruc: string | null; email: string; cargo: string | null; celular: string | null; desde: string };
+  recursos: RecursoSocio[];
+  tickets: TicketSocio[];
+}
+export type EstadoSocioSesion = 'PENDIENTE' | 'SUSPENDIDO' | 'RECHAZADO' | null;
 
-/** Material para socios: `sinSesion` (hay que ingresar), `sinAcceso` (sesión de un correo que no es socio) o la lista. */
-export async function getRecursosSocio(token: string | undefined): Promise<
-  { estado: 'sinSesion' | 'sinAcceso' | 'error' } | { estado: 'ok'; socio: { nombre: string | null; empresa: string | null }; recursos: RecursoSocio[] }
+/**
+ * Intranet de socios: `sinSesion` (hay que ingresar), `sinAcceso` (sesión de un correo que no es socio activo, con su
+ * estado: en revisión, suspendido, rechazado o sin registro) o el portal con recursos y tickets del socio.
+ * Los archivos NO tienen URL pública: se piden por /api/socios/archivo/<id> con la cookie de sesión.
+ */
+export async function getPortalSocio(token: string | undefined): Promise<
+  { estado: 'sinSesion' | 'error' } | { estado: 'sinAcceso'; socio: EstadoSocioSesion } | ({ estado: 'ok' } & PortalSocio)
 > {
   if (!token || !MARCA_ID) return { estado: 'sinSesion' };
+  const q = `marcaId=${encodeURIComponent(MARCA_ID)}`;
   try {
-    const res = await fetch(`${API_URL}/public/recursos?marcaId=${encodeURIComponent(MARCA_ID)}`, { headers: { 'x-cuenta-token': token }, cache: 'no-store' });
+    const res = await fetch(`${API_URL}/public/socios/portal?${q}`, { headers: { 'x-cuenta-token': token }, cache: 'no-store' });
     if (res.status === 401) return { estado: 'sinSesion' };
-    if (res.status === 403) return { estado: 'sinAcceso' };
+    if (res.status === 403) {
+      const e = await fetch(`${API_URL}/public/socios/estado?${q}`, { headers: { 'x-cuenta-token': token }, cache: 'no-store' }).then((r) => r.json()).catch(() => null);
+      return { estado: 'sinAcceso', socio: (e?.data?.estado ?? null) as EstadoSocioSesion };
+    }
     if (!res.ok) return { estado: 'error' };
-    const d = (await res.json())?.data;
-    // Los archivos viven en la API (/uploads/...): se entregan con URL absoluta porque la web es otro origen.
-    const recursos = (d.recursos as RecursoSocio[]).map((r) => ({ ...r, archivoUrl: r.archivoUrl.startsWith('/uploads/') ? `${API_URL}${r.archivoUrl}` : r.archivoUrl }));
-    return { estado: 'ok', socio: d.socio, recursos };
+    return { estado: 'ok', ...((await res.json()).data as PortalSocio) };
   } catch {
     return { estado: 'error' };
   }

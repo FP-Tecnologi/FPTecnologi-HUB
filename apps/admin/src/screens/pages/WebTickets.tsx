@@ -1,21 +1,34 @@
 'use client';
 /*
- * FPTecnologi-HUB — Web informativa → Tickets (GET /tickets). Reclamos, verificaciones y soporte técnico que los
- * clientes abren en /tickets de la web: datos de la compra, evidencia adjunta, estado y notas internas.
+ * FPTecnologi-HUB — Web informativa → Tickets (GET /tickets). Sistema de tickets de soporte: reclamos, verificaciones
+ * y soporte técnico que los clientes abren en /tickets. Cada ticket tiene estado, prioridad, responsable, evidencia
+ * (privada), una conversación con el cliente (respuestas por correo), notas internas e historial de cambios.
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
-import { api } from '../../lib/api';
+import { abrirArchivoPrivado, api } from '../../lib/api';
 
-type Estado = 'NUEVO' | 'EN_REVISION' | 'RESUELTO' | 'CERRADO';
+type Estado = 'NUEVO' | 'EN_REVISION' | 'ESPERANDO_CLIENTE' | 'RESUELTO' | 'CERRADO';
 type Tipo = 'RECLAMO' | 'VERIFICACION' | 'SOPORTE';
+type Prioridad = 'BAJA' | 'NORMAL' | 'ALTA' | 'URGENTE';
 
+interface Mensaje {
+  id: string;
+  autor: 'CLIENTE' | 'EQUIPO' | 'SISTEMA';
+  autorNombre: string | null;
+  texto: string;
+  adjuntos: string[];
+  interno: boolean;
+  createdAt: string;
+}
 interface Ticket {
   id: string;
   numero: string;
   tipo: Tipo;
   estado: Estado;
+  prioridad: Prioridad;
+  asignadoA: string | null;
   esEmpresa: boolean;
   documento: string | null;
   nombre: string;
@@ -30,16 +43,26 @@ interface Ticket {
   notas: string | null;
   atendidoPor: string | null;
   createdAt: string;
+  _count?: { mensajes: number };
+  mensajes?: Mensaje[];
 }
 
 const ESTADOS: { v: Estado; label: string; badge: string }[] = [
   { v: 'NUEVO', label: 'Nuevo', badge: 'ax-badge--info' },
   { v: 'EN_REVISION', label: 'En revisión', badge: 'ax-badge--warning' },
+  { v: 'ESPERANDO_CLIENTE', label: 'Esperando cliente', badge: 'ax-badge--neutral' },
   { v: 'RESUELTO', label: 'Resuelto', badge: 'ax-badge--success' },
   { v: 'CERRADO', label: 'Cerrado', badge: 'ax-badge--neutral' },
 ];
+const PRIORIDADES: { v: Prioridad; label: string; badge: string }[] = [
+  { v: 'BAJA', label: 'Baja', badge: 'ax-badge--neutral' },
+  { v: 'NORMAL', label: 'Normal', badge: 'ax-badge--info' },
+  { v: 'ALTA', label: 'Alta', badge: 'ax-badge--warning' },
+  { v: 'URGENTE', label: 'Urgente', badge: 'ax-badge--danger' },
+];
 const TIPOS: Record<Tipo, string> = { RECLAMO: 'Reclamo', VERIFICACION: 'Verificación', SOPORTE: 'Soporte técnico' };
 const meta = (e: Estado) => ESTADOS.find((x) => x.v === e)!;
+const prio = (p: Prioridad) => PRIORIDADES.find((x) => x.v === p)!;
 const fecha = (iso: string) => new Date(iso).toLocaleString('es-PE', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
 export function WebTickets() {
@@ -51,7 +74,12 @@ export function WebTickets() {
   const [tipo, setTipo] = useState<'' | Tipo>('');
   const [q, setQ] = useState('');
   const [selId, setSelId] = useState<string | null>(null);
+  const [sel, setSel] = useState<Ticket | null>(null);
   const [notas, setNotas] = useState('');
+  const [asignado, setAsignado] = useState('');
+  const [texto, setTexto] = useState('');
+  const [interno, setInterno] = useState(false);
+  const [estadoAlResponder, setEstadoAlResponder] = useState<'' | Estado>('');
   const [guardando, setGuardando] = useState(false);
 
   const cargar = useCallback(async () => {
@@ -76,28 +104,46 @@ export function WebTickets() {
     if (id) setSelId(id);
   }, []);
 
-  const sel = lista.find((t) => t.id === selId) ?? null;
+  // Detalle con conversación.
+  useEffect(() => {
+    if (!selId) return setSel(null);
+    let vivo = true;
+    api
+      .get<Ticket>(`/tickets/${selId}`)
+      .then((t) => vivo && setSel(t))
+      .catch((e) => vivo && setError(e instanceof ApiError ? e.message : 'No se pudo abrir el ticket.'));
+    return () => {
+      vivo = false;
+    };
+  }, [selId]);
+
   useEffect(() => {
     setNotas(sel?.notas ?? '');
-  }, [sel?.id, sel?.notas]);
+    setAsignado(sel?.asignadoA ?? '');
+    setTexto('');
+    setInterno(false);
+    setEstadoAlResponder('');
+  }, [sel?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const visibles = useMemo(() => {
     const t = q.trim().toLowerCase();
-    return lista.filter(
-      (x) =>
-        (!filtro || x.estado === filtro) &&
-        (!tipo || x.tipo === tipo) &&
-        (!t || `${x.numero} ${x.nombre} ${x.email} ${x.documento ?? ''} ${x.numeroCompra ?? ''} ${x.producto ?? ''}`.toLowerCase().includes(t)),
-    );
+    return lista.filter((x) => (!filtro || x.estado === filtro) && (!tipo || x.tipo === tipo) && (!t || `${x.numero} ${x.nombre} ${x.email} ${x.documento ?? ''} ${x.numeroCompra ?? ''} ${x.producto ?? ''}`.toLowerCase().includes(t)));
   }, [lista, filtro, tipo, q]);
 
   const cuenta = (e: '' | Estado) => lista.filter((x) => !e || x.estado === e).length;
 
-  async function actualizar(t: Ticket, cambios: { estado?: Estado; notas?: string }) {
+  /** Reemplaza el ticket abierto y su fila de la lista con lo que devolvió la API. */
+  function aplicar(t: Ticket) {
+    setSel((s) => (s ? { ...s, ...t, mensajes: t.mensajes ?? s.mensajes } : t));
+    setLista((ls) => ls.map((x) => (x.id === t.id ? { ...x, ...t, _count: x._count } : x)));
+  }
+
+  async function actualizar(cambios: { estado?: Estado; prioridad?: Prioridad; asignadoA?: string; notas?: string }) {
+    if (!sel) return;
     setGuardando(true);
     try {
-      const nuevo = await api.patch<Ticket>(`/tickets/${t.id}`, cambios);
-      setLista((ls) => ls.map((x) => (x.id === t.id ? nuevo : x)));
+      await api.patch(`/tickets/${sel.id}`, cambios);
+      aplicar(await api.get<Ticket>(`/tickets/${sel.id}`)); // trae también el evento nuevo del historial
       setError('');
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'No se pudo guardar.');
@@ -106,14 +152,38 @@ export function WebTickets() {
     }
   }
 
-  async function eliminar(t: Ticket) {
-    if (!window.confirm(`¿Eliminar el ticket ${t.numero}? Esta acción no se puede deshacer.`)) return;
+  async function responder(e: React.FormEvent) {
+    e.preventDefault();
+    if (!sel || !texto.trim()) return;
+    setGuardando(true);
     try {
-      await api.delete(`/tickets/${t.id}`);
+      aplicar(await api.post<Ticket>(`/tickets/${sel.id}/mensajes`, { texto: texto.trim(), interno, estado: !interno && estadoAlResponder ? estadoAlResponder : undefined }));
+      setTexto('');
+      setEstadoAlResponder('');
+      setError('');
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : 'No se pudo enviar.');
+    } finally {
+      setGuardando(false);
+    }
+  }
+
+  async function eliminar() {
+    if (!sel || !window.confirm(`¿Eliminar el ticket ${sel.numero} y su conversación? Esta acción no se puede deshacer.`)) return;
+    try {
+      await api.delete(`/tickets/${sel.id}`);
       setSelId(null);
       await cargar();
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'No se pudo eliminar (solo administradores).');
+    }
+  }
+
+  async function abrir(clave: string) {
+    try {
+      await abrirArchivoPrivado(`/tickets/archivo?clave=${encodeURIComponent(clave)}`);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'No se pudo abrir el archivo.');
     }
   }
 
@@ -126,7 +196,7 @@ export function WebTickets() {
 
   return (
     <>
-      <PageHead title="Tickets de soporte" subtitle="Reclamos, verificaciones y soporte técnico que abren los clientes desde la web." />
+      <PageHead title="Tickets de soporte" subtitle="Reclamos, verificaciones y soporte técnico: conversación con el cliente, prioridad, responsable e historial." />
 
       {error && (
         <div role="alert" className="ax-alert ax-alert--danger" style={{ marginBlockEnd: 'var(--ax-space-4)', padding: 'var(--ax-space-3) var(--ax-space-4)' }}>
@@ -135,7 +205,7 @@ export function WebTickets() {
       )}
 
       <div className="ax-dash-grid">
-        <section className={`ax-card ${sel ? 'ax-col--8' : 'ax-col--12'}`} role="region" aria-label="Tickets" style={{ alignSelf: 'start' }}>
+        <section className={`ax-card ${selId ? 'ax-col--5' : 'ax-col--12'}`} role="region" aria-label="Tickets" style={{ alignSelf: 'start' }}>
           <div className="ax-card__body">
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', justifyContent: 'space-between', flexWrap: 'wrap' }}>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'wrap' }}>
@@ -161,14 +231,15 @@ export function WebTickets() {
                   <th className="ax-table__th" scope="col">Ticket</th>
                   <th className="ax-table__th" scope="col">Cliente</th>
                   <th className="ax-table__th" scope="col">Estado</th>
-                  <th className="ax-table__th" scope="col">Recibido</th>
+                  {!selId && <th className="ax-table__th" scope="col">Prioridad</th>}
+                  {!selId && <th className="ax-table__th" scope="col">Recibido</th>}
                 </tr>
               </thead>
               <tbody>
                 {cargando ? (
-                  <tr><td className="ax-table__td" colSpan={4}>Cargando…</td></tr>
+                  <tr><td className="ax-table__td" colSpan={5}>Cargando…</td></tr>
                 ) : visibles.length === 0 ? (
-                  <tr><td className="ax-table__td" colSpan={4} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay tickets. Aparecerán cuando un cliente use /tickets en la web.' : 'Ningún ticket coincide con el filtro.'}</td></tr>
+                  <tr><td className="ax-table__td" colSpan={5} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay tickets. Aparecerán cuando un cliente use /tickets en la web.' : 'Ningún ticket coincide con el filtro.'}</td></tr>
                 ) : (
                   visibles.map((t) => (
                     <tr key={t.id} className="ax-table__row" onClick={() => setSelId(t.id)} style={{ cursor: 'pointer', background: t.id === selId ? 'var(--ax-surface-subtle)' : undefined }}>
@@ -181,7 +252,8 @@ export function WebTickets() {
                         <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{t.email}</div>
                       </td>
                       <td className="ax-table__td"><span className={`ax-badge ax-badge--soft ax-badge--sm ${meta(t.estado).badge}`}>{meta(t.estado).label}</span></td>
-                      <td className="ax-table__td" style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>{fecha(t.createdAt)}</td>
+                      {!selId && <td className="ax-table__td"><span className={`ax-badge ax-badge--soft ax-badge--sm ${prio(t.prioridad).badge}`}>{prio(t.prioridad).label}</span></td>}
+                      {!selId && <td className="ax-table__td" style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>{fecha(t.createdAt)}</td>}
                     </tr>
                   ))
                 )}
@@ -190,64 +262,123 @@ export function WebTickets() {
           </div>
         </section>
 
-        {sel && (
-          <section className="ax-card ax-col--4" role="region" aria-label="Detalle del ticket">
+        {selId && (
+          <section className="ax-card ax-col--7" role="region" aria-label="Detalle del ticket">
             <div className="ax-card__header">
               <div className="ax-card__titles">
-                <h2 className="ax-card__title">{sel.numero}</h2>
-                <p className="ax-card__subtitle">{TIPOS[sel.tipo]}</p>
+                <h2 className="ax-card__title">{sel?.numero ?? 'Cargando…'}</h2>
+                {sel && <p className="ax-card__subtitle">{TIPOS[sel.tipo]} · abierto {fecha(sel.createdAt)}</p>}
               </div>
               <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setSelId(null)} aria-label="Cerrar detalle">Cerrar</button>
             </div>
-            <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
-              <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 'var(--ax-space-2) var(--ax-space-4)', fontSize: 'var(--ax-text-sm)', margin: 0 }}>
-                {fila('Cliente', `${sel.nombre} (${sel.esEmpresa ? 'empresa' : 'persona natural'})`)}
-                {sel.documento && fila(sel.esEmpresa ? 'RUC' : 'DNI', sel.documento)}
-                {fila('Correo', <a href={`mailto:${sel.email}`}>{sel.email}</a>)}
-                {sel.celular && fila('Celular', <a href={`https://wa.me/51${sel.celular}`} target="_blank" rel="noreferrer">{sel.celular} (WhatsApp)</a>)}
-                {sel.numeroCompra && fila('Compra n.º', sel.numeroCompra)}
-                {sel.fechaCompra && fila('Fecha compra', sel.fechaCompra)}
-                {sel.producto && fila('Producto', sel.producto)}
-                {sel.comprobante && fila('Comprobante', sel.comprobante)}
-                {fila('Recibido', fecha(sel.createdAt))}
-                {sel.atendidoPor && fila('Gestionó', sel.atendidoPor)}
-              </dl>
+            {sel && (
+              <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
+                <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'wrap' }}>
+                  <div className="ax-field" style={{ minWidth: 150 }}>
+                    <label className="ax-label" htmlFor="t-estado">Estado</label>
+                    <select id="t-estado" className="ax-select" value={sel.estado} disabled={guardando} onChange={(e) => actualizar({ estado: e.target.value as Estado })}>
+                      {ESTADOS.map((e) => <option key={e.v} value={e.v}>{e.label}</option>)}
+                    </select>
+                  </div>
+                  <div className="ax-field" style={{ minWidth: 130 }}>
+                    <label className="ax-label" htmlFor="t-prio">Prioridad</label>
+                    <select id="t-prio" className="ax-select" value={sel.prioridad} disabled={guardando} onChange={(e) => actualizar({ prioridad: e.target.value as Prioridad })}>
+                      {PRIORIDADES.map((p) => <option key={p.v} value={p.v}>{p.label}</option>)}
+                    </select>
+                  </div>
+                  <div className="ax-field" style={{ flex: '1 1 200px' }}>
+                    <label className="ax-label" htmlFor="t-asig">Responsable (correo)</label>
+                    <input id="t-asig" className="ax-input" type="email" maxLength={120} value={asignado} placeholder="sin asignar" onChange={(e) => setAsignado(e.target.value)} onBlur={() => asignado !== (sel.asignadoA ?? '') && actualizar({ asignadoA: asignado.trim() })} />
+                  </div>
+                </div>
 
-              <div className="ax-field">
-                <span className="ax-label">Descripción</span>
-                <p style={{ margin: 0, whiteSpace: 'pre-wrap', fontSize: 'var(--ax-text-sm)' }}>{sel.descripcion}</p>
-              </div>
+                <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 'var(--ax-space-2) var(--ax-space-4)', fontSize: 'var(--ax-text-sm)', margin: 0 }}>
+                  {fila('Cliente', `${sel.nombre} (${sel.esEmpresa ? 'empresa' : 'persona natural'})`)}
+                  {sel.documento && fila(sel.esEmpresa ? 'RUC' : 'DNI', sel.documento)}
+                  {fila('Correo', <a href={`mailto:${sel.email}`}>{sel.email}</a>)}
+                  {sel.celular && fila('Celular', <a href={`https://wa.me/51${sel.celular}`} target="_blank" rel="noreferrer">{sel.celular} (WhatsApp)</a>)}
+                  {sel.numeroCompra && fila('Compra n.º', sel.numeroCompra)}
+                  {sel.fechaCompra && fila('Fecha compra', sel.fechaCompra)}
+                  {sel.producto && fila('Producto', sel.producto)}
+                  {sel.comprobante && fila('Comprobante', sel.comprobante)}
+                </dl>
 
-              {sel.evidencias.length > 0 && (
+                {sel.evidencias.length > 0 && (
+                  <div className="ax-field">
+                    <span className="ax-label">Evidencia ({sel.evidencias.length})</span>
+                    <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
+                      {sel.evidencias.map((c, i) => (
+                        <button key={c} type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => abrir(c)}>Archivo {i + 1}</button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="ax-field">
-                  <span className="ax-label">Evidencia ({sel.evidencias.length})</span>
-                  <ul style={{ margin: 0, paddingInlineStart: '1.1rem', fontSize: 'var(--ax-text-sm)' }}>
-                    {sel.evidencias.map((u, i) => (
-                      <li key={u}><a href={u} target="_blank" rel="noreferrer noopener">Archivo {i + 1}</a></li>
-                    ))}
-                  </ul>
+                  <span className="ax-label">Conversación e historial</span>
+                  <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-2)' }}>
+                    <li style={{ padding: 'var(--ax-space-3)', background: 'var(--ax-surface-subtle)', borderRadius: 8, fontSize: 'var(--ax-text-sm)' }}>
+                      <strong>{sel.nombre}</strong> <span style={{ color: 'var(--ax-text-subtle)' }}>· {fecha(sel.createdAt)} · caso inicial</span>
+                      <p style={{ margin: '4px 0 0', whiteSpace: 'pre-wrap' }}>{sel.descripcion}</p>
+                    </li>
+                    {(sel.mensajes ?? []).map((m) =>
+                      m.autor === 'SISTEMA' ? (
+                        <li key={m.id} style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)', textAlign: 'center' }}>
+                          {fecha(m.createdAt)} · {m.texto}{m.autorNombre ? ` (${m.autorNombre})` : ''}
+                        </li>
+                      ) : (
+                        <li key={m.id} style={{ padding: 'var(--ax-space-3)', borderRadius: 8, fontSize: 'var(--ax-text-sm)', background: m.interno ? 'var(--ax-warning-50, #fff8e1)' : m.autor === 'EQUIPO' ? 'var(--ax-primary-50, #e8f3fb)' : 'var(--ax-surface-subtle)', marginInlineStart: m.autor === 'EQUIPO' ? 'var(--ax-space-6)' : 0 }}>
+                          <strong>{m.autor === 'EQUIPO' ? m.autorNombre ?? 'Equipo' : m.autorNombre ?? sel.nombre}</strong>{' '}
+                          <span style={{ color: 'var(--ax-text-subtle)' }}>· {fecha(m.createdAt)}{m.interno ? ' · nota interna (el cliente no la ve)' : ''}</span>
+                          <p style={{ margin: '4px 0 0', whiteSpace: 'pre-wrap' }}>{m.texto}</p>
+                          {m.adjuntos.length > 0 && (
+                            <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', marginBlockStart: 6 }}>
+                              {m.adjuntos.map((c, i) => <button key={c} type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => abrir(c)}>Adjunto {i + 1}</button>)}
+                            </div>
+                          )}
+                        </li>
+                      ),
+                    )}
+                  </ol>
                 </div>
-              )}
 
-              <div className="ax-field">
-                <label className="ax-label" htmlFor="ticket-estado">Estado</label>
-                <select id="ticket-estado" className="ax-select" value={sel.estado} disabled={guardando} onChange={(e) => actualizar(sel, { estado: e.target.value as Estado })}>
-                  {ESTADOS.map((e) => <option key={e.v} value={e.v}>{e.label}</option>)}
-                </select>
-              </div>
+                {sel.estado !== 'CERRADO' && (
+                  <form onSubmit={responder} className="ax-field">
+                    <label className="ax-label" htmlFor="t-resp">{interno ? 'Nota interna' : 'Responder al cliente (se envía por correo)'}</label>
+                    <textarea id="t-resp" className="ax-textarea" rows={4} maxLength={4000} value={texto} onChange={(e) => setTexto(e.target.value)} placeholder={interno ? 'Solo la ve el equipo…' : 'Escribe tu respuesta…'} />
+                    <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                      <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'wrap' }}>
+                        <label style={{ display: 'flex', gap: 6, alignItems: 'center', fontSize: 'var(--ax-text-sm)' }}>
+                          <input type="checkbox" checked={interno} onChange={(e) => setInterno(e.target.checked)} /> Nota interna
+                        </label>
+                        {!interno && (
+                          <select className="ax-select" aria-label="Estado después de responder" value={estadoAlResponder} onChange={(e) => setEstadoAlResponder(e.target.value as '' | Estado)}>
+                            <option value="">Mantener estado</option>
+                            <option value="ESPERANDO_CLIENTE">Pasar a Esperando cliente</option>
+                            <option value="RESUELTO">Pasar a Resuelto</option>
+                          </select>
+                        )}
+                      </div>
+                      <button type="submit" className="ax-btn ax-btn--primary ax-btn--sm" disabled={guardando || !texto.trim()}>
+                        <span className="ax-btn__label">{interno ? 'Guardar nota' : 'Enviar respuesta'}</span>
+                      </button>
+                    </div>
+                  </form>
+                )}
 
-              <div className="ax-field">
-                <label className="ax-label" htmlFor="ticket-notas">Notas internas</label>
-                <textarea id="ticket-notas" className="ax-textarea" rows={4} maxLength={2000} value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Diagnóstico, acuerdos, próximos pasos…" />
-                <div className="ax-cluster" style={{ justifyContent: 'flex-end' }}>
-                  <button type="button" className="ax-btn ax-btn--primary ax-btn--sm" disabled={guardando || notas === (sel.notas ?? '')} onClick={() => actualizar(sel, { notas })}>
-                    <span className="ax-btn__label">Guardar notas</span>
-                  </button>
+                <div className="ax-field">
+                  <label className="ax-label" htmlFor="t-notas">Resumen interno</label>
+                  <textarea id="t-notas" className="ax-textarea" rows={3} maxLength={2000} value={notas} onChange={(e) => setNotas(e.target.value)} placeholder="Diagnóstico, acuerdos, próximos pasos…" />
+                  <div className="ax-cluster" style={{ justifyContent: 'flex-end' }}>
+                    <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" disabled={guardando || notas === (sel.notas ?? '')} onClick={() => actualizar({ notas })}>
+                      <span className="ax-btn__label">Guardar resumen</span>
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ alignSelf: 'flex-start' }} onClick={() => eliminar(sel)}>Eliminar ticket</button>
-            </div>
+                <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ alignSelf: 'flex-start' }} onClick={eliminar}>Eliminar ticket</button>
+              </div>
+            )}
           </section>
         )}
       </div>

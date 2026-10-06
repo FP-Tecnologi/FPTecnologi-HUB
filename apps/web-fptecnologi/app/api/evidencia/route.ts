@@ -26,12 +26,12 @@ export async function POST(req: Request) {
       body: form,
       cache: 'no-store',
     });
-    const j = (await res.json().catch(() => null)) as { data?: { url?: string }; message?: string | string[] } | null;
-    if (!res.ok || !j?.data?.url) {
+    const j = (await res.json().catch(() => null)) as { data?: { clave?: string }; message?: string | string[] } | null;
+    if (!res.ok || !j?.data?.clave) {
       const msg = Array.isArray(j?.message) ? j.message.join(', ') : j?.message;
       return Response.json({ error: msg || 'No pudimos subir el archivo. Inténtalo de nuevo.' }, { status: res.status || 502 });
     }
-    return Response.json({ success: true, url: j.data.url });
+    return Response.json({ success: true, clave: j.data.clave });
   } catch {
     return Response.json({ error: 'No pudimos conectarnos. Inténtalo de nuevo.' }, { status: 502 });
   }

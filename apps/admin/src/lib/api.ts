@@ -172,6 +172,24 @@ async function request<T>(path: string, options: RequestOptions = {}, _retried =
   return (json?.data as T) ?? (undefined as T);
 }
 
+/**
+ * Descarga un archivo privado de la API (recursos, evidencias de tickets) con la sesión del dashboard y lo abre en
+ * una pestaña nueva. Estos archivos no tienen URL pública: un enlace directo no llevaría el token.
+ */
+export async function abrirArchivoPrivado(path: string, _retried = false): Promise<void> {
+  const headers: Record<string, string> = {};
+  const accessToken = tokenStore.getAccessToken();
+  if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
+  const marcaId = tokenStore.getActiveMarcaId();
+  if (marcaId) headers['x-marca-id'] = marcaId;
+  const res = await fetch(`${API_URL}${path}`, { headers, credentials: 'include' });
+  if (res.status === 401 && !_retried && tokenStore.getRefreshToken() && (await refreshAccessToken())) return abrirArchivoPrivado(path, true);
+  if (!res.ok) throw new ApiError('No se pudo abrir el archivo.', res.status);
+  const url = URL.createObjectURL(await res.blob());
+  window.open(url, '_blank', 'noopener');
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
 export const api = {
   get: <T>(path: string, options?: RequestOptions) => request<T>(path, { ...options, method: 'GET' }),
   post: <T>(path: string, body?: unknown, options?: RequestOptions) => request<T>(path, { ...options, method: 'POST', body }),

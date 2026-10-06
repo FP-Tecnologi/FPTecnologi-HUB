@@ -9,13 +9,13 @@ import { SectionBadge } from './SectionBadge';
 // Fotos propias de esta sección (Unsplash, licencia libre): no se tocan las
 // de TIENDA_CATEGORIES porque las usan otros modelos.
 const IMAGES: Record<string, string> = {
-  monitores: '/images/categorias/monitores.jpg', // unsplash.com/photos/KZnfwqi-B0U
-  laptops: '/images/categorias/laptops.jpg', // unsplash.com/photos/1SAnrIxw5OY
-  pantallas: '/images/categorias/pantallas-interactivas.jpg', // unsplash.com/photos/L__MBAI3ucc
-  'proyectores-pantallas-interactivas': '/images/categorias/pantallas-interactivas.jpg',
+  monitores: '/images/categorias/monitores.webp', // unsplash.com/photos/KZnfwqi-B0U
+  laptops: '/images/categorias/laptops.webp', // unsplash.com/photos/1SAnrIxw5OY
+  pantallas: '/images/categorias/pantallas-interactivas.webp', // unsplash.com/photos/L__MBAI3ucc
+  'proyectores-pantallas-interactivas': '/images/categorias/pantallas-interactivas.webp',
   impresion: '/images/modelo9/hero-office.jpg',
-  'pantallas-interactivas': '/images/categorias/pantallas-interactivas.jpg',
-  servidores: '/images/categorias/servidores.jpg', // unsplash.com/photos/dyUp7WPu5q4
+  'pantallas-interactivas': '/images/categorias/pantallas-interactivas.webp',
+  servidores: '/images/categorias/servidores.webp', // unsplash.com/photos/dyUp7WPu5q4
 };
 
 const ICONS: Record<string, LucideIcon> = {

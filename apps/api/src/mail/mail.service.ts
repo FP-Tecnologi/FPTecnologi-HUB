@@ -18,6 +18,7 @@ import {
   pedidoNuevoEquipoEmail,
   presupuestoClienteEmail,
   codigoCuentaEmail,
+  avisoEmail,
 } from './templates.js';
 
 @Injectable()
@@ -82,6 +83,11 @@ export class MailService {
 
   async sendInvitacion(to: string, marca: string, rol: string, url: string, dias: number): Promise<void> {
     await this.send(to, invitacionEmail(marca, rol, url, dias));
+  }
+
+  /** Aviso genérico por correo (no lanza si el envío falla: `send` solo registra el error). */
+  async sendAviso(to: string, d: Parameters<typeof avisoEmail>[0]): Promise<void> {
+    await this.send(to, avisoEmail(d));
   }
 
   async sendCodigoCuenta(to: string, codigo: string, minutos: number): Promise<void> {

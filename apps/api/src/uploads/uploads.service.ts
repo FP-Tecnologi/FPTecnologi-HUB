@@ -1,7 +1,9 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import type { Response } from 'express';
 import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { join, resolve, sep } from 'node:path';
+import { escanear } from './antivirus.js';
 
 export const MAX_BYTES = 5 * 1024 * 1024;
 /** Evidencias de tickets (web pública): imágenes o PDF, hasta 10 MB. */
@@ -12,6 +14,19 @@ export const MAX_BYTES_RECURSO = 100 * 1024 * 1024;
 
 /** Carpeta donde se guardan las imágenes subidas. En cPanel debe estar FUERA de la carpeta que se reemplaza al desplegar. */
 export const uploadsDir = () => resolve(process.cwd(), process.env.UPLOADS_DIR ?? 'uploads'); // acepta ruta relativa o absoluta
+
+/**
+ * Carpeta PRIVADA (no se sirve por HTTP): recursos para socios y evidencias de tickets. Se descargan solo a través de
+ * endpoints con sesión. En cPanel, igual que uploads, debe quedar fuera de la carpeta que se reemplaza al desplegar.
+ */
+export const privadoDir = () => resolve(process.cwd(), process.env.UPLOADS_PRIVADO_DIR ?? 'uploads-privado');
+
+/** Ruta absoluta de una clave privada (`<marcaId>/<subcarpeta>/<uuid>.<ext>`); null si la clave no es válida o intenta salir de la carpeta. */
+export function rutaPrivada(clave: string): string | null {
+  if (!/^[0-9a-f-]{36}\/(recursos|evidencias)\/[0-9a-f-]{36}\.[a-z0-9]{2,5}$/.test(clave)) return null;
+  const abs = resolve(privadoDir(), clave);
+  return abs.startsWith(privadoDir() + sep) ? abs : null;
+}
 
 /** Detecta el tipo real por los primeros bytes (no confiamos en el nombre ni en el mimetype que manda el cliente). SVG se rechaza a propósito (puede llevar scripts). */
 export function tipoImagen(b: Buffer): { ext: string } | null {
@@ -47,7 +62,8 @@ export class UploadsService {
     const esPdf = archivo.buffer.length > 5 && archivo.buffer.toString('ascii', 0, 5) === '%PDF-';
     const tipo = esPdf ? { ext: 'pdf' } : tipoImagen(archivo.buffer);
     if (!tipo) throw new BadRequestException('Formato no válido: usa JPG, PNG, WEBP o PDF');
-    return this.guardarBuffer(marcaId, archivo.buffer, tipo.ext, 'evidencias');
+    await escanear(archivo.buffer);
+    return this.guardarPrivado(marcaId, archivo.buffer, tipo.ext, 'evidencias');
   }
 
   /** Archivo de un recurso para socios. El tipo se decide por los bytes reales; el nombre solo desambigua los Office/ZIP (comparten firma PK). */
@@ -74,17 +90,33 @@ export class UploadsService {
       else if (e === 'zip') { ext = 'zip'; tipo = 'OTRO'; mime = 'application/zip'; }
       else throw new BadRequestException('Formato no válido');
     } else throw new BadRequestException('Formato no válido: usa imagen, PDF, video MP4/WEBM, Word/Excel/PowerPoint o ZIP');
-    const r = await this.guardarBuffer(marcaId, b, ext, 'recursos');
+    await escanear(b);
+    const r = await this.guardarPrivado(marcaId, b, ext, 'recursos');
     return { ...r, tipo, mime, bytes: archivo.size };
   }
 
-  private async guardarBuffer(marcaId: string, buffer: Buffer, ext: string, subcarpeta?: string) {
-    const carpeta = [marcaId.replace(/[^a-zA-Z0-9-]/g, ''), subcarpeta?.replace(/[^a-z]/g, '')].filter(Boolean).join('/');
+  private async guardarPrivado(marcaId: string, buffer: Buffer, ext: string, subcarpeta: 'recursos' | 'evidencias') {
     const nombre = `${randomUUID()}.${ext}`;
-    await mkdir(join(uploadsDir(), carpeta), { recursive: true });
-    await writeFile(join(uploadsDir(), carpeta, nombre), buffer);
-    const base = (process.env.PUBLIC_API_URL ?? `http://localhost:${process.env.PORT ?? 3001}`).replace(/\/$/, '');
-    return { url: `${base}/uploads/${carpeta}/${nombre}`, ruta: `/uploads/${carpeta}/${nombre}` };
+    await mkdir(join(privadoDir(), marcaId, subcarpeta), { recursive: true });
+    await writeFile(join(privadoDir(), marcaId, subcarpeta, nombre), buffer);
+    return { clave: `${marcaId}/${subcarpeta}/${nombre}` };
+  }
+
+  /**
+   * Entrega un archivo privado (con soporte de Range para video). Quien llama ya validó la sesión Y que la clave
+   * pertenece a la marca/recurso que esa sesión puede ver. `inline` = mostrarlo en la página (vista previa).
+   */
+  enviar(res: Response, clave: string, opciones: { nombre?: string; inline?: boolean } = {}) {
+    const abs = rutaPrivada(clave);
+    if (!abs) throw new NotFoundException('Archivo no encontrado');
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('Content-Security-Policy', "default-src 'none'; sandbox");
+    res.setHeader('Cache-Control', 'private, max-age=0, must-revalidate');
+    const nombre = (opciones.nombre ?? clave.split('/').pop() ?? 'archivo').replace(/[^\w. -]/g, '_');
+    res.setHeader('Content-Disposition', `${opciones.inline ? 'inline' : 'attachment'}; filename="${nombre}"`);
+    res.sendFile(abs, (err) => {
+      if (err && !res.headersSent) res.status(404).json({ success: false, statusCode: 404, message: 'Archivo no encontrado' });
+    });
   }
 
   /** Guarda la imagen bajo la carpeta de la marca y devuelve su ruta pública (`/uploads/<marca>/<archivo>`). */

@@ -231,7 +231,6 @@ model Categoria {
   createdAt  DateTime   @default(now())
 
   @@unique([marcaId, slug])
-  
 }
 
 model Producto {
@@ -364,7 +363,6 @@ model Servicio {
   cotizaciones Cotizacion[]
 
   @@unique([marcaId, slug])
-  
 }
 
 /// Proyecto de referencia que se muestra en /proyectos y en el home.
@@ -729,7 +727,8 @@ model TarifaEnvio {
   marca        Marca    @relation(fields: [marcaId], references: [id])
   proveedor    String   @default("SHALOM")
   departamento String
-  costo        Decimal
+  costo        Decimal // en `moneda` (las tarifas de Shalom se cargan en soles)
+  moneda       String   @default("PEN") // PEN o USD; el pedido se cotiza en USD (base) convirtiendo con el tipo de cambio del sitio
   plazoDias    String? // texto libre: "2-3 días"
   sedes        String[] @default([]) // agencias disponibles en ese departamento
   activo       Boolean  @default(true)
@@ -737,7 +736,6 @@ model TarifaEnvio {
   updatedAt    DateTime @updatedAt
 
   @@unique([marcaId, proveedor, departamento])
-  
 }
 
 // ---------------------------------------------------------------------------
@@ -1008,37 +1006,72 @@ enum TipoTicket {
 enum EstadoTicket {
   NUEVO
   EN_REVISION
+  ESPERANDO_CLIENTE
   RESUELTO
   CERRADO
 }
 
+enum PrioridadTicket {
+  BAJA
+  NORMAL
+  ALTA
+  URGENTE
+}
+
+enum AutorTicket {
+  CLIENTE
+  EQUIPO
+  SISTEMA
+}
+
 model Ticket {
-  id            String       @id @default(uuid())
-  marcaId       String
-  marca         Marca        @relation(fields: [marcaId], references: [id])
-  numero        String // correlativo humano TCK-AAAA-XXXXXX, único por marca
-  tipo          TipoTicket
-  estado        EstadoTicket @default(NUEVO)
-  esEmpresa     Boolean      @default(false)
-  documento     String? // DNI o RUC
-  nombre        String
-  email         String
-  celular       String?
-  numeroCompra  String?
-  fechaCompra   String?
-  producto      String?
-  comprobante   String?
-  descripcion   String
-  evidencias    String[] // URLs de archivos subidos
-  origen        String?
-  notas         String?
-  atendidoPor   String?
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  id           String          @id @default(uuid())
+  marcaId      String
+  marca        Marca           @relation(fields: [marcaId], references: [id])
+  numero       String // correlativo humano TCK-AAAA-XXXXXX, único por marca
+  tipo         TipoTicket
+  estado       EstadoTicket    @default(NUEVO)
+  esEmpresa    Boolean         @default(false)
+  documento    String? // DNI o RUC
+  nombre       String
+  email        String
+  celular      String?
+  numeroCompra String?
+  fechaCompra  String?
+  producto     String?
+  comprobante  String?
+  descripcion  String
+  evidencias   String[] // URLs de archivos subidos
+  origen       String?
+  notas        String?
+  atendidoPor  String?
+  prioridad    PrioridadTicket @default(NORMAL)
+  asignadoA    String? // email del usuario responsable
+  resueltoAt   DateTime?
+  mensajes     TicketMensaje[]
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
 
   @@unique([marcaId, numero])
   @@index([marcaId, estado, createdAt])
   @@index([marcaId, email])
+}
+
+// Conversación del ticket: respuestas del cliente y del equipo, notas internas (no las ve el cliente) y
+// eventos del sistema (cambios de estado), en orden cronológico.
+model TicketMensaje {
+  id          String      @id @default(uuid())
+  ticketId    String
+  ticket      Ticket      @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  marcaId     String
+  autor       AutorTicket
+  autorNombre String?
+  texto       String
+  adjuntos    String[]
+  interno     Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+
+  @@index([ticketId, createdAt])
 }
 
 // ---------------------------------------------------------------------------
@@ -1046,6 +1079,13 @@ model Ticket {
 // videos, catálogos) que el equipo sube desde el dashboard y los socios
 // descargan en /recursos. Un Socio es un correo autorizado por el equipo.
 // ---------------------------------------------------------------------------
+
+enum EstadoSocio {
+  PENDIENTE
+  ACTIVO
+  SUSPENDIDO
+  RECHAZADO
+}
 
 enum TipoRecurso {
   IMAGEN
@@ -1056,18 +1096,26 @@ enum TipoRecurso {
 }
 
 model Socio {
-  id        String   @id @default(uuid())
-  marcaId   String
-  marca     Marca    @relation(fields: [marcaId], references: [id])
-  email     String
-  nombre    String?
-  empresa   String?
-  ruc       String?
-  activo    Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String      @id @default(uuid())
+  marcaId      String
+  marca        Marca       @relation(fields: [marcaId], references: [id])
+  email        String
+  nombre       String?
+  empresa      String?
+  ruc          String?
+  cargo        String?
+  celular      String?
+  mensaje      String? // lo que escribió al registrarse
+  notas        String? // notas internas del equipo
+  estado       EstadoSocio @default(PENDIENTE)
+  aprobadoPor  String?
+  aprobadoAt   DateTime?
+  ultimoAcceso DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
 
   @@unique([marcaId, email])
+  @@index([marcaId, estado])
 }
 
 model Recurso {
@@ -1079,7 +1127,7 @@ model Recurso {
   tipo        TipoRecurso
   fabricante  String? // marca del fabricante: Dell, HP, Lenovo…
   categoria   String? // Logos, Fichas técnicas, Banners, Catálogos, Videos…
-  archivoUrl  String
+  archivoUrl  String // clave privada `<marcaId>/recursos/<uuid>.<ext>` en la carpeta no pública; se descarga solo con sesión
   mime        String?
   bytes       Int         @default(0)
   visible     Boolean     @default(true)

@@ -12,7 +12,7 @@ const SOPORTE = [
   { label: 'Contacto', href: '/contacto' },
   { label: 'Cotizar', href: '/cotizador' },
   { label: 'Reclamaciones', href: '/libro-de-reclamaciones' },
-  { label: 'Recursos', href: '/recursos' },
+  { label: 'Socios', href: '/socios' },
 ];
 
 const SOCIAL_ICON = { facebook: FacebookIcon, instagram: InstagramIcon, linkedin: LinkedinIcon, youtube: YoutubeIcon };

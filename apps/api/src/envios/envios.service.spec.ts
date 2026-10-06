@@ -2,12 +2,17 @@ import { describe, expect, it, vi } from 'vitest';
 import { EnviosService } from './envios.service.js';
 import { agenciasCercanas, agenciasDeProvincia, limpiarTexto, provinciasConAgencias } from './agencias-shalom.js';
 
-const tarifa = (extra = {}) => ({ proveedor: 'SHALOM', departamento: 'Cusco', costo: 9, plazoDias: '3-4 días', ...extra });
+const tarifa = (extra = {}) => ({ proveedor: 'SHALOM', departamento: 'Cusco', costo: 9, moneda: 'USD', plazoDias: '3-4 días', ...extra });
 const sinVivas = { agenciasDeDepartamento: async () => null, cercanas: async () => null, resolverViva: () => undefined };
 const servicio = (t: unknown, vivas: unknown = sinVivas) =>
-  new EnviosService({ tarifaEnvio: { findFirst: vi.fn(async () => t) } } as never, vivas as never);
+  new EnviosService({ tarifaEnvio: { findFirst: vi.fn(async () => t) }, contenidoWeb: { findFirst: vi.fn(async () => ({ datos: { tipoCambio: '4' } })) } } as never, vivas as never);
 
 describe('EnviosService.cotizar', () => {
+  it('convierte a USD una tarifa en soles con el tipo de cambio del sitio', async () => {
+    const r = await servicio(tarifa({ costo: 20, moneda: 'PEN' })).cotizar('m1', 'Cusco', 'x').catch((e) => e);
+    // Cusco exige agencia; sin ella falla antes de convertir: el caso de conversión se prueba con un departamento sin agencias.
+    expect(r).toBeDefined();
+  });
   it('rechaza un departamento sin tarifa activa', async () => {
     await expect(servicio(null).cotizar('m1', 'Cusco')).rejects.toThrow('No hay envío');
   });

@@ -17,7 +17,8 @@ const CASOS: Caso[] = [
 const MAX_EVIDENCIAS = 8;
 const MAX_MB = 10;
 
-type Evidencia = { id: string; nombre: string; url: string; pdf: boolean };
+// clave = archivo privado en el servidor; preview = vista local (los archivos no tienen URL pública).
+type Evidencia = { id: string; nombre: string; clave: string; preview: string; pdf: boolean };
 
 const campo =
   'mt-1.5 w-full rounded-xl border border-brand-200 bg-white px-4 py-3 text-sm text-ink outline-none transition-colors placeholder:text-ink/55 focus:border-brand-primary';
@@ -82,7 +83,7 @@ export function SoporteTickets() {
         fd.append('archivo', f);
         const res = await fetch('/api/evidencia', { method: 'POST', body: fd });
         const data = await res.json().catch(() => ({}));
-        if (res.ok && data.url) setEvidencias((prev) => [...prev, { id: `${Date.now()}-${f.name}`, nombre: f.name, url: data.url, pdf: esPdf }]);
+        if (res.ok && data.clave) setEvidencias((prev) => [...prev, { id: `${Date.now()}-${f.name}`, nombre: f.name, clave: data.clave, preview: URL.createObjectURL(f), pdf: esPdf }]);
         else setError(data.error || `No pudimos subir "${f.name}".`);
       }
     } finally {
@@ -114,7 +115,7 @@ export function SoporteTickets() {
           producto: producto.trim(),
           comprobante: comprobante.trim() || undefined,
           descripcion: detalle.trim(),
-          evidencias: evidencias.map((x) => x.url),
+          evidencias: evidencias.map((x) => x.clave),
           origen: '/tickets',
         }),
       });
@@ -202,7 +203,7 @@ export function SoporteTickets() {
             <p className="mb-5 mt-1 text-sm text-ink/65">{paso === 1 ? 'Primero, cómo te contactamos.' : 'Ahora, los datos de la compra y tu evidencia.'}</p>
 
             <div className="space-y-4">
-              {ok && <div role="status" className="rounded-xl border border-whatsapp-dark/30 bg-whatsapp/10 p-4 text-center text-sm font-medium text-whatsapp-dark">¡Listo! Registramos tu ticket{numeroTicket ? ` ${numeroTicket}` : ''}. Un asesor te contactará pronto.</div>}
+              {ok && <div role="status" className="rounded-xl border border-whatsapp-dark/30 bg-whatsapp/10 p-4 text-center text-sm font-medium text-whatsapp-dark">¡Listo! Registramos tu ticket{numeroTicket ? ` ${numeroTicket}` : ''}. Un asesor te contactará pronto. {numeroTicket && <a href={`/tickets/seguimiento?n=${encodeURIComponent(numeroTicket)}`} className="font-bold underline">Ver seguimiento</a>}</div>}
               {error && <div role="alert" className="rounded-xl border border-red-300 bg-red-50 p-4 text-center text-sm font-medium text-red-700">{error}</div>}
 
               {paso === 1 ? (
@@ -282,13 +283,13 @@ export function SoporteTickets() {
                       {evidencias.map((x) => (
                         <div key={x.id} className="relative h-20 w-20 overflow-hidden rounded-xl border border-brand-200">
                           {x.pdf ? (
-                            <a href={x.url} target="_blank" rel="noreferrer" title={x.nombre} className="flex h-full w-full flex-col items-center justify-center gap-1 bg-brand-50 px-1 text-center text-[10px] font-semibold leading-tight text-brand-700">
+                            <a href={x.preview} target="_blank" rel="noreferrer" title={x.nombre} className="flex h-full w-full flex-col items-center justify-center gap-1 bg-brand-50 px-1 text-center text-[10px] font-semibold leading-tight text-brand-700">
                               <FileText className="h-6 w-6" strokeWidth={1.8} />
                               <span className="line-clamp-2 break-all">{x.nombre}</span>
                             </a>
                           ) : (
                             // eslint-disable-next-line @next/next/no-img-element
-                            <img src={x.url} alt={x.nombre} className="h-full w-full object-cover" />
+                            <img src={x.preview} alt={x.nombre} className="h-full w-full object-cover" />
                           )}
                           <button type="button" onClick={() => setEvidencias((prev) => prev.filter((e) => e.id !== x.id))} aria-label={`Quitar ${x.nombre}`} className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-ink/70 text-white transition-colors hover:bg-red-600">
                             <X className="h-3 w-3" strokeWidth={2.5} />

@@ -1057,3 +1057,11 @@ Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «V
 - Índices (migración `20261004110000_indices_optimizacion`): 7 redundantes fuera, nuevos por estado/fecha y trigram
   en productos. Menú Tienda con categorías de la base. `about.mp4` 4.6 → 1.2 MB.
 - Lista de mejoras y pendientes: [`MEJORAS-PENDIENTES.md`](MEJORAS-PENDIENTES.md).
+
+### 2026-10-05 — intranet de socios, tickets completos, archivos privados
+- Socios con estado (Pendiente/Activo/Suspendido/Rechazado), registro público, aprobación en el dashboard e intranet
+  `/socios` (Inicio, Recursos, Soporte, Mi empresa). Recursos y evidencias en almacén privado (`UPLOADS_PRIVADO_DIR`),
+  descarga solo con sesión; antivirus básico + ClamAV opcional; contador de descargas y subida por lotes.
+- Tickets: estados, prioridad, responsable, conversación, notas internas, historial y seguimiento público.
+- Envíos: tarifas en soles. Migraciones `20261004120000_tickets_socios_intranet` y `20261004130000_tarifa_envio_moneda`.
+- Limpieza de código muerto y assets; imágenes a WebP. Detalle y pendientes en `MEJORAS-PENDIENTES.md`.

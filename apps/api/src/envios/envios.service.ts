@@ -17,20 +17,34 @@ export class EnviosService {
   ) {}
 
   /** Tarifario completo (dashboard). */
+  /** Tipo de cambio USD→PEN que edita el equipo en Web → Ajustes del sitio (3.75 si aún no lo cargaron). */
+  private async tipoCambio(marcaId: string) {
+    const fila = await this.prisma.contenidoWeb.findFirst({ where: { marcaId, pagina: 'sitio', seccion: 'cambio' } });
+    const tc = Number(String((fila?.datos as { tipoCambio?: unknown } | null)?.tipoCambio ?? '').replace(',', '.'));
+    return Number.isFinite(tc) && tc > 0 ? tc : 3.75;
+  }
+
+  /** Costo de la tarifa en USD (la base de los precios): las tarifas en soles se convierten con el tipo de cambio. */
+  private aUsd(t: { costo: unknown; moneda: string }, tc: number) {
+    const costo = Number(t.costo);
+    return t.moneda === 'PEN' ? Math.round((costo / tc) * 10_000) / 10_000 : costo;
+  }
+
   tarifas(marcaId: string) {
     return this.prisma.tarifaEnvio.findMany({ where: { marcaId }, orderBy: { departamento: 'asc' } });
   }
 
   /** Solo lo activo, para el checkout público. */
   async tarifasPublicas(marcaId: string) {
-    const filas = await this.prisma.tarifaEnvio.findMany({
-      where: { marcaId, activo: true },
-      orderBy: { departamento: 'asc' },
-    });
+    const [filas, tc] = await Promise.all([
+      this.prisma.tarifaEnvio.findMany({ where: { marcaId, activo: true }, orderBy: { departamento: 'asc' } }),
+      this.tipoCambio(marcaId),
+    ]);
     return filas.map((t) => ({
       departamento: t.departamento,
       proveedor: t.proveedor,
-      costo: Number(t.costo),
+      costo: this.aUsd(t, tc), // USD, como el resto de precios de la tienda
+      costoPen: t.moneda === 'PEN' ? Number(t.costo) : null,
       plazoDias: t.plazoDias,
     }));
   }
@@ -115,6 +129,7 @@ export class EnviosService {
         departamento,
         proveedor: PROVEEDOR_DEFECTO,
         costo: dto.costo,
+        moneda: 'PEN',
         plazoDias: dto.plazoDias?.trim() || null,
         activo: dto.activo ?? true,
       },
@@ -123,7 +138,11 @@ export class EnviosService {
 
   async actualizar(marcaId: string, id: string, dto: ActualizarTarifaDto) {
     const data: Record<string, unknown> = {};
-    if (dto.costo !== undefined) data.costo = dto.costo;
+    // Todo costo que se edita aquí es en soles (tarifa de Shalom).
+    if (dto.costo !== undefined) {
+      data.costo = dto.costo;
+      data.moneda = 'PEN';
+    }
     if (dto.plazoDias !== undefined) data.plazoDias = dto.plazoDias.trim() || null;
     if (dto.activo !== undefined) data.activo = dto.activo;
     const { count } = await this.prisma.tarifaEnvio.updateMany({ where: { id, marcaId }, data });
@@ -163,7 +182,7 @@ export class EnviosService {
     return {
       proveedor: tarifa.proveedor,
       departamento: tarifa.departamento,
-      costo: Number(tarifa.costo),
+      costo: this.aUsd(tarifa, await this.tipoCambio(marcaId)),
       plazo: tarifa.plazoDias,
       sede: sedeEtiqueta,
     };

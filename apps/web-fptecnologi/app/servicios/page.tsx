@@ -31,7 +31,7 @@ export default async function ServiciosPage() {
         titulo={c.hero.titulo}
         destacado={c.hero.destacado}
         descripcion={c.hero.descripcion}
-        imagen="/herobanner/Servicios.png"
+        imagen="/herobanner/Servicios.webp"
       >
         <MoreInfoButton tone="dark" href="/cotizador" label="Cotizar servicio" />
         <WhatsAppCta label="Contactar especialista" texto="Hola, quiero información sobre sus servicios TI" />
