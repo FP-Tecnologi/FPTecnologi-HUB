@@ -1,0 +1,49 @@
+import type { LucideIcon } from 'lucide-react';
+import { ScrollReveal } from '@/components/home/ScrollReveal';
+import { SectionBadge } from '@/components/home/SectionBadge';
+
+export type TarjetaInfo = { icono: LucideIcon; titulo: string; texto: string };
+
+/* Sección de tarjetas con ícono (beneficios, tipos de equipo, pasos). Mismo efecto hover que AreasContacto. */
+export function TarjetasInfo({
+  badge,
+  titulo,
+  destacado,
+  descripcion,
+  tarjetas,
+  fondo = 'bg-white',
+}: {
+  badge: string;
+  titulo: string;
+  destacado: string;
+  descripcion?: string;
+  tarjetas: TarjetaInfo[];
+  fondo?: string;
+}) {
+  return (
+    <section className={`${fondo} py-20`}>
+      <div className="mx-auto max-w-7xl px-6">
+        <ScrollReveal direction="up" className="mx-auto mb-12 flex max-w-2xl flex-col items-center text-center">
+          <SectionBadge>{badge}</SectionBadge>
+          <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
+            <span className="text-ink">{titulo}</span> <span className="title-shimmer-light">{destacado}</span>
+          </h2>
+          {descripcion && <p className="mt-3 text-ink/65">{descripcion}</p>}
+        </ScrollReveal>
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {tarjetas.map(({ icono: Icon, titulo: t, texto }, i) => (
+            <ScrollReveal key={t} direction="up" delayMs={i * 80} className="h-full">
+              <div className="group h-full rounded-2xl border border-brand-100 bg-white p-6 shadow-sm shadow-brand-950/5 transition-all duration-300 hover:-translate-y-1 hover:border-brand-primary hover:bg-brand-primary hover:shadow-[0_16px_32px_-10px_rgba(40,152,238,0.6)]">
+                <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-primary transition-all duration-300 group-hover:-rotate-6 group-hover:scale-110 group-hover:bg-white">
+                  <Icon className="icon-hop h-6 w-6" strokeWidth={1.8} />
+                </span>
+                <h3 className="mt-4 font-display text-lg font-bold text-ink transition-colors duration-300 group-hover:text-white">{t}</h3>
+                <p className="mt-1 text-sm text-ink/65 transition-colors duration-300 group-hover:text-white/90">{texto}</p>
+              </div>
+            </ScrollReveal>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}

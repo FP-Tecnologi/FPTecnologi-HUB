@@ -13,11 +13,17 @@ export function buildNavLinks(servicios: readonly Item[], categorias: readonly I
   {
     label: 'Nosotros',
     href: '/nosotros',
+    children: [
+      { label: 'Compliance', href: '/compliance' },
+      { label: 'FP Education', href: '/education' },
+    ],
+    viewAllHref: '/nosotros',
+    viewAllLabel: 'Conoce FPTecnologi',
   },
   {
     label: 'Servicios',
     href: '/servicios',
-    children: servicios.map((s) => ({ label: s.title, href: `/servicios/${s.slug}` })),
+    children: [...servicios.map((s) => ({ label: s.title, href: `/servicios/${s.slug}` })), { label: 'Alquiler de equipos', href: '/alquiler-equipos' }],
     viewAllHref: '/servicios',
     viewAllLabel: 'Ver todos los servicios',
   },
