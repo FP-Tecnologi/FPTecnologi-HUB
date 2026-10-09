@@ -20,7 +20,18 @@ type Bloque =
 
 // html: mailing completo (de la biblioteca mailing-fp); sus [marcadores] se llenan con `valores`. Sin html: se arma con bloques.
 interface Mailing { id: string; nombre: string; asunto: string; preheader: string; bloques: Bloque[]; actualizado: string; html?: string; valores?: Record<string, string> }
-interface ItemBiblioteca { grupo: string; nombre: string; archivo: string }
+type Area = 'ventas' | 'marketing' | 'general';
+interface ItemBiblioteca { area?: Area; grupo: string; nombre: string; archivo: string }
+const AREA_NOMBRE: Record<Area, string> = { ventas: 'Ventas', marketing: 'Marketing', general: 'General' };
+
+/** Áreas de la biblioteca que ve cada rol: ventas/comercial → Ventas; marketing y admin → todas; todos ven las plantillas generales. */
+function areasDeRoles(roles: string[], global: boolean): Area[] {
+  const r = roles.map((x) => x.toLowerCase());
+  if (global || r.includes('admin') || r.includes('marketing')) return ['ventas', 'marketing', 'general'];
+  const a: Area[] = [];
+  if (r.includes('ventas') || r.includes('comercial')) a.push('ventas');
+  return [...a, 'general'];
+}
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 const COLOR = '#008DC5';
@@ -104,7 +115,12 @@ const cargar = (): Mailing[] => { try { return JSON.parse(localStorage.getItem(K
 const guardar = (l: Mailing[]) => { try { localStorage.setItem(KEY, JSON.stringify(l)); } catch { /* sin almacenamiento */ } };
 
 export function MailingEditor() {
-  const { activeMarcaId } = useAuth();
+  const { activeMarcaId, marcas } = useAuth();
+  const misAreas = useMemo(
+    () => areasDeRoles(marcas.filter((x) => x.marcaId === activeMarcaId).map((x) => x.rol.nombre), !activeMarcaId),
+    [marcas, activeMarcaId],
+  );
+  const [areaVista, setAreaVista] = useState<Area | 'todas'>('todas');
   const [lista, setLista] = useState<Mailing[]>([]);
   const [actualId, setActualId] = useState<string | null>(null);
   const [movil, setMovil] = useState(false);
@@ -126,6 +142,8 @@ export function MailingEditor() {
   const campos = useMemo(() => (m?.html ? marcadores(m.html) : []), [m?.html]);
   const [biblioteca, setBiblioteca] = useState<ItemBiblioteca[] | null>(null);
   const [verBiblioteca, setVerBiblioteca] = useState(false);
+  // Por defecto, la biblioteca abre en el área del usuario (ventas → ventas); marketing y admin ven todas.
+  useEffect(() => setAreaVista(misAreas.length === 2 ? misAreas[0] : 'todas'), [misAreas]);
   const [verCodigo, setVerCodigo] = useState(false);
   const emails = useMemo(() => [...new Set(pegados.split(/[\s,;]+/).filter((e) => /^\S+@\S+\.\S+$/.test(e)))], [pegados]);
 
@@ -195,16 +213,30 @@ export function MailingEditor() {
           </div>
           <button type="button" className="ax-btn ax-btn--ghost" onClick={abrirBiblioteca}>{verBiblioteca ? 'Ocultar' : 'Ver biblioteca'}</button>
         </div>
-        {verBiblioteca && (biblioteca ?? []).length > 0 && [...new Set(biblioteca!.map((b) => b.grupo))].map((g) => (
-          <div key={g} style={{ marginBlockStart: 'var(--ax-space-3)' }}>
-            <div style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)', marginBlockEnd: 6 }}>{g}</div>
-            <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
-              {biblioteca!.filter((b) => b.grupo === g).map((b) => (
-                <button key={b.archivo} type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => importar(b)}>{b.nombre}</button>
+        {verBiblioteca && (biblioteca ?? []).length > 0 && (() => {
+          const visibles = biblioteca!.filter((b) => misAreas.includes(b.area ?? 'general') && (areaVista === 'todas' || (b.area ?? 'general') === areaVista || (b.area ?? 'general') === 'general'));
+          return (
+            <>
+              {misAreas.length > 2 && (
+                <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', marginBlockStart: 'var(--ax-space-3)', flexWrap: 'wrap' }} role="group" aria-label="Área">
+                  {(['todas', ...misAreas.filter((a) => a !== 'general')] as const).map((a) => (
+                    <button key={a} type="button" className={`ax-btn ax-btn--sm ${areaVista === a ? 'ax-btn--secondary' : 'ax-btn--ghost'}`} onClick={() => setAreaVista(a)}>{a === 'todas' ? 'Todas las áreas' : AREA_NOMBRE[a]}</button>
+                  ))}
+                </div>
+              )}
+              {[...new Set(visibles.map((b) => b.grupo))].map((g) => (
+                <div key={g} style={{ marginBlockStart: 'var(--ax-space-3)' }}>
+                  <div style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)', marginBlockEnd: 6 }}>{g} <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>· {AREA_NOMBRE[visibles.find((b) => b.grupo === g)?.area ?? 'general']}</span></div>
+                  <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
+                    {visibles.filter((b) => b.grupo === g).map((b) => (
+                      <button key={b.archivo} type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => importar(b)}>{b.nombre}</button>
+                    ))}
+                  </div>
+                </div>
               ))}
-            </div>
-          </div>
-        ))}
+            </>
+          );
+        })()}
       </section>
 
       {lista.length === 0 && <p style={{ color: 'var(--ax-text-muted)' }}>Aún no tienes mailings. Elige una plantilla para empezar.</p>}

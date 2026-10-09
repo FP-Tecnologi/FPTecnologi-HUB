@@ -2,101 +2,175 @@
  {
   "grupo": "Plantillas base",
   "nombre": "Invitación a evento",
-  "archivo": "plantillas/01-invitacion-evento.html"
+  "archivo": "plantillas/01-invitacion-evento.html",
+  "area": "general"
  },
  {
   "grupo": "Plantillas base",
   "nombre": "Producto / promoción",
-  "archivo": "plantillas/02-producto-promocion.html"
+  "archivo": "plantillas/02-producto-promocion.html",
+  "area": "general"
  },
  {
   "grupo": "Plantillas base",
   "nombre": "Boletín de noticias",
-  "archivo": "plantillas/03-boletin-noticias.html"
+  "archivo": "plantillas/03-boletin-noticias.html",
+  "area": "general"
  },
  {
   "grupo": "Plantillas base",
   "nombre": "Comunicado",
-  "archivo": "plantillas/04-comunicado.html"
+  "archivo": "plantillas/04-comunicado.html",
+  "area": "general"
  },
  {
   "grupo": "Plantillas base",
   "nombre": "Sorteo / dinámica",
-  "archivo": "plantillas/05-sorteo-dinamica.html"
+  "archivo": "plantillas/05-sorteo-dinamica.html",
+  "area": "general"
  },
  {
   "grupo": "Campaña: Expomina invitacion (2026-09)",
   "nombre": "Invitacion stand a133",
-  "archivo": "mailings/2026-09-expomina-invitacion/invitacion-stand-a133.html"
+  "archivo": "mailings/2026-09-expomina-invitacion/invitacion-stand-a133.html",
+  "area": "marketing"
  },
  {
   "grupo": "Campaña: Expomina invitacion (2026-09)",
   "nombre": "Propuesta v1 glass nocturno",
-  "archivo": "mailings/2026-09-expomina-invitacion/propuesta-v1-glass-nocturno.html"
+  "archivo": "mailings/2026-09-expomina-invitacion/propuesta-v1-glass-nocturno.html",
+  "area": "marketing"
  },
  {
   "grupo": "Campaña: Expomina invitacion (2026-09)",
   "nombre": "Propuesta v2 glass aurora standalone",
-  "archivo": "mailings/2026-09-expomina-invitacion/propuesta-v2-glass-aurora-standalone.html"
+  "archivo": "mailings/2026-09-expomina-invitacion/propuesta-v2-glass-aurora-standalone.html",
+  "area": "marketing"
  },
  {
   "grupo": "Campaña: Expomina invitacion (2026-09)",
   "nombre": "Propuesta v2 glass aurora",
-  "archivo": "mailings/2026-09-expomina-invitacion/propuesta-v2-glass-aurora.html"
+  "archivo": "mailings/2026-09-expomina-invitacion/propuesta-v2-glass-aurora.html",
+  "area": "marketing"
  },
  {
   "grupo": "Campaña: Expomina invitacion (2026-09)",
   "nombre": "Propuesta v3 glass gold premium",
-  "archivo": "mailings/2026-09-expomina-invitacion/propuesta-v3-glass-gold-premium.html"
+  "archivo": "mailings/2026-09-expomina-invitacion/propuesta-v3-glass-gold-premium.html",
+  "area": "marketing"
  },
  {
   "grupo": "Campaña: Expomina invitacion (2026-09)",
   "nombre": "Propuesta v4 corporativo claro",
-  "archivo": "mailings/2026-09-expomina-invitacion/propuesta-v4-corporativo-claro.html"
+  "archivo": "mailings/2026-09-expomina-invitacion/propuesta-v4-corporativo-claro.html",
+  "area": "marketing"
  },
  {
   "grupo": "Campaña: Huawei ideahub (2026-09)",
   "nombre": "Ideahub 98 educacion v2",
-  "archivo": "mailings/2026-09-huawei-ideahub/ideahub-98-educacion-v2.html"
+  "archivo": "mailings/2026-09-huawei-ideahub/ideahub-98-educacion-v2.html",
+  "area": "marketing"
  },
  {
   "grupo": "Campaña: Huawei ideahub (2026-09)",
   "nombre": "Ideahub 98 educacion v3",
-  "archivo": "mailings/2026-09-huawei-ideahub/ideahub-98-educacion-v3.html"
+  "archivo": "mailings/2026-09-huawei-ideahub/ideahub-98-educacion-v3.html",
+  "area": "marketing"
  },
  {
   "grupo": "Campaña: Huawei ideahub (2026-09)",
   "nombre": "Ideahub 98 educacion",
-  "archivo": "mailings/2026-09-huawei-ideahub/ideahub-98-educacion.html"
+  "archivo": "mailings/2026-09-huawei-ideahub/ideahub-98-educacion.html",
+  "area": "marketing"
  },
  {
   "grupo": "Campaña: Propuesta fisi unmsm (2026-09)",
   "nombre": "V1 propuesta mejorada",
-  "archivo": "mailings/2026-09-propuesta-fisi-unmsm/v1-propuesta-mejorada.html"
+  "archivo": "mailings/2026-09-propuesta-fisi-unmsm/v1-propuesta-mejorada.html",
+  "area": "marketing"
  },
  {
   "grupo": "Campaña: Propuesta fisi unmsm (2026-09)",
   "nombre": "V2 carta ejecutiva",
-  "archivo": "mailings/2026-09-propuesta-fisi-unmsm/v2-carta-ejecutiva.html"
+  "archivo": "mailings/2026-09-propuesta-fisi-unmsm/v2-carta-ejecutiva.html",
+  "area": "marketing"
  },
  {
   "grupo": "Campaña: Propuesta fisi unmsm (2026-09)",
   "nombre": "V3 laboratorios",
-  "archivo": "mailings/2026-09-propuesta-fisi-unmsm/v3-laboratorios.html"
+  "archivo": "mailings/2026-09-propuesta-fisi-unmsm/v3-laboratorios.html",
+  "area": "marketing"
  },
  {
   "grupo": "Campaña: Sorteo asistentes (2026-09)",
   "nombre": "Sorteo ambos eventos",
-  "archivo": "mailings/2026-09-sorteo-asistentes/sorteo-ambos-eventos.html"
+  "archivo": "mailings/2026-09-sorteo-asistentes/sorteo-ambos-eventos.html",
+  "area": "marketing"
  },
  {
   "grupo": "Campaña: Sorteo asistentes (2026-09)",
   "nombre": "Sorteo expomina",
-  "archivo": "mailings/2026-09-sorteo-asistentes/sorteo-expomina.html"
+  "archivo": "mailings/2026-09-sorteo-asistentes/sorteo-expomina.html",
+  "area": "marketing"
  },
  {
   "grupo": "Campaña: Sorteo asistentes (2026-09)",
   "nombre": "Sorteo semana geologica",
-  "archivo": "mailings/2026-09-sorteo-asistentes/sorteo-semana-geologica.html"
+  "archivo": "mailings/2026-09-sorteo-asistentes/sorteo-semana-geologica.html",
+  "area": "marketing"
+ },
+ {
+  "area": "ventas",
+  "grupo": "Ventas: mailings de ejemplo",
+  "nombre": "Oferta del mes (productos)",
+  "archivo": "mailings/ventas/01-oferta-del-mes.html"
+ },
+ {
+  "area": "ventas",
+  "grupo": "Ventas: mailings de ejemplo",
+  "nombre": "Seguimiento de cotización",
+  "archivo": "mailings/ventas/02-seguimiento-cotizacion.html"
+ },
+ {
+  "area": "ventas",
+  "grupo": "Ventas: mailings de ejemplo",
+  "nombre": "Presupuesto mayorista",
+  "archivo": "mailings/ventas/03-presupuesto-mayorista.html"
+ },
+ {
+  "area": "ventas",
+  "grupo": "Ventas: mailings de ejemplo",
+  "nombre": "Reactivación de clientes",
+  "archivo": "mailings/ventas/04-reactivacion-clientes.html"
+ },
+ {
+  "area": "ventas",
+  "grupo": "Ventas: mailings de ejemplo",
+  "nombre": "Bienvenida a cliente nuevo",
+  "archivo": "mailings/ventas/05-bienvenida-cliente-nuevo.html"
+ },
+ {
+  "area": "ventas",
+  "grupo": "Ventas: mailings de ejemplo",
+  "nombre": "Liquidación / stock limitado",
+  "archivo": "mailings/ventas/06-liquidacion-stock.html"
+ },
+ {
+  "area": "ventas",
+  "grupo": "Ventas: mailings de ejemplo",
+  "nombre": "Alquiler de equipos",
+  "archivo": "mailings/ventas/07-alquiler-de-equipos.html"
+ },
+ {
+  "area": "ventas",
+  "grupo": "Ventas: mailings de ejemplo",
+  "nombre": "Soluciones TI: visita técnica",
+  "archivo": "mailings/ventas/08-soluciones-ti-visita.html"
+ },
+ {
+  "area": "ventas",
+  "grupo": "Ventas: mailings de ejemplo",
+  "nombre": "Invitación al programa de Partners",
+  "archivo": "mailings/ventas/09-programa-de-partners.html"
  }
 ]
