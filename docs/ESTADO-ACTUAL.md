@@ -17,10 +17,10 @@ se actualiza junto con esto cuando cambia arquitectura/convenciones).
 
 | Fase | Plan original (`plan-trabajo.md`) | Estado real | Fecha real |
 | --- | --- | --- | --- |
-| 0 — Planificación y setup | 07–18 sep 2026 | En curso (falta infra externa) | inició 2026-09-11 |
+| 0 — Planificación y setup | 07–18 sep 2026 | En curso (falta infra externa: Cloudflare, Hostinger, Sentry, correo) | inició 2026-09-11 |
 | 1 — Backend / API central | 21 sep–16 oct 2026 | Prácticamente cerrada | 2026-09-11 |
-| 2 — fptecnologi.com (web pública) | 19 oct–13 nov 2026 | En curso — 6 modelos de home + guía de estilos, falta elegir modelo y conectar API | inició 2026-09-14 |
-| 3 — Dashboard (núcleo) | 16 nov–11 dic 2026 | En curso — login+2FA+selector de marca reales, falta CRUD | inició 2026-09-11 |
+| 2 — fptecnologi.com (web pública) | 19 oct–13 nov 2026 | Avanzada — web conectada a la API (tienda, checkout, CMS, chat, tickets, socios, presupuestos); faltan páginas de la web actual (alquiler, education, compliance, partners, brochure) y redirecciones 301 | inició 2026-09-14 |
+| 3 — Dashboard (núcleo) | 16 nov–11 dic 2026 | Avanzada — dashboard con módulos reales (ecommerce, presupuestos, chat, CMS, popups, tickets, socios, usuarios); Mailing sigue siendo demostración | inició 2026-09-11 |
 | 4 — QA y lanzamiento fptecnologi | 14–23 dic 2026 | No iniciada | — |
 | 5 — Réplica 4 marcas | 24 dic 2026–17 feb 2027 | No iniciada | — |
 | 6 — Multi-marca + pulido | 18 feb–03 mar 2027 | No iniciada | — |
@@ -1065,3 +1065,9 @@ Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «V
 - Tickets: estados, prioridad, responsable, conversación, notas internas, historial y seguimiento público.
 - Envíos: tarifas en soles. Migraciones `20261004120000_tickets_socios_intranet` y `20261004130000_tarifa_envio_moneda`.
 - Limpieza de código muerto y assets; imágenes a WebP. Detalle y pendientes en `MEJORAS-PENDIENTES.md`.
+
+### 2026-10-09 — revisión de ramas y estado
+- Ramas: `claude/busy-brown-pxr32k` ya estaba contenida en `develop`. Dependabot: mergeados a `develop` los grupos de parches de `apps/admin` (next) y `apps/api` (10 paquetes; build + 195 tests OK); cerradas las de saltos mayores (eslint 10, vitest 5, coverage-v8 5).
+- Presupuestos mayoristas: la pantalla del dashboard (`EcommercePresupuestos`, seguimiento de estado y reenvío por correo) ya existe; solo falta confirmar el PDF en servidor.
+- Comparación con fptecnologi.com actual — faltan en la web nueva: `/alquiler-equipos`, `/education`, `/compliance-microsoft`, `/partners`, `/brochure`, `/fp-comercial`, lista de deseos, enlaces a catálogos (Drive) y QUAMTU, y el mapa de redirecciones 301 de las URLs viejas.
+
