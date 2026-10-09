@@ -388,20 +388,25 @@ function SubirPdf({ archivo, onSubido }: { archivo: string; onSubido: (ruta: str
   const ref = useRef<HTMLInputElement>(null);
   const [subiendo, setSubiendo] = useState(false);
   const [error, setError] = useState('');
+  const [aviso, setAviso] = useState('');
   async function alElegir(ev: React.ChangeEvent<HTMLInputElement>) {
     const f = ev.target.files?.[0];
     ev.target.value = '';
     if (!f) return;
-    if (f.type !== 'application/pdf' || f.size > 50 * 1024 * 1024) return setError('Elige un PDF de hasta 50 MB.');
+    const mb = f.size / 1024 / 1024;
+    if (f.type !== 'application/pdf') return setError('Elige un archivo PDF.');
+    if (mb > 50) return setError(`El PDF pesa ${mb.toFixed(1)} MB y el máximo es 50 MB. Comprímelo (por ejemplo en ilovepdf.com → «Comprimir PDF») y vuelve a subirlo.`);
     setError('');
+    setAviso('');
     setSubiendo(true);
     try {
       const fd = new FormData();
       fd.append('archivo', f);
       const r = await api.post<{ ruta: string }>('/uploads/pdf', fd);
       onSubido(r.ruta);
+      if (mb > 15) setAviso(`Subido, pero pesa ${mb.toFixed(1)} MB: puede tardar en abrirse, sobre todo en celulares. Conviene comprimirlo y reemplazarlo.`);
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : 'No se pudo subir el PDF.');
+      setError(e instanceof ApiError && e.statusCode !== 413 ? e.message : 'No se pudo subir el PDF: es muy pesado para el servidor. Comprímelo (por ejemplo en ilovepdf.com → «Comprimir PDF») y vuelve a subirlo.');
     } finally {
       setSubiendo(false);
     }
@@ -415,6 +420,7 @@ function SubirPdf({ archivo, onSubido }: { archivo: string; onSubido: (ruta: str
       </button>
       {archivo && <a href={href} target="_blank" rel="noreferrer" style={{ fontSize: 'var(--ax-text-xs)' }}>Ver PDF actual</a>}
       {error && <span role="alert" style={{ color: 'var(--ax-danger-500)', fontSize: 'var(--ax-text-xs)' }}>{error}</span>}
+      {aviso && <span role="status" style={{ color: 'var(--ax-warning-600, #b45309)', fontSize: 'var(--ax-text-xs)' }}>{aviso}</span>}
     </div>
   );
 }
