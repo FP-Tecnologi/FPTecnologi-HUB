@@ -12,8 +12,12 @@ export default function Reveal({ children, className = '' }: { children: ReactNo
     const el = ref.current!;
     const items = el.querySelectorAll('[data-r]');
     const ctx = gsap.context(() => {
-      gsap.from(items.length ? items : el, {
+      const objetivos = items.length ? items : [el];
+      // Las transiciones CSS (hover) pelean con gsap y congelan el fade: se anulan mientras anima.
+      objetivos.forEach((o) => ((o as HTMLElement).style.transition = 'none'));
+      gsap.from(objetivos, {
         y: 40, opacity: 0, duration: 0.8, ease: 'power3.out', stagger: 0.12,
+        onComplete: () => gsap.set(objetivos, { clearProps: 'all' }),
         scrollTrigger: { trigger: el, start: 'top 85%', once: true },
       });
     }, el);

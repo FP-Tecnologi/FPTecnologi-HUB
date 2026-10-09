@@ -75,7 +75,7 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
             ))}
           </div>
 
-          <h1 className="mt-4 font-display text-2xl font-black md:text-3xl">
+          <h1 className="mt-4 font-display text-2xl font-bold md:text-3xl">
             <span className="text-slate-600">{cat.paso}</span> {cat.titulo}
           </h1>
 
@@ -123,7 +123,7 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
             )}
             <div className="flex items-end justify-between">
               <span className="text-xs tracking-widest text-slate-500">TOTAL</span>
-              <span className="titulo-neon font-display text-3xl font-black">{soles(total(sel))}</span>
+              <span className="titulo-neon font-display text-3xl font-bold">{soles(total(sel))}</span>
             </div>
             <button
               disabled={!completo || !!aviso}
@@ -134,7 +134,7 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
             </button>
             {!completo && <p className="mt-2 text-center text-xs text-slate-500">Elige las {CATS.length} piezas para continuar ({Object.values(sel).filter(Boolean).length}/{CATS.length}).</p>}
             {Object.values(sel).some(Boolean) && (
-              <button onClick={() => { setSel({}); setPaso(0); setAgregado(false); }} className="mx-auto mt-3 flex items-center gap-1 text-xs text-slate-500 hover:text-rosa">
+              <button onClick={() => { setSel({}); setPaso(0); setAgregado(false); }} className="mx-auto mt-3 flex items-center gap-1 text-xs text-slate-500 hover:text-red-400">
                 <X size={12} /> Empezar de nuevo
               </button>
             )}

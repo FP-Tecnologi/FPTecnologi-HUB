@@ -1,14 +1,16 @@
-// Catálogo de ejemplo del armador. Luego se reemplaza por GET /public/* de la API (marca quamtu).
+// Catálogo del armador: piezas del brochure Quamtu (procesadores, RAM, SSD, video, fuentes).
+// Placas, gabinetes y precios son REFERENCIALES hasta conectar la API del HUB (marca quamtu).
 export type Cat = 'gabinete' | 'cpu' | 'placa' | 'ram' | 'gpu' | 'ssd' | 'cooler' | 'fuente';
+export type Socket = 'LGA1700' | 'LGA1851' | 'AM5';
 
 export type Opcion = {
   id: string;
   cat: Cat;
   nombre: string;
   spec: string;
-  precio: number; // S/
-  color: string; // acento RGB en el 3D
-  socket?: 'AM5' | 'LGA1700';
+  precio: number; // S/ referencial
+  color: string; // acento en el 3D (familia de azules de la marca)
+  socket?: Socket;
   watts?: number; // consumo (cpu/gpu) o capacidad (fuente)
   n?: number; // tamaño para el 3D: módulos RAM, ventiladores, escala del gabinete…
 };
@@ -17,48 +19,64 @@ export const CATS: { id: Cat; titulo: string; paso: string }[] = [
   { id: 'gabinete', titulo: 'Gabinete', paso: '01' },
   { id: 'cpu', titulo: 'Procesador', paso: '02' },
   { id: 'placa', titulo: 'Placa madre', paso: '03' },
-  { id: 'ram', titulo: 'Memoria RAM', paso: '04' },
-  { id: 'gpu', titulo: 'Tarjeta de video', paso: '05' },
-  { id: 'ssd', titulo: 'Almacenamiento', paso: '06' },
+  { id: 'ram', titulo: 'Memoria', paso: '04' },
+  { id: 'gpu', titulo: 'Video', paso: '05' },
+  { id: 'ssd', titulo: 'Disco sólido', paso: '06' },
   { id: 'cooler', titulo: 'Refrigeración', paso: '07' },
-  { id: 'fuente', titulo: 'Fuente de poder', paso: '08' },
+  { id: 'fuente', titulo: 'Fuente', paso: '08' },
 ];
 
+const A = '#238DC1'; // primario
+const B = '#385CAD'; // secundario
+const C = '#6cc3ee'; // primario claro (brillos)
+const W = '#dff2fc';
+
 export const OPCIONES: Opcion[] = [
-  { id: 'g1', cat: 'gabinete', nombre: 'Quamtu Void Mini', spec: 'Mini tower · vidrio templado', precio: 289, color: '#8b5cf6', n: 0.88 },
-  { id: 'g2', cat: 'gabinete', nombre: 'Quamtu Nova Mid', spec: 'Mid tower · 3 ventiladores ARGB', precio: 399, color: '#22d3ee', n: 1 },
-  { id: 'g3', cat: 'gabinete', nombre: 'Quamtu Titan Full', spec: 'Full tower · panel panorámico', precio: 599, color: '#f43f5e', n: 1.1 },
+  { id: 'g1', cat: 'gabinete', nombre: 'Quamtu Turing Compact', spec: 'Mini tower · rejilla frontal', precio: 289, color: A, n: 0.88 },
+  { id: 'g2', cat: 'gabinete', nombre: 'Quamtu Turing Mesh', spec: 'Mid tower · flujo de aire optimizado', precio: 399, color: C, n: 1 },
+  { id: 'g3', cat: 'gabinete', nombre: 'Quamtu Turing WS Glass', spec: 'Full tower · vidrio templado · 3 ventiladores', precio: 599, color: W, n: 1.1 },
 
-  { id: 'c1', cat: 'cpu', nombre: 'Ryzen 5 7600', spec: '6 núcleos · 5.1 GHz · AM5', precio: 819, color: '#f97316', socket: 'AM5', watts: 65 },
-  { id: 'c2', cat: 'cpu', nombre: 'Ryzen 7 7800X3D', spec: '8 núcleos · 3D V-Cache · AM5', precio: 1549, color: '#f97316', socket: 'AM5', watts: 120 },
-  { id: 'c3', cat: 'cpu', nombre: 'Core i5-13400F', spec: '10 núcleos · 4.6 GHz · LGA1700', precio: 729, color: '#38bdf8', socket: 'LGA1700', watts: 65 },
-  { id: 'c4', cat: 'cpu', nombre: 'Core i7-14700K', spec: '20 núcleos · 5.6 GHz · LGA1700', precio: 1699, color: '#38bdf8', socket: 'LGA1700', watts: 125 },
+  { id: 'c1', cat: 'cpu', nombre: 'Intel Core i7-14700', spec: '20 núcleos · LGA1700', precio: 1399, color: A, socket: 'LGA1700', watts: 65 },
+  { id: 'c2', cat: 'cpu', nombre: 'Intel Core i7-14700K', spec: '20 núcleos · desbloqueado · LGA1700', precio: 1599, color: C, socket: 'LGA1700', watts: 125 },
+  { id: 'c3', cat: 'cpu', nombre: 'Intel Core i9-14900', spec: '24 núcleos · LGA1700', precio: 1899, color: A, socket: 'LGA1700', watts: 65 },
+  { id: 'c4', cat: 'cpu', nombre: 'Intel Core i9-14900K', spec: '24 núcleos · desbloqueado · LGA1700', precio: 2199, color: C, socket: 'LGA1700', watts: 125 },
+  { id: 'c5', cat: 'cpu', nombre: 'Intel Core Ultra 7 265K', spec: '20 núcleos · LGA1851', precio: 1699, color: A, socket: 'LGA1851', watts: 125 },
+  { id: 'c6', cat: 'cpu', nombre: 'Intel Core Ultra 9 285K', spec: '24 núcleos · LGA1851', precio: 2499, color: C, socket: 'LGA1851', watts: 125 },
+  { id: 'c7', cat: 'cpu', nombre: 'AMD Ryzen 7 9700X', spec: '8 núcleos · AM5', precio: 1299, color: B, socket: 'AM5', watts: 65 },
+  { id: 'c8', cat: 'cpu', nombre: 'AMD Ryzen 9 7900X', spec: '12 núcleos · AM5', precio: 1749, color: B, socket: 'AM5', watts: 170 },
+  { id: 'c9', cat: 'cpu', nombre: 'AMD Ryzen 9 9900X', spec: '12 núcleos · AM5', precio: 1899, color: B, socket: 'AM5', watts: 120 },
 
-  { id: 'p1', cat: 'placa', nombre: 'B650M Gaming', spec: 'AM5 · DDR5 · Wi-Fi 6', precio: 589, color: '#22d3ee', socket: 'AM5' },
-  { id: 'p2', cat: 'placa', nombre: 'X670E Aorus', spec: 'AM5 · DDR5 · PCIe 5.0', precio: 1199, color: '#a855f7', socket: 'AM5' },
-  { id: 'p3', cat: 'placa', nombre: 'B760M Pro', spec: 'LGA1700 · DDR5 · Wi-Fi 6', precio: 539, color: '#22d3ee', socket: 'LGA1700' },
-  { id: 'p4', cat: 'placa', nombre: 'Z790 Strix', spec: 'LGA1700 · DDR5 · PCIe 5.0', precio: 1349, color: '#a855f7', socket: 'LGA1700' },
+  { id: 'p1', cat: 'placa', nombre: 'B760M Pro', spec: 'LGA1700 · DDR5', precio: 539, color: A, socket: 'LGA1700' },
+  { id: 'p2', cat: 'placa', nombre: 'Z790 Strix', spec: 'LGA1700 · DDR5 · PCIe 5.0', precio: 1349, color: C, socket: 'LGA1700' },
+  { id: 'p3', cat: 'placa', nombre: 'Z890 Gaming', spec: 'LGA1851 · DDR5 · PCIe 5.0', precio: 1499, color: C, socket: 'LGA1851' },
+  { id: 'p4', cat: 'placa', nombre: 'B650M Gaming', spec: 'AM5 · DDR5', precio: 589, color: A, socket: 'AM5' },
+  { id: 'p5', cat: 'placa', nombre: 'X670E Pro', spec: 'AM5 · DDR5 · PCIe 5.0', precio: 1199, color: B, socket: 'AM5' },
 
-  { id: 'r1', cat: 'ram', nombre: '16 GB DDR5 5600', spec: '2×8 GB · RGB', precio: 249, color: '#34d399', n: 2 },
-  { id: 'r2', cat: 'ram', nombre: '32 GB DDR5 6000', spec: '2×16 GB · RGB', precio: 449, color: '#e879f9', n: 2 },
-  { id: 'r3', cat: 'ram', nombre: '64 GB DDR5 6000', spec: '4×16 GB · RGB', precio: 889, color: '#fb7185', n: 4 },
+  { id: 'r1', cat: 'ram', nombre: '16 GB DDR5 5600 MHz', spec: '2×8 GB', precio: 249, color: A, n: 2 },
+  { id: 'r2', cat: 'ram', nombre: '32 GB DDR5 5600 MHz', spec: '2×16 GB', precio: 449, color: A, n: 2 },
+  { id: 'r3', cat: 'ram', nombre: '64 GB DDR5 5600 MHz', spec: '4×16 GB', precio: 889, color: C, n: 4 },
+  { id: 'r4', cat: 'ram', nombre: '128 GB DDR5 4800 MHz', spec: '4×32 GB', precio: 1790, color: W, n: 4 },
 
-  { id: 'v1', cat: 'gpu', nombre: 'RTX 4060 8 GB', spec: '1080p ultra · 2 ventiladores', precio: 1299, color: '#76e04a', watts: 115, n: 2 },
-  { id: 'v2', cat: 'gpu', nombre: 'RTX 4070 Super 12 GB', spec: '1440p ultra · 3 ventiladores', precio: 2549, color: '#22d3ee', watts: 220, n: 3 },
-  { id: 'v3', cat: 'gpu', nombre: 'RX 7800 XT 16 GB', spec: '1440p ultra · 3 ventiladores', precio: 2199, color: '#f43f5e', watts: 263, n: 3 },
-  { id: 'v4', cat: 'gpu', nombre: 'RTX 4090 24 GB', spec: '4K sin límites · 3 ventiladores', precio: 7999, color: '#a3e635', watts: 450, n: 3 },
+  { id: 'v1', cat: 'gpu', nombre: 'NVIDIA GeForce RTX 6 GB', spec: 'Ofimática avanzada · diseño 2D', precio: 1099, color: A, watts: 115, n: 2 },
+  { id: 'v2', cat: 'gpu', nombre: 'NVIDIA GeForce RTX 8 GB', spec: '1080p ultra · 2 ventiladores', precio: 1599, color: A, watts: 130, n: 2 },
+  { id: 'v3', cat: 'gpu', nombre: 'NVIDIA GeForce RTX 12 GB', spec: '1440p ultra · edición de video', precio: 2549, color: C, watts: 200, n: 3 },
+  { id: 'v4', cat: 'gpu', nombre: 'NVIDIA GeForce RTX 16 GB', spec: '4K · render 3D', precio: 4199, color: C, watts: 285, n: 3 },
+  { id: 'v5', cat: 'gpu', nombre: 'NVIDIA GeForce RTX 32 GB', spec: '4K sin límites · IA', precio: 8999, color: W, watts: 575, n: 3 },
 
-  { id: 's1', cat: 'ssd', nombre: 'NVMe 500 GB', spec: 'PCIe 4.0 · 5000 MB/s', precio: 189, color: '#38bdf8', n: 1 },
-  { id: 's2', cat: 'ssd', nombre: 'NVMe 1 TB', spec: 'PCIe 4.0 · 7000 MB/s', precio: 299, color: '#38bdf8', n: 1 },
-  { id: 's3', cat: 'ssd', nombre: 'NVMe 2 TB', spec: 'PCIe 5.0 · 10000 MB/s', precio: 749, color: '#a78bfa', n: 2 },
+  { id: 's1', cat: 'ssd', nombre: 'Unidad de estado sólido 500 GB', spec: 'NVMe', precio: 189, color: A, n: 1 },
+  { id: 's2', cat: 'ssd', nombre: 'Unidad de estado sólido 1 TB', spec: 'NVMe', precio: 299, color: A, n: 1 },
+  { id: 's3', cat: 'ssd', nombre: 'Unidad de estado sólido 2 TB', spec: 'NVMe', precio: 599, color: C, n: 2 },
+  { id: 's4', cat: 'ssd', nombre: 'Unidad de estado sólido 4 TB', spec: 'NVMe', precio: 1199, color: W, n: 2 },
 
-  { id: 'k1', cat: 'cooler', nombre: 'Torre Frost 120', spec: 'Aire · 1 ventilador ARGB', precio: 129, color: '#22d3ee', n: 1 },
-  { id: 'k2', cat: 'cooler', nombre: 'AIO Vortex 240', spec: 'Líquida · 2 ventiladores ARGB', precio: 349, color: '#8b5cf6', n: 2 },
-  { id: 'k3', cat: 'cooler', nombre: 'AIO Vortex 360', spec: 'Líquida · 3 ventiladores ARGB', precio: 499, color: '#f43f5e', n: 3 },
+  { id: 'k1', cat: 'cooler', nombre: 'Cooler de aire', spec: 'Torre · 1 ventilador', precio: 129, color: A, n: 1 },
+  { id: 'k2', cat: 'cooler', nombre: 'Refrigeración líquida 240', spec: 'AIO · 2 ventiladores', precio: 349, color: C, n: 2 },
+  { id: 'k3', cat: 'cooler', nombre: 'Refrigeración líquida 360', spec: 'AIO · 3 ventiladores', precio: 499, color: W, n: 3 },
 
-  { id: 'f1', cat: 'fuente', nombre: '550 W 80+ Bronze', spec: 'No modular', precio: 179, color: '#94a3b8', watts: 550 },
-  { id: 'f2', cat: 'fuente', nombre: '750 W 80+ Gold', spec: 'Modular', precio: 329, color: '#facc15', watts: 750 },
-  { id: 'f3', cat: 'fuente', nombre: '1000 W 80+ Platinum', spec: 'Modular · cables sleeved', precio: 599, color: '#facc15', watts: 1000 },
+  { id: 'f1', cat: 'fuente', nombre: '650 W Bronze', spec: '80 Plus Bronze', precio: 179, color: A, watts: 650 },
+  { id: 'f2', cat: 'fuente', nombre: '750 W Gold', spec: '80 Plus Gold', precio: 329, color: C, watts: 750 },
+  { id: 'f3', cat: 'fuente', nombre: '850 W Gold', spec: '80 Plus Gold', precio: 399, color: C, watts: 850 },
+  { id: 'f4', cat: 'fuente', nombre: '1000 W Gold', spec: '80 Plus Gold', precio: 549, color: C, watts: 1000 },
+  { id: 'f5', cat: 'fuente', nombre: '1200 W Gold', spec: '80 Plus Gold', precio: 699, color: W, watts: 1200 },
 ];
 
 export type Seleccion = Partial<Record<Cat, Opcion>>;
@@ -83,10 +101,10 @@ export function avisoFuente(s: Seleccion): string | null {
 }
 
 export const BUILDS = [
-  { nombre: 'Lite Build', ids: ['g1', 'c3', 'p3', 'r1', 'v1', 's1', 'k1', 'f1'], tag: '1080p' },
-  { nombre: 'Core Build', ids: ['g2', 'c1', 'p1', 'r2', 'v3', 's2', 'k2', 'f2'], tag: '1440p' },
-  { nombre: 'Premium Build', ids: ['g2', 'c2', 'p2', 'r2', 'v2', 's2', 'k3', 'f2'], tag: '1440p+' },
-  { nombre: 'Pro Build', ids: ['g3', 'c4', 'p4', 'r3', 'v4', 's3', 'k3', 'f3'], tag: '4K' },
+  { nombre: 'Turing Esencial', linea: 'TURING', para: 'Productividad diaria sin interrupciones', ids: ['g1', 'c1', 'p1', 'r1', 'v1', 's1', 'k1', 'f1'] },
+  { nombre: 'Turing Pro', linea: 'TURING', para: 'Multitarea, diseño y juego fluido', ids: ['g2', 'c4', 'p2', 'r2', 'v3', 's2', 'k2', 'f3'] },
+  { nombre: 'Turing WS Creator', linea: 'TURING WS', para: 'Edición, render y modelado 3D', ids: ['g3', 'c9', 'p5', 'r3', 'v4', 's3', 'k3', 'f4'] },
+  { nombre: 'Turing WS Max', linea: 'TURING WS', para: 'Ingeniería, IA y cargas críticas', ids: ['g3', 'c6', 'p3', 'r4', 'v5', 's4', 'k3', 'f5'] },
 ];
 
 export const seleccionDe = (ids: string[]): Seleccion =>

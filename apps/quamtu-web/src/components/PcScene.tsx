@@ -80,7 +80,7 @@ function Ventilador({ color, r = 0.34, vel = 3 }: { color: string; r?: number; v
 function Escena({ sel }: { sel: Seleccion }) {
   const { gabinete: g, cpu, placa, ram, gpu, ssd, cooler, fuente } = sel;
   const s = g?.n ?? 1;
-  const acento = g?.color ?? '#475569';
+  const acento = g?.color ?? '#4a6283';
   const gpuColor = gpu?.color ?? '#22d3ee';
 
   return (
