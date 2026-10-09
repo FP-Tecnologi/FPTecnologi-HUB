@@ -38,9 +38,28 @@
       "port": 3002
     },
     {
+      "name": "quamtu-web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "apps/quamtu-web",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "3004"
+      ],
+      "port": 3004
+    },
+    {
       "name": "leads",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["--prefix", "../centralizacion-leads", "run", "dev"],
+      "runtimeArgs": [
+        "--prefix",
+        "../centralizacion-leads",
+        "run",
+        "dev"
+      ],
       "port": 3003
     }
   ]
