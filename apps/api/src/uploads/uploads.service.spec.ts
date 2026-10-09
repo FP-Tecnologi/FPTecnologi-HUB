@@ -20,4 +20,11 @@ describe('uploads', () => {
     await expect(s.guardarImagen('m1', undefined)).rejects.toThrow('Elige');
     await expect(s.guardarImagen('m1', { buffer: png, size: 6 * 1024 * 1024 })).rejects.toThrow('5 MB');
   });
+
+  it('catálogo: solo PDF real (por su firma) y hasta 50 MB', async () => {
+    const s = new UploadsService();
+    await expect(s.guardarCatalogo('m1', { buffer: png, size: png.length })).rejects.toThrow('PDF válido');
+    await expect(s.guardarCatalogo('m1', undefined)).rejects.toThrow('Elige');
+    await expect(s.guardarCatalogo('m1', { buffer: Buffer.from('%PDF-1.7'), size: 51 * 1024 * 1024 })).rejects.toThrow('50 MB');
+  });
 });

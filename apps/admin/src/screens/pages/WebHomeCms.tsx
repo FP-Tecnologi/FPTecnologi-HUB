@@ -13,7 +13,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
-import { api } from '../../lib/api';
+import { api, API_URL } from '../../lib/api';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
@@ -23,6 +23,7 @@ type Campo =
   | { key: string; label: string; tipo: 'bool'; ayuda?: string }
   | { key: string; label: string; tipo: 'lista-texto' }
   | { key: string; label: string; tipo: 'lista-items'; itemLabel: string }
+  | { key: string; label: string; tipo: 'lista-pdf'; itemLabel: string; ayuda?: string }
   | { key: string; label: string; tipo: 'slides' };
 
 const BADGE: Campo = { key: 'badge', label: 'Etiqueta (badge)', tipo: 'text' };
@@ -317,6 +318,26 @@ function CampoEditor({ campo, valor, onChange }: { campo: Campo; valor: unknown;
     );
   }
 
+  if (campo.tipo === 'lista-pdf') {
+    const lista = Array.isArray(valor) ? (valor as { titulo: string; archivo: string }[]) : [];
+    const upd = (i: number, k: 'titulo' | 'archivo', v: string) => onChange(lista.map((x, j) => (j === i ? { ...x, [k]: v } : x)));
+    return (
+      <Grupo titulo={campo.label} onAdd={() => onChange([...lista, { titulo: '', archivo: '' }])}>
+        {campo.ayuda && <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{campo.ayuda}</span>}
+        {lista.map((it, i) => (
+          <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-2)', padding: 'var(--ax-space-3)', border: '1px solid var(--ax-border)', borderRadius: 10 }}>
+            <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
+              <strong style={{ fontSize: 'var(--ax-text-sm)' }}>{campo.itemLabel} {i + 1}</strong>
+              <Quitar onClick={() => onChange(lista.filter((_, j) => j !== i))} />
+            </div>
+            <input className="ax-input" placeholder="Nombre" value={it.titulo} onChange={(e) => upd(i, 'titulo', e.target.value)} />
+            <SubirPdf archivo={it.archivo} onSubido={(ruta) => upd(i, 'archivo', ruta)} />
+          </div>
+        ))}
+      </Grupo>
+    );
+  }
+
   if (campo.tipo === 'lista-items') {
     const lista = Array.isArray(valor) ? (valor as { title: string; text: string }[]) : [];
     const upd = (i: number, k: 'title' | 'text', v: string) => onChange(lista.map((x, j) => (j === i ? { ...x, [k]: v } : x)));
@@ -356,6 +377,42 @@ function CampoEditor({ campo, valor, onChange }: { campo: Campo; valor: unknown;
         </div>
       ))}
     </>
+  );
+}
+
+/* Sube un PDF (POST /uploads/pdf) y guarda su ruta; subir otro reemplaza el anterior en la web. */
+function SubirPdf({ archivo, onSubido }: { archivo: string; onSubido: (ruta: string) => void }) {
+  const ref = useRef<HTMLInputElement>(null);
+  const [subiendo, setSubiendo] = useState(false);
+  const [error, setError] = useState('');
+  async function alElegir(ev: React.ChangeEvent<HTMLInputElement>) {
+    const f = ev.target.files?.[0];
+    ev.target.value = '';
+    if (!f) return;
+    if (f.type !== 'application/pdf' || f.size > 50 * 1024 * 1024) return setError('Elige un PDF de hasta 50 MB.');
+    setError('');
+    setSubiendo(true);
+    try {
+      const fd = new FormData();
+      fd.append('archivo', f);
+      const r = await api.post<{ ruta: string }>('/uploads/pdf', fd);
+      onSubido(r.ruta);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'No se pudo subir el PDF.');
+    } finally {
+      setSubiendo(false);
+    }
+  }
+  const href = archivo.startsWith('/uploads/') ? `${API_URL}${archivo}` : archivo;
+  return (
+    <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
+      <input ref={ref} type="file" accept="application/pdf" hidden onChange={alElegir} />
+      <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" disabled={subiendo} onClick={() => ref.current?.click()}>
+        {subiendo ? 'Subiendo…' : archivo ? 'Reemplazar PDF' : 'Subir PDF'}
+      </button>
+      {archivo && <a href={href} target="_blank" rel="noreferrer" style={{ fontSize: 'var(--ax-text-xs)' }}>Ver PDF actual</a>}
+      {error && <span role="alert" style={{ color: 'var(--ax-danger-500)', fontSize: 'var(--ax-text-xs)' }}>{error}</span>}
+    </div>
   );
 }
 

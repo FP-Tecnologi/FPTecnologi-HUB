@@ -2,7 +2,7 @@ import { BadRequestException, Controller, Headers, Ip, Post, Query, UploadedFile
 import { Limite } from '../common/guards/limite-peticiones.guard.js';
 import { Public } from '../common/decorators/public.decorator.js';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { UploadsService, MAX_BYTES, MAX_BYTES_EVIDENCIA } from './uploads.service.js';
+import { UploadsService, MAX_BYTES, MAX_BYTES_CATALOGO, MAX_BYTES_EVIDENCIA } from './uploads.service.js';
 import { MarcaRolGuard } from '../common/guards/marca-rol.guard.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
 import { MarcaActual } from '../common/decorators/marca-actual.decorator.js';
@@ -18,6 +18,13 @@ export class UploadsController {
   @UseInterceptors(FileInterceptor('archivo', { limits: { fileSize: MAX_BYTES, files: 1 } }))
   subir(@MarcaActual() marcaId: string, @UploadedFile() archivo?: { buffer: Buffer; size: number }) {
     return this.uploads.guardarImagen(marcaId, archivo);
+  }
+
+  /** PDF de catálogo/documento público (páginas Catálogos y Compliance de la web). */
+  @Post('pdf')
+  @UseInterceptors(FileInterceptor('archivo', { limits: { fileSize: MAX_BYTES_CATALOGO, files: 1 } }))
+  subirPdf(@MarcaActual() marcaId: string, @UploadedFile() archivo?: { buffer: Buffer; size: number }) {
+    return this.uploads.guardarCatalogo(marcaId, archivo);
   }
 }
 

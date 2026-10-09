@@ -36,6 +36,46 @@ const NOSOTROS = base('nosotros', 'Nosotros', '/nosotros', [
   },
 ]);
 
+const ITEMS = (nombre: string): Seccion['campos'][number] => ({ key: 'items', label: nombre, tipo: 'lista-items', itemLabel: 'Tarjeta' });
+const ALQUILER = base('alquiler', 'Alquiler de equipos', '/alquiler-equipos', [
+  HERO(),
+  { key: 'beneficios', nombre: 'Beneficios', ancla: '', campos: [BADGE, TITULO, DESTACADO, ITEMS('Beneficios (título + texto)')] },
+  { key: 'equipos', nombre: 'Equipos que se alquilan', ancla: '', campos: [BADGE, TITULO, DESTACADO, ITEMS('Equipos (título + texto)')] },
+  { key: 'pasos', nombre: 'Cómo funciona', ancla: '', campos: [BADGE, TITULO, DESTACADO, ITEMS('Pasos (título + texto)')] },
+]);
+
+const EDUCATION = base('education', 'FP Education', '/education', [
+  HERO(),
+  { key: 'tarjetas', nombre: 'Tecnología en el aula', ancla: '', campos: [BADGE, TITULO, DESTACADO, ITEMS('Tarjetas (título + texto)')] },
+  { key: 'accion', nombre: 'Cierre (tienda y YouTube)', ancla: '', campos: [{ key: 'titulo', label: 'Título', tipo: 'text' }, { key: 'texto', label: 'Texto', tipo: 'textarea' }] },
+]);
+
+const COMPLIANCE = base('compliance', 'Compliance', '/compliance', [
+  HERO(),
+  {
+    key: 'contenido',
+    nombre: 'Texto de la página',
+    ancla: '',
+    campos: [{ key: 'texto', label: 'Texto completo', tipo: 'textarea', ayuda: 'Cada sección empieza con «## Título»; los párrafos van separados por una línea en blanco. Para resaltar el inicio de un párrafo, ponlo entre **dobles asteriscos**.' }],
+  },
+  {
+    key: 'documentos',
+    nombre: 'Documentos descargables (PDF)',
+    ancla: '',
+    campos: [{ key: 'items', label: 'Documentos', tipo: 'lista-pdf', itemLabel: 'Documento', ayuda: 'Sube otro PDF para reemplazar el actual: el enlace de la web se actualiza solo.' }],
+  },
+]);
+
+const CATALOGOS = base('catalogos', 'Catálogos', '/catalogos', [
+  HERO(),
+  {
+    key: 'lista',
+    nombre: 'Catálogos (PDF)',
+    ancla: '',
+    campos: [{ key: 'items', label: 'Catálogos', tipo: 'lista-pdf', itemLabel: 'Catálogo', ayuda: 'Sube el PDF y en la web se hojea como un folleto. Para actualizar un catálogo, reemplaza su PDF.' }],
+  },
+]);
+
 const SERVICIOS = base('servicios', 'Servicios', '/servicios', [
   HERO(),
   { key: 'listado', nombre: 'Listado de servicios', ancla: '', campos: ENCABEZADO },
@@ -62,6 +102,18 @@ export function WebServiciosCms() {
 }
 export function WebProyectosCms() {
   return <CmsEditor config={PROYECTOS} />;
+}
+export function WebAlquilerCms() {
+  return <CmsEditor config={ALQUILER} />;
+}
+export function WebEducationCms() {
+  return <CmsEditor config={EDUCATION} />;
+}
+export function WebComplianceCms() {
+  return <CmsEditor config={COMPLIANCE} />;
+}
+export function WebCatalogosCms() {
+  return <CmsEditor config={CATALOGOS} />;
 }
 export function WebContactoCms() {
   return <CmsEditor config={CONTACTO} />;
@@ -110,7 +162,7 @@ const LEGAL = base('legal', 'Textos legales', '/legal/privacidad', [
 
 const SEO_CAMPOS = [T('titulo', 'Título en Google', 'Vacío = el de la página. Ideal: hasta 60 caracteres'), { key: 'descripcion', label: 'Descripción en Google', tipo: 'textarea', ayuda: 'Ideal: hasta 155 caracteres' }] as const;
 const SEO = base('seo', 'SEO por página', '/', [
-  ['home', 'Inicio'], ['nosotros', 'Nosotros'], ['servicios', 'Servicios'], ['proyectos', 'Proyectos'], ['contacto', 'Contacto'], ['tienda', 'Tienda'], ['cotizador', 'Cotizador'], ['blog', 'Blog'],
+  ['home', 'Inicio'], ['nosotros', 'Nosotros'], ['servicios', 'Servicios'], ['proyectos', 'Proyectos'], ['contacto', 'Contacto'], ['tienda', 'Tienda'], ['cotizador', 'Cotizador'], ['blog', 'Blog'], ['alquiler', 'Alquiler de equipos'], ['education', 'FP Education'], ['compliance', 'Compliance'], ['catalogos', 'Catálogos'],
 ].map(([key, nombre]) => ({ key, nombre, ancla: '', campos: [...SEO_CAMPOS] })));
 
 export function WebAjustesCms() {

@@ -1,9 +1,10 @@
 /* Compliance de FP Tecnologi & System: texto de fptecnologi.com/compliance-microsoft (2026-10-09). */
 export type SeccionCompliance = { id: string; titulo: string; parrafos?: string[]; subsecciones?: { titulo: string; texto: string }[] };
 
+/** Documentos descargables por defecto; se reemplazan desde el dashboard (Web informativa → Compliance). */
 export const COMPLIANCE_DOCS = [
-  { titulo: 'Manual de procesos (propuestas comerciales al sector público)', href: '/compliance/manual-propuestas-sector-publico.pdf' },
-  { titulo: 'Código de conducta de proveedores 2024', href: '/compliance/codigo-conducta-proveedores-2024.pdf' },
+  { titulo: 'Manual de procesos (propuestas comerciales al sector público)', archivo: '/compliance/manual-propuestas-sector-publico.pdf' },
+  { titulo: 'Código de conducta de proveedores 2024', archivo: '/compliance/codigo-conducta-proveedores-2024.pdf' },
 ];
 
 export const COMPLIANCE: SeccionCompliance[] = [
@@ -72,3 +73,10 @@ export const COMPLIANCE: SeccionCompliance[] = [
     ],
   },
 ];
+
+const BR = String.fromCharCode(10, 10);
+
+/** Texto por defecto en markdown ("## Título" abre sección; "**Subtítulo.** texto" resalta el inicio del párrafo). */
+export const COMPLIANCE_MD = COMPLIANCE.map((c) =>
+  [`## ${c.titulo}`, ...(c.parrafos ?? []), ...(c.subsecciones ?? []).map((x) => `**${x.titulo}.** ${x.texto}`)].join(BR),
+).join(BR);

@@ -9,6 +9,9 @@ export const MAX_BYTES = 5 * 1024 * 1024;
 /** Evidencias de tickets (web pública): imágenes o PDF, hasta 10 MB. */
 export const MAX_BYTES_EVIDENCIA = 10 * 1024 * 1024;
 
+/** Catálogos PDF de la web pública (dashboard → Catálogos): hasta 50 MB. */
+export const MAX_BYTES_CATALOGO = 50 * 1024 * 1024;
+
 /** Material para socios (dashboard → Recursos): imágenes, PDF, video, Office y ZIP, hasta 100 MB. */
 export const MAX_BYTES_RECURSO = 100 * 1024 * 1024;
 
@@ -117,6 +120,19 @@ export class UploadsService {
     res.sendFile(abs, (err) => {
       if (err && !res.headersSent) res.status(404).json({ success: false, statusCode: 404, message: 'Archivo no encontrado' });
     });
+  }
+
+  /** Catálogo PDF público (se hojea en /catalogos): por su firma real, escaneado, bajo `<marca>/catalogos/` de la carpeta pública. */
+  async guardarCatalogo(marcaId: string, archivo?: { buffer: Buffer; size: number }) {
+    if (!archivo?.buffer?.length) throw new BadRequestException('Elige un PDF');
+    if (archivo.size > MAX_BYTES_CATALOGO) throw new BadRequestException('El PDF pesa más de 50 MB');
+    if (archivo.buffer.toString('ascii', 0, 5) !== '%PDF-') throw new BadRequestException('El archivo no es un PDF válido');
+    await escanear(archivo.buffer);
+    const carpeta = `${marcaId.replace(/[^a-zA-Z0-9-]/g, '')}/catalogos`;
+    const nombre = `${randomUUID()}.pdf`;
+    await mkdir(join(uploadsDir(), carpeta), { recursive: true });
+    await writeFile(join(uploadsDir(), carpeta, nombre), archivo.buffer);
+    return { ruta: `/uploads/${carpeta}/${nombre}` };
   }
 
   /** Guarda la imagen bajo la carpeta de la marca y devuelve su ruta pública (`/uploads/<marca>/<archivo>`). */
