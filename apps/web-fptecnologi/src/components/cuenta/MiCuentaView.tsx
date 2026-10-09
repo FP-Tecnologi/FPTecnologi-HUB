@@ -4,8 +4,6 @@ import { useState } from 'react';
 import { CheckCircle2, ChevronDown, ClipboardList, Clock, Download, FileText, Receipt, LogOut, MapPin, MessageCircle, Package, Phone, ShoppingBag, Truck, User } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
 import { whatsappHref } from '@/lib/chatActions';
-import { useSitio } from '@/context/SitioContext';
-import { imprimirCotizacion } from '@/lib/imprimirCotizacion';
 import type { CotizacionCuenta, PedidoCuenta, PresupuestoCuenta, ResumenCuenta } from '@/lib/cuenta';
 
 const fecha = (iso: string) => new Date(iso).toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' });
@@ -109,7 +107,6 @@ function CotizacionCard({ c }: { c: CotizacionCuenta }) {
   const e = ESTADO_COT[c.estado];
   const [abierto, setAbierto] = useState(c.estado === 'ENVIADA');
   const tienePropuesta = !!c.propuesta || c.monto != null;
-  const { contact } = useSitio();
   const wa = whatsappHref(`Hola, consulto por mi cotización ${c.numero ?? ''} (${c.servicio.nombre}) de la web de FPTecnologi.`);
   return (
     <article className="hover-lift rounded-3xl border border-ink/5 bg-white p-6 shadow-lg shadow-brand-dark/10 hover:shadow-xl hover:shadow-brand-dark/15">
@@ -141,7 +138,7 @@ function CotizacionCard({ c }: { c: CotizacionCuenta }) {
         </>
       )}
       {tienePropuesta && (
-        <button type="button" onClick={() => imprimirCotizacion(c, contact)} className="mr-2 mt-4 inline-flex h-10 items-center gap-2 rounded-xl border border-brand-primary px-4 text-xs font-semibold uppercase tracking-wide text-brand-700 transition-colors hover:bg-brand-primary hover:text-white"><Download className="h-4 w-4" aria-hidden />Descargar PDF</button>
+        <a href={`/api/cuenta/cotizacion/${c.id}/pdf`} className="mr-2 mt-4 inline-flex h-10 items-center gap-2 rounded-xl border border-brand-primary px-4 text-xs font-semibold uppercase tracking-wide text-brand-700 transition-colors hover:bg-brand-primary hover:text-white"><Download className="h-4 w-4" aria-hidden />Descargar PDF</a>
       )}
       <a href={wa} target="_blank" rel="noreferrer" className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl bg-whatsapp-dark px-4 text-xs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-whatsapp-deep"><MessageCircle className="h-4 w-4" strokeWidth={2} /> {tienePropuesta ? 'Quiero avanzar / ajustar' : 'Consultar'}</a>
     </article>
@@ -221,7 +218,10 @@ function PresupuestoCard({ p }: { p: PresupuestoCuenta }) {
       </div>
       <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
         <p className="font-display text-xl font-bold text-ink">{p.moneda} {Number(p.total).toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
-        <a href={`/presupuesto/${p.id}`} className="inline-flex h-10 items-center gap-2 rounded-xl bg-brand-primary px-4 text-xs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-700"><Download className="h-4 w-4" aria-hidden />Ver y descargar PDF</a>
+        <span className="flex flex-wrap gap-2">
+          <a href={`/presupuesto/${p.id}`} className="inline-flex h-10 items-center rounded-xl border border-brand-primary px-4 text-xs font-semibold uppercase tracking-wide text-brand-700 transition-colors hover:bg-brand-primary hover:text-white">Ver documento</a>
+          <a href={`/api/presupuestos/${p.id}/pdf`} className="inline-flex h-10 items-center gap-2 rounded-xl bg-brand-primary px-4 text-xs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-700"><Download className="h-4 w-4" aria-hidden />Descargar PDF</a>
+        </span>
       </div>
     </article>
   );

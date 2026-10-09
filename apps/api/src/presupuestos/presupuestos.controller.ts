@@ -1,4 +1,5 @@
-import { BadRequestException, Body, Controller, Delete, Get, Headers, Ip, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Headers, Ip, Param, Patch, Post, Query, Res, UseGuards } from '@nestjs/common';
+import type { Response } from 'express';
 import { Limite } from '../common/guards/limite-peticiones.guard.js';
 import { Public } from '../common/decorators/public.decorator.js';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
@@ -27,6 +28,16 @@ export class PublicPresupuestosController {
   ver(@Query('marcaId') marcaId: string, @Param('id') id: string) {
     if (!marcaId) throw new BadRequestException('Falta marcaId');
     return this.presupuestos.verPublico(marcaId, id);
+  }
+
+  /** PDF del presupuesto (generado en el servidor); se accede por su id, que es un UUID no adivinable. */
+  @Limite(30)
+  @Get(':id/pdf')
+  async pdf(@Query('marcaId') marcaId: string, @Param('id') id: string, @Res() res: Response) {
+    if (!marcaId) throw new BadRequestException('Falta marcaId');
+    const { buffer, nombre } = await this.presupuestos.pdf(marcaId, id);
+    res.set({ 'Content-Type': 'application/pdf', 'Content-Disposition': `attachment; filename="${nombre}"`, 'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'private, no-store' });
+    res.send(buffer);
   }
 }
 

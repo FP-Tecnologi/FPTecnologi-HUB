@@ -190,6 +190,7 @@ export const SOCIAL_LINKS = [
   { red: 'instagram', label: 'Instagram', href: 'https://www.instagram.com/fptecnologisystem_/' },
   { red: 'linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/company/fp-tecnologi-system/' },
   { red: 'youtube', label: 'YouTube', href: 'https://www.youtube.com/channel/UCELd7u4oPpWzbGVvIVzfoxg' },
+  { red: 'whatsapp', label: 'WhatsApp', href: 'https://wa.me/51960951976' },
 ] as const;
 
 export const CONTACT_INFO = {

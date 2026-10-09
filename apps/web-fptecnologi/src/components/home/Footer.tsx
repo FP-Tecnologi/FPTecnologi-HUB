@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { getSitio } from '@/lib/sitio';
 import { LEGAL_LINKS } from '@/lib/legal';
-import { FacebookIcon, InstagramIcon, LinkedinIcon, YoutubeIcon } from '@/components/site/icons';
+import { FacebookIcon, InstagramIcon, LinkedinIcon, WhatsAppIcon, YoutubeIcon } from '@/components/site/icons';
 import { NewsletterForm } from './NewsletterForm';
 import { FooterNav } from './FooterNav';
 
@@ -15,7 +15,7 @@ const SOPORTE = [
   { label: 'Socios', href: '/socios' },
 ];
 
-const SOCIAL_ICON = { facebook: FacebookIcon, instagram: InstagramIcon, linkedin: LinkedinIcon, youtube: YoutubeIcon };
+const SOCIAL_ICON = { facebook: FacebookIcon, instagram: InstagramIcon, linkedin: LinkedinIcon, youtube: YoutubeIcon, whatsapp: WhatsAppIcon };
 
 
 function ColumnTitle({ children }: { children: string }) {

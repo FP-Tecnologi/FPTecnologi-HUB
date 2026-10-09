@@ -1,9 +1,10 @@
-import { HttpException, HttpStatus, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { createHmac, randomInt, timingSafeEqual } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { MailService } from '../mail/mail.service.js';
 import { normalizeEmail } from '../common/utils/normalize-email.js';
+import { empresaPdf, pdfCotizacion } from '../common/documento-pdf.js';
 
 const CODIGO_MIN = 10;
 const MAX_INTENTOS = 5;
@@ -141,6 +142,18 @@ export class CuentaService {
       presupuestos,
       cotizaciones: cotizaciones.map((c) => ({ ...c, propuesta: c.enviadaAt ? c.propuesta : null, monto: c.enviadaAt ? c.monto : null, validezHasta: c.enviadaAt ? c.validezHasta : null })),
     };
+  }
+
+  /** PDF de una cotización del cliente de la sesión; solo si el equipo ya la envió (no se filtra un borrador). */
+  async cotizacionPdf(marcaId: string, token: string | undefined, id: string) {
+    const email = this.leerToken(token, marcaId);
+    const c = await this.prisma.cotizacion.findFirst({
+      where: { id, marcaId, clienteEmail: { equals: email, mode: 'insensitive' }, enviadaAt: { not: null } },
+      include: { servicio: { select: { nombre: true } } },
+    });
+    if (!c) throw new NotFoundException('Cotización no encontrada');
+    const buffer = await pdfCotizacion(await empresaPdf(this.prisma, marcaId), c);
+    return { buffer, nombre: `cotizacion-${c.numero ?? c.id.slice(0, 8)}.pdf` };
   }
 
   private async nombreDeCotizacion(marcaId: string, email: string) {

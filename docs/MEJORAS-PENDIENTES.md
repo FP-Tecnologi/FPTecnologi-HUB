@@ -47,6 +47,8 @@ en [`ESTADO-ACTUAL.md`](ESTADO-ACTUAL.md); los pendientes de negocio más antigu
 - [x] Páginas Alquiler de equipos, FP Education, Compliance y Catálogos editables desde el dashboard; PDF de catálogos
       y documentos reemplazable (2026-10-09)
 - [x] Mi cuenta: pestaña de presupuestos y descarga en PDF de cotizaciones (2026-10-09)
+- [x] PDF de presupuesto y cotización generado en el servidor y adjunto en los correos; redirecciones 301 de la web anterior;
+      WhatsApp en el pie y QUAMTU en el menú; novedades y descuentos para socios (2026-10-09)
 
 ## Pendiente
 

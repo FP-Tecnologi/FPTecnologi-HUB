@@ -60,7 +60,10 @@ export default async function PresupuestoDocumentoPage({ params }: { params: Pro
         <div className="mx-auto max-w-4xl px-6 print:max-w-none print:px-0">
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3 print:hidden">
             <p className="text-sm text-ink/65">Guardamos este presupuesto con el número <strong className="text-ink">{p.numero}</strong>. Un asesor se comunicará contigo.</p>
-            <ImprimirBoton />
+            <span className="flex flex-wrap gap-2">
+              <a href={`/api/presupuestos/${p.id}/pdf`} className="inline-flex h-11 items-center gap-2 rounded-xl border border-brand-primary px-5 text-sm font-semibold uppercase tracking-wide text-brand-700 transition-colors hover:bg-brand-primary hover:text-white">Descargar PDF</a>
+              <ImprimirBoton />
+            </span>
           </div>
 
           <article className="rounded-2xl border border-brand-100 bg-white p-8 shadow-xl shadow-brand-950/10 sm:p-10 print:rounded-none print:border-0 print:p-0 print:shadow-none">

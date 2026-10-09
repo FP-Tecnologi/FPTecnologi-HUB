@@ -69,15 +69,21 @@ export class RecursosService {
   /** Todo lo de la intranet en una sola llamada: datos del socio, recursos visibles y sus tickets. */
   async portal(marcaId: string, token: string | undefined) {
     const socio = await this.socioActivo(marcaId, token);
-    const [recursos, tickets] = await Promise.all([
+    const [recursos, tickets, contenido] = await Promise.all([
       this.prisma.recurso.findMany({
         where: { marcaId, visible: true },
         orderBy: [{ fabricante: 'asc' }, { orden: 'asc' }, { createdAt: 'desc' }],
         select: { id: true, titulo: true, descripcion: true, tipo: true, fabricante: true, categoria: true, mime: true, bytes: true, createdAt: true },
       }),
       this.tickets.ticketsDeCorreo(marcaId, socio.email),
+      // Novedades y beneficios que el equipo edita en el dashboard (Web informativa → Intranet de socios); solo para socios con sesión.
+      this.prisma.contenidoWeb.findMany({ where: { marcaId, pagina: 'socios' } }),
     ]);
-    return { socio: { nombre: socio.nombre, empresa: socio.empresa, ruc: socio.ruc, email: socio.email, cargo: socio.cargo, celular: socio.celular, desde: socio.aprobadoAt ?? socio.createdAt }, recursos, tickets };
+    const items = (seccion: string) => {
+      const datos = contenido.find((c) => c.seccion === seccion)?.datos as { items?: { title?: string; text?: string }[] } | null | undefined;
+      return (datos?.items ?? []).filter((i) => i.title?.trim()).map((i) => ({ title: String(i.title), text: String(i.text ?? '') }));
+    };
+    return { socio: { nombre: socio.nombre, empresa: socio.empresa, ruc: socio.ruc, email: socio.email, cargo: socio.cargo, celular: socio.celular, desde: socio.aprobadoAt ?? socio.createdAt }, recursos, tickets, novedades: items('novedades'), beneficios: items('beneficios') };
   }
 
   /** Descarga o vista previa de un recurso: solo con sesión de socio activo; cuenta una descarga si no es vista previa. */

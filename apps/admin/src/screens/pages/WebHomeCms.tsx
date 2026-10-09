@@ -103,8 +103,11 @@ export function CmsEditor({ config }: { config: CmsConfig }) {
 
   const cargar = useCallback(async () => {
     try {
-      const res = await fetch(`${WEB}/api/cms/${pagina}`, { cache: 'no-store' });
-      const data = (await res.json()) as Record<string, Datos>;
+      // La intranet de socios no es pública: se lee de la API con la sesión del dashboard.
+      const data: Record<string, Datos> =
+        pagina === 'socios'
+          ? { novedades: { items: [] }, beneficios: { items: [] }, ...(await api.get<Record<string, Datos>>('/contenido/socios')) }
+          : ((await (await fetch(`${WEB}/api/cms/${pagina}`, { cache: 'no-store' })).json()) as Record<string, Datos>);
       setGuardado(data);
       setBorrador(structuredClone(data));
       setError('');

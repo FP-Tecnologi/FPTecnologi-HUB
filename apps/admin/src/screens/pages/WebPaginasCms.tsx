@@ -76,6 +76,12 @@ const CATALOGOS = base('catalogos', 'Catálogos', '/catalogos', [
   },
 ]);
 
+// Solo la ven los socios con sesión (no hay vista previa pública).
+const SOCIOS = base('socios', 'Intranet de socios', '/socios', [
+  { key: 'novedades', nombre: 'Novedades para socios', ancla: '', campos: [ITEMS('Novedades (título + texto)')] },
+  { key: 'beneficios', nombre: 'Precios y descuentos de socios', ancla: '', campos: [ITEMS('Beneficios (título + texto)')] },
+]);
+
 const SERVICIOS = base('servicios', 'Servicios', '/servicios', [
   HERO(),
   { key: 'listado', nombre: 'Listado de servicios', ancla: '', campos: ENCABEZADO },
@@ -102,6 +108,9 @@ export function WebServiciosCms() {
 }
 export function WebProyectosCms() {
   return <CmsEditor config={PROYECTOS} />;
+}
+export function WebSociosCms() {
+  return <CmsEditor config={SOCIOS} />;
 }
 export function WebAlquilerCms() {
   return <CmsEditor config={ALQUILER} />;
@@ -138,7 +147,7 @@ const AJUSTES = base('sitio', 'Ajustes del sitio', '/contacto', [
     key: 'redes',
     nombre: 'Redes sociales',
     ancla: '',
-    campos: [T('facebook', 'Facebook (URL)', 'Vacío = no se muestra'), T('instagram', 'Instagram (URL)'), T('linkedin', 'LinkedIn (URL)'), T('youtube', 'YouTube (URL)')],
+    campos: [T('facebook', 'Facebook (URL)', 'Vacío = no se muestra'), T('instagram', 'Instagram (URL)'), T('linkedin', 'LinkedIn (URL)'), T('youtube', 'YouTube (URL)'), T('whatsapp', 'WhatsApp (enlace wa.me/51…)', 'Ej. https://wa.me/51960951976')],
   },
   {
     key: 'cifras',

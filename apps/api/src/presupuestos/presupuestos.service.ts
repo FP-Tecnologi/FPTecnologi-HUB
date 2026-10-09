@@ -4,6 +4,7 @@ import { MailService } from '../mail/mail.service.js';
 import { EstadoCotizacion } from '../generated/prisma/enums.js';
 import { normalizarCelular } from '../cotizador/cotizador.service.js';
 import { CrearPresupuestoDto } from './dto/crear-presupuesto.dto.js';
+import { dineroPdf, empresaPdf, fechaPdf, generarPdf } from '../common/documento-pdf.js';
 
 // Roles del dashboard que reciben el aviso de presupuesto nuevo.
 const ROLES_AVISO = ['admin', 'comercial', 'ventas'];
@@ -92,7 +93,7 @@ export class PresupuestosService {
         });
         // Avisos en segundo plano: un fallo de correo no debe impedir que el cliente vea su presupuesto.
         this.avisarEquipo(marcaId, p.id, p.clienteNombre, p.numero, total).catch((e) => this.logger.error('No se pudo avisar al equipo del presupuesto nuevo', e as Error));
-        this.enviarAlCliente(p).catch((e) => this.logger.error(`No se pudo enviar el presupuesto ${p.numero} al cliente`, e as Error));
+        this.enviarAlCliente(marcaId, p).catch((e) => this.logger.error(`No se pudo enviar el presupuesto ${p.numero} al cliente`, e as Error));
         return { ok: true as const, id: p.id, numero: p.numero };
       } catch (e) {
         // P2002 = chocó el correlativo con otra solicitud simultánea: reintentar.
@@ -140,7 +141,7 @@ export class PresupuestosService {
   async reenviar(marcaId: string, id: string) {
     const p = await this.findOne(marcaId, id);
     try {
-      await this.enviarAlCliente(p);
+      await this.enviarAlCliente(marcaId, p);
     } catch (e) {
       this.logger.error(`No se pudo enviar el presupuesto ${p.numero}`, e as Error);
       throw new BadRequestException('No se pudo enviar el correo. Revisa la configuración de correo e inténtalo de nuevo.');
@@ -155,15 +156,47 @@ export class PresupuestosService {
     return { eliminado: true };
   }
 
-  private enviarAlCliente(p: { id: string; numero: string; clienteNombre: string; clienteEmail: string; total: unknown; validezHasta: Date }) {
+  /** PDF del presupuesto generado en el servidor (se descarga desde la web y va adjunto en el correo al cliente). */
+  async pdf(marcaId: string, id: string) {
+    const p = await this.verPublico(marcaId, id);
+    const m = p.moneda;
+    const buffer = await generarPdf({
+      empresa: await empresaPdf(this.prisma, marcaId),
+      tipo: 'Presupuesto',
+      numero: p.numero,
+      meta: [
+        ['Cliente', p.clienteNombre],
+        ['RUC / DNI', p.clienteDocumento ?? ''],
+        ['Correo', p.clienteEmail],
+        ['Teléfono', p.clienteTelefono ?? ''],
+        ['Dirección', p.clienteDireccion ?? ''],
+        ['Fecha', fechaPdf(p.createdAt)],
+        ['Válido hasta', fechaPdf(p.validezHasta)],
+      ].filter(([, v]) => v) as [string, string][],
+      tabla: {
+        columnas: ['Producto', 'Cant.', 'P. unit.', 'Subtotal'],
+        anchos: [255, 50, 95, 95],
+        filas: p.items.map((i) => [`${i.nombre}
+SKU ${i.sku}${i.mayorista ? ' · precio mayorista' : ''}`, String(i.cantidad), dineroPdf(i.precioUnitario, m), dineroPdf(i.subtotal, m)]),
+      },
+      totales: [['Subtotal', dineroPdf(p.subtotal, m)], ['IGV (18 %)', dineroPdf(p.igv, m)], ['Total', dineroPdf(p.total, m)]],
+      textos: [{ titulo: 'Notas del cliente', texto: p.notas ?? '' }],
+      pie: 'Precios sin IGV en el catálogo; el IGV se suma en este documento. Vigente hasta la fecha indicada.',
+    });
+    return { buffer, nombre: `presupuesto-${p.numero}.pdf` };
+  }
+
+  private async enviarAlCliente(marcaId: string, p: { id: string; numero: string; clienteNombre: string; clienteEmail: string; total: unknown; validezHasta: Date }) {
     const web = process.env.WEB_PUBLICA_URL ?? 'https://fptecnologi.com';
+    // El PDF es un extra: si no se puede generar, el correo sale igual con el enlace al documento.
+    const adjunto = await this.pdf(marcaId, p.id).then((r) => [{ filename: r.nombre, content: r.buffer }]).catch((e) => { this.logger.error(`No se pudo generar el PDF del presupuesto ${p.numero}`, e as Error); return undefined; });
     return this.mail.sendPresupuestoCliente(p.clienteEmail, {
       numero: p.numero,
       cliente: p.clienteNombre,
       total: `US$ ${Number(p.total).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       validezHasta: p.validezHasta.toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' }),
       url: `${web}/presupuesto/${p.id}`,
-    });
+    }, adjunto);
   }
 
   private async avisarEquipo(marcaId: string, id: string, cliente: string, numero: string, total: number) {

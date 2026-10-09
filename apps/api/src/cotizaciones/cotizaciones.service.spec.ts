@@ -10,6 +10,8 @@ function setup(cot: Record<string, unknown> = base) {
   const prisma = {
     cotizacion: { findFirst: vi.fn(async () => cot), updateMany: vi.fn(async (_a: { data: Record<string, unknown> }) => ({ count: 1 })) },
     cotizacionEnvio: { create: vi.fn(async (_a: unknown) => ({})) },
+    marca: { findFirst: vi.fn(async () => ({ nombre: 'FPTecnologi' })) },
+    contenidoWeb: { findFirst: vi.fn(async () => null) },
   };
   const mail = { sendCotizacionServicio: vi.fn(async () => {}) };
   return { service: new CotizacionesService(prisma as never, mail as never), prisma, mail };
@@ -25,7 +27,7 @@ describe('CotizacionesService.enviar', () => {
   it('por correo: envía, registra el envío y la pasa a ENVIADA', async () => {
     const { service, prisma, mail } = setup();
     const r = await service.enviar('m1', 'c1', { canal: 'EMAIL' }, 'a@fp.com');
-    expect(mail.sendCotizacionServicio).toHaveBeenCalledWith('ana@x.com', expect.objectContaining({ numero: 'COT-2026-ABC123', monto: 'USD 1,200.00' }));
+    expect(mail.sendCotizacionServicio).toHaveBeenCalledWith('ana@x.com', expect.objectContaining({ numero: 'COT-2026-ABC123', monto: 'USD 1,200.00' }), [expect.objectContaining({ filename: 'cotizacion-COT-2026-ABC123.pdf' })]);
     expect(prisma.cotizacionEnvio.create).toHaveBeenCalledWith({ data: expect.objectContaining({ marcaId: 'm1', canal: 'EMAIL', destinatario: 'ana@x.com', enviadoPor: 'a@fp.com' }) });
     expect(prisma.cotizacion.updateMany.mock.calls[0][0].data.estado).toBe('ENVIADA');
     expect(r.url).toBeNull();

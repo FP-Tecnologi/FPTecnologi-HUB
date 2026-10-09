@@ -5,6 +5,7 @@ import { normalizarCelular } from '../cotizador/cotizador.service.js';
 import { CreateCotizacionDto } from './dto/create-cotizacion.dto.js';
 import { ActualizarCotizacionDto, EnviarCotizacionDto } from './dto/gestion-cotizacion.dto.js';
 import { EstadoCotizacion } from '../generated/prisma/enums.js';
+import { empresaPdf, pdfCotizacion } from '../common/documento-pdf.js';
 
 // Roles del dashboard que reciben el aviso de cotización nueva.
 const ROLES_AVISO = ['admin', 'comercial', 'ventas'];
@@ -138,6 +139,11 @@ export class CotizacionesService {
       destinatario = c.clienteEmail;
       mensaje = c.propuesta ?? '';
       try {
+        // El PDF es un extra: si falla, el correo sale igual con la propuesta en el cuerpo.
+        const adjunto = await empresaPdf(this.prisma, marcaId)
+          .then((e) => pdfCotizacion(e, c))
+          .then((content) => [{ filename: `cotizacion-${c.numero ?? c.id.slice(0, 8)}.pdf`, content }])
+          .catch((e) => { this.logger.error(`No se pudo generar el PDF de la cotización ${c.numero}`, e as Error); return undefined; });
         await this.mail.sendCotizacionServicio(destinatario, {
           numero: c.numero ?? c.id.slice(0, 8),
           cliente: c.clienteNombre,
@@ -146,7 +152,7 @@ export class CotizacionesService {
           monto,
           validezHasta: validez,
           mensajeExtra: dto.mensaje,
-        });
+        }, adjunto);
       } catch (e) {
         this.logger.error(`No se pudo enviar la cotización ${c.numero} a ${destinatario}`, e as Error);
         throw new HttpException('No se pudo enviar el correo. Revisa la configuración de correo e intenta de nuevo.', HttpStatus.BAD_GATEWAY);

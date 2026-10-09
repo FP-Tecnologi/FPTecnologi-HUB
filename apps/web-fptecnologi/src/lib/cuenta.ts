@@ -47,6 +47,8 @@ export interface PortalSocio {
   socio: { nombre: string | null; empresa: string | null; ruc: string | null; email: string; cargo: string | null; celular: string | null; desde: string };
   recursos: RecursoSocio[];
   tickets: TicketSocio[];
+  novedades: { title: string; text: string }[];
+  beneficios: { title: string; text: string }[];
 }
 export type EstadoSocioSesion = 'PENDIENTE' | 'SUSPENDIDO' | 'RECHAZADO' | null;
 

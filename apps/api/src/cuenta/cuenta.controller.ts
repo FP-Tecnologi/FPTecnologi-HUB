@@ -1,4 +1,5 @@
-import { BadRequestException, Body, Controller, Get, Headers, Ip, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Headers, Ip, Param, Post, Query, Res } from '@nestjs/common';
+import type { Response } from 'express';
 import { IsEmail, IsOptional, IsString, Length, MaxLength } from 'class-validator';
 import { CuentaService } from './cuenta.service.js';
 import { Limite } from '../common/guards/limite-peticiones.guard.js';
@@ -51,5 +52,14 @@ export class CuentaController {
   resumen(@Query('marcaId') marcaId: string, @Headers('x-cuenta-token') token?: string) {
     if (!marcaId) throw new BadRequestException('Falta marcaId');
     return this.cuenta.resumen(marcaId, token);
+  }
+
+  /** PDF de una cotización ya enviada al cliente de esta sesión. */
+  @Get('cotizaciones/:id/pdf')
+  async cotizacionPdf(@Query('marcaId') marcaId: string, @Param('id') id: string, @Res() res: Response, @Headers('x-cuenta-token') token?: string) {
+    if (!marcaId) throw new BadRequestException('Falta marcaId');
+    const { buffer, nombre } = await this.cuenta.cotizacionPdf(marcaId, token, id);
+    res.set({ 'Content-Type': 'application/pdf', 'Content-Disposition': `attachment; filename="${nombre}"`, 'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'private, no-store' });
+    res.send(buffer);
   }
 }

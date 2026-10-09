@@ -135,6 +135,22 @@ export function SociosPortal({ portal }: { portal: PortalSocio }) {
               </span>
               <span aria-hidden className="text-brand-primary">→</span>
             </a>
+            {[['Novedades para socios', portal.novedades], ['Precios y descuentos de socios', portal.beneficios]].map(([titulo, lista]) => {
+              const items = lista as PortalSocio['novedades'];
+              return items.length > 0 && (
+                <div key={titulo as string}>
+                  <h3 className="font-display text-lg font-bold text-ink">{titulo as string}</h3>
+                  <ul className="mt-4 grid gap-4 sm:grid-cols-2">
+                    {items.map((it) => (
+                      <li key={it.title} className={`${tarjeta} p-5`}>
+                        <p className="font-display font-bold text-ink">{it.title}</p>
+                        {it.text && <p className="mt-1 whitespace-pre-line text-sm text-ink/65">{it.text}</p>}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
             {nuevos.length > 0 && (
               <div>
                 <h3 className="font-display text-lg font-bold text-ink">Lo más reciente</h3>

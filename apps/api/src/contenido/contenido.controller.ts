@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, Put, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, NotFoundException, Param, Put, Query, UseGuards } from '@nestjs/common';
 import { IsObject } from 'class-validator';
 import { ContenidoService } from './contenido.service.js';
 import { MarcaRolGuard } from '../common/guards/marca-rol.guard.js';
@@ -56,6 +56,8 @@ export class PublicContenidoController {
   @Get(':pagina')
   pagina(@Query('marcaId') marcaId: string, @Param('pagina') pagina: string) {
     if (!marcaId) throw new BadRequestException('Falta marcaId');
+    // La intranet de socios (novedades y beneficios) solo se entrega dentro del portal, con sesión de socio.
+    if (pagina === 'socios') throw new NotFoundException();
     return this.contenido.pagina(marcaId, slug(pagina, 'pagina'));
   }
 }

@@ -146,6 +146,11 @@ export const PAGINAS_DEFAULTS = {
       ] as { titulo: string; archivo: string }[],
     },
   },
+  // Intranet de socios: solo la ven los socios con sesión (la API la entrega dentro del portal, no por /public/contenido).
+  socios: {
+    novedades: { items: [] as { title: string; text: string }[] },
+    beneficios: { items: [] as { title: string; text: string }[] },
+  },
   // Ajustes generales (dashboard → Web informativa → Ajustes del sitio). Los consume lib/sitio.ts.
   sitio: {
     contacto: {

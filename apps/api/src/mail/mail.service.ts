@@ -21,6 +21,12 @@ import {
   avisoEmail,
 } from './templates.js';
 
+/** Archivo adjunto de un correo (ej. el PDF del presupuesto). */
+export interface Adjunto {
+  filename: string;
+  content: Buffer;
+}
+
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
@@ -99,22 +105,23 @@ export class MailService {
   }
 
   /** Envía la cotización de un servicio al cliente. A diferencia de los avisos, el error SÍ se propaga (el equipo debe saber si no salió). */
-  async sendCotizacionServicio(to: string, datos: CotizacionCorreo): Promise<void> {
+  async sendCotizacionServicio(to: string, datos: CotizacionCorreo, adjuntos?: Adjunto[]): Promise<void> {
     const { subject, html } = cotizacionServicioEmail(datos);
-    if (this.driver === 'resend') {
-      await this.resend!.emails.send({ from: this.fromEmail, to, subject, html });
-    } else {
-      await this.smtpTransport!.sendMail({ from: this.fromEmail, to, subject, html });
-    }
+    await this.sendConError(to, subject, html, adjuntos);
   }
 
   /** Envía el presupuesto mayorista al cliente (enlace al documento). El error se propaga: el equipo debe saber si no salió. */
-  async sendPresupuestoCliente(to: string, datos: Parameters<typeof presupuestoClienteEmail>[0]): Promise<void> {
+  async sendPresupuestoCliente(to: string, datos: Parameters<typeof presupuestoClienteEmail>[0], adjuntos?: Adjunto[]): Promise<void> {
     const { subject, html } = presupuestoClienteEmail(datos);
+    await this.sendConError(to, subject, html, adjuntos);
+  }
+
+  /** Envío cuyo error se propaga (el equipo debe saber si no salió); `adjuntos` = PDF generados en el servidor. */
+  private async sendConError(to: string, subject: string, html: string, attachments?: Adjunto[]): Promise<void> {
     if (this.driver === 'resend') {
-      await this.resend!.emails.send({ from: this.fromEmail, to, subject, html });
+      await this.resend!.emails.send({ from: this.fromEmail, to, subject, html, ...(attachments?.length ? { attachments } : {}) });
     } else {
-      await this.smtpTransport!.sendMail({ from: this.fromEmail, to, subject, html });
+      await this.smtpTransport!.sendMail({ from: this.fromEmail, to, subject, html, ...(attachments?.length ? { attachments } : {}) });
     }
   }
 

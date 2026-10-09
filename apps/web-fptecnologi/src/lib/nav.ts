@@ -35,6 +35,7 @@ export function buildNavLinks(servicios: readonly Item[], categorias: readonly I
     viewAllLabel: 'Ver catálogo completo',
   },
   { label: 'Catálogos', href: '/catalogos' },
+  { label: 'QUAMTU', href: 'https://quamtu.com/' },
   { label: 'Blog', href: '/blog' },
   {
     label: 'Contacto',
