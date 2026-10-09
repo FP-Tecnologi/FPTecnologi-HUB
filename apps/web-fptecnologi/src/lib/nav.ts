@@ -28,6 +28,7 @@ export function buildNavLinks(servicios: readonly Item[], categorias: readonly I
     viewAllHref: '/tienda',
     viewAllLabel: 'Ver catálogo completo',
   },
+  { label: 'Catálogos', href: '/catalogos' },
   { label: 'Blog', href: '/blog' },
   {
     label: 'Contacto',
