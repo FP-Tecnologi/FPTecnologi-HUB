@@ -156,7 +156,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
                     aria-checked={activo}
                     onClick={() => setMotivo(id)}
                     className={`group flex items-center gap-4 rounded-xl border p-3.5 text-left transition-all duration-300 hover:-translate-y-0.5 ${
-                      activo ? 'border-brand-primary bg-brand-primary text-white shadow-[0_14px_28px_-10px_rgba(16,122,204,0.6)]' : 'border-brand-100 bg-white hover:border-brand-primary/50'
+                      activo ? 'border-brand-primary bg-brand-primary text-white shadow-[0_14px_28px_-10px_rgba(40,152,238,0.6)]' : 'border-brand-100 bg-white hover:border-brand-primary/50'
                     }`}
                   >
                     <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-colors ${activo ? 'bg-white text-brand-primary' : 'bg-brand-50 text-brand-primary'}`}>
@@ -195,7 +195,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
                 href={href}
                 target={href.startsWith('http') ? '_blank' : undefined}
                 rel={href.startsWith('http') ? 'noreferrer' : undefined}
-                className="group flex items-center gap-3.5 rounded-xl border border-brand-100 bg-white p-3.5 shadow-sm shadow-brand-950/5 transition-all duration-300 hover:-translate-y-1 hover:border-brand-primary hover:bg-brand-primary hover:shadow-[0_16px_32px_-10px_rgba(16,122,204,0.6)]"
+                className="group flex items-center gap-3.5 rounded-xl border border-brand-100 bg-white p-3.5 shadow-sm shadow-brand-950/5 transition-all duration-300 hover:-translate-y-1 hover:border-brand-primary hover:bg-brand-primary hover:shadow-[0_16px_32px_-10px_rgba(40,152,238,0.6)]"
               >
                 {/* Hover notorio: la tarjeta se rellena de azul primario, el texto pasa a blanco y el ícono flota y gira un poco. */}
                 <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-primary transition-all duration-300 group-hover:-rotate-6 group-hover:scale-110 group-hover:bg-white group-hover:text-brand-primary">
@@ -338,7 +338,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
                 </>
               )}
               <label className="flex cursor-pointer items-start gap-3 text-sm text-ink/70">
-                <input type="checkbox" checked={acepto} onChange={(e) => setAcepto(e.target.checked)} className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-[#107acc]" />
+                <input type="checkbox" checked={acepto} onChange={(e) => setAcepto(e.target.checked)} className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer accent-[#2898ee]" />
                 <span>
                   Acepto la{' '}
                   <a href="/legal/privacidad" target="_blank" rel="noreferrer" className="font-semibold text-brand-700 underline underline-offset-2 hover:text-brand-primary">política de privacidad</a>{' '}

@@ -31,7 +31,7 @@ export function AreasContacto() {
             const Icon = ICONOS[a.icono];
             return (
               <ScrollReveal key={a.area} direction="up" delayMs={i * 80} className="h-full">
-                <div className="group h-full rounded-2xl border border-brand-100 bg-white p-6 shadow-sm shadow-brand-950/5 transition-all duration-300 hover:-translate-y-1 hover:border-brand-primary hover:bg-brand-primary hover:shadow-[0_16px_32px_-10px_rgba(16,122,204,0.6)]">
+                <div className="group h-full rounded-2xl border border-brand-100 bg-white p-6 shadow-sm shadow-brand-950/5 transition-all duration-300 hover:-translate-y-1 hover:border-brand-primary hover:bg-brand-primary hover:shadow-[0_16px_32px_-10px_rgba(40,152,238,0.6)]">
                   <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-primary transition-all duration-300 group-hover:-rotate-6 group-hover:scale-110 group-hover:bg-white">
                     <Icon className="icon-hop h-6 w-6" strokeWidth={1.8} />
                   </span>

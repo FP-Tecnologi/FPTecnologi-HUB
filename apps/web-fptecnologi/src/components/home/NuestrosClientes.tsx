@@ -87,7 +87,7 @@ function SectorBox({ sector }: { sector: ClientSector }) {
             <div
               key={`${c.name}-${i}`}
               aria-hidden={i >= sector.clients.length}
-              className="group flex w-44 shrink-0 flex-col items-center gap-3 rounded-2xl border border-brand-100 bg-white p-4 text-center shadow-sm shadow-brand-950/5 transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-300 hover:shadow-[0_18px_36px_-10px_rgba(16,122,204,0.45)]"
+              className="group flex w-44 shrink-0 flex-col items-center gap-3 rounded-2xl border border-brand-100 bg-white p-4 text-center shadow-sm shadow-brand-950/5 transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-300 hover:shadow-[0_18px_36px_-10px_rgba(40,152,238,0.45)]"
             >
               <div className="flex h-16 w-full items-center justify-center">
                 {c.logo ? (

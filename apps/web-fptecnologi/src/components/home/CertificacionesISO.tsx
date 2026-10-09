@@ -29,7 +29,7 @@ export function CertificacionesISO() {
         <div className="grid grid-cols-2 gap-5 md:grid-cols-3 lg:grid-cols-5">
           {CERTIFICACIONES.map((c, i) => (
             <ScrollReveal key={c.codigo} direction="up" delayMs={i * 90} className="h-full">
-              <div className="group flex h-full flex-col items-center rounded-2xl border border-brand-100 bg-white p-5 text-center shadow-sm shadow-brand-950/5 transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-300 hover:shadow-[0_18px_36px_-10px_rgba(16,122,204,0.45)]">
+              <div className="group flex h-full flex-col items-center rounded-2xl border border-brand-100 bg-white p-5 text-center shadow-sm shadow-brand-950/5 transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-300 hover:shadow-[0_18px_36px_-10px_rgba(40,152,238,0.45)]">
                 <div className="relative h-28 w-full">
                   <Image src={c.logo} alt={c.codigo} fill sizes="200px" className="object-contain mix-blend-multiply transition-transform duration-500 ease-out group-hover:scale-110" />
                 </div>

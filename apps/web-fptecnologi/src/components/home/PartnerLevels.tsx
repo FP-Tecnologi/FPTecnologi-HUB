@@ -46,7 +46,7 @@ export function PartnerLevels({ conTitulo = false }: { conTitulo?: boolean }) {
           {track.map((p, i) => (
             <div
               key={`${p.name}-${i}`}
-              className="group flex w-52 shrink-0 flex-col items-center gap-2 rounded-2xl p-4 text-center transition-all duration-300 hover:-translate-y-1.5 hover:bg-white hover:shadow-[0_18px_36px_-10px_rgba(16,122,204,0.5)] hover:ring-1 hover:ring-brand-primary/20"
+              className="group flex w-52 shrink-0 flex-col items-center gap-2 rounded-2xl p-4 text-center transition-all duration-300 hover:-translate-y-1.5 hover:bg-white hover:shadow-[0_18px_36px_-10px_rgba(40,152,238,0.5)] hover:ring-1 hover:ring-brand-primary/20"
             >
               <div className="relative h-20 w-full">
                 <Image src={p.logo} alt={`${p.name}${p.level ? ` — ${p.level} Partner` : ''}`} fill sizes="208px" className="object-contain mix-blend-multiply" />

@@ -6,7 +6,7 @@
  * pasada por el cliente, no inventada.
  */
 @theme {
-  /* Escala tonal del azul de marca #107acc (600). Todo el sitio se arma con variaciones de esta escala:
+  /* Escala tonal del azul de marca: primario #2898ee (500), secundario #107acc (600). Todo el sitio se arma con variaciones de esta escala:
      fondos (50-100), bordes (100-200), acentos sobre oscuro (200-300), botones (500-600) y texto de acento
      sobre claro (600 en títulos grandes, 700 en texto chico: 600 sobre blanco queda en 4.5:1 justo). */
   --color-brand-50: #eff7fd;
@@ -14,7 +14,7 @@
   --color-brand-200: #b7ddfa;
   --color-brand-300: #81c4f8;
   --color-brand-400: #47a9f5;
-  --color-brand-500: #1992f0;
+  --color-brand-500: #2898ee;
   --color-brand-600: #107acc;
   --color-brand-700: #0c60a1;
   --color-brand-800: #0e4c7c;
@@ -22,10 +22,10 @@
   --color-brand-950: #0d2233;
 
   /* Nombres semánticos (los usan los componentes): */
-  --color-brand-primary: var(--color-brand-600); /* base de botones y acentos */
-  --color-brand-dark: var(--color-brand-700); /* hover / presionado / texto de acento chico */
-  --color-brand-petrol: var(--color-brand-700); /* final de degradados */
-  --color-brand-teal: var(--color-brand-500); /* resplandores y degradados (antes turquesa) */
+  --color-brand-primary: var(--color-brand-500); /* primario #2898ee: base de botones y acentos */
+  --color-brand-dark: var(--color-brand-600); /* secundario #107acc: hover / presionado */
+  --color-brand-petrol: var(--color-brand-600); /* final de degradados */
+  --color-brand-teal: var(--color-brand-400); /* resplandores y degradados (antes turquesa) */
   --color-brand-teal-light: var(--color-brand-300); /* acento claro sobre fondos oscuros (antes turquesa claro) */
 
   /* Negro de marca: texto principal y fondo de pie de página (neutro, no azul). */
@@ -48,7 +48,7 @@
  */
 .btn-glow {
   background: linear-gradient(135deg, var(--color-brand-500) 0%, var(--color-brand-600) 100%);
-  box-shadow: 0 12px 26px -10px rgba(16, 122, 204, 0.55);
+  box-shadow: 0 12px 26px -10px rgba(40, 152, 238, 0.55);
   transition:
     filter 0.2s ease,
     box-shadow 0.2s ease,
@@ -1025,7 +1025,7 @@ body {
 .blog-prose img {
   width: 100%;
   border-radius: 1rem;
-  box-shadow: 0 20px 40px -20px rgba(16, 122, 204, 0.45);
+  box-shadow: 0 20px 40px -20px rgba(40, 152, 238, 0.45);
 }
 .blog-prose code {
   border-radius: 0.375rem;

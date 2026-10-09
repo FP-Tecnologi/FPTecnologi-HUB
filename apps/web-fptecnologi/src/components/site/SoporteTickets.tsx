@@ -163,7 +163,7 @@ export function SoporteTickets() {
                   onClick={() => setCaso(c.id)}
                   aria-pressed={activo}
                   className={`group flex items-center gap-4 rounded-xl border p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
-                    activo ? 'border-brand-primary bg-brand-primary text-white shadow-[0_14px_28px_-10px_rgba(16,122,204,0.6)]' : 'border-brand-100 bg-white hover:border-brand-primary/50'
+                    activo ? 'border-brand-primary bg-brand-primary text-white shadow-[0_14px_28px_-10px_rgba(40,152,238,0.6)]' : 'border-brand-100 bg-white hover:border-brand-primary/50'
                   }`}
                 >
                   <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg transition-colors ${activo ? 'bg-white text-brand-primary' : 'bg-brand-50 text-brand-primary'}`}>
