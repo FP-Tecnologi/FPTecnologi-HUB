@@ -1,11 +1,12 @@
 'use client';
 // PC procedural en 3D (cajas y cilindros, sin modelos .glb): cada pieza elegida "cae" dentro del gabinete.
 // Para modelos reales después: reemplazar el interior de cada pieza por un <primitive object={gltf.scene} />.
-import { useRef, type ReactNode } from 'react';
+import { Suspense, useMemo, useRef, type ReactNode } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { ContactShadows, Edges, OrbitControls, Sparkles } from '@react-three/drei';
+import { ContactShadows, Edges, OrbitControls, Sparkles, useGLTF } from '@react-three/drei';
 import { MathUtils, type Group } from 'three';
-import type { Seleccion } from '@/lib/piezas';
+import type { Opcion, Seleccion } from '@/lib/piezas';
+import { MODELOS, type Modelo } from '@/lib/modelos';
 
 const H = 3.8; // alto base del gabinete
 const W = 3.2;
@@ -17,7 +18,15 @@ function Glow({ color, i = 2 }: { color: string; i?: number }) {
 }
 
 // Anima la entrada: la pieza cae desde arriba y crece hasta su tamaño.
-function Aparece({ on, children, caida = 1.6 }: { on: boolean; children: ReactNode; caida?: number }) {
+const modeloDe = (o?: Opcion) => (o ? (MODELOS[o.id] ?? MODELOS[o.cat]) : undefined);
+
+function Glb({ m }: { m: Modelo }) {
+  const { scene } = useGLTF(m.url);
+  const copia = useMemo(() => scene.clone(true), [scene]);
+  return <primitive object={copia} scale={m.escala ?? 1} position={m.pos ?? [0, 0, 0]} rotation={m.rot ?? [0, 0, 0]} />;
+}
+
+function Aparece({ on, children, caida = 1.6, modelo }: { on: boolean; children: ReactNode; caida?: number; modelo?: Modelo }) {
   const ref = useRef<Group>(null);
   const p = useRef(0);
   useFrame((_, dt) => {
@@ -30,7 +39,13 @@ function Aparece({ on, children, caida = 1.6 }: { on: boolean; children: ReactNo
   });
   return (
     <group ref={ref} visible={false}>
-      {children}
+      {modelo ? (
+        <Suspense fallback={null}>
+          <Glb m={modelo} />
+        </Suspense>
+      ) : (
+        children
+      )}
     </group>
   );
 }
@@ -97,7 +112,7 @@ function Escena({ sel }: { sel: Seleccion }) {
       )}
 
       {/* Placa madre */}
-      <Aparece on={!!placa}>
+      <Aparece on={!!placa} modelo={modeloDe(placa)}>
         <mesh position={[-0.35, 0.35, -0.72]}>
           <boxGeometry args={[2.0, 2.4, 0.05]} />
           <meshStandardMaterial color={BASE} metalness={0.5} roughness={0.5} />
@@ -116,7 +131,7 @@ function Escena({ sel }: { sel: Seleccion }) {
       </Aparece>
 
       {/* CPU */}
-      <Aparece on={!!cpu} caida={2}>
+      <Aparece on={!!cpu} modelo={modeloDe(cpu)} caida={2}>
         <mesh position={[-0.2, 0.75, -0.66]}>
           <boxGeometry args={[0.42, 0.42, 0.05]} />
           <Glow color={cpu?.color ?? '#f97316'} i={0.9} />
@@ -124,7 +139,7 @@ function Escena({ sel }: { sel: Seleccion }) {
       </Aparece>
 
       {/* Refrigeración: torre (n=1) o líquida con radiador arriba (n>=2) */}
-      <Aparece on={!!cooler} caida={2.2}>
+      <Aparece on={!!cooler} modelo={modeloDe(cooler)} caida={2.2}>
         {cooler && cooler.n === 1 && (
           <group position={[-0.2, 0.75, -0.36]}>
             <mesh>
@@ -166,7 +181,7 @@ function Escena({ sel }: { sel: Seleccion }) {
       </Aparece>
 
       {/* RAM */}
-      <Aparece on={!!ram} caida={2.4}>
+      <Aparece on={!!ram} modelo={modeloDe(ram)} caida={2.4}>
         {ram &&
           Array.from({ length: ram.n ?? 2 }, (_, i) => (
             <group key={i} position={[0.5 + i * 0.12, 0.75, -0.6]}>
@@ -183,7 +198,7 @@ function Escena({ sel }: { sel: Seleccion }) {
       </Aparece>
 
       {/* SSD (M.2) */}
-      <Aparece on={!!ssd} caida={1.8}>
+      <Aparece on={!!ssd} modelo={modeloDe(ssd)} caida={1.8}>
         {ssd &&
           Array.from({ length: ssd.n ?? 1 }, (_, i) => (
             <mesh key={i} position={[-0.5, 0.0 - i * 0.18, -0.67]}>
@@ -194,7 +209,7 @@ function Escena({ sel }: { sel: Seleccion }) {
       </Aparece>
 
       {/* GPU: placa horizontal con ventiladores al frente */}
-      <Aparece on={!!gpu} caida={2.6}>
+      <Aparece on={!!gpu} modelo={modeloDe(gpu)} caida={2.6}>
         <group position={[-0.25, -0.55, -0.15]}>
           <mesh>
             <boxGeometry args={[2.35, 0.62, 0.42]} />
@@ -217,7 +232,7 @@ function Escena({ sel }: { sel: Seleccion }) {
       </Aparece>
 
       {/* Fuente de poder */}
-      <Aparece on={!!fuente} caida={1.4}>
+      <Aparece on={!!fuente} modelo={modeloDe(fuente)} caida={1.4}>
         <group position={[0, -H * s * 0.5 + 0.38, -0.05]}>
           <mesh>
             <boxGeometry args={[W * s - 0.3, 0.6, D - 0.25]} />
