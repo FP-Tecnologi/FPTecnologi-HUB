@@ -18,7 +18,10 @@ export interface CotizacionCuenta {
   id: string; numero: string | null; estado: 'PENDIENTE' | 'EN_REVISION' | 'ENVIADA' | 'ACEPTADA' | 'RECHAZADA'; mensaje: string | null;
   propuesta: string | null; monto: string | null; moneda: string; validezHasta: string | null; enviadaAt: string | null; createdAt: string; servicio: { nombre: string };
 }
-export interface ResumenCuenta { socio?: boolean; email: string; nombre: string | null; celular: string | null; pedidos: PedidoCuenta[]; cotizaciones: CotizacionCuenta[] }
+export interface PresupuestoCuenta {
+  id: string; numero: string; estado: CotizacionCuenta['estado']; total: string; moneda: string; validezHasta: string; createdAt: string; _count: { items: number };
+}
+export interface ResumenCuenta { socio?: boolean; email: string; nombre: string | null; celular: string | null; pedidos: PedidoCuenta[]; cotizaciones: CotizacionCuenta[]; presupuestos: PresupuestoCuenta[] }
 
 /** Datos de la cuenta, o null si no hay sesión / venció (la página muestra entonces el acceso por código). */
 export async function getResumenCuenta(token: string | undefined): Promise<ResumenCuenta | null> {

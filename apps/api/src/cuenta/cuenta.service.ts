@@ -103,7 +103,7 @@ export class CuentaService {
   /** Todo lo del cliente (por su correo verificado): pedidos con su envío y cotizaciones ya enviadas. */
   async resumen(marcaId: string, token: string | undefined) {
     const email = this.leerToken(token, marcaId);
-    const [pedidos, cotizaciones] = await Promise.all([
+    const [pedidos, cotizaciones, presupuestos] = await Promise.all([
       this.prisma.pedido.findMany({
         where: { marcaId, email: { equals: email, mode: 'insensitive' } },
         select: {
@@ -123,6 +123,12 @@ export class CuentaService {
         },
         orderBy: { createdAt: 'desc' },
       }),
+      // Presupuestos mayoristas que pidió con este correo (el documento se abre en /presupuesto/:id).
+      this.prisma.presupuesto.findMany({
+        where: { marcaId, clienteEmail: { equals: email, mode: 'insensitive' } },
+        select: { id: true, numero: true, estado: true, total: true, moneda: true, validezHasta: true, createdAt: true, _count: { select: { items: true } } },
+        orderBy: { createdAt: 'desc' },
+      }),
     ]);
     const nombre = pedidos[0]?.nombre ?? (await this.nombreDeCotizacion(marcaId, email));
     const socio = (await this.prisma.socio.count({ where: { marcaId, email, estado: 'ACTIVO' } })) > 0;
@@ -132,6 +138,7 @@ export class CuentaService {
       nombre,
       celular: pedidos[0]?.celular ?? null,
       pedidos,
+      presupuestos,
       cotizaciones: cotizaciones.map((c) => ({ ...c, propuesta: c.enviadaAt ? c.propuesta : null, monto: c.enviadaAt ? c.monto : null, validezHasta: c.enviadaAt ? c.validezHasta : null })),
     };
   }

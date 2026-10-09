@@ -1,10 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle2, ChevronDown, ClipboardList, Clock, FileText, LogOut, MapPin, MessageCircle, Package, Phone, ShoppingBag, Truck, User } from 'lucide-react';
+import { CheckCircle2, ChevronDown, ClipboardList, Clock, Download, FileText, Receipt, LogOut, MapPin, MessageCircle, Package, Phone, ShoppingBag, Truck, User } from 'lucide-react';
 import { useCurrency } from '@/context/CurrencyContext';
 import { whatsappHref } from '@/lib/chatActions';
-import type { CotizacionCuenta, PedidoCuenta, ResumenCuenta } from '@/lib/cuenta';
+import { useSitio } from '@/context/SitioContext';
+import { imprimirCotizacion } from '@/lib/imprimirCotizacion';
+import type { CotizacionCuenta, PedidoCuenta, PresupuestoCuenta, ResumenCuenta } from '@/lib/cuenta';
 
 const fecha = (iso: string) => new Date(iso).toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' });
 
@@ -107,6 +109,7 @@ function CotizacionCard({ c }: { c: CotizacionCuenta }) {
   const e = ESTADO_COT[c.estado];
   const [abierto, setAbierto] = useState(c.estado === 'ENVIADA');
   const tienePropuesta = !!c.propuesta || c.monto != null;
+  const { contact } = useSitio();
   const wa = whatsappHref(`Hola, consulto por mi cotización ${c.numero ?? ''} (${c.servicio.nombre}) de la web de FPTecnologi.`);
   return (
     <article className="hover-lift rounded-3xl border border-ink/5 bg-white p-6 shadow-lg shadow-brand-dark/10 hover:shadow-xl hover:shadow-brand-dark/15">
@@ -137,6 +140,9 @@ function CotizacionCard({ c }: { c: CotizacionCuenta }) {
           )}
         </>
       )}
+      {tienePropuesta && (
+        <button type="button" onClick={() => imprimirCotizacion(c, contact)} className="mr-2 mt-4 inline-flex h-10 items-center gap-2 rounded-xl border border-brand-primary px-4 text-xs font-semibold uppercase tracking-wide text-brand-700 transition-colors hover:bg-brand-primary hover:text-white"><Download className="h-4 w-4" aria-hidden />Descargar PDF</button>
+      )}
       <a href={wa} target="_blank" rel="noreferrer" className="mt-4 inline-flex h-10 items-center gap-2 rounded-xl bg-whatsapp-dark px-4 text-xs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-whatsapp-deep"><MessageCircle className="h-4 w-4" strokeWidth={2} /> {tienePropuesta ? 'Quiero avanzar / ajustar' : 'Consultar'}</a>
     </article>
   );
@@ -144,7 +150,9 @@ function CotizacionCard({ c }: { c: CotizacionCuenta }) {
 
 /* Mi cuenta: perfil resumido, pedidos con su avance y cotizaciones con su propuesta. */
 export function MiCuentaView({ cuenta }: { cuenta: ResumenCuenta }) {
-  const [tab, setTab] = useState<'pedidos' | 'cotizaciones'>(cuenta.pedidos.length === 0 && cuenta.cotizaciones.length > 0 ? 'cotizaciones' : 'pedidos');
+  const [tab, setTab] = useState<'pedidos' | 'cotizaciones' | 'presupuestos'>(
+    cuenta.pedidos.length > 0 ? 'pedidos' : cuenta.cotizaciones.length > 0 ? 'cotizaciones' : cuenta.presupuestos.length > 0 ? 'presupuestos' : 'pedidos',
+  );
   const [saliendo, setSaliendo] = useState(false);
   const activos = cuenta.pedidos.filter((p) => p.estado !== 'ENTREGADO' && p.estado !== 'CANCELADO').length;
 
@@ -177,7 +185,7 @@ export function MiCuentaView({ cuenta }: { cuenta: ResumenCuenta }) {
 
       <section>
         <div className="mb-6 inline-flex rounded-2xl bg-white p-1.5 shadow-md shadow-brand-dark/10" role="tablist" aria-label="Mi cuenta">
-          {([['pedidos', `Mis pedidos (${cuenta.pedidos.length})`, ShoppingBag], ['cotizaciones', `Mis cotizaciones (${cuenta.cotizaciones.length})`, FileText]] as const).map(([id, label, Icon]) => (
+          {([['pedidos', `Mis pedidos (${cuenta.pedidos.length})`, ShoppingBag], ['cotizaciones', `Mis cotizaciones (${cuenta.cotizaciones.length})`, FileText], ['presupuestos', `Mis presupuestos (${cuenta.presupuestos.length})`, Receipt]] as const).map(([id, label, Icon]) => (
             <button key={id} type="button" role="tab" aria-selected={tab === id} onClick={() => setTab(id)} className={`inline-flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors ${tab === id ? 'bg-brand-primary text-white shadow-md shadow-brand-dark/25' : 'text-ink/60 hover:text-brand-700'}`}>
               <Icon className="h-4 w-4" strokeWidth={2} /> {label}
             </button>
@@ -191,9 +199,31 @@ export function MiCuentaView({ cuenta }: { cuenta: ResumenCuenta }) {
           {tab === 'cotizaciones' && (cuenta.cotizaciones.length === 0
             ? <Vacio titulo="Aún no tienes cotizaciones" texto="Pide una cotización desde el detalle de cualquier servicio y la seguirás desde aquí." href="/servicios" accion="Ver servicios" />
             : cuenta.cotizaciones.map((c) => <CotizacionCard key={c.id} c={c} />))}
+          {tab === 'presupuestos' && (cuenta.presupuestos.length === 0
+            ? <Vacio titulo="Aún no tienes presupuestos" texto="Si compras al por mayor, arma tu carrito como mayorista y pide un presupuesto: lo verás aquí para imprimirlo o guardarlo en PDF." href="/tienda" accion="Ir a la tienda" />
+            : cuenta.presupuestos.map((p) => <PresupuestoCard key={p.id} p={p} />))}
         </div>
       </section>
     </div>
+  );
+}
+
+function PresupuestoCard({ p }: { p: PresupuestoCuenta }) {
+  const e = ESTADO_COT[p.estado];
+  return (
+    <article className="hover-lift rounded-3xl border border-ink/5 bg-white p-6 shadow-lg shadow-brand-dark/10 hover:shadow-xl hover:shadow-brand-dark/15">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="font-display text-lg font-bold text-ink">Presupuesto <span className="font-mono">{p.numero}</span></p>
+          <p className="text-sm text-ink/65">Pedido el {fecha(p.createdAt)} · {p._count.items} producto{p._count.items === 1 ? '' : 's'} · válido hasta {fecha(p.validezHasta)}</p>
+        </div>
+        <span className={`rounded-lg px-3 py-1 text-xs font-bold ${e.clase}`}>{e.label}</span>
+      </div>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <p className="font-display text-xl font-bold text-ink">{p.moneda} {Number(p.total).toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+        <a href={`/presupuesto/${p.id}`} className="inline-flex h-10 items-center gap-2 rounded-xl bg-brand-primary px-4 text-xs font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-700"><Download className="h-4 w-4" aria-hidden />Ver y descargar PDF</a>
+      </div>
+    </article>
   );
 }
 

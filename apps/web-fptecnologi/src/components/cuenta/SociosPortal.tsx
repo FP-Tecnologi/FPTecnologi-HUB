@@ -128,6 +128,13 @@ export function SociosPortal({ portal }: { portal: PortalSocio }) {
                 </button>
               ))}
             </div>
+            <a href="/cuenta" className={`${tarjeta} flex items-center justify-between gap-4 p-5 transition-all hover:-translate-y-0.5 hover:border-brand-primary`}>
+              <span>
+                <span className="block font-display text-lg font-bold text-ink">Mis pedidos, cotizaciones y presupuestos</span>
+                <span className="text-sm text-ink/60">Revisa su avance y descarga tus documentos en PDF.</span>
+              </span>
+              <span aria-hidden className="text-brand-primary">→</span>
+            </a>
             {nuevos.length > 0 && (
               <div>
                 <h3 className="font-display text-lg font-bold text-ink">Lo más reciente</h3>

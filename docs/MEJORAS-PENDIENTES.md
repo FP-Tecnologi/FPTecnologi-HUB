@@ -44,6 +44,10 @@ en [`ESTADO-ACTUAL.md`](ESTADO-ACTUAL.md); los pendientes de negocio más antigu
 - [x] Borrado de código muerto (`_riteflow-original`, 9 componentes/hooks), ~26 MB de imágenes sin uso,
       `soluciones-ti.mp4`, `temporal/` y el zip de la raíz (2026-10-05)
 
+- [x] Páginas Alquiler de equipos, FP Education, Compliance y Catálogos editables desde el dashboard; PDF de catálogos
+      y documentos reemplazable (2026-10-09)
+- [x] Mi cuenta: pestaña de presupuestos y descarga en PDF de cotizaciones (2026-10-09)
+
 ## Pendiente
 
 ### Correos (bloquea producción)

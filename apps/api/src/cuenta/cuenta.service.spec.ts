@@ -5,6 +5,7 @@ import { CuentaService } from './cuenta.service.js';
 function setup(over: Record<string, unknown> = {}) {
   const prisma = {
     pedido: { count: vi.fn(async () => 1), findMany: vi.fn(async () => []) },
+    presupuesto: { findMany: vi.fn(async () => []) },
     cotizacion: { count: vi.fn(async () => 0), findMany: vi.fn(async () => []), findFirst: vi.fn(async () => null) },
     socio: { count: vi.fn(async () => 0) },
     codigoCuenta: { create: vi.fn(async (_a: unknown) => ({})), findFirst: vi.fn(async () => null), updateMany: vi.fn(async (_a: unknown) => ({ count: 1 })) },
@@ -92,5 +93,14 @@ describe('resumen', () => {
     const r = await service.resumen('m1', token);
     expect(r.cotizaciones[0]).toMatchObject({ propuesta: null, monto: null, validezHasta: null });
     expect(r.cotizaciones[1]).toMatchObject({ propuesta: 'propuesta final', monto: 200 });
+  });
+
+  it('incluye los presupuestos mayoristas del correo, siempre dentro de la marca', async () => {
+    const findMany = vi.fn(async (_a: unknown) => [{ id: 'p1', numero: 'COT-2026-000001', estado: 'PENDIENTE' }]);
+    const { service } = setup({ presupuesto: { findMany } });
+    const { token } = service.emitirToken('ana@x.com', 'm1');
+    const r = await service.resumen('m1', token);
+    expect(r.presupuestos).toHaveLength(1);
+    expect((findMany.mock.calls[0][0] as { where: { marcaId: string } }).where.marcaId).toBe('m1');
   });
 });

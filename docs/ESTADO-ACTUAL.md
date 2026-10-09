@@ -1071,3 +1071,9 @@ Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «V
 - Presupuestos mayoristas: la pantalla del dashboard (`EcommercePresupuestos`, seguimiento de estado y reenvío por correo) ya existe; solo falta confirmar el PDF en servidor.
 - Comparación con fptecnologi.com actual — faltan en la web nueva: `/alquiler-equipos`, `/education`, `/compliance-microsoft`, `/partners`, `/brochure`, `/fp-comercial`, lista de deseos, enlaces a catálogos (Drive) y QUAMTU, y el mapa de redirecciones 301 de las URLs viejas.
 
+
+### 2026-10-09 — páginas nuevas editables, catálogos con PDF reemplazable, documentos en Mi cuenta
+- **Web informativa → Alquiler de equipos, FP Education, Compliance y Catálogos** (dashboard): textos editables y vista previa, como Nosotros. Rutas web `/alquiler-equipos`, `/education`, `/compliance`, `/catalogos` leen `getPagina()` (defaults en `paginasContenido.ts`). SEO por página también para estas 4.
+- **PDF reemplazable**: `POST /uploads/pdf` (admin/ventas/marketing/comercial; solo PDF real por firma, ≤50 MB, antivirus) guarda en `uploads/<marca>/catalogos/`. En el dashboard cada catálogo o documento de Compliance tiene «Subir/Reemplazar PDF»; la web lo sirve por el proxy `/api/archivos/...` (sin CORS) y `/catalogos` lo hojea como folleto (pdf.js + page-flip).
+- **Mi cuenta**: nueva pestaña «Mis presupuestos» (`resumen` de la API incluye `presupuestos`, filtrados por marca y correo) con enlace al documento imprimible; en cada cotización con propuesta, botón «Descargar PDF» (diálogo de impresión → guardar como PDF). La intranet de socios enlaza a Mi cuenta. 197 tests.
+- Sigue pendiente (ver `MEJORAS-PENDIENTES.md`): PDF generado en el servidor / adjunto en correos, SMTP, novedades y precios de socios, páginas partners/brochure/fp-comercial/lista de deseos, redirecciones 301.
