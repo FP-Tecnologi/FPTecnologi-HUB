@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, Put, Query, Res, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, ForbiddenException, Get, Param, Put, Query, Res, UseGuards } from '@nestjs/common';
 import type { Response } from 'express';
 import { TarjetasService } from './tarjetas.service.js';
 import { GuardarTarjetaDto } from './tarjetas.dto.js';
@@ -10,20 +10,27 @@ import { Public } from '../common/decorators/public.decorator.js';
 import { Limite } from '../common/guards/limite-peticiones.guard.js';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user.js';
 
-/** Dashboard → Mi tarjeta digital: cada persona del equipo comercial edita la suya. */
+/** Dashboard → Mi tarjeta digital: cada persona del equipo, de cualquier área, edita la suya. */
+// Sin lista de roles: cualquier persona del equipo (de cualquier área) con acceso a la marca puede tener su tarjeta.
 @UseGuards(MarcaRolGuard)
-@Roles('admin', 'marketing', 'ventas', 'comercial')
 @Controller('tarjetas')
 export class TarjetasController {
   constructor(private readonly tarjetas: TarjetasService) {}
 
+  /** Los clientes de la tienda también tienen una asignación en la marca (rol «cliente»): no son equipo. */
+  private soloEquipo(user: AuthenticatedUser, marcaId: string) {
+    if (user.marcas.find((m) => m.marcaId === marcaId)?.rol === 'cliente') throw new ForbiddenException('La tarjeta digital es para el equipo');
+  }
+
   @Get('mia')
   mia(@MarcaActual() marcaId: string, @CurrentUser() user: AuthenticatedUser) {
+    this.soloEquipo(user, marcaId);
     return this.tarjetas.mia(marcaId, user.sub);
   }
 
   @Put('mia')
   guardar(@MarcaActual() marcaId: string, @CurrentUser() user: AuthenticatedUser, @Body() dto: GuardarTarjetaDto) {
+    this.soloEquipo(user, marcaId);
     return this.tarjetas.guardarMia(marcaId, user.sub, dto);
   }
 

@@ -8,6 +8,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth } from '../../context/AuthContext';
+import { SubirImagen } from '../../components/ui/SubirImagen';
 import { api } from '../../lib/api';
 
 type Bloque =
@@ -21,7 +22,7 @@ type Bloque =
 // html: mailing completo (de la biblioteca mailing-fp); sus [marcadores] se llenan con `valores`. Sin html: se arma con bloques.
 interface Mailing { id: string; nombre: string; asunto: string; preheader: string; bloques: Bloque[]; actualizado: string; html?: string; valores?: Record<string, string> }
 type Area = 'ventas' | 'marketing' | 'general';
-interface ItemBiblioteca { area?: Area; grupo: string; nombre: string; archivo: string }
+interface ItemBiblioteca { area?: Area; grupo: string; nombre: string; archivo: string; valores?: Record<string, string> }
 const AREA_NOMBRE: Record<Area, string> = { ventas: 'Ventas', marketing: 'Marketing', general: 'General' };
 
 /** Áreas de la biblioteca que ve cada rol: ventas/comercial → Ventas; marketing y admin → todas; todos ven las plantillas generales. */
@@ -101,12 +102,20 @@ ${m.bloques.map(bloqueHtml).join('\n')}
 }
 
 /** Textos [entre corchetes] por reemplazar; ignora los condicionales de Outlook ([if mso], [endif]). */
+const esImagen = (c: string) => /^IMAGEN_[A-Z0-9_]+$/.test(c);
+const etiquetaImagen = (c: string) => `Imagen: ${c.replace(/^IMAGEN_/, '').replace(/_/g, ' ').toLowerCase()}`;
+
 function marcadores(html: string): string[] {
   const limpio = html.replace(/<!--\[if[\s\S]*?<!\[endif\]-->/gi, '').replace(/\[(if|endif)[^\]]*\]/gi, '');
   return [...new Set([...limpio.matchAll(/\[([^[\]<>\n]{2,60})\]/g)].map((m) => m[1]).filter((t) => t !== 'Asunto'))];
 }
 function htmlFinal(m: Mailing): string {
   let h = (m.html ?? '').split('[Asunto]').join(esc(m.asunto || '[Asunto]'));
+  // Imágenes opcionales: el bloque entre <!--IMG:X--> y <!--/IMG:X--> solo sale si X tiene una imagen.
+  for (const n of new Set([...h.matchAll(/<!--IMG:([A-Z0-9_]+)-->/g)].map((x) => x[1]))) {
+    const url = (m.valores?.[n] ?? '').trim();
+    h = h.replace(new RegExp(`<!--IMG:${n}-->([^]*?)<!--/IMG:${n}-->`, 'g'), url ? '$1' : '');
+  }
   for (const [k, v] of Object.entries(m.valores ?? {})) if (v.trim()) h = h.split(`[${k}]`).join(esc(v.trim()));
   return h;
 }
@@ -161,7 +170,7 @@ export function MailingEditor() {
     try {
       const h = await (await fetch(`/mailing-fp/${it.archivo}`)).text();
       const asunto = (h.match(/<title>([^<]*)<\/title>/i)?.[1] ?? '').replace(/\s*\|\s*FP Tecnologi.*$/i, '').trim();
-      const n: Mailing = { id: uid(), nombre: it.nombre, asunto: asunto.startsWith('[') ? '' : asunto, preheader: '', bloques: [], html: h, valores: {}, actualizado: new Date().toISOString() };
+      const n: Mailing = { id: uid(), nombre: it.nombre, asunto: asunto.startsWith('[') ? '' : asunto, preheader: '', bloques: [], html: h, valores: { ...(it.valores ?? {}) }, actualizado: new Date().toISOString() };
       guardarLista([n, ...lista]);
       setActualId(n.id);
       setVerBiblioteca(false);
@@ -264,7 +273,16 @@ export function MailingEditor() {
                 <>
                   <strong style={{ color: 'var(--ax-text-strong)' }}>Textos por completar</strong>
                   {campos.length === 0 && <p style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>No quedan [marcadores] por reemplazar. Para cambiar otros textos o imágenes edita el HTML.</p>}
-                  {campos.map((c, k) => campo(`ml-v${k}`, c, m.valores?.[c] ?? '', (v) => cambiar({ valores: { ...m.valores, [c]: v } })))}
+                  {campos.map((c, k) => (esImagen(c) ? (
+                    <div key={c} className="ax-field">
+                      {campo(`ml-v${k}`, `${etiquetaImagen(c)} (enlace)`, m.valores?.[c] ?? '', (v) => cambiar({ valores: { ...m.valores, [c]: v } }))}
+                      <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
+                        <SubirImagen etiqueta={m.valores?.[c] ? 'Cambiar imagen' : 'Subir imagen'} onSubida={(urls) => cambiar({ valores: { ...m.valores, [c]: urls[0] } })} />
+                        {m.valores?.[c] && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => cambiar({ valores: { ...m.valores, [c]: '' } })}>Quitar imagen</button>}
+                      </div>
+                      <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Opcional. Sin imagen, ese espacio no aparece en el correo. Medida recomendada de la portada: 1280 × 640 px.</span>
+                    </div>
+                  ) : campo(`ml-v${k}`, c, m.valores?.[c] ?? '', (v) => cambiar({ valores: { ...m.valores, [c]: v } }))))}
                   <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ alignSelf: 'flex-start' }} onClick={() => setVerCodigo((v) => !v)}>{verCodigo ? 'Ocultar HTML' : 'Editar HTML'}</button>
                   {verCodigo && <textarea aria-label="Código HTML" className="ax-textarea" rows={16} spellCheck={false} style={{ fontFamily: 'var(--ax-font-mono)', fontSize: 12 }} value={m.html} onChange={(e) => cambiar({ html: e.target.value })} />}
                 </>

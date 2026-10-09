@@ -19,7 +19,7 @@ interface Tarjeta {
 }
 interface Respuesta { tarjeta: Tarjeta | null; sugerido: { nombre: string; email: string; cargo: string; telefono: string }; url: string | null; qr: string | null }
 
-const VACIA: Tarjeta = { slug: '', nombre: '', cargo: '', area: 'Ventas', bio: '', fotoUrl: '', telefono: '', whatsapp: '', email: '', linkedin: '', web: '', agendaUrl: '', enlaces: [], activo: true, vistas: 0 };
+const VACIA: Tarjeta = { slug: '', nombre: '', cargo: '', area: '', bio: '', fotoUrl: '', telefono: '', whatsapp: '', email: '', linkedin: '', web: '', agendaUrl: '', enlaces: [], activo: true, vistas: 0 };
 const v = (x: string | null | undefined) => x ?? '';
 
 export function MiTarjeta() {
@@ -93,7 +93,7 @@ export function MiTarjeta() {
     <>
       <PageHead
         title="Mi tarjeta digital"
-        subtitle="Tu perfil profesional para compartir por QR o enlace: tus datos, WhatsApp, un botón para guardar tu contacto y para pedir una cotización."
+        subtitle="Tu perfil profesional (de cualquier área del equipo) para compartir por QR o enlace: tus datos, WhatsApp, un botón para guardar tu contacto y para pedir una cotización."
       />
       {error && <p role="alert" style={{ color: 'var(--ax-danger-500)' }}>{error}</p>}
       {ok && <p role="status" style={{ color: 'var(--ax-success-600, #15803d)' }}>{ok}</p>}
@@ -111,7 +111,7 @@ export function MiTarjeta() {
           </div>
           {campo('nombre', 'Nombre completo')}
           {campo('cargo', 'Cargo', { placeholder: 'Ejecutiva de ventas' })}
-          {campo('area', 'Área', { placeholder: 'Ventas' })}
+          {campo('area', 'Área', { placeholder: 'Ventas, Soporte, Marketing…' })}
           {campo('bio', 'Presentación corta', { area: true, ayuda: 'Hasta 400 caracteres. Qué haces y cómo ayudas al cliente.' })}
           {campo('telefono', 'Teléfono (como se muestra)', { placeholder: '+51 970 614 881' })}
           {campo('whatsapp', 'WhatsApp (con código de país)', { placeholder: '51970614881', ayuda: 'Solo números. Abre un chat directo contigo.' })}

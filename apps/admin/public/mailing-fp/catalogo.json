@@ -123,7 +123,12 @@
   "area": "ventas",
   "grupo": "Ventas: mailings de ejemplo",
   "nombre": "Oferta del mes (productos)",
-  "archivo": "mailings/ventas/01-oferta-del-mes.html"
+  "archivo": "mailings/ventas/01-oferta-del-mes.html",
+  "valores": {
+   "IMAGEN_PRODUCTO_1": "https://fptecnologi.com/wp-content/uploads/2025/06/63A4MAR1.png",
+   "IMAGEN_PRODUCTO_2": "https://fptecnologi.com/wp-content/uploads/2025/06/63CFMAR1LA-2.png",
+   "IMAGEN_PRODUCTO_3": "https://fptecnologi.com/wp-content/uploads/2025/06/63CFMAR1LA.png"
+  }
  },
  {
   "area": "ventas",
@@ -153,7 +158,10 @@
   "area": "ventas",
   "grupo": "Ventas: mailings de ejemplo",
   "nombre": "Liquidación / stock limitado",
-  "archivo": "mailings/ventas/06-liquidacion-stock.html"
+  "archivo": "mailings/ventas/06-liquidacion-stock.html",
+  "valores": {
+   "IMAGEN_PORTADA": "https://fptecnologi.com/wp-content/uploads/2025/06/63A4MAR1.png"
+  }
  },
  {
   "area": "ventas",
