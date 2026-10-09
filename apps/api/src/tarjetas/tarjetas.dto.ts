@@ -1,4 +1,5 @@
-import { IsArray, IsBoolean, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsArray, IsBoolean, IsIn, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import { ESTILOS, VISTAS, type EstiloTarjeta, type VistaTarjeta } from './tarjetas.modelo.js';
 
 /** Campos de la tarjeta; el servicio vuelve a validar URLs, slug y enlaces. */
 export class GuardarTarjetaDto {
@@ -41,7 +42,18 @@ export class GuardarTarjetaDto {
   @IsOptional() @IsArray()
   enlaces?: unknown[];
 
+  @IsOptional() @IsIn(ESTILOS)
+  estilo?: EstiloTarjeta;
+
+  @IsOptional() @IsIn(VISTAS)
+  vista?: VistaTarjeta;
+
   @IsOptional() @IsBoolean()
   activo?: boolean;
+}
+
+export class ActivarTarjetaDto {
+  @IsBoolean()
+  activo!: boolean;
 }
 

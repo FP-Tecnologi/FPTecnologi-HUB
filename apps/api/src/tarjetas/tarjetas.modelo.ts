@@ -1,6 +1,24 @@
 /* Tarjeta digital del equipo comercial: limpieza de datos y vCard. Sin acceso a la base (se prueba aparte). */
 
-export const MAX_ENLACES = 8;
+export const MAX_ENLACES = 12;
+
+export const VISTAS = ['perfil', 'linktree'] as const;
+export type VistaTarjeta = (typeof VISTAS)[number];
+
+export const ESTILOS = ['clasico', 'moderno', 'oscuro', 'minimal'] as const;
+export type EstiloTarjeta = (typeof ESTILOS)[number];
+
+/** Qué le falta a una tarjeta para estar completa y qué hacer (se muestra en el dashboard). */
+export function faltantes(t: { fotoUrl?: string | null; cargo?: string | null; bio?: string | null; whatsapp?: string | null; telefono?: string | null; email?: string | null }) {
+  const f: { campo: string; aviso: string }[] = [];
+  if (!t.fotoUrl) f.push({ campo: 'foto', aviso: 'Agrega tu foto: en «Mi tarjeta digital» pulsa «Subir foto». Las tarjetas con foto generan más confianza.' });
+  if (!t.cargo) f.push({ campo: 'cargo', aviso: 'Escribe tu cargo para que el cliente sepa quién eres.' });
+  if (!t.bio) f.push({ campo: 'bio', aviso: 'Agrega una presentación corta de lo que haces.' });
+  if (!t.whatsapp && !t.telefono) f.push({ campo: 'contacto', aviso: 'Agrega tu WhatsApp o teléfono para que te puedan contactar.' });
+  if (!t.email) f.push({ campo: 'email', aviso: 'Agrega tu correo de contacto.' });
+  return f;
+}
+
 
 export interface EnlaceTarjeta {
   titulo: string;

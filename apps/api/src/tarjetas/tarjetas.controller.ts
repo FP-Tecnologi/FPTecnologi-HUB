@@ -1,7 +1,7 @@
-import { BadRequestException, Body, Controller, ForbiddenException, Get, Param, Put, Query, Res, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, ForbiddenException, Get, Param, Patch, Put, Query, Res, UseGuards } from '@nestjs/common';
 import type { Response } from 'express';
 import { TarjetasService } from './tarjetas.service.js';
-import { GuardarTarjetaDto } from './tarjetas.dto.js';
+import { ActivarTarjetaDto, GuardarTarjetaDto } from './tarjetas.dto.js';
 import { MarcaRolGuard } from '../common/guards/marca-rol.guard.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
 import { MarcaActual } from '../common/decorators/marca-actual.decorator.js';
@@ -39,6 +39,12 @@ export class TarjetasController {
   @Get()
   listar(@MarcaActual() marcaId: string) {
     return this.tarjetas.listar(marcaId);
+  }
+
+  @Roles('admin', 'marketing')
+  @Patch(':id/activo')
+  activar(@MarcaActual() marcaId: string, @Param('id') id: string, @Body() dto: ActivarTarjetaDto) {
+    return this.tarjetas.activar(marcaId, id, dto.activo);
   }
 }
 

@@ -431,7 +431,12 @@ function OptionCard({ icon: Icon, tint, title, text, onClick, extra, t }: {
   );
 }
 
+/** En las tarjetas digitales (/tarjeta/…) no hay burbuja de chat: es la página personal de cada persona. */
 export function ChatWidget() {
+  return usePathname()?.startsWith('/tarjeta/') ? null : <ChatWidgetInner />;
+}
+
+function ChatWidgetInner() {
   const pathname = usePathname();
   const variant = getVariant(pathname);
   const t = THEMES.light;

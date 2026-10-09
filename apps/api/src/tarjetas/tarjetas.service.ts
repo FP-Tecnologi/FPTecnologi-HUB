@@ -3,7 +3,7 @@ import * as QRCode from 'qrcode';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { Prisma } from '../generated/prisma/client.js';
 import type { GuardarTarjetaDto } from './tarjetas.dto.js';
-import { limpiarEnlaces, limpiarUrl, slugDe, SLUG_VALIDO, soloDigitos, vcard } from './tarjetas.modelo.js';
+import { faltantes, limpiarEnlaces, limpiarUrl, slugDe, SLUG_VALIDO, soloDigitos, vcard } from './tarjetas.modelo.js';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const texto = (t: string | undefined) => (t ?? '').trim() || null;
@@ -25,6 +25,7 @@ export class TarjetasService {
     return {
       tarjeta,
       sugerido: { nombre: usuario?.nombre ?? '', email: usuario?.email ?? '', cargo: usuario?.cargo ?? '', telefono: usuario?.telefono ?? '' },
+      faltantes: faltantes(tarjeta ?? {}),
       url: tarjeta ? this.urlDe(tarjeta.slug) : null,
       qr: tarjeta ? await QRCode.toString(this.urlDe(tarjeta.slug), { type: 'svg', margin: 1 }) : null,
     };
@@ -46,7 +47,7 @@ export class TarjetasService {
       return v;
     };
     const enlaces = dto.enlaces === undefined ? [] : limpiarEnlaces(dto.enlaces);
-    if (!enlaces) throw new BadRequestException('Los enlaces extra necesitan título y un enlace https:// (máximo 8).');
+    if (!enlaces) throw new BadRequestException('Los enlaces extra necesitan título y un enlace https:// (máximo 12).');
 
     const data = {
       slug,
@@ -62,6 +63,8 @@ export class TarjetasService {
       web: url(dto.web, 'Sitio web'),
       agendaUrl: url(dto.agendaUrl, 'Enlace para agendar'),
       enlaces: enlaces as unknown as Prisma.InputJsonValue,
+      estilo: dto.estilo ?? actual?.estilo ?? 'clasico',
+      vista: dto.vista ?? actual?.vista ?? 'perfil',
       activo: dto.activo ?? true,
     };
     // upsert "a mano": el tenant-guard no cubre upsert.
@@ -70,10 +73,25 @@ export class TarjetasService {
     return this.mia(marcaId, usuarioId);
   }
 
-  /** Dashboard (admin/marketing): todas las tarjetas del equipo. */
+  /** Dashboard (admin/marketing): el equipo con su tarjeta, qué le falta a cada una y quién aún no la creó. */
   async listar(marcaId: string) {
-    const filas = await this.prisma.tarjetaDigital.findMany({ where: { marcaId }, orderBy: { nombre: 'asc' }, select: { id: true, slug: true, nombre: true, cargo: true, area: true, activo: true, vistas: true, fotoUrl: true } });
-    return filas.map((f) => ({ ...f, url: this.urlDe(f.slug) }));
+    const [tarjetas, equipo] = await Promise.all([
+      this.prisma.tarjetaDigital.findMany({ where: { marcaId }, orderBy: { nombre: 'asc' } }),
+      this.prisma.usuarioMarcaRol.findMany({ where: { marcaId }, include: { usuario: { select: { id: true, nombre: true, email: true } }, rol: { select: { nombre: true } } } }),
+    ]);
+    const conTarjeta = new Set(tarjetas.map((t) => t.usuarioId));
+    const sinTarjeta = [...new Map(equipo.filter((e) => e.rol.nombre !== 'cliente' && !conTarjeta.has(e.usuarioId)).map((e) => [e.usuarioId, { usuarioId: e.usuarioId, nombre: e.usuario.nombre ?? e.usuario.email, email: e.usuario.email, rol: e.rol.nombre }])).values()];
+    return {
+      tarjetas: tarjetas.map((t) => ({ id: t.id, slug: t.slug, nombre: t.nombre, cargo: t.cargo, area: t.area, estilo: t.estilo, vista: t.vista, activo: t.activo, vistas: t.vistas, fotoUrl: t.fotoUrl, faltantes: faltantes(t), url: this.urlDe(t.slug) })),
+      sinTarjeta,
+    };
+  }
+
+  /** Mostrar u ocultar una tarjeta (p. ej. cuando alguien deja el equipo). */
+  async activar(marcaId: string, id: string, activo: boolean) {
+    const r = await this.prisma.tarjetaDigital.updateMany({ where: { id, marcaId }, data: { activo } });
+    if (r.count === 0) throw new NotFoundException('Tarjeta no encontrada');
+    return { id, activo };
   }
 
   // ---------------------------------------------------------------- web pública
@@ -91,7 +109,7 @@ export class TarjetasService {
     void this.prisma.tarjetaDigital.updateMany({ where: { id: t.id, marcaId }, data: { vistas: { increment: 1 } } }).catch(() => undefined);
     const url = this.urlDe(t.slug);
     return {
-      slug: t.slug, nombre: t.nombre, cargo: t.cargo, area: t.area, bio: t.bio, fotoUrl: t.fotoUrl, telefono: t.telefono, whatsapp: t.whatsapp,
+      slug: t.slug, estilo: t.estilo, vista: t.vista, nombre: t.nombre, cargo: t.cargo, area: t.area, bio: t.bio, fotoUrl: t.fotoUrl, telefono: t.telefono, whatsapp: t.whatsapp,
       email: t.email, linkedin: t.linkedin, web: t.web, agendaUrl: t.agendaUrl, enlaces: t.enlaces, empresa, url,
       qr: await QRCode.toString(url, { type: 'svg', margin: 1 }),
     };

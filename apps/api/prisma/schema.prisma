@@ -1159,6 +1159,8 @@ model TarjetaDigital {
   web       String?
   agendaUrl String? // enlace para reservar una reunión (Calendly, Google Calendar…)
   enlaces   Json     @default("[]") // [{ titulo, url }]
+  vista     String   @default("perfil") // perfil (tarjeta completa) | linktree (lista de botones, como Linktree)
+  estilo    String   @default("clasico") // clasico | moderno | oscuro | minimal (página pública y tarjeta gráfica)
   activo    Boolean  @default(true)
   vistas    Int      @default(0)
   createdAt DateTime @default(now())

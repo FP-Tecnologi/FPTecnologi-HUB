@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { limpiarEnlaces, limpiarUrl, slugDe, vcard } from './tarjetas.modelo.js';
+import { faltantes, limpiarEnlaces, limpiarUrl, slugDe, vcard } from './tarjetas.modelo.js';
 import { TarjetasService } from './tarjetas.service.js';
 
 describe('tarjetas.modelo', () => {
@@ -17,10 +17,10 @@ describe('tarjetas.modelo', () => {
     expect(limpiarUrl('/uploads/m/a.png', true)).toBe('/uploads/m/a.png');
   });
 
-  it('enlaces extra: títulos y urls válidos, máximo 8, ignora filas vacías', () => {
+  it('enlaces extra: títulos y urls válidos, máximo 12, ignora filas vacías', () => {
     expect(limpiarEnlaces([{ titulo: 'Catálogo', url: 'https://x.com/c' }, { titulo: '', url: '' }])).toEqual([{ titulo: 'Catálogo', url: 'https://x.com/c' }]);
     expect(limpiarEnlaces([{ titulo: 'Mal', url: 'javascript:1' }])).toBeUndefined();
-    expect(limpiarEnlaces(Array.from({ length: 9 }, () => ({ titulo: 'a', url: 'https://a.com' })))).toBeUndefined();
+    expect(limpiarEnlaces(Array.from({ length: 13 }, () => ({ titulo: 'a', url: 'https://a.com' })))).toBeUndefined();
   });
 
   it('vCard 3.0 con nombre, cargo, teléfonos y escapes', () => {
@@ -48,6 +48,15 @@ function setup(over: Record<string, unknown> = {}) {
   return { service: new TarjetasService(prisma as never), prisma };
 }
 
+describe('faltantes', () => {
+  it('avisa qué agregar y dónde (foto, cargo, bio, contacto, correo)', () => {
+    const f = faltantes({});
+    expect(f.map((x) => x.campo)).toEqual(['foto', 'cargo', 'bio', 'contacto', 'email']);
+    expect(f[0].aviso).toContain('Subir foto');
+    expect(faltantes({ fotoUrl: 'x', cargo: 'c', bio: 'b', whatsapp: '519', email: 'a@b.c' })).toEqual([]);
+  });
+});
+
 describe('TarjetasService', () => {
   it('crea la tarjeta con slug del nombre y limpia teléfonos', async () => {
     const { service, prisma } = setup();
@@ -73,5 +82,14 @@ describe('TarjetasService', () => {
     await expect(service.ver('m1', 'ana')).rejects.toThrow('no encontrada');
     const where = (prisma.tarjetaDigital.findFirst.mock.calls[0][0] as { where: Record<string, unknown> }).where;
     expect(where).toMatchObject({ marcaId: 'm1', slug: 'ana', activo: true });
+  });
+
+  it('guarda el estilo elegido y conserva el anterior si no se envía', async () => {
+    const { service, prisma } = setup();
+    await service.guardarMia('m1', 'u1', { nombre: 'Ana Pérez', estilo: 'oscuro' });
+    expect((prisma.tarjetaDigital.create.mock.calls[0][0] as { data: { estilo: string } }).data.estilo).toBe('oscuro');
+    prisma.tarjetaDigital.findFirst.mockResolvedValueOnce({ id: 't1', slug: 'ana-perez', estilo: 'minimal' }).mockResolvedValueOnce(null);
+    await service.guardarMia('m1', 'u1', { nombre: 'Ana Pérez' });
+    expect((prisma.tarjetaDigital.updateMany.mock.calls[0][0] as { data: { estilo: string } }).data.estilo).toBe('minimal');
   });
 });

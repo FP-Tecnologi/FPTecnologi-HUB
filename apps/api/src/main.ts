@@ -26,6 +26,7 @@ async function bootstrap() {
     index: false,
     setHeaders: (res) => {
       res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+      res.setHeader('Access-Control-Allow-Origin', '*'); // contenido público: el dashboard lo dibuja en un canvas (tarjeta digital descargable)
       res.setHeader('X-Content-Type-Options', 'nosniff');
     },
   });
