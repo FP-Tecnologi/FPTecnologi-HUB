@@ -57,6 +57,7 @@ const TENANT_MODELS = new Set([
   'Proyecto',
   'Cliente',
   'Popup',
+  'TarjetaDigital',
   'Presupuesto',
 ]);
 

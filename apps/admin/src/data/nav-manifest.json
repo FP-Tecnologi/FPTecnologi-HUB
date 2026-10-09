@@ -67,6 +67,7 @@
 
     { "id": "grp.cuenta", "title": "Mi cuenta", "slug": "perfil", "icon": "user", "parent": null, "section": "MAIN", "order": 2, "badge": null, "keywords": ["cuenta", "perfil", "mis datos"], "inMenu": true, "alias": null },
     { "id": "cuenta.perfil", "title": "Mi perfil", "slug": "perfil", "icon": "user", "parent": "grp.cuenta", "section": null, "order": 1, "badge": null, "keywords": ["perfil", "ver", "identidad"], "inMenu": true, "alias": null },
+    { "id": "cuenta.tarjeta", "title": "Mi tarjeta digital", "slug": "mi-tarjeta", "icon": "user", "parent": "grp.cuenta", "section": null, "order": 1.5, "badge": null, "keywords": ["tarjeta", "digital", "qr", "contacto", "vcard", "perfil comercial"], "inMenu": true, "alias": null, "roles": ["ventas", "comercial", "marketing"] },
     { "id": "cuenta.config", "title": "Configuración", "slug": "configuracion", "icon": "components", "parent": "grp.cuenta", "section": null, "order": 2, "badge": null, "keywords": ["configuracion", "ajustes", "seguridad", "avisos", "editar"], "inMenu": true, "alias": null },
     { "id": "cuenta.ayuda", "title": "Centro de ayuda", "slug": "ayuda", "icon": "files", "parent": "grp.cuenta", "section": null, "order": 3, "badge": null, "keywords": ["ayuda", "tickets", "soporte", "problemas"], "inMenu": true, "alias": null },
 

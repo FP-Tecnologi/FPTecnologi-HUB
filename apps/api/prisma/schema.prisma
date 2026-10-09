@@ -42,6 +42,7 @@ model Marca {
   cotizaciones       Cotizacion[]
   notificaciones     Notificacion[]
   chatAsesores       ChatAsesor[]
+  tarjetasDigitales  TarjetaDigital[]
   chatConversaciones ChatConversacion[]
   chatMensajes       ChatMensaje[]
   contenidos         ContenidoWeb[]
@@ -1137,4 +1138,32 @@ model Recurso {
   updatedAt   DateTime    @updatedAt
 
   @@index([marcaId, visible, fabricante])
+}
+
+// Tarjeta digital del equipo comercial (página pública /tarjeta/:slug con QR y vCard). Una por persona y marca.
+model TarjetaDigital {
+  id        String   @id @default(uuid())
+  marcaId   String
+  marca     Marca    @relation(fields: [marcaId], references: [id])
+  usuarioId String
+  slug      String // /tarjeta/<slug>, único por marca
+  nombre    String
+  cargo     String?
+  area      String?
+  bio       String?
+  fotoUrl   String?
+  telefono  String?
+  whatsapp  String? // solo dígitos con código de país
+  email     String?
+  linkedin  String?
+  web       String?
+  agendaUrl String? // enlace para reservar una reunión (Calendly, Google Calendar…)
+  enlaces   Json     @default("[]") // [{ titulo, url }]
+  activo    Boolean  @default(true)
+  vistas    Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([marcaId, slug])
+  @@unique([marcaId, usuarioId])
 }

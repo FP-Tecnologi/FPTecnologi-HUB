@@ -37,6 +37,7 @@ import { BlogModule } from './blog/blog.module.js';
 import { ProyectosModule } from './proyectos/proyectos.module.js';
 import { ClientesModule } from './clientes/clientes.module.js';
 import { PopupsModule } from './popups/popups.module.js';
+import { TarjetasModule } from './tarjetas/tarjetas.module.js';
 import { TicketsModule } from './tickets/tickets.module.js';
 import { RecursosModule } from './recursos/recursos.module.js';
 
@@ -74,6 +75,7 @@ import { RecursosModule } from './recursos/recursos.module.js';
     ProyectosModule,
     ClientesModule,
     PopupsModule,
+    TarjetasModule,
     TicketsModule,
     RecursosModule,
   ],
