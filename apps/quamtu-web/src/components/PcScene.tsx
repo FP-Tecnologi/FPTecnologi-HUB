@@ -280,7 +280,7 @@ function Etiqueta({ o, p, q, lado, activa, setHover }: { o: Opcion; p: V3; q: V3
           target="_blank"
           rel="noreferrer"
           {...eventos}
-          className={`hud absolute top-0 block -translate-y-1/2 p-2.5 text-left text-white no-underline transition-colors ${lado === 'der' ? 'left-0' : 'right-0'} w-56 border-white`}
+          className={`hud absolute top-0 block -translate-y-1/2 p-2.5 text-left text-white no-underline transition-colors ${lado === 'der' ? 'left-0' : 'right-0'} w-52 border-white`}
           style={{ pointerEvents: 'auto' }}
         >
           <span className="flex items-center gap-2">
@@ -338,7 +338,7 @@ function Escena({ sel, etiquetas, foco, solo }: { sel: Seleccion; etiquetas: boo
     const cats = (Object.keys(puntos) as Cat[]).filter((c) => sel[c] && lados[c] === lado).sort((x, y) => puntos[y][1] - puntos[x][1]);
     cats.forEach((c, i) => {
       const y = cats.length === 1 ? puntos[c][1] : hh - 0.4 - (i * (2 * hh - 0.8)) / (cats.length - 1);
-      destinos[c] = [lado === "der" ? hw + 1.05 : -(hw + 1.45), y, 0.5];
+      destinos[c] = [lado === "der" ? hw + 0.7 : -(hw + 1.1), y, 0.5];
     });
   });
 

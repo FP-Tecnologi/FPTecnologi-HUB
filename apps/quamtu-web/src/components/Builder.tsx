@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AlertTriangle, ArrowLeft, ArrowRight, Check, ExternalLink, MessageCircle, Pencil, Receipt, ShoppingCart, X } from 'lucide-react';
 import PcEscena from './PcEscena';
 import ImgPieza from './ImgPieza';
@@ -9,6 +9,55 @@ import { CATS, avisoFuente, incompatible, porCat, seleccionDe, total, type Opcio
 
 const soles = (n: number) => `S/ ${n.toLocaleString('es-PE')}`;
 type Modo = 'pc' | 'repuestos';
+
+// Total sobre el gabinete: el número corre hasta el nuevo valor y un "+S/ x" / "-S/ x" avisa el cambio.
+function PrecioVivo({ valor }: { valor: number }) {
+  const [mostrado, setMostrado] = useState(valor);
+  const [delta, setDelta] = useState(0);
+  const actual = useRef(valor);
+  const previo = useRef(valor);
+
+  useEffect(() => {
+    const d = valor - previo.current;
+    previo.current = valor;
+    let fin: ReturnType<typeof setTimeout> | undefined;
+    if (d !== 0) {
+      setDelta(d);
+      fin = setTimeout(() => setDelta(0), 1800);
+    }
+    const desde = actual.current;
+    const t0 = performance.now();
+    let raf = 0;
+    const paso = (t: number) => {
+      const k = Math.min(1, (t - t0) / 700);
+      actual.current = Math.round(desde + (valor - desde) * (1 - Math.pow(1 - k, 3)));
+      setMostrado(actual.current);
+      if (k < 1) raf = requestAnimationFrame(paso);
+    };
+    raf = requestAnimationFrame(paso);
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(fin);
+    };
+  }, [valor]);
+
+  return (
+    <div className="pointer-events-none absolute left-1/2 top-4 z-10 -translate-x-1/2 text-center">
+      <span className="block text-[10px] tracking-[0.35em] text-slate-400">PRESUPUESTO</span>
+      <div className="relative inline-block">
+        <span className="titulo-neon font-display text-4xl font-bold md:text-5xl">{soles(mostrado)}</span>
+        {delta !== 0 && (
+          <span
+            key={previo.current}
+            className={`absolute -right-3 top-0 translate-x-full whitespace-nowrap rounded-full px-2.5 py-1 font-display text-xs font-bold ${delta > 0 ? 'bg-cyan/25 text-claro' : 'bg-red-500/20 text-red-300'}`}
+          >
+            {delta > 0 ? '+' : '−'} {soles(Math.abs(delta))}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default function Builder({ inicial = [] }: { inicial?: string[] }) {
   const [sel, setSel] = useState<Seleccion>(() => seleccionDe(inicial));
@@ -282,6 +331,7 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
           <div className="rejilla absolute inset-0 -z-10" />
           <div className="absolute left-1/2 top-1/3 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-cyan/15 blur-[120px]" />
           <PcEscena sel={sel} etiquetas foco={ultima} className="h-full" />
+          <PrecioVivo valor={total(sel)} />
           <div className="pointer-events-none absolute bottom-4 left-5 hidden text-xs tracking-widest text-slate-500 lg:block">
             ARRASTRA PARA GIRAR · PASA EL MOUSE SOBRE UNA PIEZA
           </div>
