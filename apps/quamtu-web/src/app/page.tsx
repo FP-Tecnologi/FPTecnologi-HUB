@@ -1,14 +1,33 @@
 import Link from 'next/link';
-import { ArrowRight, ClipboardList, Handshake, Headset, ShieldCheck, Wrench, Cpu, Fan, Zap, MapPin, Globe } from 'lucide-react';
+import { ArrowRight, BadgeCheck, ClipboardList, Handshake, Headset, ShieldCheck, Wrench, Cpu, Fan, Zap, MapPin, Globe, MessageCircle, PackageCheck, Gauge, MousePointerClick } from 'lucide-react';
 import PcEscena from '@/components/PcEscena';
 import Reveal from '@/components/Reveal';
-import { BUILDS, seleccionDe, total } from '@/lib/piezas';
+import ComparaLineas from '@/components/ComparaLineas';
+import Faq from '@/components/Faq';
+import ImgPieza from '@/components/ImgPieza';
+import SelectorUso from '@/components/SelectorUso';
+import { BUILDS, porId, seleccionDe, total } from '@/lib/piezas';
 
 const CLAVES = [
   { i: Wrench, t: 'Configuración a medida', d: 'Equipos ensamblados bajo estándares rigurosos para flujos de trabajo de alta demanda.' },
   { i: Headset, t: 'Asesoría especializada', d: 'Acompañamiento directo para decidir con datos técnicos, no comerciales.' },
   { i: ShieldCheck, t: 'Garantía de continuidad', d: 'Respaldo total para asegurar que tu operación nunca se detenga.' },
 ];
+
+const SELLOS = [
+  { i: Gauge, t: 'Fuentes 80 Plus', d: 'Eficiencia energética certificada' },
+  { i: BadgeCheck, t: 'Repuestos originales', d: 'Soporte post-venta de confianza' },
+  { i: Wrench, t: 'Armado riguroso', d: 'Estándares para flujos de alta demanda' },
+  { i: ShieldCheck, t: 'Garantía de continuidad', d: 'Respaldo para que tu operación no se detenga' },
+];
+
+const PASOS_COMPRA = [
+  { i: MousePointerClick, t: 'Elige o arma', d: 'Parte de una configuración lista o arma la tuya pieza por pieza en 3D.' },
+  { i: MessageCircle, t: 'Confirma con un especialista', d: 'Te llega tu configuración por WhatsApp y confirmamos precio final, stock y entrega.' },
+  { i: PackageCheck, t: 'Recibe tu equipo', d: 'Lo armamos bajo estándares rigurosos y te acompañamos con soporte post-venta.' },
+];
+
+const DESTACADOS = ['c2', 'r2', 'v3', 's2'];
 
 const CASOS = [
   'Universidad Nacional Micaela Bastidas',
@@ -48,6 +67,29 @@ export default function Home() {
             </div>
           </Reveal>
           <PcEscena sel={hero} className="h-[420px] md:h-[640px]" />
+        </div>
+      </section>
+
+      {/* ¿PARA QUÉ USARÁS TU PC? */}
+      <section id="uso" className="mx-auto max-w-7xl px-5 py-24">
+        <Reveal>
+          <h2 data-r className="font-display text-3xl font-bold md:text-5xl">
+            ¿Para qué usarás <span className="titulo-neon">tu PC?</span>
+          </h2>
+          <p data-r className="mt-4 max-w-2xl text-slate-400">Elige tu uso y te recomendamos una configuración. Luego la puedes personalizar pieza por pieza.</p>
+          <div data-r><SelectorUso /></div>
+        </Reveal>
+      </section>
+
+      {/* SELLOS DE CONFIANZA */}
+      <section className="border-y border-line bg-panel/50">
+        <div className="mx-auto grid max-w-7xl gap-6 px-5 py-8 sm:grid-cols-2 lg:grid-cols-4">
+          {SELLOS.map(({ i: Icono, t, d }) => (
+            <div key={t} className="flex items-start gap-3">
+              <Icono size={26} className="mt-0.5 shrink-0 text-claro" />
+              <p><b className="block font-display text-sm text-white">{t}</b><span className="text-sm text-slate-400">{d}</span></p>
+            </div>
+          ))}
         </div>
       </section>
 
@@ -137,6 +179,45 @@ export default function Home() {
         </div>
       </section>
 
+      {/* COMPONENTES DESTACADOS */}
+      <section className="mx-auto max-w-7xl px-5 py-24">
+        <Reveal>
+          <div data-r className="flex flex-wrap items-end justify-between gap-4">
+            <h2 className="font-display text-3xl font-bold md:text-5xl">
+              Componentes <span className="titulo-neon">destacados</span>
+            </h2>
+            <Link href="/tienda" className="btn-borde inline-flex items-center gap-2 rounded-full px-6 py-3 font-display text-xs">
+              VER TODA LA TIENDA <ArrowRight size={15} />
+            </Link>
+          </div>
+          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {DESTACADOS.map((id) => {
+              const o = porId(id)!;
+              return (
+                <Link key={id} data-r href={`/producto/${id}`} className="hud group flex flex-col overflow-hidden transition hover:-translate-y-1">
+                  <ImgPieza id={o.id} cat={o.cat} color={o.color} className="h-44 w-full bg-gradient-to-br from-panel to-bg" />
+                  <div className="flex flex-1 flex-col p-5">
+                    <h3 className="font-display text-base font-bold normal-case text-white">{o.nombre}</h3>
+                    <p className="mt-1 flex-1 text-sm text-slate-400">{o.spec}</p>
+                    <p className="mt-4 font-display text-xl font-bold text-claro">S/ {o.precio.toLocaleString('es-PE')}</p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </Reveal>
+      </section>
+
+      {/* COMPARADOR DE LÍNEAS */}
+      <section className="bg-panel/50 py-24">
+        <Reveal className="mx-auto max-w-7xl px-5">
+          <h2 data-r className="font-display text-3xl font-bold md:text-5xl">
+            Turing o Turing WS: <span className="titulo-neon">¿cuál es la tuya?</span>
+          </h2>
+          <div data-r><ComparaLineas /></div>
+        </Reveal>
+      </section>
+
       {/* CALIDAD: 80 PLUS + REFRIGERACIÓN */}
       <section className="mx-auto max-w-7xl px-5 py-24">
         <Reveal className="grid items-center gap-10 lg:grid-cols-2">
@@ -163,6 +244,25 @@ export default function Home() {
         </Reveal>
       </section>
 
+      {/* CÓMO COMPRAR */}
+      <section className="bg-panel/50 py-24">
+        <Reveal className="mx-auto max-w-7xl px-5">
+          <h2 data-r className="text-center font-display text-3xl font-bold md:text-5xl">
+            Cómo <span className="titulo-neon">comprar</span>
+          </h2>
+          <div className="mt-12 grid gap-6 md:grid-cols-3">
+            {PASOS_COMPRA.map(({ i: Icono, t, d }, n) => (
+              <div key={t} data-r className="hud relative p-8">
+                <span className="absolute right-5 top-4 font-display text-5xl font-bold text-line">{n + 1}</span>
+                <Icono size={30} className="text-claro" />
+                <h3 className="mt-5 font-display text-xl font-bold">{t}</h3>
+                <p className="mt-2 text-slate-300">{d}</p>
+              </div>
+            ))}
+          </div>
+        </Reveal>
+      </section>
+
       {/* RESPALDO */}
       <section id="respaldo" className="relative py-24">
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-transparent via-cyan/10 to-transparent" />
@@ -179,6 +279,16 @@ export default function Home() {
               <div key={c} data-r className="hud px-6 py-5 text-center text-slate-200">{c}</div>
             ))}
           </div>
+        </Reveal>
+      </section>
+
+      {/* PREGUNTAS FRECUENTES */}
+      <section id="faq" className="mx-auto max-w-7xl px-5 py-24">
+        <Reveal>
+          <h2 data-r className="text-center font-display text-3xl font-bold md:text-5xl">
+            Preguntas <span className="titulo-neon">frecuentes</span>
+          </h2>
+          <div data-r><Faq /></div>
         </Reveal>
       </section>
 

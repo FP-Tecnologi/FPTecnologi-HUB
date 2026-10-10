@@ -33,7 +33,7 @@ const COLUMNAS = [
 const GARANTIAS = [
   { i: Wrench, t: 'Armado a medida', d: 'Ensamblaje y pruebas por especialistas' },
   { i: ShieldCheck, t: 'Garantía y soporte', d: 'Repuestos originales, respuesta rápida' },
-  { i: Truck, t: 'Envíos', d: 'A todo el Perú, coordinados contigo' },
+  { i: Truck, t: 'Entrega coordinada', d: 'La acordamos contigo al confirmar tu pedido' },
 ];
 
 export default function Footer() {
