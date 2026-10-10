@@ -30,7 +30,7 @@ export default function WhatsAppFlotante() {
       target="_blank"
       rel="noreferrer"
       aria-label="Escribir por WhatsApp"
-      className={`group fixed bottom-5 right-5 z-40 flex items-center gap-2 rounded-full bg-[#25D366] p-3.5 text-[#04210f] shadow-[0_8px_24px_rgba(0,0,0,.45)] transition hover:scale-105 sm:pr-5 ${sobreCierre ? 'pointer-events-none translate-y-4 opacity-0' : ''}`}
+      className={`group fixed bottom-4 right-4 z-40 flex items-center gap-2 rounded-full bg-[#25D366] p-3 sm:bottom-5 sm:right-5 sm:p-3.5 text-[#04210f] shadow-[0_8px_24px_rgba(0,0,0,.45)] transition hover:scale-105 sm:pr-5 ${sobreCierre ? 'pointer-events-none translate-y-4 opacity-0' : ''}`}
     >
       <MessageCircle size={26} fill="currentColor" strokeWidth={1.5} />
       <span className="hidden font-display text-xs font-bold tracking-wide sm:inline">ESCRÍBENOS</span>

@@ -18,8 +18,9 @@ const FILAS: { t: string; turing: string; ws: string }[] = [
 // Tabla generada con las configuraciones listas: si cambian en el catálogo, cambia aquí.
 export default function ComparaLineas() {
   return (
-    <div className="mt-10 overflow-x-auto rounded-2xl border border-line">
-      <table className="w-full min-w-[640px] border-collapse text-left">
+    <>
+    <div className="mt-10 hidden overflow-hidden rounded-2xl border border-line md:block">
+      <table className="w-full border-collapse text-left">
         <thead>
           <tr className="bg-panel text-sm">
             <th className="w-40 p-4" />
@@ -38,5 +39,19 @@ export default function ComparaLineas() {
         </tbody>
       </table>
     </div>
+
+    {/* Celular: cada fila se apila con las dos líneas una bajo la otra */}
+    <dl className="mt-8 divide-y divide-line border-y border-line md:hidden">
+      {FILAS.map((f) => (
+        <div key={f.t} className="py-4">
+          <dt className="text-xs font-bold tracking-widest text-slate-400">{f.t.toUpperCase()}</dt>
+          <dd className="mt-2 space-y-2">
+            <p className="text-slate-200"><b className="text-claro">Turing: </b>{f.turing}</p>
+            <p className="text-slate-200"><b className="text-claro">Turing WS: </b>{f.ws}</p>
+          </dd>
+        </div>
+      ))}
+    </dl>
+    </>
   );
 }

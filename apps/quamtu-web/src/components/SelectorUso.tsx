@@ -24,17 +24,17 @@ export default function SelectorUso() {
 
   return (
     <div className="mt-10 grid gap-6 lg:grid-cols-[320px_1fr]">
-      <div className="flex gap-2 overflow-x-auto pb-1 sin-barra lg:flex-col lg:overflow-visible">
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:flex lg:flex-col">
         {USOS.map(({ id, t, i: Icono }) => (
           <button
             key={id}
             onClick={() => setUso(id)}
             aria-pressed={uso === id}
-            className={`flex shrink-0 items-center gap-3 rounded-xl border px-4 py-3.5 text-left font-display text-sm transition lg:px-5 ${
+            className={`flex min-h-14 items-center gap-3 rounded-xl border px-3.5 py-3 text-left font-display text-sm leading-tight transition lg:px-5 lg:py-3.5 ${
               uso === id ? 'border-cyan bg-cyan/15 text-white shadow-[0_0_22px_rgba(35,141,193,.35)]' : 'border-line text-slate-400 hover:border-slate-500'
             }`}
           >
-            <Icono size={20} className={uso === id ? 'text-claro' : ''} /> {t}
+            <Icono size={20} className={`shrink-0 ${uso === id ? 'text-claro' : ''}`} /> {t}
           </button>
         ))}
       </div>
