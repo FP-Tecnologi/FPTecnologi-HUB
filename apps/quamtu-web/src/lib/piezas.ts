@@ -29,7 +29,7 @@ export const CATS: { id: Cat; titulo: string; paso: string }[] = [
 const A = '#238DC1'; // primario
 const B = '#385CAD'; // secundario
 const C = '#6cc3ee'; // primario claro (brillos)
-const W = '#dff2fc';
+const W = '#8fd0f2';
 
 export const OPCIONES: Opcion[] = [
   { id: 'g1', cat: 'gabinete', nombre: 'Quamtu Turing Compact', spec: 'Mini tower · rejilla frontal', precio: 289, color: A, n: 0.88 },
