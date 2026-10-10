@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, BadgeCheck, ClipboardList, ShieldCheck, Wrench, MessageCircle, PackageCheck, Gauge, MousePointerClick } from 'lucide-react';
+import { ArrowRight, BadgeCheck, ClipboardList, ShieldCheck, Wrench, MapPin, MessageCircle, PackageCheck, Gauge, MousePointerClick } from 'lucide-react';
 import PcEscena from '@/components/PcEscena';
 import Reveal from '@/components/Reveal';
 import ComparaLineas from '@/components/ComparaLineas';
@@ -319,6 +319,36 @@ export default function Home() {
             Preguntas <span className="titulo-neon">frecuentes</span>
           </h2>
           <div data-r><Faq /></div>
+        </Reveal>
+      </section>
+
+      {/* CIERRE */}
+      <section id="contacto" className="relative isolate scroll-mt-20 overflow-hidden border-t border-line py-24">
+        <div className="absolute inset-0 -z-10 bg-gradient-to-br from-cyan/15 via-transparent to-violet/10" />
+        <Reveal className="mx-auto grid max-w-7xl items-center gap-10 px-5 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
+          <div>
+            <h2 data-r className="font-display text-4xl font-bold md:text-6xl">
+              Tu PC, <span className="titulo-neon">pieza por pieza</span>
+            </h2>
+            <p data-r className="mt-5 max-w-lg text-lg text-slate-300">
+              Elige cada componente en 3D y confirma tu pedido con un especialista. Si compras para tu organización, pide una cotización formal.
+            </p>
+            <div data-r className="mt-8 flex flex-wrap gap-3">
+              <Link href="/armar" className="btn-neon inline-flex items-center gap-2 rounded-full px-8 py-4 font-display text-sm">
+                ARMA TU PC <ArrowRight size={18} />
+              </Link>
+              <a href={waUrl('Hola Quamtu, necesito asesoría para elegir mi equipo.')} target="_blank" rel="noreferrer" className="btn-borde inline-flex items-center gap-2 rounded-full px-8 py-4 font-display text-sm">
+                <MessageCircle size={18} /> ESCRÍBENOS POR WHATSAPP
+              </a>
+            </div>
+            <p data-r className="mt-8 flex items-center gap-2 text-sm text-slate-400">
+              <MapPin size={16} className="shrink-0 text-claro" /> Jr. Huaraz 1841, Breña, Lima · <Link href="/cotizar" className="underline underline-offset-4 hover:text-claro">Cotizar para mi empresa</Link>
+            </p>
+          </div>
+          <div data-r className="relative mx-auto aspect-square w-full max-w-md">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/brand/hero-poster.webp" alt="PC Quamtu armada sobre su base" width={900} height={900} loading="lazy" className="h-full w-full object-contain" />
+          </div>
         </Reveal>
       </section>
 

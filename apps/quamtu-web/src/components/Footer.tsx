@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowRight, ClipboardList, Globe, MapPin, MessageCircle, ShieldCheck, Truck, Wrench } from 'lucide-react';
 import { CATS } from '@/lib/piezas';
 import { WHATSAPP, waUrl } from '@/lib/contacto';
+import AyudaPie from './AyudaPie';
 
 const TELEFONO = `+${WHATSAPP.slice(0, 2)} ${WHATSAPP.slice(2, 5)} ${WHATSAPP.slice(5, 8)} ${WHATSAPP.slice(8)}`;
 
@@ -39,8 +40,9 @@ const GARANTIAS = [
 
 export default function Footer() {
   return (
-    <footer className="mt-10 border-t border-line bg-panel/60">
-      {/* Franja de ayuda */}
+    <footer id="pie" className="border-t border-line bg-panel/60">
+      {/* Franja de ayuda (en la home la reemplaza el cierre de la página) */}
+      <AyudaPie>
       <div id="contacto" className="scroll-mt-20 border-b border-line">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-5 py-10 lg:flex-row lg:items-center">
           <div>
@@ -57,6 +59,8 @@ export default function Footer() {
           </div>
         </div>
       </div>
+
+      </AyudaPie>
 
       {/* Columnas */}
       <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1.2fr]">
