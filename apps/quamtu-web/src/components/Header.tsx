@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ClipboardList } from 'lucide-react';
 import CarritoMini from './CarritoMini';
 import MenuMovil from './MenuMovil';
 
@@ -19,14 +20,16 @@ export default function Header() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/brand/logo-blanco.png" alt="Quamtu" width={140} height={37} className="h-8 w-auto sm:h-9" />
         </Link>
-        <nav className="hidden items-center gap-6 font-display text-sm text-slate-300 lg:flex xl:gap-8">
+        <nav className="hidden items-center gap-6 font-display text-[13px] uppercase tracking-wide text-slate-300 lg:flex xl:gap-8">
           {ENLACES.map((e) => (
             <Link key={e.href} href={e.href} className="transition hover:text-claro">{e.texto}</Link>
           ))}
         </nav>
         <div className="flex items-center gap-3 sm:gap-4">
           <CarritoMini />
-          <Link href="/cotizar" className="btn-neon rounded-full px-4 py-2 font-display text-[11px] sm:px-5 sm:text-xs">COTIZAR</Link>
+          <Link href="/cotizar" className="btn-neon inline-flex items-center gap-1.5 rounded-full px-4 py-2 font-display text-[11px] sm:px-5 sm:text-xs">
+            <ClipboardList size={15} /> COTIZAR
+          </Link>
           <MenuMovil enlaces={ENLACES} />
         </div>
       </div>

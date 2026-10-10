@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ChevronRight } from 'lucide-react';
+import { Box, ChevronRight, ClipboardList } from 'lucide-react';
 import AgregarPieza from '@/components/AgregarPieza';
 import ImgPieza from '@/components/ImgPieza';
 import { CATS, OPCIONES, porId } from '@/lib/piezas';
@@ -43,8 +43,8 @@ export default async function Producto({ params }: { params: Promise<{ id: strin
 
           <div className="mt-8 flex flex-wrap gap-3">
             <AgregarPieza id={o.id} precio={o.precio} />
-            <Link href={`/armar?pieza=${o.id}`} className="btn-borde rounded-full px-8 py-4 font-display text-sm">VER EN EL ARMADOR 3D</Link>
-            <Link href={`/cotizar?pieza=${o.id}`} className="btn-borde rounded-full px-8 py-4 font-display text-sm">COTIZAR ESTE PRODUCTO</Link>
+            <Link href={`/armar?pieza=${o.id}`} className="btn-borde inline-flex items-center gap-2 rounded-full px-8 py-4 font-display text-sm"><Box size={16} /> VER EN EL ARMADOR 3D</Link>
+            <Link href={`/cotizar?pieza=${o.id}`} className="btn-borde inline-flex items-center gap-2 rounded-full px-8 py-4 font-display text-sm"><ClipboardList size={16} /> COTIZAR ESTE PRODUCTO</Link>
           </div>
 
           <h2 className="mt-10 font-display text-lg font-bold">Especificaciones</h2>

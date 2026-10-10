@@ -16,7 +16,7 @@ export default function MenuMovil({ enlaces }: { enlaces: { href: string; texto:
           <ul className="mx-auto max-w-[1600px] divide-y divide-line/60">
             {enlaces.map((e) => (
               <li key={e.href}>
-                <Link href={e.href} onClick={() => setAbierto(false)} className="block py-3.5 font-display text-base text-slate-200 hover:text-claro">{e.texto}</Link>
+                <Link href={e.href} onClick={() => setAbierto(false)} className="block py-3.5 font-display text-base uppercase tracking-wide text-slate-200 hover:text-claro">{e.texto}</Link>
               </li>
             ))}
           </ul>

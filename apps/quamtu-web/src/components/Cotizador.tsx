@@ -1,6 +1,6 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, Check, Download, Loader2, MessageCircle, Minus, Plus, Search, Trash2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, ClipboardList, Download, Loader2, MessageCircle, Minus, Plus, Search, Trash2 } from 'lucide-react';
 import ImgPieza from './ImgPieza';
 import { leerCarrito } from '@/lib/carrito';
 import { waUrl } from '@/lib/contacto';
@@ -309,7 +309,7 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
             </button>
           ) : (
             <button disabled={enviando} className="btn-neon mt-5 flex w-full items-center justify-center gap-2 rounded-full py-4 font-display text-sm disabled:opacity-60">
-              {enviando ? <Loader2 size={18} className="animate-spin" /> : null} SOLICITAR COTIZACIÓN
+              {enviando ? <Loader2 size={18} className="animate-spin" /> : <ClipboardList size={18} />} SOLICITAR COTIZACIÓN
             </button>
           )}
           <p className="mt-3 text-xs text-slate-500">Precios referenciales. La cotización formal incluye precio final, stock y tiempo de entrega.</p>
@@ -324,7 +324,7 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
           {paso === 1 ? (
             <button type="button" onClick={() => irA(2)} className="btn-neon rounded-full px-6 py-3 font-display text-xs">CONTINUAR</button>
           ) : (
-            <button disabled={enviando} className="btn-neon rounded-full px-6 py-3 font-display text-xs disabled:opacity-60">SOLICITAR</button>
+            <button disabled={enviando} className="btn-neon inline-flex items-center gap-1.5 rounded-full px-6 py-3 font-display text-xs disabled:opacity-60"><ClipboardList size={15} /> SOLICITAR</button>
           )}
         </div>
       </form>

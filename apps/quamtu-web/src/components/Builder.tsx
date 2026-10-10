@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { AlertTriangle, ArrowLeft, ArrowRight, Check, ExternalLink, MessageCircle, Pencil, Receipt, ShoppingCart, X } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, ArrowRight, Check, ClipboardList, ExternalLink, MessageCircle, Pencil, Receipt, ShoppingCart, X } from 'lucide-react';
 import PcEscena from './PcEscena';
 import ImgPieza from './ImgPieza';
 import { agregarAlCarrito, mensajeWhatsApp, type ItemCarrito } from '@/lib/carrito';
@@ -292,9 +292,9 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
                       target="_blank"
                       rel="noreferrer"
                       aria-disabled={!puedeComprar}
-                      className={`text-center text-sm text-slate-400 underline hover:text-claro ${puedeComprar ? '' : 'pointer-events-none opacity-40'}`}
+                      className={`btn-borde flex items-center justify-center gap-2 rounded-full py-4 font-display text-sm ${puedeComprar ? '' : 'pointer-events-none opacity-40'}`}
                     >
-                      Cotizar para mi empresa
+                      <ClipboardList size={16} /> COTIZAR PARA MI EMPRESA
                     </a>
                   </div>
                 </div>
