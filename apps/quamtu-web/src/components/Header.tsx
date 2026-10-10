@@ -7,7 +7,6 @@ export const ENLACES = [
   { href: '/tienda', texto: 'Tienda' },
   { href: '/armar', texto: 'Arma tu PC' },
   { href: '/#lineas', texto: 'Líneas Turing' },
-  { href: '/#builds', texto: 'Configuraciones' },
   { href: '/#respaldo', texto: 'Respaldo' },
 ];
 

@@ -1,18 +1,12 @@
 import Link from 'next/link';
-import { ArrowRight, BadgeCheck, ClipboardList, Handshake, Headset, ShieldCheck, Wrench, Cpu, Fan, Zap, MapPin, Globe, MessageCircle, PackageCheck, Gauge, MousePointerClick } from 'lucide-react';
+import { ArrowRight, BadgeCheck, ClipboardList, ShieldCheck, Wrench, MessageCircle, PackageCheck, Gauge, MousePointerClick } from 'lucide-react';
 import PcEscena from '@/components/PcEscena';
 import Reveal from '@/components/Reveal';
 import ComparaLineas from '@/components/ComparaLineas';
 import Faq from '@/components/Faq';
 import ImgPieza from '@/components/ImgPieza';
 import SelectorUso from '@/components/SelectorUso';
-import { BUILDS, porId, seleccionDe, total } from '@/lib/piezas';
-
-const CLAVES = [
-  { i: Wrench, t: 'Configuración a medida', d: 'Equipos ensamblados bajo estándares rigurosos para flujos de trabajo de alta demanda.' },
-  { i: Headset, t: 'Asesoría especializada', d: 'Acompañamiento directo para decidir con datos técnicos, no comerciales.' },
-  { i: ShieldCheck, t: 'Garantía de continuidad', d: 'Respaldo total para asegurar que tu operación nunca se detenga.' },
-];
+import { BUILDS, porId, seleccionDe } from '@/lib/piezas';
 
 const SELLOS = [
   { i: Gauge, t: 'Fuentes 80 Plus', d: 'Eficiencia energética certificada' },
@@ -93,32 +87,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ALIADO TECNOLÓGICO */}
-      <section className="relative py-28">
-        <div className="absolute inset-0 -z-10 bg-cover bg-center opacity-25" style={{ backgroundImage: 'url(/brand/fondo-red.jpg)' }} />
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-bg via-transparent to-bg" />
-        <Reveal className="mx-auto max-w-7xl px-5">
-          <h2 data-r className="text-center font-display text-3xl font-bold md:text-5xl">
-            El aliado tecnológico <span className="titulo-neon">de tu empresa</span>
-          </h2>
-          <p data-r className="mx-auto mt-5 max-w-3xl text-center text-lg text-slate-300">
-            Quien decide por TI no busca solo un precio: busca continuidad y rendimiento. Cada componente se selecciona para cumplir una función específica, sin la incertidumbre del hardware genérico.
-          </p>
-          <div className="mt-14 grid gap-6 md:grid-cols-3">
-            {CLAVES.map(({ i: Icono, t, d }) => (
-              <div key={t} data-r className="hud p-8 transition hover:-translate-y-1">
-                <Icono className="text-claro" size={32} />
-                <h3 className="mt-5 font-display text-xl font-bold text-white">{t}</h3>
-                <p className="mt-2 text-slate-300">{d}</p>
-              </div>
-            ))}
-          </div>
-          <p data-r className="mx-auto mt-10 flex max-w-2xl items-center justify-center gap-3 text-center text-slate-400">
-            <Handshake className="shrink-0 text-claro" /> Socio tecnológico estratégico: soluciones de alto rendimiento con respaldo experto.
-          </p>
-        </Reveal>
-      </section>
-
       {/* LÍNEAS TURING */}
       <section id="lineas" className="mx-auto max-w-7xl px-5 py-24">
         <Reveal className="grid items-center gap-12 lg:grid-cols-2">
@@ -144,44 +112,16 @@ export default function Home() {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/brand/gabinete-turing.jpg" alt="Gabinete Quamtu Turing" className="w-full rounded-2xl border border-line" />
           </div>
+          <div data-r className="mt-16 lg:col-span-2">
+            <h3 className="font-display text-xl font-bold text-white sm:text-2xl">¿Cuál es la tuya? <span className="text-claro">Compáralas</span></h3>
+            <ComparaLineas />
+          </div>
         </Reveal>
       </section>
 
-      {/* CONFIGURACIONES LISTAS */}
-      <section id="builds" className="bg-panel/60 py-24">
-        <div className="mx-auto max-w-7xl px-5">
-          <Reveal>
-            <h2 data-r className="font-display text-3xl font-bold md:text-5xl">
-              Configuraciones <span className="titulo-neon">listas para pedir</span>
-            </h2>
-            <p data-r className="mt-4 max-w-xl text-slate-400">Punto de partida: personalízalas pieza por pieza en el armador 3D. Precios referenciales.</p>
-            <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {BUILDS.map((b, i) => {
-                const s = seleccionDe(b.ids);
-                return (
-                  <article key={b.nombre} data-r className="hud flex flex-col p-6 transition hover:-translate-y-1">
-                    <span className="font-display text-xs tracking-[0.25em] text-claro">{b.linea}</span>
-                    <h3 className="mt-1 font-display text-xl font-bold text-white">{b.nombre}</h3>
-                    <p className="mt-1 text-sm text-slate-400">{b.para}</p>
-                    <ul className="mt-5 flex-1 space-y-1.5 text-slate-200">
-                      <li className="flex gap-2"><Cpu size={16} className="mt-1 shrink-0 text-claro" />{s.cpu?.nombre}</li>
-                      <li className="flex gap-2"><Zap size={16} className="mt-1 shrink-0 text-claro" />{s.gpu?.nombre}</li>
-                      <li className="flex gap-2"><Fan size={16} className="mt-1 shrink-0 text-claro" />{s.ram?.nombre}</li>
-                      <li className="pl-6 text-sm text-slate-400">{s.ssd?.nombre}</li>
-                    </ul>
-                    <p className="mt-5 font-display text-2xl font-bold text-claro">S/ {total(s).toLocaleString('es-PE')}</p>
-                    <Link href={`/armar?build=${i}`} className="btn-neon mt-4 rounded-full py-3 text-center font-display text-xs">PERSONALIZAR</Link>
-                  </article>
-                );
-              })}
-            </div>
-          </Reveal>
-        </div>
-      </section>
-
       {/* COMPONENTES DESTACADOS */}
-      <section className="mx-auto max-w-7xl px-5 py-24">
-        <Reveal>
+      <section className="bg-panel/50 py-24">
+        <Reveal className="mx-auto max-w-7xl px-5">
           <div data-r className="flex flex-wrap items-end justify-between gap-4">
             <h2 className="font-display text-3xl font-bold md:text-5xl">
               Componentes <span className="titulo-neon">destacados</span>
@@ -205,16 +145,6 @@ export default function Home() {
               );
             })}
           </div>
-        </Reveal>
-      </section>
-
-      {/* COMPARADOR DE LÍNEAS */}
-      <section className="bg-panel/50 py-24">
-        <Reveal className="mx-auto max-w-7xl px-5">
-          <h2 data-r className="font-display text-3xl font-bold md:text-5xl">
-            Turing o Turing WS: <span className="titulo-neon">¿cuál es la tuya?</span>
-          </h2>
-          <div data-r><ComparaLineas /></div>
         </Reveal>
       </section>
 
@@ -245,7 +175,7 @@ export default function Home() {
       </section>
 
       {/* CÓMO COMPRAR */}
-      <section className="bg-panel/50 py-24">
+      <section className="py-24">
         <Reveal className="mx-auto max-w-7xl px-5">
           <h2 data-r className="text-center font-display text-3xl font-bold md:text-5xl">
             Cómo <span className="titulo-neon">comprar</span>
@@ -289,23 +219,6 @@ export default function Home() {
             Preguntas <span className="titulo-neon">frecuentes</span>
           </h2>
           <div data-r><Faq /></div>
-        </Reveal>
-      </section>
-
-      {/* CONTACTO */}
-      <section id="contacto" className="mx-auto max-w-4xl px-5 py-24">
-        <Reveal>
-          <div data-r className="hud p-10 text-center md:p-14">
-            <h2 className="titulo-neon font-display text-3xl font-bold md:text-5xl">Consulta con nuestros especialistas</h2>
-            <p className="mt-4 text-lg text-slate-300">Cotización personalizada para tu empresa, institución o proyecto.</p>
-            <Link href="/cotizar" className="btn-neon mt-8 inline-flex items-center gap-2 rounded-full px-8 py-4 font-display text-sm">
-              <ClipboardList size={18} /> ABRIR EL COTIZADOR
-            </Link>
-            <div className="mt-8 flex flex-col items-center justify-center gap-3 text-slate-200 sm:flex-row sm:gap-10">
-              <span className="flex items-center gap-2"><MapPin size={18} className="text-claro" /> Jr. Huaraz 1841, Breña, Lima</span>
-              <span className="flex items-center gap-2"><Globe size={18} className="text-claro" /> www.quamtu.com</span>
-            </div>
-          </div>
         </Reveal>
       </section>
 

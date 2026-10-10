@@ -23,7 +23,7 @@ const COLUMNAS = [
     titulo: 'Quamtu',
     enlaces: [
       { href: '/#lineas', texto: 'Líneas Turing' },
-      { href: '/#builds', texto: 'Configuraciones' },
+      { href: '/#uso', texto: 'Para tu uso' },
       { href: '/#respaldo', texto: 'Respaldo y garantía' },
       { href: '/#contacto', texto: 'Contacto' },
     ],
@@ -40,7 +40,7 @@ export default function Footer() {
   return (
     <footer className="mt-10 border-t border-line bg-panel/60">
       {/* Franja de ayuda */}
-      <div className="border-b border-line">
+      <div id="contacto" className="scroll-mt-20 border-b border-line">
         <div className="mx-auto flex max-w-7xl flex-col items-start justify-between gap-6 px-5 py-10 lg:flex-row lg:items-center">
           <div>
             <h2 className="font-display text-2xl font-bold sm:text-3xl">¿Necesitas ayuda para <span className="titulo-neon">elegir?</span></h2>
