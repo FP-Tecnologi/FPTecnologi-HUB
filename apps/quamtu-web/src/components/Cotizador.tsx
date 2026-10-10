@@ -1,6 +1,6 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { Check, Download, Loader2, MessageCircle, Minus, Plus, Search, Trash2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, Download, Loader2, MessageCircle, Minus, Plus, Search, Trash2 } from 'lucide-react';
 import ImgPieza from './ImgPieza';
 import { leerCarrito } from '@/lib/carrito';
 import { waUrl } from '@/lib/contacto';
@@ -34,6 +34,14 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
   const [enviando, setEnviando] = useState(false);
   const [resultado, setResultado] = useState<null | { guardado: boolean; texto: string }>(null);
   const [errorApi, setErrorApi] = useState('');
+  const [paso, setPaso] = useState<1 | 2>(1);
+
+  const irA = (n: 1 | 2) => {
+    if (n === 2 && !lineas.length) return setErrores({ lineas: 'Agrega al menos un producto para continuar.' });
+    setErrores({});
+    setPaso(n);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const totalRef = lineas.reduce((a, l) => a + l.unit * l.cantidad, 0);
   const lista = useMemo(() => {
@@ -141,9 +149,24 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
       <h1 className="font-display text-3xl font-bold sm:text-4xl md:text-5xl">Cotizador <span className="titulo-neon">avanzado</span></h1>
       <p className="mt-3 max-w-2xl text-slate-400">Elige equipos y componentes, indica las cantidades y déjanos tus datos. Un especialista te enviará la cotización formal con precio final y disponibilidad.</p>
 
-      <form onSubmit={enviar} noValidate className="mt-8 grid items-start gap-8 lg:grid-cols-[1fr_380px]">
+      <ol className="mt-8 flex max-w-md items-center">
+        {([[1, 'Productos'], [2, 'Tus datos']] as const).map(([n, t], i) => (
+          <li key={n} className="flex flex-1 items-center last:flex-none">
+            <button type="button" onClick={() => irA(n)} className="flex items-center gap-2">
+              <span className={`grid h-9 w-9 place-items-center rounded-full border text-sm font-bold transition ${paso === n ? 'border-claro bg-cyan text-white shadow-[0_0_16px_rgba(35,141,193,.7)]' : paso > n ? 'border-cyan bg-cyan/20 text-claro' : 'border-line text-slate-500'}`}>
+                {paso > n ? <Check size={15} /> : n}
+              </span>
+              <span className={`font-display text-sm ${paso === n ? 'text-white' : 'text-slate-500'}`}>{t}</span>
+            </button>
+            {i === 0 && <span className={`mx-3 h-0.5 flex-1 rounded ${paso > 1 ? 'bg-cyan' : 'bg-line'}`} />}
+          </li>
+        ))}
+      </ol>
+
+      <form onSubmit={enviar} noValidate className="mt-6 grid items-start gap-8 lg:grid-cols-[1fr_380px]">
         <div className="min-w-0 space-y-8">
           {/* 1. PRODUCTOS */}
+          {paso === 1 && (
           <section className="glass rounded-2xl p-4 sm:p-6">
             <h2 className="font-display text-xl font-bold"><span className="text-claro">1.</span> Elige tus productos</h2>
             <div className="sin-barra mt-4 flex gap-2 overflow-x-auto pb-1">
@@ -211,9 +234,14 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
               </>
             )}
             {errores.lineas && <p className="mt-3 text-sm text-red-400">{errores.lineas}</p>}
+            <button type="button" onClick={() => irA(2)} className="btn-neon mt-6 flex items-center gap-2 rounded-full px-8 py-3.5 font-display text-sm">
+              CONTINUAR <ArrowRight size={16} />
+            </button>
           </section>
+          )}
 
           {/* 2. DATOS */}
+          {paso === 2 && (
           <section className="glass rounded-2xl p-4 sm:p-6">
             <h2 className="font-display text-xl font-bold"><span className="text-claro">2.</span> Tus datos</h2>
             <div className="mt-4 grid grid-cols-2 gap-2">
@@ -242,7 +270,11 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
             </label>
             {/* honeypot */}
             <input value={f.website} onChange={(e) => set('website', e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden className="absolute -left-[9999px] h-0 w-0 opacity-0" />
+            <button type="button" onClick={() => irA(1)} className="mt-6 flex items-center gap-2 text-sm text-slate-400 hover:text-claro">
+              <ArrowLeft size={15} /> Volver a mis productos
+            </button>
           </section>
+          )}
         </div>
 
         {/* RESUMEN */}
@@ -271,9 +303,15 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
             <span className="titulo-neon font-display text-2xl font-bold">{soles(totalRef)}</span>
           </div>
           {errorApi && <p className="mt-3 text-sm text-red-400">{errorApi}</p>}
-          <button disabled={enviando} className="btn-neon mt-5 flex w-full items-center justify-center gap-2 rounded-full py-4 font-display text-sm disabled:opacity-60">
-            {enviando ? <Loader2 size={18} className="animate-spin" /> : null} SOLICITAR COTIZACIÓN
-          </button>
+          {paso === 1 ? (
+            <button type="button" onClick={() => irA(2)} className="btn-neon mt-5 flex w-full items-center justify-center gap-2 rounded-full py-4 font-display text-sm">
+              CONTINUAR <ArrowRight size={16} />
+            </button>
+          ) : (
+            <button disabled={enviando} className="btn-neon mt-5 flex w-full items-center justify-center gap-2 rounded-full py-4 font-display text-sm disabled:opacity-60">
+              {enviando ? <Loader2 size={18} className="animate-spin" /> : null} SOLICITAR COTIZACIÓN
+            </button>
+          )}
           <p className="mt-3 text-xs text-slate-500">Precios referenciales. La cotización formal incluye precio final, stock y tiempo de entrega.</p>
         </aside>
 
@@ -283,7 +321,11 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
             <span className="block text-[10px] tracking-widest text-slate-500">{lineas.length} PRODUCTO(S)</span>
             <b className="font-display text-lg text-claro">{soles(totalRef)}</b>
           </div>
-          <button disabled={enviando} className="btn-neon rounded-full px-6 py-3 font-display text-xs disabled:opacity-60">SOLICITAR</button>
+          {paso === 1 ? (
+            <button type="button" onClick={() => irA(2)} className="btn-neon rounded-full px-6 py-3 font-display text-xs">CONTINUAR</button>
+          ) : (
+            <button disabled={enviando} className="btn-neon rounded-full px-6 py-3 font-display text-xs disabled:opacity-60">SOLICITAR</button>
+          )}
         </div>
       </form>
     </main>
