@@ -7,6 +7,7 @@ export const ENLACES = [
   { href: '/tienda', texto: 'Tienda' },
   { href: '/armar', texto: 'Arma tu PC' },
   { href: '/#lineas', texto: 'Líneas Turing' },
+  { href: '/#organizaciones', texto: 'Empresas' },
   { href: '/#respaldo', texto: 'Respaldo' },
 ];
 

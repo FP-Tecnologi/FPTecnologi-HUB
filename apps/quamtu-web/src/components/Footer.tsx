@@ -24,6 +24,7 @@ const COLUMNAS = [
     enlaces: [
       { href: '/#lineas', texto: 'Líneas Turing' },
       { href: '/#uso', texto: 'Para tu uso' },
+      { href: '/#organizaciones', texto: 'Para empresas' },
       { href: '/#respaldo', texto: 'Respaldo y garantía' },
       { href: '/#contacto', texto: 'Contacto' },
     ],

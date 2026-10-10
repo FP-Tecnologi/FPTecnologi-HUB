@@ -6,6 +6,7 @@ import ComparaLineas from '@/components/ComparaLineas';
 import Faq from '@/components/Faq';
 import ImgPieza from '@/components/ImgPieza';
 import SelectorUso from '@/components/SelectorUso';
+import { waUrl } from '@/lib/contacto';
 import { BUILDS, porId, seleccionDe } from '@/lib/piezas';
 
 const SELLOS = [
@@ -37,12 +38,18 @@ const CALIDAD = [
 ];
 
 const CASOS = [
-  'Universidad Nacional Micaela Bastidas',
-  'Superintendencia de Banca, Seguros y AFP',
-  'Programa Nacional Faustino Sánchez Carrión',
-  'Municipalidad de Santa María - Huacho',
-  'PRONIS',
-  'Municipalidad Provincial del Santa',
+  { n: 'Universidad Nacional Micaela Bastidas', f: 'unamba' },
+  { n: 'Superintendencia de Banca, Seguros y AFP', f: 'sbs' },
+  { n: 'Universidad Nacional José Faustino Sánchez Carrión', f: 'unjfsc' },
+  { n: 'Municipalidad de Santa María - Huacho', f: 'santa-maria' },
+  { n: 'Programa Nacional de Inversiones en Salud (PRONIS)', f: 'pronis' },
+  { n: 'Municipalidad Provincial del Santa', f: 'santa' },
+];
+
+const PARA_ORGANIZACIONES = [
+  { t: 'Configuración a medida', d: 'Equipos ensamblados bajo estándares rigurosos para flujos de trabajo de alta demanda.' },
+  { t: 'Asesoría con datos técnicos', d: 'Acompañamiento directo para decidir por rendimiento y continuidad, no solo por precio.' },
+  { t: 'Cotización formal con factura', d: 'Indicas productos y cantidades, y un especialista te envía precio final, stock y entrega.' },
 ];
 
 export default function Home() {
@@ -85,6 +92,48 @@ export default function Home() {
           </h2>
           <p data-r className="mt-4 max-w-2xl text-slate-400">Elige tu uso y te recomendamos una configuración. Luego la puedes personalizar pieza por pieza.</p>
           <div data-r><SelectorUso /></div>
+        </Reveal>
+      </section>
+
+      {/* PARA ORGANIZACIONES */}
+      <section id="organizaciones" className="relative isolate overflow-hidden border-y border-line py-24">
+        <div className="absolute inset-0 -z-10 bg-cover bg-center opacity-20" style={{ backgroundImage: 'url(/brand/fondo-red.jpg)' }} />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-bg via-bg/60 to-bg" />
+        <Reveal className="mx-auto grid max-w-7xl items-center gap-14 px-5 lg:grid-cols-[1.1fr_1fr] lg:gap-20">
+          <div>
+            <h2 data-r className="font-display text-3xl font-bold md:text-5xl">
+              Para empresas e <span className="titulo-neon">instituciones</span>
+            </h2>
+            <p data-r className="mt-5 max-w-xl text-lg text-slate-300">
+              Quien decide por TI no busca solo un precio: busca continuidad y rendimiento. Cada componente se selecciona para cumplir una función específica, sin la incertidumbre del hardware genérico.
+            </p>
+            <dl className="mt-8 divide-y divide-line border-y border-line">
+              {PARA_ORGANIZACIONES.map((p) => (
+                <div key={p.t} data-r className="grid gap-1 py-4 sm:grid-cols-[13rem_1fr] sm:gap-6">
+                  <dt className="font-display text-base font-bold text-white">{p.t}</dt>
+                  <dd className="text-slate-300">{p.d}</dd>
+                </div>
+              ))}
+            </dl>
+            <div data-r className="mt-8 flex flex-wrap gap-3">
+              <Link href="/cotizar" className="btn-neon inline-flex items-center gap-2 rounded-full px-8 py-4 font-display text-sm">
+                <ClipboardList size={18} /> COTIZAR PARA MI ORGANIZACIÓN
+              </Link>
+            </div>
+          </div>
+
+          <div data-r>
+            <h3 className="font-display text-base font-bold text-claro">Casos de éxito</h3>
+            <ul className="mt-5 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3">
+              {CASOS.map((c) => (
+                <li key={c.f} className="flex flex-col items-center text-center">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={`/clientes/${c.f}.webp`} alt={`Logo de ${c.n}`} width={180} height={180} loading="lazy" className="h-28 w-28 rounded-full sm:h-32 sm:w-32" />
+                  <span className="mt-3 text-xs leading-snug text-slate-400">{c.n}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </Reveal>
       </section>
 
@@ -250,13 +299,15 @@ export default function Home() {
               Nuestra relación no termina con la entrega: soporte post-venta con tiempos de respuesta optimizados y repuestos originales.
             </p>
           </div>
-          <div data-r>
-            <h3 className="font-display text-base font-bold text-claro">Casos de éxito</h3>
-            <ul className="mt-4 grid divide-y divide-line border-y border-line md:grid-cols-2 md:divide-y-0">
-              {CASOS.map((c, i) => (
-                <li key={c} className={`py-4 text-slate-200 md:px-1 ${i >= 2 ? 'md:border-t md:border-line' : ''}`}>{c}</li>
-              ))}
+          <div data-r className="flex flex-col items-start gap-5 lg:justify-center">
+            <ul className="w-full divide-y divide-line border-y border-line text-slate-200">
+              <li className="py-4">Soporte post-venta con tiempos de respuesta optimizados</li>
+              <li className="py-4">Repuestos originales</li>
+              <li className="py-4">Acompañamiento directo de un especialista</li>
             </ul>
+            <a href={waUrl('Hola Quamtu, necesito soporte para mi equipo.')} target="_blank" rel="noreferrer" className="btn-borde inline-flex items-center gap-2 rounded-full px-7 py-3.5 font-display text-sm">
+              <MessageCircle size={18} /> ESCRIBIR A SOPORTE
+            </a>
           </div>
         </Reveal>
       </section>
