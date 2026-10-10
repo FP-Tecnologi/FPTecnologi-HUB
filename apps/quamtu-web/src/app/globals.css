@@ -32,6 +32,16 @@ html, body { overflow-x: clip; }
 }
 @keyframes shimmer { to { background-position: -250% 0; } }
 
+/* Entrada del primer pantallazo: solo CSS, así el texto aparece sin esperar al JS ni al 3D. */
+@keyframes entra { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.entra { animation: entra 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; animation-delay: calc(var(--i, 0) * 90ms); }
+
+@media (prefers-reduced-motion: reduce) {
+  .entra { animation: none; }
+  .titulo-neon { animation: none; }
+  html { scroll-behavior: auto; }
+}
+
 .rejilla {
   background-image:
     linear-gradient(to right, rgba(35,141,193,.08) 1px, transparent 1px),

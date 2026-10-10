@@ -10,6 +10,7 @@ export default function Reveal({ children, className = '' }: { children: ReactNo
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = ref.current!;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const items = el.querySelectorAll('[data-r]');
     const ctx = gsap.context(() => {
       const objetivos = items.length ? items : [el];

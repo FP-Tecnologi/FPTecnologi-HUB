@@ -47,17 +47,17 @@ export default function Home() {
         <div className="absolute inset-0 -z-20 bg-cover bg-center opacity-60" style={{ backgroundImage: 'url(/brand/fondo-red.jpg)' }} />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-bg via-bg/70 to-transparent" />
         <div className="mx-auto grid w-full max-w-7xl items-center gap-4 px-5 lg:grid-cols-2">
-          <Reveal>
-            <p data-r className="mb-5 inline-block border border-claro/40 px-4 py-1 font-display text-xs tracking-[0.3em] text-claro">
+          <div>
+            <p style={{ ["--i" as string]: 0 }} className="entra mb-5 inline-block border border-claro/40 px-4 py-1 font-display text-xs tracking-[0.3em] text-claro">
               CONFIGURACIÓN DE PRECISIÓN
             </p>
-            <h1 data-r className="titulo-neon font-display text-5xl font-bold leading-[1.05] md:text-7xl">
+            <h1 style={{ ["--i" as string]: 1 }} className="entra titulo-neon font-display text-5xl font-bold leading-[1.05] md:text-7xl">
               Equipos a la medida de tu trabajo.
             </h1>
-            <p data-r className="mt-6 max-w-lg text-xl text-slate-300">
+            <p style={{ ["--i" as string]: 2 }} className="entra mt-6 max-w-lg text-xl text-slate-300">
               No construimos hardware convencional: diseñamos herramientas de ingeniería a la medida. Arma tu equipo en 3D o cotiza para tu organización.
             </p>
-            <div data-r className="mt-9 flex flex-wrap gap-4">
+            <div style={{ ["--i" as string]: 3 }} className="entra mt-9 flex flex-wrap gap-4">
               <Link href="/armar" className="btn-neon inline-flex items-center gap-2 rounded-full px-8 py-4 font-display text-sm">
                 ARMA TU PC <ArrowRight size={18} />
               </Link>
@@ -65,8 +65,8 @@ export default function Home() {
                 <ClipboardList size={18} /> COTIZA PARA TU EMPRESA
               </Link>
             </div>
-          </Reveal>
-          <PcEscena sel={hero} className="h-[420px] md:h-[640px]" />
+          </div>
+          <PcEscena sel={hero} poster="/brand/hero-poster.webp" diferir className="h-[420px] md:h-[640px]" />
         </div>
       </section>
 

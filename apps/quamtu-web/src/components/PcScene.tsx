@@ -18,7 +18,7 @@ const SLOT = '#2a3a58';
 type V3 = [number, number, number];
 
 const modeloDe = (o?: Opcion) => (o ? (MODELOS[o.id] ?? MODELOS[o.cat]) : undefined);
-const Ctx = createContext<{ setHover: (id: string | null) => void; interactivo: boolean }>({ setHover: () => {}, interactivo: false });
+const Ctx = createContext<{ setHover: (id: string | null) => void; interactivo: boolean; instantaneo: boolean }>({ setHover: () => {}, interactivo: false, instantaneo: false });
 
 function Glb({ m }: { m: Modelo }) {
   const { scene } = useGLTF(m.url);
@@ -40,12 +40,26 @@ function Aparece({
   const prev = useRef(on);
   const mats = useRef<{ m: Mat; base: number; trans: boolean }[] | null>(null);
   const solido = useRef(true);
-  const { setHover, interactivo } = useContext(Ctx);
+  const { setHover, interactivo, instantaneo } = useContext(Ctx);
+  const colocada = useRef(false);
 
   useFrame((st, dtRaw) => {
     const g = ref.current;
     if (!g) return;
     const dt = Math.min(dtRaw, 0.05);
+    // Modo instantáneo (hero con imagen fija): la pieza nace ya armada, sin entrada animada.
+    if (instantaneo && !colocada.current) {
+      colocada.current = true;
+      x.current = on ? 1 : 0;
+      v.current = 0;
+      prev.current = on;
+      t0.current = st.clock.elapsedTime;
+      g.visible = on;
+      g.position.set(0, 0, 0);
+      g.rotation.y = 0;
+      g.scale.setScalar(1);
+      return;
+    }
     if (t0.current === null || prev.current !== on) {
       prev.current = on;
       t0.current = st.clock.elapsedTime;
@@ -303,7 +317,7 @@ function Etiqueta({ o, p, q, lado, activa, setHover }: { o: Opcion; p: V3; q: V3
 }
 
 /* ---------- escena ---------- */
-function Escena({ sel, etiquetas, foco, solo }: { sel: Seleccion; etiquetas: boolean; foco?: string; solo: boolean }) {
+function Escena({ sel, etiquetas, foco, solo, instantaneo }: { sel: Seleccion; etiquetas: boolean; foco?: string; solo: boolean; instantaneo: boolean }) {
   const { gabinete: g, cpu, placa, ram, gpu, ssd, cooler, fuente } = sel;
   const [hover, setHoverRaw] = useState<string | null>(null);
   const salida = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -343,7 +357,7 @@ function Escena({ sel, etiquetas, foco, solo }: { sel: Seleccion; etiquetas: boo
   });
 
   return (
-    <Ctx.Provider value={{ setHover, interactivo: etiquetas }}>
+    <Ctx.Provider value={{ setHover, interactivo: etiquetas, instantaneo }}>
       <ambientLight intensity={0.55} />
       <directionalLight position={[3, 5, 7]} intensity={1.4} />
       <Environment resolution={128} frames={1}>
@@ -705,17 +719,18 @@ function Apunta({ vista }: { vista: VistaFoto }) {
 }
 
 export default function PcScene({
-  sel, auto = true, className = '', etiquetas = false, foco, foto,
-}: { sel: Seleccion; auto?: boolean; className?: string; etiquetas?: boolean; foco?: string; foto?: VistaFoto }) {
+  sel, auto = true, className = '', etiquetas = false, foco, foto, instantaneo = false, preservar = false, onListo,
+}: { sel: Seleccion; auto?: boolean; className?: string; etiquetas?: boolean; foco?: string; foto?: VistaFoto; instantaneo?: boolean; preservar?: boolean; onListo?: () => void }) {
   return (
     <div className={className}>
       <Canvas
         dpr={foto ? 1 : [1, 1.75]}
         camera={{ position: foto?.pos ?? [7.6, 2.2, 9.6], fov: foto?.fov ?? 38 }}
-        gl={{ antialias: true, preserveDrawingBuffer: !!foto, alpha: true }}
+        gl={{ antialias: true, preserveDrawingBuffer: !!foto || preservar, alpha: true }}
+        onCreated={() => onListo?.()}
       >
         <Suspense fallback={null}>
-          <Escena sel={sel} etiquetas={etiquetas} foco={foco} solo={!!foto} />
+          <Escena sel={sel} etiquetas={etiquetas} foco={foco} solo={!!foto} instantaneo={instantaneo} />
         </Suspense>
         {foto ? (
           <Apunta vista={foto} />
