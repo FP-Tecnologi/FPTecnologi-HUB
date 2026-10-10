@@ -1,20 +1,24 @@
 'use client';
-// PC procedural detallado (sin modelos .glb): metal negro mate, rejillas, aletas, cables y el logo Quamtu en las piezas.
+// PC procedural detallado (sin modelos .glb). Todo se arma pieza a pieza con animación de entrada/salida:
+// gabinete (estructura, paneles, ventiladores), placa, CPU, refrigeración, RAM, SSD, GPU, fuente y cables.
+// Con `etiquetas` cada pieza muestra un marcador (modelo, precio, enlace al producto) y es clicable.
 // Si hay un .glb para una pieza (lib/modelos.ts) reemplaza al procedural.
-import { Suspense, useMemo, useRef, type ReactNode } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { ContactShadows, Edges, Environment, Lightformer, OrbitControls, Sparkles, useGLTF, useTexture } from '@react-three/drei';
-import { CatmullRomCurve3, MathUtils, Vector3, type Group } from 'three';
-import type { Opcion, Seleccion } from '@/lib/piezas';
+import { createContext, Suspense, useContext, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Canvas, useFrame, type ThreeEvent } from '@react-three/fiber';
+import { ContactShadows, Edges, Environment, Grid, Html, Lightformer, OrbitControls, Sparkles, useGLTF, useTexture } from '@react-three/drei';
+import { CatmullRomCurve3, MathUtils, Vector3, type Group, type Material } from 'three';
+import type { Cat, Opcion, Seleccion } from '@/lib/piezas';
 import { MODELOS, type Modelo } from '@/lib/modelos';
 
 const H = 3.8; // alto base del gabinete
 const W = 3.2;
 const D = 1.9;
 const PCB = '#14233f';
+const SLOT = '#2a3a58';
 type V3 = [number, number, number];
 
 const modeloDe = (o?: Opcion) => (o ? (MODELOS[o.id] ?? MODELOS[o.cat]) : undefined);
+const Ctx = createContext<{ setHover: (id: string | null) => void; interactivo: boolean }>({ setHover: () => {}, interactivo: false });
 
 function Glb({ m }: { m: Modelo }) {
   const { scene } = useGLTF(m.url);
@@ -22,20 +26,95 @@ function Glb({ m }: { m: Modelo }) {
   return <primitive object={copia} scale={m.escala ?? 1} position={m.pos ?? [0, 0, 0]} rotation={m.rot ?? [0, 0, 0]} />;
 }
 
-// Anima la entrada: la pieza cae desde arriba y crece hasta su tamaño.
-function Aparece({ on, children, caida = 1.6, modelo }: { on: boolean; children: ReactNode; caida?: number; modelo?: Modelo }) {
+type Mat = Material & { opacity: number; transparent: boolean };
+
+/* Entrada/salida con resorte: la pieza llega desde `desde` girando, con un pequeño rebote y fundido;
+   al quitarla hace el camino inverso. `delay` escalona las piezas de un mismo conjunto. */
+function Aparece({
+  on, children, desde = [0, 1.8, 0], delay = 0, spin = 0.9, modelo, opcion,
+}: { on: boolean; children: ReactNode; desde?: V3; delay?: number; spin?: number; modelo?: Modelo; opcion?: Opcion }) {
   const ref = useRef<Group>(null);
-  const p = useRef(0);
-  useFrame((_, dt) => {
+  const x = useRef(0);
+  const v = useRef(0);
+  const t0 = useRef<number | null>(null);
+  const prev = useRef(on);
+  const mats = useRef<{ m: Mat; base: number; trans: boolean }[] | null>(null);
+  const solido = useRef(true);
+  const { setHover, interactivo } = useContext(Ctx);
+
+  useFrame((st, dtRaw) => {
     const g = ref.current;
     if (!g) return;
-    p.current = MathUtils.damp(p.current, on ? 1 : 0, 4, dt);
-    g.visible = p.current > 0.01;
-    g.scale.setScalar(0.5 + 0.5 * p.current);
-    g.position.y = caida * (1 - p.current);
+    const dt = Math.min(dtRaw, 0.05);
+    if (t0.current === null || prev.current !== on) {
+      prev.current = on;
+      t0.current = st.clock.elapsedTime;
+    }
+    const listo = st.clock.elapsedTime - t0.current >= (on ? delay : 0);
+    const meta = on && listo ? 1 : 0;
+    if (x.current === meta && v.current === 0) return;
+    v.current += ((meta - x.current) * 75 - v.current * 9.5) * dt;
+    x.current += v.current * dt;
+    if (Math.abs(meta - x.current) < 0.0008 && Math.abs(v.current) < 0.002) {
+      x.current = meta;
+      v.current = 0;
+    }
+    const e = x.current;
+    const q = 1 - e;
+    g.visible = e > 0.01 || meta === 1;
+    g.position.set(desde[0] * q, desde[1] * q, desde[2] * q);
+    g.rotation.y = spin * q;
+    g.scale.setScalar(Math.max(0.001, 0.65 + 0.35 * e));
+    if (!mats.current && g.visible) {
+      const lista: { m: Mat; base: number; trans: boolean }[] = [];
+      g.traverse((o) => {
+        const mm = (o as unknown as { material?: Mat | Mat[] }).material;
+        (Array.isArray(mm) ? mm : mm ? [mm] : []).forEach((m) => lista.push({ m, base: m.opacity, trans: m.transparent }));
+      });
+      mats.current = lista;
+    }
+    const op = MathUtils.clamp(e, 0, 1);
+    if (mats.current) {
+      if (op < 0.995) {
+        mats.current.forEach((r) => {
+          r.m.transparent = true;
+          r.m.opacity = r.base * op;
+          if (solido.current) r.m.needsUpdate = true;
+        });
+        solido.current = false;
+      } else if (!solido.current) {
+        mats.current.forEach((r) => {
+          r.m.transparent = r.trans;
+          r.m.opacity = r.base;
+          r.m.needsUpdate = true;
+        });
+        solido.current = true;
+      }
+    }
   });
+
+  const manejadores =
+    interactivo && opcion
+      ? {
+          onPointerOver: (e: ThreeEvent<PointerEvent>) => {
+            e.stopPropagation();
+            setHover(opcion.id);
+            document.body.style.cursor = 'pointer';
+          },
+          onPointerOut: () => {
+            setHover(null);
+            document.body.style.cursor = '';
+          },
+          onClick: (e: ThreeEvent<MouseEvent>) => {
+            if (e.delta > 6) return; // fue un arrastre, no un clic
+            e.stopPropagation();
+            window.open(`/producto/${opcion.id}`, '_blank');
+          },
+        }
+      : {};
+
   return (
-    <group ref={ref} visible={false}>
+    <group ref={ref} visible={false} {...manejadores}>
       {modelo ? (
         <Suspense fallback={null}>
           <Glb m={modelo} />
@@ -58,6 +137,14 @@ function Caja({ p, s, children, rot }: { p: V3; s: V3; children: ReactNode; rot?
   return (
     <mesh position={p} rotation={rot}>
       <boxGeometry args={s} />
+      {children}
+    </mesh>
+  );
+}
+function Cil({ p, r, h, children, rot }: { p: V3; r: number; h: number; children: ReactNode; rot?: V3 }) {
+  return (
+    <mesh position={p} rotation={rot}>
+      <cylinderGeometry args={[r, r, h, 16]} />
       {children}
     </mesh>
   );
@@ -94,20 +181,17 @@ function Ventilador({ color, r = 0.34, vel = 3, marco = true }: { color: string;
   const g = 0.035;
   return (
     <group>
-      {marco && (
-        <>
-          {[
-            [0, L / 2, L, g],
-            [0, -L / 2, L, g],
-            [L / 2, 0, g, L],
-            [-L / 2, 0, g, L],
-          ].map(([x, y, w, h], i) => (
-            <Caja key={i} p={[x, y, 0]} s={[w, h, 0.07]}>
-              <Metal c="#0a0e14" r={0.55} m={0.5} />
-            </Caja>
-          ))}
-        </>
-      )}
+      {marco &&
+        ([
+          [0, L / 2, L, g],
+          [0, -L / 2, L, g],
+          [L / 2, 0, g, L],
+          [-L / 2, 0, g, L],
+        ] as const).map(([x, y, w, h], i) => (
+          <Caja key={i} p={[x, y, 0]} s={[w, h, 0.07]}>
+            <Metal c="#0a0e14" r={0.55} m={0.5} />
+          </Caja>
+        ))}
       <mesh>
         <torusGeometry args={[r * 1.02, 0.014, 8, 48]} />
         <Led color={color} i={1.8} />
@@ -134,17 +218,110 @@ function Ventilador({ color, r = 0.34, vel = 3, marco = true }: { color: string;
   );
 }
 
+/* ---------- base de armado (pedestal) ---------- */
+function Pedestal({ y, color }: { y: number; color: string }) {
+  const g = useRef<Group>(null);
+  const arcos = useRef<Group>(null);
+  useFrame((_, dt) => {
+    if (g.current) g.current.position.y = MathUtils.damp(g.current.position.y, y, 5, dt);
+    if (arcos.current) arcos.current.rotation.z += dt * 0.5;
+  });
+  return (
+    <group ref={g} position={[0, y, 0]}>
+      {/* dos escalones de metal */}
+      <Cil p={[0, -0.09, 0]} r={2.75} h={0.18}><Metal c="#0a0e16" r={0.35} m={0.9} /></Cil>
+      <Cil p={[0, -0.27, 0]} r={3.0} h={0.18}><Metal c="#070a11" r={0.45} m={0.8} /></Cil>
+      <mesh position={[0, 0.003, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[2.6, 2.66, 96]} />
+        <Led color={color} i={1.2} />
+      </mesh>
+      {/* arcos que giran */}
+      <group ref={arcos} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]}>
+        {[0, 2.1, 4.2].map((a) => (
+          <mesh key={a}>
+            <ringGeometry args={[2.38, 2.46, 48, 1, a, 1.1]} />
+            <Led color={color} i={2.2} />
+          </mesh>
+        ))}
+      </group>
+      {/* marcas de graduación en el borde inferior */}
+      {Array.from({ length: 72 }, (_, i) => {
+        const a = (i / 72) * Math.PI * 2;
+        return (
+          <Caja key={i} p={[Math.cos(a) * 2.99, -0.27, Math.sin(a) * 2.99]} s={[0.02, i % 6 === 0 ? 0.12 : 0.06, 0.02]} rot={[0, -a, 0]}>
+            <Led color={color} i={0.9} />
+          </Caja>
+        );
+      })}
+      <Logo p={[0, 0.008, 2.15]} w={0.9} rot={[-Math.PI / 2, 0, 0]} op={0.7} />
+    </group>
+  );
+}
+
+/* ---------- etiquetas (marcadores sobre cada pieza) ---------- */
+type PosEt = { p: V3; lado: 'der' | 'izq' };
+const soles = (n: number) => `S/ ${n.toLocaleString('es-PE')}`;
+
+function Etiqueta({ o, pos, activa, setHover }: { o: Opcion; pos: PosEt; activa: boolean; setHover: (id: string | null) => void }) {
+  return (
+    <Html position={pos.p} zIndexRange={[40, 0]} style={{ pointerEvents: 'none' }}>
+      <div
+        className="relative"
+        style={{ pointerEvents: 'auto' }}
+        onMouseEnter={() => setHover(o.id)}
+        onMouseLeave={() => setHover(null)}
+      >
+        <span className="relative flex h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2">
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-claro opacity-70" />
+          <span className="relative inline-flex h-3.5 w-3.5 rounded-full border-2 border-white bg-cyan" />
+        </span>
+        {activa && (
+          <a
+            href={`/producto/${o.id}`}
+            target="_blank"
+            rel="noreferrer"
+            className="hud absolute top-[-14px] block w-56 p-3 text-left text-white no-underline"
+            style={pos.lado === 'der' ? { left: 14 } : { right: 14 }}
+          >
+            <span className="block font-display text-[10px] tracking-[0.2em] text-claro">{o.cat.toUpperCase()}</span>
+            <span className="mt-0.5 block font-display text-sm font-bold leading-tight">{o.nombre}</span>
+            <span className="mt-1 block text-xs text-slate-300">{o.spec}</span>
+            <span className="mt-2 flex items-center justify-between">
+              <b className="font-display text-base text-claro">{soles(o.precio)}</b>
+              <span className="text-[11px] text-white/80">Ver producto →</span>
+            </span>
+          </a>
+        )}
+      </div>
+    </Html>
+  );
+}
+
 /* ---------- escena ---------- */
-function Escena({ sel }: { sel: Seleccion }) {
+function Escena({ sel, etiquetas, foco }: { sel: Seleccion; etiquetas: boolean; foco?: string }) {
   const { gabinete: g, cpu, placa, ram, gpu, ssd, cooler, fuente } = sel;
+  const [hover, setHover] = useState<string | null>(null);
   const s = g?.n ?? 1;
   const acento = g?.color ?? '#4a6283';
   const gpuColor = gpu?.color ?? '#6cc3ee';
   const hw = (W * s) / 2;
   const hh = (H * s) / 2;
+  const cc = placa?.color ?? '#238DC1';
+  const rearX = -hw - 0.03; // pared trasera del PC (la cara con los conectores)
+
+  const posEt: Record<Cat, PosEt> = {
+    cpu: { p: [-0.2, 0.75, -0.4], lado: 'izq' },
+    placa: { p: [-1.0, 1.1, -0.5], lado: 'der' },
+    ram: { p: [0.3, 1.3, -0.5], lado: 'der' },
+    gpu: { p: [0.5, -0.2, 0.1], lado: 'der' },
+    ssd: { p: [-0.7, 0.0, -0.5], lado: 'der' },
+    cooler: { p: cooler && (cooler.n ?? 1) > 1 ? [-0.45, 1.58 * s, 0.1] : [-0.2, 1.3, -0.1], lado: 'der' },
+    fuente: { p: [0.9, -hh + 0.6, 0.8], lado: 'izq' },
+    gabinete: { p: [hw, hh, D / 2], lado: 'izq' },
+  };
 
   return (
-    <group>
+    <Ctx.Provider value={{ setHover, interactivo: etiquetas }}>
       <ambientLight intensity={0.55} />
       <directionalLight position={[3, 5, 7]} intensity={1.4} />
       <Environment resolution={128} frames={1}>
@@ -156,7 +333,7 @@ function Escena({ sel }: { sel: Seleccion }) {
       {cooler && <pointLight position={[-0.3, 1.2, 0.3]} color={cooler.color} intensity={2.5} distance={3.5} />}
       {ram && <pointLight position={[0.3, 0.8, 0]} color={ram.color} intensity={1.6} distance={2.5} />}
 
-      {/* Cristal (siempre) y estructura del gabinete */}
+      {/* Cristal y contorno fantasma (siempre) */}
       <mesh position={[0, 0, D / 2]} scale={[s, s, 1]}>
         <planeGeometry args={[W, H]} />
         <meshPhysicalMaterial color="#9fc6e6" transparent opacity={g ? 0.07 : 0.03} roughness={0.04} metalness={0.2} depthWrite={false} />
@@ -166,20 +343,42 @@ function Escena({ sel }: { sel: Seleccion }) {
         <meshBasicMaterial visible={false} />
         <Edges color={g ? acento : '#2c3f5c'} threshold={15} />
       </mesh>
-      {g && (
-        <>
-          {/* pilares, techo, base, panel trasero */}
-          {[hw, -hw].flatMap((x) => [D / 2, -D / 2].map((z) => (
-            <Caja key={`${x}${z}`} p={[x, 0, z]} s={[0.1, H * s, 0.1]}><Metal c="#0b0f16" r={0.5} /></Caja>
+
+      {/* GABINETE: cada conjunto de piezas entra por su lado, escalonado */}
+      <group key={g?.id ?? 'sin-gabinete'}>
+        <Aparece on={!!g} desde={[0, -1.4, 0]} delay={0} opcion={g}>
+          {[hw, -hw].flatMap((px) => [D / 2, -D / 2].map((z) => (
+            <Caja key={`${px}${z}`} p={[px, 0, z]} s={[0.1, H * s, 0.1]}><Metal c="#0b0f16" r={0.5} /></Caja>
           )))}
+          {[hw - 0.2, -hw + 0.2].flatMap((px) => [D / 2 - 0.2, -D / 2 + 0.2].map((z) => (
+            <Caja key={`p${px}${z}`} p={[px, -hh - 0.1, z]} s={[0.22, 0.1, 0.22]}><Metal c="#05070b" /></Caja>
+          )))}
+          <Caja p={[0, -hh - 0.17, 0]} s={[W * s + 0.1, 0.03, D + 0.1]}><Led color={acento} i={0.7} /></Caja>
+        </Aparece>
+        <Aparece on={!!g} desde={[0, 2.2, 0]} delay={0.15} spin={0.4}>
           <Caja p={[0, hh, 0]} s={[W * s, 0.1, D]}><Metal c="#0b0f16" r={0.5} /></Caja>
           <Caja p={[0, -hh, 0]} s={[W * s, 0.1, D]}><Metal c="#0b0f16" r={0.5} /></Caja>
+        </Aparece>
+        <Aparece on={!!g} desde={[0, 0, -2.4]} delay={0.3} spin={0.3}>
           <Caja p={[0, 0, -D / 2]} s={[W * s, H * s, 0.04]}><Metal c="#080b11" r={0.6} m={0.6} /></Caja>
-          {/* patas */}
-          {[hw - 0.2, -hw + 0.2].flatMap((x) => [D / 2 - 0.2, -D / 2 + 0.2].map((z) => (
-            <Caja key={`p${x}${z}`} p={[x, -hh - 0.1, z]} s={[0.22, 0.1, 0.22]}><Metal c="#05070b" /></Caja>
-          )))}
-          {/* panel derecho Turing: rejilla diagonal */}
+        </Aparece>
+        {/* pared trasera con conectores */}
+        <Aparece on={!!g} desde={[-2.4, 0, 0]} delay={0.45} spin={0.3}>
+          <Caja p={[-hw, 0, 0]} s={[0.04, H * s - 0.1, D - 0.1]}><Metal c="#080b11" r={0.55} m={0.7} /></Caja>
+          {/* ranuras de expansión */}
+          {Array.from({ length: 4 }, (_, i) => (
+            <Caja key={i} p={[rearX, -0.9 + i * 0.13, -0.1]} s={[0.012, 0.09, 0.5]}><Metal c="#9aa6b5" r={0.35} m={0.95} /></Caja>
+          ))}
+          <Logo p={[rearX - 0.002, hh - 0.3, 0.55]} w={0.5} rot={[0, -Math.PI / 2, 0]} />
+        </Aparece>
+        {/* ventilador de escape trasero */}
+        <Aparece on={!!g} desde={[-2.2, 0.8, 0]} delay={0.65}>
+          <group position={[-hw + 0.04, 0.95 * s + 0.35, 0.3]} rotation={[0, -Math.PI / 2, 0]}>
+            <Ventilador color={acento} r={0.3} vel={4} />
+          </group>
+        </Aparece>
+        {/* panel frontal derecho con rejilla Turing y 3 ventiladores */}
+        <Aparece on={!!g} desde={[2.4, 0, 0]} delay={0.8} spin={-0.4}>
           <Caja p={[hw + 0.03, 0, 0]} s={[0.05, H * s - 0.1, D - 0.1]}><Metal c="#090c12" r={0.55} m={0.7} /></Caja>
           {Array.from({ length: 12 }, (_, i) => (
             <Caja key={i} p={[hw + 0.065, -hh + 0.25 + i * ((H * s - 0.5) / 11), 0]} s={[0.012, 0.07, D * (0.35 + 0.5 * ((i * 7) % 5) / 5)]}>
@@ -187,62 +386,129 @@ function Escena({ sel }: { sel: Seleccion }) {
             </Caja>
           ))}
           <Logo p={[hw + 0.075, hh - 0.35, -D / 2 + 0.55]} w={0.55} rot={[0, Math.PI / 2, 0]} />
-          {/* ventilador trasero (escape) */}
-          <group position={[hw - 0.45, hh - 0.5, -D / 2 + 0.07]}>
-            <Ventilador color={acento} r={0.3} vel={4} />
-          </group>
-          {/* base LED */}
-          <Caja p={[0, -hh - 0.17, 0]} s={[W * s + 0.1, 0.03, D + 0.1]}><Led color={acento} i={0.7} /></Caja>
-        </>
-      )}
+        </Aparece>
+        {[0.9, 0, -0.9].map((yy, i) => (
+          <Aparece key={yy} on={!!g} desde={[2.6, 0.4, 0]} delay={0.95 + i * 0.12}>
+            <group position={[hw - 0.02, yy * s, 0]} rotation={[0, Math.PI / 2, 0]}>
+              <Ventilador color={acento} r={0.3} vel={4} />
+            </group>
+          </Aparece>
+        ))}
+      </group>
 
-      {/* Placa madre */}
-      <Aparece on={!!placa} modelo={modeloDe(placa)}>
+      {/* PLACA MADRE */}
+      <Aparece on={!!placa} desde={[-1.2, 1.4, -0.4]} opcion={placa} modelo={modeloDe(placa)}>
         <Caja p={[-0.35, 0.35, -0.72]} s={[2.0, 2.4, 0.05]}>
-          <meshStandardMaterial color={PCB} roughness={0.5} metalness={0.4} />
-          <Edges color={placa?.color ?? '#238DC1'} />
+          <meshStandardMaterial color={PCB} roughness={0.45} metalness={0.5} />
+          <Edges color={cc} />
         </Caja>
+        {/* tornillos */}
+        {([[-1.28, 1.48], [0.58, 1.48], [-1.28, -0.78], [0.58, -0.78], [-1.28, 0.35], [0.58, 0.35]] as const).map(([px, py]) => (
+          <Cil key={`${px}${py}`} p={[px, py, -0.688]} r={0.025} h={0.02} rot={[Math.PI / 2, 0, 0]}><Metal c="#c4ccd6" r={0.25} m={1} /></Cil>
+        ))}
         {/* blindaje de I/O con nervaduras */}
-        <Caja p={[-1.0, 1.1, -0.62]} s={[0.7, 0.85, 0.12]}><Metal c="#161f2e" r={0.35} /></Caja>
+        <Caja p={[-1.0, 1.1, -0.62]} s={[0.7, 0.85, 0.12]}><Metal c="#1a2538" r={0.35} /></Caja>
         {Array.from({ length: 7 }, (_, i) => (
-          <Caja key={i} p={[-1.0, 0.8 + i * 0.1, -0.555]} s={[0.62, 0.02, 0.012]}><Metal c="#1b2432" r={0.3} /></Caja>
+          <Caja key={i} p={[-1.0, 0.8 + i * 0.1, -0.555]} s={[0.62, 0.02, 0.012]}><Metal c="#3a4a66" r={0.3} /></Caja>
         ))}
-        <Caja p={[-1.0, 1.54, -0.555]} s={[0.7, 0.025, 0.012]}><Led color={placa?.color ?? '#238DC1'} i={1.4} /></Caja>
-        {/* VRM / disipador superior */}
-        <Caja p={[-0.1, 1.42, -0.63]} s={[1.1, 0.16, 0.13]}><Metal c="#161f2e" r={0.35} /></Caja>
+        <Caja p={[-1.0, 1.54, -0.555]} s={[0.7, 0.025, 0.012]}><Led color={cc} i={1.6} /></Caja>
+        {/* VRM: inductores (chokes) y condensadores bajo el disipador */}
+        {Array.from({ length: 6 }, (_, i) => (
+          <Caja key={`ch${i}`} p={[-0.62, 0.45 + i * 0.1, -0.665]} s={[0.1, 0.07, 0.05]}><Metal c="#3a4a66" r={0.3} /></Caja>
+        ))}
+        {Array.from({ length: 8 }, (_, i) => (
+          <Caja key={`cht${i}`} p={[-0.52 + i * 0.1, 1.28, -0.665]} s={[0.07, 0.1, 0.05]}><Metal c="#3a4a66" r={0.3} /></Caja>
+        ))}
+        {Array.from({ length: 5 }, (_, i) => (
+          <Cil key={`cap${i}`} p={[-0.76, 0.5 + i * 0.12, -0.67]} r={0.032} h={0.07} rot={[Math.PI / 2, 0, 0]}><Metal c="#d7dce6" r={0.3} m={0.9} /></Cil>
+        ))}
+        {/* disipador VRM superior */}
+        <Caja p={[-0.1, 1.42, -0.63]} s={[1.1, 0.16, 0.13]}><Metal c="#1a2538" r={0.35} /></Caja>
         {Array.from({ length: 12 }, (_, i) => (
-          <Caja key={i} p={[-0.6 + i * 0.1, 1.42, -0.558]} s={[0.012, 0.15, 0.012]}><Metal c="#222c3c" r={0.3} /></Caja>
+          <Caja key={i} p={[-0.6 + i * 0.1, 1.42, -0.558]} s={[0.012, 0.15, 0.012]}><Metal c="#4a5b7a" r={0.3} /></Caja>
         ))}
-        {/* socket + ranuras RAM + PCIe + M.2 + chipset */}
-        <Caja p={[-0.2, 0.75, -0.685]} s={[0.55, 0.55, 0.03]}><Metal c="#9aa6b5" r={0.35} m={0.9} /></Caja>
+        {/* conector de energía CPU 8 pines (arriba) */}
+        <Caja p={[0.38, 1.48, -0.655]} s={[0.34, 0.1, 0.07]}><Metal c="#dfe4ec" r={0.5} m={0.2} /></Caja>
         {Array.from({ length: 4 }, (_, i) => (
-          <Caja key={i} p={[0.12 + i * 0.11, 0.78, -0.685]} s={[0.06, 1.05, 0.03]}><Metal c="#05070b" r={0.6} m={0.3} /></Caja>
+          <Caja key={i} p={[0.27 + i * 0.075, 1.48, -0.617]} s={[0.05, 0.06, 0.01]}><Metal c="#05070b" r={0.7} m={0.1} /></Caja>
         ))}
-        <Caja p={[-0.35, -0.55, -0.685]} s={[1.5, 0.06, 0.03]}><Metal c="#05070b" r={0.6} m={0.3} /></Caja>
-        <Caja p={[-0.7, 0.0, -0.66]} s={[0.55, 0.14, 0.05]}><Metal c="#1a2538" r={0.3} /></Caja>
-        <Caja p={[0.15, -0.32, -0.655]} s={[0.55, 0.3, 0.07]}><Metal c="#161f2e" r={0.35} /></Caja>
-        <Caja p={[0.15, -0.32, -0.617]} s={[0.4, 0.02, 0.012]}><Led color={placa?.color ?? '#238DC1'} i={1.2} /></Caja>
-        {/* pistas luminosas tenues */}
-        <Caja p={[0.2, -0.75, -0.69]} s={[0.9, 0.012, 0.01]}><Led color={placa?.color ?? '#238DC1'} i={1.4} /></Caja>
-        <Caja p={[-0.7, -0.5, -0.69]} s={[0.012, 0.6, 0.01]}><Led color={placa?.color ?? '#238DC1'} i={1.0} /></Caja>
+        {/* socket CPU: marco, pines dorados y palanca */}
+        <Caja p={[-0.2, 0.75, -0.685]} s={[0.62, 0.62, 0.03]}><Metal c="#b6c0cf" r={0.3} m={0.95} /></Caja>
+        <Caja p={[-0.2, 0.75, -0.668]} s={[0.5, 0.5, 0.006]}><Metal c="#b8963c" r={0.3} m={1} /></Caja>
+        <Cil p={[0.14, 0.75, -0.655]} r={0.012} h={0.5}><Metal c="#e4e9f1" r={0.25} m={1} /></Cil>
+        {/* ranuras RAM con seguros */}
+        {Array.from({ length: 4 }, (_, i) => (
+          <group key={i}>
+            <Caja p={[0.12 + i * 0.11, 0.78, -0.675]} s={[0.065, 1.08, 0.04]}><Metal c={SLOT} r={0.5} m={0.3} /></Caja>
+            <Caja p={[0.12 + i * 0.11, 1.34, -0.665]} s={[0.06, 0.05, 0.06]}><Metal c="#dfe4ec" r={0.5} m={0.2} /></Caja>
+            <Caja p={[0.12 + i * 0.11, 0.22, -0.665]} s={[0.06, 0.05, 0.06]}><Metal c="#dfe4ec" r={0.5} m={0.2} /></Caja>
+          </group>
+        ))}
+        {/* conector 24 pines (borde derecho) */}
+        <Caja p={[0.57, 0.35, -0.65]} s={[0.11, 0.78, 0.07]}><Metal c="#dfe4ec" r={0.5} m={0.2} /></Caja>
+        {Array.from({ length: 12 }, (_, i) => (
+          <Caja key={i} p={[0.575, 0.0 + i * 0.062, -0.612]} s={[0.07, 0.04, 0.01]}><Metal c="#05070b" r={0.7} m={0.1} /></Caja>
+        ))}
+        {/* ranuras PCIe (x16 y x1) */}
+        <Caja p={[-0.35, -0.55, -0.675]} s={[1.5, 0.07, 0.04]}><Metal c={SLOT} r={0.5} m={0.3} /></Caja>
+        <Caja p={[-0.7, -0.35, -0.675]} s={[0.5, 0.06, 0.04]}><Metal c={SLOT} r={0.5} m={0.3} /></Caja>
+        <Caja p={[-0.7, -0.15, -0.675]} s={[0.5, 0.06, 0.04]}><Metal c={SLOT} r={0.5} m={0.3} /></Caja>
+        <Caja p={[-0.35, -0.55, -0.652]} s={[1.46, 0.012, 0.005]}><Led color={cc} i={1.3} /></Caja>
+        {/* M.2 + disipador del chipset + SATA + headers */}
+        <Caja p={[-0.7, 0.0, -0.66]} s={[0.55, 0.14, 0.05]}><Metal c="#223049" r={0.3} /></Caja>
+        <Caja p={[0.15, -0.38, -0.655]} s={[0.6, 0.34, 0.07]}><Metal c="#1a2538" r={0.35} /></Caja>
+        {Array.from({ length: 6 }, (_, i) => (
+          <Caja key={i} p={[0.15, -0.5 + i * 0.05, -0.615]} s={[0.5, 0.012, 0.012]}><Metal c="#4a5b7a" r={0.3} /></Caja>
+        ))}
+        {Array.from({ length: 4 }, (_, i) => (
+          <Caja key={i} p={[0.5, -0.45 - i * 0.1, -0.665]} s={[0.12, 0.07, 0.05]}><Metal c="#1b222f" r={0.6} m={0.2} /></Caja>
+        ))}
+        {Array.from({ length: 3 }, (_, i) => (
+          <Caja key={i} p={[-1.1 + i * 0.18, -0.78, -0.668]} s={[0.12, 0.05, 0.04]}><Metal c="#dfe4ec" r={0.5} m={0.2} /></Caja>
+        ))}
+        {/* pistas luminosas */}
+        <Caja p={[0.2, -0.75, -0.69]} s={[0.9, 0.012, 0.01]}><Led color={cc} i={1.6} /></Caja>
+        <Caja p={[-0.95, -0.3, -0.69]} s={[0.012, 0.9, 0.01]}><Led color={cc} i={1.2} /></Caja>
+        {/* bloque de puertos del panel trasero (se ven desde atrás) */}
+        <group position={[rearX, 1.1, -0.62]}>
+          <Caja p={[0, 0, 0]} s={[0.08, 0.86, 0.72]}><Metal c="#9aa6b5" r={0.35} m={0.95} /></Caja>
+          {Array.from({ length: 4 }, (_, i) => (
+            <Caja key={`u${i}`} p={[-0.045, 0.3 - (i % 2) * 0.13, -0.2 + Math.floor(i / 2) * 0.16]} s={[0.03, 0.09, 0.13]}><Metal c="#1f6fd6" r={0.5} m={0.2} /></Caja>
+          ))}
+          {Array.from({ length: 2 }, (_, i) => (
+            <Caja key={`c${i}`} p={[-0.045, 0.3 - 0.26, -0.2 + i * 0.16]} s={[0.03, 0.07, 0.12]}><Metal c="#05070b" r={0.6} m={0.2} /></Caja>
+          ))}
+          <Caja p={[-0.045, 0.0, 0.0]} s={[0.03, 0.14, 0.16]}><Metal c="#0a0e14" r={0.6} m={0.3} /></Caja>
+          <Caja p={[-0.045, 0.0, 0.2]} s={[0.03, 0.08, 0.14]}><Metal c="#05070b" r={0.6} m={0.2} /></Caja>
+          {['#3fb950', '#3b82f6', '#e11d48', '#f59e0b', '#a3a3a3'].map((c, i) => (
+            <Cil key={c} p={[-0.05, -0.18 - i * 0.1, 0.18]} r={0.035} h={0.04} rot={[0, 0, Math.PI / 2]}><Metal c={c} r={0.4} m={0.5} /></Cil>
+          ))}
+          {[-0.24, -0.12].map((z) => (
+            <Cil key={z} p={[-0.06, 0.38, z]} r={0.03} h={0.06} rot={[0, 0, Math.PI / 2]}><Metal c="#c9a24a" r={0.3} m={1} /></Cil>
+          ))}
+        </group>
       </Aparece>
 
-      {/* CPU: tapa metálica visible */}
-      <Aparece on={!!cpu} caida={2} modelo={modeloDe(cpu)}>
-        <Caja p={[-0.2, 0.75, -0.655]} s={[0.4, 0.4, 0.035]}><Metal c="#c4ccd6" r={0.28} m={0.95} /></Caja>
-        <Caja p={[-0.2, 0.75, -0.636]} s={[0.3, 0.3, 0.004]}><Led color={cpu?.color ?? '#238DC1'} i={0.35} /></Caja>
+      {/* CPU con tapa metálica y grabado */}
+      <Aparece on={!!cpu} desde={[0, 2.2, 0.6]} delay={0.1} opcion={cpu} modelo={modeloDe(cpu)}>
+        <Caja p={[-0.2, 0.75, -0.645]} s={[0.44, 0.44, 0.045]}><Metal c="#c9d0da" r={0.25} m={0.95} /></Caja>
+        <Caja p={[-0.2, 0.75, -0.62]} s={[0.34, 0.34, 0.004]}><Metal c="#8e99a8" r={0.3} m={1} /></Caja>
+        <Caja p={[-0.2, 0.8, -0.617]} s={[0.22, 0.02, 0.003]}><Led color={cpu?.color ?? '#238DC1'} i={0.8} /></Caja>
+        <Caja p={[-0.2, 0.72, -0.617]} s={[0.16, 0.012, 0.003]}><Led color={cpu?.color ?? '#238DC1'} i={0.5} /></Caja>
+        <Caja p={[-0.2, 0.7, -0.617]} s={[0.12, 0.012, 0.003]}><Led color={cpu?.color ?? '#238DC1'} i={0.5} /></Caja>
+        <Caja p={[-0.4, 0.55, -0.62]} s={[0.04, 0.04, 0.004]}><Led color="#f5b942" i={1} /></Caja>
       </Aparece>
 
-      {/* Refrigeración: torre (n=1) o líquida con radiador arriba (n>=2) */}
-      <Aparece on={!!cooler} caida={2.2} modelo={modeloDe(cooler)}>
+      {/* REFRIGERACIÓN: torre (n=1) o líquida con radiador (n>=2) */}
+      <Aparece on={!!cooler} desde={[0, 2.4, 0.4]} delay={0.1} opcion={cooler} modelo={modeloDe(cooler)}>
         {cooler && cooler.n === 1 && (
           <group position={[-0.2, 0.75, -0.4]}>
             <Caja p={[0, -0.5, 0.05]} s={[0.5, 0.06, 0.4]}><Metal c="#c4ccd6" r={0.3} m={0.95} /></Caja>
             {Array.from({ length: 16 }, (_, i) => (
-              <Caja key={i} p={[0, -0.42 + i * 0.058, 0]} s={[0.52, 0.018, 0.34]}><Metal c="#1a2230" r={0.3} /></Caja>
+              <Caja key={i} p={[0, -0.42 + i * 0.058, 0]} s={[0.52, 0.018, 0.34]}><Metal c="#3a4a66" r={0.3} /></Caja>
             ))}
-            {[-0.15, 0, 0.15].map((x) => (
-              <mesh key={x} position={[x, 0, 0.17]}>
+            {[-0.15, 0, 0.15].map((px) => (
+              <mesh key={px} position={[px, 0, 0.17]}>
                 <cylinderGeometry args={[0.018, 0.018, 0.95, 8]} />
                 <Metal c="#c4ccd6" r={0.25} m={1} />
               </mesh>
@@ -256,7 +522,6 @@ function Escena({ sel }: { sel: Seleccion }) {
         )}
         {cooler && (cooler.n ?? 1) > 1 && (
           <group>
-            {/* bomba con logo */}
             <mesh position={[-0.2, 0.75, -0.55]} rotation={[Math.PI / 2, 0, 0]}>
               <cylinderGeometry args={[0.26, 0.26, 0.2, 32]} />
               <Metal c="#0a0e14" r={0.3} />
@@ -266,7 +531,6 @@ function Escena({ sel }: { sel: Seleccion }) {
               <Led color={cooler.color} i={2} />
             </mesh>
             <Logo p={[-0.2, 0.75, -0.44]} w={0.3} />
-            {/* radiador arriba con ventiladores */}
             {(() => {
               const n = cooler.n ?? 2;
               const ancho = n * 0.62;
@@ -274,7 +538,7 @@ function Escena({ sel }: { sel: Seleccion }) {
                 <group position={[-0.45, 1.58 * s, -0.2]}>
                   <Caja p={[0, 0, 0]} s={[ancho, 0.16, 0.66]}><Metal c="#0a0e14" r={0.4} /></Caja>
                   {Array.from({ length: n * 8 }, (_, i) => (
-                    <Caja key={i} p={[-ancho / 2 + 0.04 + i * ((ancho - 0.08) / (n * 8 - 1)), 0, 0.331]} s={[0.012, 0.15, 0.004]}><Metal c="#27324a" r={0.3} /></Caja>
+                    <Caja key={i} p={[-ancho / 2 + 0.04 + i * ((ancho - 0.08) / (n * 8 - 1)), 0, 0.331]} s={[0.012, 0.15, 0.004]}><Metal c="#4a5b7a" r={0.3} /></Caja>
                   ))}
                   {Array.from({ length: n }, (_, i) => (
                     <group key={i} position={[-ancho / 2 + 0.31 + i * 0.62, -0.1, 0]} rotation={[Math.PI / 2, 0, 0]}>
@@ -290,44 +554,37 @@ function Escena({ sel }: { sel: Seleccion }) {
         )}
       </Aparece>
 
-      {/* RAM con disipador, barra LED y etiqueta */}
-      <Aparece on={!!ram} caida={2.4} modelo={modeloDe(ram)}>
+      {/* RAM */}
+      <Aparece on={!!ram} desde={[1.4, 2.2, 0]} delay={0.1} opcion={ram} modelo={modeloDe(ram)}>
         {ram &&
           Array.from({ length: ram.n ?? 2 }, (_, i) => (
             <group key={i} position={[0.12 + i * 0.11, 0.78, -0.6]}>
               <Caja p={[0, 0, 0]} s={[0.075, 1.0, 0.13]}><Metal c="#10151d" r={0.4} /></Caja>
               <Caja p={[0, -0.48, 0]} s={[0.07, 0.05, 0.1]}><Metal c="#c9a24a" r={0.3} m={1} /></Caja>
-              <Caja p={[0.039, 0, 0]} s={[0.005, 0.55, 0.1]}><Metal c="#1d2636" r={0.25} /></Caja>
+              <Caja p={[0.039, 0, 0]} s={[0.005, 0.55, 0.1]}><Metal c="#2a3a58" r={0.25} /></Caja>
               <Caja p={[0, 0.52, 0]} s={[0.078, 0.07, 0.135]}><Led color={ram.color} i={2.2} /></Caja>
               <Logo p={[0.043, -0.1, 0]} w={0.3} rot={[0, Math.PI / 2, 0]} op={0.8} />
             </group>
           ))}
       </Aparece>
 
-      {/* SSD M.2 con disipador */}
-      <Aparece on={!!ssd} caida={1.8} modelo={modeloDe(ssd)}>
-        {ssd && <Caja p={[-0.7, 0.0, -0.625]} s={[0.55, 0.13, 0.03]}><Metal c="#1b2a44" r={0.3} /></Caja>}
+      {/* SSD M.2 */}
+      <Aparece on={!!ssd} desde={[-1.6, 0.6, 0.8]} delay={0.1} opcion={ssd} modelo={modeloDe(ssd)}>
+        {ssd && <Caja p={[-0.7, 0.0, -0.625]} s={[0.55, 0.13, 0.03]}><Metal c="#2a3d5f" r={0.3} /></Caja>}
         {ssd && <Caja p={[-0.7, 0.0, -0.607]} s={[0.4, 0.02, 0.006]}><Led color={ssd.color} i={1.4} /></Caja>}
-        {ssd && (ssd.n ?? 1) > 1 && <Caja p={[0.15, -0.32, -0.59]} s={[0.4, 0.06, 0.02]}><Metal c="#1b2a44" r={0.3} /></Caja>}
+        {ssd && (ssd.n ?? 1) > 1 && <Caja p={[0.15, -0.38, -0.58]} s={[0.4, 0.06, 0.02]}><Metal c="#2a3d5f" r={0.3} /></Caja>}
       </Aparece>
 
-      {/* GPU: carcasa, ventiladores, backplate, bracket y conectores */}
-      <Aparece on={!!gpu} caida={2.6} modelo={modeloDe(gpu)}>
+      {/* GPU */}
+      <Aparece on={!!gpu} desde={[0, 1.2, 2.4]} delay={0.1} opcion={gpu} modelo={modeloDe(gpu)}>
         <group position={[-0.25, -0.55, -0.15]}>
           <Caja p={[0, 0, 0]} s={[2.35, 0.62, 0.42]}><Metal c="#0b1018" r={0.38} /></Caja>
           <Caja p={[0, 0.34, 0]} s={[2.35, 0.05, 0.44]}><Metal c="#05070b" r={0.4} /></Caja>
           <Caja p={[0, 0.375, 0]} s={[2.0, 0.012, 0.3]}><Led color={gpuColor} i={2.2} /></Caja>
           <Logo p={[-0.55, 0.386, 0]} w={0.5} rot={[-Math.PI / 2, 0, 0]} />
-          {/* aletas al fondo */}
           {Array.from({ length: 22 }, (_, i) => (
-            <Caja key={i} p={[-1.05 + i * 0.1, -0.31, 0]} s={[0.012, 0.012, 0.4]}><Metal c="#2a3548" r={0.3} /></Caja>
+            <Caja key={i} p={[-1.05 + i * 0.1, -0.31, 0]} s={[0.012, 0.012, 0.4]}><Metal c="#3a4a66" r={0.3} /></Caja>
           ))}
-          {/* bracket */}
-          <Caja p={[-1.2, 0, 0.0]} s={[0.04, 0.7, 0.5]}><Metal c="#c4ccd6" r={0.3} m={0.95} /></Caja>
-          {[-0.18, 0.05, 0.28].map((y) => (
-            <Caja key={y} p={[-1.22, y - 0.1, 0.1]} s={[0.02, 0.1, 0.18]}><Metal c="#05070b" r={0.6} /></Caja>
-          ))}
-          {/* conector de energía */}
           <Caja p={[0.8, 0.31, -0.1]} s={[0.3, 0.09, 0.14]}><Metal c="#05070b" r={0.6} m={0.2} /></Caja>
           {Array.from({ length: gpu?.n ?? 2 }, (_, i) => {
             const n = gpu?.n ?? 2;
@@ -338,18 +595,25 @@ function Escena({ sel }: { sel: Seleccion }) {
             );
           })}
         </group>
-        {/* riser entre PCIe y GPU */}
         <Caja p={[-0.35, -0.55, -0.45]} s={[1.4, 0.03, 0.45]}><Metal c="#070a10" r={0.8} m={0.1} /></Caja>
+        {/* bracket y puertos (DisplayPort / HDMI) que se ven desde atrás */}
+        <group position={[rearX, -0.55, -0.15]}>
+          <Caja p={[0, 0, 0]} s={[0.04, 0.7, 0.5]}><Metal c="#c4ccd6" r={0.3} m={0.95} /></Caja>
+          {[-0.2, -0.05, 0.1].map((z) => (
+            <Caja key={z} p={[-0.03, 0.15, z]} s={[0.03, 0.09, 0.12]}><Metal c="#05070b" r={0.6} m={0.2} /></Caja>
+          ))}
+          <Caja p={[-0.03, 0.15, 0.22]} s={[0.03, 0.08, 0.1]}><Metal c="#0a0e14" r={0.6} m={0.2} /></Caja>
+        </group>
       </Aparece>
 
-      {/* Cables (aparecen con la fuente) */}
-      <Aparece on={!!fuente && !!placa} caida={1.4}>
-        <Cable pts={[[-0.6, -1.4, -0.55], [-0.62, -1.0, -0.62], [0.2, -0.95, -0.62], [0.72, -0.5, -0.62], [0.72, 0.2, -0.62]]} r={0.05} />
-        {gpu && <Cable pts={[[0.4, -1.4, -0.2], [0.95, -1.0, -0.1], [0.95, -0.4, -0.2], [0.82, -0.25, -0.25]]} r={0.04} />}
+      {/* Cables (entran con la fuente) */}
+      <Aparece on={!!fuente && !!placa} desde={[0, -1.2, 0]} delay={0.2}>
+        <Cable pts={[[-0.6, -hh + 0.5, -0.55], [-0.62, -1.0, -0.62], [0.2, -0.95, -0.62], [0.72, -0.5, -0.62], [0.72, 0.2, -0.62]]} r={0.05} />
+        {gpu && <Cable pts={[[0.4, -hh + 0.5, -0.2], [0.95, -1.0, -0.1], [0.95, -0.4, -0.2], [0.82, -0.25, -0.25]]} r={0.04} />}
       </Aparece>
 
-      {/* Fuente de poder */}
-      <Aparece on={!!fuente} caida={1.4} modelo={modeloDe(fuente)}>
+      {/* FUENTE DE PODER */}
+      <Aparece on={!!fuente} desde={[0, -2.4, 0.4]} delay={0.1} opcion={fuente} modelo={modeloDe(fuente)}>
         <group position={[0, -hh + 0.4, -0.05]}>
           <Caja p={[0, 0, 0]} s={[W * s - 0.3, 0.64, D - 0.25]}>
             <Metal c="#07090e" r={0.5} m={0.7} />
@@ -361,25 +625,44 @@ function Escena({ sel }: { sel: Seleccion }) {
           <Logo p={[0, 0.0, (D - 0.25) / 2 + 0.002]} w={0.75} />
           <Caja p={[0, -0.28, (D - 0.25) / 2 + 0.002]} s={[1.6, 0.012, 0.006]}><Led color={fuente?.color ?? '#6cc3ee'} i={1.4} /></Caja>
         </group>
+        {/* parte trasera: entrada de corriente, interruptor y rejilla del ventilador */}
+        <group position={[rearX - 0.01, -hh + 0.4, -0.05]}>
+          <Caja p={[0, 0, 0]} s={[0.02, 0.6, D - 0.3]}><Metal c="#0a0e14" r={0.5} m={0.6} /></Caja>
+          <Caja p={[-0.02, 0.12, -0.5]} s={[0.04, 0.2, 0.3]}><Metal c="#dfe4ec" r={0.5} m={0.2} /></Caja>
+          <Caja p={[-0.025, -0.15, -0.5]} s={[0.04, 0.1, 0.1]}><Metal c="#e11d48" r={0.5} m={0.2} /></Caja>
+          {[0.12, 0.2, 0.28].map((r) => (
+            <mesh key={r} position={[-0.015, 0, 0.3]} rotation={[0, Math.PI / 2, 0]}>
+              <torusGeometry args={[r, 0.008, 6, 40]} />
+              <Metal c="#2a3a58" />
+            </mesh>
+          ))}
+        </group>
       </Aparece>
 
-      {/* Plataforma */}
-      <mesh position={[0, -hh - 0.3, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[2.3, 2.33, 64]} />
-        <Led color={acento} i={0.9} />
-      </mesh>
-      <ContactShadows position={[0, -hh - 0.3, 0]} opacity={0.6} scale={9} blur={2.6} far={3} color="#000" />
+      {/* BASE de armado */}
+      <Pedestal y={-hh - 0.2} color={acento} />
+      <Grid position={[0, -hh - 0.62, 0]} args={[30, 30]} cellSize={0.5} cellThickness={0.6} cellColor="#16284a" sectionSize={2.5} sectionThickness={1} sectionColor="#238DC1" fadeDistance={14} fadeStrength={1.6} infiniteGrid />
+      <ContactShadows position={[0, -hh - 0.19, 0]} opacity={0.55} scale={9} blur={2.6} far={3} color="#000" />
       <Sparkles count={40} scale={[7, 6, 5]} size={1.6} speed={0.25} color="#6cc3ee" opacity={0.45} />
-    </group>
+
+      {/* Marcadores */}
+      {etiquetas &&
+        (Object.keys(posEt) as Cat[]).map((c) => {
+          const o = sel[c];
+          return o ? <Etiqueta key={`${c}${o.id}`} o={o} pos={posEt[c]} activa={hover === o.id || foco === o.id} setHover={setHover} /> : null;
+        })}
+    </Ctx.Provider>
   );
 }
 
-export default function PcScene({ sel, auto = true, className = '' }: { sel: Seleccion; auto?: boolean; className?: string }) {
+export default function PcScene({
+  sel, auto = true, className = '', etiquetas = false, foco,
+}: { sel: Seleccion; auto?: boolean; className?: string; etiquetas?: boolean; foco?: string }) {
   return (
     <div className={className}>
       <Canvas dpr={[1, 1.75]} camera={{ position: [6.4, 1.6, 7.8], fov: 38 }} gl={{ antialias: true }}>
         <Suspense fallback={null}>
-          <Escena sel={sel} />
+          <Escena sel={sel} etiquetas={etiquetas} foco={foco} />
         </Suspense>
         <OrbitControls
           enablePan={false}

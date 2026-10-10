@@ -2,15 +2,12 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { ShoppingCart } from 'lucide-react';
-
-export const CARRITO_KEY = 'quamtu-carrito';
+import { leerCarrito } from '@/lib/carrito';
 
 export default function Header() {
   const [n, setN] = useState(0);
   useEffect(() => {
-    const leer = () => {
-      try { setN(JSON.parse(localStorage.getItem(CARRITO_KEY) ?? '[]').length); } catch { setN(0); }
-    };
+    const leer = () => setN(leerCarrito().length);
     leer();
     window.addEventListener('quamtu-carrito', leer);
     return () => window.removeEventListener('quamtu-carrito', leer);
@@ -23,16 +20,17 @@ export default function Header() {
           <img src="/brand/logo-blanco.png" alt="Quamtu" width={140} height={37} className="h-9 w-auto" />
         </Link>
         <nav className="hidden gap-8 font-display text-sm text-slate-300 md:flex">
+          <Link href="/tienda" className="hover:text-claro">Tienda</Link>
           <Link href="/#lineas" className="hover:text-claro">Líneas Turing</Link>
           <Link href="/#builds" className="hover:text-claro">Configuraciones</Link>
           <Link href="/#respaldo" className="hover:text-claro">Respaldo</Link>
           <Link href="/#contacto" className="hover:text-claro">Cotizar</Link>
         </nav>
         <div className="flex items-center gap-4">
-          <span className="relative" aria-label={`Carrito: ${n}`}>
+          <Link href="/carrito" className="relative" aria-label={`Carrito: ${n}`}>
             <ShoppingCart size={20} />
             {n > 0 && <b className="absolute -right-2 -top-2 grid h-4 min-w-4 place-items-center rounded-full bg-cyan px-1 text-[10px] text-white">{n}</b>}
-          </span>
+          </Link>
           <Link href="/armar" className="btn-neon rounded-full px-5 py-2 font-display text-xs">ARMA TU PC</Link>
         </div>
       </div>

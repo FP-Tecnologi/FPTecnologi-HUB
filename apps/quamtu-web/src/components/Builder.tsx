@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, AlertTriangle, ShoppingCart, X } from 'lucide-react';
 import PcEscena from './PcEscena';
-import { CARRITO_KEY } from './Header';
+import { agregarAlCarrito } from '@/lib/carrito';
 import { CATS, avisoFuente, incompatible, porCat, seleccionDe, total, type Opcion, type Seleccion } from '@/lib/piezas';
 
 const soles = (n: number) => `S/ ${n.toLocaleString('es-PE')}`;
@@ -11,6 +11,7 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
   const [sel, setSel] = useState<Seleccion>(() => seleccionDe(inicial));
   const [paso, setPaso] = useState(0);
   const [agregado, setAgregado] = useState(false);
+  const [ultima, setUltima] = useState<string | undefined>();
 
   const cat = CATS[paso];
   const completo = CATS.every((c) => sel[c.id]);
@@ -18,21 +19,15 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
 
   const elegir = (o: Opcion) => {
     setAgregado(false);
+    setUltima(sel[o.cat]?.id === o.id ? undefined : o.id);
     setSel((s) => (s[o.cat]?.id === o.id ? { ...s, [o.cat]: undefined } : { ...s, [o.cat]: o }));
     // Salta solo al siguiente paso la primera vez que se elige algo.
     if (!sel[o.cat] && paso < CATS.length - 1) setTimeout(() => setPaso((p) => Math.min(p + 1, CATS.length - 1)), 650);
   };
 
   const alCarrito = () => {
-    try {
-      const actual = JSON.parse(localStorage.getItem(CARRITO_KEY) ?? '[]');
-      actual.push({ ids: Object.values(sel).map((o) => o!.id), total: total(sel) });
-      localStorage.setItem(CARRITO_KEY, JSON.stringify(actual));
-      window.dispatchEvent(new Event('quamtu-carrito'));
-      setAgregado(true);
-    } catch {
-      /* sin almacenamiento: no hay carrito */
-    }
+    agregarAlCarrito({ tipo: 'build', ids: Object.values(sel).map((o) => o!.id), total: total(sel) });
+    setAgregado(true);
   };
 
   return (
@@ -42,7 +37,7 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
         <section className="relative lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)]">
           <div className="rejilla absolute inset-0 -z-10" />
           <div className="absolute left-1/2 top-1/3 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-violet/20 blur-[120px]" />
-          <PcEscena sel={sel} className="h-[46vh] lg:h-full" />
+          <PcEscena sel={sel} etiquetas foco={ultima} className="h-[46vh] lg:h-full" />
           <div className="pointer-events-none absolute bottom-4 left-5 hidden text-xs tracking-widest text-slate-500 lg:block">
             ARRASTRA PARA GIRAR
           </div>

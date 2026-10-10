@@ -15,15 +15,16 @@ export type Opcion = {
   n?: number; // tamaño para el 3D: módulos RAM, ventiladores, escala del gabinete…
 };
 
+// Orden del armador: primero el procesador (el corazón), el gabinete cierra el armado.
 export const CATS: { id: Cat; titulo: string; paso: string }[] = [
-  { id: 'gabinete', titulo: 'Gabinete', paso: '01' },
-  { id: 'cpu', titulo: 'Procesador', paso: '02' },
-  { id: 'placa', titulo: 'Placa madre', paso: '03' },
-  { id: 'ram', titulo: 'Memoria', paso: '04' },
-  { id: 'gpu', titulo: 'Video', paso: '05' },
-  { id: 'ssd', titulo: 'Disco sólido', paso: '06' },
-  { id: 'cooler', titulo: 'Refrigeración', paso: '07' },
-  { id: 'fuente', titulo: 'Fuente', paso: '08' },
+  { id: 'cpu', titulo: 'Procesador', paso: '01' },
+  { id: 'placa', titulo: 'Placa madre', paso: '02' },
+  { id: 'ram', titulo: 'Memoria', paso: '03' },
+  { id: 'gpu', titulo: 'Video', paso: '04' },
+  { id: 'ssd', titulo: 'Disco sólido', paso: '05' },
+  { id: 'cooler', titulo: 'Refrigeración', paso: '06' },
+  { id: 'fuente', titulo: 'Fuente', paso: '07' },
+  { id: 'gabinete', titulo: 'Gabinete', paso: '08' },
 ];
 
 const A = '#238DC1'; // primario
