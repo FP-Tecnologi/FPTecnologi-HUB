@@ -1,7 +1,8 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
-import { AlertTriangle, ArrowLeft, ArrowRight, Check, MessageCircle, Pencil, Receipt, ShoppingCart, X } from 'lucide-react';
+import { useState } from 'react';
+import { AlertTriangle, ArrowLeft, ArrowRight, Check, ExternalLink, MessageCircle, Pencil, Receipt, ShoppingCart, X } from 'lucide-react';
 import PcEscena from './PcEscena';
+import ImgPieza from './ImgPieza';
 import { agregarAlCarrito, mensajeWhatsApp, type ItemCarrito } from '@/lib/carrito';
 import { waUrl } from '@/lib/contacto';
 import { CATS, avisoFuente, incompatible, porCat, seleccionDe, total, type Opcion, type Seleccion } from '@/lib/piezas';
@@ -15,8 +16,6 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
   const [ultima, setUltima] = useState<string | undefined>();
   const [modo, setModo] = useState<Modo>('pc');
   const [agregado, setAgregado] = useState(false);
-  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
-  useEffect(() => () => clearTimeout(timer.current), []);
 
   const FIN = CATS.length;
   const enResumen = paso === FIN;
@@ -27,8 +26,9 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
   const pcLista = faltan.length === 0 && !aviso;
   const puedeComprar = modo === 'pc' ? pcLista : elegidas.length > 0;
 
+  // Al cambiar de paso desaparece la etiqueta de la última pieza elegida.
   const ir = (n: number) => {
-    clearTimeout(timer.current);
+    setUltima(undefined);
     setPaso(Math.max(0, Math.min(FIN, n)));
   };
 
@@ -37,9 +37,6 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
     const quita = sel[o.cat]?.id === o.id;
     setUltima(quita ? undefined : o.id);
     setSel((s) => ({ ...s, [o.cat]: quita ? undefined : o }));
-    // Avanza solo, dando tiempo a ver cómo entra la pieza en el 3D.
-    clearTimeout(timer.current);
-    if (!quita && !enResumen) timer.current = setTimeout(() => setPaso((p) => Math.min(p + 1, FIN)), 900);
   };
 
   const item = (): ItemCarrito => ({ tipo: 'build', ids: elegidas.map((c) => sel[c.id]!.id), total: total(sel), modo });
@@ -103,29 +100,63 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
               <>
                 <h2 className="font-display text-2xl font-bold md:text-3xl">Elige tu <span className="titulo-neon">{cat.titulo.toLowerCase()}</span></h2>
                 <p className="mt-2 text-slate-400">{cat.ayuda}</p>
-                <div className="mt-6 grid gap-3">
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
                   {porCat(cat.id).map((o) => {
                     const activo = sel[o.cat]?.id === o.id;
                     const bloqueo = incompatible(o, sel);
+                    const compatible = !bloqueo && !!o.socket && !!(o.cat === 'placa' ? sel.cpu : o.cat === 'cpu' ? sel.placa : undefined);
+                    const datos = [...o.spec.split(' · '), ...(o.watts ? [o.cat === 'fuente' ? `${o.watts} W` : `~${o.watts} W`] : [])];
                     return (
-                      <button
+                      <article
                         key={o.id}
-                        disabled={!!bloqueo}
-                        onClick={() => elegir(o)}
-                        className={`relative flex items-center gap-4 overflow-hidden rounded-xl border p-4 text-left transition ${
-                          activo ? 'bg-cyan/10' : 'border-line bg-bg/40 hover:-translate-y-0.5 hover:border-slate-500'
-                        } ${bloqueo ? 'cursor-not-allowed opacity-40' : ''}`}
-                        style={activo ? { borderColor: o.color, boxShadow: `0 0 26px ${o.color}40` } : undefined}
+                        role="button"
+                        tabIndex={bloqueo ? -1 : 0}
+                        aria-pressed={activo}
+                        aria-disabled={!!bloqueo}
+                        onClick={() => !bloqueo && elegir(o)}
+                        onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && !bloqueo && (e.preventDefault(), elegir(o))}
+                        className={`group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border bg-bg/50 text-left transition ${
+                          activo ? 'bg-cyan/10' : 'border-line hover:-translate-y-0.5 hover:border-slate-500'
+                        } ${bloqueo ? 'cursor-not-allowed opacity-45' : ''}`}
+                        style={activo ? { borderColor: o.color, boxShadow: `0 0 28px ${o.color}45` } : undefined}
                       >
-                        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-line font-display text-sm" style={{ color: o.color, background: `${o.color}18` }}>
-                          {activo ? <Check size={18} /> : cat.paso}
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <b className="block truncate">{o.nombre}</b>
-                          <span className="block truncate text-sm text-slate-400">{bloqueo ?? o.spec}</span>
-                        </span>
-                        <span className="font-display text-lg font-bold text-claro">{soles(o.precio)}</span>
-                      </button>
+                        <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-panel to-bg">
+                          <ImgPieza id={o.id} cat={o.cat} color={o.color} className="h-full w-full" />
+                          {activo && (
+                            <span className="absolute left-2.5 top-2.5 flex items-center gap-1 rounded-full bg-cyan px-2.5 py-1 text-[10px] font-bold tracking-wider text-white">
+                              <Check size={12} /> ELEGIDO
+                            </span>
+                          )}
+                          {compatible && !activo && (
+                            <span className="absolute left-2.5 top-2.5 rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold tracking-wider text-emerald-300">✓ COMPATIBLE</span>
+                          )}
+                          <a
+                            href={`/producto/${o.id}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            aria-label={`Ver detalles de ${o.nombre}`}
+                            className="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-full bg-bg/70 text-slate-300 opacity-0 backdrop-blur transition hover:text-claro group-hover:opacity-100 focus:opacity-100"
+                          >
+                            <ExternalLink size={14} />
+                          </a>
+                        </div>
+                        <div className="flex flex-1 flex-col p-4">
+                          <b className="font-display text-[15px] leading-snug">{o.nombre}</b>
+                          <div className="mt-2.5 flex flex-wrap gap-1.5">
+                            {datos.map((d) => (
+                              <span key={d} className="rounded-md border border-line bg-panel px-2 py-0.5 text-[11px] text-slate-300">{d}</span>
+                            ))}
+                          </div>
+                          {bloqueo && <p className="mt-2 text-xs text-amber-300/90">{bloqueo}</p>}
+                          <div className="mt-auto flex items-end justify-between pt-4">
+                            <span className="font-display text-xl font-bold text-claro">{soles(o.precio)}</span>
+                            <span className={`rounded-full px-3 py-1.5 text-[11px] font-bold tracking-wider ${activo ? 'bg-cyan text-white' : 'border border-claro/50 text-claro'}`}>
+                              {activo ? 'QUITAR' : 'ELEGIR'}
+                            </span>
+                          </div>
+                        </div>
+                      </article>
                     );
                   })}
                 </div>

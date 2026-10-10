@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ChevronRight } from 'lucide-react';
 import AgregarPieza from '@/components/AgregarPieza';
-import FotoPieza from '@/components/FotoPieza';
+import ImgPieza from '@/components/ImgPieza';
 import { CATS, OPCIONES, porId } from '@/lib/piezas';
 
 const soles = (n: number) => `S/ ${n.toLocaleString('es-PE')}`;
@@ -33,7 +33,7 @@ export default async function Producto({ params }: { params: Promise<{ id: strin
       </nav>
 
       <div className="mt-8 grid gap-10 lg:grid-cols-2">
-        <FotoPieza cat={o.cat} color={o.color} className="hud h-80 lg:h-[480px]" />
+        <ImgPieza id={o.id} cat={o.cat} color={o.color} ajuste="contain" className="hud h-80 w-full lg:h-[480px]" />
         <div>
           <span className="font-display text-xs tracking-[0.25em] text-claro">{cat.titulo.toUpperCase()}</span>
           <h1 className="mt-2 font-display text-3xl font-bold md:text-4xl">{o.nombre}</h1>

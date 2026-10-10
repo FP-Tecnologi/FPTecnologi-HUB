@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import FotoPieza from '@/components/FotoPieza';
+import ImgPieza from '@/components/ImgPieza';
 import { CATS, OPCIONES } from '@/lib/piezas';
 
 export const metadata = { title: 'Tienda de componentes — Quamtu' };
@@ -37,7 +37,7 @@ export default async function Tienda({ searchParams }: { searchParams: Promise<{
       <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         {lista.map((o) => (
           <Link key={o.id} href={`/producto/${o.id}`} className="hud group flex flex-col overflow-hidden transition hover:-translate-y-1">
-            <FotoPieza cat={o.cat} color={o.color} className="h-44" />
+            <ImgPieza id={o.id} cat={o.cat} color={o.color} className="h-44 w-full bg-gradient-to-br from-panel to-bg" />
             <div className="flex flex-1 flex-col p-5">
               <span className="font-display text-[10px] tracking-[0.25em] text-claro">{CATS.find((c) => c.id === o.cat)?.titulo.toUpperCase()}</span>
               <h2 className="mt-1 font-display text-base font-bold text-white">{o.nombre}</h2>

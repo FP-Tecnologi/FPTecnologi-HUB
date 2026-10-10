@@ -3,8 +3,8 @@
 // gabinete (estructura, paneles, ventiladores), placa, CPU, refrigeración, RAM, SSD, GPU, fuente y cables.
 // Con `etiquetas` cada pieza muestra un marcador (modelo, precio, enlace al producto) y es clicable.
 // Si hay un .glb para una pieza (lib/modelos.ts) reemplaza al procedural.
-import { createContext, Suspense, useContext, useMemo, useRef, useState, type ReactNode } from 'react';
-import { Canvas, useFrame, type ThreeEvent } from '@react-three/fiber';
+import { createContext, Suspense, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { Canvas, useFrame, useThree, type ThreeEvent } from '@react-three/fiber';
 import { ContactShadows, Edges, Environment, Grid, Html, Lightformer, Line, OrbitControls, Sparkles, useGLTF, useTexture } from '@react-three/drei';
 import { CatmullRomCurve3, MathUtils, Vector3, type Group, type Material } from 'three';
 import type { Cat, Opcion, Seleccion } from '@/lib/piezas';
@@ -280,11 +280,17 @@ function Etiqueta({ o, p, q, lado, activa, setHover }: { o: Opcion; p: V3; q: V3
           target="_blank"
           rel="noreferrer"
           {...eventos}
-          className={`hud absolute top-0 block -translate-y-1/2 p-2.5 text-left text-white no-underline transition-colors ${lado === 'der' ? 'left-0' : 'right-0'} ${activa ? "w-52 border-white" : "w-40"}`}
+          className={`hud absolute top-0 block -translate-y-1/2 p-2.5 text-left text-white no-underline transition-colors ${lado === 'der' ? 'left-0' : 'right-0'} w-56 border-white`}
           style={{ pointerEvents: 'auto' }}
         >
-          <span className="block font-display text-[9px] tracking-[0.2em] text-claro">{o.cat.toUpperCase()}</span>
-          <span className="block font-display text-[13px] font-bold leading-tight">{o.nombre}</span>
+          <span className="flex items-center gap-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`/productos/${o.id}.jpg`} alt="" onError={(e) => { e.currentTarget.style.display = 'none'; }} className="h-12 w-12 shrink-0 rounded bg-bg/70 object-contain" />
+            <span className="min-w-0">
+              <span className="block font-display text-[9px] tracking-[0.2em] text-claro">{o.cat.toUpperCase()}</span>
+              <span className="block font-display text-[13px] font-bold leading-tight">{o.nombre}</span>
+            </span>
+          </span>
           {activa && <span className="mt-1 block text-[11px] leading-snug text-slate-300">{o.spec}</span>}
           <span className="mt-1 flex items-center justify-between">
             <b className="font-display text-sm text-claro">{soles(o.precio)}</b>
@@ -297,9 +303,16 @@ function Etiqueta({ o, p, q, lado, activa, setHover }: { o: Opcion; p: V3; q: V3
 }
 
 /* ---------- escena ---------- */
-function Escena({ sel, etiquetas, foco }: { sel: Seleccion; etiquetas: boolean; foco?: string }) {
+function Escena({ sel, etiquetas, foco, solo }: { sel: Seleccion; etiquetas: boolean; foco?: string; solo: boolean }) {
   const { gabinete: g, cpu, placa, ram, gpu, ssd, cooler, fuente } = sel;
-  const [hover, setHover] = useState<string | null>(null);
+  const [hover, setHoverRaw] = useState<string | null>(null);
+  const salida = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // Al salir del 3D la etiqueta espera un instante, para poder pasar el mouse hacia su tarjeta.
+  const setHover = (id: string | null) => {
+    clearTimeout(salida.current);
+    if (id) setHoverRaw(id);
+    else salida.current = setTimeout(() => setHoverRaw(null), 280);
+  };
   const s = g?.n ?? 1;
   const acento = g?.color ?? '#4a6283';
   const gpuColor = gpu?.color ?? '#6cc3ee';
@@ -338,11 +351,20 @@ function Escena({ sel, etiquetas, foco }: { sel: Seleccion; etiquetas: boolean; 
         <Lightformer form="rect" intensity={1.4} position={[-6, 1, 3]} scale={[3, 8, 1]} color="#6cc3ee" />
         <Lightformer form="rect" intensity={1.2} position={[6, 0, -2]} scale={[3, 8, 1]} color="#385cad" />
       </Environment>
+      {solo && (
+        <>
+          <hemisphereLight args={['#bcd8f0', '#10203a', 1.3]} />
+          <directionalLight position={[-5, 3, 3]} intensity={2.4} color="#6cc3ee" />
+          <directionalLight position={[3, 2, 7]} intensity={2.6} />
+          <directionalLight position={[2, 6, -3]} intensity={1.6} color="#9fd0ff" />
+        </>
+      )}
       {gpu && <pointLight position={[0, -0.4, 0.6]} color={gpuColor} intensity={3} distance={4.5} />}
       {cooler && <pointLight position={[-0.3, 1.2, 0.3]} color={cooler.color} intensity={2.5} distance={3.5} />}
       {ram && <pointLight position={[0.3, 0.8, 0]} color={ram.color} intensity={1.6} distance={2.5} />}
 
       {/* Cristal y contorno fantasma (siempre) */}
+      {(!solo || g) && (<>
       <mesh position={[0, 0, D / 2]} scale={[s, s, 1]}>
         <planeGeometry args={[W, H]} />
         <meshPhysicalMaterial color="#9fc6e6" transparent opacity={g ? 0.07 : 0.03} roughness={0.04} metalness={0.2} depthWrite={false} />
@@ -352,6 +374,7 @@ function Escena({ sel, etiquetas, foco }: { sel: Seleccion; etiquetas: boolean; 
         <meshBasicMaterial visible={false} />
         <Edges color={g ? acento : '#2c3f5c'} threshold={15} />
       </mesh>
+      </>)}
 
       {/* GABINETE: cada conjunto de piezas entra por su lado, escalonado */}
       <group key={g?.id ?? 'sin-gabinete'}>
@@ -500,6 +523,7 @@ function Escena({ sel, etiquetas, foco }: { sel: Seleccion; etiquetas: boolean; 
 
       {/* CPU con tapa metálica y grabado */}
       <Aparece on={!!cpu} desde={[0, 2.2, 0.6]} delay={0.1} opcion={cpu} modelo={modeloDe(cpu)}>
+        <Caja p={[-0.2, 0.75, -0.668]} s={[0.54, 0.54, 0.018]}><Metal c="#2a7a66" r={0.5} m={0.2} /></Caja>
         <Caja p={[-0.2, 0.75, -0.645]} s={[0.44, 0.44, 0.045]}><Metal c="#c9d0da" r={0.25} m={0.95} /></Caja>
         <Caja p={[-0.2, 0.75, -0.62]} s={[0.34, 0.34, 0.004]}><Metal c="#8e99a8" r={0.3} m={1} /></Caja>
         <Caja p={[-0.2, 0.8, -0.617]} s={[0.22, 0.02, 0.003]}><Led color={cpu?.color ?? '#238DC1'} i={0.8} /></Caja>
@@ -649,38 +673,62 @@ function Escena({ sel, etiquetas, foco }: { sel: Seleccion; etiquetas: boolean; 
       </Aparece>
 
       {/* BASE de armado */}
+      {!solo && (<>
       <Pedestal y={-hh - 0.2} color={acento} />
       <Grid position={[0, -hh - 0.62, 0]} args={[30, 30]} cellSize={0.5} cellThickness={0.6} cellColor="#16284a" sectionSize={2.5} sectionThickness={1} sectionColor="#238DC1" fadeDistance={14} fadeStrength={1.6} infiniteGrid />
       <ContactShadows position={[0, -hh - 0.19, 0]} opacity={0.55} scale={9} blur={2.6} far={3} color="#000" />
       <Sparkles count={40} scale={[7, 6, 5]} size={1.6} speed={0.25} color="#6cc3ee" opacity={0.45} />
+      </>)}
 
       {/* Marcadores */}
       {etiquetas &&
         (Object.keys(puntos) as Cat[]).map((c) => {
           const o = sel[c];
-          return o ? <Etiqueta key={`${c}${o.id}`} o={o} p={puntos[c]} q={destinos[c]} lado={lados[c]} activa={hover === o.id || foco === o.id} setHover={setHover} /> : null;
+          const activa = !!o && (hover === o.id || foco === o.id);
+          return o && activa ? <Etiqueta key={`${c}${o.id}`} o={o} p={puntos[c]} q={destinos[c]} lado={lados[c]} activa setHover={setHover} /> : null;
         })}
     </Ctx.Provider>
   );
 }
 
+// Modo foto (solo para generar las imágenes de producto): una pieza sola, cámara fija, fondo transparente.
+export type VistaFoto = { pos: V3; target: V3; fov?: number };
+
+function Apunta({ vista }: { vista: VistaFoto }) {
+  const camera = useThree((st) => st.camera);
+  useEffect(() => {
+    camera.position.set(...vista.pos);
+    camera.lookAt(...vista.target);
+    camera.updateProjectionMatrix();
+  }, [camera, vista]);
+  return null;
+}
+
 export default function PcScene({
-  sel, auto = true, className = '', etiquetas = false, foco,
-}: { sel: Seleccion; auto?: boolean; className?: string; etiquetas?: boolean; foco?: string }) {
+  sel, auto = true, className = '', etiquetas = false, foco, foto,
+}: { sel: Seleccion; auto?: boolean; className?: string; etiquetas?: boolean; foco?: string; foto?: VistaFoto }) {
   return (
     <div className={className}>
-      <Canvas dpr={[1, 1.75]} camera={{ position: [7.6, 2.2, 9.6], fov: 38 }} gl={{ antialias: true }}>
+      <Canvas
+        dpr={foto ? 1 : [1, 1.75]}
+        camera={{ position: foto?.pos ?? [7.6, 2.2, 9.6], fov: foto?.fov ?? 38 }}
+        gl={{ antialias: true, preserveDrawingBuffer: !!foto, alpha: true }}
+      >
         <Suspense fallback={null}>
-          <Escena sel={sel} etiquetas={etiquetas} foco={foco} />
+          <Escena sel={sel} etiquetas={etiquetas} foco={foco} solo={!!foto} />
         </Suspense>
-        <OrbitControls
-          enablePan={false}
-          enableZoom={false}
-          autoRotate={auto && !etiquetas}
-          autoRotateSpeed={0.9}
-          minPolarAngle={Math.PI / 3}
-          maxPolarAngle={Math.PI / 1.9}
-        />
+        {foto ? (
+          <Apunta vista={foto} />
+        ) : (
+          <OrbitControls
+            enablePan={false}
+            enableZoom={false}
+            autoRotate={auto && !etiquetas}
+            autoRotateSpeed={0.9}
+            minPolarAngle={Math.PI / 3}
+            maxPolarAngle={Math.PI / 1.9}
+          />
+        )}
       </Canvas>
     </div>
   );
