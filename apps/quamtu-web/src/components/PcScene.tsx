@@ -5,7 +5,7 @@
 // Si hay un .glb para una pieza (lib/modelos.ts) reemplaza al procedural.
 import { createContext, Suspense, useContext, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Canvas, useFrame, type ThreeEvent } from '@react-three/fiber';
-import { ContactShadows, Edges, Environment, Grid, Html, Lightformer, OrbitControls, Sparkles, useGLTF, useTexture } from '@react-three/drei';
+import { ContactShadows, Edges, Environment, Grid, Html, Lightformer, Line, OrbitControls, Sparkles, useGLTF, useTexture } from '@react-three/drei';
 import { CatmullRomCurve3, MathUtils, Vector3, type Group, type Material } from 'three';
 import type { Cat, Opcion, Seleccion } from '@/lib/piezas';
 import { MODELOS, type Modelo } from '@/lib/modelos';
@@ -258,42 +258,41 @@ function Pedestal({ y, color }: { y: number; color: string }) {
   );
 }
 
-/* ---------- etiquetas (marcadores sobre cada pieza) ---------- */
-type PosEt = { p: V3; lado: 'der' | 'izq' };
+/* ---------- etiquetas: punto sobre la pieza + línea punteada hacia una tarjeta a un lado del gabinete ---------- */
 const soles = (n: number) => `S/ ${n.toLocaleString('es-PE')}`;
 
-function Etiqueta({ o, pos, activa, setHover }: { o: Opcion; pos: PosEt; activa: boolean; setHover: (id: string | null) => void }) {
+function Etiqueta({ o, p, q, lado, activa, setHover }: { o: Opcion; p: V3; q: V3; lado: 'izq' | 'der'; activa: boolean; setHover: (id: string | null) => void }) {
+  const eventos = { onMouseEnter: () => setHover(o.id), onMouseLeave: () => setHover(null) };
   return (
-    <Html position={pos.p} zIndexRange={[40, 0]} style={{ pointerEvents: 'none' }}>
-      <div
-        className="relative"
-        style={{ pointerEvents: 'auto' }}
-        onMouseEnter={() => setHover(o.id)}
-        onMouseLeave={() => setHover(null)}
-      >
-        <span className="relative flex h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2">
+    <>
+      <Line points={[p, q]} color={activa ? '#ffffff' : '#6cc3ee'} lineWidth={activa ? 1.6 : 1.1} dashed dashSize={0.07} gapSize={0.06} transparent opacity={activa ? 0.95 : 0.65} />
+      {/* punto sobre la pieza */}
+      <Html position={p} zIndexRange={[40, 0]} style={{ pointerEvents: 'none' }}>
+        <span className="relative flex h-3.5 w-3.5 -translate-x-1/2 -translate-y-1/2" style={{ pointerEvents: 'auto' }} {...eventos}>
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-claro opacity-70" />
           <span className="relative inline-flex h-3.5 w-3.5 rounded-full border-2 border-white bg-cyan" />
         </span>
-        {activa && (
-          <a
-            href={`/producto/${o.id}`}
-            target="_blank"
-            rel="noreferrer"
-            className="hud absolute top-[-14px] block w-56 p-3 text-left text-white no-underline"
-            style={pos.lado === 'der' ? { left: 14 } : { right: 14 }}
-          >
-            <span className="block font-display text-[10px] tracking-[0.2em] text-claro">{o.cat.toUpperCase()}</span>
-            <span className="mt-0.5 block font-display text-sm font-bold leading-tight">{o.nombre}</span>
-            <span className="mt-1 block text-xs text-slate-300">{o.spec}</span>
-            <span className="mt-2 flex items-center justify-between">
-              <b className="font-display text-base text-claro">{soles(o.precio)}</b>
-              <span className="text-[11px] text-white/80">Ver producto →</span>
-            </span>
-          </a>
-        )}
-      </div>
-    </Html>
+      </Html>
+      {/* tarjeta al costado */}
+      <Html position={q} zIndexRange={[40, 0]} style={{ pointerEvents: 'none' }}>
+        <a
+          href={`/producto/${o.id}`}
+          target="_blank"
+          rel="noreferrer"
+          {...eventos}
+          className={`hud absolute top-0 block -translate-y-1/2 p-2.5 text-left text-white no-underline transition-colors ${lado === 'der' ? 'left-0' : 'right-0'} ${activa ? "w-52 border-white" : "w-40"}`}
+          style={{ pointerEvents: 'auto' }}
+        >
+          <span className="block font-display text-[9px] tracking-[0.2em] text-claro">{o.cat.toUpperCase()}</span>
+          <span className="block font-display text-[13px] font-bold leading-tight">{o.nombre}</span>
+          {activa && <span className="mt-1 block text-[11px] leading-snug text-slate-300">{o.spec}</span>}
+          <span className="mt-1 flex items-center justify-between">
+            <b className="font-display text-sm text-claro">{soles(o.precio)}</b>
+            {activa && <span className="text-[10px] text-white/80">Ver producto →</span>}
+          </span>
+        </a>
+      </Html>
+    </>
   );
 }
 
@@ -309,16 +308,26 @@ function Escena({ sel, etiquetas, foco }: { sel: Seleccion; etiquetas: boolean; 
   const cc = placa?.color ?? '#238DC1';
   const rearX = -hw - 0.03; // pared trasera del PC (la cara con los conectores)
 
-  const posEt: Record<Cat, PosEt> = {
-    cpu: { p: [-0.2, 0.75, -0.4], lado: 'izq' },
-    placa: { p: [-1.0, 1.1, -0.5], lado: 'der' },
-    ram: { p: [0.3, 1.3, -0.5], lado: 'der' },
-    gpu: { p: [0.5, -0.2, 0.1], lado: 'der' },
-    ssd: { p: [-0.7, 0.0, -0.5], lado: 'der' },
-    cooler: { p: cooler && (cooler.n ?? 1) > 1 ? [-0.45, 1.58 * s, 0.1] : [-0.2, 1.3, -0.1], lado: 'der' },
-    fuente: { p: [0.9, -hh + 0.6, 0.8], lado: 'izq' },
-    gabinete: { p: [hw, hh, D / 2], lado: 'izq' },
+  // Punto sobre cada pieza y lado del gabinete donde se coloca su tarjeta.
+  const puntos: Record<Cat, V3> = {
+    cpu: [-0.2, 0.75, -0.4],
+    placa: [-1.0, 1.1, -0.5],
+    ram: [0.3, 1.3, -0.5],
+    gpu: [0.5, -0.2, 0.1],
+    ssd: [-0.7, 0.0, -0.5],
+    cooler: cooler && (cooler.n ?? 1) > 1 ? [-0.45, 1.58 * s, 0.1] : [-0.2, 1.3, -0.1],
+    fuente: [0.9, -hh + 0.6, 0.8],
+    gabinete: [hw, hh, D / 2],
   };
+  const lados: Record<Cat, 'izq' | 'der'> = { cpu: 'izq', placa: 'izq', ssd: 'izq', cooler: 'izq', ram: 'der', gpu: 'der', fuente: 'der', gabinete: 'der' };
+  const destinos = {} as Record<Cat, V3>;
+  (['izq', 'der'] as const).forEach((lado) => {
+    const cats = (Object.keys(puntos) as Cat[]).filter((c) => sel[c] && lados[c] === lado).sort((x, y) => puntos[y][1] - puntos[x][1]);
+    cats.forEach((c, i) => {
+      const y = cats.length === 1 ? puntos[c][1] : hh - 0.4 - (i * (2 * hh - 0.8)) / (cats.length - 1);
+      destinos[c] = [lado === "der" ? hw + 1.05 : -(hw + 1.45), y, 0.5];
+    });
+  });
 
   return (
     <Ctx.Provider value={{ setHover, interactivo: etiquetas }}>
@@ -647,9 +656,9 @@ function Escena({ sel, etiquetas, foco }: { sel: Seleccion; etiquetas: boolean; 
 
       {/* Marcadores */}
       {etiquetas &&
-        (Object.keys(posEt) as Cat[]).map((c) => {
+        (Object.keys(puntos) as Cat[]).map((c) => {
           const o = sel[c];
-          return o ? <Etiqueta key={`${c}${o.id}`} o={o} pos={posEt[c]} activa={hover === o.id || foco === o.id} setHover={setHover} /> : null;
+          return o ? <Etiqueta key={`${c}${o.id}`} o={o} p={puntos[c]} q={destinos[c]} lado={lados[c]} activa={hover === o.id || foco === o.id} setHover={setHover} /> : null;
         })}
     </Ctx.Provider>
   );
@@ -667,7 +676,7 @@ export default function PcScene({
         <OrbitControls
           enablePan={false}
           enableZoom={false}
-          autoRotate={auto}
+          autoRotate={auto && !etiquetas}
           autoRotateSpeed={0.9}
           minPolarAngle={Math.PI / 3}
           maxPolarAngle={Math.PI / 1.9}
