@@ -660,7 +660,7 @@ export default function PcScene({
 }: { sel: Seleccion; auto?: boolean; className?: string; etiquetas?: boolean; foco?: string }) {
   return (
     <div className={className}>
-      <Canvas dpr={[1, 1.75]} camera={{ position: [6.4, 1.6, 7.8], fov: 38 }} gl={{ antialias: true }}>
+      <Canvas dpr={[1, 1.75]} camera={{ position: [7.6, 2.2, 9.6], fov: 38 }} gl={{ antialias: true }}>
         <Suspense fallback={null}>
           <Escena sel={sel} etiquetas={etiquetas} foco={foco} />
         </Suspense>

@@ -15,16 +15,16 @@ export type Opcion = {
   n?: number; // tamaño para el 3D: módulos RAM, ventiladores, escala del gabinete…
 };
 
-// Orden del armador: primero el procesador (el corazón), el gabinete cierra el armado.
-export const CATS: { id: Cat; titulo: string; paso: string }[] = [
-  { id: 'cpu', titulo: 'Procesador', paso: '01' },
-  { id: 'placa', titulo: 'Placa madre', paso: '02' },
-  { id: 'ram', titulo: 'Memoria', paso: '03' },
-  { id: 'gpu', titulo: 'Video', paso: '04' },
-  { id: 'ssd', titulo: 'Disco sólido', paso: '05' },
-  { id: 'cooler', titulo: 'Refrigeración', paso: '06' },
-  { id: 'fuente', titulo: 'Fuente', paso: '07' },
-  { id: 'gabinete', titulo: 'Gabinete', paso: '08' },
+// Orden del armador paso a paso: el gabinete define el equipo y luego se suman las piezas.
+export const CATS: { id: Cat; titulo: string; paso: string; ayuda: string }[] = [
+  { id: 'gabinete', titulo: 'Gabinete', paso: '01', ayuda: 'La carcasa de tu equipo: tamaño, flujo de aire y estilo.' },
+  { id: 'cpu', titulo: 'Procesador', paso: '02', ayuda: 'El cerebro de tu PC. Define el socket que usará la placa.' },
+  { id: 'placa', titulo: 'Placa madre', paso: '03', ayuda: 'Conecta todas las piezas. Solo ves las compatibles con tu procesador.' },
+  { id: 'ram', titulo: 'Memoria', paso: '04', ayuda: 'Más memoria, más programas abiertos a la vez.' },
+  { id: 'gpu', titulo: 'Video', paso: '05', ayuda: 'Gráficos, diseño, edición, render e inteligencia artificial.' },
+  { id: 'ssd', titulo: 'Disco sólido', paso: '06', ayuda: 'Donde viven tu sistema y tus archivos. Rápido y silencioso.' },
+  { id: 'cooler', titulo: 'Refrigeración', paso: '07', ayuda: 'Mantiene el procesador fresco para rendir sin parar.' },
+  { id: 'fuente', titulo: 'Fuente', paso: '08', ayuda: 'La energía de todo el equipo. Cuida que alcance para tus piezas.' },
 ];
 
 const A = '#238DC1'; // primario

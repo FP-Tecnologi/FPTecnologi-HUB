@@ -1,138 +1,262 @@
 'use client';
-import { useState } from 'react';
-import { Check, ChevronLeft, ChevronRight, AlertTriangle, ShoppingCart, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { AlertTriangle, ArrowLeft, ArrowRight, Check, MessageCircle, Pencil, Receipt, ShoppingCart, X } from 'lucide-react';
 import PcEscena from './PcEscena';
-import { agregarAlCarrito } from '@/lib/carrito';
+import { agregarAlCarrito, mensajeWhatsApp, type ItemCarrito } from '@/lib/carrito';
+import { waUrl } from '@/lib/contacto';
 import { CATS, avisoFuente, incompatible, porCat, seleccionDe, total, type Opcion, type Seleccion } from '@/lib/piezas';
 
 const soles = (n: number) => `S/ ${n.toLocaleString('es-PE')}`;
+type Modo = 'pc' | 'repuestos';
 
 export default function Builder({ inicial = [] }: { inicial?: string[] }) {
   const [sel, setSel] = useState<Seleccion>(() => seleccionDe(inicial));
-  const [paso, setPaso] = useState(0);
-  const [agregado, setAgregado] = useState(false);
+  const [paso, setPaso] = useState(0); // 0..7 = piezas; 8 = presupuesto
   const [ultima, setUltima] = useState<string | undefined>();
+  const [modo, setModo] = useState<Modo>('pc');
+  const [agregado, setAgregado] = useState(false);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
 
-  const cat = CATS[paso];
-  const completo = CATS.every((c) => sel[c.id]);
+  const FIN = CATS.length;
+  const enResumen = paso === FIN;
+  const cat = CATS[Math.min(paso, FIN - 1)];
+  const elegidas = CATS.filter((c) => sel[c.id]);
+  const faltan = CATS.filter((c) => !sel[c.id]);
   const aviso = avisoFuente(sel);
+  const pcLista = faltan.length === 0 && !aviso;
+  const puedeComprar = modo === 'pc' ? pcLista : elegidas.length > 0;
+
+  const ir = (n: number) => {
+    clearTimeout(timer.current);
+    setPaso(Math.max(0, Math.min(FIN, n)));
+  };
 
   const elegir = (o: Opcion) => {
     setAgregado(false);
-    setUltima(sel[o.cat]?.id === o.id ? undefined : o.id);
-    setSel((s) => (s[o.cat]?.id === o.id ? { ...s, [o.cat]: undefined } : { ...s, [o.cat]: o }));
-    // Salta solo al siguiente paso la primera vez que se elige algo.
-    if (!sel[o.cat] && paso < CATS.length - 1) setTimeout(() => setPaso((p) => Math.min(p + 1, CATS.length - 1)), 650);
+    const quita = sel[o.cat]?.id === o.id;
+    setUltima(quita ? undefined : o.id);
+    setSel((s) => ({ ...s, [o.cat]: quita ? undefined : o }));
+    // Avanza solo, dando tiempo a ver cómo entra la pieza en el 3D.
+    clearTimeout(timer.current);
+    if (!quita && !enResumen) timer.current = setTimeout(() => setPaso((p) => Math.min(p + 1, FIN)), 900);
   };
 
+  const item = (): ItemCarrito => ({ tipo: 'build', ids: elegidas.map((c) => sel[c.id]!.id), total: total(sel), modo });
   const alCarrito = () => {
-    agregarAlCarrito({ tipo: 'build', ids: Object.values(sel).map((o) => o!.id), total: total(sel) });
+    agregarAlCarrito(item());
     setAgregado(true);
   };
+  const whatsapp = (intro: string) => waUrl(mensajeWhatsApp([item()], intro));
 
   return (
     <main className="min-h-screen pt-16">
-      <div className="mx-auto grid max-w-[1500px] gap-0 lg:grid-cols-[1.15fr_1fr]">
-        {/* Visor 3D */}
-        <section className="relative lg:sticky lg:top-16 lg:h-[calc(100vh-4rem)]">
-          <div className="rejilla absolute inset-0 -z-10" />
-          <div className="absolute left-1/2 top-1/3 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-violet/20 blur-[120px]" />
-          <PcEscena sel={sel} etiquetas foco={ultima} className="h-[46vh] lg:h-full" />
-          <div className="pointer-events-none absolute bottom-4 left-5 hidden text-xs tracking-widest text-slate-500 lg:block">
-            ARRASTRA PARA GIRAR
+      <div className="mx-auto grid max-w-[1600px] lg:grid-cols-[minmax(0,560px)_1fr]">
+        {/* ASISTENTE (izquierda) */}
+        <section className="order-2 flex flex-col border-line bg-panel/40 lg:order-1 lg:h-[calc(100vh-4rem)] lg:border-r">
+          {/* Encabezado + progreso */}
+          <div className="border-b border-line px-5 pb-4 pt-5 lg:px-7">
+            <div className="flex items-baseline justify-between">
+              <h1 className="font-display text-xl font-bold">Arma tu <span className="text-claro">setup</span></h1>
+              <span className="text-xs tracking-widest text-slate-500">{enResumen ? 'PRESUPUESTO' : `PASO ${paso + 1} DE ${FIN}`}</span>
+            </div>
+            <ol className="mt-4 flex items-center">
+              {CATS.map((c, i) => {
+                const hecho = !!sel[c.id];
+                const actual = i === paso;
+                return (
+                  <li key={c.id} className="flex flex-1 items-center">
+                    <button
+                      onClick={() => ir(i)}
+                      aria-label={c.titulo}
+                      aria-current={actual ? 'step' : undefined}
+                      title={c.titulo}
+                      className={`grid h-8 w-8 shrink-0 place-items-center rounded-full border text-[11px] font-bold transition ${
+                        actual ? 'scale-110 border-claro bg-cyan text-white shadow-[0_0_16px_rgba(35,141,193,.7)]'
+                        : hecho ? 'border-cyan bg-cyan/20 text-claro' : 'border-line text-slate-500 hover:border-slate-500'
+                      }`}
+                    >
+                      {hecho && !actual ? <Check size={14} /> : c.paso}
+                    </button>
+                    <span className={`mx-1 h-0.5 flex-1 rounded transition-colors ${hecho ? 'bg-cyan' : 'bg-line'}`} />
+                  </li>
+                );
+              })}
+              <li>
+                <button
+                  onClick={() => ir(FIN)}
+                  aria-label="Presupuesto"
+                  title="Presupuesto"
+                  className={`grid h-8 w-8 place-items-center rounded-full border transition ${
+                    enResumen ? 'scale-110 border-claro bg-cyan text-white shadow-[0_0_16px_rgba(35,141,193,.7)]' : 'border-line text-slate-500 hover:border-slate-500'
+                  }`}
+                >
+                  <Receipt size={14} />
+                </button>
+              </li>
+            </ol>
           </div>
-          {/* Resumen flotante de piezas elegidas */}
-          <div className="absolute left-4 top-4 flex max-w-[60%] flex-wrap gap-2">
-            {CATS.map((c) =>
-              sel[c.id] ? (
-                <span key={c.id} className="glass rounded-full px-3 py-1 text-[11px]" style={{ borderColor: sel[c.id]!.color + '88' }}>
-                  {sel[c.id]!.nombre}
-                </span>
-              ) : null,
+
+          {/* Contenido del paso */}
+          <div className="flex-1 overflow-y-auto px-5 py-6 lg:px-7">
+            {!enResumen ? (
+              <>
+                <h2 className="font-display text-2xl font-bold md:text-3xl">Elige tu <span className="titulo-neon">{cat.titulo.toLowerCase()}</span></h2>
+                <p className="mt-2 text-slate-400">{cat.ayuda}</p>
+                <div className="mt-6 grid gap-3">
+                  {porCat(cat.id).map((o) => {
+                    const activo = sel[o.cat]?.id === o.id;
+                    const bloqueo = incompatible(o, sel);
+                    return (
+                      <button
+                        key={o.id}
+                        disabled={!!bloqueo}
+                        onClick={() => elegir(o)}
+                        className={`relative flex items-center gap-4 overflow-hidden rounded-xl border p-4 text-left transition ${
+                          activo ? 'bg-cyan/10' : 'border-line bg-bg/40 hover:-translate-y-0.5 hover:border-slate-500'
+                        } ${bloqueo ? 'cursor-not-allowed opacity-40' : ''}`}
+                        style={activo ? { borderColor: o.color, boxShadow: `0 0 26px ${o.color}40` } : undefined}
+                      >
+                        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg border border-line font-display text-sm" style={{ color: o.color, background: `${o.color}18` }}>
+                          {activo ? <Check size={18} /> : cat.paso}
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <b className="block truncate">{o.nombre}</b>
+                          <span className="block truncate text-sm text-slate-400">{bloqueo ?? o.spec}</span>
+                        </span>
+                        <span className="font-display text-lg font-bold text-claro">{soles(o.precio)}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
+            ) : (
+              <>
+                <h2 className="font-display text-2xl font-bold md:text-3xl">Tu <span className="titulo-neon">presupuesto</span></h2>
+
+                {/* PC armada o solo repuestos */}
+                <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                  {([
+                    ['pc', 'PC armada por Quamtu', 'Ensamblaje, pruebas de estrés y garantía. Requiere las 8 piezas.'],
+                    ['repuestos', 'Solo componentes', 'Compra únicamente las piezas que elegiste, como repuestos.'],
+                  ] as const).map(([m, t, d]) => (
+                    <button
+                      key={m}
+                      onClick={() => setModo(m)}
+                      className={`rounded-xl border p-4 text-left transition ${modo === m ? 'border-cyan bg-cyan/10 shadow-[0_0_22px_rgba(35,141,193,.3)]' : 'border-line hover:border-slate-500'}`}
+                    >
+                      <b className="flex items-center justify-between">{t}{modo === m && <Check size={16} className="text-claro" />}</b>
+                      <span className="mt-1 block text-sm text-slate-400">{d}</span>
+                    </button>
+                  ))}
+                </div>
+
+                <ul className="mt-6 divide-y divide-line rounded-xl border border-line">
+                  {CATS.map((c, i) => {
+                    const o = sel[c.id];
+                    return (
+                      <li key={c.id} className="flex items-center gap-3 px-4 py-3">
+                        <span className="w-24 shrink-0 text-xs tracking-wider text-slate-500">{c.titulo.toUpperCase()}</span>
+                        {o ? (
+                          <>
+                            <span className="min-w-0 flex-1 truncate">{o.nombre}</span>
+                            <span className="font-display text-sm text-claro">{soles(o.precio)}</span>
+                          </>
+                        ) : (
+                          <span className="flex-1 text-amber-300/80">Sin elegir</span>
+                        )}
+                        <button onClick={() => ir(i)} aria-label={`${o ? 'Cambiar' : 'Elegir'} ${c.titulo}`} className="text-slate-500 hover:text-claro">
+                          <Pencil size={14} />
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+
+                {aviso && (
+                  <p className="mt-4 flex items-start gap-2 rounded-lg bg-amber-500/10 p-3 text-sm text-amber-300">
+                    <AlertTriangle size={16} className="mt-0.5 shrink-0" /> {aviso}
+                  </p>
+                )}
+                {modo === 'pc' && faltan.length > 0 && (
+                  <p className="mt-4 flex items-start gap-2 rounded-lg bg-amber-500/10 p-3 text-sm text-amber-300">
+                    <AlertTriangle size={16} className="mt-0.5 shrink-0" />
+                    Faltan {faltan.length} piezas para armar la PC completa. Complétalas o cambia a “Solo componentes”.
+                  </p>
+                )}
+
+                <div className="glass mt-6 rounded-2xl p-5">
+                  <div className="flex items-end justify-between">
+                    <span className="text-xs tracking-widest text-slate-500">TOTAL REFERENCIAL</span>
+                    <span className="titulo-neon font-display text-3xl font-bold">{soles(total(sel))}</span>
+                  </div>
+                  <div className="mt-5 grid gap-3">
+                    <a
+                      href={puedeComprar ? whatsapp(modo === 'pc' ? 'Hola Quamtu, quiero comprar esta PC armada a medida:' : 'Hola Quamtu, quiero comprar estos componentes:') : undefined}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-disabled={!puedeComprar}
+                      className={`btn-neon flex items-center justify-center gap-2 rounded-full py-4 font-display text-sm ${puedeComprar ? '' : 'pointer-events-none opacity-40'}`}
+                    >
+                      <MessageCircle size={18} /> COMPRAR POR WHATSAPP
+                    </a>
+                    <button
+                      disabled={!puedeComprar}
+                      onClick={alCarrito}
+                      className="btn-borde flex items-center justify-center gap-2 rounded-full py-4 font-display text-sm disabled:pointer-events-none disabled:opacity-40"
+                    >
+                      <ShoppingCart size={16} /> {agregado ? 'AÑADIDO AL CARRITO ✓' : 'AÑADIR AL CARRITO'}
+                    </button>
+                    <a
+                      href={puedeComprar ? whatsapp('Hola Quamtu, necesito una cotización para mi empresa con esta configuración:') : undefined}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-disabled={!puedeComprar}
+                      className={`text-center text-sm text-slate-400 underline hover:text-claro ${puedeComprar ? '' : 'pointer-events-none opacity-40'}`}
+                    >
+                      Cotizar para mi empresa
+                    </a>
+                  </div>
+                </div>
+                <button onClick={() => { setSel({}); setUltima(undefined); ir(0); setAgregado(false); }} className="mx-auto mt-5 flex items-center gap-1 text-xs text-slate-500 hover:text-red-400">
+                  <X size={12} /> Empezar de nuevo
+                </button>
+              </>
+            )}
+          </div>
+
+          {/* Barra de navegación fija */}
+          <div className="flex items-center gap-3 border-t border-line bg-bg/80 px-5 py-4 backdrop-blur lg:px-7">
+            <button
+              onClick={() => ir(paso - 1)}
+              disabled={paso === 0}
+              className="btn-borde flex items-center gap-1 rounded-full px-5 py-3 font-display text-xs disabled:pointer-events-none disabled:opacity-30"
+            >
+              <ArrowLeft size={14} /> ATRÁS
+            </button>
+            <div className="flex-1 text-center">
+              <span className="block text-[10px] tracking-widest text-slate-500">TOTAL</span>
+              <b className="font-display text-lg text-claro">{soles(total(sel))}</b>
+            </div>
+            {!enResumen && (
+              <button onClick={() => ir(paso + 1)} className="btn-neon flex items-center gap-1 rounded-full px-5 py-3 font-display text-xs">
+                {paso === FIN - 1 ? 'VER PRESUPUESTO' : sel[cat.id] ? 'SIGUIENTE' : 'OMITIR'} <ArrowRight size={14} />
+              </button>
             )}
           </div>
         </section>
 
-        {/* Panel de selección */}
-        <section className="flex flex-col border-l border-line bg-panel/40 p-5 lg:h-[calc(100vh-4rem)] lg:overflow-y-auto">
-          <div className="flex gap-1.5 overflow-x-auto pb-3 [scrollbar-width:none]">
-            {CATS.map((c, i) => (
-              <button
-                key={c.id}
-                onClick={() => setPaso(i)}
-                className={`flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-xs transition ${
-                  i === paso ? 'border-cyan bg-cyan/10 text-cyan' : sel[c.id] ? 'border-violet/50 text-slate-200' : 'border-line text-slate-500'
-                }`}
-              >
-                {sel[c.id] ? <Check size={13} /> : <span className="font-display text-[10px]">{c.paso}</span>}
-                {c.titulo}
-              </button>
-            ))}
+        {/* VISOR 3D (derecha): se va armando a medida que eliges */}
+        <section className="relative order-1 h-[44vh] lg:sticky lg:top-16 lg:order-2 lg:h-[calc(100vh-4rem)]">
+          <div className="rejilla absolute inset-0 -z-10" />
+          <div className="absolute left-1/2 top-1/3 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-cyan/15 blur-[120px]" />
+          <PcEscena sel={sel} etiquetas foco={ultima} className="h-full" />
+          <div className="pointer-events-none absolute bottom-4 left-5 hidden text-xs tracking-widest text-slate-500 lg:block">
+            ARRASTRA PARA GIRAR · PASA EL MOUSE SOBRE UNA PIEZA
           </div>
-
-          <h1 className="mt-4 font-display text-2xl font-bold md:text-3xl">
-            <span className="text-slate-600">{cat.paso}</span> {cat.titulo}
-          </h1>
-
-          <div className="mt-5 grid gap-3">
-            {porCat(cat.id).map((o) => {
-              const activo = sel[o.cat]?.id === o.id;
-              const bloqueo = incompatible(o, sel);
-              return (
-                <button
-                  key={o.id}
-                  disabled={!!bloqueo}
-                  onClick={() => elegir(o)}
-                  className={`group relative flex items-center gap-4 rounded-xl border p-4 text-left transition ${
-                    activo ? 'bg-white/5' : 'border-line hover:border-slate-500'
-                  } ${bloqueo ? 'cursor-not-allowed opacity-40' : ''}`}
-                  style={activo ? { borderColor: o.color, boxShadow: `0 0 24px ${o.color}44` } : undefined}
-                >
-                  <span className="h-10 w-1.5 rounded-full" style={{ background: o.color }} />
-                  <span className="flex-1">
-                    <b className="block">{o.nombre}</b>
-                    <span className="text-sm text-slate-400">{bloqueo ?? o.spec}</span>
-                  </span>
-                  <span className="font-display font-bold text-cyan">{soles(o.precio)}</span>
-                  {activo && <Check size={18} className="text-cyan" />}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="mt-5 flex justify-between">
-            <button disabled={paso === 0} onClick={() => setPaso(paso - 1)} className="flex items-center gap-1 text-sm text-slate-400 disabled:opacity-30">
-              <ChevronLeft size={16} /> Anterior
-            </button>
-            <button disabled={paso === CATS.length - 1} onClick={() => setPaso(paso + 1)} className="flex items-center gap-1 text-sm text-slate-400 disabled:opacity-30">
-              Siguiente <ChevronRight size={16} />
-            </button>
-          </div>
-
-          {/* Total */}
-          <div className="glass mt-auto rounded-2xl p-5 pt-5 lg:mt-8">
-            {aviso && (
-              <p className="mb-3 flex items-start gap-2 rounded-lg bg-amber-500/10 p-3 text-xs text-amber-300">
-                <AlertTriangle size={14} className="mt-0.5 shrink-0" /> {aviso}
-              </p>
-            )}
-            <div className="flex items-end justify-between">
-              <span className="text-xs tracking-widest text-slate-500">TOTAL</span>
-              <span className="titulo-neon font-display text-3xl font-bold">{soles(total(sel))}</span>
-            </div>
-            <button
-              disabled={!completo || !!aviso}
-              onClick={alCarrito}
-              className="btn-neon mt-4 flex w-full items-center justify-center gap-2 rounded-full py-4 text-sm disabled:opacity-40 disabled:shadow-none"
-            >
-              <ShoppingCart size={16} /> {agregado ? 'AÑADIDO AL CARRITO' : 'AÑADIR AL CARRITO'}
-            </button>
-            {!completo && <p className="mt-2 text-center text-xs text-slate-500">Elige las {CATS.length} piezas para continuar ({Object.values(sel).filter(Boolean).length}/{CATS.length}).</p>}
-            {Object.values(sel).some(Boolean) && (
-              <button onClick={() => { setSel({}); setPaso(0); setAgregado(false); }} className="mx-auto mt-3 flex items-center gap-1 text-xs text-slate-500 hover:text-red-400">
-                <X size={12} /> Empezar de nuevo
-              </button>
-            )}
+          <div className="pointer-events-none absolute right-5 top-4 text-right">
+            <span className="block text-[10px] tracking-widest text-slate-500">PIEZAS</span>
+            <b className="font-display text-2xl text-claro">{elegidas.length}<span className="text-slate-600">/{FIN}</span></b>
           </div>
         </section>
       </div>
