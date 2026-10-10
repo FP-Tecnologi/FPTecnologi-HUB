@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Carlito, Play } from 'next/font/google';
+import Footer from '@/components/Footer';
 import Header from '@/components/Header';
+import PieCondicional from '@/components/PieCondicional';
 import './globals.css';
 
 // Manual de identidad: Play (corporativa) y Calibri para web → Carlito (misma métrica).
@@ -18,6 +20,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <Header />
         {children}
+        <PieCondicional>
+          <Footer />
+        </PieCondicional>
       </body>
     </html>
   );

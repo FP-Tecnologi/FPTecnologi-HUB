@@ -199,9 +199,6 @@ export default function Home() {
         </Reveal>
       </section>
 
-      <footer className="border-t border-line py-10 text-center text-sm text-slate-500">
-        © {new Date().getFullYear()} Quamtu
-      </footer>
     </main>
   );
 }
