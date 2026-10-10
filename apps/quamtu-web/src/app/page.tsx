@@ -65,8 +65,8 @@ export default function Home() {
             <p style={{ ["--i" as string]: 0 }} className="entra mb-5 inline-block border border-claro/40 px-4 py-1 font-display text-xs tracking-[0.3em] text-claro">
               CONFIGURACIÓN DE PRECISIÓN
             </p>
-            <h1 style={{ ["--i" as string]: 1 }} className="entra titulo-neon font-display text-5xl font-bold leading-[1.05] md:text-7xl">
-              Equipos a la medida de tu trabajo.
+            <h1 style={{ ["--i" as string]: 1 }} className="entra font-display text-5xl font-bold leading-[1.05] text-white md:text-7xl">
+              Equipos <span className="titulo-neon whitespace-nowrap">a la medida</span> de tu trabajo.
             </h1>
             <p style={{ ["--i" as string]: 2 }} className="entra mt-6 max-w-lg text-xl text-slate-300">
               No construimos hardware convencional: diseñamos herramientas de ingeniería a la medida. Arma tu equipo en 3D o cotiza para tu organización.
@@ -196,7 +196,7 @@ export default function Home() {
                 {i + 1}
               </span>
             ))}
-            <figcaption className="mt-3 flex items-center justify-between border-t border-line pt-2 text-xs text-slate-500">
+            <figcaption className="mt-3 flex items-center justify-between border-t border-line pt-2 text-xs text-slate-400">
               <span>Fig. 1: gabinete Turing</span>
               <span>Vista frontal</span>
             </figcaption>

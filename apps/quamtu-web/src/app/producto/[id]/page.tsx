@@ -26,7 +26,7 @@ export default async function Producto({ params }: { params: Promise<{ id: strin
 
   return (
     <main className="mx-auto max-w-7xl px-5 pb-24 pt-28">
-      <nav className="flex items-center gap-1 text-sm text-slate-500">
+      <nav className="flex items-center gap-1 text-sm text-slate-400">
         <Link href="/tienda" className="hover:text-claro">Tienda</Link><ChevronRight size={14} />
         <Link href={`/tienda?cat=${o.cat}`} className="hover:text-claro">{cat.titulo}</Link><ChevronRight size={14} />
         <span className="text-slate-300">{o.nombre}</span>
@@ -39,7 +39,7 @@ export default async function Producto({ params }: { params: Promise<{ id: strin
           <h1 className="mt-2 font-display text-3xl font-bold normal-case md:text-4xl">{o.nombre}</h1>
           <p className="mt-3 text-lg text-slate-300">{o.spec}</p>
           <p className="mt-6 font-display text-4xl font-bold text-claro">{soles(o.precio)}</p>
-          <p className="mt-1 text-sm text-slate-500">Precio referencial · IGV incluido</p>
+          <p className="mt-1 text-sm text-slate-400">Precio referencial · IGV incluido</p>
 
           <div className="mt-8 flex flex-wrap gap-3">
             <AgregarPieza id={o.id} precio={o.precio} />
@@ -51,7 +51,7 @@ export default async function Producto({ params }: { params: Promise<{ id: strin
           <dl className="mt-3 divide-y divide-line border-y border-line">
             {datos.map(([k, v], i) => (
               <div key={i} className="grid grid-cols-[9rem_1fr] gap-3 py-2.5 text-sm">
-                <dt className="text-slate-500">{k}</dt>
+                <dt className="text-slate-400">{k}</dt>
                 <dd className="text-slate-200">{v}</dd>
               </div>
             ))}

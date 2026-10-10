@@ -22,7 +22,7 @@ const piezaLinea = (id: string): Linea => {
 };
 
 const PLAZOS = ['Lo antes posible', 'En 1 a 2 semanas', 'En 1 mes', 'Solo estoy comparando precios'];
-const campo = 'w-full rounded-lg border border-line bg-bg/60 px-4 py-3 text-base text-white outline-none transition placeholder:text-slate-600 focus:border-cyan';
+const campo = 'w-full rounded-lg border border-line bg-bg/60 px-4 py-3 text-base text-white outline-none transition placeholder:text-[#8294ad] focus:border-cyan';
 
 export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pieza'; id: string } }) {
   const [lineas, setLineas] = useState<Linea[]>(() => (inicial ? [inicial.tipo === 'build' ? buildLinea(Number(inicial.id)) : piezaLinea(inicial.id)] : []));
@@ -135,7 +135,7 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
           <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-cyan/20 text-claro"><Check size={32} /></span>
           <h1 className="mt-6 font-display text-3xl font-bold">Cotización lista</h1>
           <p className="mt-3 text-lg text-slate-300">{resultado.texto}</p>
-          <p className="mt-2 text-sm text-slate-500">Total referencial: {soles(totalRef)} · {lineas.length} producto(s)</p>
+          <p className="mt-2 text-sm text-slate-400">Total referencial: {soles(totalRef)} · {lineas.length} producto(s)</p>
           <a href={waUrl(mensajeWa())} target="_blank" rel="noreferrer" className="btn-neon mt-8 inline-flex items-center gap-2 rounded-full px-8 py-4 font-display text-sm">
             <MessageCircle size={18} /> CONTINUAR POR WHATSAPP
           </a>
@@ -153,10 +153,10 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
         {([[1, 'Productos'], [2, 'Tus datos']] as const).map(([n, t], i) => (
           <li key={n} className="flex flex-1 items-center last:flex-none">
             <button type="button" onClick={() => irA(n)} className="flex items-center gap-2">
-              <span className={`grid h-9 w-9 place-items-center rounded-full border text-sm font-bold transition ${paso === n ? 'border-claro bg-cyan text-white shadow-[0_0_16px_rgba(35,141,193,.7)]' : paso > n ? 'border-cyan bg-cyan/20 text-claro' : 'border-line text-slate-500'}`}>
+              <span className={`grid h-9 w-9 place-items-center rounded-full border text-sm font-bold transition ${paso === n ? 'border-claro bg-boton text-white shadow-[0_0_16px_rgba(35,141,193,.7)]' : paso > n ? 'border-cyan bg-cyan/20 text-claro' : 'border-line text-slate-400'}`}>
                 {paso > n ? <Check size={15} /> : n}
               </span>
-              <span className={`font-display text-sm ${paso === n ? 'text-white' : 'text-slate-500'}`}>{t}</span>
+              <span className={`font-display text-sm ${paso === n ? 'text-white' : 'text-slate-400'}`}>{t}</span>
             </button>
             {i === 0 && <span className={`mx-3 h-0.5 flex-1 rounded ${paso > 1 ? 'bg-cyan' : 'bg-line'}`} />}
           </li>
@@ -182,16 +182,16 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
                   const n = cantidadDe(l.clave);
                   return (
                     <div key={b.nombre} className="rounded-xl border border-line bg-bg/50 p-4">
-                      <span className="font-display text-[10px] tracking-[0.25em] text-claro">{b.linea}</span>
+                      <span className="font-display text-xs tracking-[0.25em] text-claro">{b.linea}</span>
                       <h3 className="font-display text-lg font-bold">{b.nombre}</h3>
                       <p className="text-sm text-slate-400">{b.para}</p>
-                      <p className="mt-2 text-xs leading-relaxed text-slate-500">{l.detalle}</p>
+                      <p className="mt-2 text-xs leading-relaxed text-slate-400">{l.detalle}</p>
                       <div className="mt-3 flex items-center justify-between">
                         <b className="font-display text-lg text-claro">{soles(l.unit)}</b>
                         {n ? (
                           <Paso n={n} onMenos={() => cambiar(l.clave, -1)} onMas={() => cambiar(l.clave, 1)} />
                         ) : (
-                          <button type="button" onClick={() => poner(l)} className="btn-neon rounded-full px-4 py-2 font-display text-[11px]">AGREGAR</button>
+                          <button type="button" onClick={() => poner(l)} className="btn-neon rounded-full px-4 py-2 font-display text-xs">AGREGAR</button>
                         )}
                       </div>
                     </div>
@@ -201,7 +201,7 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
             ) : (
               <>
                 <div className="relative mt-4">
-                  <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                  <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar componente…" className={`${campo} pl-11`} />
                 </div>
                 <div className="sin-barra mt-3 flex gap-2 overflow-x-auto pb-1">
@@ -218,7 +218,7 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
                         <ImgPieza id={o.id} cat={o.cat} color={o.color} className="h-14 w-14 shrink-0 rounded-lg" />
                         <div className="min-w-0 flex-1">
                           <p className="truncate text-sm font-bold">{o.nombre}</p>
-                          <p className="truncate text-xs text-slate-500">{o.spec}</p>
+                          <p className="truncate text-xs text-slate-400">{o.spec}</p>
                           <b className="font-display text-sm text-claro">{soles(o.precio)}</b>
                         </div>
                         {n ? (
@@ -229,7 +229,7 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
                       </div>
                     );
                   })}
-                  {!lista.length && <p className="col-span-full py-6 text-center text-sm text-slate-500">Sin resultados.</p>}
+                  {!lista.length && <p className="col-span-full py-6 text-center text-sm text-slate-400">Sin resultados.</p>}
                 </div>
               </>
             )}
@@ -281,14 +281,14 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
         <aside className="glass rounded-2xl p-5 sm:p-6 lg:sticky lg:top-24">
           <h2 className="font-display text-lg font-bold">Tu cotización</h2>
           {!lineas.length ? (
-            <p className="mt-4 text-sm text-slate-500">Aún no agregaste productos.</p>
+            <p className="mt-4 text-sm text-slate-400">Aún no agregaste productos.</p>
           ) : (
             <ul className="mt-4 max-h-[340px] divide-y divide-line/60 overflow-y-auto">
               {lineas.map((l) => (
                 <li key={l.clave} className="py-3">
                   <div className="flex items-start justify-between gap-3">
                     <p className="min-w-0 text-sm font-bold">{l.nombre}</p>
-                    <button type="button" onClick={() => quitar(l.clave)} aria-label={`Quitar ${l.nombre}`} className="shrink-0 text-slate-500 hover:text-red-400"><Trash2 size={14} /></button>
+                    <button type="button" onClick={() => quitar(l.clave)} aria-label={`Quitar ${l.nombre}`} className="shrink-0 text-slate-400 hover:text-red-400"><Trash2 size={14} /></button>
                   </div>
                   <div className="mt-2 flex items-center justify-between">
                     <Paso n={l.cantidad} onMenos={() => cambiar(l.clave, -1)} onMas={() => cambiar(l.clave, 1)} />
@@ -299,7 +299,7 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
             </ul>
           )}
           <div className="mt-4 flex items-end justify-between border-t border-line pt-4">
-            <span className="text-xs tracking-widest text-slate-500">TOTAL REFERENCIAL</span>
+            <span className="text-xs tracking-widest text-slate-400">TOTAL REFERENCIAL</span>
             <span className="titulo-neon font-display text-2xl font-bold">{soles(totalRef)}</span>
           </div>
           {errorApi && <p className="mt-3 text-sm text-red-400">{errorApi}</p>}
@@ -312,13 +312,13 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
               {enviando ? <Loader2 size={18} className="animate-spin" /> : <ClipboardList size={18} />} SOLICITAR COTIZACIÓN
             </button>
           )}
-          <p className="mt-3 text-xs text-slate-500">Precios referenciales. La cotización formal incluye precio final, stock y tiempo de entrega.</p>
+          <p className="mt-3 text-xs text-slate-400">Precios referenciales. La cotización formal incluye precio final, stock y tiempo de entrega.</p>
         </aside>
 
         {/* Barra fija en celular: total y envío siempre a la vista */}
         <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-3 border-t border-line bg-bg/95 px-4 py-3 backdrop-blur lg:hidden">
           <div>
-            <span className="block text-[10px] tracking-widest text-slate-500">{lineas.length} PRODUCTO(S)</span>
+            <span className="block text-xs tracking-widest text-slate-400">{lineas.length} PRODUCTO(S)</span>
             <b className="font-display text-lg text-claro">{soles(totalRef)}</b>
           </div>
           {paso === 1 ? (

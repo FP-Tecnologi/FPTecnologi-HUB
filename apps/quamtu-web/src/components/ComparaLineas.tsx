@@ -30,7 +30,7 @@ export default function ComparaLineas() {
         <tbody className="divide-y divide-line">
           {FILAS.map((f) => (
             <tr key={f.t} className="align-top">
-              <th className="p-4 text-xs font-bold tracking-widest text-slate-500">{f.t.toUpperCase()}</th>
+              <th className="p-4 text-xs font-bold tracking-widest text-slate-400">{f.t.toUpperCase()}</th>
               <td className={`p-4 text-slate-200 ${f.t === 'Desde' ? 'font-display text-xl font-bold text-claro' : ''}`}>{f.turing}</td>
               <td className={`p-4 text-slate-200 ${f.t === 'Desde' ? 'font-display text-xl font-bold text-claro' : ''}`}>{f.ws}</td>
             </tr>

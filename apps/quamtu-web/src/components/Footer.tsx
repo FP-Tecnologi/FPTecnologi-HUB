@@ -70,7 +70,7 @@ export default function Footer() {
             {GARANTIAS.map(({ i: Icono, t, d }) => (
               <li key={t} className="flex items-start gap-3">
                 <Icono size={18} className="mt-0.5 shrink-0 text-claro" />
-                <span className="text-sm"><b className="text-slate-200">{t}</b><span className="block text-slate-500">{d}</span></span>
+                <span className="text-sm"><b className="text-slate-200">{t}</b><span className="block text-slate-400">{d}</span></span>
               </li>
             ))}
           </ul>
@@ -105,7 +105,7 @@ export default function Footer() {
 
       {/* Base */}
       <div className="border-t border-line">
-        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-5 py-6 text-center text-xs text-slate-500 sm:flex-row sm:text-left">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-5 py-6 text-center text-xs text-slate-400 sm:flex-row sm:text-left">
           <p>© {new Date().getFullYear()} Quamtu. Todos los derechos reservados.</p>
           <p>Precios y disponibilidad referenciales, sujetos a confirmación.</p>
         </div>

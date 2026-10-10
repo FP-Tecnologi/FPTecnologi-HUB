@@ -43,7 +43,7 @@ function PrecioVivo({ valor }: { valor: number }) {
 
   return (
     <div className="pointer-events-none absolute left-1/2 top-4 z-10 -translate-x-1/2 text-center">
-      <span className="block text-[10px] tracking-[0.35em] text-slate-400">PRESUPUESTO</span>
+      <span className="block text-xs tracking-[0.35em] text-slate-400">PRESUPUESTO</span>
       <div className="relative inline-block">
         <span className="titulo-neon font-display text-4xl font-bold md:text-5xl">{soles(mostrado)}</span>
         {delta !== 0 && (
@@ -104,7 +104,7 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
           <div className="border-b border-line px-5 pb-4 pt-5 lg:px-7">
             <div className="flex items-baseline justify-between">
               <h1 className="font-display text-xl font-bold">Arma tu <span className="text-claro">setup</span></h1>
-              <span className="text-xs tracking-widest text-slate-500">{enResumen ? 'PRESUPUESTO' : `PASO ${paso + 1} DE ${FIN}`}</span>
+              <span className="text-xs tracking-widest text-slate-400">{enResumen ? 'PRESUPUESTO' : `PASO ${paso + 1} DE ${FIN}`}</span>
             </div>
             <ol className="mt-4 flex items-center">
               {CATS.map((c, i) => {
@@ -118,8 +118,8 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
                       aria-current={actual ? 'step' : undefined}
                       title={c.titulo}
                       className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-[10px] sm:h-8 sm:w-8 sm:text-[11px] font-bold transition ${
-                        actual ? 'scale-110 border-claro bg-cyan text-white shadow-[0_0_16px_rgba(35,141,193,.7)]'
-                        : hecho ? 'border-cyan bg-cyan/20 text-claro' : 'border-line text-slate-500 hover:border-slate-500'
+                        actual ? 'scale-110 border-claro bg-boton text-white shadow-[0_0_16px_rgba(35,141,193,.7)]'
+                        : hecho ? 'border-cyan bg-cyan/20 text-claro' : 'border-line text-slate-400 hover:border-slate-500'
                       }`}
                     >
                       {hecho && !actual ? <Check size={14} /> : c.paso}
@@ -134,7 +134,7 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
                   aria-label="Presupuesto"
                   title="Presupuesto"
                   className={`grid h-7 w-7 place-items-center rounded-full border transition sm:h-8 sm:w-8 ${
-                    enResumen ? 'scale-110 border-claro bg-cyan text-white shadow-[0_0_16px_rgba(35,141,193,.7)]' : 'border-line text-slate-500 hover:border-slate-500'
+                    enResumen ? 'scale-110 border-claro bg-boton text-white shadow-[0_0_16px_rgba(35,141,193,.7)]' : 'border-line text-slate-400 hover:border-slate-500'
                   }`}
                 >
                   <Receipt size={14} />
@@ -172,12 +172,12 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
                         <div className="relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-panel to-bg">
                           <ImgPieza id={o.id} cat={o.cat} color={o.color} className="h-full w-full" />
                           {activo && (
-                            <span className="absolute left-2.5 top-2.5 flex items-center gap-1 rounded-full bg-cyan px-2.5 py-1 text-[10px] font-bold tracking-wider text-white">
+                            <span className="absolute left-2.5 top-2.5 flex items-center gap-1 rounded-full bg-boton px-2.5 py-1 text-xs font-bold tracking-wider text-white">
                               <Check size={12} /> ELEGIDO
                             </span>
                           )}
                           {compatible && !activo && (
-                            <span className="absolute left-2.5 top-2.5 rounded-full bg-emerald-500/20 px-2.5 py-1 text-[10px] font-bold tracking-wider text-emerald-300">✓ COMPATIBLE</span>
+                            <span className="absolute left-2.5 top-2.5 rounded-full bg-emerald-500/20 px-2.5 py-1 text-xs font-bold tracking-wider text-emerald-300">✓ COMPATIBLE</span>
                           )}
                           <a
                             href={`/producto/${o.id}`}
@@ -194,13 +194,13 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
                           <b className="font-display text-[15px] leading-snug">{o.nombre}</b>
                           <div className="mt-2.5 flex flex-wrap gap-1.5">
                             {datos.map((d) => (
-                              <span key={d} className="rounded-md border border-line bg-panel px-2 py-0.5 text-[11px] text-slate-300">{d}</span>
+                              <span key={d} className="rounded-md border border-line bg-panel px-2 py-0.5 text-xs text-slate-300">{d}</span>
                             ))}
                           </div>
                           {bloqueo && <p className="mt-2 text-xs text-amber-300/90">{bloqueo}</p>}
                           <div className="mt-auto flex items-end justify-between pt-4">
                             <span className="font-display text-xl font-bold text-claro">{soles(o.precio)}</span>
-                            <span className={`rounded-full px-3 py-1.5 text-[11px] font-bold tracking-wider ${activo ? 'bg-cyan text-white' : 'border border-claro/50 text-claro'}`}>
+                            <span className={`rounded-full px-3 py-1.5 text-xs font-bold tracking-wider ${activo ? 'bg-boton text-white' : 'border border-claro/50 text-claro'}`}>
                               {activo ? 'QUITAR' : 'ELEGIR'}
                             </span>
                           </div>
@@ -236,7 +236,7 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
                     const o = sel[c.id];
                     return (
                       <li key={c.id} className="flex items-center gap-3 px-4 py-3">
-                        <span className="w-24 shrink-0 text-xs tracking-wider text-slate-500">{c.titulo.toUpperCase()}</span>
+                        <span className="w-24 shrink-0 text-xs tracking-wider text-slate-400">{c.titulo.toUpperCase()}</span>
                         {o ? (
                           <>
                             <span className="min-w-0 flex-1 truncate">{o.nombre}</span>
@@ -245,7 +245,7 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
                         ) : (
                           <span className="flex-1 text-amber-300/80">Sin elegir</span>
                         )}
-                        <button onClick={() => ir(i)} aria-label={`${o ? 'Cambiar' : 'Elegir'} ${c.titulo}`} className="text-slate-500 hover:text-claro">
+                        <button onClick={() => ir(i)} aria-label={`${o ? 'Cambiar' : 'Elegir'} ${c.titulo}`} className="text-slate-400 hover:text-claro">
                           <Pencil size={14} />
                         </button>
                       </li>
@@ -267,7 +267,7 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
 
                 <div className="glass mt-6 rounded-2xl p-5">
                   <div className="flex items-end justify-between">
-                    <span className="text-xs tracking-widest text-slate-500">TOTAL REFERENCIAL</span>
+                    <span className="text-xs tracking-widest text-slate-400">TOTAL REFERENCIAL</span>
                     <span className="titulo-neon font-display text-3xl font-bold">{soles(total(sel))}</span>
                   </div>
                   <div className="mt-5 grid gap-3">
@@ -298,7 +298,7 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
                     </a>
                   </div>
                 </div>
-                <button onClick={() => { setSel({}); setUltima(undefined); ir(0); setAgregado(false); }} className="mx-auto mt-5 flex items-center gap-1 text-xs text-slate-500 hover:text-red-400">
+                <button onClick={() => { setSel({}); setUltima(undefined); ir(0); setAgregado(false); }} className="mx-auto mt-5 flex items-center gap-1 text-xs text-slate-400 hover:text-red-400">
                   <X size={12} /> Empezar de nuevo
                 </button>
               </>
@@ -315,7 +315,7 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
               <ArrowLeft size={14} /> ATRÁS
             </button>
             <div className="flex-1 text-center">
-              <span className="block text-[10px] tracking-widest text-slate-500">TOTAL</span>
+              <span className="block text-xs tracking-widest text-slate-400">TOTAL</span>
               <b className="font-display text-lg text-claro">{soles(total(sel))}</b>
             </div>
             {!enResumen && (
@@ -332,11 +332,11 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
           <div className="absolute left-1/2 top-1/3 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-cyan/15 blur-[120px]" />
           <PcEscena sel={sel} etiquetas foco={ultima} className="h-full" />
           <PrecioVivo valor={total(sel)} />
-          <div className="pointer-events-none absolute bottom-4 left-5 hidden text-xs tracking-widest text-slate-500 lg:block">
+          <div className="pointer-events-none absolute bottom-4 left-5 hidden text-xs tracking-widest text-slate-400 lg:block">
             ARRASTRA PARA GIRAR · PASA EL MOUSE SOBRE UNA PIEZA
           </div>
           <div className="pointer-events-none absolute right-5 top-4 text-right">
-            <span className="block text-[10px] tracking-widest text-slate-500">PIEZAS</span>
+            <span className="block text-xs tracking-widest text-slate-400">PIEZAS</span>
             <b className="font-display text-2xl text-claro">{elegidas.length}<span className="text-slate-600">/{FIN}</span></b>
           </div>
         </section>

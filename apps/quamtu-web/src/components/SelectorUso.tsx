@@ -51,7 +51,7 @@ export default function SelectorUso() {
           </ul>
         </div>
         <div className="md:text-right">
-          <span className="block text-xs tracking-widest text-slate-500">DESDE</span>
+          <span className="block text-xs tracking-widest text-slate-400">DESDE</span>
           <b className="font-display text-3xl text-claro">{soles(total(s))}</b>
           <div className="mt-5 flex flex-wrap gap-3 md:justify-end">
             <Link href={`/armar?build=${u.build}`} className="btn-neon inline-flex items-center gap-2 rounded-full px-6 py-3.5 font-display text-xs">

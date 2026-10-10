@@ -39,7 +39,7 @@ export default async function Tienda({ searchParams }: { searchParams: Promise<{
           <Link key={o.id} href={`/producto/${o.id}`} className="hud group flex flex-col overflow-hidden transition hover:-translate-y-1">
             <ImgPieza id={o.id} cat={o.cat} color={o.color} className="h-44 w-full bg-gradient-to-br from-panel to-bg" />
             <div className="flex flex-1 flex-col p-5">
-              <span className="font-display text-[10px] tracking-[0.25em] text-claro">{CATS.find((c) => c.id === o.cat)?.titulo.toUpperCase()}</span>
+              <span className="font-display text-xs tracking-[0.25em] text-claro">{CATS.find((c) => c.id === o.cat)?.titulo.toUpperCase()}</span>
               <h2 className="mt-1 font-display text-base font-bold normal-case text-white">{o.nombre}</h2>
               <p className="mt-1 flex-1 text-sm text-slate-400">{o.spec}</p>
               <p className="mt-4 font-display text-xl font-bold text-claro">{soles(o.precio)}</p>

@@ -43,7 +43,7 @@ export default function Carrito() {
                   <span className="font-display text-xs tracking-[0.25em] text-claro">
                     {it.tipo === 'build' ? (it.modo === 'repuestos' ? 'COMPONENTES SELECCIONADOS' : 'PC ARMADA A MEDIDA') : 'COMPONENTE'}
                   </span>
-                  <button onClick={() => quitar(i)} aria-label="Quitar del carrito" className="text-slate-500 hover:text-red-400"><Trash2 size={16} /></button>
+                  <button onClick={() => quitar(i)} aria-label="Quitar del carrito" className="text-slate-400 hover:text-red-400"><Trash2 size={16} /></button>
                 </div>
                 <ul className="mt-3 divide-y divide-line/60">
                   {it.ids.map((id) => {
@@ -76,17 +76,17 @@ export default function Carrito() {
             <h2 className="font-display text-lg font-bold">Resumen</h2>
             <dl className="mt-4 space-y-2 text-sm text-slate-300">
               <div className="flex justify-between"><dt>Artículos</dt><dd>{unidades(items)}</dd></div>
-              <div className="flex justify-between"><dt>Envío</dt><dd className="text-slate-500">A coordinar</dd></div>
+              <div className="flex justify-between"><dt>Envío</dt><dd className="text-slate-400">A coordinar</dd></div>
             </dl>
             <div className="mt-5 flex items-end justify-between border-t border-line pt-5">
-              <span className="text-xs tracking-widest text-slate-500">TOTAL</span>
+              <span className="text-xs tracking-widest text-slate-400">TOTAL</span>
               <span className="titulo-neon font-display text-3xl font-bold">{soles(totalCarrito(items))}</span>
             </div>
             <a href={whatsappCarrito(items)} target="_blank" rel="noreferrer" className="btn-neon mt-6 flex items-center justify-center gap-2 rounded-full py-4 font-display text-sm">
               <MessageCircle size={18} /> COMPRAR POR WHATSAPP
             </a>
             <Link href="/cotizar" className="btn-borde mt-3 flex items-center justify-center gap-2 rounded-full py-3.5 font-display text-sm"><ClipboardList size={17} /> COTIZAR CON EL COTIZADOR</Link>
-            <p className="mt-5 flex gap-2 text-xs text-slate-500">
+            <p className="mt-5 flex gap-2 text-xs text-slate-400">
               <Info size={14} className="mt-0.5 shrink-0" /> Precios referenciales. Confirmamos stock, precio final y entrega por WhatsApp. El pago en línea estará disponible pronto.
             </p>
           </aside>

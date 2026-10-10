@@ -305,10 +305,10 @@ function Etiqueta({ o, p, q, lado, activa, setHover }: { o: Opcion; p: V3; q: V3
               <span className="block font-display text-[13px] font-bold leading-tight">{o.nombre}</span>
             </span>
           </span>
-          {activa && <span className="mt-1 block text-[11px] leading-snug text-slate-300">{o.spec}</span>}
+          {activa && <span className="mt-1 block text-xs leading-snug text-slate-300">{o.spec}</span>}
           <span className="mt-1 flex items-center justify-between">
             <b className="font-display text-sm text-claro">{soles(o.precio)}</b>
-            {activa && <span className="text-[10px] text-white/80">Ver producto →</span>}
+            {activa && <span className="text-xs text-white/80">Ver producto →</span>}
           </span>
         </a>
       </Html>

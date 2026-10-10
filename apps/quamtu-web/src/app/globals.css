@@ -8,6 +8,8 @@
   --color-cyan: #238dc1;
   --color-violet: #385cad;
   --color-claro: #6cc3ee;
+  /* Relleno de botones y chips con texto blanco: el azul de marca un tono más profundo llega a 4.5:1 */
+  --color-boton: #1b79ab;
   --color-apoyo: #686058;
   --font-display: var(--font-play), system-ui, sans-serif;
   --font-sans: var(--font-carlito), Calibri, system-ui, sans-serif;
@@ -15,8 +17,13 @@
 
 /* Títulos en mayúsculas; los nombres de producto usan .normal-case para respetar la escritura "Quamtu" del manual. */
 @layer base {
-  h1, h2, h3 { text-transform: uppercase; letter-spacing: 0.02em; }
+  h1, h2, h3 { text-transform: uppercase; letter-spacing: 0.02em; text-wrap: balance; }
+  p, li, dd { text-wrap: pretty; }
 }
+
+/* Superficies del navegador con la paleta de marca */
+:focus-visible { outline: 2px solid var(--color-claro); outline-offset: 3px; border-radius: 4px; }
+::selection { background: rgba(35, 141, 193, 0.55); color: #fff; }
 
 html { background: var(--color-bg); color: #dbe7f3; scroll-behavior: smooth; }
 body { font-family: var(--font-sans); font-size: 1.05rem; -webkit-font-smoothing: antialiased; }
@@ -24,13 +31,7 @@ html, body { overflow-x: clip; }
 .sin-barra { scrollbar-width: none; }
 .sin-barra::-webkit-scrollbar { display: none; }
 
-.titulo-neon {
-  background: linear-gradient(100deg, #fff 10%, var(--color-claro) 40%, var(--color-cyan) 70%, #fff 95%);
-  background-size: 250% 100%;
-  -webkit-background-clip: text; background-clip: text; color: transparent;
-  animation: shimmer 6s linear infinite;
-}
-@keyframes shimmer { to { background-position: -250% 0; } }
+.titulo-neon { color: var(--color-claro); }
 
 /* Entrada del primer pantallazo: solo CSS, así el texto aparece sin esperar al JS ni al 3D. */
 @keyframes entra { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
@@ -38,7 +39,6 @@ html, body { overflow-x: clip; }
 
 @media (prefers-reduced-motion: reduce) {
   .entra { animation: none; }
-  .titulo-neon { animation: none; }
   html { scroll-behavior: auto; }
 }
 
@@ -55,7 +55,7 @@ html, body { overflow-x: clip; }
 .hud {
   position: relative; background: linear-gradient(160deg, rgba(35,141,193,.14), rgba(10,20,38,.8));
   border: 1px solid rgba(35,141,193,.45); backdrop-filter: blur(10px);
-  box-shadow: inset 0 0 30px rgba(35,141,193,.08), 0 0 24px rgba(35,141,193,.12);
+  box-shadow: inset 0 1px 0 rgba(108,195,238,.12), 0 12px 32px rgba(0,0,0,.35);
 }
 .hud::before, .hud::after {
   content: ''; position: absolute; width: 14px; height: 14px; border: 2px solid var(--color-claro); pointer-events: none;
@@ -64,11 +64,11 @@ html, body { overflow-x: clip; }
 .hud::after { bottom: -2px; right: -2px; border-left: 0; border-top: 0; }
 
 .btn-neon {
-  background: linear-gradient(100deg, var(--color-cyan), var(--color-violet));
-  color: #fff; font-weight: 700; letter-spacing: .06em;
-  box-shadow: 0 0 28px rgba(35,141,193,.4); transition: transform .2s, box-shadow .2s;
+  background: linear-gradient(100deg, var(--color-boton), var(--color-violet));
+  color: #fff; font-weight: 700; letter-spacing: .04em;
+  box-shadow: 0 8px 22px rgba(10,40,70,.5); transition: transform .2s, box-shadow .2s;
 }
-.btn-neon:hover { transform: translateY(-2px); box-shadow: 0 0 44px rgba(108,195,238,.5); }
+.btn-neon:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(10,40,70,.6); }
 .btn-borde { border: 1px solid rgba(108,195,238,.5); color: #fff; transition: background .2s, border-color .2s; }
 .btn-borde:hover { background: rgba(35,141,193,.18); border-color: var(--color-claro); }
 @keyframes marquee { to { transform: translateX(-50%); } }
