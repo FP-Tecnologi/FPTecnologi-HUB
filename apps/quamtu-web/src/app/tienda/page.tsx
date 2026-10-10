@@ -11,7 +11,7 @@ export default async function Tienda({ searchParams }: { searchParams: Promise<{
   const texto = q?.toLowerCase().trim();
   const lista = OPCIONES.filter((o) => (!cat || o.cat === cat) && (!texto || `${o.nombre} ${o.spec}`.toLowerCase().includes(texto)));
   const chip = (activo: boolean) =>
-    `rounded-full border px-4 py-2 font-display text-xs transition ${activo ? 'border-cyan bg-cyan/15 text-claro' : 'border-line text-slate-400 hover:border-slate-500'}`;
+    `shrink-0 rounded-full border px-4 py-2 font-display text-xs transition ${activo ? 'border-cyan bg-cyan/15 text-claro' : 'border-line text-slate-400 hover:border-slate-500'}`;
 
   return (
     <main className="mx-auto max-w-7xl px-5 pb-24 pt-28">
@@ -22,12 +22,12 @@ export default async function Tienda({ searchParams }: { searchParams: Promise<{
         Compra piezas sueltas o <Link href="/armar" className="text-claro underline">arma tu equipo completo en 3D</Link>. Precios referenciales.
       </p>
 
-      <form className="mt-8 flex flex-wrap items-center gap-2">
-        <input name="q" defaultValue={q} placeholder="Buscar componente…" className="glass min-w-60 rounded-full px-5 py-2 text-sm outline-none focus:border-cyan" />
+      <form className="mt-8 flex items-center gap-2">
+        <input name="q" defaultValue={q} placeholder="Buscar componente…" className="glass min-w-0 flex-1 rounded-full px-5 py-2.5 text-base outline-none focus:border-cyan sm:max-w-sm" />
         {cat && <input type="hidden" name="cat" value={cat} />}
         <button className="btn-neon rounded-full px-5 py-2 font-display text-xs">BUSCAR</button>
       </form>
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="sin-barra mt-4 flex gap-2 overflow-x-auto pb-1 sm:flex-wrap">
         <Link href="/tienda" className={chip(!cat)}>Todo</Link>
         {CATS.map((c) => (
           <Link key={c.id} href={`/tienda?cat=${c.id}`} className={chip(cat === c.id)}>{c.titulo}</Link>
@@ -40,7 +40,7 @@ export default async function Tienda({ searchParams }: { searchParams: Promise<{
             <ImgPieza id={o.id} cat={o.cat} color={o.color} className="h-44 w-full bg-gradient-to-br from-panel to-bg" />
             <div className="flex flex-1 flex-col p-5">
               <span className="font-display text-[10px] tracking-[0.25em] text-claro">{CATS.find((c) => c.id === o.cat)?.titulo.toUpperCase()}</span>
-              <h2 className="mt-1 font-display text-base font-bold text-white">{o.nombre}</h2>
+              <h2 className="mt-1 font-display text-base font-bold normal-case text-white">{o.nombre}</h2>
               <p className="mt-1 flex-1 text-sm text-slate-400">{o.spec}</p>
               <p className="mt-4 font-display text-xl font-bold text-claro">{soles(o.precio)}</p>
             </div>

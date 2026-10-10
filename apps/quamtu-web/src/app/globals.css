@@ -13,8 +13,16 @@
   --font-sans: var(--font-carlito), Calibri, system-ui, sans-serif;
 }
 
+/* Títulos en mayúsculas; los nombres de producto usan .normal-case para respetar la escritura "Quamtu" del manual. */
+@layer base {
+  h1, h2, h3 { text-transform: uppercase; letter-spacing: 0.02em; }
+}
+
 html { background: var(--color-bg); color: #dbe7f3; scroll-behavior: smooth; }
-body { font-family: var(--font-sans); font-size: 1.05rem; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+body { font-family: var(--font-sans); font-size: 1.05rem; -webkit-font-smoothing: antialiased; }
+html, body { overflow-x: clip; }
+.sin-barra { scrollbar-width: none; }
+.sin-barra::-webkit-scrollbar { display: none; }
 
 .titulo-neon {
   background: linear-gradient(100deg, #fff 10%, var(--color-claro) 40%, var(--color-cyan) 70%, #fff 95%);

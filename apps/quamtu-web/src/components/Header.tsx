@@ -1,25 +1,33 @@
 import Link from 'next/link';
 import CarritoMini from './CarritoMini';
+import MenuMovil from './MenuMovil';
+
+export const ENLACES = [
+  { href: '/tienda', texto: 'Tienda' },
+  { href: '/armar', texto: 'Arma tu PC' },
+  { href: '/#lineas', texto: 'Líneas Turing' },
+  { href: '/#builds', texto: 'Configuraciones' },
+  { href: '/#respaldo', texto: 'Respaldo' },
+];
 
 export default function Header() {
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-line/70 bg-bg/70 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between px-5">
-        <Link href="/" aria-label="Quamtu">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-line/70 bg-bg/80 backdrop-blur-md">
+      <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-3 px-4 sm:px-5">
+        <Link href="/" aria-label="Quamtu" className="shrink-0">
           {/* Logo en blanco sobre fondo oscuro (manual B.01/B.02) */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/logo-blanco.png" alt="Quamtu" width={140} height={37} className="h-9 w-auto" />
+          <img src="/brand/logo-blanco.png" alt="Quamtu" width={140} height={37} className="h-8 w-auto sm:h-9" />
         </Link>
-        <nav className="hidden gap-8 font-display text-sm text-slate-300 md:flex">
-          <Link href="/tienda" className="hover:text-claro">Tienda</Link>
-          <Link href="/#lineas" className="hover:text-claro">Líneas Turing</Link>
-          <Link href="/#builds" className="hover:text-claro">Configuraciones</Link>
-          <Link href="/#respaldo" className="hover:text-claro">Respaldo</Link>
-          <Link href="/#contacto" className="hover:text-claro">Cotizar</Link>
+        <nav className="hidden items-center gap-6 font-display text-sm text-slate-300 lg:flex xl:gap-8">
+          {ENLACES.map((e) => (
+            <Link key={e.href} href={e.href} className="transition hover:text-claro">{e.texto}</Link>
+          ))}
         </nav>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           <CarritoMini />
-          <Link href="/armar" className="btn-neon rounded-full px-5 py-2 font-display text-xs">ARMA TU PC</Link>
+          <Link href="/cotizar" className="btn-neon rounded-full px-4 py-2 font-display text-[11px] sm:px-5 sm:text-xs">COTIZAR</Link>
+          <MenuMovil enlaces={ENLACES} />
         </div>
       </div>
     </header>

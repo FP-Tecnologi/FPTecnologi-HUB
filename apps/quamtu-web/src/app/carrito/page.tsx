@@ -85,14 +85,7 @@ export default function Carrito() {
             <a href={whatsappCarrito(items)} target="_blank" rel="noreferrer" className="btn-neon mt-6 flex items-center justify-center gap-2 rounded-full py-4 font-display text-sm">
               <MessageCircle size={18} /> COMPRAR POR WHATSAPP
             </a>
-            <a
-              href={whatsappCarrito(items, 'Hola Quamtu, necesito una cotización para mi empresa con lo siguiente:')}
-              target="_blank"
-              rel="noreferrer"
-              className="btn-borde mt-3 block rounded-full py-3.5 text-center font-display text-sm"
-            >
-              COTIZAR PARA MI EMPRESA
-            </a>
+            <Link href="/cotizar" className="btn-borde mt-3 block rounded-full py-3.5 text-center font-display text-sm">COTIZAR CON EL COTIZADOR</Link>
             <p className="mt-5 flex gap-2 text-xs text-slate-500">
               <Info size={14} className="mt-0.5 shrink-0" /> Precios referenciales. Confirmamos stock, precio final y entrega por WhatsApp. El pago en línea estará disponible pronto.
             </p>

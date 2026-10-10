@@ -42,7 +42,7 @@ export default function Home() {
               <Link href="/armar" className="btn-neon inline-flex items-center gap-2 rounded-full px-8 py-4 font-display text-sm">
                 ARMA TU PC <ArrowRight size={18} />
               </Link>
-              <Link href="#contacto" className="btn-borde inline-flex items-center rounded-full px-8 py-4 font-display text-sm">
+              <Link href="/cotizar" className="btn-borde inline-flex items-center rounded-full px-8 py-4 font-display text-sm">
                 COTIZA PARA TU EMPRESA
               </Link>
             </div>
@@ -188,6 +188,9 @@ export default function Home() {
           <div data-r className="hud p-10 text-center md:p-14">
             <h2 className="titulo-neon font-display text-3xl font-bold md:text-5xl">Consulta con nuestros especialistas</h2>
             <p className="mt-4 text-lg text-slate-300">Cotización personalizada para tu empresa, institución o proyecto.</p>
+            <Link href="/cotizar" className="btn-neon mt-8 inline-flex items-center gap-2 rounded-full px-8 py-4 font-display text-sm">
+              ABRIR EL COTIZADOR <ArrowRight size={18} />
+            </Link>
             <div className="mt-8 flex flex-col items-center justify-center gap-3 text-slate-200 sm:flex-row sm:gap-10">
               <span className="flex items-center gap-2"><MapPin size={18} className="text-claro" /> Jr. Huaraz 1841, Breña, Lima</span>
               <span className="flex items-center gap-2"><Globe size={18} className="text-claro" /> www.quamtu.com</span>

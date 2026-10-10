@@ -36,7 +36,7 @@ export default async function Producto({ params }: { params: Promise<{ id: strin
         <ImgPieza id={o.id} cat={o.cat} color={o.color} ajuste="contain" className="hud h-80 w-full lg:h-[480px]" />
         <div>
           <span className="font-display text-xs tracking-[0.25em] text-claro">{cat.titulo.toUpperCase()}</span>
-          <h1 className="mt-2 font-display text-3xl font-bold md:text-4xl">{o.nombre}</h1>
+          <h1 className="mt-2 font-display text-3xl font-bold normal-case md:text-4xl">{o.nombre}</h1>
           <p className="mt-3 text-lg text-slate-300">{o.spec}</p>
           <p className="mt-6 font-display text-4xl font-bold text-claro">{soles(o.precio)}</p>
           <p className="mt-1 text-sm text-slate-500">Precio referencial · IGV incluido</p>
@@ -44,7 +44,7 @@ export default async function Producto({ params }: { params: Promise<{ id: strin
           <div className="mt-8 flex flex-wrap gap-3">
             <AgregarPieza id={o.id} precio={o.precio} />
             <Link href={`/armar?pieza=${o.id}`} className="btn-borde rounded-full px-8 py-4 font-display text-sm">VER EN EL ARMADOR 3D</Link>
-            <Link href="/#contacto" className="btn-borde rounded-full px-8 py-4 font-display text-sm">COTIZAR PARA MI EMPRESA</Link>
+            <Link href={`/cotizar?pieza=${o.id}`} className="btn-borde rounded-full px-8 py-4 font-display text-sm">COTIZAR ESTE PRODUCTO</Link>
           </div>
 
           <h2 className="mt-10 font-display text-lg font-bold">Especificaciones</h2>
@@ -65,7 +65,7 @@ export default async function Producto({ params }: { params: Promise<{ id: strin
           <div className="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {relacionados.map((p) => (
               <Link key={p.id} href={`/producto/${p.id}`} className="hud p-5 transition hover:-translate-y-1">
-                <h3 className="font-display font-bold text-white">{p.nombre}</h3>
+                <h3 className="font-display font-bold normal-case text-white">{p.nombre}</h3>
                 <p className="mt-1 text-sm text-slate-400">{p.spec}</p>
                 <p className="mt-3 font-display text-lg font-bold text-claro">{soles(p.precio)}</p>
               </Link>

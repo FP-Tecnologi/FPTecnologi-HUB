@@ -117,7 +117,7 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
                       aria-label={c.titulo}
                       aria-current={actual ? 'step' : undefined}
                       title={c.titulo}
-                      className={`grid h-8 w-8 shrink-0 place-items-center rounded-full border text-[11px] font-bold transition ${
+                      className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-[10px] sm:h-8 sm:w-8 sm:text-[11px] font-bold transition ${
                         actual ? 'scale-110 border-claro bg-cyan text-white shadow-[0_0_16px_rgba(35,141,193,.7)]'
                         : hecho ? 'border-cyan bg-cyan/20 text-claro' : 'border-line text-slate-500 hover:border-slate-500'
                       }`}
@@ -133,7 +133,7 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
                   onClick={() => ir(FIN)}
                   aria-label="Presupuesto"
                   title="Presupuesto"
-                  className={`grid h-8 w-8 place-items-center rounded-full border transition ${
+                  className={`grid h-7 w-7 place-items-center rounded-full border transition sm:h-8 sm:w-8 ${
                     enResumen ? 'scale-110 border-claro bg-cyan text-white shadow-[0_0_16px_rgba(35,141,193,.7)]' : 'border-line text-slate-500 hover:border-slate-500'
                   }`}
                 >
@@ -306,7 +306,7 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
           </div>
 
           {/* Barra de navegación fija */}
-          <div className="flex items-center gap-3 border-t border-line bg-bg/80 px-5 py-4 backdrop-blur lg:px-7">
+          <div className="sticky bottom-0 z-30 flex items-center gap-2 border-t border-line bg-bg/95 px-4 py-3 backdrop-blur sm:gap-3 sm:px-5 sm:py-4 lg:static lg:px-7">
             <button
               onClick={() => ir(paso - 1)}
               disabled={paso === 0}
@@ -327,7 +327,7 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
         </section>
 
         {/* VISOR 3D (derecha): se va armando a medida que eliges */}
-        <section className="relative order-1 h-[44vh] lg:sticky lg:top-16 lg:order-2 lg:h-[calc(100vh-4rem)]">
+        <section className="sticky top-16 z-20 order-1 h-[40vh] bg-bg lg:order-2 lg:h-[calc(100vh-4rem)]">
           <div className="rejilla absolute inset-0 -z-10" />
           <div className="absolute left-1/2 top-1/3 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-cyan/15 blur-[120px]" />
           <PcEscena sel={sel} etiquetas foco={ultima} className="h-full" />
