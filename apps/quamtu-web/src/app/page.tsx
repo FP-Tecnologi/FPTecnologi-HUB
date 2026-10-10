@@ -222,7 +222,8 @@ export default function Home() {
           </div>
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {DESTACADOS.map((id) => {
-              const o = porId(id)!;
+              const o = porId(id);
+              if (!o) return null;
               return (
                 <Link key={id} data-r href={`/producto/${id}`} className="hud group flex flex-col overflow-hidden transition hover:-translate-y-1">
                   <ImgPieza id={o.id} cat={o.cat} color={o.color} className="h-44 w-full bg-gradient-to-br from-panel to-bg" />
