@@ -1,8 +1,9 @@
 import Link from 'next/link';
 import { ClipboardList } from 'lucide-react';
+import CabeceraFija from './CabeceraFija';
 import CarritoMini from './CarritoMini';
-import MenuMovil from './MenuMovil';
 import ConmutadorTema from './ConmutadorTema';
+import MenuMovil from './MenuMovil';
 
 export const ENLACES = [
   { href: '/tienda', texto: 'Tienda' },
@@ -14,14 +15,14 @@ export const ENLACES = [
 
 export default function Header() {
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-line/70 bg-bg/80 backdrop-blur-md">
-      <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-3 px-4 sm:px-5">
+    <CabeceraFija>
+      <div className="mx-auto flex h-16 max-w-[1600px] items-center justify-between gap-3 px-4 transition-[height] duration-300 group-data-[bajo=true]/cab:h-14 sm:px-5">
         <Link href="/" aria-label="Quamtu" className="shrink-0">
           {/* Logo en blanco sobre fondo oscuro (manual B.01/B.02) */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/logo-blanco.png" alt="Quamtu" width={140} height={37} className="logo-sobre-oscuro h-8 w-auto sm:h-9" />
+          <img src="/brand/logo-blanco.png" alt="Quamtu" width={140} height={37} className="logo-sobre-oscuro h-8 w-auto transition-[height] duration-300 group-data-[bajo=true]/cab:h-7 sm:h-9 sm:group-data-[bajo=true]/cab:h-8" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/logo-color.png" alt="" aria-hidden width={140} height={37} className="logo-sobre-claro h-8 w-auto sm:h-9" />
+          <img src="/brand/logo-color.png" alt="" aria-hidden width={140} height={37} className="logo-sobre-claro h-8 w-auto transition-[height] duration-300 group-data-[bajo=true]/cab:h-7 sm:h-9 sm:group-data-[bajo=true]/cab:h-8" />
         </Link>
         <nav className="hidden items-center gap-6 font-display text-[13px] uppercase tracking-wide text-slate-300 lg:flex xl:gap-8">
           {ENLACES.map((e) => (
@@ -37,6 +38,6 @@ export default function Header() {
           <MenuMovil enlaces={ENLACES} />
         </div>
       </div>
-    </header>
+    </CabeceraFija>
   );
 }
