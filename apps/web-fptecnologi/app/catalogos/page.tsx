@@ -9,7 +9,8 @@ export const dynamic = 'force-dynamic';
 
 export default async function CatalogosPage() {
   const c = await getPagina('catalogos');
-  const catalogos = c.lista.items.filter((x) => x.titulo && x.archivo).map((x) => ({ titulo: x.titulo, src: urlArchivo(x.archivo) }));
+  const catalogos = c.lista.items.filter((x) => x.titulo && x.archivo).map((x) => ({ titulo: x.titulo, src: urlArchivo(x.archivo) }))
+    .sort((a, b) => Number(/stock/i.test(b.titulo)) - Number(/stock/i.test(a.titulo)));
   return (
     <>
       <PageHero

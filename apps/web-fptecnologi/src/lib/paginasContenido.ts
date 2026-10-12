@@ -137,7 +137,7 @@ export const PAGINAS_DEFAULTS = {
     documentos: { items: COMPLIANCE_DOCS as { titulo: string; archivo: string }[] },
   },
   catalogos: {
-    hero: enc({ titulo: 'Nuestros', destacado: 'catálogos', descripcion: 'Hojéalos como un folleto o descárgalos en PDF.' }),
+    hero: enc({ titulo: 'Nuestros', destacado: 'catálogos', descripcion: 'Revísalos en pantalla completa como un folleto o descárgalos en PDF.' }),
     // archivo: PDF subido desde el dashboard (/uploads/...) o un PDF de la carpeta public de la web.
     lista: {
       items: [
