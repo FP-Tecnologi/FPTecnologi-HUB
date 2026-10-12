@@ -43,7 +43,7 @@ export default function Home() {
   return (
     <main>
       {/* HERO */}
-      <section className="relative isolate flex min-h-screen items-center overflow-hidden pt-16">
+      <section className="zona-oscura relative isolate flex min-h-screen items-center overflow-hidden pt-16">
         <div className="absolute inset-0 -z-20 bg-cover bg-center opacity-60" style={{ backgroundImage: 'url(/brand/fondo-red.jpg)' }} />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-bg via-bg/70 to-transparent" />
         <div className="mx-auto grid w-full max-w-7xl items-center gap-4 px-5 lg:grid-cols-2">
@@ -310,7 +310,7 @@ export default function Home() {
       </section>
 
       {/* CIERRE */}
-      <section id="contacto" className="relative isolate scroll-mt-20 overflow-hidden border-t border-line py-24">
+      <section id="contacto" className="zona-oscura relative isolate scroll-mt-20 overflow-hidden border-t border-line py-24">
         <div className="absolute inset-0 -z-10 bg-gradient-to-br from-cyan/15 via-transparent to-violet/10" />
         <Reveal className="mx-auto grid max-w-7xl items-center gap-10 px-5 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
           <div>

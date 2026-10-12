@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ClipboardList } from 'lucide-react';
 import CarritoMini from './CarritoMini';
 import MenuMovil from './MenuMovil';
+import ConmutadorTema from './ConmutadorTema';
 
 export const ENLACES = [
   { href: '/tienda', texto: 'Tienda' },
@@ -18,7 +19,9 @@ export default function Header() {
         <Link href="/" aria-label="Quamtu" className="shrink-0">
           {/* Logo en blanco sobre fondo oscuro (manual B.01/B.02) */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/logo-blanco.png" alt="Quamtu" width={140} height={37} className="h-8 w-auto sm:h-9" />
+          <img src="/brand/logo-blanco.png" alt="Quamtu" width={140} height={37} className="logo-sobre-oscuro h-8 w-auto sm:h-9" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/logo-color.png" alt="" aria-hidden width={140} height={37} className="logo-sobre-claro h-8 w-auto sm:h-9" />
         </Link>
         <nav className="hidden items-center gap-6 font-display text-[13px] uppercase tracking-wide text-slate-300 lg:flex xl:gap-8">
           {ENLACES.map((e) => (
@@ -26,6 +29,7 @@ export default function Header() {
           ))}
         </nav>
         <div className="flex items-center gap-3 sm:gap-4">
+          <ConmutadorTema className="hidden lg:flex" />
           <CarritoMini />
           <Link href="/cotizar" className="btn-neon inline-flex items-center gap-1.5 rounded-full px-4 py-2 font-display text-xs sm:px-5 sm:text-xs">
             <ClipboardList size={15} /> COTIZAR

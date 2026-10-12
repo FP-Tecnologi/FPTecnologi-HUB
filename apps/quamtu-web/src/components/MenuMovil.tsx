@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
+import ConmutadorTema from './ConmutadorTema';
 
 // Menú desplegable para pantallas menores a lg (el menú horizontal queda oculto).
 export default function MenuMovil({ enlaces }: { enlaces: { href: string; texto: string }[] }) {
@@ -20,6 +21,9 @@ export default function MenuMovil({ enlaces }: { enlaces: { href: string; texto:
               </li>
             ))}
           </ul>
+          <div className="mx-auto mt-3 flex max-w-[1600px] justify-between border-t border-line/60 pt-4">
+            <ConmutadorTema etiqueta />
+          </div>
         </nav>
       )}
     </div>

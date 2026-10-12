@@ -25,9 +25,15 @@ export const metadata: Metadata = {
   twitter: { card: 'summary_large_image', images: ['/og.jpg'] },
 };
 
+// Aplica el tema elegido (?tema=… o el recordado) antes del primer pintado, para no parpadear.
+const SCRIPT_TEMA = `(function(){try{var q=new URLSearchParams(location.search).get('tema');var t=q||localStorage.getItem('quamtu-tema');if(t==='claro'||t==='medio'||t==='oscuro'){document.documentElement.dataset.tema=t;if(q)localStorage.setItem('quamtu-tema',q)}}catch(e){}})()`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${play.variable} ${carlito.variable}`}>
+    <html lang="es" suppressHydrationWarning className={`${play.variable} ${carlito.variable}`}>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: SCRIPT_TEMA }} />
+      </head>
       <body>
         <Header />
         {children}

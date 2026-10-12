@@ -3,6 +3,7 @@ import { ArrowRight, ClipboardList, Globe, MapPin, MessageCircle, ShieldCheck, T
 import { CATS } from '@/lib/piezas';
 import { WHATSAPP, waUrl } from '@/lib/contacto';
 import AyudaPie from './AyudaPie';
+import ConmutadorTema from './ConmutadorTema';
 
 const TELEFONO = `+${WHATSAPP.slice(0, 2)} ${WHATSAPP.slice(2, 5)} ${WHATSAPP.slice(5, 8)} ${WHATSAPP.slice(8)}`;
 
@@ -66,7 +67,9 @@ export default function Footer() {
       <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr_1.2fr]">
         <div className="sm:col-span-2 lg:col-span-1">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/brand/logo-blanco.png" alt="Quamtu" width={160} height={42} className="h-10 w-auto" />
+          <img src="/brand/logo-blanco.png" alt="Quamtu" width={160} height={42} className="logo-sobre-oscuro h-10 w-auto" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/brand/logo-color.png" alt="" aria-hidden width={160} height={42} className="logo-sobre-claro h-10 w-auto" />
           <p className="mt-5 max-w-sm text-slate-400">
             No construimos hardware convencional: diseñamos herramientas de ingeniería a la medida para cerrar la brecha entre la necesidad técnica y la capacidad operativa.
           </p>
@@ -111,6 +114,7 @@ export default function Footer() {
       <div className="border-t border-line">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-5 py-6 text-center text-xs text-slate-400 sm:flex-row sm:text-left">
           <p>© {new Date().getFullYear()} Quamtu. Todos los derechos reservados.</p>
+          <ConmutadorTema etiqueta />
           <p>Precios y disponibilidad referenciales, sujetos a confirmación.</p>
         </div>
       </div>

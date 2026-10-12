@@ -22,7 +22,7 @@ const piezaLinea = (id: string): Linea => {
 };
 
 const PLAZOS = ['Lo antes posible', 'En 1 a 2 semanas', 'En 1 mes', 'Solo estoy comparando precios'];
-const campo = 'w-full rounded-lg border border-line bg-bg/60 px-4 py-3 text-base text-white outline-none transition placeholder:text-[#8294ad] focus:border-cyan';
+const campo = 'w-full rounded-lg border border-line bg-bg/60 px-4 py-3 text-base text-white outline-none transition placeholder:text-[color:var(--c-ph)] focus:border-cyan';
 
 export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pieza'; id: string } }) {
   const [lineas, setLineas] = useState<Linea[]>(() => (inicial ? [inicial.tipo === 'build' ? buildLinea(Number(inicial.id)) : piezaLinea(inicial.id)] : []));

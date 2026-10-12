@@ -22,7 +22,7 @@ export default function PropuestaC() {
   const hero = seleccionDe(BUILDS[2].ids);
   return (
     <main>
-      <section className="relative isolate min-h-[100svh] overflow-hidden">
+      <section className="zona-oscura relative isolate min-h-[100svh] overflow-hidden">
         <div className="absolute inset-y-0 right-0 -z-10 w-full lg:w-[62%]">
           <PcEscena sel={hero} poster="/brand/hero-poster.webp" diferir className="h-full w-full" />
         </div>

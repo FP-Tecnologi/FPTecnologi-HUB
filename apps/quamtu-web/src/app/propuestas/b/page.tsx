@@ -21,7 +21,7 @@ export default function PropuestaB() {
   const s = seleccionDe(b.ids);
   return (
     <main>
-      <section className="relative isolate overflow-hidden pt-28 pb-20">
+      <section className="zona-oscura relative isolate overflow-hidden pt-28 pb-20">
         <div className="absolute inset-0 -z-10 bg-cover bg-center opacity-30" style={{ backgroundImage: 'url(/brand/fondo-red.jpg)' }} />
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-bg/40 via-bg/70 to-bg" />
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-5 lg:grid-cols-[1.1fr_1fr]">

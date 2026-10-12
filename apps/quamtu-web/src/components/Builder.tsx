@@ -327,7 +327,7 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
         </section>
 
         {/* VISOR 3D (derecha): se va armando a medida que eliges */}
-        <section className="sticky top-16 z-20 order-1 h-[40vh] bg-bg lg:order-2 lg:h-[calc(100vh-4rem)]">
+        <section className="zona-oscura sticky top-16 z-20 order-1 h-[40vh] bg-bg lg:order-2 lg:h-[calc(100vh-4rem)]">
           <div className="rejilla absolute inset-0 -z-10" />
           <div className="absolute left-1/2 top-1/3 -z-10 h-96 w-96 -translate-x-1/2 rounded-full bg-cyan/15 blur-[120px]" />
           <PcEscena sel={sel} etiquetas foco={ultima} className="h-full" />
