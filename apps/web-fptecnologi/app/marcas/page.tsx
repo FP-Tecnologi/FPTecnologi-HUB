@@ -40,7 +40,7 @@ export default async function MarcasPage() {
         <MoreInfoButton tone="dark" href="/tienda" label="Ver tienda" />
       </PageHero>
 
-      <main className="bg-paper py-20">
+      <main className="py-20">
         <div className="mx-auto max-w-7xl px-6">
           <ScrollReveal direction="up" className="mx-auto mb-12 flex max-w-2xl flex-col items-center text-center">
             <SectionBadge>Nuestras marcas</SectionBadge>

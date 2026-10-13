@@ -45,7 +45,7 @@ export default async function MarcaPage({ params }: { params: Promise<{ slug: st
         <MoreInfoButton tone="dark" href="/tienda" label="Ver tienda" />
       </PageHero>
 
-      <main className="bg-paper py-20">
+      <main className="py-20">
         <div className="mx-auto max-w-7xl px-6">
           {productos.length > 0 ? (
             <>

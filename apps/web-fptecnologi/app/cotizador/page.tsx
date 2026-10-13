@@ -54,7 +54,7 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
 
       <main>
         {/* Formulario + panel informativo (alineados bajo el hero) */}
-        <section className="bg-paper pb-20 pt-10 lg:pt-14">
+        <section className="pb-20 pt-10 lg:pt-14">
           <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[22rem_1fr] lg:items-center xl:grid-cols-[24rem_1fr]">
             <ScrollReveal direction="left" className="order-2 lg:order-1">
               <aside className="relative overflow-hidden rounded-3xl bg-brand-primary p-7 text-white shadow-2xl shadow-brand-dark/30 sm:p-8">
@@ -129,7 +129,7 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
         </section>
 
         {/* Cómo funciona */}
-        <section className="bg-brand-100/60 py-20">
+        <section className="bg-white py-20">
           <div className="mx-auto max-w-7xl px-6">
             <ScrollReveal direction="up" className="mx-auto mb-12 flex max-w-2xl flex-col items-center text-center">
               <SectionBadge>{c.proceso.badge}</SectionBadge>
@@ -140,12 +140,12 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
             <div className="grid gap-6 md:grid-cols-3">
               {c.proceso.items.map((p, i) => (
                 <ScrollReveal key={i} direction="up" delayMs={i * 100} className="h-full">
-                  <div className="group relative h-full overflow-hidden rounded-2xl border border-brand-100 bg-white p-7 text-center shadow-md shadow-brand-950/5 transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-primary hover:shadow-[0_18px_36px_-12px_rgba(40,152,238,0.55)]">
-                    <span className="block font-display text-7xl font-extrabold leading-none text-brand-primary transition-transform duration-300 group-hover:scale-110">
+                  <div className="group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-brand-primary p-7 text-center text-white shadow-lg shadow-brand-dark/25 transition-all duration-300 hover:-translate-y-1.5 hover:bg-brand-dark hover:shadow-2xl hover:shadow-brand-dark/45">
+                    <span className="block font-display text-7xl font-extrabold leading-none transition-transform duration-300 group-hover:scale-110">
                       0{i + 1}
                     </span>
-                    <h3 className="relative mt-4 font-display text-lg font-bold text-ink">{p.title}</h3>
-                    <p className="relative mt-2 text-sm leading-relaxed text-ink/65">{p.text}</p>
+                    <h3 className="mt-4 font-display text-lg font-bold">{p.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-white/75">{p.text}</p>
                   </div>
                 </ScrollReveal>
               ))}
@@ -154,7 +154,7 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
         </section>
 
         {/* Qué puedes cotizar */}
-        <section className="bg-paper py-20">
+        <section className="py-20">
           <div className="mx-auto max-w-7xl px-6">
             <ScrollReveal direction="up" className="mx-auto mb-12 flex max-w-2xl flex-col items-center text-center">
               <SectionBadge>Qué puedes cotizar</SectionBadge>

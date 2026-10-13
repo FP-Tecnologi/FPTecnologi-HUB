@@ -143,7 +143,7 @@ export function SoporteTickets() {
   }
 
   return (
-    <section id="tickets" className="border-t border-brand-100 bg-paper py-20">
+    <section id="tickets" className="border-t border-brand-100 py-20">
       <div className="mx-auto grid max-w-7xl gap-12 px-6 lg:grid-cols-2 lg:items-start">
         <ScrollReveal direction="left">
           <SectionBadge>Soporte por tickets</SectionBadge>
