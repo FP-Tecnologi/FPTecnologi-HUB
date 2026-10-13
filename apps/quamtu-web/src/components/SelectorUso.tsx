@@ -30,29 +30,29 @@ export default function SelectorUso() {
             key={id}
             onClick={() => setUso(id)}
             aria-pressed={uso === id}
-            className={`flex min-h-14 items-center gap-3 rounded-xl border px-3.5 py-3 text-left font-display text-sm leading-tight transition lg:px-5 lg:py-3.5 ${
-              uso === id ? 'border-cyan bg-cyan/15 text-white shadow-[0_0_22px_rgba(35,141,193,.35)]' : 'border-line text-slate-400 hover:border-slate-500'
+            className={`group flex min-h-14 items-center gap-3 rounded-xl border px-3.5 py-3 text-left font-display text-sm leading-tight transition duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgba(35,141,193,.25)] lg:px-5 lg:py-3.5 lg:hover:translate-x-1 lg:hover:translate-y-0 ${
+              uso === id ? 'border-cyan bg-cyan/15 text-white shadow-[0_0_22px_rgba(35,141,193,.35)]' : 'border-line text-slate-400 hover:border-claro hover:bg-cyan/10 hover:text-white'
             }`}
           >
-            <Icono size={20} className={`shrink-0 ${uso === id ? 'text-claro' : ''}`} /> {t}
+            <Icono size={20} className={`shrink-0 transition-transform duration-300 group-hover:-rotate-12 group-hover:scale-125 ${uso === id ? 'text-claro' : 'group-hover:text-claro'}`} /> {t}
           </button>
         ))}
       </div>
 
-      <div key={uso} className="hud grid gap-6 p-6 sm:p-8 md:grid-cols-[1fr_auto] md:items-end">
+      <div key={uso} className="hud grid gap-6 p-6 transition-shadow duration-300 hover:shadow-[0_0_34px_rgba(35,141,193,.25)] sm:p-8 md:grid-cols-[1fr_auto] md:items-end">
         <div>
           <span className="font-display text-xs tracking-[0.25em] text-claro">RECOMENDADO · {b.linea}</span>
           <h3 className="mt-2 font-display text-2xl font-bold sm:text-3xl">{b.nombre}</h3>
           <p className="mt-3 max-w-xl text-lg text-slate-300">{u.d}</p>
           <ul className="mt-5 grid gap-1.5 text-slate-300 sm:grid-cols-2">
             {specs.map((n) => (
-              <li key={n} className="flex items-center gap-2"><span className="h-1.5 w-1.5 shrink-0 rounded-full bg-claro" />{n}</li>
+              <li key={n} className="group flex cursor-default items-center gap-2 transition duration-200 hover:translate-x-1 hover:text-white"><span className="h-1.5 w-1.5 shrink-0 rounded-full bg-claro transition-all duration-200 group-hover:scale-[2] group-hover:shadow-[0_0_8px_#6cc3ee]" />{n}</li>
             ))}
           </ul>
         </div>
         <div className="md:text-right">
           <span className="block text-xs tracking-widest text-slate-400">DESDE</span>
-          <b className="font-display text-3xl text-claro">{soles(total(s))}</b>
+          <b className="inline-block font-display text-3xl text-claro transition-transform duration-300 hover:scale-110">{soles(total(s))}</b>
           <div className="mt-5 flex flex-wrap gap-3 md:justify-end">
             <Link href={`/armar?build=${u.build}`} className="btn-neon inline-flex items-center gap-2 rounded-full px-6 py-3.5 font-display text-xs">
               <Box size={16} /> VER EN EL ARMADOR
