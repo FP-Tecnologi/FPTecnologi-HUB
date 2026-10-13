@@ -65,6 +65,7 @@ model Marca {
   tickets            Ticket[]
   socios             Socio[]
   recursos           Recurso[]
+  folletos           Folleto[]
 }
 
 model Sitio {
@@ -1138,6 +1139,25 @@ model Recurso {
   updatedAt   DateTime    @updatedAt
 
   @@index([marcaId, visible, fabricante])
+}
+
+// Folleto PDF para compartir por enlace (/folleto/:slug en la web): solo el visor con pasa-páginas y el logo, sin menú.
+model Folleto {
+  id         String   @id @default(uuid())
+  marcaId    String
+  marca      Marca    @relation(fields: [marcaId], references: [id])
+  titulo     String
+  slug       String // único por marca
+  archivoUrl String // `/uploads/<marcaId>/catalogos/<uuid>.pdf`
+  bytes      Int      @default(0)
+  activo     Boolean  @default(true)
+  vistas     Int      @default(0)
+  creadoPor  String? // email de quien lo subió
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([marcaId, slug])
+  @@index([marcaId, activo])
 }
 
 // Tarjeta digital del equipo comercial (página pública /tarjeta/:slug con QR y vCard). Una por persona y marca.

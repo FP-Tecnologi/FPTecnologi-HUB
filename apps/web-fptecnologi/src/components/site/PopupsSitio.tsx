@@ -35,7 +35,7 @@ export function PopupsSitio() {
   useEffect(() => {
     setAbierto(null);
     setCopiado(false);
-    if (pathname.startsWith('/l/') || pathname.startsWith('/tarjeta/')) return; // landings y tarjetas digitales son su propia página, sin avisos encima
+    if (pathname.startsWith('/l/') || pathname.startsWith('/tarjeta/') || pathname.startsWith('/folleto/')) return; // landings y tarjetas digitales son su propia página, sin avisos encima
     const pagina = paginaDe(pathname);
     let vivo = true;
     const limpiezas: (() => void)[] = [];

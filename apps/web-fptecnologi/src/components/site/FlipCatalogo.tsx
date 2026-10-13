@@ -1,13 +1,13 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Download, Maximize2, Minimize2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, Download, Maximize2, Minimize2, Share2 } from 'lucide-react';
 
 /* Folleto con pasa-páginas: renderiza el PDF a imágenes (pdf.js) y las voltea con page-flip. */
-export function FlipCatalogo({ src, titulo }: { src: string; titulo: string }) {
+export function FlipCatalogo({ src, titulo, inmersivo = false }: { src: string; titulo: string; inmersivo?: boolean }) {
   const caja = useRef<HTMLDivElement>(null);
   const marco = useRef<HTMLDivElement>(null);
-  const [pantalla, setPantalla] = useState(false);
+  const [pantalla, setPantalla] = useState(inmersivo);
   const imagenes = useRef<string[]>([]);
   const ratioRef = useRef(0.707);
   const paginaRef = useRef(0);
@@ -129,20 +129,39 @@ export function FlipCatalogo({ src, titulo }: { src: string; titulo: string }) {
 
   useEffect(() => {
     const tecla = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setPantalla(false);
+      if (e.key === 'Escape') setPantalla(inmersivo);
       else if (e.key === 'ArrowRight') flip.current?.flipNext();
       else if (e.key === 'ArrowLeft') flip.current?.flipPrev();
     };
     window.addEventListener('keydown', tecla);
     return () => window.removeEventListener('keydown', tecla);
-  }, []);
+  }, [inmersivo]);
 
+  const [copiado, setCopiado] = useState(false);
+  const compartir = async () => {
+    const url = window.location.href;
+    try {
+      if (navigator.share) await navigator.share({ title: titulo, url });
+      else {
+        await navigator.clipboard.writeText(url);
+        setCopiado(true);
+        setTimeout(() => setCopiado(false), 2000);
+      }
+    } catch {}
+  };
   const alternarPantalla = () => setPantalla((v) => !v);
   const listo = estado === 'listo';
   const btn = 'rounded-full border border-brand-primary/30 p-2 text-brand-700 transition hover:bg-brand-50 disabled:opacity-40';
 
   return (
     <div ref={marco} className={`mx-auto flex w-full max-w-5xl flex-col ${pantalla ? 'fixed inset-0 z-[200] max-w-none bg-white p-3' : ''}`}>
+      {inmersivo && (
+        <header className="flex items-center justify-between gap-3 px-1 pb-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-fptecnologi.svg" alt="FPTecnologi & System" className="h-8 w-auto sm:h-10" />
+          <span className="min-w-0 truncate text-sm font-semibold text-ink/70">{titulo}</span>
+        </header>
+      )}
       <div className={`relative flex items-center justify-center rounded-3xl bg-brand-50 p-2 sm:p-8 ${pantalla ? 'min-h-0 flex-1 overflow-hidden' : 'min-h-[420px] sm:min-h-[560px]'}`}>
         {estado === 'cargando' && (
           <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 text-sm text-ink/70">
@@ -173,10 +192,16 @@ export function FlipCatalogo({ src, titulo }: { src: string; titulo: string }) {
         <button type="button" disabled={!listo} onClick={() => flip.current?.flip(total - 1)} aria-label="Última página" className={btn}>
           <ChevronsRight className="h-5 w-5" />
         </button>
-        <button type="button" disabled={!listo} onClick={alternarPantalla} className="inline-flex items-center gap-2 rounded-full border border-brand-primary/30 px-4 py-2 text-sm font-semibold text-brand-700 transition hover:bg-brand-50 disabled:opacity-40">
+        {inmersivo ? (
+          <button type="button" onClick={compartir} className="inline-flex items-center gap-2 rounded-full border border-brand-primary/30 px-4 py-2 text-sm font-semibold text-brand-700 transition hover:bg-brand-50">
+            <Share2 className="h-4 w-4" /> {copiado ? 'Enlace copiado' : 'Compartir'}
+          </button>
+        ) : (
+          <button type="button" disabled={!listo} onClick={alternarPantalla} className="inline-flex items-center gap-2 rounded-full border border-brand-primary/30 px-4 py-2 text-sm font-semibold text-brand-700 transition hover:bg-brand-50 disabled:opacity-40">
           {pantalla ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
           {pantalla ? 'Salir' : 'Pantalla completa'}
         </button>
+        )}
         <a href={src} download className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700">
           <Download className="h-4 w-4" /> Descargar PDF
         </a>
