@@ -1,4 +1,5 @@
-import { Clock, Mail, MapPin, MessageCircle, Phone, ShieldCheck, Sparkles, Handshake, type LucideIcon } from 'lucide-react';
+import { Mail, MapPin, MessageCircle, Phone, ShieldCheck, Sparkles, Handshake, type LucideIcon } from 'lucide-react';
+import { AREAS_CONTACTO, type AreaContacto } from '@/lib/areasContacto';
 import { PageHero } from '@/components/site/PageHero';
 import { CotizadorForm } from '@/components/site/CotizadorForm';
 import { FaqAcordeon } from '@/components/site/FaqAcordeon';
@@ -25,24 +26,13 @@ export const dynamic = 'force-dynamic';
 
 const ICONOS: LucideIcon[] = [Sparkles, ShieldCheck, Handshake];
 
-const contactoDe = (CONTACT_INFO: { address: string; phoneVentas: string; phoneVentasWeb: string; email: string }): { label: string; value: string; href: string; icon: LucideIcon }[] => [
-  { label: 'WhatsApp', value: CONTACT_INFO.phoneVentasWeb, href: whatsappHref('Hola, quiero cotizar con FPTecnologi'), icon: MessageCircle },
-  { label: 'Ventas', value: CONTACT_INFO.phoneVentas, href: `tel:${CONTACT_INFO.phoneVentas.replace(/\s/g, '')}`, icon: Phone },
-  { label: 'Correo', value: CONTACT_INFO.email, href: `mailto:${CONTACT_INFO.email}`, icon: Mail },
-  {
-    label: 'Visítanos',
-    value: CONTACT_INFO.address,
-    href: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(CONTACT_INFO.address)}`,
-    icon: MapPin,
-  },
-];
+const AREAS_COTIZAR: AreaContacto['icono'][] = ['comercial', 'ventas', 'atencion'];
 
 /* Cotizador -- punto de contacto con el cliente: formulario por pasos (los
    leads llegan al dashboard → Cotizador → Leads) acompañado de información:
    beneficios, cómo funciona, servicios, marcas y preguntas frecuentes. */
 export default async function CotizadorPage({ searchParams }: { searchParams: Promise<{ interes?: string }> }) {
   const [c, { interes }, sitio] = await Promise.all([getCotizadorContenido(), searchParams, getSitio()]);
-  const CONTACTO = contactoDe(sitio.contact);
 
   return (
     <>
@@ -67,48 +57,42 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
                 <div className="relative">
                   <SectionBadge tone="dark">{c.hero.badge}</SectionBadge>
                   <h2 className="mt-2 font-display text-2xl font-bold leading-tight">
-                    ¿Por qué cotizar <span className="title-shimmer-dark">con nosotros?</span>
+                    Habla con <span className="title-shimmer-dark">un asesor</span>
                   </h2>
+                  <p className="mt-2 text-sm leading-relaxed text-white/70">Si prefieres no llenar el formulario, escríbenos o llámanos: cada área te atiende directo.</p>
 
-                  <ul className="mt-6 space-y-5">
-                    {c.beneficios.items.map((b, i) => {
-                      const Icon = ICONOS[i % ICONOS.length];
-                      return (
-                        <li key={i} className="group hover-slide flex gap-4 rounded-xl" style={{ animation: 'pagina-entra 0.6s cubic-bezier(0.22,1,0.36,1) both', animationDelay: `${200 + i * 120}ms` }}>
-                          <span className="icon-pop flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-primary text-white shadow-lg shadow-black/30">
-                            <Icon className="h-5 w-5" strokeWidth={1.8} />
-                          </span>
-                          <div>
-                            <h3 className="text-sm font-bold">{b.title}</h3>
-                            <p className="mt-0.5 text-sm leading-relaxed text-white/65">{b.text}</p>
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
+                  <a
+                    href={whatsappHref('Hola, quiero cotizar con FPTecnologi')}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-5 flex items-center justify-center gap-2 rounded-xl bg-whatsapp px-4 py-3 text-sm font-bold text-white shadow-lg shadow-black/25 transition hover:brightness-110"
+                  >
+                    <MessageCircle className="h-5 w-5" strokeWidth={2} /> Cotizar por WhatsApp · {sitio.contact.phoneVentasWeb}
+                  </a>
 
-                  <div className="my-7 h-px bg-white/10" />
-
-                  <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-white/50">
-                    <Clock className="h-4 w-4" strokeWidth={2} /> ¿Prefieres hablar con alguien?
-                  </p>
-                  <div className="mt-3 space-y-2.5">
-                    {CONTACTO.map(({ label, value, href, icon: Icon }) => (
-                      <a
-                        key={label}
-                        href={href}
-                        target={href.startsWith('http') ? '_blank' : undefined}
-                        rel={href.startsWith('http') ? 'noreferrer' : undefined}
-                        className="group hover-slide flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 px-3.5 py-3 transition-all duration-300 hover:border-brand-teal-light/50 hover:bg-white/10 hover:shadow-lg hover:shadow-black/20"
-                      >
-                        <Icon className={`icon-pop h-5 w-5 shrink-0 ${label === 'WhatsApp' ? 'text-whatsapp' : 'text-brand-teal-light'}`} strokeWidth={1.8} />
-                        <span className="min-w-0">
-                          <span className="block text-[11px] uppercase tracking-wide text-white/45">{label}</span>
-                          <span className="block break-words text-sm font-medium">{value.replace('@', '​@')}</span>
-                        </span>
-                      </a>
+                  <div className="mt-4 space-y-3">
+                    {AREAS_CONTACTO.filter((a) => AREAS_COTIZAR.includes(a.icono)).map((a) => (
+                      <div key={a.area} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
+                        <p className="text-sm font-bold">{a.area}</p>
+                        <p className="text-xs text-white/55">{a.descripcion}</p>
+                        <a href={`tel:${a.telefono.replace(/\s/g, '')}`} className="mt-2 flex items-center gap-2 text-sm font-semibold hover:text-brand-teal-light">
+                          <Phone className="h-4 w-4 shrink-0 text-brand-teal-light" strokeWidth={2} /> {a.telefono}
+                        </a>
+                        <a href={`mailto:${a.email}`} className="mt-1 flex items-center gap-2 break-all text-sm font-semibold hover:text-brand-teal-light">
+                          <Mail className="h-4 w-4 shrink-0 text-brand-teal-light" strokeWidth={2} /> {a.email}
+                        </a>
+                      </div>
                     ))}
                   </div>
+
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(sitio.contact.address)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-4 flex items-start gap-2 text-xs text-white/65 transition hover:text-white"
+                  >
+                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-brand-teal-light" strokeWidth={2} /> <span>Visítanos: {sitio.contact.address}</span>
+                  </a>
                 </div>
               </aside>
             </ScrollReveal>
@@ -118,6 +102,24 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
                 <CotizadorForm c={c} interesInicial={interes} />
               </div>
             </ScrollReveal>
+          </div>
+          <div className="mx-auto mt-10 grid max-w-7xl gap-5 px-6 md:grid-cols-3">
+            {c.beneficios.items.map((b, i) => {
+              const Icon = ICONOS[i % ICONOS.length];
+              return (
+                <ScrollReveal key={i} direction="up" delayMs={i * 100}>
+                  <div className="flex h-full gap-4 rounded-2xl border border-brand-100 bg-white p-5 shadow-sm shadow-brand-950/5">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-primary text-white">
+                      <Icon className="h-5 w-5" strokeWidth={1.8} />
+                    </span>
+                    <div>
+                      <h3 className="text-sm font-bold text-ink">{b.title}</h3>
+                      <p className="mt-0.5 text-sm leading-relaxed text-ink/65">{b.text}</p>
+                    </div>
+                  </div>
+                </ScrollReveal>
+              );
+            })}
           </div>
         </section>
 
