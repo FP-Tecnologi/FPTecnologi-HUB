@@ -102,7 +102,14 @@ html, body { overflow-x: clip; }
   color: #fff; font-weight: 700; letter-spacing: .04em;
   box-shadow: 0 8px 22px rgba(10,40,70,.5); transition: transform .2s, box-shadow .2s;
 }
-.btn-neon:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(10,40,70,.6); }
-.btn-borde { border: 1px solid var(--btn-borde); color: var(--c-titulo); transition: background .2s, border-color .2s; }
-.btn-borde:hover { background: var(--btn-borde-hover); border-color: var(--color-claro); }
+.btn-neon { position: relative; overflow: hidden; isolation: isolate; }
+.btn-neon::after { content: ''; position: absolute; inset: 0; z-index: -1; transform: translateX(-120%) skewX(-20deg); background: linear-gradient(100deg, transparent, rgba(255,255,255,.35), transparent); transition: transform .6s ease; }
+.btn-neon:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 14px 32px rgba(35,141,193,.55); }
+.btn-neon:hover::after { transform: translateX(120%) skewX(-20deg); }
+.btn-neon:active, .btn-borde:active { transform: translateY(0) scale(.98); }
+.btn-neon svg, .btn-borde svg { transition: transform .25s cubic-bezier(.34,1.56,.64,1); }
+.btn-neon:hover svg, .btn-borde:hover svg { transform: translateX(4px) rotate(-6deg) scale(1.15); }
+.btn-borde { border: 1px solid var(--btn-borde); color: var(--c-titulo); transition: background .2s, border-color .2s, transform .2s, box-shadow .2s; }
+.btn-borde:hover { background: var(--btn-borde-hover); border-color: var(--color-claro); transform: translateY(-3px) scale(1.03); box-shadow: 0 10px 24px rgba(35,141,193,.3); }
+@media (prefers-reduced-motion: reduce) { .btn-neon:hover, .btn-borde:hover, .btn-neon:hover svg, .btn-borde:hover svg { transform: none; } .btn-neon::after { display: none; } }
 @keyframes marquee { to { transform: translateX(-50%); } }

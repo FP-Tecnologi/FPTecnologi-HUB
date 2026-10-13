@@ -66,7 +66,7 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          <PcEscena sel={hero} poster="/brand/hero-poster.webp" diferir className="h-[420px] md:h-[640px]" />
+          <PcEscena sel={hero} marcas poster="/brand/hero-poster.webp" diferir className="h-[420px] md:h-[640px]" />
         </div>
       </section>
 
