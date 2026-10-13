@@ -132,10 +132,10 @@ export default function Home() {
             <h3 className="font-display text-base font-bold text-claro">Casos de éxito</h3>
             <ul className="mt-5 grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-3">
               {CASOS.map((c) => (
-                <li key={c.f} className="flex flex-col items-center text-center">
+                <li key={c.f} className="group flex cursor-default flex-col items-center text-center transition-transform duration-300 hover:-translate-y-1.5">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={`/clientes/${c.f}.webp`} alt={`Logo de ${c.n}`} width={180} height={180} loading="lazy" className="h-28 w-28 rounded-full sm:h-32 sm:w-32" />
-                  <span className="mt-3 text-xs leading-snug text-slate-400">{c.n}</span>
+                  <img src={`/clientes/${c.f}.webp`} alt={`Logo de ${c.n}`} width={180} height={180} loading="lazy" className="h-28 w-28 rounded-full ring-0 ring-claro/60 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3 group-hover:shadow-[0_10px_30px_rgba(35,141,193,.45)] group-hover:ring-4 sm:h-32 sm:w-32" />
+                  <span className="mt-3 text-xs leading-snug text-slate-400 transition-colors duration-300 group-hover:text-white">{c.n}</span>
                 </li>
               ))}
             </ul>
@@ -147,8 +147,8 @@ export default function Home() {
       <section className="border-y border-line bg-panel/50">
         <div className="mx-auto grid max-w-7xl gap-6 px-5 py-8 sm:grid-cols-2 lg:grid-cols-4">
           {SELLOS.map(({ i: Icono, t, d }) => (
-            <div key={t} className="flex items-start gap-3">
-              <Icono size={26} className="mt-0.5 shrink-0 text-claro" />
+            <div key={t} className="group flex items-start gap-3 rounded-xl p-3 transition-all duration-300 hover:-translate-y-1 hover:bg-white/5 hover:shadow-[0_10px_28px_rgba(35,141,193,.18)]">
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-claro/40 text-claro transition-all duration-300 group-hover:-rotate-12 group-hover:scale-110 group-hover:border-claro group-hover:bg-claro/15"><Icono size={22} /></span>
               <p><b className="block font-display text-sm text-white">{t}</b><span className="text-sm text-slate-400">{d}</span></p>
             </div>
           ))}
@@ -283,8 +283,8 @@ export default function Home() {
           <ol className="relative mt-14 grid gap-10 md:grid-cols-3 md:gap-8">
             <span aria-hidden className="absolute left-[1.35rem] top-6 hidden h-px w-[calc(100%-5rem)] bg-gradient-to-r from-claro/70 via-claro/30 to-transparent md:block" />
             {PASOS_COMPRA.map(({ i: Icono, t, d }) => (
-              <li key={t} data-r className="relative flex gap-5 md:block">
-                <span className="relative z-10 grid h-11 w-11 shrink-0 place-items-center rounded-full border border-claro bg-bg text-claro"><Icono size={20} /></span>
+              <li key={t} data-r className="group relative flex gap-5 md:block">
+                <span className="relative z-10 grid h-11 w-11 shrink-0 place-items-center rounded-full border border-claro bg-bg text-claro transition-all duration-300 group-hover:-rotate-12 group-hover:scale-125 group-hover:bg-claro/20 group-hover:shadow-[0_0_18px_rgba(108,195,238,.5)]"><Icono size={20} /></span>
                 <div className="md:mt-6">
                   <h3 className="font-display text-xl font-bold">{t}</h3>
                   <p className="mt-2 max-w-sm text-slate-300">{d}</p>
