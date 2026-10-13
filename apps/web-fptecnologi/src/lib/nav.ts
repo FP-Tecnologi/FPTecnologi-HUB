@@ -16,6 +16,7 @@ export function buildNavLinks(servicios: readonly Item[], categorias: readonly I
     children: [
       { label: 'Compliance', href: '/compliance' },
       { label: 'FP Education', href: '/education' },
+      { label: 'Blog', href: '/blog' },
     ],
     viewAllHref: '/nosotros',
     viewAllLabel: 'Conoce FPTecnologi',
@@ -33,10 +34,9 @@ export function buildNavLinks(servicios: readonly Item[], categorias: readonly I
     children: categorias.map((c) => ({ label: c.title, href: `/tienda/${c.slug}` })),
     viewAllHref: '/tienda',
     viewAllLabel: 'Ver catálogo completo',
+    destacado: { label: 'QUAMTU', href: 'https://quamtu.com/' },
   },
   { label: 'Catálogos', href: '/catalogos' },
-  { label: 'QUAMTU', href: 'https://quamtu.com/' },
-  { label: 'Blog', href: '/blog' },
   {
     label: 'Contacto',
     href: '/contacto',

@@ -141,6 +141,14 @@ export function DesktopNav({ tone = 'light', dropdownVariant = 'default' }: { to
                     {link.viewAllLabel} →
                   </a>
                 )}
+                {'destacado' in link && (
+                  <a
+                    href={link.destacado.href}
+                    className="mt-2 flex items-center justify-between rounded-lg bg-gradient-to-r from-brand-600 to-brand-400 px-3 py-2.5 text-sm font-bold uppercase tracking-wide text-white shadow-md shadow-brand-primary/30 transition hover:brightness-110 2xl:text-base"
+                  >
+                    {link.destacado.label} <span aria-hidden>↗</span>
+                  </a>
+                )}
               </div>
             )}
           </div>
@@ -186,6 +194,11 @@ export function MobileNav({ tone = 'light', onNavigate }: { tone?: Tone; onNavig
               {'viewAllHref' in link && (
                 <a href={link.viewAllHref} onClick={onNavigate} className={`rounded-lg px-3 py-2 text-sm font-semibold md:text-base ${tone === 'dark' ? 'text-brand-teal-light' : 'text-brand-700'}`}>
                   {link.viewAllLabel} →
+                </a>
+              )}
+              {'destacado' in link && (
+                <a href={link.destacado.href} onClick={onNavigate} className="mt-1 flex items-center justify-between rounded-lg bg-gradient-to-r from-brand-600 to-brand-400 px-3 py-2.5 text-sm font-bold uppercase tracking-wide text-white md:text-base">
+                  {link.destacado.label} <span aria-hidden>↗</span>
                 </a>
               )}
             </div>
