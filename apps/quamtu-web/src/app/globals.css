@@ -117,3 +117,16 @@ html, body { overflow-x: clip; }
 @keyframes widget-flota { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
 .widget-flota { animation: widget-flota 5s ease-in-out infinite; animation-delay: var(--d, 0s); }
 @media (prefers-reduced-motion: reduce) { .widget-flota { animation: none; } }
+
+/* Botón flotante de WhatsApp: sin hover propio; pulsaciones suaves (anillos que se expanden) */
+.wa-boton {
+  background: linear-gradient(100deg, var(--color-boton), var(--color-violet));
+  color: #fff; box-shadow: 0 8px 22px rgba(10,40,70,.5);
+}
+.wa-pulso::before, .wa-pulso::after {
+  content: ''; position: absolute; inset: 0; z-index: -1; border-radius: 9999px;
+  background: var(--color-claro); opacity: 0; animation: wa-onda 2.8s ease-out infinite;
+}
+.wa-pulso::after { animation-delay: 1.4s; }
+@keyframes wa-onda { 0% { transform: scale(1); opacity: .45; } 100% { transform: scale(1.9); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .wa-pulso::before, .wa-pulso::after { animation: none; } }

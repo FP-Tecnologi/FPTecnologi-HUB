@@ -127,9 +127,9 @@ export default function WhatsAppFlotante() {
                   target="_blank"
                   rel="noreferrer"
                   onClick={() => setAbierto(false)}
-                  className="flex items-center gap-3 rounded-lg px-2 py-3 transition hover:bg-cyan/10"
+                  className="group flex items-center gap-3 rounded-lg px-2 py-3 transition duration-200 hover:translate-x-1 hover:bg-cyan/10"
                 >
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-line text-claro"><Icono size={17} /></span>
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-line text-claro transition-all duration-300 group-hover:-rotate-12 group-hover:scale-125 group-hover:border-claro group-hover:bg-claro/15"><Icono size={17} /></span>
                   <span className="min-w-0">
                     <b className="block text-sm text-white">{titulo}</b>
                     <span className="block text-xs text-slate-400">{detalle}</span>
@@ -146,7 +146,7 @@ export default function WhatsAppFlotante() {
         aria-label={abierto ? 'Cerrar el chat' : 'Abrir el chat de WhatsApp'}
         aria-expanded={abierto}
         title={abierto ? 'Cerrar' : 'Chat'}
-        className="btn-neon grid h-14 w-14 place-items-center rounded-full"
+        className={`wa-boton relative grid h-14 w-14 place-items-center rounded-full ${abierto ? '' : 'wa-pulso'}`}
       >
         {abierto ? <X size={26} /> : <IconoWa size={28} />}
       </button>
