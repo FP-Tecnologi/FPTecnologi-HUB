@@ -141,7 +141,7 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
               {c.proceso.items.map((p, i) => (
                 <ScrollReveal key={i} direction="up" delayMs={i * 100} className="h-full">
                   <div className="group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-brand-primary p-7 text-center text-white shadow-lg shadow-brand-dark/25 transition-all duration-300 hover:-translate-y-1.5 hover:bg-brand-dark hover:shadow-2xl hover:shadow-brand-dark/45">
-                    <span className="block font-display text-7xl font-extrabold leading-none transition-transform duration-300 group-hover:scale-110">
+                    <span className="icon-hop block font-display text-5xl font-extrabold leading-none text-white/55 transition-all duration-300 group-hover:scale-105 group-hover:text-white">
                       0{i + 1}
                     </span>
                     <h3 className="mt-4 font-display text-lg font-bold">{p.title}</h3>
