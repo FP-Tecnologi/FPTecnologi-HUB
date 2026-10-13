@@ -17,6 +17,8 @@ const SELLOS = [
   { i: ShieldCheck, t: 'Garantía de continuidad', d: 'Respaldo para que tu operación no se detenga' },
 ];
 
+const POS_WIDGET = ['left-0 top-4', 'right-0 top-16', 'bottom-24 left-0', 'bottom-10 right-0'];
+
 const PASOS_COMPRA = [
   { i: MousePointerClick, t: 'Elige o arma', d: 'Parte de una configuración lista o arma la tuya pieza por pieza en 3D.' },
   { i: MessageCircle, t: 'Confirma con un especialista', d: 'Te llega tu configuración por WhatsApp y confirmamos precio final, stock y entrega.' },
@@ -66,7 +68,25 @@ export default function Home() {
               </Link>
             </div>
           </div>
-          <PcEscena sel={hero} marcas poster="/brand/hero-poster.webp" diferir className="h-[420px] md:h-[640px]" />
+          <div className="relative">
+            <PcEscena sel={hero} poster="/brand/hero-poster.webp" diferir className="h-[420px] md:h-[640px]" />
+            {/* Widgets de características, repartidos en las esquinas para no tapar el equipo */}
+            {SELLOS.map((s, i) => (
+              <div
+                key={s.t}
+                style={{ ["--d" as string]: `${i * 0.7}s` }}
+                className={`widget-flota group absolute z-10 hidden w-48 items-center gap-3 rounded-xl border border-claro/30 bg-bg/60 p-3 backdrop-blur-md transition-colors hover:border-claro hover:bg-bg/85 lg:flex ${POS_WIDGET[i]}`}
+              >
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-claro/15 text-claro transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
+                  <s.i size={18} />
+                </span>
+                <span className="min-w-0">
+                  <span className="block font-display text-[11px] font-bold uppercase leading-tight tracking-wide text-white">{s.t}</span>
+                  <span className="block text-[11px] leading-snug text-slate-300">{s.d}</span>
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 

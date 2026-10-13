@@ -113,3 +113,7 @@ html, body { overflow-x: clip; }
 .btn-borde:hover { background: var(--btn-borde-hover); border-color: var(--color-claro); transform: translateY(-3px) scale(1.03); box-shadow: 0 10px 24px rgba(35,141,193,.3); }
 @media (prefers-reduced-motion: reduce) { .btn-neon:hover, .btn-borde:hover, .btn-neon:hover svg, .btn-borde:hover svg { transform: none; } .btn-neon::after { display: none; } }
 @keyframes marquee { to { transform: translateX(-50%); } }
+
+@keyframes widget-flota { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.widget-flota { animation: widget-flota 5s ease-in-out infinite; animation-delay: var(--d, 0s); }
+@media (prefers-reduced-motion: reduce) { .widget-flota { animation: none; } }

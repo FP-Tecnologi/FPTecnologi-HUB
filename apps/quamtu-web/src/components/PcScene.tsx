@@ -242,31 +242,21 @@ function Pedestal({ y, color }: { y: number; color: string }) {
   });
   return (
     <group ref={g} position={[0, y, 0]}>
-      {/* dos escalones de metal */}
-      <Cil p={[0, -0.09, 0]} r={2.75} h={0.18}><Metal c="#0a0e16" r={0.35} m={0.9} /></Cil>
-      <Cil p={[0, -0.27, 0]} r={3.0} h={0.18}><Metal c="#070a11" r={0.45} m={0.8} /></Cil>
+      {/* base sutil: un solo disco delgado */}
+      <Cil p={[0, -0.025, 0]} r={2.8} h={0.05}><Metal c="#0a0e16" r={0.4} m={0.85} /></Cil>
       <mesh position={[0, 0.003, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <ringGeometry args={[2.6, 2.66, 96]} />
-        <Led color={color} i={1.2} />
+        <ringGeometry args={[2.62, 2.65, 96]} />
+        <Led color={color} i={0.8} />
       </mesh>
       {/* arcos que giran */}
       <group ref={arcos} rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.005, 0]}>
         {[0, 2.1, 4.2].map((a) => (
           <mesh key={a}>
-            <ringGeometry args={[2.38, 2.46, 48, 1, a, 1.1]} />
-            <Led color={color} i={2.2} />
+            <ringGeometry args={[2.4, 2.44, 48, 1, a, 1.1]} />
+            <Led color={color} i={1.4} />
           </mesh>
         ))}
       </group>
-      {/* marcas de graduación en el borde inferior */}
-      {Array.from({ length: 72 }, (_, i) => {
-        const a = (i / 72) * Math.PI * 2;
-        return (
-          <Caja key={i} p={[Math.cos(a) * 2.99, -0.27, Math.sin(a) * 2.99]} s={[0.02, i % 6 === 0 ? 0.12 : 0.06, 0.02]} rot={[0, -a, 0]}>
-            <Led color={color} i={0.9} />
-          </Caja>
-        );
-      })}
       <Logo p={[0, 0.008, 2.15]} w={0.9} rot={[-Math.PI / 2, 0, 0]} op={0.7} />
     </group>
   );
@@ -316,43 +306,8 @@ function Etiqueta({ o, p, q, lado, activa, setHover }: { o: Opcion; p: V3; q: V3
   );
 }
 
-/* ---------- marcas del hero: chips que siguen a cada pieza mientras gira; se ocultan cuando la pieza queda al fondo ---------- */
-function Marca({ p, titulo, nombre, spec }: { p: V3; titulo: string; nombre: string; spec: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const v = useMemo(() => new Vector3(...p), [p]);
-  useFrame(({ camera }) => {
-    if (!ref.current) return;
-    const atras = camera.position.distanceTo(v) > camera.position.length() + 0.8;
-    ref.current.style.opacity = atras ? '0' : '1';
-    ref.current.style.pointerEvents = atras ? 'none' : 'auto';
-  });
-  return (
-    <Html position={p} zIndexRange={[30, 0]} style={{ pointerEvents: 'none' }}>
-      <div ref={ref} className="group/m relative transition-opacity duration-300" style={{ transform: 'translate(-7px, -50%)' }}>
-        <span className="absolute left-0 top-1/2 flex h-3.5 w-3.5 -translate-y-1/2">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-claro opacity-70" />
-          <span className="relative inline-flex h-3.5 w-3.5 rounded-full border-2 border-white bg-cyan" />
-        </span>
-        <span className="ml-5 block w-max max-w-44 rounded-md border border-claro/50 bg-bg/80 px-2 py-1 text-left backdrop-blur-sm transition duration-200 group-hover/m:scale-105 group-hover/m:border-white group-hover/m:bg-bg">
-          <span className="block font-display text-[9px] tracking-[0.2em] text-claro">{titulo.toUpperCase()}</span>
-          <span className="block font-display text-[11px] font-bold leading-tight text-white">{nombre}</span>
-          <span className="hidden text-[10px] leading-snug text-slate-300 group-hover/m:block">{spec}</span>
-        </span>
-      </div>
-    </Html>
-  );
-}
-
-const MARCAS_CATS: { c: Cat; t: string }[] = [
-  { c: 'cpu', t: 'Procesador' },
-  { c: 'ram', t: 'Memoria' },
-  { c: 'gpu', t: 'Video' },
-  { c: 'ssd', t: 'Disco sólido' },
-  { c: 'fuente', t: 'Fuente' },
-];
-
 /* ---------- escena ---------- */
-function Escena({ sel, etiquetas, marcas, foco, solo, instantaneo }: { sel: Seleccion; etiquetas: boolean; marcas: boolean; foco?: string; solo: boolean; instantaneo: boolean }) {
+function Escena({ sel, etiquetas, foco, solo, instantaneo }: { sel: Seleccion; etiquetas: boolean; foco?: string; solo: boolean; instantaneo: boolean }) {
   const { gabinete: g, cpu, placa, ram, gpu, ssd, cooler, fuente } = sel;
   const [hover, setHoverRaw] = useState<string | null>(null);
   const salida = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -729,8 +684,6 @@ function Escena({ sel, etiquetas, marcas, foco, solo, instantaneo }: { sel: Sele
       <Sparkles count={40} scale={[7, 6, 5]} size={1.6} speed={0.25} color="#6cc3ee" opacity={0.45} />
       </>)}
 
-      {marcas && !etiquetas && MARCAS_CATS.map(({ c, t }) => (sel[c] ? <Marca key={c + sel[c]!.id} p={puntos[c]} titulo={t} nombre={sel[c]!.nombre} spec={sel[c]!.spec} /> : null))}
-
       {/* Marcadores */}
       {etiquetas &&
         (Object.keys(puntos) as Cat[]).map((c) => {
@@ -756,8 +709,8 @@ function Apunta({ vista }: { vista: VistaFoto }) {
 }
 
 export default function PcScene({
-  sel, auto = true, className = '', etiquetas = false, marcas = false, foco, foto, instantaneo = false, preservar = false, onListo,
-}: { sel: Seleccion; auto?: boolean; className?: string; etiquetas?: boolean; marcas?: boolean; foco?: string; foto?: VistaFoto; instantaneo?: boolean; preservar?: boolean; onListo?: () => void }) {
+  sel, auto = true, className = '', etiquetas = false, foco, foto, instantaneo = false, preservar = false, onListo,
+}: { sel: Seleccion; auto?: boolean; className?: string; etiquetas?: boolean; foco?: string; foto?: VistaFoto; instantaneo?: boolean; preservar?: boolean; onListo?: () => void }) {
   return (
     <div className={className}>
       <Canvas
@@ -767,7 +720,7 @@ export default function PcScene({
         onCreated={() => onListo?.()}
       >
         <Suspense fallback={null}>
-          <Escena sel={sel} etiquetas={etiquetas} marcas={marcas} foco={foco} solo={!!foto} instantaneo={instantaneo} />
+          <Escena sel={sel} etiquetas={etiquetas} foco={foco} solo={!!foto} instantaneo={instantaneo} />
         </Suspense>
         {foto ? (
           <Apunta vista={foto} />
