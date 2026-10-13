@@ -6,6 +6,7 @@ import { FaqAcordeon } from '@/components/site/FaqAcordeon';
 import { WhatsAppCta } from '@/components/site/WhatsAppCta';
 import { SectionBadge } from '@/components/home/SectionBadge';
 import { ScrollReveal } from '@/components/home/ScrollReveal';
+import { ServiciosCarrusel } from '@/components/site/ServiciosCarrusel';
 import { ServiceCardFinal } from '@/components/home/ServiceCardFinal';
 import { BrandMarquee } from '@/components/home/BrandMarquee';
 import { Footer } from '@/components/home/Footer';
@@ -142,7 +143,7 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
         </section>
 
         {/* Cómo funciona */}
-        <section className="bg-brand-50 py-20">
+        <section className="bg-white py-20">
           <div className="mx-auto max-w-7xl px-6">
             <ScrollReveal direction="up" className="mx-auto mb-12 flex max-w-2xl flex-col items-center text-center">
               <SectionBadge>{c.proceso.badge}</SectionBadge>
@@ -180,13 +181,13 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
               </h2>
               <p className="mt-3 text-ink/60">Conoce lo que hacemos y pide tu cotización a medida.</p>
             </ScrollReveal>
-            <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-4">
-              {(await getServicios()).slice(0, 4).map((item, i) => (
-                <ScrollReveal key={item.slug} direction="up" delayMs={i * 100}>
+            <ServiciosCarrusel>
+              {(await getServicios()).map((item) => (
+                <div key={item.slug} className="w-[17rem] shrink-0 snap-start sm:w-72 [&>div]:!aspect-[4/5]">
                   <ServiceCardFinal item={item} />
-                </ScrollReveal>
+                </div>
               ))}
-            </div>
+            </ServiciosCarrusel>
           </div>
         </section>
 

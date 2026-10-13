@@ -17,7 +17,7 @@ const ICONOS: Record<AreaContacto['icono'], LucideIcon> = {
    primario con texto blanco y el ícono flota (mismo efecto que Hablemos). */
 export function AreasContacto() {
   return (
-    <section id="areas" className="bg-white py-20">
+    <section id="areas" className="bg-paper py-20">
       <div className="mx-auto max-w-7xl px-6">
         <ScrollReveal direction="up" className="mx-auto mb-12 flex max-w-2xl flex-col items-center text-center">
           <SectionBadge>Contacto por área</SectionBadge>
