@@ -130,3 +130,8 @@ html, body { overflow-x: clip; }
 .wa-pulso::after { animation-delay: 1.4s; }
 @keyframes wa-onda { 0% { transform: scale(1); opacity: .45; } 100% { transform: scale(1.9); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .wa-pulso::before, .wa-pulso::after { animation: none; } }
+
+/* Respuesta de las preguntas frecuentes: aparece deslizándose suavemente */
+@keyframes faq-abre { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+.faq[open] .faq-resp { animation: faq-abre .3s ease; }
+@media (prefers-reduced-motion: reduce) { .faq[open] .faq-resp { animation: none; } }

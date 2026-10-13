@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, BadgeCheck, ClipboardList, ShieldCheck, Wrench, MapPin, MessageCircle, PackageCheck, Gauge, MousePointerClick } from 'lucide-react';
+import { ArrowRight, BadgeCheck, ClipboardList, ShieldCheck, Wrench, MapPin, MessageCircle, PackageCheck, Gauge, MousePointerClick, Headset, UserCheck } from 'lucide-react';
 import PcEscena from '@/components/PcEscena';
 import Reveal from '@/components/Reveal';
 import ComparaLineas from '@/components/ComparaLineas';
@@ -18,6 +18,12 @@ const SELLOS = [
 ];
 
 const POS_WIDGET = ['left-0 top-4', 'right-0 top-16', 'bottom-24 left-0', 'bottom-10 right-0'];
+
+const RESPALDO = [
+  { i: Headset, t: 'Soporte post-venta', d: 'Tiempos de respuesta optimizados' },
+  { i: BadgeCheck, t: 'Repuestos originales', d: 'Piezas de marca, sin genéricos' },
+  { i: UserCheck, t: 'Acompañamiento directo', d: 'Un especialista te guía de principio a fin' },
+];
 
 const PASOS_COMPRA = [
   { i: MousePointerClick, t: 'Elige o arma', d: 'Parte de una configuración lista o arma la tuya pieza por pieza en 3D.' },
@@ -307,10 +313,18 @@ export default function Home() {
             </p>
           </div>
           <div data-r className="flex flex-col items-start gap-5 lg:justify-center">
-            <ul className="w-full divide-y divide-line border-y border-line text-slate-200">
-              <li className="py-4">Soporte post-venta con tiempos de respuesta optimizados</li>
-              <li className="py-4">Repuestos originales</li>
-              <li className="py-4">Acompañamiento directo de un especialista</li>
+            <ul className="grid w-full gap-3">
+              {RESPALDO.map(({ i: Icono, t, d }) => (
+                <li key={t} className="group flex items-center gap-4 rounded-xl border border-line bg-panel/40 p-4 transition-all duration-300 hover:-translate-y-1 hover:border-claro hover:bg-cyan/10 hover:shadow-[0_10px_28px_rgba(35,141,193,.25)]">
+                  <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full border border-claro/40 text-claro transition-all duration-300 group-hover:-rotate-12 group-hover:scale-110 group-hover:border-claro group-hover:bg-claro/15">
+                    <Icono size={22} />
+                  </span>
+                  <span>
+                    <b className="block font-display text-base text-white">{t}</b>
+                    <span className="text-sm text-slate-400 transition-colors duration-300 group-hover:text-slate-200">{d}</span>
+                  </span>
+                </li>
+              ))}
             </ul>
             <a href={waUrl('Hola Quamtu, necesito soporte para mi equipo.')} target="_blank" rel="noreferrer" className="btn-borde inline-flex items-center gap-2 rounded-full px-7 py-3.5 font-display text-sm">
               <MessageCircle size={18} /> ESCRIBIR A SOPORTE
