@@ -1,4 +1,4 @@
-import { Mail, MapPin, MessageCircle, Phone, ShieldCheck, Sparkles, Handshake, type LucideIcon } from 'lucide-react';
+import { Mail, MapPin, Phone, ShieldCheck, Sparkles, Handshake, type LucideIcon } from 'lucide-react';
 import { AREAS_CONTACTO, type AreaContacto } from '@/lib/areasContacto';
 import { PageHero } from '@/components/site/PageHero';
 import { CotizadorForm } from '@/components/site/CotizadorForm';
@@ -12,7 +12,6 @@ import { BrandMarquee } from '@/components/home/BrandMarquee';
 import { Footer } from '@/components/home/Footer';
 import { getSitio } from '@/lib/sitio';
 import { getServicios } from '@/lib/servicios';
-import { whatsappHref } from '@/lib/chatActions';
 import { getCotizadorContenido } from '@/lib/cotizadorContenido';
 import { metaSeo } from '@/lib/seo';
 
@@ -64,25 +63,30 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
                 <div className="relative">
                   <SectionBadge tone="dark">{c.hero.badge}</SectionBadge>
                   <h2 className="mt-2 font-display text-2xl font-bold leading-tight">
-                    Habla con <span className="title-shimmer-dark">un asesor</span>
+                    ¿Por qué cotizar <span className="title-shimmer-dark">con nosotros?</span>
                   </h2>
-                  <p className="mt-2 text-sm leading-relaxed text-white/70">Si prefieres no llenar el formulario, escríbenos o llámanos: cada área te atiende directo.</p>
 
-                  <div className="mt-5 space-y-3">
-                    <a
-                      href={whatsappHref('Hola, quiero cotizar con FPTecnologi')}
-                      target="_blank"
-                      rel="noreferrer"
-                      className={TARJETA_CONTACTO}
-                    >
-                      <span className={ICONO_CONTACTO}>
-                        <MessageCircle className="icon-hop h-5 w-5" strokeWidth={1.8} />
-                      </span>
-                      <span className="min-w-0">
-                        <span className="block text-sm font-bold">WhatsApp</span>
-                        <span className="block text-sm font-semibold">{sitio.contact.phoneVentasWeb}</span>
-                      </span>
-                    </a>
+                  <ul className="mt-5 space-y-3">
+                    {c.beneficios.items.map((b, i) => {
+                      const Icon = ICONOS[i % ICONOS.length];
+                      return (
+                        <li key={i} className="group flex gap-4 rounded-xl border border-white/10 bg-white/5 p-3.5 transition-all duration-300 hover:-translate-y-0.5 hover:border-white/30 hover:bg-white/15">
+                          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white text-brand-primary shadow-lg shadow-black/20 transition-all duration-300 group-hover:-rotate-6 group-hover:scale-110">
+                            <Icon className="icon-hop h-5 w-5" strokeWidth={1.8} />
+                          </span>
+                          <div>
+                            <h3 className="text-sm font-bold">{b.title}</h3>
+                            <p className="mt-0.5 text-sm leading-relaxed text-white/70">{b.text}</p>
+                          </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
+
+                  <div className="my-6 h-px bg-white/15" />
+                  <p className="text-xs font-semibold uppercase tracking-wide text-white/60">¿Prefieres hablar con alguien?</p>
+
+                  <div className="mt-3 space-y-3">
                     {AREAS_CONTACTO.filter((a) => AREAS_COTIZAR.includes(a.icono)).map((a) => (
                       <div key={a.area} className={`${TARJETA_CONTACTO} flex-col !items-stretch gap-0`}>
                         <div className="flex items-center gap-3">
@@ -122,28 +126,10 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
               </div>
             </ScrollReveal>
           </div>
-          <div className="mx-auto mt-10 grid max-w-7xl gap-5 px-6 md:grid-cols-3">
-            {c.beneficios.items.map((b, i) => {
-              const Icon = ICONOS[i % ICONOS.length];
-              return (
-                <ScrollReveal key={i} direction="up" delayMs={i * 100}>
-                  <div className="group flex h-full gap-4 rounded-2xl border border-brand-100 bg-white p-5 shadow-sm shadow-brand-950/5 transition-all duration-300 hover:-translate-y-1 hover:border-brand-primary hover:bg-brand-primary hover:shadow-[0_16px_32px_-10px_rgba(40,152,238,0.6)]">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-primary text-white transition-all duration-300 group-hover:-rotate-6 group-hover:scale-110 group-hover:bg-white group-hover:text-brand-primary">
-                      <Icon className="icon-hop h-5 w-5" strokeWidth={1.8} />
-                    </span>
-                    <div>
-                      <h3 className="text-sm font-bold text-ink transition-colors duration-300 group-hover:text-white">{b.title}</h3>
-                      <p className="mt-0.5 text-sm leading-relaxed text-ink/65 transition-colors duration-300 group-hover:text-white/90">{b.text}</p>
-                    </div>
-                  </div>
-                </ScrollReveal>
-              );
-            })}
-          </div>
         </section>
 
         {/* Cómo funciona */}
-        <section className="bg-white py-20">
+        <section className="bg-brand-100/60 py-20">
           <div className="mx-auto max-w-7xl px-6">
             <ScrollReveal direction="up" className="mx-auto mb-12 flex max-w-2xl flex-col items-center text-center">
               <SectionBadge>{c.proceso.badge}</SectionBadge>
@@ -151,18 +137,14 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
                 <span className="text-ink">{c.proceso.titulo}</span> <span className="title-shimmer-light">{c.proceso.destacado}</span>
               </h2>
             </ScrollReveal>
-            <div className="relative grid gap-6 md:grid-cols-3">
-              <div aria-hidden className="absolute left-[16%] right-[16%] top-[3.25rem] hidden border-t-2 border-dashed border-brand-primary/40 md:block" />
+            <div className="grid gap-6 md:grid-cols-3">
               {c.proceso.items.map((p, i) => (
                 <ScrollReveal key={i} direction="up" delayMs={i * 100} className="h-full">
                   <div className="group relative h-full overflow-hidden rounded-2xl border border-brand-100 bg-white p-7 text-center shadow-md shadow-brand-950/5 transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-primary hover:shadow-[0_18px_36px_-12px_rgba(40,152,238,0.55)]">
-                    <span aria-hidden className="absolute -right-1 -top-3 font-display text-8xl font-bold text-brand-primary/10 transition-colors duration-300 group-hover:text-brand-primary/20">
+                    <span className="block font-display text-7xl font-extrabold leading-none text-brand-primary transition-transform duration-300 group-hover:scale-110">
                       0{i + 1}
                     </span>
-                    <span className="relative mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-primary font-display text-xl font-bold text-white shadow-lg shadow-brand-primary/40 ring-4 ring-white transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
-                      {i + 1}
-                    </span>
-                    <h3 className="relative mt-5 font-display text-lg font-bold text-ink">{p.title}</h3>
+                    <h3 className="relative mt-4 font-display text-lg font-bold text-ink">{p.title}</h3>
                     <p className="relative mt-2 text-sm leading-relaxed text-ink/65">{p.text}</p>
                   </div>
                 </ScrollReveal>
