@@ -8,10 +8,12 @@ export function WhatsAppCta({
   label = 'WhatsApp',
   texto,
   tone = 'dark',
+  className,
 }: {
   label?: string;
   texto?: string;
   tone?: 'light' | 'dark';
+  className?: string;
 }) {
-  return <MoreInfoButton tone={tone} label={label} onClick={() => window.open(whatsappHref(texto), '_blank', 'noreferrer')} />;
+  return <MoreInfoButton tone={tone} label={label} className={className} onClick={() => window.open(whatsappHref(texto), '_blank', 'noreferrer')} />;
 }

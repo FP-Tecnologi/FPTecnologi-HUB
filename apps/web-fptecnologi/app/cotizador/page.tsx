@@ -26,6 +26,12 @@ export const dynamic = 'force-dynamic';
 
 const ICONOS: LucideIcon[] = [Sparkles, ShieldCheck, Handshake];
 
+// Tarjetas blancas sobre el panel azul; al pasar el cursor se oscurecen y el ícono salta (mismo efecto que Contacto por área).
+const TARJETA_CONTACTO =
+  'group flex items-center gap-3 rounded-xl bg-white p-4 text-ink shadow-lg shadow-black/20 transition-all duration-300 hover:-translate-y-1 hover:bg-brand-dark hover:text-white hover:shadow-2xl';
+const ICONO_CONTACTO =
+  'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-primary transition-all duration-300 group-hover:-rotate-6 group-hover:scale-110 group-hover:bg-white';
+
 const AREAS_COTIZAR: AreaContacto['icono'][] = ['comercial', 'ventas', 'atencion'];
 
 /* Cotizador -- punto de contacto con el cliente: formulario por pasos (los
@@ -61,25 +67,37 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
                   </h2>
                   <p className="mt-2 text-sm leading-relaxed text-white/70">Si prefieres no llenar el formulario, escríbenos o llámanos: cada área te atiende directo.</p>
 
-                  <a
-                    href={whatsappHref('Hola, quiero cotizar con FPTecnologi')}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="mt-5 flex items-center justify-center gap-2 rounded-xl bg-whatsapp px-4 py-3 text-sm font-bold text-white shadow-lg shadow-black/25 transition hover:brightness-110"
-                  >
-                    <MessageCircle className="h-5 w-5" strokeWidth={2} /> Cotizar por WhatsApp · {sitio.contact.phoneVentasWeb}
-                  </a>
-
-                  <div className="mt-4 space-y-3">
+                  <div className="mt-5 space-y-3">
+                    <a
+                      href={whatsappHref('Hola, quiero cotizar con FPTecnologi')}
+                      target="_blank"
+                      rel="noreferrer"
+                      className={TARJETA_CONTACTO}
+                    >
+                      <span className={ICONO_CONTACTO}>
+                        <MessageCircle className="icon-hop h-5 w-5" strokeWidth={1.8} />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="block text-sm font-bold">WhatsApp</span>
+                        <span className="block text-sm font-semibold">{sitio.contact.phoneVentasWeb}</span>
+                      </span>
+                    </a>
                     {AREAS_CONTACTO.filter((a) => AREAS_COTIZAR.includes(a.icono)).map((a) => (
-                      <div key={a.area} className="rounded-xl border border-white/10 bg-white/5 px-4 py-3">
-                        <p className="text-sm font-bold">{a.area}</p>
-                        <p className="text-xs text-white/55">{a.descripcion}</p>
-                        <a href={`tel:${a.telefono.replace(/\s/g, '')}`} className="mt-2 flex items-center gap-2 text-sm font-semibold hover:text-brand-teal-light">
-                          <Phone className="h-4 w-4 shrink-0 text-brand-teal-light" strokeWidth={2} /> {a.telefono}
+                      <div key={a.area} className={`${TARJETA_CONTACTO} flex-col !items-stretch gap-0`}>
+                        <div className="flex items-center gap-3">
+                          <span className={ICONO_CONTACTO}>
+                            <Phone className="icon-hop h-5 w-5" strokeWidth={1.8} />
+                          </span>
+                          <span className="min-w-0">
+                            <span className="block text-sm font-bold">{a.area}</span>
+                            <span className="block text-xs opacity-70">{a.descripcion}</span>
+                          </span>
+                        </div>
+                        <a href={`tel:${a.telefono.replace(/\s/g, '')}`} className="mt-3 flex items-center gap-2 text-sm font-semibold">
+                          <Phone className="h-4 w-4 shrink-0" strokeWidth={2} /> {a.telefono}
                         </a>
-                        <a href={`mailto:${a.email}`} className="mt-1 flex items-center gap-2 break-all text-sm font-semibold hover:text-brand-teal-light">
-                          <Mail className="h-4 w-4 shrink-0 text-brand-teal-light" strokeWidth={2} /> {a.email}
+                        <a href={`mailto:${a.email}`} className="mt-1 flex items-center gap-2 break-all text-sm font-semibold">
+                          <Mail className="h-4 w-4 shrink-0" strokeWidth={2} /> {a.email}
                         </a>
                       </div>
                     ))}
@@ -108,13 +126,13 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
               const Icon = ICONOS[i % ICONOS.length];
               return (
                 <ScrollReveal key={i} direction="up" delayMs={i * 100}>
-                  <div className="flex h-full gap-4 rounded-2xl border border-brand-100 bg-white p-5 shadow-sm shadow-brand-950/5">
-                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-primary text-white">
-                      <Icon className="h-5 w-5" strokeWidth={1.8} />
+                  <div className="group flex h-full gap-4 rounded-2xl border border-brand-100 bg-white p-5 shadow-sm shadow-brand-950/5 transition-all duration-300 hover:-translate-y-1 hover:border-brand-primary hover:bg-brand-primary hover:shadow-[0_16px_32px_-10px_rgba(40,152,238,0.6)]">
+                    <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-primary text-white transition-all duration-300 group-hover:-rotate-6 group-hover:scale-110 group-hover:bg-white group-hover:text-brand-primary">
+                      <Icon className="icon-hop h-5 w-5" strokeWidth={1.8} />
                     </span>
                     <div>
-                      <h3 className="text-sm font-bold text-ink">{b.title}</h3>
-                      <p className="mt-0.5 text-sm leading-relaxed text-ink/65">{b.text}</p>
+                      <h3 className="text-sm font-bold text-ink transition-colors duration-300 group-hover:text-white">{b.title}</h3>
+                      <p className="mt-0.5 text-sm leading-relaxed text-ink/65 transition-colors duration-300 group-hover:text-white/90">{b.text}</p>
                     </div>
                   </div>
                 </ScrollReveal>
@@ -124,7 +142,7 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
         </section>
 
         {/* Cómo funciona */}
-        <section className="bg-white py-20">
+        <section className="bg-brand-50 py-20">
           <div className="mx-auto max-w-7xl px-6">
             <ScrollReveal direction="up" className="mx-auto mb-12 flex max-w-2xl flex-col items-center text-center">
               <SectionBadge>{c.proceso.badge}</SectionBadge>
@@ -132,18 +150,19 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
                 <span className="text-ink">{c.proceso.titulo}</span> <span className="title-shimmer-light">{c.proceso.destacado}</span>
               </h2>
             </ScrollReveal>
-            <div className="grid gap-6 md:grid-cols-3">
+            <div className="relative grid gap-6 md:grid-cols-3">
+              <div aria-hidden className="absolute left-[16%] right-[16%] top-[3.25rem] hidden border-t-2 border-dashed border-brand-primary/40 md:block" />
               {c.proceso.items.map((p, i) => (
                 <ScrollReveal key={i} direction="up" delayMs={i * 100} className="h-full">
-                  <div className="group relative h-full overflow-hidden rounded-2xl border border-white/10 bg-brand-primary p-7 text-center shadow-lg shadow-brand-dark/25 transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-primary/60 hover:shadow-2xl hover:shadow-brand-dark/45">
-                    <span aria-hidden className="absolute -right-2 -top-4 font-display text-7xl font-bold text-white/5">
+                  <div className="group relative h-full overflow-hidden rounded-2xl border border-brand-100 bg-white p-7 text-center shadow-md shadow-brand-950/5 transition-all duration-300 hover:-translate-y-1.5 hover:border-brand-primary hover:shadow-[0_18px_36px_-12px_rgba(40,152,238,0.55)]">
+                    <span aria-hidden className="absolute -right-1 -top-3 font-display text-8xl font-bold text-brand-primary/10 transition-colors duration-300 group-hover:text-brand-primary/20">
                       0{i + 1}
                     </span>
-                    <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-primary font-display text-xl font-bold text-white shadow-lg shadow-brand-dark/40">
+                    <span className="relative mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-primary font-display text-xl font-bold text-white shadow-lg shadow-brand-primary/40 ring-4 ring-white transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
                       {i + 1}
                     </span>
-                    <h3 className="mt-5 font-display text-lg font-bold text-white">{p.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-white/65">{p.text}</p>
+                    <h3 className="relative mt-5 font-display text-lg font-bold text-ink">{p.title}</h3>
+                    <p className="relative mt-2 text-sm leading-relaxed text-ink/65">{p.text}</p>
                   </div>
                 </ScrollReveal>
               ))}
@@ -183,7 +202,7 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
               </h2>
               <p className="mt-4 text-ink/60">¿No encuentras tu respuesta? Escríbenos y un asesor te ayuda.</p>
               <div className="mt-6">
-                <WhatsAppCta label="Contactar asesor" texto="Hola, tengo una consulta sobre cotizar con FPTecnologi" />
+                <WhatsAppCta tone="light" className="shadow-lg shadow-brand-primary/30 transition-all duration-300 hover:-translate-y-0.5 hover:!bg-brand-dark hover:shadow-xl" label="Contactar asesor" texto="Hola, tengo una consulta sobre cotizar con FPTecnologi" />
               </div>
             </ScrollReveal>
             <ScrollReveal direction="right" delayMs={120}>
