@@ -19,7 +19,8 @@ interface Proyecto {
   departamento: string;
   imagenUrl: string | null;
   cliente: string;
-  anio: number;
+  anio: number | null;
+  monto: number | null;
   descripcion: string;
   alcance: string[];
   orden: number;
@@ -27,14 +28,14 @@ interface Proyecto {
   esEjemplo: boolean;
 }
 interface Form {
-  titulo: string; departamento: string; cliente: string; anio: string; imagenUrl: string;
+  titulo: string; departamento: string; cliente: string; anio: string; monto: string; imagenUrl: string;
   descripcion: string; alcance: string; orden: string; activo: boolean; esEjemplo: boolean;
 }
 
-const VACIO: Form = { titulo: '', departamento: 'lima', cliente: '', anio: String(new Date().getFullYear()), imagenUrl: '', descripcion: '', alcance: '', orden: '0', activo: true, esEjemplo: false };
+const VACIO: Form = { titulo: '', departamento: 'lima', cliente: '', anio: String(new Date().getFullYear()), monto: '', imagenUrl: '', descripcion: '', alcance: '', orden: '0', activo: true, esEjemplo: false };
 const nombreDpto = (id: string) => DEPARTAMENTOS.find((d) => d.id === id)?.name ?? id;
 const desde = (p: Proyecto): Form => ({
-  titulo: p.titulo, departamento: p.departamento, cliente: p.cliente, anio: String(p.anio), imagenUrl: p.imagenUrl ?? '',
+  titulo: p.titulo, departamento: p.departamento, cliente: p.cliente, anio: p.anio == null ? '' : String(p.anio), monto: p.monto == null ? '' : String(p.monto), imagenUrl: p.imagenUrl ?? '',
   descripcion: p.descripcion, alcance: p.alcance.join('\n'), orden: String(p.orden), activo: p.activo, esEjemplo: p.esEjemplo,
 });
 const src = (u: string | null) => (u ? (u.startsWith('/') ? `${WEB}${u}` : u) : null);
@@ -74,14 +75,16 @@ export function WebProyectos() {
   async function guardar() {
     if (!edit) return;
     const f = edit.form;
-    const anio = Number(f.anio);
+    const anio = f.anio.trim() ? Number(f.anio) : null;
+    const monto = f.monto.trim() ? Number(f.monto.replace(/,/g, '')) : null;
     const orden = Number(f.orden);
     if (f.titulo.trim().length < 3 || !f.cliente.trim()) return setError('El título y el cliente son obligatorios.');
-    if (!Number.isInteger(anio) || anio < 1990 || anio > 2100) return setError('El año no es válido.');
+    if (anio !== null && (!Number.isInteger(anio) || anio < 1990 || anio > 2100)) return setError('El año no es válido.');
+    if (monto !== null && (!Number.isFinite(monto) || monto < 0)) return setError('El monto no es válido.');
     if (!Number.isInteger(orden) || orden < 0) return setError('El orden debe ser un entero mayor o igual a 0.');
     if (f.imagenUrl.trim() && !/^(https?:\/\/|\/)/.test(f.imagenUrl.trim())) return setError('La imagen debe ser una URL (https://…) o una ruta que empiece con /.');
     const body = {
-      titulo: f.titulo.trim(), departamento: f.departamento, cliente: f.cliente.trim(), anio,
+      titulo: f.titulo.trim(), departamento: f.departamento, cliente: f.cliente.trim(), anio, monto,
       imagenUrl: f.imagenUrl.trim(), descripcion: f.descripcion.trim(),
       alcance: f.alcance.split('\n').map((l) => l.trim()).filter(Boolean),
       orden, activo: f.activo, esEjemplo: f.esEjemplo,
@@ -176,7 +179,7 @@ export function WebProyectos() {
                         </div>
                       </td>
                       <td className="ax-table__td">{nombreDpto(p.departamento)}</td>
-                      <td className="ax-table__td" style={{ textAlign: 'right' }}>{p.anio}</td>
+                      <td className="ax-table__td" style={{ textAlign: 'right' }}>{p.anio ?? '—'}</td>
                       <td className="ax-table__td">
                         <button type="button" className={`ax-badge ax-badge--soft ax-badge--sm ${p.activo ? 'ax-badge--success' : 'ax-badge--neutral'}`} style={{ cursor: 'pointer', border: 0 }} onClick={(e) => { e.stopPropagation(); void alternarActivo(p); }}>
                           {p.activo ? 'Visible' : 'Oculto'}
@@ -215,6 +218,10 @@ export function WebProyectos() {
                 <div className="ax-field" style={{ flex: '0 0 90px' }}>
                   <label className="ax-label" htmlFor="pr-anio">Año</label>
                   <input id="pr-anio" className="ax-input" inputMode="numeric" value={edit.form.anio} onChange={(e) => set('anio', e.target.value)} />
+                </div>
+                <div className="ax-field" style={{ flex: '0 0 120px' }}>
+                  <label className="ax-label" htmlFor="pr-monto">Monto S/</label>
+                  <input id="pr-monto" className="ax-input" inputMode="decimal" value={edit.form.monto} onChange={(e) => set('monto', e.target.value)} />
                 </div>
                 <div className="ax-field" style={{ flex: '0 0 80px' }}>
                   <label className="ax-label" htmlFor="pr-orden">Orden</label>

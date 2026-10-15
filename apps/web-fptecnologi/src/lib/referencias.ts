@@ -13,7 +13,8 @@ type ApiProyecto = {
   departamento: string;
   imagenUrl: string | null;
   cliente: string;
-  anio: number;
+  anio: number | null;
+  monto: number | null;
   descripcion: string;
   alcance: string[];
   esEjemplo: boolean;
@@ -30,7 +31,8 @@ export async function getProyectos(): Promise<Project[]> {
     department: p.departamento,
     image: p.imagenUrl || IMAGEN_PROYECTO,
     client: p.cliente,
-    year: p.anio,
+    year: p.anio ?? undefined,
+    monto: p.monto ?? undefined,
     description: p.descripcion,
     scope: p.alcance,
     ejemplo: p.esEjemplo,

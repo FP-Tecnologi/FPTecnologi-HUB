@@ -10,12 +10,20 @@ export type Project = {
   department: string;
   image: string;
   client: string;
-  year: number;
+  year?: number;
+  /** Monto bruto en soles. */
+  monto?: number;
   description: string;
   scope: string[];
   /** Dato de muestra (no es un caso real). */
   ejemplo?: boolean;
 };
+
+/** "S/ 127,129" (determinista para evitar diferencias SSR/cliente). */
+export const montoSoles = (n: number) => `S/ ${Math.round(n).toLocaleString('en-US')}`;
+
+/** Año o, si no hay, monto: lo que se pueda mostrar como dato corto de la tarjeta. */
+export const datoCorto = (p: Project) => (p.year ? String(p.year) : p.monto ? montoSoles(p.monto) : '');
 
 export const PROJECTS: Project[] = [
   {

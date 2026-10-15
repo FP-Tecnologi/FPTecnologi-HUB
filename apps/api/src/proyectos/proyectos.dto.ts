@@ -1,5 +1,5 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { ArrayMaxSize, IsArray, IsBoolean, IsInt, IsOptional, IsString, Matches, Max, MaxLength, Min } from 'class-validator';
+import { ArrayMaxSize, IsArray, IsBoolean, IsInt, IsNumber, IsOptional, IsString, Matches, Max, MaxLength, Min } from 'class-validator';
 
 export class CreateProyectoDto {
   @IsString() @MaxLength(200)
@@ -15,8 +15,11 @@ export class CreateProyectoDto {
   @IsString() @MaxLength(160)
   cliente!: string;
 
-  @IsInt() @Min(1990) @Max(2100)
-  anio!: number;
+  @IsOptional() @IsInt() @Min(1990) @Max(2100)
+  anio?: number | null;
+
+  @IsOptional() @IsNumber() @Min(0)
+  monto?: number | null;
 
   @IsOptional() @IsString() @MaxLength(1000)
   descripcion?: string;

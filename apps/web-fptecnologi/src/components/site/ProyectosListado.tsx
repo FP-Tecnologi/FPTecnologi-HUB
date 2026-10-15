@@ -1,8 +1,8 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Building2, CalendarDays, MapPin } from 'lucide-react';
-import { PROJECTS, type Project } from '@/lib/projects';
+import { Banknote, Building2, CalendarDays, MapPin } from 'lucide-react';
+import { PROJECTS, datoCorto, type Project } from '@/lib/projects';
 import { PERU_DEPARTMENTS } from '@/lib/peruDepartments';
 import { SectionBadge } from '@/components/home/SectionBadge';
 import { ScrollReveal } from '@/components/home/ScrollReveal';
@@ -17,7 +17,7 @@ export function ProyectosListado({ projects: todos = PROJECTS }: { projects?: Pr
     for (const p of todos) m.set(p.department, (m.get(p.department) ?? 0) + 1);
     return [...m.entries()].sort((a, b) => b[1] - a[1]);
   }, [todos]);
-  const lista = [...todos].filter((p) => !region || p.department === region).sort((a, b) => b.year - a.year);
+  const lista = [...todos].filter((p) => !region || p.department === region).sort((a, b) => Number(!!a.ejemplo) - Number(!!b.ejemplo) || (b.year ?? 0) - (a.year ?? 0) || (b.monto ?? 0) - (a.monto ?? 0));
 
   const chip = (on: boolean) =>
     `rounded-lg px-3.5 py-2 text-sm font-semibold transition-colors ${
@@ -59,10 +59,12 @@ export function ProyectosListado({ projects: todos = PROJECTS }: { projects?: Pr
                   <MapPin className="h-3.5 w-3.5" strokeWidth={2} />
                   {deptName(p.department)}
                 </span>
-                <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-lg border border-white/30 bg-brand-primary/45 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-md">
-                  <CalendarDays className="h-3.5 w-3.5" strokeWidth={2} />
-                  {p.year}
-                </span>
+                {datoCorto(p) && (
+                  <span className="absolute right-3 top-3 inline-flex items-center gap-1.5 rounded-lg border border-white/30 bg-brand-primary/45 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur-md">
+                    {p.year ? <CalendarDays className="h-3.5 w-3.5" strokeWidth={2} /> : <Banknote className="h-3.5 w-3.5" strokeWidth={2} />}
+                    {datoCorto(p)}
+                  </span>
+                )}
               </div>
               <div className="flex flex-1 flex-col p-6">
                 <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-700">

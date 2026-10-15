@@ -9,7 +9,7 @@ export class ProyectosService {
   list(marcaId: string, soloActivos = false) {
     return this.prisma.proyecto.findMany({
       where: { marcaId, ...(soloActivos ? { activo: true } : {}) },
-      orderBy: [{ orden: 'asc' }, { anio: 'desc' }, { titulo: 'asc' }],
+      orderBy: [{ orden: 'asc' }, { anio: { sort: 'desc', nulls: 'last' } }, { monto: { sort: 'desc', nulls: 'last' } }, { titulo: 'asc' }],
     });
   }
 

@@ -377,7 +377,10 @@ model Proyecto {
   departamento String
   imagenUrl    String?
   cliente      String
-  anio         Int
+  /// Opcional: los casos de éxito importados no traen año.
+  anio         Int?
+  /// Monto bruto en soles (opcional).
+  monto        Float?
   descripcion  String   @default("")
   alcance      String[] @default([])
   orden        Int      @default(0)

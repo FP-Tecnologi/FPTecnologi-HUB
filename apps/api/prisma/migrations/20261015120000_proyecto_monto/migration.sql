@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Proyecto" ALTER COLUMN "anio" DROP NOT NULL,
+ADD COLUMN "monto" DOUBLE PRECISION;

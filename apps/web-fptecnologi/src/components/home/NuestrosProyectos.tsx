@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import { Building2, MapPin, MousePointerClick, RotateCcw } from 'lucide-react';
 import { PERU_DEPARTMENTS, PERU_VIEWBOX } from '@/lib/peruDepartments';
-import { PROJECTS, type Project } from '@/lib/projects';
+import { PROJECTS, datoCorto, type Project } from '@/lib/projects';
 import { ScrollReveal } from './ScrollReveal';
 import { SectionBadge } from './SectionBadge';
 
@@ -69,7 +69,7 @@ function ProjectCard({
           <div className="absolute inset-x-4 bottom-4">
             <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-brand-200">
               <Building2 className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
-              <span className="truncate">{p.client} · {p.year}</span>
+              <span className="truncate">{[p.client, datoCorto(p)].filter(Boolean).join(' · ')}</span>
             </p>
             <p className="mt-1.5 line-clamp-2 text-sm font-bold uppercase leading-snug text-white sm:text-base">{p.title}</p>
             {/* Línea de acento que se alarga al hover. */}
@@ -90,7 +90,7 @@ function ProjectCard({
           <div className="relative flex h-full flex-col items-center justify-center overflow-y-auto px-6 pb-4 pt-12 text-center [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-brand-200">
               <Building2 className="h-3.5 w-3.5" strokeWidth={2} />
-              {p.client} · {p.year}
+              {[p.client, datoCorto(p)].filter(Boolean).join(' · ')}
             </p>
             <h4 className="mt-2 max-w-md text-sm font-bold uppercase leading-snug sm:text-base">{p.title}</h4>
             <span aria-hidden className="mt-3 h-0.5 w-10 rounded-full bg-brand-primary" />

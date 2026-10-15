@@ -23,6 +23,7 @@ import { getCatalogo, categoriasDe } from './catalogo';
 import { getServicios, type ServicioPublico } from './servicios';
 import { getClientes, getProyectos } from './referencias';
 import { PERU_DEPARTMENTS } from './peruDepartments';
+import { montoSoles } from './projects';
 import { getCotizadorContenido } from './cotizadorContenido';
 import { getArticulos } from './blog';
 import { getLegalDocs, type LegalDoc } from './legal';
@@ -145,7 +146,7 @@ async function seccionReferencias(): Promise<string> {
   }
   const dept = (id: string) => PERU_DEPARTMENTS.find((d) => d.id === id)?.name ?? id;
   return `PROYECTOS Y CLIENTES (página /proyectos)
-${reales.map((p) => `- ${p.title} — ${p.client}, ${dept(p.department)}, ${p.year}: ${p.description} Alcance: ${lista(p.scope)}.`).join('\n')}${clientes.length ? `\nClientes: ${clientes.join(', ')}.` : ''}`;
+${reales.map((p) => `- ${p.title} — ${p.client}, ${dept(p.department)}${p.year ? `, ${p.year}` : ''}${p.monto ? `, monto bruto ${montoSoles(p.monto)}` : ''}: ${p.description} Alcance: ${lista(p.scope)}.`).join('\n')}${clientes.length ? `\nClientes: ${clientes.join(', ')}.` : ''}`;
 }
 
 let cache: { at: number; text: string; products: CatalogProduct[]; servicios: ServicioPublico[] } | null = null;
