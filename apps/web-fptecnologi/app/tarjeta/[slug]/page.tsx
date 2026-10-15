@@ -11,7 +11,7 @@ const MARCA_ID = process.env.HUB_MARCA_ID ?? '';
 
 type Estilo = 'clasico' | 'moderno' | 'oscuro' | 'minimal';
 interface Tarjeta {
-  slug: string; estilo: Estilo; vista: 'perfil' | 'linktree'; nombre: string; cargo: string | null; area: string | null; bio: string | null; fotoUrl: string | null; telefono: string | null;
+  slug: string; estilo: Estilo; vista: 'perfil' | 'linktree'; nombre: string; cargo: string | null; area: string | null; bio: string | null; fotoUrl: string | null; portadaUrl?: string | null; telefono: string | null;
   whatsapp: string | null; email: string | null; linkedin: string | null; web: string | null; agendaUrl: string | null;
   enlaces: { titulo: string; url: string }[]; empresa: string; url: string; qr: string;
 }
@@ -67,6 +67,9 @@ export default async function TarjetaPage({ params }: { params: Promise<{ slug: 
   if (!t) notFound();
   const e = ESTILO[t.estilo] ?? ESTILO.clasico;
   const inicial = t.nombre.trim().charAt(0).toUpperCase();
+  // Con portada propia se usa el encabezado con imagen y la foto como círculo, en cualquier estilo.
+  const conAvatar = e.avatar || !!t.portadaUrl;
+  const estiloPortada = t.portadaUrl ? { backgroundImage: `url("${t.portadaUrl.replace(/"/g, '%22')}")`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined;
   const wa = t.whatsapp ? `https://wa.me/${t.whatsapp}?text=${encodeURIComponent(`Hola ${t.nombre.split(' ')[0]}, vi tu tarjeta digital de ${t.empresa} y quiero más información.`)}` : null;
 
   if (t.vista === 'linktree') {
@@ -80,7 +83,8 @@ export default async function TarjetaPage({ params }: { params: Promise<{ slug: 
     return (
       <div className={`min-h-screen ${e.fondo}`}>
         <main className="mx-auto flex w-full max-w-md flex-col items-center px-5 pb-10 pt-10 text-center">
-          <div className={`h-28 w-28 overflow-hidden rounded-full border-4 border-white shadow-lg ${e.portada} ${e.avatar ? '' : 'relative'}`}>
+          {t.portadaUrl && <div aria-hidden className="-mb-14 h-32 w-full rounded-2xl bg-brand-50" style={estiloPortada} />}
+          <div className={`relative h-28 w-28 overflow-hidden rounded-full border-4 border-white shadow-lg ${e.portada} ${e.avatar ? '' : 'relative'}`}>
             {t.fotoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={t.fotoUrl} alt={t.nombre} className="h-full w-full object-cover" />
@@ -126,9 +130,9 @@ export default async function TarjetaPage({ params }: { params: Promise<{ slug: 
 
   const foto = t.fotoUrl ? (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={t.fotoUrl} alt={t.nombre} className={e.avatar ? 'h-full w-full object-cover' : 'absolute inset-0 h-full w-full object-cover object-top'} />
+    <img src={t.fotoUrl} alt={t.nombre} className={conAvatar ? 'h-full w-full object-cover' : 'absolute inset-0 h-full w-full object-cover object-top'} />
   ) : (
-    <span className={`flex items-center justify-center font-display font-bold ${e.avatar ? 'h-full w-full text-5xl text-white/80' : 'absolute inset-0 text-8xl text-white/30'}`}>{inicial}</span>
+    <span className={`flex items-center justify-center font-display font-bold ${conAvatar ? 'h-full w-full text-5xl text-white/80' : 'absolute inset-0 text-8xl text-white/30'}`}>{inicial}</span>
   );
 
   return (
@@ -141,16 +145,16 @@ export default async function TarjetaPage({ params }: { params: Promise<{ slug: 
       <main className="mx-auto grid max-w-5xl gap-6 px-4 py-6 sm:py-10 lg:grid-cols-[22rem_1fr] lg:items-start lg:gap-8">
         {/* Perfil */}
         <section className={`overflow-hidden rounded-[2rem] lg:sticky lg:top-6 ${e.panel}`}>
-          <div className={`relative ${e.avatar ? 'h-36' : 'h-72'} ${e.portada}`}>
-            {!e.avatar && foto}
-            {!e.avatar && (
+          <div className={`relative ${conAvatar ? 'h-36' : 'h-72'} ${e.portada}`} style={estiloPortada}>
+            {!conAvatar && foto}
+            {!conAvatar && (
               <svg aria-hidden viewBox="0 0 400 60" preserveAspectRatio="none" className="absolute inset-x-0 bottom-0 h-12 w-full text-white">
                 <path d="M0 60V28C80 -4 160 -4 240 18s120 20 160 -2V60z" fill="currentColor" />
               </svg>
             )}
           </div>
-          {e.avatar && <div className="relative z-10 -mt-14 ml-6 h-28 w-28 overflow-hidden rounded-full border-4 border-white bg-brand-600 shadow-lg">{foto}</div>}
-          <div className={`px-6 pb-6 ${e.avatar ? 'pt-3' : 'pt-1'}`}>
+          {conAvatar && <div className="relative z-10 -mt-14 ml-6 h-28 w-28 overflow-hidden rounded-full border-4 border-white bg-brand-600 shadow-lg">{foto}</div>}
+          <div className={`px-6 pb-6 ${conAvatar ? 'pt-3' : 'pt-1'}`}>
             <h1 className={`font-display text-2xl font-bold ${e.texto}`}>{t.nombre}</h1>
             {t.cargo && <p className={`mt-0.5 text-[15px] ${e.suave}`}>{t.cargo}</p>}
             {t.area && <p className={`mt-0.5 text-sm font-semibold ${e.acento}`}>{t.area}</p>}

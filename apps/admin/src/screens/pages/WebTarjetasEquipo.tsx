@@ -203,6 +203,16 @@ export function WebTarjetasEquipo() {
                 <SubirImagen etiqueta={edit.form.fotoUrl ? 'Cambiar foto' : 'Subir foto'} onSubida={(urls) => set('fotoUrl', urls[0])} />
                 {edit.form.fotoUrl && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => set('fotoUrl', '')}>Quitar foto</button>}
               </div>
+              <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
+                {edit.form.portadaUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={urlImagen(edit.form.portadaUrl)} alt="Portada" style={{ width: 160, height: 60, borderRadius: 8, objectFit: 'cover' }} />
+                ) : (
+                  <span style={{ width: 160, height: 60, borderRadius: 8, background: 'var(--ax-surface-subtle)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Sin portada</span>
+                )}
+                <SubirImagen etiqueta={edit.form.portadaUrl ? 'Cambiar portada' : 'Subir portada'} onSubida={(urls) => set('portadaUrl', urls[0])} />
+                {edit.form.portadaUrl && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => set('portadaUrl', '')}>Quitar portada</button>}
+              </div>
               {campo('etiqueta', 'Nombre de la versión', 'Comercial, Redes…')}
               {campo('nombre', 'Nombre completo')}
               {campo('cargo', 'Cargo')}

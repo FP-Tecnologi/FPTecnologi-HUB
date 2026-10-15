@@ -71,6 +71,7 @@ export class TarjetasService {
       area: texto(dto.area),
       bio: texto(dto.bio),
       fotoUrl: url(dto.fotoUrl, 'Foto', true),
+      portadaUrl: url(dto.portadaUrl, 'Portada', true),
       telefono: texto(dto.telefono),
       whatsapp: soloDigitos(dto.whatsapp),
       email,
@@ -146,7 +147,7 @@ export class TarjetasService {
     void this.prisma.tarjetaDigital.updateMany({ where: { id: t.id, marcaId }, data: { vistas: { increment: 1 } } }).catch(() => undefined);
     const url = this.urlDe(t.slug);
     return {
-      slug: t.slug, estilo: t.estilo, vista: t.vista, nombre: t.nombre, cargo: t.cargo, area: t.area, bio: t.bio, fotoUrl: t.fotoUrl, telefono: t.telefono, whatsapp: t.whatsapp,
+      slug: t.slug, estilo: t.estilo, vista: t.vista, nombre: t.nombre, cargo: t.cargo, area: t.area, bio: t.bio, fotoUrl: t.fotoUrl, portadaUrl: t.portadaUrl, telefono: t.telefono, whatsapp: t.whatsapp,
       email: t.email, linkedin: t.linkedin, web: t.web, agendaUrl: t.agendaUrl, enlaces: t.enlaces, empresa, url,
       qr: await QRCode.toString(url, { type: 'svg', margin: 1 }),
     };

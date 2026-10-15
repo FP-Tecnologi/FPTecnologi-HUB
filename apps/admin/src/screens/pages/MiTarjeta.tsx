@@ -14,14 +14,14 @@ import { descargarCanvas, dibujarTarjeta, ESTILOS_TARJETA, type EstiloTarjeta } 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
 export interface Tarjeta {
-  id?: string; etiqueta: string; slug: string; estilo: EstiloTarjeta; vista: 'perfil' | 'linktree'; nombre: string; cargo: string | null; area: string | null; bio: string | null; fotoUrl: string | null; telefono: string | null;
+  id?: string; etiqueta: string; slug: string; estilo: EstiloTarjeta; vista: 'perfil' | 'linktree'; nombre: string; cargo: string | null; area: string | null; bio: string | null; fotoUrl: string | null; portadaUrl?: string | null; telefono: string | null;
   whatsapp: string | null; email: string | null; linkedin: string | null; web: string | null; agendaUrl: string | null;
   enlaces: { titulo: string; url: string }[]; activo: boolean; vistas: number;
 }
 type Guardada = Tarjeta & { id: string; url: string; qr: string };
 interface Respuesta { tarjetas: Guardada[]; sugerido: { nombre: string; email: string; cargo: string; telefono: string }; guardadaId?: string | null }
 
-export const VACIA: Tarjeta = { etiqueta: 'Principal', slug: '', estilo: 'clasico', vista: 'perfil', nombre: '', cargo: '', area: '', bio: '', fotoUrl: '', telefono: '', whatsapp: '', email: '', linkedin: '', web: '', agendaUrl: '', enlaces: [], activo: true, vistas: 0 };
+export const VACIA: Tarjeta = { etiqueta: 'Principal', slug: '', estilo: 'clasico', vista: 'perfil', nombre: '', cargo: '', area: '', bio: '', fotoUrl: '', portadaUrl: '', telefono: '', whatsapp: '', email: '', linkedin: '', web: '', agendaUrl: '', enlaces: [], activo: true, vistas: 0 };
 const v = (x: string | null | undefined) => x ?? '';
 
 /** Qué le falta a la tarjeta (sobre lo que hay en el formulario) y qué hacer. */
@@ -77,13 +77,15 @@ export function VistaPrevia({ t }: { t: Tarjeta }) {
       <img src={urlImagen(t.fotoUrl)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
     : <span style={{ fontSize: 36, color: 'rgba(255,255,255,.8)', fontWeight: 700 }}>{(t.nombre || '?').charAt(0).toUpperCase()}</span>;
   const centrado = t.vista === 'linktree';
+  const portada = t.portadaUrl ? `center / cover url("${urlImagen(t.portadaUrl)}")` : c.portada;
   const circulo = { width: 84, height: 84, borderRadius: '50%', overflow: 'hidden', border: '3px solid #fff', background: c.portada, display: 'flex', alignItems: 'center', justifyContent: 'center' } as const;
   return (
     <div style={{ width: 300, maxWidth: '100%', margin: '0 auto', border: '8px solid #1b2430', borderRadius: 34, overflow: 'hidden', background: '#1b2430', boxShadow: '0 10px 30px rgba(0,0,0,.18)' }}>
       <div style={{ height: 520, overflowY: 'auto', background: c.fondo, color: c.texto, padding: centrado ? '28px 16px 20px' : 0, textAlign: centrado ? 'center' : 'left' }}>
         {centrado ? (
           <>
-            <div style={{ ...circulo, margin: '0 auto' }}>{avatar}</div>
+            {t.portadaUrl && <div style={{ height: 90, margin: '-28px -16px 0', background: portada }} />}
+            <div style={{ ...circulo, margin: t.portadaUrl ? '-42px auto 0' : '0 auto', position: 'relative' }}>{avatar}</div>
             <div style={{ fontWeight: 700, fontSize: 18, marginTop: 10 }}>{t.nombre || 'Tu nombre'}</div>
             <div style={{ fontSize: 13, color: c.suave }}>{[t.cargo, t.area].filter(Boolean).join(' · ') || 'Tu cargo'}</div>
             <div style={{ fontSize: 12, fontStyle: 'italic', color: c.suave }}>FPTecnologi &amp; System</div>
@@ -94,7 +96,7 @@ export function VistaPrevia({ t }: { t: Tarjeta }) {
           </>
         ) : (
           <>
-            <div style={{ height: 120, background: c.portada }} />
+            <div style={{ height: 120, background: portada }} />
             <div style={{ ...circulo, margin: '-42px 0 0 16px', position: 'relative' }}>{avatar}</div>
             <div style={{ padding: '8px 16px 20px' }}>
               <div style={{ fontWeight: 700, fontSize: 18 }}>{t.nombre || 'Tu nombre'}</div>
@@ -282,6 +284,20 @@ export function MiTarjeta() {
             )}
             <SubirImagen etiqueta={form.fotoUrl ? 'Cambiar foto' : 'Subir foto'} onSubida={(urls) => set('fotoUrl', urls[0])} />
             {form.fotoUrl && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => set('fotoUrl', '')}>Quitar foto</button>}
+          </div>
+          <div className="ax-field">
+            <span className="ax-label">Foto de portada</span>
+            <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
+              {form.portadaUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={urlImagen(form.portadaUrl)} alt="Portada" style={{ width: 160, height: 60, borderRadius: 8, objectFit: 'cover' }} />
+              ) : (
+                <span style={{ width: 160, height: 60, borderRadius: 8, background: 'var(--ax-surface-subtle)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Sin portada</span>
+              )}
+              <SubirImagen etiqueta={form.portadaUrl ? 'Cambiar portada' : 'Subir portada'} onSubida={(urls) => set('portadaUrl', urls[0])} />
+              {form.portadaUrl && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => set('portadaUrl', '')}>Quitar portada</button>}
+            </div>
+            <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Imagen ancha (por ejemplo 1200 × 400 px) que se ve arriba de tu página. Opcional.</span>
           </div>
           {campo('etiqueta', 'Nombre de esta versión', { placeholder: 'Comercial, Redes, Soporte…', ayuda: 'Solo para que la identifiques tú; no se muestra al público.' })}
           {campo('nombre', 'Nombre completo')}

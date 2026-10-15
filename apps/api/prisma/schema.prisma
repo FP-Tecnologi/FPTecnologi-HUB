@@ -1176,6 +1176,7 @@ model TarjetaDigital {
   area      String?
   bio       String?
   fotoUrl   String?
+  portadaUrl String? // imagen de portada (encabezado de la página pública)
   telefono  String?
   whatsapp  String? // solo dígitos con código de país
   email     String?

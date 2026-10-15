@@ -24,6 +24,9 @@ export class GuardarTarjetaDto {
   @IsOptional() @IsString() @MaxLength(500)
   fotoUrl?: string;
 
+  @IsOptional() @IsString() @MaxLength(500)
+  portadaUrl?: string;
+
   @IsOptional() @IsString() @MaxLength(30)
   telefono?: string;
 
