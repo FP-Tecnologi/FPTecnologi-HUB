@@ -11,6 +11,8 @@
  */
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Menos RAM en el build: el contenedor de AI App Hosting mata el proceso ("Killed") si se pasa de memoria.
+  experimental: { webpackMemoryOptimizations: true, cpus: 1 },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'i.pravatar.cc' },
