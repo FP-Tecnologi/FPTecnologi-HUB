@@ -17,6 +17,8 @@ function TwoStepBasicInner() {
   const searchParams = useSearchParams();
   const { verifyOtp } = useAuth();
   const email = searchParams.get('email') || (typeof window !== 'undefined' ? window.localStorage.getItem('ax:auth:email') : null) || '';
+  // Llegó desde la pantalla de la app autenticadora: puede volver a ese método.
+  const tieneTotp = searchParams.get('m') === 'totp';
   const [digits, setDigits] = useState(['', '', '', '', '', '']);
   const [trust, setTrust] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -165,7 +167,12 @@ function TwoStepBasicInner() {
                     <span>{cooldown > 0 ? `Reenviar en ${cooldown}s` : 'Reenviar código'}</span>
                   </button>
                 </p>
-                <Link className="ax-link" href="/auth/sign-in" style={{ fontSize: 'var(--ax-text-sm)' }}>Usar otro método</Link>
+                {tieneTotp && (
+                  <Link className="ax-link" href={`/auth/two-step-totp?email=${encodeURIComponent(email)}`} style={{ fontSize: 'var(--ax-text-sm)' }}>
+                    Usar mi app autenticadora
+                  </Link>
+                )}
+                <Link className="ax-link" href="/auth/sign-in" style={{ fontSize: 'var(--ax-text-sm)' }}>Volver a iniciar sesión</Link>
               </div>
             </div>
           </section>

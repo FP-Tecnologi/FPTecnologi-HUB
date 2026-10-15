@@ -27,7 +27,7 @@ function TwoStepTotpInner() {
   function enviarCodigoCorreo() {
     if (!email) return;
     api.post('/auth/otp/request', { email }, { auth: false }).catch(() => { /* best-effort */ });
-    router.push(`/auth/two-step?email=${encodeURIComponent(email)}`);
+    router.push(`/auth/two-step?email=${encodeURIComponent(email)}&m=totp`);
   }
 
   function verify(ev: React.FormEvent) {
