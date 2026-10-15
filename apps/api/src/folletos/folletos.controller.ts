@@ -47,6 +47,17 @@ export class FolletosController {
     return this.folletos.actualizar(marcaId, id, dto);
   }
 
+  @Post(':id/archivo')
+  @UseInterceptors(FileInterceptor('archivo', { limits: { fileSize: MAX_BYTES_CATALOGO, files: 1 } }))
+  reemplazarPdf(@MarcaActual() marcaId: string, @Param('id') id: string, @UploadedFile() archivo?: { buffer: Buffer; size: number }) {
+    return this.folletos.reemplazarPdf(marcaId, id, archivo);
+  }
+
+  @Post(':id/enlace')
+  regenerarEnlace(@MarcaActual() marcaId: string, @Param('id') id: string) {
+    return this.folletos.regenerarEnlace(marcaId, id);
+  }
+
   @Delete(':id')
   eliminar(@MarcaActual() marcaId: string, @Param('id') id: string) {
     return this.folletos.eliminar(marcaId, id);

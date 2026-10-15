@@ -38,13 +38,36 @@ export class FolletosService {
     return { ok: true as const };
   }
 
+  /** Cambia el PDF conservando el enlace (el que ya se compartió sigue funcionando y muestra el archivo nuevo). */
+  async reemplazarPdf(marcaId: string, id: string, archivo: { buffer: Buffer; size: number } | undefined) {
+    const f = await this.prisma.folleto.findFirst({ where: { id, marcaId } });
+    if (!f) throw new NotFoundException('Folleto no encontrado');
+    const { ruta } = await this.uploads.guardarCatalogo(marcaId, archivo);
+    await this.prisma.folleto.updateMany({ where: { id, marcaId }, data: { archivoUrl: ruta, bytes: archivo?.size ?? 0 } });
+    await this.borrarArchivo(marcaId, f.archivoUrl);
+    return this.fila({ ...f, archivoUrl: ruta, bytes: archivo?.size ?? 0 });
+  }
+
+  /** Genera un enlace nuevo y único; el anterior deja de funcionar (útil si se compartió por error). */
+  async regenerarEnlace(marcaId: string, id: string) {
+    const f = await this.prisma.folleto.findFirst({ where: { id, marcaId } });
+    if (!f) throw new NotFoundException('Folleto no encontrado');
+    const slug = `${slugDe(f.titulo)}-${randomBytes(3).toString('hex')}`;
+    await this.prisma.folleto.updateMany({ where: { id, marcaId }, data: { slug } });
+    return this.fila({ ...f, slug });
+  }
+
+  private async borrarArchivo(marcaId: string, archivoUrl: string) {
+    if (new RegExp(`^/uploads/${marcaId}/catalogos/[0-9a-f-]{36}\\.pdf$`).test(archivoUrl)) {
+      await unlink(join(uploadsDir(), archivoUrl.slice('/uploads/'.length))).catch(() => undefined);
+    }
+  }
+
   async eliminar(marcaId: string, id: string) {
     const f = await this.prisma.folleto.findFirst({ where: { id, marcaId } });
     if (!f) throw new NotFoundException('Folleto no encontrado');
     await this.prisma.folleto.deleteMany({ where: { id, marcaId } });
-    if (new RegExp(`^/uploads/${marcaId}/catalogos/[0-9a-f-]{36}\.pdf$`).test(f.archivoUrl)) {
-      await unlink(join(uploadsDir(), f.archivoUrl.slice('/uploads/'.length))).catch(() => undefined);
-    }
+    await this.borrarArchivo(marcaId, f.archivoUrl);
     return { ok: true as const };
   }
 
