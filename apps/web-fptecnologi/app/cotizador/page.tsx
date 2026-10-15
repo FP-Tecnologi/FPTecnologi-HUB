@@ -28,9 +28,9 @@ const ICONOS: LucideIcon[] = [Sparkles, ShieldCheck, Handshake];
 
 // Tarjetas blancas sobre el panel azul; al pasar el cursor se oscurecen y el ícono salta (mismo efecto que Contacto por área).
 const TARJETA_CONTACTO =
-  'group flex items-center gap-3 rounded-xl bg-white p-4 text-ink shadow-lg shadow-black/20 transition-all duration-300 hover:-translate-y-1 hover:bg-brand-dark hover:text-white hover:shadow-2xl';
+  'group flex items-center gap-3 rounded-xl bg-white px-3.5 py-3 text-ink shadow-lg shadow-black/20 transition-all duration-300 hover:-translate-y-1 hover:bg-brand-dark hover:text-white hover:shadow-2xl';
 const ICONO_CONTACTO =
-  'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-primary transition-all duration-300 group-hover:-rotate-6 group-hover:scale-110 group-hover:bg-white';
+  'flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-brand-primary transition-all duration-300 group-hover:-rotate-6 group-hover:scale-110 group-hover:bg-white';
 
 const AREAS_COTIZAR: AreaContacto['icono'][] = ['comercial', 'ventas', 'atencion'];
 
@@ -86,23 +86,23 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
                   <div className="my-6 h-px bg-white/15" />
                   <p className="text-xs font-semibold uppercase tracking-wide text-white/60">¿Prefieres hablar con alguien?</p>
 
-                  <div className="mt-3 space-y-3">
+                  <div className="mt-3 space-y-2">
                     {AREAS_CONTACTO.filter((a) => AREAS_COTIZAR.includes(a.icono)).map((a) => (
                       <div key={a.area} className={`${TARJETA_CONTACTO} flex-col !items-stretch gap-0`}>
                         <div className="flex items-center gap-3">
                           <span className={ICONO_CONTACTO}>
-                            <Phone className="icon-hop h-5 w-5" strokeWidth={1.8} />
+                            <Phone className="icon-hop h-4 w-4" strokeWidth={1.8} />
                           </span>
                           <span className="min-w-0">
                             <span className="block text-sm font-bold">{a.area}</span>
-                            <span className="block text-xs opacity-70">{a.descripcion}</span>
+                            <span className="block text-[11px] leading-snug opacity-70">{a.descripcion}</span>
                           </span>
                         </div>
-                        <a href={`tel:${a.telefono.replace(/\s/g, '')}`} className="mt-3 flex items-center gap-2 text-sm font-semibold">
-                          <Phone className="h-4 w-4 shrink-0" strokeWidth={2} /> {a.telefono}
+                        <a href={`tel:${a.telefono.replace(/\s/g, '')}`} className="mt-2 flex items-center gap-2 text-[13px] font-semibold">
+                          <Phone className="h-3.5 w-3.5 shrink-0" strokeWidth={2} /> {a.telefono}
                         </a>
-                        <a href={`mailto:${a.email}`} className="mt-1 flex items-center gap-2 break-all text-sm font-semibold">
-                          <Mail className="h-4 w-4 shrink-0" strokeWidth={2} /> {a.email}
+                        <a href={`mailto:${a.email}`} className="mt-0.5 flex items-center gap-2 break-all text-[13px] font-semibold">
+                          <Mail className="h-3.5 w-3.5 shrink-0" strokeWidth={2} /> {a.email}
                         </a>
                       </div>
                     ))}
