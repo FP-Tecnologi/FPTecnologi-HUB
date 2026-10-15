@@ -44,7 +44,8 @@ export function BrandMarquee({ showLabel = true }: { showLabel?: boolean }) {
             cualquier logo), se pausa. */}
         <div
           className="animate-marquee flex w-max items-center gap-2"
-          style={{ animationPlayState: paused ? 'paused' : 'running' }}
+          // ~2,5 s por marca: la velocidad no cambia al agregar o quitar marcas.
+          style={{ animationPlayState: paused ? 'paused' : 'running', animationDuration: `${PARTNER_BRANDS.length * 2.5}s` }}
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
         >
@@ -71,12 +72,12 @@ export function BrandMarquee({ showLabel = true }: { showLabel?: boolean }) {
                   logo real a color (crossfade de opacidad), ambos ocupando
                   el mismo lugar dentro de este contenedor relative. */}
               <div className="relative h-[52px] w-[84px] transition-transform duration-500 ease-out group-hover:scale-[1.35]">
-                <span
+                {!brand.solido && <span
                   aria-hidden
                   className="absolute inset-0 bg-brand-primary opacity-100 transition-opacity duration-500 ease-out group-hover:opacity-0"
                   style={{
-                    WebkitMaskImage: `url(${brand.maskLogo ?? brand.logo})`,
-                    maskImage: `url(${brand.maskLogo ?? brand.logo})`,
+                    WebkitMaskImage: `url(${brand.logo})`,
+                    maskImage: `url(${brand.logo})`,
                     WebkitMaskSize: 'contain',
                     maskSize: 'contain',
                     WebkitMaskRepeat: 'no-repeat',
@@ -84,13 +85,13 @@ export function BrandMarquee({ showLabel = true }: { showLabel?: boolean }) {
                     WebkitMaskPosition: 'center',
                     maskPosition: 'center',
                   }}
-                />
+                />}
                 <Image
                   src={brand.logo}
                   alt={brand.name}
                   fill
                   sizes="84px"
-                  className="object-contain opacity-0 transition-opacity duration-500 ease-out group-hover:opacity-100"
+                  className={`object-contain transition-opacity duration-500 ease-out ${brand.solido ? '' : 'opacity-0 group-hover:opacity-100'}`}
                 />
               </div>
             </a>

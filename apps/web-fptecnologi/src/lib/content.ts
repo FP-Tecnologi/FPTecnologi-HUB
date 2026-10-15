@@ -142,25 +142,58 @@ export const PERFORMANCE_FEATURES = [
   { title: 'Precisión', text: 'Cada cotización se arma a medida de tu operación, sin sobrantes ni faltantes.' },
 ] as const;
 
-export const PARTNER_BRANDS: { name: string; logo: string; maskLogo?: string }[] = [
-  { name: 'Dell', logo: '/images/brands/dell.png' },
-  { name: 'HP', logo: '/images/brands/hp.png' },
-  // maskLogo -- el archivo original tiene el fondo rojo de marca pegado (no
-  // transparente), así que sirve para el hover (se ve el logo real tal cual
-  // es), pero como silueta (mask-image en reposo) se veía como un cuadrado
-  // sólido. maskLogo es una versión aparte con el fondo rojo quitado
-  // (croma-key), solo para esa silueta.
-  { name: 'Lenovo', logo: '/images/brands/lenovo.png', maskLogo: '/images/brands/lenovo-mask.png' },
-  { name: 'Samsung', logo: '/images/brands/samsung.webp' },
-  { name: 'Xerox', logo: '/images/brands/xerox.png' },
-  { name: 'Sharp', logo: '/images/brands/sharp.webp' },
-  { name: 'Sophos', logo: '/images/brands/sophos.png' },
-  { name: 'ZKTeco', logo: '/images/brands/zkteco.png' },
-  { name: 'Optoma', logo: '/images/brands/optoma.png' },
-  { name: 'Shure', logo: '/images/brands/shure.png' },
-  { name: 'ViewSonic', logo: '/images/brands/viewsonic.webp' },
-  { name: 'Nureva', logo: '/images/brands/nureva.png' },
-  { name: 'ScreenBeam', logo: '/images/brands/screenbeam.png' },
+/* Marcas que distribuimos (logos en /public/images/marcas). `solido`: el logo
+ * viene dentro de una caja o fondo de color, así que en el carrusel se muestra
+ * a color siempre (como silueta saldría un bloque sólido). */
+export const PARTNER_BRANDS: { name: string; logo: string; solido?: boolean }[] = [
+  { name: 'Dell', logo: '/images/marcas/dell-partner.svg', solido: true },
+  { name: 'HP', logo: '/images/marcas/hp-amplify-partner.svg', solido: true },
+  { name: 'HPE', logo: '/images/marcas/hpe-marca.svg' },
+  { name: 'Lenovo', logo: '/images/marcas/lenovo.svg', solido: true },
+  { name: 'Apple', logo: '/images/marcas/apple-partner.svg' },
+  { name: 'Microsoft', logo: '/images/marcas/microsoft.svg' },
+  { name: 'Cisco', logo: '/images/marcas/cisco.svg' },
+  { name: 'Fortinet', logo: '/images/marcas/fortinet.svg' },
+  { name: 'Huawei', logo: '/images/marcas/huawei.svg' },
+  { name: 'Samsung', logo: '/images/marcas/samsung.svg' },
+  { name: 'LG', logo: '/images/marcas/lg.svg', solido: true },
+  { name: 'Intel', logo: '/images/marcas/intel.svg' },
+  { name: 'IBM', logo: '/images/marcas/ibm-partner.svg', solido: true },
+  { name: 'Epson', logo: '/images/marcas/epson.svg' },
+  { name: 'Xerox', logo: '/images/marcas/xerox.svg' },
+  { name: 'ViewSonic', logo: '/images/marcas/viewsonic.svg' },
+  { name: 'Optoma', logo: '/images/marcas/optoma.svg' },
+  { name: 'Nureva', logo: '/images/marcas/nureva.svg' },
+  { name: 'Logitech', logo: '/images/marcas/logitech.svg' },
+  { name: 'Poly', logo: '/images/marcas/poly.svg' },
+  { name: 'Jabra', logo: '/images/marcas/jabra.svg', solido: true },
+  { name: 'Axis', logo: '/images/marcas/axis.svg' },
+  { name: 'Hanwha', logo: '/images/marcas/hanwha.svg' },
+  { name: 'Hikvision', logo: '/images/marcas/hikvision.svg' },
+  { name: 'AxxonSoft', logo: '/images/marcas/axxonsoft.svg' },
+  { name: 'DJI', logo: '/images/marcas/dji.svg' },
+  { name: 'Sophos', logo: '/images/marcas/sophos.svg' },
+  { name: 'Kaspersky', logo: '/images/marcas/kaspersky.svg' },
+  { name: 'ESET', logo: '/images/marcas/eset.svg', solido: true },
+  { name: 'Bitdefender', logo: '/images/marcas/bitdefender.svg' },
+  { name: 'SonicWall', logo: '/images/marcas/sonicwall.svg' },
+  { name: 'Xcitium', logo: '/images/marcas/xcitium.svg' },
+  { name: 'APC', logo: '/images/marcas/apc.svg' },
+  { name: 'Eaton', logo: '/images/marcas/eaton.svg' },
+  { name: 'Vertiv', logo: '/images/marcas/vertiv.svg' },
+  { name: 'Schneider', logo: '/images/marcas/schneider.svg' },
+  { name: 'Salicru', logo: '/images/marcas/salicru.svg' },
+  { name: 'Panduit', logo: '/images/marcas/panduit.svg' },
+  { name: 'CommScope', logo: '/images/marcas/commscope.svg' },
+  { name: 'ThinkServer', logo: '/images/marcas/thinkserver.svg' },
+  { name: 'Satra', logo: '/images/marcas/satra.svg' },
+  { name: 'i3Connect', logo: '/images/marcas/i3connect.svg' },
+  { name: 'LAIA', logo: '/images/marcas/laia.svg' },
+  { name: 'TCL', logo: '/images/marcas/tcl.svg', solido: true },
+  { name: 'Adobe', logo: '/images/marcas/adobe.svg' },
+  { name: 'ChatGPT', logo: '/images/marcas/chatgpt.svg' },
+  { name: 'Copilot', logo: '/images/marcas/copilot.svg' },
+  { name: 'Gemini', logo: '/images/marcas/gemini.svg' },
 ];
 
 /* Slug de marca para /marcas/[slug] ("ScreenBeam" -> "screenbeam"). */
