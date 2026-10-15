@@ -27,7 +27,17 @@ export function FlipCatalogo({ src, titulo, inmersivo = false }: { src: string; 
       try {
         const pdfjs = await import('pdfjs-dist');
         pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
-        const pdf = await pdfjs.getDocument({ url: src }).promise;
+        // Sin estas rutas pdf.js no puede decodificar imágenes JPEG2000/JBIG2, perfiles de color ICC, fuentes estándar
+        // ni CMaps (CJK): esas imágenes salían en blanco o deformes. Los archivos viven en public/pdfjs.
+        const base = `${window.location.origin}/pdfjs/`;
+        const pdf = await pdfjs.getDocument({
+          url: src,
+          wasmUrl: `${base}wasm/`,
+          iccUrl: `${base}iccs/`,
+          cMapUrl: `${base}cmaps/`,
+          cMapPacked: true,
+          standardFontDataUrl: `${base}standard_fonts/`,
+        }).promise;
         const imgs: string[] = [];
         let ratio = 0.707;
         // Resolución según la pantalla: la página se ve a ~90 % del alto de la ventana; se rinde a 1.5× ese tamaño
