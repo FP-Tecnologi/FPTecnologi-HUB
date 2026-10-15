@@ -3,21 +3,8 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import { SectionBadge } from './SectionBadge';
+import { PARTNER_BADGES as PARTNERS } from '@/lib/content';
 
-// Insignias de partner con el nombre y el nivel (Gold, Elite, Platinum...)
-// escritos debajo. Para sumar/quitar una marca se edita esta
-// lista y su archivo en /public/images/partners.
-const PARTNERS = [
-  { name: 'Axis Communications', logo: '/images/partners/axis.png', level: 'Gold' },
-  { name: 'Dell Technologies', logo: '/images/partners/dell.png', level: 'Titanium' },
-  { name: 'Fortinet', logo: '/images/partners/fortinet.png', level: 'Advocate Integrator' },
-  { name: 'Genetec', logo: '/images/partners/genetec.png', level: 'Elite' },
-  { name: 'Hanwha', logo: '/images/partners/hanwha.png', level: 'Platinum' },
-  { name: 'HP', logo: '/images/partners/hp.png', level: 'Commercial Specialist' },
-  { name: 'Hewlett Packard Enterprise', logo: '/images/partners/hpe.png', level: 'Business' },
-  { name: 'Milestone Systems', logo: '/images/partners/milestone.png', level: 'Premier' },
-  { name: 'Vertiv', logo: '/images/partners/vertiv.png', level: 'Platinum' },
-];
 
 /* Franja de partners debajo del hero: sin título, sobre el mismo fondo del
    marco del hero (bg-paper), en carrusel infinito (.animate-marquee, 3

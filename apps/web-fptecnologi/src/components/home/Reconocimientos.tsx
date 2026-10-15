@@ -5,7 +5,7 @@ import { SectionBadge } from './SectionBadge';
 
 // Premios y reconocimientos de fabricantes y mayoristas. Para sumar uno se
 // agrega a esta lista y su foto en /public/images/premios.
-const PREMIOS = [
+export const PREMIOS = [
   { titulo: 'Premio Dell Technologies', otorga: 'Dell Technologies', foto: '/images/premios/dell.webp' },
   { titulo: 'Premios HP', otorga: 'HP', foto: '/images/premios/hp.webp' },
   { titulo: 'Trofeo Huawei', otorga: 'Huawei', foto: '/images/premios/huawei.webp' },

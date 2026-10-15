@@ -4,7 +4,7 @@ import { SectionBadge } from './SectionBadge';
 
 // Certificaciones de gestión. Para sumar/quitar una se edita esta lista y su
 // logo en /public/images/certificaciones.
-const CERTIFICACIONES = [
+export const CERTIFICACIONES = [
   { codigo: 'ISO 9001', nombre: 'Gestión de Calidad', logo: '/images/certificaciones/iso9001.png' },
   { codigo: 'ISO 14001', nombre: 'Gestión Ambiental', logo: '/images/certificaciones/iso14001.png' },
   { codigo: 'ISO 45001', nombre: 'Seguridad y Salud en el Trabajo', logo: '/images/certificaciones/iso45001.png' },
