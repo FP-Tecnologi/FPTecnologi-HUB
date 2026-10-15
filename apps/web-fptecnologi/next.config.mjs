@@ -22,6 +22,8 @@ const REDIRECCIONES = [
 ].map(([source, destination]) => ({ source, destination, permanent: true }));
 
 const nextConfig = {
+  // Menos RAM en el build: el contenedor de AI App Hosting mata el proceso ("Killed") si se pasa de memoria.
+  experimental: { webpackMemoryOptimizations: true, cpus: 1 },
   async redirects() {
     return REDIRECCIONES;
   },
