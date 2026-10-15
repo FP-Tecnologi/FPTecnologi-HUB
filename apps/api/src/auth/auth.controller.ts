@@ -120,7 +120,9 @@ export class AuthController {
   @Get('google/callback')
   async googleCallback(@Req() req: Request, @Res() res: Response) {
     const webOrigin = this.configService.get<AppConfig['web']>('web')!.origin;
-    const marcaId = typeof req.query.state === 'string' && req.query.state ? req.query.state : undefined;
+    // Registro por Google desactivado: las cuentas nuevas solo se crean por invitación del administrador.
+    // Sin marcaId el servicio rechaza correos que no tengan cuenta (solo entran los existentes).
+    const marcaId = undefined;
     try {
       const profile = req.user as GoogleProfile;
       const result = await this.authService.loginOrRegisterGoogle(profile.email, profile.nombre, profile.avatarUrl, marcaId);
