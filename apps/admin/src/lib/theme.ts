@@ -374,7 +374,7 @@ export function reset(): void {
   D.setAttribute('dir', 'ltr');
   D.removeAttribute('style');
   D.setAttribute('data-ax-theme', resolveTheme('system'));
-  D.setAttribute('lang', 'en');
+  D.setAttribute('lang', 'es');
   store.ensureSchema();
   emitChange('reset');
 }

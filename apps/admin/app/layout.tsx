@@ -61,7 +61,7 @@ const ANTI_FLASH = `
   D.removeAttribute('data-ax-font');
 
   /* ---- LANG + DIR ---- */
-  var lang = (get('ax:lang') || 'ES').toUpperCase();
+  var lang = 'ES'; // el dashboard es solo en español: ignora lo que haya guardado de la plantilla
   D.setAttribute('lang', lang.toLowerCase());
   var dirStored = get('ax:dir');
   var dir = dirStored ? dirStored : (lang === 'AR' ? 'rtl' : 'ltr');
