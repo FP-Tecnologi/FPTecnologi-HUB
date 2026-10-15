@@ -54,6 +54,20 @@ export class TarjetasController {
     return this.tarjetas.listar(marcaId);
   }
 
+  /** Crear la tarjeta de alguien del equipo que aún no la tiene. */
+  @Roles('admin', 'marketing')
+  @Post('para/:usuarioId')
+  crearPara(@MarcaActual() marcaId: string, @Param('usuarioId') usuarioId: string, @Body() dto: GuardarTarjetaDto) {
+    return this.tarjetas.guardarComoAdmin(marcaId, dto, { usuarioId });
+  }
+
+  /** Editar la tarjeta de cualquier persona del equipo. */
+  @Roles('admin', 'marketing')
+  @Put(':id')
+  editar(@MarcaActual() marcaId: string, @Param('id') id: string, @Body() dto: GuardarTarjetaDto) {
+    return this.tarjetas.guardarComoAdmin(marcaId, dto, { id });
+  }
+
   @Roles('admin', 'marketing')
   @Patch(':id/activo')
   activar(@MarcaActual() marcaId: string, @Param('id') id: string, @Body() dto: ActivarTarjetaDto) {

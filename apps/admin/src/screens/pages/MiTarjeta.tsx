@@ -13,7 +13,7 @@ import { descargarCanvas, dibujarTarjeta, ESTILOS_TARJETA, type EstiloTarjeta } 
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
-interface Tarjeta {
+export interface Tarjeta {
   id?: string; etiqueta: string; slug: string; estilo: EstiloTarjeta; vista: 'perfil' | 'linktree'; nombre: string; cargo: string | null; area: string | null; bio: string | null; fotoUrl: string | null; telefono: string | null;
   whatsapp: string | null; email: string | null; linkedin: string | null; web: string | null; agendaUrl: string | null;
   enlaces: { titulo: string; url: string }[]; activo: boolean; vistas: number;
@@ -21,7 +21,7 @@ interface Tarjeta {
 type Guardada = Tarjeta & { id: string; url: string; qr: string };
 interface Respuesta { tarjetas: Guardada[]; sugerido: { nombre: string; email: string; cargo: string; telefono: string }; guardadaId?: string | null }
 
-const VACIA: Tarjeta = { etiqueta: 'Principal', slug: '', estilo: 'clasico', vista: 'perfil', nombre: '', cargo: '', area: '', bio: '', fotoUrl: '', telefono: '', whatsapp: '', email: '', linkedin: '', web: '', agendaUrl: '', enlaces: [], activo: true, vistas: 0 };
+export const VACIA: Tarjeta = { etiqueta: 'Principal', slug: '', estilo: 'clasico', vista: 'perfil', nombre: '', cargo: '', area: '', bio: '', fotoUrl: '', telefono: '', whatsapp: '', email: '', linkedin: '', web: '', agendaUrl: '', enlaces: [], activo: true, vistas: 0 };
 const v = (x: string | null | undefined) => x ?? '';
 
 /** Qué le falta a la tarjeta (sobre lo que hay en el formulario) y qué hacer. */
@@ -59,7 +59,7 @@ const PALETA: Record<EstiloTarjeta, { fondo: string; portada: string; texto: str
 };
 
 /** Cómo se verá la página pública mientras se edita (sin guardar). Marco de celular. */
-function VistaPrevia({ t }: { t: Tarjeta }) {
+export function VistaPrevia({ t }: { t: Tarjeta }) {
   const c = PALETA[t.estilo] ?? PALETA.clasico;
   const botones: string[] = [
     ...(t.whatsapp?.trim() ? ['Escríbeme por WhatsApp'] : []),

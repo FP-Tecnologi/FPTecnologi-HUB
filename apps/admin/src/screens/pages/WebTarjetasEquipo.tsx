@@ -1,35 +1,54 @@
 'use client';
 /*
- * FPTecnologi-HUB — Tarjetas del equipo (Web informativa). Para quien administra: ve las tarjetas digitales de todo el
- * equipo, qué le falta a cada una (foto, cargo…), copia o abre su enlace único y puede ocultarla o mostrarla. Cada
- * persona edita la suya en Mi cuenta → Mi tarjeta digital.
+ * FPTecnologi-HUB — Tarjetas del equipo (Web informativa). Para quien administra: tabla con las tarjetas digitales de todo
+ * el equipo, qué le falta a cada una, enlace único, y puede EDITAR cualquiera (o crear la de quien aún no la tiene), con
+ * vista previa en vivo. Cada persona también edita la suya en Mi cuenta → Mi tarjeta digital.
  */
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
-import { urlImagen } from '../../components/ui/SubirImagen';
+import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
 import { ApiError, useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { ESTILOS_TARJETA, type EstiloTarjeta } from '../../lib/tarjetaGrafica';
+import { VACIA, VistaPrevia, type Tarjeta } from './MiTarjeta';
 
-interface Fila { id: string; slug: string; nombre: string; cargo: string | null; area: string | null; estilo: string; vista: string; activo: boolean; vistas: number; fotoUrl: string | null; faltantes: { campo: string; aviso: string }[]; url: string }
+type Fila = Tarjeta & { id: string; usuarioId: string; propietario: string | null; url: string; faltantes: { campo: string; aviso: string }[] };
 interface SinTarjeta { usuarioId: string; nombre: string; email: string; rol: string }
+interface Datos { tarjetas: Fila[]; sinTarjeta: SinTarjeta[] }
+/** Qué se está editando: una tarjeta existente (id) o una nueva para alguien del equipo (usuarioId). */
+type Edicion = { id?: string; usuarioId?: string; quien: string; form: Tarjeta };
 
 const ESTILO: Record<string, string> = { clasico: 'Clásico', moderno: 'Moderno', oscuro: 'Oscuro', minimal: 'Minimal' };
+const v = (x: string | null | undefined) => x ?? '';
 
 export function WebTarjetasEquipo() {
   const { activeMarcaId } = useAuth();
-  const [datos, setDatos] = useState<{ tarjetas: Fila[]; sinTarjeta: SinTarjeta[] } | null>(null);
+  const [datos, setDatos] = useState<Datos | null>(null);
   const [error, setError] = useState('');
   const [aviso, setAviso] = useState('');
+  const [q, setQ] = useState('');
+  const [filtro, setFiltro] = useState<'todas' | 'incompletas' | 'ocultas'>('todas');
+  const [edit, setEdit] = useState<Edicion | null>(null);
+  const [guardando, setGuardando] = useState(false);
 
   const cargar = useCallback(async () => {
     try {
-      setDatos(await api.get('/tarjetas'));
+      setDatos(await api.get<Datos>('/tarjetas'));
       setError('');
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'No se pudieron cargar las tarjetas.');
     }
   }, []);
   useEffect(() => { cargar(); }, [cargar, activeMarcaId]);
+
+  const visibles = useMemo(() => {
+    const t = q.trim().toLowerCase();
+    return (datos?.tarjetas ?? []).filter((f) => {
+      if (filtro === 'incompletas' && f.faltantes.length === 0) return false;
+      if (filtro === 'ocultas' && f.activo) return false;
+      return !t || [f.nombre, f.propietario, f.cargo, f.area, f.etiqueta, f.slug].some((x) => v(x).toLowerCase().includes(t));
+    });
+  }, [datos, q, filtro]);
 
   async function alternar(f: Fila) {
     try {
@@ -40,54 +59,205 @@ export function WebTarjetasEquipo() {
     }
   }
   async function copiar(url: string) {
-    try { await navigator.clipboard.writeText(url); setAviso('Enlace copiado.'); } catch { setError('No se pudo copiar el enlace.'); }
+    try { await navigator.clipboard.writeText(url); setAviso('Enlace copiado.'); setError(''); } catch { setError('No se pudo copiar el enlace.'); }
   }
+
+  const set = <K extends keyof Tarjeta>(k: K, valor: Tarjeta[K]) => setEdit((e) => (e ? { ...e, form: { ...e.form, [k]: valor } } : e));
+
+  async function guardar() {
+    if (!edit) return;
+    setGuardando(true);
+    setError('');
+    try {
+      const { vistas: _vistas, id: _id, ...cuerpo } = edit.form;
+      void _vistas; void _id;
+      const r = edit.id ? await api.put<Datos>(`/tarjetas/${edit.id}`, cuerpo) : await api.post<Datos>(`/tarjetas/para/${edit.usuarioId}`, cuerpo);
+      setDatos(r);
+      setEdit(null);
+      setAviso('Tarjeta guardada.');
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'No se pudo guardar.');
+    } finally {
+      setGuardando(false);
+    }
+  }
+
+  const campo = (k: keyof Tarjeta, label: string, placeholder?: string) => (
+    <div className="ax-field">
+      <label className="ax-label" htmlFor={`a-${k}`}>{label}</label>
+      <input id={`a-${k}`} className="ax-input" placeholder={placeholder} value={v(edit?.form[k] as string)} onChange={(e) => set(k, e.target.value as never)} />
+    </div>
+  );
 
   return (
     <>
-      <PageHead title="Tarjetas del equipo" subtitle="Las tarjetas digitales de todo el equipo, de cualquier área. Cada persona crea y edita la suya en Mi cuenta → Mi tarjeta digital; aquí las supervisas y compartes sus enlaces." />
+      <PageHead title="Tarjetas del equipo" subtitle="Todas las tarjetas digitales del equipo en una tabla. Puedes editar la de cualquier persona, crear la de quien aún no la tiene, ocultarla o copiar su enlace." />
       {error && <p role="alert" style={{ color: 'var(--ax-danger-500)' }}>{error}</p>}
       {aviso && <p role="status" style={{ color: 'var(--ax-text-muted)' }}>{aviso}</p>}
 
-      {datos && datos.tarjetas.length === 0 && <p style={{ color: 'var(--ax-text-muted)' }}>Aún nadie del equipo creó su tarjeta.</p>}
-      <div style={{ display: 'grid', gap: 'var(--ax-space-3)', gridTemplateColumns: 'repeat(auto-fill, minmax(21rem, 1fr))' }}>
-        {datos?.tarjetas.map((f) => (
-          <article key={f.id} className="ax-card" style={{ padding: 'var(--ax-space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-2)', opacity: f.activo ? 1 : 0.6 }}>
-            <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'nowrap' }}>
-              {f.fotoUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={urlImagen(f.fotoUrl)} alt="" width={52} height={52} style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover' }} />
+      <section className="ax-card" style={{ padding: 'var(--ax-space-4)' }}>
+        <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap', marginBlockEnd: 'var(--ax-space-3)' }}>
+          <input className="ax-input" style={{ maxWidth: 260 }} placeholder="Buscar persona, cargo, área o enlace…" aria-label="Buscar" value={q} onChange={(e) => setQ(e.target.value)} />
+          {(['todas', 'incompletas', 'ocultas'] as const).map((id) => (
+            <button key={id} type="button" aria-pressed={filtro === id} className={`ax-btn ax-btn--sm ${filtro === id ? 'ax-btn--secondary' : 'ax-btn--ghost'}`} onClick={() => setFiltro(id)}>
+              {id === 'todas' ? `Todas (${datos?.tarjetas.length ?? 0})` : id === 'incompletas' ? 'Incompletas' : 'Ocultas'}
+            </button>
+          ))}
+        </div>
+        <div className="ax-table-wrap">
+          <table className="ax-table ax-table--hover">
+            <thead className="ax-table__head">
+              <tr>
+                <th className="ax-table__th" scope="col">Persona</th>
+                <th className="ax-table__th" scope="col">Versión</th>
+                <th className="ax-table__th" scope="col">Cargo / área</th>
+                <th className="ax-table__th" scope="col">Diseño</th>
+                <th className="ax-table__th" scope="col">Visitas</th>
+                <th className="ax-table__th" scope="col">Estado</th>
+                <th className="ax-table__th" scope="col" style={{ textAlign: 'right' }}>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {!datos ? (
+                <tr><td className="ax-table__td" colSpan={7}>Cargando…</td></tr>
+              ) : visibles.length === 0 ? (
+                <tr><td className="ax-table__td" colSpan={7} style={{ color: 'var(--ax-text-muted)' }}>{datos.tarjetas.length === 0 ? 'Aún nadie del equipo creó su tarjeta.' : 'Ninguna tarjeta coincide con el filtro.'}</td></tr>
               ) : (
-                <span style={{ width: 52, height: 52, borderRadius: '50%', background: 'var(--ax-surface-subtle)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 20 }}>{f.nombre.charAt(0).toUpperCase()}</span>
+                visibles.map((f) => (
+                  <tr key={f.id} className="ax-table__row" style={{ opacity: f.activo ? 1 : 0.6 }}>
+                    <td className="ax-table__td">
+                      <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'nowrap' }}>
+                        {f.fotoUrl ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img src={urlImagen(f.fotoUrl)} alt="" width={40} height={40} style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+                        ) : (
+                          <span style={{ width: 40, height: 40, flexShrink: 0, borderRadius: '50%', background: 'var(--ax-surface-subtle)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{f.nombre.charAt(0).toUpperCase()}</span>
+                        )}
+                        <div style={{ minWidth: 0 }}>
+                          <strong style={{ display: 'block' }}>{f.nombre}</strong>
+                          <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>/tarjeta/{f.slug}</span>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="ax-table__td">{f.etiqueta}</td>
+                    <td className="ax-table__td">{[f.cargo, f.area].filter(Boolean).join(' · ') || <span style={{ color: 'var(--ax-text-subtle)' }}>Sin cargo</span>}</td>
+                    <td className="ax-table__td">{f.vista === 'linktree' ? 'Linktree' : 'Perfil'} · {ESTILO[f.estilo] ?? f.estilo}</td>
+                    <td className="ax-table__td">{f.vistas}</td>
+                    <td className="ax-table__td">
+                      <span className={`ax-badge ax-badge--soft ax-badge--sm ${f.activo ? 'ax-badge--success' : 'ax-badge--neutral'}`}>{f.activo ? 'Visible' : 'Oculta'}</span>
+                      {f.faltantes.length > 0 && <div title={f.faltantes.map((x) => x.aviso).join('\n')} style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-warning-600, #b45309)' }}>Falta: {f.faltantes.map((x) => x.campo).join(', ')}</div>}
+                    </td>
+                    <td className="ax-table__td" style={{ textAlign: 'right' }}>
+                      <div className="ax-cluster" style={{ gap: 4, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                        <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => setEdit({ id: f.id, quien: f.propietario ?? f.nombre, form: f })}>Editar</button>
+                        <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => copiar(f.url)}>Copiar enlace</button>
+                        <a className="ax-btn ax-btn--ghost ax-btn--sm" href={f.url} target="_blank" rel="noreferrer">Abrir</a>
+                        <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => alternar(f)}>{f.activo ? 'Ocultar' : 'Mostrar'}</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
               )}
-              <div style={{ minWidth: 0 }}>
-                <strong style={{ display: 'block' }}>{f.nombre}</strong>
-                <span style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>{[f.cargo, f.area].filter(Boolean).join(' · ') || 'Sin cargo'}</span>
-              </div>
-            </div>
-            <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{f.vista === 'linktree' ? 'Linktree' : 'Perfil'} · estilo {ESTILO[f.estilo] ?? f.estilo} · {f.vistas} visitas · {f.activo ? 'visible' : 'oculta'}</span>
-            {f.faltantes.length > 0 ? (
-              <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-warning-600, #b45309)' }}>Le falta: {f.faltantes.map((x) => x.campo).join(', ')}</span>
-            ) : (
-              <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-success-600, #15803d)' }}>Tarjeta completa</span>
-            )}
-            <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
-              <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => copiar(f.url)}>Copiar enlace</button>
-              <a className="ax-btn ax-btn--ghost ax-btn--sm" href={f.url} target="_blank" rel="noreferrer">Abrir</a>
-              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => alternar(f)}>{f.activo ? 'Ocultar' : 'Mostrar'}</button>
-            </div>
-          </article>
-        ))}
-      </div>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       {datos && datos.sinTarjeta.length > 0 && (
         <section className="ax-card" style={{ padding: 'var(--ax-space-4)', marginBlockStart: 'var(--ax-space-4)' }}>
           <strong>Aún sin tarjeta ({datos.sinTarjeta.length})</strong>
-          <p style={{ margin: '4px 0 8px', fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>Pídeles que entren a Mi cuenta → Mi tarjeta digital: se arma en minutos (foto, cargo y contacto).</p>
-          <ul style={{ margin: 0, paddingInlineStart: 18, fontSize: 'var(--ax-text-sm)' }}>
-            {datos.sinTarjeta.map((s) => <li key={s.usuarioId}>{s.nombre} <span style={{ color: 'var(--ax-text-subtle)' }}>· {s.rol}</span></li>)}
-          </ul>
+          <p style={{ margin: '4px 0 8px', fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>Puedes crearla tú por ellos o pedirles que entren a Mi cuenta → Mi tarjeta digital.</p>
+          <div className="ax-table-wrap">
+            <table className="ax-table">
+              <tbody>
+                {datos.sinTarjeta.map((s) => (
+                  <tr key={s.usuarioId} className="ax-table__row">
+                    <td className="ax-table__td">{s.nombre}<span style={{ color: 'var(--ax-text-subtle)' }}> · {s.rol}</span></td>
+                    <td className="ax-table__td" style={{ textAlign: 'right' }}>
+                      <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => setEdit({ usuarioId: s.usuarioId, quien: s.nombre, form: { ...VACIA, nombre: s.nombre, email: s.email } })}>Crear tarjeta</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </section>
+      )}
+
+      {edit && (
+        <div role="dialog" aria-modal="true" aria-label={`Editar tarjeta de ${edit.quien}`} style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,.45)', display: 'flex', justifyContent: 'flex-end' }} onClick={(e) => { if (e.target === e.currentTarget) setEdit(null); }}>
+          <div className="ax-card" style={{ width: 'min(960px, 100%)', height: '100%', overflowY: 'auto', padding: 'var(--ax-space-5)', borderRadius: 0, display: 'grid', gap: 'var(--ax-space-5)', gridTemplateColumns: 'repeat(auto-fit, minmax(18rem, 1fr))', alignContent: 'start' }}>
+            <div style={{ gridColumn: '1 / -1' }} className="ax-cluster">
+              <strong style={{ flex: 1 }}>{edit.id ? 'Editar tarjeta de' : 'Nueva tarjeta para'} {edit.quien}</strong>
+              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setEdit(null)}>Cerrar</button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
+              <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
+                {edit.form.fotoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={urlImagen(edit.form.fotoUrl)} alt="Foto" width={64} height={64} style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover' }} />
+                ) : (
+                  <span style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--ax-surface-subtle)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>{(edit.form.nombre || '?').charAt(0).toUpperCase()}</span>
+                )}
+                <SubirImagen etiqueta={edit.form.fotoUrl ? 'Cambiar foto' : 'Subir foto'} onSubida={(urls) => set('fotoUrl', urls[0])} />
+                {edit.form.fotoUrl && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => set('fotoUrl', '')}>Quitar foto</button>}
+              </div>
+              {campo('etiqueta', 'Nombre de la versión', 'Comercial, Redes…')}
+              {campo('nombre', 'Nombre completo')}
+              {campo('cargo', 'Cargo')}
+              {campo('area', 'Área')}
+              <div className="ax-field">
+                <label className="ax-label" htmlFor="a-bio">Presentación corta</label>
+                <textarea id="a-bio" className="ax-textarea" rows={3} maxLength={400} value={v(edit.form.bio)} onChange={(e) => set('bio', e.target.value)} />
+              </div>
+              {campo('telefono', 'Teléfono', '+51 970 614 881')}
+              {campo('whatsapp', 'WhatsApp (solo números con código de país)', '51970614881')}
+              {campo('email', 'Correo')}
+              {campo('linkedin', 'LinkedIn (enlace)', 'https://www.linkedin.com/in/…')}
+              {campo('web', 'Sitio web (enlace)', 'https://fptecnologi.com')}
+              {campo('agendaUrl', 'Enlace para agendar', 'https://calendly.com/…')}
+              {campo('slug', 'Enlace único (/tarjeta/…)', 'se genera con el nombre')}
+
+              <div className="ax-field" style={{ gap: 'var(--ax-space-2)' }}>
+                <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
+                  <span className="ax-label">Enlaces extra (hasta 12)</span>
+                  <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" disabled={edit.form.enlaces.length >= 12} onClick={() => set('enlaces', [...edit.form.enlaces, { titulo: '', url: '' }])}>Agregar</button>
+                </div>
+                {edit.form.enlaces.map((e, i) => (
+                  <div key={i} className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
+                    <input className="ax-input" placeholder="Título" aria-label={`Título del enlace ${i + 1}`} value={e.titulo} onChange={(ev) => set('enlaces', edit.form.enlaces.map((x, j) => (j === i ? { ...x, titulo: ev.target.value } : x)))} />
+                    <input className="ax-input" placeholder="https://…" aria-label={`Enlace ${i + 1}`} value={e.url} onChange={(ev) => set('enlaces', edit.form.enlaces.map((x, j) => (j === i ? { ...x, url: ev.target.value } : x)))} />
+                    <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" aria-label="Quitar enlace" onClick={() => set('enlaces', edit.form.enlaces.filter((_, j) => j !== i))}>✕</button>
+                  </div>
+                ))}
+              </div>
+
+              <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
+                <select className="ax-select" aria-label="Diseño de la página" value={edit.form.vista} onChange={(e) => set('vista', e.target.value as Tarjeta['vista'])}>
+                  <option value="perfil">Diseño: Perfil completo</option>
+                  <option value="linktree">Diseño: Linktree</option>
+                </select>
+                <select className="ax-select" aria-label="Estilo" value={edit.form.estilo} onChange={(e) => set('estilo', e.target.value as EstiloTarjeta)}>
+                  {ESTILOS_TARJETA.map((e) => <option key={e.id} value={e.id}>Estilo: {e.nombre}</option>)}
+                </select>
+              </div>
+              <label className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap', fontSize: 'var(--ax-text-sm)' }}>
+                <input type="checkbox" className="ax-switch" checked={edit.form.activo} onChange={(e) => set('activo', e.target.checked)} />
+                Tarjeta visible al público
+              </label>
+              <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
+                <button type="button" className="ax-btn ax-btn--primary" disabled={guardando || edit.form.nombre.trim().length < 2} onClick={guardar}>{guardando ? 'Guardando…' : 'Guardar cambios'}</button>
+                <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEdit(null)}>Cancelar</button>
+              </div>
+            </div>
+
+            <div style={{ position: 'sticky', top: 0, alignSelf: 'start' }}>
+              <strong style={{ display: 'block', marginBlockEnd: 'var(--ax-space-2)' }}>Vista previa</strong>
+              <VistaPrevia t={edit.form} />
+            </div>
+          </div>
+        </div>
       )}
     </>
   );

@@ -31,11 +31,13 @@ export class TarjetasService {
   }
 
   /** Guarda una versión existente (con `id`), la primera si no hay id, o crea una nueva (`nueva`). El slug (enlace) es único por marca. */
-  async guardarMia(marcaId: string, usuarioId: string, dto: GuardarTarjetaDto, opciones: { id?: string; nueva?: boolean } = {}) {
-    let actual: { id: string; slug: string; etiqueta: string; estilo: string; vista: string } | null = null;
+  async guardarMia(marcaId: string, usuarioId: string, dto: GuardarTarjetaDto, opciones: { id?: string; nueva?: boolean; comoAdmin?: boolean } = {}) {
+    let actual: { id: string; usuarioId: string; slug: string; etiqueta: string; estilo: string; vista: string } | null = null;
     if (!opciones.nueva) {
-      actual = await this.prisma.tarjetaDigital.findFirst({ where: { marcaId, usuarioId, ...(opciones.id ? { id: opciones.id } : {}) }, orderBy: { createdAt: 'asc' } });
+      // Quien administra edita la de cualquiera de la marca (por id); cada persona, solo las suyas.
+      actual = await this.prisma.tarjetaDigital.findFirst({ where: { marcaId, ...(opciones.comoAdmin ? {} : { usuarioId }), ...(opciones.id ? { id: opciones.id } : {}) }, orderBy: { createdAt: 'asc' } });
       if (opciones.id && !actual) throw new NotFoundException('Tarjeta no encontrada');
+      if (opciones.comoAdmin && actual) usuarioId = actual.usuarioId;
     }
     const pedido = dto.slug?.trim().toLowerCase();
     const base = pedido || actual?.slug || slugDe(dto.nombre);
@@ -102,12 +104,24 @@ export class TarjetasService {
       this.prisma.tarjetaDigital.findMany({ where: { marcaId }, orderBy: { nombre: 'asc' } }),
       this.prisma.usuarioMarcaRol.findMany({ where: { marcaId }, include: { usuario: { select: { id: true, nombre: true, email: true } }, rol: { select: { nombre: true } } } }),
     ]);
+    const duenos = new Map(equipo.map((e) => [e.usuarioId, e.usuario.nombre ?? e.usuario.email]));
     const conTarjeta = new Set(tarjetas.map((t) => t.usuarioId));
     const sinTarjeta = [...new Map(equipo.filter((e) => e.rol.nombre !== 'cliente' && !conTarjeta.has(e.usuarioId)).map((e) => [e.usuarioId, { usuarioId: e.usuarioId, nombre: e.usuario.nombre ?? e.usuario.email, email: e.usuario.email, rol: e.rol.nombre }])).values()];
     return {
-      tarjetas: tarjetas.map((t) => ({ id: t.id, slug: t.slug, etiqueta: t.etiqueta, nombre: t.nombre, cargo: t.cargo, area: t.area, estilo: t.estilo, vista: t.vista, activo: t.activo, vistas: t.vistas, fotoUrl: t.fotoUrl, faltantes: faltantes(t), url: this.urlDe(t.slug) })),
+      tarjetas: tarjetas.map((t) => ({ ...t, propietario: duenos.get(t.usuarioId) ?? null, faltantes: faltantes(t), url: this.urlDe(t.slug) })),
       sinTarjeta,
     };
+  }
+
+  /** Quien administra edita o crea la tarjeta de otra persona del equipo; devuelve el listado completo. */
+  async guardarComoAdmin(marcaId: string, dto: GuardarTarjetaDto, destino: { id: string } | { usuarioId: string }) {
+    if ('id' in destino) await this.guardarMia(marcaId, '', dto, { id: destino.id, comoAdmin: true });
+    else {
+      const miembro = await this.prisma.usuarioMarcaRol.findFirst({ where: { marcaId, usuarioId: destino.usuarioId }, select: { usuarioId: true } });
+      if (!miembro) throw new NotFoundException('Esa persona no es del equipo');
+      await this.guardarMia(marcaId, destino.usuarioId, dto, { nueva: true });
+    }
+    return this.listar(marcaId);
   }
 
   /** Mostrar u ocultar una tarjeta (p. ej. cuando alguien deja el equipo). */
