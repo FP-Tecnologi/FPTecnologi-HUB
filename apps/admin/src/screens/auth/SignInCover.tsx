@@ -139,7 +139,6 @@ export function SignInCover() {
             </form>
 
             <p style={{ margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
-              New to FPTecnologi? <Link className="ax-link" href="/auth/sign-up-cover" style={{ fontWeight: 'var(--ax-weight-medium)' }}>Create an account</Link>
             </p>
           </div>
         </main>

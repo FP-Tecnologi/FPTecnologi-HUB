@@ -1,5 +1,6 @@
-import { metadataForSlug } from '../../../../src/lib/pageMetadata';
+import { redirect } from 'next/navigation';
 
-export const metadata = metadataForSlug('auth/sign-up-cover');
-
-export { SignUpCover as default } from '../../../../src/screens/auth/SignUpCover';
+// El registro abierto está desactivado: las cuentas nuevas entran por invitación del administrador.
+export default function Page() {
+  redirect('/auth/sign-in');
+}

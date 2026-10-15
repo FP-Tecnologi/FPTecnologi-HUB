@@ -38,7 +38,9 @@ function TwoStepTotpInner() {
     verifyTotp(email, code.trim(), trust)
       .then(() => {
         setLoading(false);
-        router.push('/');
+        // Navegación completa: el router de Next puede traer en caché la redirección
+        // de '/' -> login (de antes de tener sesión) y devolver al usuario al login.
+        window.location.assign('/');
       })
       .catch((err: unknown) => {
         setLoading(false);
