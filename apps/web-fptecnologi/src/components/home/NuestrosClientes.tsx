@@ -25,7 +25,7 @@ export function NuestrosClientes({ c = HOME_DEFAULTS.clientes, sectors = CLIENT_
   if (!gobierno) return null;
 
   return (
-    <section id="clientes" className="bg-white py-20">
+    <section id="clientes" className="py-20">
       <div className="mx-auto max-w-7xl px-6">
         <ScrollReveal direction="up" className="mx-auto mb-14 flex max-w-2xl flex-col items-center text-center">
           <SectionBadge>{c.badge}</SectionBadge>
@@ -74,8 +74,8 @@ function SectorBox({ sector }: { sector: ClientSector }) {
 
       <div className="relative overflow-hidden py-4">
         {/* Degradé en los bordes para que las tarjetas entren/salgan suave. */}
-        <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-white to-transparent" />
-        <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-white to-transparent" />
+        <div aria-hidden className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-paper to-transparent" />
+        <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-paper to-transparent" />
 
         <div
           className="animate-marquee flex w-max gap-4"

@@ -17,9 +17,9 @@ export function BrandMarquee({ showLabel = true }: { showLabel?: boolean }) {
   const [paused, setPaused] = useState(false);
 
   return (
-    // bg-paper (antes bg-white) -- mismo fondo que la sección de Nosotros,
-    // para que no se sienta como un bloque blanco puro distinto del resto.
-    <section id="marcas" className="bg-paper py-3">
+    // Sin fondo propio: se ve el paper con puntitos del body (igual que
+    // Clientes, que va debajo en Nosotros y Proyectos).
+    <section id="marcas" className={showLabel ? 'pb-4 pt-20' : 'py-3'}>
       {showLabel && (
         <div className="mx-auto mb-8 flex max-w-4xl flex-col items-center px-6 text-center">
           <SectionBadge>Distribución autorizada</SectionBadge>

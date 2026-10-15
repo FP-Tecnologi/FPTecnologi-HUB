@@ -9,7 +9,6 @@ import { CertificacionesISO } from '@/components/home/CertificacionesISO';
 import { Reconocimientos } from '@/components/home/Reconocimientos';
 import { PartnerLevels } from '@/components/home/PartnerLevels';
 import { BrandMarquee } from '@/components/home/BrandMarquee';
-import { WhyChooseUs } from '@/components/home/WhyChooseUs';
 import { NuestrosClientes } from '@/components/home/NuestrosClientes';
 import { Contact } from '@/components/home/Contact';
 import { Footer } from '@/components/home/Footer';
@@ -106,7 +105,6 @@ export default async function NosotrosPage() {
         <Reconocimientos />
         <BrandMarquee />
         <NuestrosClientes sectors={clientes} />
-        <WhyChooseUs />
         <Contact />
       </main>
       <Footer />
