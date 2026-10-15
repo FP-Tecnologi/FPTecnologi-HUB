@@ -119,7 +119,9 @@ export class MailService {
   /** Envío cuyo error se propaga (el equipo debe saber si no salió); `adjuntos` = PDF generados en el servidor. */
   private async sendConError(to: string, subject: string, html: string, attachments?: Adjunto[]): Promise<void> {
     if (this.driver === 'resend') {
-      await this.resend!.emails.send({ from: this.fromEmail, to, subject, html, ...(attachments?.length ? { attachments } : {}) });
+      // El SDK de Resend NO lanza: devuelve { error }. Sin esta revisión un dominio sin verificar o una API key mala pasa en silencio.
+      const { error } = await this.resend!.emails.send({ from: this.fromEmail, to, subject, html, ...(attachments?.length ? { attachments } : {}) });
+      if (error) throw new Error(`Resend: ${error.name} - ${error.message}`);
     } else {
       await this.smtpTransport!.sendMail({ from: this.fromEmail, to, subject, html, ...(attachments?.length ? { attachments } : {}) });
     }
@@ -128,7 +130,8 @@ export class MailService {
   private async send(to: string, { subject, html }: { subject: string; html: string }): Promise<void> {
     try {
       if (this.driver === 'resend') {
-        await this.resend!.emails.send({ from: this.fromEmail, to, subject, html });
+        const { error } = await this.resend!.emails.send({ from: this.fromEmail, to, subject, html });
+        if (error) throw new Error(`Resend: ${error.name} - ${error.message}`);
       } else {
         await this.smtpTransport!.sendMail({ from: this.fromEmail, to, subject, html });
       }
