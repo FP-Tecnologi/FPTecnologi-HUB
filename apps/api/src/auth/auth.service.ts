@@ -35,43 +35,6 @@ export class AuthService {
     private readonly mailService: MailService,
   ) {}
 
-  /**
-   * Public self-registration — ecommerce customers only. Always lands on
-   * the "cliente" role for the given marca; creating staff accounts is an
-   * admin-only action (RolesService.crearUsuarioEnMarca), never this.
-   */
-  async register(email: string, password: string, marcaId: string, nombre?: string) {
-    email = normalizeEmail(email);
-    const existing = await this.prisma.usuario.findUnique({ where: { email } });
-    if (existing) {
-      throw new ConflictException('Ya existe un usuario con ese correo');
-    }
-
-    const marca = await this.prisma.marca.findUnique({ where: { id: marcaId } });
-    if (!marca) {
-      throw new BadRequestException('Marca no encontrada');
-    }
-    const rolCliente = await this.prisma.rol.findUnique({ where: { nombre: ROL_CLIENTE } });
-    if (!rolCliente) {
-      throw new BadRequestException('El rol "cliente" no está configurado todavía');
-    }
-
-    const passwordHash = await bcrypt.hash(password, SALT_ROUNDS);
-    const usuario = await this.prisma.usuario.create({
-      data: {
-        email,
-        passwordHash,
-        nombre,
-        bienvenidaVista: false,
-        marcas: { create: { marcaId, rolId: rolCliente.id } },
-      },
-    });
-
-    await this.mailService.sendWelcome(usuario.email, usuario.nombre);
-
-    return { id: usuario.id, email: usuario.email, nombre: usuario.nombre };
-  }
-
   /** Step 1 of forgot-password: emails a reset code if the account exists (anti-enumeration: same response either way). */
   async requestPasswordReset(email: string): Promise<{ sent: true }> {
     email = normalizeEmail(email);

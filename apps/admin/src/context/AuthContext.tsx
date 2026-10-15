@@ -53,7 +53,6 @@ interface AuthContextValue {
   verifyOtp: (email: string, codigo: string, trustDevice?: boolean) => Promise<VerifyResult>;
   verifyTotp: (email: string, code: string, trustDevice?: boolean) => Promise<VerifyResult>;
   completeGoogleLogin: (accessToken: string, refreshToken: string, usuario: AuthUser, primeraVez?: boolean) => Promise<VerifyResult>;
-  register: (email: string, password: string, marcaId: string, nombre?: string) => Promise<{ id: string; email: string; nombre: string | null }>;
   requestPasswordReset: (email: string) => Promise<{ sent: true }>;
   confirmPasswordReset: (email: string, codigo: string, newPassword: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -196,14 +195,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return completeSession({ accessToken, refreshToken, usuario, primeraVez });
   }, [completeSession]);
 
-  const register = useCallback(async (email: string, password: string, marcaId: string, nombre?: string) => {
-    return api.post<{ id: string; email: string; nombre: string | null }>(
-      '/auth/register',
-      { email, password, marcaId, nombre },
-      { auth: false },
-    );
-  }, []);
-
   const requestPasswordReset = useCallback(async (email: string) => {
     return api.post<{ sent: true }>('/auth/password-reset/request', { email }, { auth: false });
   }, []);
@@ -247,11 +238,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<AuthContextValue>(() => ({
     user, marcas, activeMarcaId, loading, login, verifyOtp, verifyTotp, completeGoogleLogin,
-    register, requestPasswordReset, confirmPasswordReset,
+    requestPasswordReset, confirmPasswordReset,
     logout, setActiveMarcaId, adminMode, setAdminMode, refreshMarcas, updateProfile,
   }), [
     user, marcas, activeMarcaId, loading, login, verifyOtp, verifyTotp, completeGoogleLogin,
-    register, requestPasswordReset, confirmPasswordReset,
+    requestPasswordReset, confirmPasswordReset,
     logout, setActiveMarcaId, adminMode, setAdminMode, refreshMarcas, updateProfile,
   ]);
 

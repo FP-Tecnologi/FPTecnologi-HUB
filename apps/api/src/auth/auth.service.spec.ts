@@ -450,53 +450,6 @@ describe('AuthService', () => {
     });
   });
 
-  describe('register', () => {
-    it('rejects a duplicate email', async () => {
-      prisma.usuario.findUnique.mockResolvedValue({ id: 'existing' });
-
-      await expect(service.register('a@b.com', 'correct-password', 'm1')).rejects.toThrow(
-        ConflictException,
-      );
-      expect(prisma.usuario.create).not.toHaveBeenCalled();
-    });
-
-    it('rejects an unknown marcaId', async () => {
-      prisma.usuario.findUnique.mockResolvedValue(null);
-      prisma.marca.findUnique.mockResolvedValue(null);
-
-      await expect(service.register('a@b.com', 'correct-password', 'bad-marca')).rejects.toThrow(
-        BadRequestException,
-      );
-    });
-
-    it('always lands on the "cliente" role, never an admin/staff one', async () => {
-      prisma.usuario.findUnique.mockResolvedValue(null);
-      prisma.marca.findUnique.mockResolvedValue({ id: 'm1', nombre: 'FPTecnologi' });
-      prisma.rol.findUnique.mockResolvedValue({ id: 'rol-cliente', nombre: 'cliente' });
-      prisma.usuario.create.mockResolvedValue({ id: 'u1', email: 'a@b.com', nombre: 'Ana' });
-
-      const result = await service.register('a@b.com', 'correct-password', 'm1', 'Ana');
-
-      expect(result).toEqual({ id: 'u1', email: 'a@b.com', nombre: 'Ana' });
-      expect(prisma.rol.findUnique).toHaveBeenCalledWith({ where: { nombre: 'cliente' } });
-      const createArgs = prisma.usuario.create.mock.calls[0][0];
-      expect(createArgs.data.marcas.create).toEqual({ marcaId: 'm1', rolId: 'rol-cliente' });
-      expect(await bcrypt.compare('correct-password', createArgs.data.passwordHash)).toBe(true);
-    });
-
-    it('stores the email normalized (trimmed + lowercase)', async () => {
-      prisma.usuario.findUnique.mockResolvedValue(null);
-      prisma.marca.findUnique.mockResolvedValue({ id: 'm1', nombre: 'FPTecnologi' });
-      prisma.rol.findUnique.mockResolvedValue({ id: 'rol-cliente', nombre: 'cliente' });
-      prisma.usuario.create.mockResolvedValue({ id: 'u1', email: 'new@b.com', nombre: 'Ana' });
-
-      await service.register('  New@B.com ', 'correct-password', 'm1', 'Ana');
-
-      expect(prisma.usuario.findUnique).toHaveBeenCalledWith({ where: { email: 'new@b.com' } });
-      expect(prisma.usuario.create.mock.calls[0][0].data.email).toBe('new@b.com');
-    });
-  });
-
   describe('requestPasswordReset / confirmPasswordReset', () => {
     it('emails a reset code for an existing active user', async () => {
       prisma.usuario.findUnique.mockResolvedValue({ id: 'u1', email: 'a@b.com', activo: true });

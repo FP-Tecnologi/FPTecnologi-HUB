@@ -3,7 +3,6 @@ import { Limite } from '../common/guards/limite-peticiones.guard.js';
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
 import { AuthService } from './auth.service.js';
-import { RegisterDto } from './dto/register.dto.js';
 import { LoginDto } from './dto/login.dto.js';
 import { VerifyOtpDto } from './dto/verify-otp.dto.js';
 import { RequestOtpDto } from './dto/request-otp.dto.js';
@@ -42,16 +41,6 @@ export class AuthController {
       maxAge: DEVICE_COOKIE_MAX_AGE_MS,
       path: '/',
     });
-  }
-
-  // Auto-registro público — SOLO clientes (ecommerce), siempre cae en el
-  // rol "cliente" de la marca indicada. Cuentas de equipo/staff las crea
-  // un admin desde POST /roles/equipo (ver RolesController), nunca esto.
-  @Public()
-  @Limite(10)
-  @Post('register')
-  register(@Body() dto: RegisterDto) {
-    return this.authService.register(dto.email, dto.password, dto.marcaId, dto.nombre);
   }
 
   @Public()
