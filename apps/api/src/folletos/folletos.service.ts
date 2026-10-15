@@ -16,7 +16,8 @@ export class FolletosService {
   ) {}
 
   private fila<T extends { slug: string; archivoUrl: string }>(f: T) {
-    return { ...f, url: `${web()}/folleto/${f.slug}` };
+    const api = (process.env.PUBLIC_API_URL ?? `http://localhost:${process.env.PORT ?? 3001}`).replace(/\/$/, '');
+    return { ...f, url: `${web()}/folleto/${f.slug}`, pdf: f.archivoUrl.startsWith('/') ? `${api}${f.archivoUrl}` : f.archivoUrl };
   }
 
   async listar(marcaId: string) {

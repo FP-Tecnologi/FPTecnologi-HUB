@@ -15,6 +15,9 @@ describe('escaneoBasico', () => {
     expect(escaneoBasico(Buffer.from('PK\x03\x04....word/vbaProject.bin'))).toMatch(/macros/);
     expect(escaneoBasico(Buffer.from('PK\x03\x04....instalador.exePK\x01\x02'))).toMatch(/ejecutables/);
   });
+  it('un PDF con «/JS» dentro de un stream o con adjuntos sin acción no se rechaza', () => {
+    expect(escaneoBasico(Buffer.from('%PDF-1.7\n5 0 obj\n<< /Length 9 >>\nstream\n/JS (x) /S /JavaScript\nendstream\nendobj\n<< /Type /EmbeddedFile >>'))).toBeNull();
+  });
   it('un ZIP de imágenes pasa', () => {
     expect(escaneoBasico(Buffer.from('PK\x03\x04....logo.pngPK\x01\x02....banner.jpgPK\x05\x06'))).toBeNull();
   });

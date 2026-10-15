@@ -9,6 +9,30 @@ const EICAR = 'X5O!P%@AP[4\\PZX54(P^)7CC)7}$EICAR-STANDARD-ANTIVIRUS-TEST-FILE!$
 /** Extensiones de ejecutables/scripts que no deben viajar dentro de un ZIP u Office. */
 const EXT_PELIGROSAS = /\.(exe|dll|scr|com|bat|cmd|ps1|vbs|vbe|js|jse|wsf|msi|jar|lnk|hta|cpl|reg|sh|apk)$/i;
 
+/** Quita el contenido de los `stream … endstream`: es binario comprimido y puede contener por azar texto como «/JS». */
+function sinStreams(txt: string): string {
+  const partes: string[] = [];
+  let i = 0;
+  for (;;) {
+    const ini = txt.indexOf('stream', i);
+    if (ini < 0) break;
+    partes.push(txt.slice(i, ini));
+    const fin = txt.indexOf('endstream', ini + 6);
+    if (fin < 0) { i = txt.length; break; }
+    i = fin + 9;
+  }
+  partes.push(txt.slice(i));
+  return partes.join('');
+}
+
+/**
+ * Un PDF es sospechoso solo si declara una acción real (`/S /JavaScript`, `/JS (…)`, `/S /Launch`) en su estructura.
+ * Llevar adjuntos o fuentes incrustadas (Canva, InDesign, Word) no es peligroso y antes se rechazaba por error.
+ */
+function pdfConAcciones(txt: string): boolean {
+  return /\/S\s*\/(JavaScript|Launch)\b|\/JS\s*[(<]|\/JS\s*\d+\s+\d+\s+R\b/.test(sinStreams(txt));
+}
+
 /**
  * Filtro propio, siempre activo (sin dependencias): firmas de ejecutables, EICAR, PDFs con acciones activas
  * (JavaScript / Launch), macros de Office y ZIPs con ejecutables dentro. Los nombres de un ZIP viajan en claro en su
@@ -21,7 +45,7 @@ export function escaneoBasico(b: Buffer): string | null {
   if (b.toString('latin1', 0, 2) === '#!') return 'script ejecutable';
   const txt = b.toString('latin1');
   if (txt.includes(EICAR)) return 'firma de prueba de virus (EICAR)';
-  if (txt.startsWith('%PDF-') && /\/(JavaScript|JS|Launch|EmbeddedFile)\b/.test(txt)) return 'PDF con acciones activas (JavaScript o archivos incrustados)';
+  if (txt.startsWith('%PDF-') && pdfConAcciones(txt)) return 'PDF con JavaScript o acciones de lanzamiento (expórtalo de nuevo con «Imprimir → Guardar como PDF»)';
   if (txt.startsWith('PK\x03\x04')) {
     if (txt.includes('vbaProject.bin')) return 'documento con macros';
     const nombres = txt.match(/[\w ./()-]{1,200}\.(?:exe|dll|scr|com|bat|cmd|ps1|vbs|vbe|js|jse|wsf|msi|jar|lnk|hta|cpl|reg|sh|apk)(?=PK|[^\w])/gi);

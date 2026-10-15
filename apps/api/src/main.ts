@@ -28,6 +28,9 @@ async function bootstrap() {
       res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
       res.setHeader('Access-Control-Allow-Origin', '*'); // contenido público: el dashboard lo dibuja en un canvas (tarjeta digital descargable)
       res.setHeader('X-Content-Type-Options', 'nosniff');
+      // helmet manda X-Frame-Options: SAMEORIGIN; los PDF se previsualizan en un iframe del dashboard (otro origen).
+      res.removeHeader('X-Frame-Options');
+      res.setHeader('Content-Security-Policy', 'frame-ancestors *');
     },
   });
   // Origen explícito (no '*') + credentials:true — necesario para la cookie
