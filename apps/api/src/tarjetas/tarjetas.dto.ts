@@ -1,4 +1,4 @@
-import { IsArray, IsBoolean, IsIn, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsArray, IsBoolean, IsIn, IsObject, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 import { ESTILOS, VISTAS, type EstiloTarjeta, type VistaTarjeta } from './tarjetas.modelo.js';
 
 /** Campos de la tarjeta; el servicio vuelve a validar URLs, slug y enlaces. */
@@ -26,6 +26,15 @@ export class GuardarTarjetaDto {
 
   @IsOptional() @IsString() @MaxLength(500)
   portadaUrl?: string;
+
+  @IsOptional() @IsObject()
+  mostrar?: Record<string, boolean>;
+
+  @IsOptional() @IsString() @MaxLength(9)
+  qrColor?: string;
+
+  @IsOptional() @IsString() @MaxLength(9)
+  qrFondo?: string;
 
   @IsOptional() @IsString() @MaxLength(30)
   telefono?: string;
@@ -56,6 +65,17 @@ export class GuardarTarjetaDto {
 
   @IsOptional() @IsBoolean()
   activo?: boolean;
+}
+
+export class QrPreviaDto {
+  @IsOptional() @IsString() @MaxLength(60)
+  slug?: string;
+
+  @IsOptional() @IsString() @MaxLength(9)
+  color?: string;
+
+  @IsOptional() @IsString() @MaxLength(9)
+  fondo?: string;
 }
 
 export class ActivarTarjetaDto {

@@ -1,7 +1,7 @@
 import { BadRequestException, Body, Controller, Delete, ForbiddenException, Get, Param, Patch, Post, Put, Query, Res, UseGuards } from '@nestjs/common';
 import type { Response } from 'express';
 import { TarjetasService } from './tarjetas.service.js';
-import { ActivarTarjetaDto, GuardarTarjetaDto } from './tarjetas.dto.js';
+import { ActivarTarjetaDto, GuardarTarjetaDto, QrPreviaDto } from './tarjetas.dto.js';
 import { MarcaRolGuard } from '../common/guards/marca-rol.guard.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
 import { MarcaActual } from '../common/decorators/marca-actual.decorator.js';
@@ -26,6 +26,13 @@ export class TarjetasController {
   mias(@MarcaActual() marcaId: string, @CurrentUser() user: AuthenticatedUser) {
     this.soloEquipo(user, marcaId);
     return this.tarjetas.mias(marcaId, user.sub);
+  }
+
+  /** QR de muestra con los colores elegidos (vista previa del editor). */
+  @Post('qr')
+  qr(@MarcaActual() marcaId: string, @CurrentUser() user: AuthenticatedUser, @Body() dto: QrPreviaDto) {
+    this.soloEquipo(user, marcaId);
+    return this.tarjetas.qrPrevia(dto);
   }
 
   /** Nueva versión de mi tarjeta (p. ej. una para el área comercial y otra para soporte). */

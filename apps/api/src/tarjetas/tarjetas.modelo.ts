@@ -20,6 +20,47 @@ export function faltantes(t: { fotoUrl?: string | null; cargo?: string | null; b
 }
 
 
+/** Datos y bloques que cada persona puede mostrar u ocultar en su tarjeta pública. */
+export const CAMPOS_MOSTRAR = ['foto', 'cargo', 'area', 'bio', 'telefono', 'whatsapp', 'email', 'linkedin', 'web', 'agenda', 'enlaces', 'cotizar', 'vcard', 'compartir', 'qr'] as const;
+export type CampoMostrar = (typeof CAMPOS_MOSTRAR)[number];
+export type Mostrar = Partial<Record<CampoMostrar, boolean>>;
+
+/** Solo claves conocidas con valor booleano; se guarda únicamente lo que está oculto (false). */
+export function limpiarMostrar(v: unknown): Mostrar {
+  const out: Mostrar = {};
+  if (!v || typeof v !== 'object') return out;
+  for (const k of CAMPOS_MOSTRAR) if ((v as Record<string, unknown>)[k] === false) out[k] = false;
+  return out;
+}
+
+/** Quita de la tarjeta lo que su dueño decidió no mostrar (para la web pública, la vCard y el QR). */
+export function aplicarMostrar<T extends { fotoUrl?: string | null; cargo?: string | null; area?: string | null; bio?: string | null; telefono?: string | null; whatsapp?: string | null; email?: string | null; linkedin?: string | null; web?: string | null; agendaUrl?: string | null; enlaces?: unknown }>(t: T, m: unknown): T {
+  const o = limpiarMostrar(m);
+  const r = { ...t };
+  if (o.foto === false) r.fotoUrl = null;
+  if (o.cargo === false) r.cargo = null;
+  if (o.area === false) r.area = null;
+  if (o.bio === false) r.bio = null;
+  if (o.telefono === false) r.telefono = null;
+  if (o.whatsapp === false) r.whatsapp = null;
+  if (o.email === false) r.email = null;
+  if (o.linkedin === false) r.linkedin = null;
+  if (o.web === false) r.web = null;
+  if (o.agenda === false) r.agendaUrl = null;
+  if (o.enlaces === false) r.enlaces = [];
+  return r;
+}
+
+/** #rrggbb válido, null si está vacío, undefined si no es un color. */
+export function limpiarColor(c: string | null | undefined): string | null | undefined {
+  const t = (c ?? '').trim();
+  if (!t) return null;
+  return /^#[0-9a-fA-F]{6}$/.test(t) ? t.toLowerCase() : undefined;
+}
+
+/** Enlaces que no puede tomar una persona (rutas propias de la web). */
+export const SLUGS_RESERVADOS = ['vista-previa'];
+
 export interface EnlaceTarjeta {
   titulo: string;
   url: string;

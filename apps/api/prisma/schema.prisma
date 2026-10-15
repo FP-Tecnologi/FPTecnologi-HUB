@@ -1177,6 +1177,9 @@ model TarjetaDigital {
   bio       String?
   fotoUrl   String?
   portadaUrl String? // imagen de portada (encabezado de la página pública)
+  mostrar   Json     @default("{}") // qué datos se muestran: { cargo: false, email: false… }; lo que no aparece se muestra
+  qrColor   String? // color de los módulos del QR (#rrggbb); vacío = negro
+  qrFondo   String? // color de fondo del QR (#rrggbb); vacío = blanco
   telefono  String?
   whatsapp  String? // solo dígitos con código de país
   email     String?

@@ -9,19 +9,23 @@ import { PageHead } from '../../components/shell/PageHead';
 import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
 import { ApiError, useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { PanelOpciones } from '../../components/tarjeta/PanelOpciones';
+import { VistaPreviaReal } from '../../components/tarjeta/VistaPreviaReal';
+import { aplicarMostrar } from '../../lib/tarjetaOpciones';
 import { descargarCanvas, dibujarTarjeta, ESTILOS_TARJETA, type EstiloTarjeta } from '../../lib/tarjetaGrafica';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
 export interface Tarjeta {
   id?: string; etiqueta: string; slug: string; estilo: EstiloTarjeta; vista: 'perfil' | 'linktree'; nombre: string; cargo: string | null; area: string | null; bio: string | null; fotoUrl: string | null; portadaUrl?: string | null; telefono: string | null;
+  mostrar?: Record<string, boolean>; qrColor?: string | null; qrFondo?: string | null;
   whatsapp: string | null; email: string | null; linkedin: string | null; web: string | null; agendaUrl: string | null;
   enlaces: { titulo: string; url: string }[]; activo: boolean; vistas: number;
 }
 type Guardada = Tarjeta & { id: string; url: string; qr: string };
 interface Respuesta { tarjetas: Guardada[]; sugerido: { nombre: string; email: string; cargo: string; telefono: string }; guardadaId?: string | null }
 
-export const VACIA: Tarjeta = { etiqueta: 'Principal', slug: '', estilo: 'clasico', vista: 'perfil', nombre: '', cargo: '', area: '', bio: '', fotoUrl: '', portadaUrl: '', telefono: '', whatsapp: '', email: '', linkedin: '', web: '', agendaUrl: '', enlaces: [], activo: true, vistas: 0 };
+export const VACIA: Tarjeta = { etiqueta: 'Principal', slug: '', estilo: 'clasico', vista: 'perfil', nombre: '', cargo: '', area: '', bio: '', fotoUrl: '', portadaUrl: '', mostrar: {}, qrColor: '', qrFondo: '', telefono: '', whatsapp: '', email: '', linkedin: '', web: '', agendaUrl: '', enlaces: [], activo: true, vistas: 0 };
 const v = (x: string | null | undefined) => x ?? '';
 
 /** Qué le falta a la tarjeta (sobre lo que hay en el formulario) y qué hacer. */
@@ -47,75 +51,6 @@ function Mini({ estilo, datos, activo, onElegir, nombre, detalle }: { estilo: Es
       <strong style={{ display: 'block', fontSize: 'var(--ax-text-sm)', marginTop: 6 }}>{nombre}</strong>
       <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{detalle}</span>
     </button>
-  );
-}
-
-/* Paleta aproximada de cada estilo para la vista previa en vivo (la página real se ve en «Página publicada»). */
-const PALETA: Record<EstiloTarjeta, { fondo: string; portada: string; texto: string; suave: string; boton: string; botonTxt: string; panel: string }> = {
-  clasico: { fondo: '#f7f9fc', portada: 'linear-gradient(135deg,#2898ee,#1a6fb8)', texto: '#10243a', suave: '#5a6b7d', boton: '#2898ee', botonTxt: '#fff', panel: '#fff' },
-  moderno: { fondo: 'linear-gradient(135deg,#eaf5ff,#fff,#d6ebff)', portada: 'linear-gradient(45deg,#1a6fb8,#2898ee,#8cc9fb)', texto: '#10243a', suave: '#5a6b7d', boton: 'linear-gradient(90deg,#1f86d8,#5db4f5)', botonTxt: '#fff', panel: 'rgba(255,255,255,.9)' },
-  oscuro: { fondo: '#0b1623', portada: 'linear-gradient(135deg,#0f3a5f,#0b1623)', texto: '#fff', suave: 'rgba(255,255,255,.65)', boton: 'rgba(255,255,255,.12)', botonTxt: '#fff', panel: 'rgba(255,255,255,.06)' },
-  minimal: { fondo: '#fff', portada: '#e8f3fd', texto: '#10243a', suave: '#5a6b7d', boton: '#10243a', botonTxt: '#fff', panel: '#fff' },
-};
-
-/** Cómo se verá la página pública mientras se edita (sin guardar). Marco de celular. */
-export function VistaPrevia({ t }: { t: Tarjeta }) {
-  const c = PALETA[t.estilo] ?? PALETA.clasico;
-  const botones: string[] = [
-    ...(t.whatsapp?.trim() ? ['Escríbeme por WhatsApp'] : []),
-    ...(t.agendaUrl?.trim() ? ['Agenda una reunión'] : []),
-    ...t.enlaces.filter((e) => e.titulo.trim()).map((e) => e.titulo),
-    'Pide una cotización',
-    ...(t.web?.trim() ? ['Visita nuestra web'] : []),
-    ...(t.linkedin?.trim() ? ['LinkedIn'] : []),
-    ...(t.email?.trim() ? [t.email] : []),
-    ...(t.telefono?.trim() ? [t.telefono] : []),
-    'Guardar mi contacto',
-  ];
-  const avatar = t.fotoUrl
-    ? // eslint-disable-next-line @next/next/no-img-element
-      <img src={urlImagen(t.fotoUrl)} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-    : <span style={{ fontSize: 36, color: 'rgba(255,255,255,.8)', fontWeight: 700 }}>{(t.nombre || '?').charAt(0).toUpperCase()}</span>;
-  const centrado = t.vista === 'linktree';
-  const portada = t.portadaUrl ? `center / cover url("${urlImagen(t.portadaUrl)}")` : c.portada;
-  const circulo = { width: 84, height: 84, borderRadius: '50%', overflow: 'hidden', border: '3px solid #fff', background: c.portada, display: 'flex', alignItems: 'center', justifyContent: 'center' } as const;
-  return (
-    <div style={{ width: 300, maxWidth: '100%', margin: '0 auto', border: '8px solid #1b2430', borderRadius: 34, overflow: 'hidden', background: '#1b2430', boxShadow: '0 10px 30px rgba(0,0,0,.18)' }}>
-      <div style={{ height: 520, overflowY: 'auto', background: c.fondo, color: c.texto, padding: centrado ? '28px 16px 20px' : 0, textAlign: centrado ? 'center' : 'left' }}>
-        {centrado ? (
-          <>
-            {t.portadaUrl && <div style={{ height: 90, margin: '-28px -16px 0', background: portada }} />}
-            <div style={{ ...circulo, margin: t.portadaUrl ? '-42px auto 0' : '0 auto', position: 'relative' }}>{avatar}</div>
-            <div style={{ fontWeight: 700, fontSize: 18, marginTop: 10 }}>{t.nombre || 'Tu nombre'}</div>
-            <div style={{ fontSize: 13, color: c.suave }}>{[t.cargo, t.area].filter(Boolean).join(' · ') || 'Tu cargo'}</div>
-            <div style={{ fontSize: 12, fontStyle: 'italic', color: c.suave }}>FPTecnologi &amp; System</div>
-            {t.bio && <p style={{ fontSize: 12, color: c.suave, margin: '8px 0 0' }}>{t.bio}</p>}
-            <div style={{ display: 'grid', gap: 8, marginTop: 14 }}>
-              {botones.map((b, i) => <span key={i} style={{ background: c.boton, color: c.botonTxt, borderRadius: 99, padding: '10px 12px', fontSize: 13, fontWeight: 600, wordBreak: 'break-word' }}>{b}</span>)}
-            </div>
-          </>
-        ) : (
-          <>
-            <div style={{ height: 120, background: portada }} />
-            <div style={{ ...circulo, margin: '-42px 0 0 16px', position: 'relative' }}>{avatar}</div>
-            <div style={{ padding: '8px 16px 20px' }}>
-              <div style={{ fontWeight: 700, fontSize: 18 }}>{t.nombre || 'Tu nombre'}</div>
-              <div style={{ fontSize: 13, color: c.suave }}>{t.cargo || 'Tu cargo'}</div>
-              {t.area && <div style={{ fontSize: 12, fontWeight: 600, color: '#2898ee' }}>{t.area}</div>}
-              <div style={{ fontSize: 12, fontStyle: 'italic', color: c.suave }}>FPTecnologi &amp; System</div>
-              {t.bio && <p style={{ fontSize: 12, color: c.suave, margin: '8px 0 0' }}>{t.bio}</p>}
-              <div style={{ display: 'grid', gap: 6, marginTop: 12, background: c.panel, borderRadius: 16, padding: 8 }}>
-                {botones.map((b, i) => (
-                  <span key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, fontWeight: 500, wordBreak: 'break-word' }}>
-                    <span style={{ width: 26, height: 26, flex: '0 0 26px', borderRadius: '50%', background: t.estilo === 'minimal' ? '#10243a' : '#2898ee' }} />{b}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-      </div>
-    </div>
   );
 }
 
@@ -175,12 +110,12 @@ export function MiTarjeta() {
   const completa = Math.round(((5 - faltan.length) / 5) * 100);
   const guardada = !!actual;
   const urlPublica = actual?.url ?? '';
-  const datosGrafica = useMemo(() => ({ ...form, empresa: 'FPTecnologi & System' }), [form]);
+  const datosGrafica = useMemo(() => ({ ...aplicarMostrar(form), empresa: 'FPTecnologi & System' }), [form]);
 
   // Tarjeta gráfica grande (con el QR de la tarjeta ya guardada).
   useEffect(() => {
-    if (lienzo.current) dibujarTarjeta(lienzo.current, form.estilo, datosGrafica, actual?.qr ?? null, urlImagen).catch(() => undefined);
-  }, [form.estilo, datosGrafica, actual?.qr]);
+    if (lienzo.current) dibujarTarjeta(lienzo.current, form.estilo, datosGrafica, form.mostrar?.qr === false ? null : (actual?.qr ?? null), urlImagen).catch(() => undefined);
+  }, [form.estilo, form.mostrar?.qr, datosGrafica, actual?.qr]);
 
   async function guardar() {
     setGuardando(true);
@@ -367,6 +302,8 @@ export function MiTarjeta() {
             </div>
           </section>
 
+          <PanelOpciones t={form} onCambio={set} />
+
           <section className="ax-card" style={{ padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
             <strong>Tarjeta para descargar</strong>
             <canvas ref={lienzo} style={{ width: '100%', height: 'auto', aspectRatio: '1050 / 600', borderRadius: 12, border: '1px solid var(--ax-border)' }} />
@@ -397,17 +334,14 @@ export function MiTarjeta() {
 
           <section className="ax-card" style={{ padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
             <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
-              <strong>Vista previa</strong>
+              <strong>{panel === 'vivo' ? 'Así se ve tu tarjeta' : 'Vista previa'}</strong>
               <div className="ax-cluster" style={{ gap: 4 }}>
                 <button type="button" aria-pressed={panel === 'vivo'} className={`ax-btn ax-btn--sm ${panel === 'vivo' ? 'ax-btn--secondary' : 'ax-btn--ghost'}`} onClick={() => setPanel('vivo')}>En vivo</button>
                 <button type="button" aria-pressed={panel === 'publicada'} className={`ax-btn ax-btn--sm ${panel === 'publicada' ? 'ax-btn--secondary' : 'ax-btn--ghost'}`} onClick={() => setPanel('publicada')}>Página publicada</button>
               </div>
             </div>
             {panel === 'vivo' ? (
-              <>
-                <VistaPrevia t={form} />
-                <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)', textAlign: 'center' }}>Se actualiza mientras escribes (aproximada). Guarda para publicar los cambios.</span>
-              </>
+              <VistaPreviaReal t={form} url={urlPublica} />
             ) : guardada ? (
               <div style={{ border: '1px solid var(--ax-border)', borderRadius: 12, overflow: 'hidden', height: 520 }}>
                 <iframe key={`${selId}-${recarga}`} title="Página publicada" src={urlPublica} style={{ width: '100%', height: '100%', border: 0, background: '#fff' }} />

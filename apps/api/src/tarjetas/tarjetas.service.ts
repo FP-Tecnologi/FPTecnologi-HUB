@@ -2,8 +2,8 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import * as QRCode from 'qrcode';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { Prisma } from '../generated/prisma/client.js';
-import type { GuardarTarjetaDto } from './tarjetas.dto.js';
-import { faltantes, limpiarEnlaces, limpiarUrl, slugDe, SLUG_VALIDO, soloDigitos, vcard } from './tarjetas.modelo.js';
+import type { GuardarTarjetaDto, QrPreviaDto } from './tarjetas.dto.js';
+import { aplicarMostrar, faltantes, limpiarColor, limpiarEnlaces, limpiarMostrar, limpiarUrl, slugDe, SLUG_VALIDO, SLUGS_RESERVADOS, soloDigitos, vcard, type Mostrar } from './tarjetas.modelo.js';
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const texto = (t: string | undefined) => (t ?? '').trim() || null;
@@ -16,6 +16,18 @@ export class TarjetasService {
     return `${(process.env.WEB_PUBLICA_URL ?? 'https://fptecnologi.com').replace(/\/$/, '')}/tarjeta/${slug}`;
   }
 
+  /** QR de la tarjeta con los colores elegidos (negro sobre blanco si no hay). */
+  private qrDe(url: string, c: { qrColor?: string | null; qrFondo?: string | null } = {}) {
+    return QRCode.toString(url, { type: 'svg', margin: 1, color: { dark: c.qrColor ?? '#000000', light: c.qrFondo ?? '#ffffff' } });
+  }
+
+  /** QR de muestra para la vista previa del editor (aún sin guardar). */
+  async qrPrevia(dto: QrPreviaDto) {
+    const slug = dto.slug?.trim().toLowerCase();
+    const url = this.urlDe(slug && SLUG_VALIDO.test(slug) ? slug : 'tu-enlace');
+    return { qr: await this.qrDe(url, { qrColor: limpiarColor(dto.color) ?? null, qrFondo: limpiarColor(dto.fondo) ?? null }) };
+  }
+
   /** Las tarjetas (versiones) de quien inició sesión, más sus datos para sugerir una al crearla. */
   async mias(marcaId: string, usuarioId: string) {
     const [tarjetas, usuario] = await Promise.all([
@@ -24,7 +36,7 @@ export class TarjetasService {
     ]);
     return {
       tarjetas: await Promise.all(
-        tarjetas.map(async (t) => ({ ...t, url: this.urlDe(t.slug), qr: await QRCode.toString(this.urlDe(t.slug), { type: 'svg', margin: 1 }), faltantes: faltantes(t) })),
+        tarjetas.map(async (t) => ({ ...t, url: this.urlDe(t.slug), qr: await this.qrDe(this.urlDe(t.slug), t), faltantes: faltantes(t) })),
       ),
       sugerido: { nombre: usuario?.nombre ?? '', email: usuario?.email ?? '', cargo: usuario?.cargo ?? '', telefono: usuario?.telefono ?? '' },
     };
@@ -42,6 +54,7 @@ export class TarjetasService {
     const pedido = dto.slug?.trim().toLowerCase();
     const base = pedido || actual?.slug || slugDe(dto.nombre);
     if (base.length < 3 || !SLUG_VALIDO.test(base)) throw new BadRequestException('El enlace debe tener al menos 3 letras o números (sin espacios ni tildes; solo guiones entre palabras).');
+    if (SLUGS_RESERVADOS.includes(base)) throw new BadRequestException('Ese enlace está reservado. Prueba con otro.');
     const actualId = actual?.id;
     const enUso = (slug: string) => this.prisma.tarjetaDigital.findFirst({ where: { marcaId, slug, ...(actualId ? { NOT: { id: actualId } } : {}) }, select: { id: true } });
     let slug = base;
@@ -60,6 +73,11 @@ export class TarjetasService {
       if (v === undefined) throw new BadRequestException(`${campo}: usa un enlace que empiece con https://`);
       return v;
     };
+    const color = (valor: string | undefined, campo: string) => {
+      const c = limpiarColor(valor);
+      if (c === undefined) throw new BadRequestException(`${campo}: usa un color como #000000`);
+      return c;
+    };
     const enlaces = dto.enlaces === undefined ? [] : limpiarEnlaces(dto.enlaces);
     if (!enlaces) throw new BadRequestException('Los enlaces extra necesitan título y un enlace https:// (máximo 12).');
 
@@ -72,6 +90,9 @@ export class TarjetasService {
       bio: texto(dto.bio),
       fotoUrl: url(dto.fotoUrl, 'Foto', true),
       portadaUrl: url(dto.portadaUrl, 'Portada', true),
+      ...(dto.mostrar !== undefined ? { mostrar: limpiarMostrar(dto.mostrar) as Prisma.InputJsonValue } : {}),
+      qrColor: color(dto.qrColor, 'Color del QR'),
+      qrFondo: color(dto.qrFondo, 'Fondo del QR'),
       telefono: texto(dto.telefono),
       whatsapp: soloDigitos(dto.whatsapp),
       email,
@@ -146,15 +167,19 @@ export class TarjetasService {
     // Contador de visitas: no debe frenar ni romper la página.
     void this.prisma.tarjetaDigital.updateMany({ where: { id: t.id, marcaId }, data: { vistas: { increment: 1 } } }).catch(() => undefined);
     const url = this.urlDe(t.slug);
+    const mostrar = limpiarMostrar(t.mostrar) as Mostrar;
+    const p = aplicarMostrar(t, mostrar); // lo que su dueño ocultó ni siquiera sale de la API
     return {
-      slug: t.slug, estilo: t.estilo, vista: t.vista, nombre: t.nombre, cargo: t.cargo, area: t.area, bio: t.bio, fotoUrl: t.fotoUrl, portadaUrl: t.portadaUrl, telefono: t.telefono, whatsapp: t.whatsapp,
-      email: t.email, linkedin: t.linkedin, web: t.web, agendaUrl: t.agendaUrl, enlaces: t.enlaces, empresa, url,
-      qr: await QRCode.toString(url, { type: 'svg', margin: 1 }),
+      slug: t.slug, estilo: t.estilo, vista: t.vista, nombre: t.nombre, cargo: p.cargo, area: p.area, bio: p.bio, fotoUrl: p.fotoUrl, portadaUrl: t.portadaUrl, telefono: p.telefono, whatsapp: p.whatsapp,
+      email: p.email, linkedin: p.linkedin, web: p.web, agendaUrl: p.agendaUrl, enlaces: p.enlaces, empresa, url, mostrar,
+      qr: mostrar.qr === false ? null : await this.qrDe(url, t),
     };
   }
 
   async vcard(marcaId: string, slug: string) {
-    const { t, empresa } = await this.publica(marcaId, slug);
-    return { nombre: `${t.slug}.vcf`, contenido: vcard({ nombre: t.nombre, cargo: t.cargo, empresa, telefono: t.telefono, whatsapp: t.whatsapp, email: t.email, web: t.web, linkedin: t.linkedin, urlTarjeta: this.urlDe(t.slug) }) };
+    const { t: tarjeta, empresa } = await this.publica(marcaId, slug);
+    if (limpiarMostrar(tarjeta.mostrar).vcard === false) throw new NotFoundException('Tarjeta no encontrada');
+    const t = aplicarMostrar(tarjeta, tarjeta.mostrar);
+    return { nombre: `${tarjeta.slug}.vcf`, contenido: vcard({ nombre: tarjeta.nombre, cargo: t.cargo, empresa, telefono: t.telefono, whatsapp: t.whatsapp, email: t.email, web: t.web, linkedin: t.linkedin, urlTarjeta: this.urlDe(tarjeta.slug) }) };
   }
 }

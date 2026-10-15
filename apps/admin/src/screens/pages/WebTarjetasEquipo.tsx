@@ -10,7 +10,9 @@ import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
 import { ApiError, useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { ESTILOS_TARJETA, type EstiloTarjeta } from '../../lib/tarjetaGrafica';
-import { VACIA, VistaPrevia, type Tarjeta } from './MiTarjeta';
+import { PanelOpciones } from '../../components/tarjeta/PanelOpciones';
+import { VistaPreviaReal } from '../../components/tarjeta/VistaPreviaReal';
+import { VACIA, type Tarjeta } from './MiTarjeta';
 
 type Fila = Tarjeta & { id: string; usuarioId: string; propietario: string | null; url: string; faltantes: { campo: string; aviso: string }[] };
 interface SinTarjeta { usuarioId: string; nombre: string; email: string; rol: string }
@@ -186,7 +188,7 @@ export function WebTarjetasEquipo() {
 
       {edit && (
         <div role="dialog" aria-modal="true" aria-label={`Editar tarjeta de ${edit.quien}`} style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,.45)', display: 'flex', justifyContent: 'flex-end' }} onClick={(e) => { if (e.target === e.currentTarget) setEdit(null); }}>
-          <div className="ax-card" style={{ width: 'min(960px, 100%)', height: '100%', overflowY: 'auto', padding: 'var(--ax-space-5)', borderRadius: 0, display: 'grid', gap: 'var(--ax-space-5)', gridTemplateColumns: 'repeat(auto-fit, minmax(18rem, 1fr))', alignContent: 'start' }}>
+          <div className="ax-card" style={{ width: 'min(1280px, 100%)', height: '100%', overflowY: 'auto', padding: 'var(--ax-space-5)', borderRadius: 0, display: 'grid', gap: 'var(--ax-space-5)', gridTemplateColumns: 'repeat(auto-fit, minmax(22rem, 1fr))', alignContent: 'start' }}>
             <div style={{ gridColumn: '1 / -1' }} className="ax-cluster">
               <strong style={{ flex: 1 }}>{edit.id ? 'Editar tarjeta de' : 'Nueva tarjeta para'} {edit.quien}</strong>
               <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setEdit(null)}>Cerrar</button>
@@ -256,6 +258,7 @@ export function WebTarjetasEquipo() {
                 <input type="checkbox" className="ax-switch" checked={edit.form.activo} onChange={(e) => set('activo', e.target.checked)} />
                 Tarjeta visible al público
               </label>
+              <PanelOpciones t={edit.form} onCambio={set} />
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
                 <button type="button" className="ax-btn ax-btn--primary" disabled={guardando || edit.form.nombre.trim().length < 2} onClick={guardar}>{guardando ? 'Guardando…' : 'Guardar cambios'}</button>
                 <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEdit(null)}>Cancelar</button>
@@ -263,8 +266,7 @@ export function WebTarjetasEquipo() {
             </div>
 
             <div style={{ position: 'sticky', top: 0, alignSelf: 'start' }}>
-              <strong style={{ display: 'block', marginBlockEnd: 'var(--ax-space-2)' }}>Vista previa</strong>
-              <VistaPrevia t={edit.form} />
+              <VistaPreviaReal t={edit.form} url={edit.id ? datos?.tarjetas.find((x) => x.id === edit.id)?.url : undefined} />
             </div>
           </div>
         </div>
