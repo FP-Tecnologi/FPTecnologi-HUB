@@ -49,11 +49,12 @@ function mapear(p: ApiProducto): CatalogProduct {
   };
 }
 
-export async function api<T>(path: string): Promise<T | null> {
+/** `fresh`: sin caché (vista previa del dashboard). */
+export async function api<T>(path: string, fresh = false): Promise<T | null> {
   if (!MARCA_ID) return null;
   try {
     const sep = path.includes('?') ? '&' : '?';
-    const res = await fetch(`${API_URL}/public${path}${sep}marcaId=${encodeURIComponent(MARCA_ID)}`, { next: { revalidate: REVALIDATE } });
+    const res = await fetch(`${API_URL}/public${path}${sep}marcaId=${encodeURIComponent(MARCA_ID)}`, fresh ? { cache: 'no-store' } : { next: { revalidate: REVALIDATE } });
     if (!res.ok) return null;
     return ((await res.json())?.data ?? null) as T | null;
   } catch {

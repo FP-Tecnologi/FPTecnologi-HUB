@@ -1,15 +1,15 @@
 import { ClipboardList, PencilRuler, Wrench, Headset, type LucideIcon } from 'lucide-react';
 import { SectionBadge } from '@/components/home/SectionBadge';
 import { ScrollReveal } from '@/components/home/ScrollReveal';
-import { getPagina } from '@/lib/paginasContenido';
+import { getPagina, type PaginasContenido } from '@/lib/paginasContenido';
 
 /* "Cómo trabajamos": los pasos de todo servicio TI (listado y detalle). Textos desde el CMS (Servicios → Cómo trabajamos). */
 const ICONOS: LucideIcon[] = [ClipboardList, PencilRuler, Wrench, Headset];
 
-export async function ProcesoServicio() {
-  const { proceso } = await getPagina('servicios');
+export async function ProcesoServicio({ proceso: propio }: { proceso?: PaginasContenido['servicios']['proceso'] }) {
+  const proceso = propio ?? (await getPagina('servicios')).proceso;
   return (
-    <section className="bg-white py-20">
+    <section id="proceso" className="scroll-mt-28 bg-white py-20">
       <div className="mx-auto max-w-7xl px-6">
         <ScrollReveal direction="up" className="mx-auto mb-12 flex max-w-2xl flex-col items-center text-center">
           <SectionBadge>{proceso.badge}</SectionBadge>

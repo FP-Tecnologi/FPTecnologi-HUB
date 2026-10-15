@@ -218,6 +218,27 @@ export const urlArchivo = (a: string) => (a.startsWith('/uploads/') ? `/api/arch
 const API_URL = process.env.HUB_API_URL ?? 'http://localhost:3001';
 const MARCA_ID = process.env.HUB_MARCA_ID ?? '';
 
+/** Secciones de la página de un servicio que cada servicio puede personalizar (dashboard → Páginas de servicios). */
+const SECCIONES_SERVICIO = ['det-hero', 'det-incluye', 'det-beneficios', 'proceso', 'det-sectores', 'det-faqs', 'det-cotizar', 'det-otros'] as const;
+
+/** Textos de la plantilla de un servicio: los comunes (CMS Servicios) + lo personalizado de ese servicio. */
+export async function getServicioPagina(slug: string): Promise<PaginasContenido['servicios']> {
+  const base = await getPagina('servicios');
+  if (!MARCA_ID) return base;
+  try {
+    const res = await fetch(`${API_URL}/public/contenido/servicio-${slug}?marcaId=${MARCA_ID}`, { cache: 'no-store' });
+    if (!res.ok) return base;
+    const saved = ((await res.json())?.data ?? {}) as Record<string, Record<string, unknown>>;
+    const out: Record<string, unknown> = { ...base };
+    for (const key of SECCIONES_SERVICIO) {
+      if (saved[key] && typeof saved[key] === 'object') out[key] = { ...(base as Record<string, object>)[key], ...saved[key] };
+    }
+    return out as PaginasContenido['servicios'];
+  } catch {
+    return base;
+  }
+}
+
 /** Defaults + lo guardado en el dashboard (se mezcla campo por campo, por sección). */
 export async function getPagina<K extends PaginaKey>(pagina: K): Promise<PaginasContenido[K]> {
   const defaults = PAGINAS_DEFAULTS[pagina];

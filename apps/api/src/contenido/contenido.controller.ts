@@ -14,7 +14,7 @@ class GuardarSeccionDto {
 }
 
 // Nombres de página/sección: solo minúsculas, números y guiones.
-const SLUG = /^[a-z0-9-]{1,40}$/;
+const SLUG = /^[a-z0-9-]{1,60}$/;
 const MAX_JSON = 50_000;
 
 function slug(v: string, campo: string) {

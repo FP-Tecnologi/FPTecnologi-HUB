@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { CheckCircle2, Plus } from 'lucide-react';
 import { getServicio, getServicios } from '@/lib/servicios';
-import { getPagina } from '@/lib/paginasContenido';
+import { getServicioPagina } from '@/lib/paginasContenido';
 import { PageHero } from '@/components/site/PageHero';
 import { WhatsAppCta } from '@/components/site/WhatsAppCta';
 import { ProcesoServicio } from '@/components/site/ProcesoServicio';
@@ -19,9 +19,11 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return { title: servicio?.title ?? 'Servicio', description: servicio?.description || undefined };
 }
 
-export default async function ServicioDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function ServicioDetailPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<{ cms?: string }> }) {
   const { slug } = await params;
-  const [s, todos, c] = await Promise.all([getServicio(slug), getServicios(), getPagina('servicios')]);
+  // ?cms=… = vista previa del dashboard: sin caché para ver al instante lo que se acaba de guardar.
+  const fresh = (await searchParams).cms !== undefined;
+  const [s, todos, c] = await Promise.all([getServicio(slug, fresh), getServicios(fresh), getServicioPagina(slug)]);
   if (!s) notFound();
   const d = s.detalle;
   const otros = todos.filter((x) => x.slug !== s.slug).slice(0, 4);
@@ -45,7 +47,7 @@ export default async function ServicioDetailPage({ params }: { params: Promise<{
       </PageHero>
 
       <main>
-        <section className="bg-white py-20">
+        <section id="incluye" className="scroll-mt-28 bg-white py-20">
           <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2">
             <ScrollReveal direction="left">
               <SectionBadge>{c['det-incluye'].badge}</SectionBadge>
@@ -74,7 +76,7 @@ export default async function ServicioDetailPage({ params }: { params: Promise<{
         </section>
 
         {d && (
-          <section className="mx-auto max-w-7xl px-6 py-20">
+          <section id="beneficios" className="mx-auto max-w-7xl scroll-mt-28 px-6 py-20">
             <ScrollReveal direction="up" className="mx-auto mb-12 flex max-w-2xl flex-col items-center text-center">
               <SectionBadge>{c['det-beneficios'].badge}</SectionBadge>
               <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
@@ -96,10 +98,10 @@ export default async function ServicioDetailPage({ params }: { params: Promise<{
           </section>
         )}
 
-        <ProcesoServicio />
+        <ProcesoServicio proceso={c.proceso} />
 
         {d && (
-          <section className="mx-auto max-w-7xl px-6 py-20">
+          <section id="sectores" className="mx-auto max-w-7xl scroll-mt-28 px-6 py-20">
             <div className="grid gap-10 lg:grid-cols-[minmax(0,380px)_1fr]">
               <ScrollReveal direction="left">
                 <SectionBadge>{c['det-sectores'].badge}</SectionBadge>
@@ -149,7 +151,7 @@ export default async function ServicioDetailPage({ params }: { params: Promise<{
           </div>
         </section>
 
-        <section className="bg-white py-20">
+        <section id="otros" className="scroll-mt-28 bg-white py-20">
           <div className="mx-auto max-w-7xl px-6">
           <div className="mb-12 flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-end">
             <ScrollReveal direction="left">

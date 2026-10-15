@@ -246,7 +246,7 @@ export function CmsEditor({ config }: { config: CmsConfig }) {
 }
 
 /* Iframe de la web a su ancho real (1440 o 390 px) escalado para caber en la tarjeta. */
-function Preview({ src, ancho }: { src: string; ancho: number }) {
+export function Preview({ src, ancho }: { src: string; ancho: number }) {
   const boxRef = useRef<HTMLDivElement>(null);
   const [caja, setCaja] = useState({ w: 800, h: 600 });
   useEffect(() => {
@@ -279,7 +279,7 @@ function Preview({ src, ancho }: { src: string; ancho: number }) {
   );
 }
 
-function CampoEditor({ campo, valor, onChange }: { campo: Campo; valor: unknown; onChange: (v: unknown) => void }) {
+export function CampoEditor({ campo, valor, onChange }: { campo: Campo; valor: unknown; onChange: (v: unknown) => void }) {
   const id = `cms-${campo.key}`;
   if (campo.tipo === 'text' || campo.tipo === 'textarea') {
     return (

@@ -61,11 +61,11 @@ const LOCAL: ServicioPublico[] = SOLUTIONS.map((s) => ({
 }));
 
 /** Servicios activos, en el orden definido en el dashboard. */
-export async function getServicios(): Promise<ServicioPublico[]> {
-  const data = await api<ApiServicio[]>('/servicios');
+export async function getServicios(fresh = false): Promise<ServicioPublico[]> {
+  const data = await api<ApiServicio[]>('/servicios', fresh);
   return data && data.length > 0 ? data.map(mapear) : LOCAL;
 }
 
-export async function getServicio(slug: string): Promise<ServicioPublico | null> {
-  return (await getServicios()).find((s) => s.slug === slug) ?? null;
+export async function getServicio(slug: string, fresh = false): Promise<ServicioPublico | null> {
+  return (await getServicios(fresh)).find((s) => s.slug === slug) ?? null;
 }
