@@ -6,6 +6,7 @@ import { ScrollReveal } from '@/components/home/ScrollReveal';
 import { MoreInfoButton } from '@/components/home/MoreInfoButton';
 import { ImageHoverCard } from '@/components/home/ImageHoverCard';
 import { CertificacionesISO } from '@/components/home/CertificacionesISO';
+import { Reconocimientos } from '@/components/home/Reconocimientos';
 import { PartnerLevels } from '@/components/home/PartnerLevels';
 import { BrandMarquee } from '@/components/home/BrandMarquee';
 import { WhyChooseUs } from '@/components/home/WhyChooseUs';
@@ -102,6 +103,7 @@ export default async function NosotrosPage() {
 
         <CertificacionesISO />
         <PartnerLevels conTitulo />
+        <Reconocimientos />
         <BrandMarquee />
         <NuestrosClientes sectors={clientes} />
         <WhyChooseUs />
