@@ -25,7 +25,9 @@ const nextConfig = {
   // Menos RAM en el build: el contenedor de AI App Hosting mata el proceso ("Killed") si se pasa de memoria.
   experimental: { webpackMemoryOptimizations: true, cpus: 1 },
   async redirects() {
-    return REDIRECCIONES;
+    // www.fptecnologi.com -> fptecnologi.com (una sola URL canonica, sin contenido duplicado)
+    const wwwAApex = { source: '/:path*', has: [{ type: 'host', value: 'www.fptecnologi.com' }], destination: 'https://fptecnologi.com/:path*', permanent: true };
+    return [wwwAApex, ...REDIRECCIONES];
   },
   images: {
     remotePatterns: [{ protocol: 'https', hostname: 'fptecnologi.com' }],

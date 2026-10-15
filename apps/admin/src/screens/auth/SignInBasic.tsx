@@ -13,6 +13,9 @@ import {
 } from './authShared';
 import { useAuth, ApiError } from '../../context/AuthContext';
 
+// Términos y privacidad: los de la web pública (fptecnologi.com), no una copia dentro del dashboard.
+const WEB = (process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'https://fptecnologi.com').replace(/\/$/, '');
+
 const GOOGLE_ERROR_MESSAGE = 'No pudimos completar el ingreso con Google. Solicita acceso al equipo de desarrollo.';
 
 function SignInBasicInner() {
@@ -131,7 +134,7 @@ function SignInBasicInner() {
           </section>
 
           <p style={{ textAlign: 'center', margin: 0, fontSize: 'var(--ax-text-2xs)', color: 'var(--ax-text-subtle)' }}>
-            Al continuar aceptas los <Link className="ax-link" href="/pages/terms">Términos</Link> y la <Link className="ax-link" href="/pages/privacy">Política de privacidad</Link>.
+            Al continuar aceptas los <a className="ax-link" href={`${WEB}/legal/terminos`} target="_blank" rel="noopener noreferrer">Términos</a> y la <a className="ax-link" href={`${WEB}/legal/privacidad`} target="_blank" rel="noopener noreferrer">Política de privacidad</a>.
           </p>
         </div>
       </main>

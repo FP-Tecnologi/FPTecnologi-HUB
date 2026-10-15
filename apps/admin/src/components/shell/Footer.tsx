@@ -4,6 +4,9 @@
  */
 import Link from 'next/link';
 
+// Términos y privacidad: los de la web pública, no una copia dentro del dashboard.
+const WEB = (process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'https://fptecnologi.com').replace(/\/$/, '');
+
 export function Footer() {
   return (
     <footer className="ax-footer">
@@ -15,8 +18,8 @@ export function Footer() {
       <nav className="ax-footer__links" aria-label="Footer">
         <Link className="ax-footer__link" href="/pages/landing">Nosotros</Link>
         <Link className="ax-footer__link" href="/soporte">Soporte</Link>
-        <Link className="ax-footer__link" href="/pages/terms">Términos</Link>
-        <Link className="ax-footer__link" href="/pages/privacy">Privacidad</Link>
+        <a className="ax-footer__link" href={`${WEB}/legal/terminos`} target="_blank" rel="noopener noreferrer">Términos</a>
+        <a className="ax-footer__link" href={`${WEB}/legal/privacidad`} target="_blank" rel="noopener noreferrer">Privacidad</a>
       </nav>
     </footer>
   );
