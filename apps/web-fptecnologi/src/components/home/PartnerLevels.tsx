@@ -12,6 +12,7 @@ const PARTNERS = [
   { name: 'Dell', logo: '/images/partners/dell.png', level: 'Gold' },
   { name: 'Genetec', logo: '/images/partners/genetec.png', level: 'Elite' },
   { name: 'Hanwha', logo: '/images/partners/hanwha.png', level: 'Platinum' },
+  { name: 'Hewlett Packard Enterprise', logo: '/images/partners/hpe.png', level: 'Business' },
   { name: 'Milestone Systems', logo: '/images/partners/milestone.png', level: 'Premier' },
   { name: 'Vertiv', logo: '/images/partners/vertiv.png', level: 'Platinum' },
 ];
