@@ -43,7 +43,7 @@ const AUTOR_LABEL: Record<Autor, string> = { CLIENTE: 'Cliente', BOT: 'Asistente
 const REFRESH_MS = 5000;
 // Bandeja y conversación ocupan el alto disponible; el hilo scrollea adentro
 // y la caja de respuesta queda siempre visible abajo.
-const PANEL_H = 'calc(100vh - 370px)';
+const PANEL_H = 'clamp(520px, calc(100vh - 370px), 900px)';
 
 const fmt = (iso: string) =>
   new Date(iso).toLocaleString('es-PE', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
@@ -196,7 +196,7 @@ export function ChatInbox() {
 
       <div className="ax-dash-grid">
         {/* Bandeja */}
-        <section className="ax-card ax-col--4" role="region" aria-label="Bandeja de conversaciones" style={{ height: PANEL_H, minHeight: 520, overflow: 'hidden' }}>
+        <section className="ax-card ax-col--4" role="region" aria-label="Bandeja de conversaciones" style={{ height: PANEL_H, overflow: 'hidden' }}>
           <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)', height: '100%', minHeight: 0 }}>
             <div className="ax-btn-group ax-btn-group--segmented" role="radiogroup" aria-label="Filtrar por estado">
               {FILTROS.map((f) => (
@@ -228,6 +228,8 @@ export function ChatInbox() {
                     onClick={() => setSelId(c.id)}
                     style={{
                       cursor: 'pointer',
+                      flexShrink: 0, // en la lista flex-column las filas no deben comprimirse
+                      minHeight: 72,
                       borderRadius: 'var(--ax-radius-md, 8px)',
                       background: c.id === selId ? 'var(--ax-surface-subtle)' : undefined,
                       paddingInline: 'var(--ax-space-2)',
@@ -263,15 +265,15 @@ export function ChatInbox() {
         </section>
 
         {/* Conversación */}
-        <section className="ax-card ax-col--8" role="region" aria-label="Conversación" style={{ display: 'flex', flexDirection: 'column', height: PANEL_H, minHeight: 520, overflow: 'hidden' }}>
+        <section className="ax-card ax-col--8" role="region" aria-label="Conversación" style={{ display: 'flex', flexDirection: 'column', height: PANEL_H, overflow: 'hidden' }}>
           {!conv ? (
             <div className="ax-card__body" style={{ textAlign: 'center', paddingBlock: 'var(--ax-space-10, 64px)', color: 'var(--ax-text-muted)' }}>
               Elige una conversación de la bandeja para leerla.
             </div>
           ) : (
             <>
-              <div className="ax-card__header">
-                <div className="ax-card__titles" style={{ minWidth: 0, flex: '1 1 auto' }}>
+              <div className="ax-card__header" style={{ flexWrap: 'wrap', gap: 'var(--ax-space-3)' }}>
+                <div className="ax-card__titles" style={{ minWidth: 0, flex: '1 1 220px' }}>
                   <h2 className="ax-card__title" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={conv.titulo ?? undefined}>{conv.titulo ?? 'Conversación'}</h2>
                   <p className="ax-card__subtitle">
                     Iniciada {fmt(conv.createdAt)}
@@ -281,7 +283,7 @@ export function ChatInbox() {
                   </p>
                 </div>
                 {/* Acciones en orden de flujo: retomar -> devolver a la IA -> finalizar. */}
-                <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap', flexShrink: 0, justifyContent: 'flex-end' }}>
+                <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                   {conv.estado === 'CERRADA' ? (
                     <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => accion(() => api.patch(`/chat/conversaciones/${conv.id}/estado`, { estado: 'BOT' }))}>
                       {I_REABRIR}<span className="ax-btn__label">Reabrir</span>
@@ -338,13 +340,14 @@ export function ChatInbox() {
                   return (
                     <div key={m.id} style={{ display: 'flex', gap: 'var(--ax-space-2)', alignItems: 'flex-end', flexDirection: derecha ? 'row-reverse' : 'row' }}>
                       <Avatar autor={m.autor} nombre={conv.asesor?.nombre ?? conv.asesor?.email ?? null} foto={conv.asesor?.avatarUrl} />
-                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: derecha ? 'flex-end' : 'flex-start', maxWidth: '75%' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', alignItems: derecha ? 'flex-end' : 'flex-start', maxWidth: 'min(75%, 560px)', minWidth: 0 }}>
                         <span style={{ fontSize: 'var(--ax-text-xs)', fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-muted)', marginBottom: 4 }}>{nombre}</span>
                         <div
                           style={{
                             padding: 'var(--ax-space-2) var(--ax-space-3)',
                             borderRadius: derecha ? '16px 16px 6px 16px' : '16px 16px 16px 6px',
                             whiteSpace: 'pre-wrap',
+                            overflowWrap: 'anywhere',
                             fontSize: 'var(--ax-text-sm)',
                             lineHeight: 1.55,
                             // Igual que el widget: asistente azul de marca, asesor turquesa, cliente blanco.
@@ -365,9 +368,9 @@ export function ChatInbox() {
               {/* Caja de respuesta: mismo diseño siempre. Si no la tomaste, el
                   campo queda bloqueado con el motivo adentro y el botón pasa
                   a "Retomar" (o "Reabrir" si está finalizada). */}
-              <form onSubmit={responder} className="ax-card__body" style={{ flex: '0 0 auto', display: 'flex', gap: 'var(--ax-space-3)', alignItems: 'flex-end', borderTop: '1px solid var(--ax-border)' }}>
+              <form onSubmit={responder} className="ax-card__body" style={{ flex: '0 0 auto', display: 'flex', flexWrap: 'wrap', gap: 'var(--ax-space-3)', alignItems: 'flex-end', borderTop: '1px solid var(--ax-border)' }}>
                 <Avatar autor="ASESOR" nombre={user?.nombre || user?.email || null} foto={user?.avatarUrl} size={36} />
-                <div className="ax-field" style={{ flex: '1 1 auto' }}>
+                <div className="ax-field" style={{ flex: '1 1 180px', minWidth: 0 }}>
                   <label className="ax-label" htmlFor="chat-resp">
                     {puedeEscribir ? `Respondiendo como ${user?.nombre || user?.email}` : 'Respuesta bloqueada'}
                   </label>
