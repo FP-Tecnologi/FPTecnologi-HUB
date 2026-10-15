@@ -31,12 +31,11 @@ interface ConversacionResumen {
 interface Conversacion extends Omit<ConversacionResumen, 'ultimoMensaje' | 'totalMensajes'> { mensajes: Mensaje[] }
 
 // ASESOR = "Seguimiento": conversaciones que un asesor tomó y está atendiendo.
-const ESTADO_LABEL: Record<Estado, string> = { BOT: 'Asistente IA', ASESOR: 'Seguimiento', CERRADA: 'Finalizada' };
+const ESTADO_LABEL: Record<Estado, string> = { BOT: 'Asistente IA', ASESOR: 'Seguimiento', CERRADA: 'Finalizado' };
 const FILTROS: { id: '' | Estado; label: string }[] = [
-  { id: '', label: 'Todas' },
   { id: 'BOT', label: 'Asistente IA' },
   { id: 'ASESOR', label: 'Seguimiento' },
-  { id: 'CERRADA', label: 'Finalizadas' },
+  { id: 'CERRADA', label: 'Finalizados' },
 ];
 const ESTADO_BADGE: Record<Estado, string> = { BOT: 'ax-badge--info', ASESOR: 'ax-badge--success', CERRADA: 'ax-badge--neutral' };
 const AUTOR_LABEL: Record<Autor, string> = { CLIENTE: 'Cliente', BOT: 'Asistente virtual', ASESOR: 'Asesor', SISTEMA: 'Evento' };
@@ -101,7 +100,7 @@ const I_SEND = <svg {...ICON}><path d="M10 14l11 -11" /><path d="M21 3l-6.5 18a.
 
 export function ChatInbox() {
   const { activeMarcaId, user } = useAuth();
-  const [filtro, setFiltro] = useState<'' | Estado>('');
+  const [filtro, setFiltro] = useState<'' | Estado>('BOT');
   const [lista, setLista] = useState<ConversacionResumen[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
@@ -198,7 +197,7 @@ export function ChatInbox() {
         {/* Bandeja */}
         <section className="ax-card ax-col--4" role="region" aria-label="Bandeja de conversaciones" style={{ height: PANEL_H, overflow: 'hidden' }}>
           <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)', height: '100%', minHeight: 0 }}>
-            <div className="ax-btn-group ax-btn-group--segmented" role="radiogroup" aria-label="Filtrar por estado">
+            <div className="ax-btn-group ax-btn-group--segmented" role="radiogroup" aria-label="Filtrar por estado" style={{ display: 'flex', width: '100%', maxWidth: '100%' }}>
               {FILTROS.map((f) => (
                 <button
                   key={f.id || 'todas'}
@@ -206,6 +205,7 @@ export function ChatInbox() {
                   role="radio"
                   aria-checked={filtro === f.id}
                   className={`ax-btn ax-btn--sm${filtro === f.id ? ' is-selected' : ''}`}
+                  style={{ flex: '1 1 0', minWidth: 0, paddingInline: 'var(--ax-space-2)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
                   onClick={() => setFiltro(f.id)}
                 >
                   {f.label}
@@ -217,7 +217,7 @@ export function ChatInbox() {
               <p style={{ color: 'var(--ax-text-muted)', fontSize: 'var(--ax-text-sm)' }}>Cargando…</p>
             ) : lista.length === 0 ? (
               <p style={{ color: 'var(--ax-text-muted)', fontSize: 'var(--ax-text-sm)', textAlign: 'center', paddingBlock: 'var(--ax-space-6)' }}>
-                Todavía no hay conversaciones{filtro ? ' con este estado' : ''}.
+                Todavía no hay conversaciones en este estado.
               </p>
             ) : (
               <ul className="ax-list" style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', margin: 0, padding: 0 }}>
