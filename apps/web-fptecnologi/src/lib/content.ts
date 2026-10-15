@@ -41,9 +41,9 @@ export const HERO_SLIDES = [
     key: 'partners',
     tabLabel: 'Partners',
     eyebrow: 'Programa de Partners',
-    title: 'Sumate como integrador o revendedor autorizado',
-    titleLead: 'Sumate como integrador o',
-    titleAccent: 'revendedor autorizado',
+    title: 'Súmate como Partner FP',
+    titleLead: 'Súmate como',
+    titleAccent: 'Partner FP',
     text: 'Precios y beneficios especiales para partners — cotización directa y soporte comercial dedicado.',
     cta: { label: 'Ver programa', href: '#partners' },
     image: '/herobanner/partner.webp',
@@ -127,7 +127,7 @@ export const SOLUTIONS = [
 export const TIENDA_CATEGORIES = [
   { title: 'Monitores', slug: 'monitores', image: '/images/products/dell-p2724deb.png', imageFit: 'contain' },
   { title: 'Laptops', slug: 'laptops', image: '/images/modelo7/cat-laptops.webp', imageFit: 'cover' },
-  { title: 'Proyectores', slug: 'proyectores-pantallas-interactivas', image: '/images/modelo7/cat-pantallas.webp', imageFit: 'cover' },
+  { title: 'Videoconferencia', slug: 'proyectores-pantallas-interactivas', image: '/images/modelo7/cat-pantallas.webp', imageFit: 'cover' },
   { title: 'Servidores', slug: 'servidores', image: '/images/solutions/servidores.jpg', imageFit: 'cover' },
   { title: 'Impresión', slug: 'impresion', image: '/images/modelo9/hero-office.jpg', imageFit: 'cover' },
 ] as const;
@@ -202,7 +202,7 @@ export const PARTNER_BRANDS: { name: string; logo: string; solido?: boolean }[] 
 // lista y su archivo en /public/images/partners.
 export const PARTNER_BADGES = [
   { name: 'Axis Communications', logo: '/images/partners/axis.png', level: 'Gold' },
-  { name: 'Dell Technologies', logo: '/images/partners/dell.png', level: 'Titanium' },
+  { name: 'Dell Technologies', logo: '/images/partners/dell-titanium.png', level: 'Titanium' },
   { name: 'Fortinet', logo: '/images/partners/fortinet.png', level: 'Advocate Integrator' },
   { name: 'Genetec', logo: '/images/partners/genetec.png', level: 'Elite' },
   { name: 'Hanwha', logo: '/images/partners/hanwha.png', level: 'Platinum' },

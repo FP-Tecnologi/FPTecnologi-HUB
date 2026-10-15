@@ -105,8 +105,8 @@ export const HOME_DEFAULTS: HomeContenido = {
   partners: {
     ...enc({
       badge: 'Programa de Partners',
-      titulo: 'Súmate como integrador',
-      destacado: 'o revendedor',
+      titulo: 'Súmate como',
+      destacado: 'Partner FP',
       descripcion: 'Precios y beneficios especiales para partners, con soporte comercial dedicado y cotización directa.',
       botonTexto: 'Ser partner',
     }),
