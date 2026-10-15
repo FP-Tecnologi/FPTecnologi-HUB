@@ -127,7 +127,7 @@ export const SOLUTIONS = [
 export const TIENDA_CATEGORIES = [
   { title: 'Monitores', slug: 'monitores', image: '/images/products/dell-p2724deb.png', imageFit: 'contain' },
   { title: 'Laptops', slug: 'laptops', image: '/images/modelo7/cat-laptops.webp', imageFit: 'cover' },
-  { title: 'Proyectores y pantallas', slug: 'proyectores-pantallas-interactivas', image: '/images/modelo7/cat-pantallas.webp', imageFit: 'cover' },
+  { title: 'Proyectores', slug: 'proyectores-pantallas-interactivas', image: '/images/modelo7/cat-pantallas.webp', imageFit: 'cover' },
   { title: 'Servidores', slug: 'servidores', image: '/images/solutions/servidores.jpg', imageFit: 'cover' },
   { title: 'Impresión', slug: 'impresion', image: '/images/modelo9/hero-office.jpg', imageFit: 'cover' },
 ] as const;
