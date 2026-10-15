@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { CheckCircle2, Plus } from 'lucide-react';
 import { getServicio, getServicios } from '@/lib/servicios';
+import { getPagina } from '@/lib/paginasContenido';
 import { PageHero } from '@/components/site/PageHero';
 import { WhatsAppCta } from '@/components/site/WhatsAppCta';
 import { ProcesoServicio } from '@/components/site/ProcesoServicio';
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 export default async function ServicioDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const [s, todos] = await Promise.all([getServicio(slug), getServicios()]);
+  const [s, todos, c] = await Promise.all([getServicio(slug), getServicios(), getPagina('servicios')]);
   if (!s) notFound();
   const d = s.detalle;
   const otros = todos.filter((x) => x.slug !== s.slug).slice(0, 4);
@@ -35,21 +36,21 @@ export default async function ServicioDetailPage({ params }: { params: Promise<{
         ]}
         badge={s.tag}
         titulo={s.title}
-        destacado="a medida"
+        destacado={c['det-hero'].destacado}
         descripcion={s.description}
         imagen={s.image}
       >
-        <MoreInfoButton tone="dark" href="#cotizar" label="Cotizar servicio" />
-        <WhatsAppCta label="Contactar especialista" texto={`Hola, quiero información sobre ${s.title}`} />
+        <MoreInfoButton tone="dark" href="#cotizar" label={c['det-hero'].botonCotizar} />
+        <WhatsAppCta label={c['det-hero'].botonContactar} texto={`Hola, quiero información sobre ${s.title}`} />
       </PageHero>
 
       <main>
         <section className="bg-white py-20">
           <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2">
             <ScrollReveal direction="left">
-              <SectionBadge>Qué incluye</SectionBadge>
+              <SectionBadge>{c['det-incluye'].badge}</SectionBadge>
               <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
-                <span className="text-ink">Un servicio</span> <span className="title-shimmer-light">llave en mano</span>
+                <span className="text-ink">{c['det-incluye'].titulo}</span> <span className="title-shimmer-light">{c['det-incluye'].destacado}</span>
               </h2>
               <p className="mt-4 text-ink/60">
                 {d?.intro ?? s.description}
@@ -75,9 +76,9 @@ export default async function ServicioDetailPage({ params }: { params: Promise<{
         {d && (
           <section className="mx-auto max-w-7xl px-6 py-20">
             <ScrollReveal direction="up" className="mx-auto mb-12 flex max-w-2xl flex-col items-center text-center">
-              <SectionBadge>Beneficios</SectionBadge>
+              <SectionBadge>{c['det-beneficios'].badge}</SectionBadge>
               <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
-                <span className="text-ink">Por qué</span> <span className="title-shimmer-light">te conviene</span>
+                <span className="text-ink">{c['det-beneficios'].titulo}</span> <span className="title-shimmer-light">{c['det-beneficios'].destacado}</span>
               </h2>
             </ScrollReveal>
             <div className="grid gap-6 md:grid-cols-3">
@@ -101,9 +102,9 @@ export default async function ServicioDetailPage({ params }: { params: Promise<{
           <section className="mx-auto max-w-7xl px-6 py-20">
             <div className="grid gap-10 lg:grid-cols-[minmax(0,380px)_1fr]">
               <ScrollReveal direction="left">
-                <SectionBadge>Para quién</SectionBadge>
+                <SectionBadge>{c['det-sectores'].badge}</SectionBadge>
                 <h2 className="mt-2 font-display text-3xl font-bold leading-tight">
-                  <span className="text-ink">Sectores que</span> <span className="title-shimmer-light">atendemos</span>
+                  <span className="text-ink">{c['det-sectores'].titulo}</span> <span className="title-shimmer-light">{c['det-sectores'].destacado}</span>
                 </h2>
                 <div className="mt-6 flex flex-wrap gap-2.5">
                   {d.sectores.map((sec) => (
@@ -114,7 +115,7 @@ export default async function ServicioDetailPage({ params }: { params: Promise<{
                 </div>
               </ScrollReveal>
               <ScrollReveal direction="right" delayMs={120}>
-                <SectionBadge>Preguntas frecuentes</SectionBadge>
+                <SectionBadge>{c['det-faqs'].badge}</SectionBadge>
                 <div className="mt-4 space-y-3">
                   {d.faqs.map((f) => (
                     <details key={f.p} className="group rounded-2xl bg-white p-5 shadow-md shadow-brand-dark/10 open:shadow-lg">
@@ -136,11 +137,11 @@ export default async function ServicioDetailPage({ params }: { params: Promise<{
         <section id="cotizar" className="scroll-mt-28 py-20">
           <div className="mx-auto grid max-w-7xl items-start gap-10 px-6 lg:grid-cols-[minmax(0,380px)_1fr]">
             <ScrollReveal direction="left">
-              <SectionBadge>Cotiza este servicio</SectionBadge>
+              <SectionBadge>{c['det-cotizar'].badge}</SectionBadge>
               <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
-                <span className="text-ink">Pide tu</span> <span className="title-shimmer-light">cotización</span>
+                <span className="text-ink">{c['det-cotizar'].titulo}</span> <span className="title-shimmer-light">{c['det-cotizar'].destacado}</span>
               </h2>
-              <p className="mt-4 text-ink/60">Cuéntanos qué necesitas de {s.title}. Un especialista prepara la propuesta y te la envía por correo o WhatsApp.</p>
+              <p className="mt-4 text-ink/60">{c['det-cotizar'].texto.replaceAll('{servicio}', s.title)}</p>
             </ScrollReveal>
             <ScrollReveal direction="right" delayMs={120}>
               <CotizarServicioForm servicioSlug={s.slug} servicioTitulo={s.title} />
@@ -152,13 +153,13 @@ export default async function ServicioDetailPage({ params }: { params: Promise<{
           <div className="mx-auto max-w-7xl px-6">
           <div className="mb-12 flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-end">
             <ScrollReveal direction="left">
-              <SectionBadge>Otros servicios</SectionBadge>
+              <SectionBadge>{c['det-otros'].badge}</SectionBadge>
               <h2 className="mt-2 font-display text-3xl font-bold leading-tight sm:text-4xl">
-                <span className="text-ink">También te</span> <span className="title-shimmer-light">puede interesar</span>
+                <span className="text-ink">{c['det-otros'].titulo}</span> <span className="title-shimmer-light">{c['det-otros'].destacado}</span>
               </h2>
             </ScrollReveal>
             <ScrollReveal direction="right" delayMs={120}>
-              <MoreInfoButton href="/servicios" label="Ver todos" />
+              <MoreInfoButton href="/servicios" label={c['det-otros'].boton} />
             </ScrollReveal>
           </div>
           <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-4">

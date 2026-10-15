@@ -54,6 +54,27 @@ export const PAGINAS_DEFAULTS = {
       destacado: 'para cada sector',
       descripcion: 'Elige el servicio y conoce cómo lo implementamos en tu empresa.',
     }),
+    // "Cómo trabajamos": los 4 pasos (listado y página de cada servicio).
+    proceso: {
+      ...enc({ badge: 'Cómo trabajamos', titulo: 'De la idea a la', destacado: 'operación' }),
+      items: [
+        { title: 'Diagnóstico', text: 'Visitamos tu sede y entendemos qué necesita tu operación.' },
+        { title: 'Propuesta a medida', text: 'Diseñamos la solución y te enviamos una cotización clara.' },
+        { title: 'Implementación', text: 'Nuestros especialistas instalan y configuran todo.' },
+        { title: 'Soporte continuo', text: 'Acompañamiento técnico local después de la entrega.' },
+      ],
+    },
+    // Textos fijos de la página de cada servicio (/servicios/[slug]); el contenido propio de cada servicio se edita en Soluciones → Servicios.
+    'det-hero': { destacado: 'a medida', botonCotizar: 'Cotizar servicio', botonContactar: 'Contactar especialista' },
+    'det-incluye': enc({ badge: 'Qué incluye', titulo: 'Un servicio', destacado: 'llave en mano' }),
+    'det-beneficios': enc({ badge: 'Beneficios', titulo: 'Por qué', destacado: 'te conviene' }),
+    'det-sectores': enc({ badge: 'Para quién', titulo: 'Sectores que', destacado: 'atendemos' }),
+    'det-faqs': { badge: 'Preguntas frecuentes' },
+    'det-cotizar': {
+      ...enc({ badge: 'Cotiza este servicio', titulo: 'Pide tu', destacado: 'cotización' }),
+      texto: 'Cuéntanos qué necesitas de {servicio}. Un especialista prepara la propuesta y te la envía por correo o WhatsApp.',
+    },
+    'det-otros': { ...enc({ badge: 'Otros servicios', titulo: 'También te', destacado: 'puede interesar' }), boton: 'Ver todos' },
   },
   proyectos: {
     hero: enc({

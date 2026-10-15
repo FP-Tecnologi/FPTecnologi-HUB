@@ -85,6 +85,34 @@ const SOCIOS = base('socios', 'Intranet de socios', '/socios', [
 const SERVICIOS = base('servicios', 'Servicios', '/servicios', [
   HERO(),
   { key: 'listado', nombre: 'Listado de servicios', ancla: '', campos: ENCABEZADO },
+  { key: 'proceso', nombre: 'Cómo trabajamos (4 pasos, listado y cada servicio)', ancla: '', campos: [BADGE, TITULO, DESTACADO, ITEMS('Pasos (título + texto)')] },
+  // Página de cada servicio: textos fijos de la plantilla (los datos de cada servicio se editan en Soluciones → Servicios).
+  {
+    key: 'det-hero',
+    nombre: 'Página de cada servicio — Encabezado y botones',
+    ancla: '',
+    campos: [
+      { key: 'destacado', label: 'Título — parte con brillo (tras el nombre del servicio)', tipo: 'text' },
+      { key: 'botonCotizar', label: 'Botón de cotizar', tipo: 'text' },
+      { key: 'botonContactar', label: 'Botón de WhatsApp', tipo: 'text' },
+    ],
+  },
+  { key: 'det-incluye', nombre: 'Página de cada servicio — Qué incluye', ancla: '', campos: [BADGE, TITULO, DESTACADO] },
+  { key: 'det-beneficios', nombre: 'Página de cada servicio — Beneficios', ancla: '', campos: [BADGE, TITULO, DESTACADO] },
+  { key: 'det-sectores', nombre: 'Página de cada servicio — Sectores', ancla: '', campos: [BADGE, TITULO, DESTACADO] },
+  { key: 'det-faqs', nombre: 'Página de cada servicio — Preguntas frecuentes', ancla: '', campos: [BADGE] },
+  {
+    key: 'det-cotizar',
+    nombre: 'Página de cada servicio — Cotización',
+    ancla: '',
+    campos: [BADGE, TITULO, DESTACADO, { key: 'texto', label: 'Texto', tipo: 'textarea', ayuda: 'Usa {servicio} para insertar el nombre del servicio.' }],
+  },
+  {
+    key: 'det-otros',
+    nombre: 'Página de cada servicio — Otros servicios',
+    ancla: '',
+    campos: [BADGE, TITULO, DESTACADO, { key: 'boton', label: 'Botón', tipo: 'text' }],
+  },
 ]);
 
 const PROYECTOS = base('proyectos', 'Proyectos', '/proyectos', [HERO()]);
