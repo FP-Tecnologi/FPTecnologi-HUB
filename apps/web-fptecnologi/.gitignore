@@ -7,3 +7,8 @@ dist
 .DS_Store
 next-env.d.ts
 .vercel
+
+# Variables de entorno con credenciales (el espejo publico tiene esta carpeta como raiz; usar .env.example de plantilla)
+.env
+.env.*
+!.env.example
