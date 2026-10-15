@@ -25,6 +25,8 @@ export interface NavNode {
   inMenu: boolean;
   alias: string | null;
   external?: boolean;
+  /** Grupo con página propia: al hacer clic navega a `slug` y además despliega sus hijos. */
+  selfPage?: boolean;
   /**
    * Optional role whitelist (e.g. ["admin"]). Undefined/empty = visible to
    * every role. Matched case-insensitively against the user's active

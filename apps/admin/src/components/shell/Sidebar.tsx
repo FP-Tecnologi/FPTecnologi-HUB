@@ -180,11 +180,13 @@ function Group({ node, level, activeSlug, roleName }: GroupProps) {
     [node, activeSlug, level],
   );
   const [open, setOpen] = useState(containsActive || level === 1 && node.section === 'MAIN');
-  const isOpen = open || containsActive;
+  const selfActive = !!node.selfPage && node.slug === activeSlug;
+  const isOpen = open || containsActive || selfActive;
 
   const parentCls = ['ax-nav__item', 'ax-nav__item--parent'];
   if (level > 1) parentCls.push('ax-nav__item--child');
-  if (containsActive) parentCls.push('ax-nav__item--trail');
+  if (containsActive || selfActive) parentCls.push('ax-nav__item--trail');
+  if (selfActive) parentCls.push('ax-nav__item--active', 'is-active');
 
   return (
     <div
@@ -198,8 +200,13 @@ function Group({ node, level, activeSlug, roleName }: GroupProps) {
         aria-level={level}
         aria-expanded={isOpen}
         data-ax-group={node.id}
-        onClick={() => setOpen((o) => !o)}
-        tabIndex={containsActive ? 0 : -1}
+        onClick={() => {
+          if (node.selfPage) {
+            setOpen(true);
+            router.push(hrefForSlug(node.slug));
+          } else setOpen((o) => !o);
+        }}
+        tabIndex={containsActive || selfActive ? 0 : -1}
       >
         {level === 1 && <Icon name={node.icon} className="ax-nav__icon ax-nav__icon--group" />}
         {level === 1 && activeChildIcon && (
