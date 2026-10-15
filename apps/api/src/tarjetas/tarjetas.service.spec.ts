@@ -38,6 +38,9 @@ function setup(over: Record<string, unknown> = {}) {
   const prisma = {
     tarjetaDigital: {
       findFirst: vi.fn(async (_a: unknown) => null as unknown),
+      findMany: vi.fn(async (_a: unknown) => [] as unknown[]),
+      count: vi.fn(async (_a: unknown) => 2),
+      deleteMany: vi.fn(async (_a: unknown) => ({ count: 1 })),
       create: vi.fn(async (_a: unknown) => ({})),
       updateMany: vi.fn(async (_a: unknown) => ({ count: 1 })),
     },
@@ -68,7 +71,22 @@ describe('TarjetasService', () => {
   it('rechaza un enlace (slug) que ya usa otra persona', async () => {
     const { service, prisma } = setup();
     prisma.tarjetaDigital.findFirst.mockResolvedValueOnce(null).mockResolvedValueOnce({ id: 'otra' });
-    await expect(service.guardarMia('m1', 'u1', { nombre: 'Ana Pérez' })).rejects.toThrow('ya lo usa');
+    await expect(service.guardarMia('m1', 'u1', { nombre: 'Ana Pérez', slug: 'ana' })).rejects.toThrow('ya lo usa');
+  });
+
+  it('sin enlace pedido, si el del nombre ya existe toma «nombre-2»', async () => {
+    const { service, prisma } = setup();
+    prisma.tarjetaDigital.findFirst.mockResolvedValueOnce({ id: 'otra' }).mockResolvedValueOnce(null);
+    await service.guardarMia('m1', 'u1', { nombre: 'Ana Pérez', etiqueta: 'Comercial' }, { nueva: true });
+    expect((prisma.tarjetaDigital.create.mock.calls[0][0] as { data: Record<string, unknown> }).data).toMatchObject({ slug: 'ana-perez-2', etiqueta: 'Comercial' });
+  });
+
+  it('no deja eliminar la última tarjeta', async () => {
+    const { service, prisma } = setup();
+    prisma.tarjetaDigital.count.mockResolvedValueOnce(1);
+    await expect(service.eliminarMia('m1', 'u1', 't1')).rejects.toThrow('al menos una');
+    await service.eliminarMia('m1', 'u1', 't1');
+    expect(prisma.tarjetaDigital.deleteMany.mock.calls[0][0]).toMatchObject({ where: { id: 't1', marcaId: 'm1', usuarioId: 'u1' } });
   });
 
   it('rechaza urls peligrosas y correos inválidos', async () => {

@@ -1170,6 +1170,7 @@ model TarjetaDigital {
   marca     Marca    @relation(fields: [marcaId], references: [id])
   usuarioId String
   slug      String // /tarjeta/<slug>, único por marca
+  etiqueta  String   @default("Principal") // nombre de la versión (Comercial, Soporte…): una persona puede tener varias tarjetas
   nombre    String
   cargo     String?
   area      String?
@@ -1190,5 +1191,5 @@ model TarjetaDigital {
   updatedAt DateTime @updatedAt
 
   @@unique([marcaId, slug])
-  @@unique([marcaId, usuarioId])
+  @@index([marcaId, usuarioId])
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, ForbiddenException, Get, Param, Patch, Put, Query, Res, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, ForbiddenException, Get, Param, Patch, Post, Put, Query, Res, UseGuards } from '@nestjs/common';
 import type { Response } from 'express';
 import { TarjetasService } from './tarjetas.service.js';
 import { ActivarTarjetaDto, GuardarTarjetaDto } from './tarjetas.dto.js';
@@ -22,16 +22,29 @@ export class TarjetasController {
     if (user.marcas.find((m) => m.marcaId === marcaId)?.rol === 'cliente') throw new ForbiddenException('La tarjeta digital es para el equipo');
   }
 
-  @Get('mia')
-  mia(@MarcaActual() marcaId: string, @CurrentUser() user: AuthenticatedUser) {
+  @Get('mias')
+  mias(@MarcaActual() marcaId: string, @CurrentUser() user: AuthenticatedUser) {
     this.soloEquipo(user, marcaId);
-    return this.tarjetas.mia(marcaId, user.sub);
+    return this.tarjetas.mias(marcaId, user.sub);
   }
 
-  @Put('mia')
-  guardar(@MarcaActual() marcaId: string, @CurrentUser() user: AuthenticatedUser, @Body() dto: GuardarTarjetaDto) {
+  /** Nueva versión de mi tarjeta (p. ej. una para el área comercial y otra para soporte). */
+  @Post('mias')
+  crear(@MarcaActual() marcaId: string, @CurrentUser() user: AuthenticatedUser, @Body() dto: GuardarTarjetaDto) {
     this.soloEquipo(user, marcaId);
-    return this.tarjetas.guardarMia(marcaId, user.sub, dto);
+    return this.tarjetas.guardarMia(marcaId, user.sub, dto, { nueva: true });
+  }
+
+  @Put('mias/:id')
+  guardar(@MarcaActual() marcaId: string, @CurrentUser() user: AuthenticatedUser, @Param('id') id: string, @Body() dto: GuardarTarjetaDto) {
+    this.soloEquipo(user, marcaId);
+    return this.tarjetas.guardarMia(marcaId, user.sub, dto, { id });
+  }
+
+  @Delete('mias/:id')
+  eliminar(@MarcaActual() marcaId: string, @CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    this.soloEquipo(user, marcaId);
+    return this.tarjetas.eliminarMia(marcaId, user.sub, id);
   }
 
   /** Todas las tarjetas del equipo (solo quien administra la web). */

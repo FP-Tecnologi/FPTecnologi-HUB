@@ -16,28 +16,40 @@ export class TarjetasService {
     return `${(process.env.WEB_PUBLICA_URL ?? 'https://fptecnologi.com').replace(/\/$/, '')}/tarjeta/${slug}`;
   }
 
-  /** La tarjeta de quien inició sesión (o sus datos para sugerir una al crearla). */
-  async mia(marcaId: string, usuarioId: string) {
-    const [tarjeta, usuario] = await Promise.all([
-      this.prisma.tarjetaDigital.findFirst({ where: { marcaId, usuarioId } }),
+  /** Las tarjetas (versiones) de quien inició sesión, más sus datos para sugerir una al crearla. */
+  async mias(marcaId: string, usuarioId: string) {
+    const [tarjetas, usuario] = await Promise.all([
+      this.prisma.tarjetaDigital.findMany({ where: { marcaId, usuarioId }, orderBy: { createdAt: 'asc' } }),
       this.prisma.usuario.findFirst({ where: { id: usuarioId }, select: { nombre: true, email: true, cargo: true, telefono: true } }),
     ]);
     return {
-      tarjeta,
+      tarjetas: await Promise.all(
+        tarjetas.map(async (t) => ({ ...t, url: this.urlDe(t.slug), qr: await QRCode.toString(this.urlDe(t.slug), { type: 'svg', margin: 1 }), faltantes: faltantes(t) })),
+      ),
       sugerido: { nombre: usuario?.nombre ?? '', email: usuario?.email ?? '', cargo: usuario?.cargo ?? '', telefono: usuario?.telefono ?? '' },
-      faltantes: faltantes(tarjeta ?? {}),
-      url: tarjeta ? this.urlDe(tarjeta.slug) : null,
-      qr: tarjeta ? await QRCode.toString(this.urlDe(tarjeta.slug), { type: 'svg', margin: 1 }) : null,
     };
   }
 
-  /** Crea o actualiza la tarjeta de quien inició sesión. El slug (enlace) es único por marca. */
-  async guardarMia(marcaId: string, usuarioId: string, dto: GuardarTarjetaDto) {
-    const actual = await this.prisma.tarjetaDigital.findFirst({ where: { marcaId, usuarioId } });
-    const slug = (dto.slug?.trim().toLowerCase() || actual?.slug || slugDe(dto.nombre));
-    if (slug.length < 3 || !SLUG_VALIDO.test(slug)) throw new BadRequestException('El enlace debe tener al menos 3 letras o números (sin espacios ni tildes; solo guiones entre palabras).');
-    const ocupado = await this.prisma.tarjetaDigital.findFirst({ where: { marcaId, slug, NOT: { usuarioId } }, select: { id: true } });
-    if (ocupado) throw new BadRequestException('Ese enlace ya lo usa otra persona. Prueba con otro.');
+  /** Guarda una versión existente (con `id`), la primera si no hay id, o crea una nueva (`nueva`). El slug (enlace) es único por marca. */
+  async guardarMia(marcaId: string, usuarioId: string, dto: GuardarTarjetaDto, opciones: { id?: string; nueva?: boolean } = {}) {
+    let actual: { id: string; slug: string; etiqueta: string; estilo: string; vista: string } | null = null;
+    if (!opciones.nueva) {
+      actual = await this.prisma.tarjetaDigital.findFirst({ where: { marcaId, usuarioId, ...(opciones.id ? { id: opciones.id } : {}) }, orderBy: { createdAt: 'asc' } });
+      if (opciones.id && !actual) throw new NotFoundException('Tarjeta no encontrada');
+    }
+    const pedido = dto.slug?.trim().toLowerCase();
+    const base = pedido || actual?.slug || slugDe(dto.nombre);
+    if (base.length < 3 || !SLUG_VALIDO.test(base)) throw new BadRequestException('El enlace debe tener al menos 3 letras o números (sin espacios ni tildes; solo guiones entre palabras).');
+    const actualId = actual?.id;
+    const enUso = (slug: string) => this.prisma.tarjetaDigital.findFirst({ where: { marcaId, slug, ...(actualId ? { NOT: { id: actualId } } : {}) }, select: { id: true } });
+    let slug = base;
+    if (await enUso(slug)) {
+      // Una versión nueva sin enlace pedido toma «nombre-2», «nombre-3»…; si lo pidió a mano, se le avisa.
+      if (pedido || actual) throw new BadRequestException('Ese enlace ya lo usa otra persona. Prueba con otro.');
+      let n = 2;
+      while (n < 50 && (await enUso(`${base}-${n}`))) n++;
+      slug = `${base}-${n}`;
+    }
 
     const email = texto(dto.email);
     if (email && !EMAIL.test(email)) throw new BadRequestException('El correo no es válido.');
@@ -51,6 +63,7 @@ export class TarjetasService {
 
     const data = {
       slug,
+      etiqueta: (texto(dto.etiqueta) ?? actual?.etiqueta ?? 'Principal').slice(0, 40),
       nombre: dto.nombre.trim(),
       cargo: texto(dto.cargo),
       area: texto(dto.area),
@@ -68,9 +81,19 @@ export class TarjetasService {
       activo: dto.activo ?? true,
     };
     // upsert "a mano": el tenant-guard no cubre upsert.
-    if (actual) await this.prisma.tarjetaDigital.updateMany({ where: { id: actual.id, marcaId }, data });
-    else await this.prisma.tarjetaDigital.create({ data: { ...data, marcaId, usuarioId } });
-    return this.mia(marcaId, usuarioId);
+    let id: string | undefined = actualId;
+    if (actualId) await this.prisma.tarjetaDigital.updateMany({ where: { id: actualId, marcaId }, data });
+    else id = (await this.prisma.tarjetaDigital.create({ data: { ...data, marcaId, usuarioId } }))?.id;
+    return { ...(await this.mias(marcaId, usuarioId)), guardadaId: id ?? null };
+  }
+
+  /** Quita una versión propia (siempre queda al menos una). */
+  async eliminarMia(marcaId: string, usuarioId: string, id: string) {
+    const total = await this.prisma.tarjetaDigital.count({ where: { marcaId, usuarioId } });
+    if (total <= 1) throw new BadRequestException('Debes conservar al menos una tarjeta. Puedes editarla o desactivarla.');
+    const r = await this.prisma.tarjetaDigital.deleteMany({ where: { id, marcaId, usuarioId } });
+    if (r.count === 0) throw new NotFoundException('Tarjeta no encontrada');
+    return this.mias(marcaId, usuarioId);
   }
 
   /** Dashboard (admin/marketing): el equipo con su tarjeta, qué le falta a cada una y quién aún no la creó. */
@@ -82,7 +105,7 @@ export class TarjetasService {
     const conTarjeta = new Set(tarjetas.map((t) => t.usuarioId));
     const sinTarjeta = [...new Map(equipo.filter((e) => e.rol.nombre !== 'cliente' && !conTarjeta.has(e.usuarioId)).map((e) => [e.usuarioId, { usuarioId: e.usuarioId, nombre: e.usuario.nombre ?? e.usuario.email, email: e.usuario.email, rol: e.rol.nombre }])).values()];
     return {
-      tarjetas: tarjetas.map((t) => ({ id: t.id, slug: t.slug, nombre: t.nombre, cargo: t.cargo, area: t.area, estilo: t.estilo, vista: t.vista, activo: t.activo, vistas: t.vistas, fotoUrl: t.fotoUrl, faltantes: faltantes(t), url: this.urlDe(t.slug) })),
+      tarjetas: tarjetas.map((t) => ({ id: t.id, slug: t.slug, etiqueta: t.etiqueta, nombre: t.nombre, cargo: t.cargo, area: t.area, estilo: t.estilo, vista: t.vista, activo: t.activo, vistas: t.vistas, fotoUrl: t.fotoUrl, faltantes: faltantes(t), url: this.urlDe(t.slug) })),
       sinTarjeta,
     };
   }

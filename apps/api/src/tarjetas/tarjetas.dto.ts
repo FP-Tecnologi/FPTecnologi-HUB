@@ -9,6 +9,9 @@ export class GuardarTarjetaDto {
   @IsOptional() @IsString() @MaxLength(60)
   slug?: string;
 
+  @IsOptional() @IsString() @MaxLength(40)
+  etiqueta?: string;
+
   @IsOptional() @IsString() @MaxLength(100)
   cargo?: string;
 
