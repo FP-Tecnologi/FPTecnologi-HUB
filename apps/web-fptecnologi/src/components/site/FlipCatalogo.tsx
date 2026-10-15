@@ -183,7 +183,37 @@ export function FlipCatalogo({ src, titulo, inmersivo = false }: { src: string; 
       }
     } catch {}
   };
-  const alternarPantalla = () => setPantalla((v) => !v);
+  // Pantalla completa real (API del navegador) sobre el marco del folleto; sin soporte (iPhone) queda el modo ampliado.
+  const [real, setReal] = useState(false);
+  const [puedeReal, setPuedeReal] = useState(false);
+  useEffect(() => {
+    setPuedeReal(!!document.fullscreenEnabled);
+    const cambio = () => {
+      const activa = !!document.fullscreenElement;
+      setReal(activa);
+      if (!activa) setPantalla(inmersivo);
+    };
+    document.addEventListener('fullscreenchange', cambio);
+    return () => document.removeEventListener('fullscreenchange', cambio);
+  }, [inmersivo]);
+  const alternarPantalla = async () => {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen().catch(() => {});
+      return;
+    }
+    if (!inmersivo && pantalla) return setPantalla(false);
+    if (!inmersivo) setPantalla(true);
+    try {
+      await marco.current?.requestFullscreen?.();
+    } catch {}
+  };
+  const enPantalla = real || (!inmersivo && pantalla);
+  const botonPantalla = (inmersivo ? puedeReal : true) && (
+    <button type="button" disabled={estado !== 'listo'} onClick={alternarPantalla} className="inline-flex items-center gap-2 rounded-full border border-brand-primary/30 px-4 py-2 text-sm font-semibold text-brand-700 transition hover:bg-brand-50 disabled:opacity-40">
+      {enPantalla ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+      {enPantalla ? 'Salir de pantalla completa' : 'Pantalla completa'}
+    </button>
+  );
   const listo = estado === 'listo';
   const btn = 'rounded-full border border-brand-primary/30 p-2 text-brand-700 transition hover:bg-brand-50 disabled:opacity-40';
 
@@ -226,16 +256,12 @@ export function FlipCatalogo({ src, titulo, inmersivo = false }: { src: string; 
         <button type="button" disabled={!listo} onClick={() => flip.current?.flip(total - 1)} aria-label="Última página" className={btn}>
           <ChevronsRight className="h-5 w-5" />
         </button>
-        {inmersivo ? (
+        {inmersivo && (
           <button type="button" onClick={compartir} className="inline-flex items-center gap-2 rounded-full border border-brand-primary/30 px-4 py-2 text-sm font-semibold text-brand-700 transition hover:bg-brand-50">
             <Share2 className="h-4 w-4" /> {copiado ? 'Enlace copiado' : 'Compartir'}
           </button>
-        ) : (
-          <button type="button" disabled={!listo} onClick={alternarPantalla} className="inline-flex items-center gap-2 rounded-full border border-brand-primary/30 px-4 py-2 text-sm font-semibold text-brand-700 transition hover:bg-brand-50 disabled:opacity-40">
-          {pantalla ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-          {pantalla ? 'Salir' : 'Pantalla completa'}
-        </button>
         )}
+        {botonPantalla}
         <a href={src} download className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-700">
           <Download className="h-4 w-4" /> Descargar PDF
         </a>
