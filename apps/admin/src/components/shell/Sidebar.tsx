@@ -212,6 +212,7 @@ function Group({ node, level, activeSlug, roleName }: GroupProps) {
         {level === 1 && activeChildIcon && (
           <Icon name={activeChildIcon} className="ax-nav__icon ax-nav__icon--active-child" />
         )}
+        {level > 1 && <Icon name={node.icon} className="ax-nav__icon" />}
         <span className="ax-nav__label">{node.title}</span>
         <Badge badge={node.badge} />
         {CARET}
