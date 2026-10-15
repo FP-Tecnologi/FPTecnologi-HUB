@@ -26,7 +26,7 @@ export type ShopProduct = {
 
 export type CatalogProduct = ShopProduct & { category: string };
 
-const FP = 'https://fptecnologi.com/wp-content/uploads';
+const FP = '/images/productos'; // fotos propias, versionadas en public/images/productos (antes: wp-content/uploads de WordPress)
 
 export const CATALOG: CatalogProduct[] = [
   // Monitores
