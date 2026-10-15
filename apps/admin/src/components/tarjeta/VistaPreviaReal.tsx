@@ -9,8 +9,7 @@ import { aplicarMostrar } from '../../lib/tarjetaOpciones';
 import type { Tarjeta } from '../../screens/pages/MiTarjeta';
 import { urlImagen } from '../ui/SubirImagen';
 
-const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
-const ORIGEN = (() => { try { return new URL(WEB).origin; } catch { return '*'; } })();
+const WEB_ENV = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
 const MODOS = {
   celular: { nombre: 'Celular', ancho: 390, alto: 800 },
@@ -18,7 +17,10 @@ const MODOS = {
 } as const;
 type Modo = keyof typeof MODOS;
 
-export function VistaPreviaReal({ t, url }: { t: Tarjeta; url?: string }) {
+/** `base`: dirección de la web pública que informa la API (WEB_PUBLICA_URL); si no llega, la del panel. */
+export function VistaPreviaReal({ t, url, base }: { t: Tarjeta; url?: string; base?: string }) {
+  const WEB = (base || WEB_ENV).replace(/\/$/, '');
+  const ORIGEN = (() => { try { return new URL(WEB).origin; } catch { return '*'; } })();
   const [modo, setModo] = useState<Modo>('celular');
   const [qr, setQr] = useState<string | null>(null);
   const [listo, setListo] = useState(false);

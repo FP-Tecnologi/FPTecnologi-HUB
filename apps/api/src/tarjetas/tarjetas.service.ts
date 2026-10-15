@@ -12,8 +12,13 @@ const texto = (t: string | undefined) => (t ?? '').trim() || null;
 export class TarjetasService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /** Dirección de la web pública (donde viven /tarjeta/<enlace>). Se configura con WEB_PUBLICA_URL en la API. */
+  private webBase() {
+    return (process.env.WEB_PUBLICA_URL?.trim() || 'https://fptecnologi.com').replace(/\/$/, '');
+  }
+
   private urlDe(slug: string) {
-    return `${(process.env.WEB_PUBLICA_URL ?? 'https://fptecnologi.com').replace(/\/$/, '')}/tarjeta/${slug}`;
+    return `${this.webBase()}/tarjeta/${slug}`;
   }
 
   /** QR de la tarjeta con los colores elegidos (negro sobre blanco si no hay). */
@@ -39,6 +44,7 @@ export class TarjetasService {
         tarjetas.map(async (t) => ({ ...t, url: this.urlDe(t.slug), qr: await this.qrDe(this.urlDe(t.slug), t), faltantes: faltantes(t) })),
       ),
       sugerido: { nombre: usuario?.nombre ?? '', email: usuario?.email ?? '', cargo: usuario?.cargo ?? '', telefono: usuario?.telefono ?? '' },
+      webBase: this.webBase(),
     };
   }
 
@@ -132,6 +138,7 @@ export class TarjetasService {
     return {
       tarjetas: tarjetas.map((t) => ({ ...t, propietario: duenos.get(t.usuarioId) ?? null, faltantes: faltantes(t), url: this.urlDe(t.slug) })),
       sinTarjeta,
+      webBase: this.webBase(),
     };
   }
 

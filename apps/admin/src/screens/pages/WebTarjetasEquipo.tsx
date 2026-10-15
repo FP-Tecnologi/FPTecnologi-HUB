@@ -16,7 +16,7 @@ import { VACIA, type Tarjeta } from './MiTarjeta';
 
 type Fila = Tarjeta & { id: string; usuarioId: string; propietario: string | null; url: string; faltantes: { campo: string; aviso: string }[] };
 interface SinTarjeta { usuarioId: string; nombre: string; email: string; rol: string }
-interface Datos { tarjetas: Fila[]; sinTarjeta: SinTarjeta[] }
+interface Datos { tarjetas: Fila[]; sinTarjeta: SinTarjeta[]; webBase?: string }
 /** Qué se está editando: una tarjeta existente (id) o una nueva para alguien del equipo (usuarioId). */
 type Edicion = { id?: string; usuarioId?: string; quien: string; form: Tarjeta };
 
@@ -266,7 +266,7 @@ export function WebTarjetasEquipo() {
             </div>
 
             <div style={{ position: 'sticky', top: 0, alignSelf: 'start' }}>
-              <VistaPreviaReal t={edit.form} url={edit.id ? datos?.tarjetas.find((x) => x.id === edit.id)?.url : undefined} />
+              <VistaPreviaReal base={datos?.webBase} t={edit.form} url={edit.id ? datos?.tarjetas.find((x) => x.id === edit.id)?.url : undefined} />
             </div>
           </div>
         </div>
