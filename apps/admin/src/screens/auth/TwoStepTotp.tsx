@@ -27,7 +27,7 @@ function TwoStepTotpInner() {
   function enviarCodigoCorreo() {
     if (!email) return;
     api.post('/auth/otp/request', { email }, { auth: false }).catch(() => { /* best-effort */ });
-    router.push(`/auth/two-step?email=${encodeURIComponent(email)}&m=totp`);
+    router.push(`/auth/verificacion?email=${encodeURIComponent(email)}&m=totp`);
   }
 
   function verify(ev: React.FormEvent) {
@@ -101,7 +101,7 @@ function TwoStepTotpInner() {
 
               <div className="ax-center" style={{ flexDirection: 'column', gap: 'var(--ax-space-2)' }}>
                 <button type="button" className="ax-link" style={{ fontSize: 'var(--ax-text-sm)', background: 'none', border: 0, cursor: 'pointer' }} onClick={enviarCodigoCorreo}>Recibir un código por correo</button>
-                <Link className="ax-link" href="/auth/sign-in" style={{ fontSize: 'var(--ax-text-sm)' }}>Volver a iniciar sesión</Link>
+                <Link className="ax-link" href="/auth/iniciar-sesion" style={{ fontSize: 'var(--ax-text-sm)' }}>Volver a iniciar sesión</Link>
               </div>
             </div>
           </section>

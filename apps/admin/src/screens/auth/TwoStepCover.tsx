@@ -1,7 +1,7 @@
 'use client';
 /*
  * FPTecnologi-HUB · Dashboard — Two-step verification (cover split).
- * 1:1 re-expression of src/html/auth/two-step-cover.html: a duotone material
+ * 1:1 re-expression of src/html/auth/verificacion-cover.html: a duotone material
  * panel (lg+) beside the OTP card (label + 6 cells, resend/trust, error banner).
  * Demo code "123456" passes → redirects to "/". Cooldown starts at 30s.
  */
@@ -180,9 +180,9 @@ export function TwoStepCover() {
                 </form>
 
                 <div style={{ marginBlockStart: 'var(--ax-space-5)', textAlign: 'center' }}>
-                  <Link className="ax-link" href="/auth/two-step" style={{ fontSize: 'var(--ax-text-sm)' }}>Use a different method</Link>
+                  <Link className="ax-link" href="/auth/verificacion" style={{ fontSize: 'var(--ax-text-sm)' }}>Use a different method</Link>
                   <span style={{ color: 'var(--ax-text-subtle)', marginInline: 'var(--ax-space-2)' }}>·</span>
-                  <Link className="ax-link" href="/auth/sign-in" style={{ fontSize: 'var(--ax-text-sm)' }}>Back to sign in</Link>
+                  <Link className="ax-link" href="/auth/iniciar-sesion" style={{ fontSize: 'var(--ax-text-sm)' }}>Back to sign in</Link>
                 </div>
               </div>
             </div>

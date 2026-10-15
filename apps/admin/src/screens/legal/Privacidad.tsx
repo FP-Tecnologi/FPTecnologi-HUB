@@ -132,7 +132,7 @@ export function Privacidad() {
 
         <div className="ax-divider" style={{ borderTop: '1px solid var(--ax-border)', margin: 'var(--ax-space-2) 0' }} />
         <div className="ax-cluster" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--ax-space-3)' }}>
-          <Link className="ax-link" href="/pages/terms">Leer los Términos y condiciones →</Link>
+          <Link className="ax-link" href="/pages/terminos">Leer los Términos y condiciones →</Link>
           <a className="ax-btn ax-btn--ghost ax-btn--sm" href="#top">
             <span className="ax-btn__label">Volver arriba</span>
           </a>

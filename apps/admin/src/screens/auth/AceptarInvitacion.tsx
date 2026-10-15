@@ -37,7 +37,7 @@ export function AceptarInvitacion() {
     try {
       await api.post('/public/invitaciones/aceptar', { token, nombre: nombre.trim() || undefined, password: info.cuentaExiste ? undefined : password }, { auth: false });
       setListo(true);
-      setTimeout(() => router.push('/auth/sign-in'), 1600);
+      setTimeout(() => router.push('/auth/iniciar-sesion'), 1600);
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'No se pudo aceptar la invitación.');
     } finally {
@@ -78,7 +78,7 @@ export function AceptarInvitacion() {
                 </form>
               )}
 
-              {!info && error && <Link className="ax-link" href="/auth/sign-in">Ir a iniciar sesión</Link>}
+              {!info && error && <Link className="ax-link" href="/auth/iniciar-sesion">Ir a iniciar sesión</Link>}
             </div>
           </section>
         </div>

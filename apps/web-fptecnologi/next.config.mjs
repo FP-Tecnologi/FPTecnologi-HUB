@@ -19,6 +19,9 @@ const REDIRECCIONES = [
   ['/desarrollo/terminos-y-condiciones', '/legal/terminos'],
   ['/desarrollo/cambios-devoluciones-y-reembolsos', '/legal/devoluciones'],
   ['/desarrollo/blog', '/blog'],
+  ['/checkout', '/finalizar-compra'],
+  ['/checkout/gracias', '/finalizar-compra/gracias'],
+  ['/education', '/educacion'],
 ].map(([source, destination]) => ({ source, destination, permanent: true }));
 
 const nextConfig = {

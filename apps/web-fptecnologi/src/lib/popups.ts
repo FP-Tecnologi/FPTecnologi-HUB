@@ -28,7 +28,7 @@ export function paginaDe(pathname: string): string {
   if (p === '/') return 'home';
   if (p.startsWith('/producto')) return 'producto';
   if (p.startsWith('/tienda') || p.startsWith('/marcas')) return 'tienda';
-  if (p.startsWith('/carrito') || p.startsWith('/checkout')) return 'carrito';
+  if (p.startsWith('/carrito') || p.startsWith('/finalizar-compra') || p.startsWith('/checkout')) return 'carrito';
   if (p.startsWith('/servicios')) return 'servicios';
   if (p.startsWith('/proyectos')) return 'proyectos';
   if (p.startsWith('/nosotros')) return 'nosotros';

@@ -121,7 +121,7 @@ export class AuthController {
       );
     } catch (error) {
       this.logger.error('Falló el login con Google', error as Error);
-      res.redirect(`${webOrigin}/auth/sign-in?error=google`);
+      res.redirect(`${webOrigin}/auth/iniciar-sesion?error=google`);
     }
   }
 

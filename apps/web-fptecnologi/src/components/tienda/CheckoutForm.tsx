@@ -224,7 +224,7 @@ export function CheckoutForm() {
         } catch {
           /* sin localStorage no hay nada que borrar */
         }
-        window.location.href = `/checkout/gracias?pedido=${encodeURIComponent(cuerpo.data.numeroPedido)}&total=${cuerpo.data.total ?? 0}`;
+        window.location.href = `/finalizar-compra/gracias?pedido=${encodeURIComponent(cuerpo.data.numeroPedido)}&total=${cuerpo.data.total ?? 0}`;
         return;
       }
       if (res.ok) {

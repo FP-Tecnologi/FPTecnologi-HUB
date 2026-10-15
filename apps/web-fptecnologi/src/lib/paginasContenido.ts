@@ -184,6 +184,13 @@ export const PAGINAS_DEFAULTS = {
     redes: Object.fromEntries(SOCIAL_LINKS.map((r) => [r.red, r.href])) as Record<(typeof SOCIAL_LINKS)[number]['red'], string>,
     cifras: { items: STATS.map((s) => ({ title: `${s.value}${s.suffix}`, text: s.label })) },
     cambio: { tipoCambio: process.env.TIPO_CAMBIO_USD_PEN || '3.75' },
+    // Pantalla "estamos trabajando": con activo = true toda la web pública muestra /mantenimiento (middleware.ts).
+    mantenimiento: {
+      activo: false,
+      titulo: 'Estamos trabajando en nuestra nueva web',
+      mensaje: 'Estamos preparando una nueva experiencia para ti. Vuelve pronto o escríbenos y te atendemos de inmediato.',
+      detalle: '',
+    },
   },
   // Textos legales en markdown ("## Título" abre una sección). Vacío = se usa el texto base de lib/legal.ts.
   legal: {

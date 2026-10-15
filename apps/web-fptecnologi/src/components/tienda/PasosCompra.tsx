@@ -2,7 +2,7 @@ import { Check, ClipboardList, PackageCheck, ShoppingCart } from 'lucide-react';
 
 const PASOS = [
   { n: 1, label: 'Carrito', Icon: ShoppingCart, href: '/carrito' },
-  { n: 2, label: 'Datos y entrega', Icon: ClipboardList, href: '/checkout' },
+  { n: 2, label: 'Datos y entrega', Icon: ClipboardList, href: '/finalizar-compra' },
   { n: 3, label: 'Pedido recibido', Icon: PackageCheck },
 ] as const;
 

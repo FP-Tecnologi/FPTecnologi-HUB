@@ -22,7 +22,7 @@ export function LegalHeader({ title, updated }: { title: string; updated: string
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo-fptecnologi.svg" alt="FPTecnologi" width={150} style={{ height: 'auto' }} />
         </Link>
-        <Link className="ax-link" href="/auth/sign-in">← Volver</Link>
+        <Link className="ax-link" href="/auth/iniciar-sesion">← Volver</Link>
       </div>
       <div>
         <h1 style={{ margin: '0 0 var(--ax-space-1)', fontFamily: 'var(--ax-font-display)', fontSize: 'var(--ax-text-2xl)', fontWeight: 700, color: 'var(--ax-text-strong)' }}>{title}</h1>

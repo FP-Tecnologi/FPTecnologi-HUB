@@ -1,7 +1,7 @@
 'use client';
 /*
  * FPTecnologi-HUB · Dashboard — Reset password (cover split).
- * 1:1 re-expression of src/html/auth/reset-password-cover.html: a reassurance
+ * 1:1 re-expression of src/html/auth/restablecer-contrasena-cover.html: a reassurance
  * panel with a lock card (lg+) beside the request→success reset flow. Demo always
  * succeeds (anti-enumeration); 30s resend cooldown on the success state.
  */
@@ -108,7 +108,7 @@ export function ResetPasswordCover() {
                     <span className="ax-btn__label">Send reset link</span>
                   </button>
                 </form>
-                <p style={{ margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>Remembered it? <Link className="ax-link" href="/auth/sign-in-cover" style={{ fontWeight: 'var(--ax-weight-medium)' }}>Sign in</Link></p>
+                <p style={{ margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>Remembered it? <Link className="ax-link" href="/auth/iniciar-sesion-cover" style={{ fontWeight: 'var(--ax-weight-medium)' }}>Sign in</Link></p>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-5)' }}>
@@ -123,7 +123,7 @@ export function ResetPasswordCover() {
                   <button type="button" className="ax-btn ax-btn--secondary ax-btn--block" disabled={cooldown > 0} onClick={resend}>
                     <span className="ax-btn__label">{cooldown > 0 ? `Resend in ${cooldown}s` : 'Resend email'}</span>
                   </button>
-                  <Link className="ax-btn ax-btn--ghost ax-btn--block" href="/auth/sign-in-cover">
+                  <Link className="ax-btn ax-btn--ghost ax-btn--block" href="/auth/iniciar-sesion-cover">
                     <svg className="ax-btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12l14 0" /><path d="M5 12l6 6" /><path d="M5 12l6 -6" /></svg>
                     <span className="ax-btn__label">Back to sign in</span>
                   </Link>

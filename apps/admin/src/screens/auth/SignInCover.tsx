@@ -1,7 +1,7 @@
 'use client';
 /*
  * FPTecnologi-HUB · Dashboard — Sign in (cover split).
- * 1:1 re-expression of src/html/auth/sign-in-cover.html: a 52/48 split — a
+ * 1:1 re-expression of src/html/auth/iniciar-sesion-cover.html: a 52/48 split — a
  * gradient testimonial panel (lg+) and the same sign-in form as the basic
  * variant on the right. The lg breakpoint rule lives in the injected <style>.
  */
@@ -118,7 +118,7 @@ export function SignInCover() {
               <div className="ax-field">
                 <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
                   <label className="ax-label" htmlFor="si-pass">Password</label>
-                  <Link className="ax-link" href="/auth/reset-password-cover" style={{ fontSize: 'var(--ax-text-xs)' }}>Forgot password?</Link>
+                  <Link className="ax-link" href="/auth/restablecer-contrasena-cover" style={{ fontSize: 'var(--ax-text-xs)' }}>Forgot password?</Link>
                 </div>
                 <div className="ax-field__control">
                   <input id="si-pass" className={`ax-input ax-input--with-trailing${passErr ? ' is-invalid' : ''}`} autoComplete="current-password" placeholder="••••••••••"

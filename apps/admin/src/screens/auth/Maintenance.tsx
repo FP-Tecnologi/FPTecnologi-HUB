@@ -1,6 +1,6 @@
 /*
  * FPTecnologi-HUB · Dashboard — Maintenance.
- * 1:1 re-expression of src/html/auth/maintenance.html: a two-tone slow-spinning
+ * 1:1 re-expression of src/html/auth/mantenimiento.html: a two-tone slow-spinning
  * gear illustration with a warning wrench accent, an ETA card with an
  * indeterminate progress bar, and status/support actions. Static (no scripts) —
  * a server component that renders the client AuthStandalone + off-app tools.

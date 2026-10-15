@@ -15,7 +15,7 @@ export function buildNavLinks(servicios: readonly Item[], categorias: readonly I
     href: '/nosotros',
     children: [
       { label: 'Compliance', href: '/compliance' },
-      { label: 'FP Education', href: '/education' },
+      { label: 'FP Education', href: '/educacion' },
       { label: 'Blog', href: '/blog' },
     ],
     viewAllHref: '/nosotros',

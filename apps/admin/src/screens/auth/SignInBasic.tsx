@@ -104,7 +104,7 @@ function SignInBasicInner() {
                 <div className="ax-field">
                   <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
                     <label className="ax-label" htmlFor="si-pass">Contraseña</label>
-                    <Link className="ax-link" href="/auth/reset-password" style={{ fontSize: 'var(--ax-text-xs)' }}>¿Olvidaste tu contraseña?</Link>
+                    <Link className="ax-link" href="/auth/restablecer-contrasena" style={{ fontSize: 'var(--ax-text-xs)' }}>¿Olvidaste tu contraseña?</Link>
                   </div>
                   <div className="ax-field__control">
                     <input id="si-pass" className={`ax-input ax-input--with-trailing${passErr ? ' is-invalid' : ''}`} autoComplete="current-password" placeholder="••••••••••"

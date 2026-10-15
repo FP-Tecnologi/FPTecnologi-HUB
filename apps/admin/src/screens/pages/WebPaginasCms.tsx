@@ -44,7 +44,7 @@ const ALQUILER = base('alquiler', 'Alquiler de equipos', '/alquiler-equipos', [
   { key: 'pasos', nombre: 'Cómo funciona', ancla: '', campos: [BADGE, TITULO, DESTACADO, ITEMS('Pasos (título + texto)')] },
 ]);
 
-const EDUCATION = base('education', 'FP Education', '/education', [
+const EDUCATION = base('education', 'FP Education', '/educacion', [
   HERO(),
   { key: 'tarjetas', nombre: 'Tecnología en el aula', ancla: '', campos: [BADGE, TITULO, DESTACADO, ITEMS('Tarjetas (título + texto)')] },
   { key: 'accion', nombre: 'Cierre (tienda y YouTube)', ancla: '', campos: [{ key: 'titulo', label: 'Título', tipo: 'text' }, { key: 'texto', label: 'Texto', tipo: 'textarea' }] },
@@ -157,6 +157,22 @@ const AJUSTES = base('sitio', 'Ajustes del sitio', '/contacto', [
     campos: [{ key: 'items', label: 'Cifras (título = número, ej. 13+; texto = descripción)', tipo: 'lista-items', itemLabel: 'Cifra' }],
   },
   { key: 'cambio', nombre: 'Tipo de cambio', ancla: '', campos: [T('tipoCambio', 'Soles por dólar (USD → PEN)', 'Se usa al mostrar precios en soles. Ej. 3.75')] },
+  {
+    key: 'mantenimiento',
+    nombre: 'Pantalla «estamos trabajando»',
+    ancla: '',
+    campos: [
+      {
+        key: 'activo',
+        label: 'Mostrar la pantalla «estamos trabajando» en lugar de la web',
+        tipo: 'bool',
+        ayuda: 'Al activarla y guardar, los visitantes ven solo este aviso (en unos 30 segundos). El equipo puede entrar a la web real agregando ?equipo=1 a la dirección, y esta vista previa sigue funcionando.',
+      },
+      T('titulo', 'Título', 'Ej. Estamos trabajando en nuestra nueva web'),
+      { key: 'mensaje', label: 'Mensaje', tipo: 'textarea' },
+      T('detalle', 'Detalle opcional (cuándo volvemos)', 'Ej. Volvemos el lunes 20 de octubre. Vacío = no se muestra'),
+    ],
+  },
 ]);
 
 const LEGAL_CAMPOS = [

@@ -135,7 +135,7 @@ export function Terminos() {
 
         <div className="ax-divider" style={{ borderTop: '1px solid var(--ax-border)', margin: 'var(--ax-space-2) 0' }} />
         <div className="ax-cluster" style={{ justifyContent: 'space-between', flexWrap: 'wrap', gap: 'var(--ax-space-3)' }}>
-          <Link className="ax-link" href="/pages/privacy">Leer la Política de privacidad →</Link>
+          <Link className="ax-link" href="/pages/privacidad">Leer la Política de privacidad →</Link>
           <a className="ax-btn ax-btn--ghost ax-btn--sm" href="#top">
             <span className="ax-btn__label">Volver arriba</span>
           </a>

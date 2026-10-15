@@ -277,7 +277,7 @@ export function Ajustes() {
         <section className="ax-card ax-col--12" role="region" aria-label="Contraseña">
           <div className="ax-card__header"><div className="ax-card__titles"><h2 className="ax-card__title">Contraseña y segundo factor</h2><p className="ax-card__subtitle">Cambia tu contraseña cuando lo necesites. El segundo factor se verifica al iniciar sesión.</p></div></div>
           <div className="ax-card__body" style={{ paddingTop: 0 }}>
-            <Link className="ax-btn ax-btn--secondary" href="/auth/reset-password">
+            <Link className="ax-btn ax-btn--secondary" href="/auth/restablecer-contrasena">
               <span className="ax-btn__label">Cambiar contraseña</span>
             </Link>
           </div>

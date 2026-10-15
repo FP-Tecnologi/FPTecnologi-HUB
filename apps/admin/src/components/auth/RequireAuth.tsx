@@ -16,7 +16,7 @@ export function RequireAuth({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && !user) router.replace('/auth/sign-in');
+    if (!loading && !user) router.replace('/auth/iniciar-sesion');
   }, [loading, user, router]);
 
   if (loading || !user) return <Loader />;

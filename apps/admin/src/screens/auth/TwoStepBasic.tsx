@@ -1,7 +1,7 @@
 'use client';
 /*
  * FPTecnologi-HUB · Dashboard — Two-step verification (basic).
- * 1:1 re-expression of src/html/auth/two-step-basic.html: a 6-cell OTP group
+ * 1:1 re-expression of src/html/auth/verificacion-basic.html: a 6-cell OTP group
  * with auto-advance / backspace / arrow-key nav / paste, a trust-device check
  * and a 30s resend cooldown. Demo code "111111" passes → redirects to "/".
  */
@@ -170,11 +170,11 @@ function TwoStepBasicInner() {
                   </button>
                 </p>
                 {tieneTotp && (
-                  <Link className="ax-link" href={`/auth/two-step-totp?email=${encodeURIComponent(email)}`} style={{ fontSize: 'var(--ax-text-sm)' }}>
+                  <Link className="ax-link" href={`/auth/verificacion-totp?email=${encodeURIComponent(email)}`} style={{ fontSize: 'var(--ax-text-sm)' }}>
                     Usar mi app autenticadora
                   </Link>
                 )}
-                <Link className="ax-link" href="/auth/sign-in" style={{ fontSize: 'var(--ax-text-sm)' }}>Volver a iniciar sesión</Link>
+                <Link className="ax-link" href="/auth/iniciar-sesion" style={{ fontSize: 'var(--ax-text-sm)' }}>Volver a iniciar sesión</Link>
               </div>
             </div>
           </section>

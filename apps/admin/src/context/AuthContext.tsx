@@ -229,7 +229,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setMarcas([]);
     setActiveMarcaIdState(null);
     setAdminModeState(false);
-    router.push('/auth/sign-in');
+    router.push('/auth/iniciar-sesion');
   }, [router]);
 
   useEffect(() => {

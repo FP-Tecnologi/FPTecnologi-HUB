@@ -88,7 +88,7 @@ function seccionTienda(products: CatalogProduct[]): string {
     return `- ${p.name.slice(0, 90)} | ${p.brand} | SKU ${p.sku} | USD ${p.price}${antes} | ${p.category}`;
   });
   const marcas = [...new Set(products.map((p) => p.brand))].sort().join(', ');
-  return `TIENDA B2B (páginas /tienda, /producto/<slug>, /marcas, /carrito, /checkout)
+  return `TIENDA B2B (páginas /tienda, /producto/<slug>, /marcas, /carrito, /finalizar-compra)
 Categorías: ${categorias}. Marcas con productos hoy: ${marcas}.
 Precios en USD sin IGV (se suma IGV 18 %); la web permite ver los precios en soles (PEN) con el interruptor de moneda.
 Cómo comprar: agregar al carrito → "Finalizar compra" con datos del comprador, comprobante (boleta o factura con DNI/RUC), entrega (recojo en tienda o envío a domicilio) y forma de pago. El costo de envío NO está en el total: se coordina por WhatsApp con un asesor; el pago también se confirma por WhatsApp. También se puede cotizar un pedido grande desde el carrito.
@@ -133,7 +133,7 @@ ${docs.join('\n')}
 }
 
 const MAPA_WEB = `MAPA DE LA WEB
-Inicio (/), Servicios (/servicios y /servicios/<servicio>), Tienda (/tienda, /tienda/<categoría>, /producto/<producto>), Marcas (/marcas), Nosotros (/nosotros), Proyectos (/proyectos), Blog (/blog), Cotizador (/cotizador), Contacto (/contacto), Carrito y compra (/carrito, /checkout), textos legales y libro de reclamaciones.`;
+Inicio (/), Servicios (/servicios y /servicios/<servicio>), Tienda (/tienda, /tienda/<categoría>, /producto/<producto>), Marcas (/marcas), Nosotros (/nosotros), Proyectos (/proyectos), Blog (/blog), Cotizador (/cotizador), Contacto (/contacto), Carrito y compra (/carrito, /finalizar-compra), textos legales y libro de reclamaciones.`;
 
 
 /** Solo proyectos y clientes reales (los marcados como ejemplo en el dashboard no se citan). */

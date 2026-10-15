@@ -1,7 +1,7 @@
 'use client';
 /*
  * FPTecnologi-HUB · Dashboard — Coming soon.
- * 1:1 re-expression of src/html/auth/coming-soon.html: a live 30-day countdown,
+ * 1:1 re-expression of src/html/auth/proximamente.html: a live 30-day countdown,
  * a notify-me email form with a honeypot bot trap, and a social row. The countdown
  * stops updating under reduced motion; the heading flips to "We're live." at zero.
  */

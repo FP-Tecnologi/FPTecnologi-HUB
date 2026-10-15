@@ -156,7 +156,7 @@ export function CartView() {
                 <dd className="font-display text-3xl font-bold">{format(total)}</dd>
               </div>
             </dl>
-            <a href={mayorista ? '/presupuesto' : '/checkout'} className="relative mt-6 flex h-14 w-full items-center justify-center rounded-xl bg-white text-sm font-semibold uppercase tracking-wide text-brand-dark transition-colors hover:bg-brand-dark hover:text-white">
+            <a href={mayorista ? '/presupuesto' : '/finalizar-compra'} className="relative mt-6 flex h-14 w-full items-center justify-center rounded-xl bg-white text-sm font-semibold uppercase tracking-wide text-brand-dark transition-colors hover:bg-brand-dark hover:text-white">
               {mayorista ? 'Pedir presupuesto' : 'Finalizar compra'}
             </a>
             <a href="/tienda" className="relative mt-3 block text-center text-sm font-semibold text-white/70 transition-colors hover:text-white">
@@ -193,7 +193,7 @@ export function CartView() {
             <p className="text-xs text-ink/65">Total con IGV</p>
             <p className="font-display text-xl font-bold text-ink">{format(total)}</p>
           </div>
-          <a href={mayorista ? '/presupuesto' : '/checkout'} className="inline-flex h-12 items-center rounded-xl bg-brand-primary px-6 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-primary">
+          <a href={mayorista ? '/presupuesto' : '/finalizar-compra'} className="inline-flex h-12 items-center rounded-xl bg-brand-primary px-6 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-brand-primary">
             {mayorista ? 'Pedir presupuesto' : 'Finalizar compra'}
           </a>
         </div>

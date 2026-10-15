@@ -1,7 +1,7 @@
 'use client';
 /*
  * FPTecnologi-HUB · Dashboard — Lock screen (cover split).
- * 1:1 re-expression of src/html/auth/lock-screen-cover.html: a live mono clock /
+ * 1:1 re-expression of src/html/auth/bloqueo-cover.html: a live mono clock /
  * date panel (lg+) beside the unlock card (Devon Okafor). Demo password "fptecnologi"
  * → redirects to "/". Clock updates every 15s (skipped under reduced motion).
  */
@@ -133,7 +133,7 @@ export function LockScreenCover() {
                 </form>
 
                 <p style={{ marginBlockStart: 'var(--ax-space-5)', textAlign: 'center', fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
-                  Not Devon? <Link className="ax-link" href="/auth/sign-in">Sign in as another user</Link>
+                  Not Devon? <Link className="ax-link" href="/auth/iniciar-sesion">Sign in as another user</Link>
                 </p>
               </div>
             </div>

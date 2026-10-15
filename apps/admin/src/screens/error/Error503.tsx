@@ -29,7 +29,7 @@ export function Error503() {
           <svg className="ax-btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4h4" /><path d="M4 13a8.1 8.1 0 0 0 15.5 2m.5 4v-4h-4" /></svg>
           <span className="ax-btn__label">Try again</span>
         </button>
-        <Link className="ax-btn ax-btn--secondary" href="/auth/maintenance">
+        <Link className="ax-btn ax-btn--secondary" href="/auth/mantenimiento">
           <svg className="ax-btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" /><path d="M12 8v4l3 3" /></svg>
           <span className="ax-btn__label">View maintenance status</span>
         </Link>

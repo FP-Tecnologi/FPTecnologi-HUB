@@ -1,7 +1,7 @@
 'use client';
 /*
  * FPTecnologi-HUB · Dashboard — Create / set new password (basic).
- * 1:1 re-expression of src/html/auth/create-password-basic.html: an expired-token
+ * 1:1 re-expression of src/html/auth/crear-contrasena-basic.html: an expired-token
  * path (?token=expired), a new-password field with strength meter + a live rules
  * checklist, a confirm field, and a success alert that redirects to sign-in.
  *
@@ -61,7 +61,7 @@ export function CreatePasswordBasic() {
     setTimeout(() => {
       setLoading(false);
       setDone(true);
-      setTimeout(() => router.push('/auth/sign-in'), 1400);
+      setTimeout(() => router.push('/auth/iniciar-sesion'), 1400);
     }, 650);
   }
 
@@ -90,7 +90,7 @@ export function CreatePasswordBasic() {
                       <p className="ax-alert__message">For your security, reset links are valid for 60 minutes. Request a fresh one to continue.</p>
                     </div>
                   </div>
-                  <Link className="ax-btn ax-btn--primary ax-btn--block" href="/auth/reset-password" style={{ minHeight: 44 }}>
+                  <Link className="ax-btn ax-btn--primary ax-btn--block" href="/auth/restablecer-contrasena" style={{ minHeight: 44 }}>
                     <span className="ax-btn__label">Request a new link</span>
                   </Link>
                 </div>
@@ -160,7 +160,7 @@ export function CreatePasswordBasic() {
                   )}
 
                   <p style={{ marginBlockStart: 'var(--ax-space-5)', textAlign: 'center', fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
-                    Remembered it? <Link className="ax-link" href="/auth/sign-in">Back to sign in</Link>
+                    Remembered it? <Link className="ax-link" href="/auth/iniciar-sesion">Back to sign in</Link>
                   </p>
                 </div>
               )}

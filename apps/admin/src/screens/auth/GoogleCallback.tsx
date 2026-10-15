@@ -24,7 +24,7 @@ function GoogleCallbackInner() {
     const refreshToken = searchParams.get('refreshToken');
     const usuarioRaw = searchParams.get('usuario');
     if (!accessToken || !refreshToken || !usuarioRaw) {
-      router.replace('/auth/sign-in?error=google');
+      router.replace('/auth/iniciar-sesion?error=google');
       return;
     }
     try {
@@ -32,7 +32,7 @@ function GoogleCallbackInner() {
       const primeraVez = searchParams.get('primeraVez') === 'true';
       completeGoogleLogin(accessToken, refreshToken, usuario, primeraVez).then(() => router.replace('/'));
     } catch {
-      router.replace('/auth/sign-in?error=google');
+      router.replace('/auth/iniciar-sesion?error=google');
     }
   }, [searchParams, completeGoogleLogin, router]);
 
