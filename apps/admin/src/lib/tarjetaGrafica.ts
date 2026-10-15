@@ -21,10 +21,14 @@ export interface DatosTarjeta {
   email?: string | null;
   web?: string | null;
   fotoUrl?: string | null;
+  portadaUrl?: string | null;
 }
 
 export const ANCHO = 1050;
 export const ALTO = 600;
+/** Alto de la franja de portada (cuando la tarjeta tiene) y cuánto baja el contenido para dejarle lugar. */
+const PORTADA = 150;
+const BAJA = 80;
 
 interface Tema {
   fondo: (c: CanvasRenderingContext2D) => string | CanvasGradient;
@@ -115,21 +119,31 @@ export async function dibujarTarjeta(canvas: HTMLCanvasElement, estilo: EstiloTa
   canvas.height = ALTO;
   const c = canvas.getContext('2d')!;
   const t = TEMAS[estilo];
-  const [foto, qr] = await Promise.all([
+  const [foto, portada, qr] = await Promise.all([
     d.fotoUrl ? cargarImagen(resolverFoto(d.fotoUrl), true) : Promise.resolve(null),
+    d.portadaUrl ? cargarImagen(resolverFoto(d.portadaUrl), true) : Promise.resolve(null),
     qrSvg ? cargarImagen(`data:image/svg+xml;charset=utf-8,${encodeURIComponent(qrSvg)}`) : Promise.resolve(null),
   ]);
 
   c.fillStyle = t.fondo(c);
   c.fillRect(0, 0, ANCHO, ALTO);
-  if (t.panel) { c.fillStyle = t.panel(c); c.fillRect(0, 0, 360, ALTO); }
-  if (estilo === 'minimal') { c.fillStyle = '#2898ee'; c.fillRect(0, 0, ANCHO, 14); }
+  const top = portada ? PORTADA : 0;
+  const dy = portada ? BAJA : 0;
+  if (t.panel) { c.fillStyle = t.panel(c); c.fillRect(0, top, 360, ALTO - top); }
+  if (portada) {
+    // Portada recortada a todo el ancho (cover, centrada).
+    const k = Math.max(ANCHO / portada.width, PORTADA / portada.height);
+    const w = portada.width * k;
+    const h = portada.height * k;
+    c.drawImage(portada, (ANCHO - w) / 2, (PORTADA - h) / 2, w, h);
+  } else if (estilo === 'minimal') { c.fillStyle = '#2898ee'; c.fillRect(0, 0, ANCHO, 14); }
 
   // Foto
   const conPanel = !!t.panel;
   const cx = conPanel ? 180 : 140;
-  const cy = conPanel ? 250 : 170;
-  circulo(c, foto, (d.nombre || '?').trim().charAt(0).toUpperCase(), cx, cy, conPanel ? 118 : 96, t.aro, estilo === 'minimal' ? '#2898ee' : '#ffffff');
+  const cy = conPanel ? (portada ? 215 : 250) : 170;
+  const radio = (conPanel ? 118 : 96) - (portada ? (conPanel ? 28 : 16) : 0);
+  circulo(c, foto, (d.nombre || '?').trim().charAt(0).toUpperCase(), cx, cy, radio, t.aro, estilo === 'minimal' ? '#2898ee' : '#ffffff');
   if (conPanel) {
     c.fillStyle = estilo === 'clasico' ? 'rgba(255,255,255,.9)' : t.suave;
     c.font = '600 22px Montserrat, Arial, sans-serif';
@@ -145,8 +159,8 @@ export async function dibujarTarjeta(canvas: HTMLCanvasElement, estilo: EstiloTa
   c.textBaseline = 'alphabetic';
   c.fillStyle = t.texto;
   c.font = '700 54px Montserrat, Arial, sans-serif';
-  c.fillText(recortarTexto(c, d.nombre, ancho), x, conPanel ? 130 : 120);
-  let y = conPanel ? 130 : 120;
+  c.fillText(recortarTexto(c, d.nombre, ancho), x, (conPanel ? 130 : 120) + dy);
+  let y = (conPanel ? 130 : 120) + dy;
   if (d.cargo) { y += 44; c.fillStyle = t.suave; c.font = '500 28px Montserrat, Arial, sans-serif'; c.fillText(recortarTexto(c, d.cargo, ancho), x, y); }
   if (d.area) { y += 38; c.fillStyle = t.acento; c.font = '700 24px Montserrat, Arial, sans-serif'; c.fillText(recortarTexto(c, d.area, ancho), x, y); }
   if (!conPanel) { y += 36; c.fillStyle = t.suave; c.font = 'italic 500 22px Montserrat, Arial, sans-serif'; c.fillText(recortarTexto(c, d.empresa, ancho), x, y); }
