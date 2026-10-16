@@ -199,6 +199,7 @@ export function WebTarjetasEquipo() {
             </div>
 
             <div style={{ flex: '1 1 24rem', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
+              <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 'var(--ax-space-4)', alignItems: 'flex-start' }}>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
                 {edit.form.fotoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -218,6 +219,7 @@ export function WebTarjetasEquipo() {
                 )}
                 <SubirImagen etiqueta={edit.form.portadaUrl ? 'Cambiar portada' : 'Subir portada'} onSubida={(urls) => set('portadaUrl', urls[0])} />
                 {edit.form.portadaUrl && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => set('portadaUrl', '')}>Quitar portada</button>}
+              </div>
               </div>
               {campo('etiqueta', 'Nombre de la versión', 'Comercial, Redes…')}
               {campo('nombre', 'Nombre completo')}
