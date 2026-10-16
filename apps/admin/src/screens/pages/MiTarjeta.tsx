@@ -239,8 +239,13 @@ export function MiTarjeta() {
                 </div>
               </div>
             </section>
+          </div>
 
-            <section className="ax-card" style={{ padding: 'var(--ax-space-4) var(--ax-space-5)' }}>
+          <div style={{ flex: '1.4 1 28rem', minWidth: 0 }}>
+            <section className="ax-card" style={{ padding: 'var(--ax-space-5)' }}>
+              <VistaPreviaReal t={actual} url={urlPublica} base={resp?.webBase} marca={resp?.marca} />
+            </section>
+            <section className="ax-card" style={{ padding: 'var(--ax-space-4) var(--ax-space-5)', marginBlockStart: 'var(--ax-space-4)' }}>
               <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
                 <strong>Tu tarjeta está al {completa}%</strong>
                 <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{faltan.length === 0 ? 'Todo listo para compartir.' : `${faltan.length} por completar`}</span>
@@ -253,12 +258,6 @@ export function MiTarjeta() {
                   {faltan.map((f) => <li key={f.campo}>{f.aviso}</li>)}
                 </ul>
               )}
-            </section>
-          </div>
-
-          <div style={{ flex: '1.4 1 28rem', minWidth: 0 }}>
-            <section className="ax-card" style={{ padding: 'var(--ax-space-5)' }}>
-              <VistaPreviaReal t={actual} url={urlPublica} base={resp?.webBase} marca={resp?.marca} />
             </section>
           </div>
         </div>
