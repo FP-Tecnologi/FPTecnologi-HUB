@@ -3,6 +3,7 @@ import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { AuthService } from '../auth/auth.service.js';
 import { MailService } from '../mail/mail.service.js';
+import { InvitacionesService } from '../invitaciones/invitaciones.service.js';
 import { normalizeEmail } from '../common/utils/normalize-email.js';
 
 const MAX = 300;
@@ -13,6 +14,7 @@ export class UsuariosGlobalService {
     private readonly prisma: PrismaService,
     private readonly auth: AuthService,
     private readonly mail: MailService,
+    private readonly invitaciones: InvitacionesService,
   ) {}
 
   async listar(f: { q?: string; marcaId?: string; rolId?: string }) {
@@ -94,6 +96,38 @@ export class UsuariosGlobalService {
       throw e;
     }
     return { eliminado: true };
+  }
+
+  /**
+   * Alta de un usuario con todos sus datos, su empresa y su rol. `acceso`:
+   *  - invitacion: le llega un correo para crear su propia contraseña (los datos quedan cargados);
+   *  - password: la cuenta se crea ya activa con la contraseña indicada (y, si se pide, se le envía un código para que la cambie).
+   */
+  async crearUsuario(actorEmail: string, d: { email: string; nombre?: string; cargo?: string; telefono?: string; dni?: string; marcaId: string; rolId: string; acceso: 'invitacion' | 'password'; password?: string; enviarCambio?: boolean }) {
+    const email = normalizeEmail(d.email);
+    const [marca, rol, existe] = await Promise.all([
+      this.prisma.marca.findUnique({ where: { id: d.marcaId }, select: { id: true } }),
+      this.prisma.rol.findUnique({ where: { id: d.rolId }, select: { id: true, nombre: true } }),
+      this.prisma.usuario.findUnique({ where: { email }, select: { id: true } }),
+    ]);
+    if (!marca) throw new NotFoundException('Empresa no encontrada');
+    if (!rol || rol.nombre === 'cliente') throw new BadRequestException('Rol no válido para el equipo');
+    if (existe) throw new BadRequestException('Ese correo ya tiene cuenta: agrégale la empresa y el rol con «+ Rol» en la lista');
+    const limpio = (x?: string) => x?.trim() || undefined;
+    const datos = { nombre: limpio(d.nombre), cargo: limpio(d.cargo), telefono: limpio(d.telefono), dni: limpio(d.dni) };
+
+    if (d.acceso === 'invitacion') {
+      await this.invitaciones.crear(d.marcaId, { email, rolId: d.rolId }, actorEmail, datos);
+      return { creado: false, invitado: true, email };
+    }
+    if (!d.password || d.password.length < 8) throw new BadRequestException('La contraseña debe tener al menos 8 caracteres');
+    const u = await this.prisma.usuario.create({
+      data: { email, passwordHash: await bcrypt.hash(d.password, 10), ...datos, bienvenidaVista: false, marcas: { create: { marcaId: d.marcaId, rolId: d.rolId } } },
+      select: { id: true, email: true, nombre: true },
+    });
+    await this.mail.sendWelcome(u.email, u.nombre);
+    if (d.enviarCambio) await this.auth.requestPasswordReset(u.email);
+    return { creado: true, invitado: false, email };
   }
 
   async activar(actorId: string, id: string, activo: boolean, codigo?: string) {

@@ -203,6 +203,7 @@ model Invitacion {
   expiresAt   DateTime
   aceptadaAt  DateTime?
   invitadoPor String? // correo de quien envió la invitación
+  datos       Json? // datos completos de la cuenta (nombre, cargo, teléfono, DNI) cuando la crea el super administrador
   createdAt   DateTime  @default(now())
 
   @@index([marcaId, createdAt])

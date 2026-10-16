@@ -1,5 +1,5 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
-import { IsBoolean, IsEmail, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import { IsBoolean, IsEmail, IsIn, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 import { UsuariosGlobalService } from './usuarios-global.service.js';
 import { ActividadService } from '../actividad/actividad.service.js';
 import { AuthService } from '../auth/auth.service.js';
@@ -16,6 +16,18 @@ class EditarDto {
   @IsOptional() @IsString() @MaxLength(30) telefono?: string;
   @IsOptional() @IsString() @MaxLength(20) dni?: string;
   @IsOptional() @IsString() codigo?: string;
+}
+class CrearUsuarioDto {
+  @IsEmail() email!: string;
+  @IsOptional() @IsString() @MaxLength(120) nombre?: string;
+  @IsOptional() @IsString() @MaxLength(80) cargo?: string;
+  @IsOptional() @IsString() @MaxLength(30) telefono?: string;
+  @IsOptional() @IsString() @MaxLength(20) dni?: string;
+  @IsString() marcaId!: string;
+  @IsString() rolId!: string;
+  @IsIn(['invitacion', 'password']) acceso!: 'invitacion' | 'password';
+  @IsOptional() @IsString() @MinLength(8) password?: string;
+  @IsOptional() @IsBoolean() enviarCambio?: boolean;
 }
 class CodigoDto { @IsOptional() @IsString() codigo?: string }
 class SuperAdminDto { @IsBoolean() superAdmin!: boolean; @IsOptional() @IsString() codigo?: string }
@@ -51,6 +63,11 @@ export class UsuariosGlobalController {
   @Delete(':id/asignaciones/:marcaId/:rolId')
   quitar(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string, @Param('marcaId') marcaId: string, @Param('rolId') rolId: string) {
     return this.global.quitar(user.sub, id, marcaId, rolId).then((r) => { this.log(user, 'rol_quitado', `Usuario ${id} · rol ${rolId}`, marcaId); return r; });
+  }
+
+  @Post()
+  crear(@CurrentUser() user: AuthenticatedUser, @Body() dto: CrearUsuarioDto) {
+    return this.global.crearUsuario(user.email, dto).then((r) => { this.log(user, 'usuario_creado', `${r.email} · ${dto.acceso === 'invitacion' ? 'invitación' : 'contraseña definida'}`, dto.marcaId); return r; });
   }
 
   /** Inicia la verificación de una acción sensible: pide el código de la app autenticadora o envía uno al correo. */

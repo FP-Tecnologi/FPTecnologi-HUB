@@ -43,11 +43,12 @@ export function UsuariosGlobal() {
     try { await fn(); setError(''); await cargar(); } catch (e) { setError(msg(e, d)); }
   }
 
-  // Crear usuario: invitación por correo con empresa (marca) y rol; la persona solo verá esa marca.
+  // Crear usuario con todos sus datos: persona (nombre, correo, cargo, teléfono, DNI), acceso (empresa y rol) y contraseña
+  // (invitación por correo para que la cree él mismo, o definida ahora por el administrador).
+  const CREAR_VACIO = { nombre: '', email: '', cargo: '', telefono: '', dni: '', marcaId: '', rolId: '', acceso: 'invitacion' as 'invitacion' | 'password', password: '', enviarCambio: true };
   const [crear, setCrear] = useState(false);
-  const [cEmail, setCEmail] = useState('');
-  const [cMarca, setCMarca] = useState('');
-  const [cRol, setCRol] = useState('');
+  const [cf, setCf] = useState(CREAR_VACIO);
+  const [verPw, setVerPw] = useState(false);
   const [cBusy, setCBusy] = useState(false);
   const [cErr, setCErr] = useState('');
   const [ok, setOk] = useState('');
@@ -60,16 +61,30 @@ export function UsuariosGlobal() {
     return () => window.removeEventListener('keydown', onKey);
   }, [crear]);
 
+  /** Contraseña temporal de 14 caracteres (letras, números y símbolos) con el generador seguro del navegador. */
+  function generarPw() {
+    const abc = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789!@#$%&*';
+    const r = crypto.getRandomValues(new Uint32Array(14));
+    setCf((f) => ({ ...f, password: Array.from(r, (n) => abc[n % abc.length]).join('') }));
+    setVerPw(true);
+  }
+
+  const cfValido = !!cf.nombre.trim() && !!cf.email.trim() && !!cf.marcaId && !!cf.rolId && (cf.acceso === 'invitacion' || cf.password.length >= 8);
   async function enviar(ev: React.FormEvent) {
     ev.preventDefault();
-    if (!cEmail.trim() || !cMarca || !cRol || cBusy) return;
+    if (!cfValido || cBusy) return;
     setCBusy(true); setCErr('');
     try {
-      await api.post('/invitaciones', { email: cEmail.trim(), rolId: cRol }, { marcaId: cMarca });
-      setCrear(false); setCEmail('');
-      setOk('Invitación enviada por correo.');
+      await api.post('/usuarios/global', {
+        email: cf.email.trim(), nombre: cf.nombre.trim(), cargo: cf.cargo.trim(), telefono: cf.telefono.trim(), dni: cf.dni.trim(),
+        marcaId: cf.marcaId, rolId: cf.rolId, acceso: cf.acceso,
+        ...(cf.acceso === 'password' ? { password: cf.password, enviarCambio: cf.enviarCambio } : {}),
+      });
+      setCrear(false);
+      setOk(cf.acceso === 'invitacion' ? `Invitación enviada a ${cf.email.trim()}: creará su propia contraseña.` : `Usuario ${cf.email.trim()} creado${cf.enviarCambio ? ' y se le envió un código para que cambie su contraseña' : ''}.`);
+      setCf(CREAR_VACIO);
       await cargar();
-    } catch (e) { setCErr(msg(e, 'No se pudo enviar la invitación.')); }
+    } catch (e) { setCErr(msg(e, 'No se pudo crear el usuario.')); }
     finally { setCBusy(false); }
   }
 
@@ -123,7 +138,7 @@ export function UsuariosGlobal() {
       <PageHead
         title="Todos los usuarios"
         subtitle="Cuentas de todas las marcas y sus roles. Solo el super administrador (admin de todas las marcas)."
-        actions={<button type="button" className="ax-btn ax-btn--primary" onClick={() => { setCrear(true); setCErr(''); setOk(''); }}><span className="ax-btn__label">Crear usuario</span></button>}
+        actions={<button type="button" className="ax-btn ax-btn--primary" onClick={() => { setCf(CREAR_VACIO); setVerPw(false); setCrear(true); setCErr(''); setOk(''); }}><span className="ax-btn__label">Crear usuario</span></button>}
       />
       {ok && (
         <div role="status" className="ax-alert ax-alert--success" style={{ marginBlockEnd: 'var(--ax-space-4)', padding: 'var(--ax-space-3) var(--ax-space-4)' }}>
@@ -230,28 +245,72 @@ export function UsuariosGlobal() {
       {crear && (
         <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 60, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
           <div onClick={() => setCrear(false)} style={{ position: 'absolute', inset: 0, background: 'rgba(8,10,16,.55)', backdropFilter: 'blur(2px)' }} />
-          <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="cu-title" className="ax-card" style={{ position: 'relative', maxWidth: 460, width: '100%' }}>
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="cu-title" className="ax-card" style={{ position: 'relative', maxWidth: 640, width: '100%', maxHeight: '92vh', overflowY: 'auto' }}>
             <div className="ax-card__header">
-              <div className="ax-card__titles"><h2 className="ax-card__title" id="cu-title">Crear usuario</h2><p className="ax-card__subtitle">Recibirá un enlace por correo (vence en 7 días) y solo verá la empresa que elijas.</p></div>
+              <div className="ax-card__titles"><h2 className="ax-card__title" id="cu-title">Crear usuario</h2><p className="ax-card__subtitle">Completa sus datos, elige la empresa y el rol, y cómo obtendrá su contraseña. Solo verá la empresa que le asignes.</p></div>
             </div>
-            <form className="ax-card__body" style={{ paddingTop: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }} onSubmit={enviar}>
+            <form className="ax-card__body" style={{ paddingTop: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-5)' }} onSubmit={enviar}>
               {cErr && <div role="alert" className="ax-alert ax-alert--danger"><div className="ax-alert__content"><p className="ax-alert__message">{cErr}</p></div></div>}
-              <div className="ax-field"><label className="ax-label" htmlFor="cu-email">Correo electrónico</label><input id="cu-email" type="email" className="ax-input" placeholder="nombre@empresa.com" required value={cEmail} onChange={(e) => setCEmail(e.target.value)} /></div>
-              <div className="ax-field"><label className="ax-label" htmlFor="cu-marca">Empresa</label>
-                <select id="cu-marca" className="ax-select" required value={cMarca} onChange={(e) => setCMarca(e.target.value)}>
-                  <option value="">Elegir empresa…</option>
-                  {data?.marcas.map((m) => <option key={m.id} value={m.id}>{m.nombre}</option>)}
-                </select>
-              </div>
-              <div className="ax-field"><label className="ax-label" htmlFor="cu-rol">Rol</label>
-                <select id="cu-rol" className="ax-select" required value={cRol} onChange={(e) => setCRol(e.target.value)}>
-                  <option value="">Elegir rol…</option>
-                  {data?.roles.filter((r) => r.nombre !== 'cliente').map((r) => <option key={r.id} value={r.id}>{r.nombre}</option>)}
-                </select>
-              </div>
+
+              <fieldset style={{ border: 0, padding: 0, margin: 0, display: 'grid', gap: 'var(--ax-space-3)' }}>
+                <legend className="ax-label" style={{ fontWeight: 600, marginBlockEnd: 'var(--ax-space-2)' }}>Datos de la persona</legend>
+                <div style={{ display: 'grid', gap: 'var(--ax-space-3)', gridTemplateColumns: 'repeat(auto-fit, minmax(14rem, 1fr))' }}>
+                <div className="ax-field"><label className="ax-label" htmlFor="cu-nombre">Nombre completo *</label><input id="cu-nombre" type="text" className="ax-input" placeholder="Ana Pérez" required value={cf.nombre} onChange={(e) => setCf({ ...cf, nombre: e.target.value })} /></div>
+                <div className="ax-field"><label className="ax-label" htmlFor="cu-email">Correo electrónico *</label><input id="cu-email" type="email" className="ax-input" placeholder="nombre@empresa.com" required value={cf.email} onChange={(e) => setCf({ ...cf, email: e.target.value })} /></div>
+                <div className="ax-field"><label className="ax-label" htmlFor="cu-cargo">Cargo</label><input id="cu-cargo" type="text" className="ax-input" placeholder="Ejecutiva comercial" value={cf.cargo} onChange={(e) => setCf({ ...cf, cargo: e.target.value })} /></div>
+                <div className="ax-field"><label className="ax-label" htmlFor="cu-telefono">Teléfono</label><input id="cu-telefono" type="tel" className="ax-input" placeholder="+51 999 999 999" value={cf.telefono} onChange={(e) => setCf({ ...cf, telefono: e.target.value })} /></div>
+                <div className="ax-field"><label className="ax-label" htmlFor="cu-dni">DNI</label><input id="cu-dni" type="text" className="ax-input" placeholder="" value={cf.dni} onChange={(e) => setCf({ ...cf, dni: e.target.value })} /></div>
+                </div>
+              </fieldset>
+
+              <fieldset style={{ border: 0, padding: 0, margin: 0, display: 'grid', gap: 'var(--ax-space-3)' }}>
+                <legend className="ax-label" style={{ fontWeight: 600, marginBlockEnd: 'var(--ax-space-2)' }}>Acceso</legend>
+                <div style={{ display: 'grid', gap: 'var(--ax-space-3)', gridTemplateColumns: 'repeat(auto-fit, minmax(14rem, 1fr))' }}>
+                  <div className="ax-field"><label className="ax-label" htmlFor="cu-marca">Empresa *</label>
+                    <select id="cu-marca" className="ax-select" required value={cf.marcaId} onChange={(e) => setCf({ ...cf, marcaId: e.target.value })}>
+                      <option value="">Elegir empresa…</option>
+                      {data?.marcas.map((m) => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+                    </select>
+                  </div>
+                  <div className="ax-field"><label className="ax-label" htmlFor="cu-rol">Rol *</label>
+                    <select id="cu-rol" className="ax-select" required value={cf.rolId} onChange={(e) => setCf({ ...cf, rolId: e.target.value })}>
+                      <option value="">Elegir rol…</option>
+                      {data?.roles.filter((r) => r.nombre !== 'cliente').map((r) => <option key={r.id} value={r.id}>{r.nombre}</option>)}
+                    </select>
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset style={{ border: 0, padding: 0, margin: 0, display: 'grid', gap: 'var(--ax-space-3)' }}>
+                <legend className="ax-label" style={{ fontWeight: 600, marginBlockEnd: 'var(--ax-space-2)' }}>Contraseña</legend>
+                <div style={{ display: 'grid', gap: 'var(--ax-space-3)', gridTemplateColumns: 'repeat(auto-fit, minmax(16rem, 1fr))' }}>
+                  {([['invitacion', 'Que la cree la persona (recomendado)', 'Le llega un correo con un enlace (vence en 7 días) para crear su propia contraseña. Sus datos ya quedan cargados.'], ['password', 'Definirla yo ahora', 'La cuenta queda activa de inmediato con la contraseña que escribas o generes.']] as const).map(([id, titulo, detalle]) => (
+                    <label key={id} style={{ display: 'flex', gap: 'var(--ax-space-3)', padding: 'var(--ax-space-3)', borderRadius: 'var(--ax-radius-md)', cursor: 'pointer', border: cf.acceso === id ? '2px solid var(--ax-primary-500, #2898ee)' : '2px solid var(--ax-border)' }}>
+                      <input type="radio" name="cu-acceso" checked={cf.acceso === id} onChange={() => setCf({ ...cf, acceso: id })} style={{ marginBlockStart: 4 }} />
+                      <span><strong style={{ display: 'block', fontSize: 'var(--ax-text-sm)' }}>{titulo}</strong><span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{detalle}</span></span>
+                    </label>
+                  ))}
+                </div>
+                {cf.acceso === 'password' && (
+                  <div style={{ display: 'grid', gap: 'var(--ax-space-3)' }}>
+                    <div className="ax-field"><label className="ax-label" htmlFor="cu-pw">Contraseña (mínimo 8 caracteres) *</label>
+                      <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
+                        <input id="cu-pw" type={verPw ? 'text' : 'password'} autoComplete="new-password" className="ax-input" minLength={8} value={cf.password} onChange={(e) => setCf({ ...cf, password: e.target.value })} />
+                        <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setVerPw((v) => !v)}>{verPw ? 'Ocultar' : 'Ver'}</button>
+                        <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={generarPw}>Generar</button>
+                      </div>
+                    </div>
+                    <label className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap', fontSize: 'var(--ax-text-sm)' }}>
+                      <input type="checkbox" className="ax-switch" checked={cf.enviarCambio} onChange={(e) => setCf({ ...cf, enviarCambio: e.target.checked })} />
+                      Enviarle un código por correo para que cambie su contraseña (por seguridad, la contraseña no se envía)
+                    </label>
+                  </div>
+                )}
+              </fieldset>
+
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'flex-end' }}>
                 <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setCrear(false)}>Cancelar</button>
-                <button type="submit" className="ax-btn ax-btn--primary" disabled={cBusy || !cEmail.trim() || !cMarca || !cRol}>{cBusy ? 'Enviando…' : 'Enviar invitación'}</button>
+                <button type="submit" className="ax-btn ax-btn--primary" disabled={cBusy || !cfValido}>{cBusy ? 'Creando…' : cf.acceso === 'invitacion' ? 'Crear y enviar invitación' : 'Crear usuario'}</button>
               </div>
             </form>
           </div>
@@ -269,6 +328,13 @@ export function UsuariosGlobal() {
                 <div className="ax-field" key={k}><label className="ax-label" htmlFor={`eu-${k}`}>{label}</label>
                   <input id={`eu-${k}`} type={tipo} className="ax-input" required={k === 'email'} value={ed[k]} onChange={(e) => setEd({ ...ed, [k]: e.target.value })} /></div>
               ))}
+              <div style={{ borderTop: '1px solid var(--ax-border)', paddingBlockStart: 'var(--ax-space-3)', display: 'grid', gap: 'var(--ax-space-2)' }}>
+                <strong style={{ fontSize: 'var(--ax-text-sm)' }}>Contraseña</strong>
+                <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
+                  <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => { const u = edU; setEdU(null); setPwU(u); setPw(''); setPwErr(''); }}>Cambiar contraseña…</button>
+                  <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => { const u = edU; setEdU(null); void seguridad(() => api.post(`/usuarios/global/${u.id}/reset-password`), `Correo de restablecimiento enviado a ${u.email}.`, 'No se pudo enviar el correo.'); }}>Enviar correo para que la cambie</button>
+                </div>
+              </div>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'flex-end' }}>
                 <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEdU(null)}>Cancelar</button>
                 <button type="submit" className="ax-btn ax-btn--primary" disabled={!ed.email.trim()}>Guardar</button>

@@ -2,6 +2,7 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import * as bcrypt from 'bcrypt';
 import { createHash, randomBytes } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service.js';
+import type { Prisma } from '../generated/prisma/client.js';
 import { MailService } from '../mail/mail.service.js';
 import { normalizeEmail } from '../common/utils/normalize-email.js';
 import { AceptarInvitacionDto, CrearInvitacionDto } from './invitaciones.dto.js';
@@ -9,6 +10,9 @@ import { AceptarInvitacionDto, CrearInvitacionDto } from './invitaciones.dto.js'
 const SALT_ROUNDS = 10;
 const VIGENCIA_DIAS = 7;
 const ROL_CLIENTE = 'cliente';
+
+/** Datos de la cuenta que el super administrador carga al crear el usuario (se aplican al aceptar la invitación). */
+export interface DatosCuenta { nombre?: string; cargo?: string; telefono?: string; dni?: string }
 
 const hashToken = (token: string) => createHash('sha256').update(token).digest('hex');
 
@@ -28,7 +32,7 @@ export class InvitacionesService {
   }
 
   /** Una sola invitación pendiente por correo+marca: invitar de nuevo reemplaza la anterior. */
-  async crear(marcaId: string, dto: CrearInvitacionDto, invitadoPor?: string) {
+  async crear(marcaId: string, dto: CrearInvitacionDto, invitadoPor?: string, datos?: DatosCuenta) {
     const email = normalizeEmail(dto.email);
     const rol = await this.prisma.rol.findUnique({ where: { id: dto.rolId } });
     if (!rol || rol.nombre === ROL_CLIENTE) {
@@ -42,7 +46,7 @@ export class InvitacionesService {
     }
 
     await this.prisma.invitacion.deleteMany({ where: { marcaId, email, aceptadaAt: null } });
-    const inv = await this.emitir(marcaId, email, dto.rolId, invitadoPor);
+    const inv = await this.emitir(marcaId, email, dto.rolId, invitadoPor, datos);
     return { id: inv.id, email, rolId: dto.rolId, expiresAt: inv.expiresAt };
   }
 
@@ -78,7 +82,10 @@ export class InvitacionesService {
         data: {
           email: inv.email,
           passwordHash: await bcrypt.hash(dto.password, SALT_ROUNDS),
-          nombre: dto.nombre?.trim() || null,
+          nombre: dto.nombre?.trim() || (inv.datos as DatosCuenta | null)?.nombre || null,
+          cargo: (inv.datos as DatosCuenta | null)?.cargo || null,
+          telefono: (inv.datos as DatosCuenta | null)?.telefono || null,
+          dni: (inv.datos as DatosCuenta | null)?.dni || null,
           bienvenidaVista: false,
         },
       });
@@ -104,7 +111,7 @@ export class InvitacionesService {
     return inv;
   }
 
-  private async emitir(marcaId: string, email: string, rolId: string, invitadoPor?: string) {
+  private async emitir(marcaId: string, email: string, rolId: string, invitadoPor?: string, datos?: DatosCuenta) {
     const token = randomBytes(32).toString('hex');
     const inv = await this.prisma.invitacion.create({
       data: {
@@ -112,6 +119,7 @@ export class InvitacionesService {
         rolId,
         email,
         invitadoPor,
+        ...(datos ? { datos: datos as Prisma.InputJsonValue } : {}),
         tokenHash: hashToken(token),
         expiresAt: new Date(Date.now() + VIGENCIA_DIAS * 24 * 60 * 60 * 1000),
       },

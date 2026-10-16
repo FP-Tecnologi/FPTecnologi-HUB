@@ -7,5 +7,6 @@ import { InvitacionesController, PublicInvitacionesController } from './invitaci
   imports: [MailModule],
   controllers: [InvitacionesController, PublicInvitacionesController],
   providers: [InvitacionesService],
+  exports: [InvitacionesService],
 })
 export class InvitacionesModule {}
