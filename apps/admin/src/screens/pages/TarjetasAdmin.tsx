@@ -7,7 +7,7 @@
  */
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { tokenStore } from '../../lib/api';
+import { setMarcaForzada, tokenStore } from '../../lib/api';
 import { WebTarjetasEquipo } from './WebTarjetasEquipo';
 
 export function TarjetasAdmin() {
@@ -22,12 +22,14 @@ export function TarjetasAdmin() {
     setSel(marcas.some((m) => m.marcaId === ultima) ? (ultima as string) : marcas[0].marcaId);
   }, [marcas, sel]);
 
-  // El cliente HTTP manda la marca guardada en cada petición: se fija antes de montar la tabla.
+  // El cliente HTTP manda esta marca en cada petición (incluidas las de la vista previa y las subidas) mientras la
+  // pantalla está abierta; se fija antes de montar la tabla y se suelta al salir.
   useEffect(() => {
     if (!sel) return;
-    tokenStore.setActiveMarcaId(sel);
+    setMarcaForzada(sel);
     setListo(sel);
   }, [sel]);
+  useEffect(() => () => setMarcaForzada(null), []);
 
   return (
     <>

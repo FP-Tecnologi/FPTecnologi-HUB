@@ -13,6 +13,7 @@ import { api } from '../../lib/api';
 import { ESTILOS_TARJETA, type EstiloTarjeta } from '../../lib/tarjetaGrafica';
 import { PanelOpciones } from '../../components/tarjeta/PanelOpciones';
 import { VistaPreviaReal } from '../../components/tarjeta/VistaPreviaReal';
+import { MenuPuntos } from '../../components/ui/MenuPuntos';
 import { VACIA, type Tarjeta } from './MiTarjeta';
 
 type Fila = Tarjeta & { id: string; usuarioId: string; propietario: string | null; url: string; faltantes: { campo: string; aviso: string }[] };
@@ -151,12 +152,12 @@ export function WebTarjetasEquipo() {
                       {f.faltantes.length > 0 && <div title={f.faltantes.map((x) => x.aviso).join('\n')} style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-warning-600, #b45309)' }}>Falta: {f.faltantes.map((x) => x.campo).join(', ')}</div>}
                     </td>
                     <td className="ax-table__td" style={{ textAlign: 'right' }}>
-                      <div className="ax-cluster" style={{ gap: 4, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-                        <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => setEdit({ id: f.id, quien: f.propietario ?? f.nombre, form: f })}>Editar</button>
-                        <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => copiar(f.url)}>Copiar enlace</button>
-                        <a className="ax-btn ax-btn--ghost ax-btn--sm" href={f.url} target="_blank" rel="noreferrer">Abrir</a>
-                        <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => alternar(f)}>{f.activo ? 'Ocultar' : 'Mostrar'}</button>
-                      </div>
+                      <MenuPuntos etiqueta={`Acciones de ${f.nombre}`} opciones={[
+                        { etiqueta: 'Editar', onClick: () => setEdit({ id: f.id, quien: f.propietario ?? f.nombre, form: f }) },
+                        { etiqueta: 'Copiar enlace', onClick: () => void copiar(f.url) },
+                        { etiqueta: 'Abrir tarjeta', href: f.url },
+                        { etiqueta: f.activo ? 'Ocultar al público' : 'Mostrar al público', onClick: () => void alternar(f) },
+                      ]} />
                     </td>
                   </tr>
                 ))
@@ -255,19 +256,25 @@ export function WebTarjetasEquipo() {
                   {ESTILOS_TARJETA.map((e) => <option key={e.id} value={e.id}>Estilo: {e.nombre}</option>)}
                 </select>
               </div>
-              <label className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap', fontSize: 'var(--ax-text-sm)' }}>
-                <input type="checkbox" className="ax-switch" checked={edit.form.activo} onChange={(e) => set('activo', e.target.checked)} />
-                Tarjeta visible al público
-              </label>
-              <PanelOpciones t={edit.form} onCambio={set} />
+              <PanelOpciones t={edit.form} onCambio={set} solo="mostrar" />
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
                 <button type="button" className="ax-btn ax-btn--primary" disabled={guardando || edit.form.nombre.trim().length < 2} onClick={guardar}>{guardando ? 'Guardando…' : 'Guardar cambios'}</button>
                 <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEdit(null)}>Cancelar</button>
               </div>
             </div>
 
-            <div style={{ flex: '1.7 1 36rem', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start' }}>
+            <div style={{ flex: '1.7 1 36rem', minWidth: 0, alignSelf: 'flex-start' }}>
               <VistaPreviaReal base={datos?.webBase} t={edit.form} url={edit.id ? datos?.tarjetas.find((x) => x.id === edit.id)?.url : undefined} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)', marginBlockStart: 'var(--ax-space-4)' }}>
+                <section className="ax-card" style={{ padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-2)' }}>
+                  <strong>Visibilidad</strong>
+                  <label className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap', fontSize: 'var(--ax-text-sm)' }}>
+                    <input type="checkbox" className="ax-switch" checked={edit.form.activo} onChange={(e) => set('activo', e.target.checked)} />
+                    {edit.form.activo ? 'Tarjeta visible al público' : 'Tarjeta oculta: el enlace y el QR no muestran nada'}
+                  </label>
+                </section>
+                <PanelOpciones t={edit.form} onCambio={set} solo="qr" />
+              </div>
             </div>
           </div>
         </div>,

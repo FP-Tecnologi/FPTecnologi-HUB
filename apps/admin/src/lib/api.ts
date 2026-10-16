@@ -126,6 +126,10 @@ async function refreshAccessToken(): Promise<boolean> {
   return refreshPromise;
 }
 
+/** Marca forzada para todas las peticiones (pantallas de Administración que trabajan sobre una marca elegida). */
+let marcaForzada: string | null = null;
+export const setMarcaForzada = (id: string | null) => { marcaForzada = id; };
+
 async function request<T>(path: string, options: RequestOptions = {}, _retried = false): Promise<T> {
   const { method = 'GET', body, auth = true, marcaId, signal } = options;
   const esForm = typeof FormData !== 'undefined' && body instanceof FormData;
@@ -136,7 +140,7 @@ async function request<T>(path: string, options: RequestOptions = {}, _retried =
     const accessToken = tokenStore.getAccessToken();
     if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
   }
-  const effectiveMarcaId = marcaId !== undefined ? marcaId : tokenStore.getActiveMarcaId();
+  const effectiveMarcaId = marcaId !== undefined ? marcaId : (marcaForzada ?? tokenStore.getActiveMarcaId());
   if (effectiveMarcaId) headers['x-marca-id'] = effectiveMarcaId;
 
   const res = await fetch(`${API_URL}${path}`, {
