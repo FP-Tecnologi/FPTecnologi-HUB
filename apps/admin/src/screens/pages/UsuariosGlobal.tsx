@@ -138,14 +138,15 @@ export function UsuariosGlobal() {
                     <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'nowrap' }}>
                       <span className="ax-avatar ax-avatar--sm" style={{ background: 'var(--ax-accent-wash)', color: 'var(--ax-accent)' }}><span className="ax-avatar__initials">{(u.nombre || u.email).split(/[\s@.]+/).filter(Boolean).slice(0, 2).map((x) => x[0]!.toUpperCase()).join('')}</span></span>
                       <div>
-                        <div style={{ fontWeight: 'var(--ax-weight-medium)', color: 'var(--ax-text-strong)' }}>{u.nombre || u.email}{u.id === user?.id ? ' (tú)' : ''}{u.superAdmin && <span className="ax-badge ax-badge--soft ax-badge--accent ax-badge--pill" style={{ marginInlineStart: 8 }}>Super admin</span>}</div>
+                        <div style={{ fontWeight: 'var(--ax-weight-medium)', color: 'var(--ax-text-strong)' }}>{u.nombre || u.email}{u.id === user?.id ? ' (tú)' : ''}</div>
                         <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{u.email}{u.cargo ? ` · ${u.cargo}` : ''}</div>
                       </div>
                     </div>
                   </td>
                   <td className="ax-table__td">
                     <div className="ax-cluster" style={{ gap: 4, flexWrap: 'wrap' }}>
-                      {u.marcas.map((a) => (
+                      {u.superAdmin && <span className="ax-badge ax-badge--soft ax-badge--accent ax-badge--pill" title="Ve y administra toda la plataforma y es admin de todas las marcas">Super administrador</span>}
+                      {u.marcas.filter((a) => !(u.superAdmin && a.rol.nombre === 'admin')).map((a) => (
                         <span key={`${a.marcaId}${a.rolId}`} className="ax-badge ax-badge--soft ax-badge--neutral ax-badge--pill">
                           {a.marca.nombre} · {a.rol.nombre}
                           <button type="button" aria-label={`Quitar ${a.rol.nombre} en ${a.marca.nombre}`} style={{ marginInlineStart: 6, background: 'none', border: 'none', cursor: 'pointer', color: 'inherit' }}
