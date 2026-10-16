@@ -36,15 +36,17 @@ export class TarjetasService {
 
   /** Las tarjetas (versiones) de quien inició sesión, más sus datos para sugerir una al crearla. */
   async mias(marcaId: string, usuarioId: string) {
-    const [tarjetas, usuario] = await Promise.all([
+    const [tarjetas, usuario, marca] = await Promise.all([
       this.prisma.tarjetaDigital.findMany({ where: { marcaId, usuarioId }, orderBy: { createdAt: 'asc' } }),
       this.prisma.usuario.findFirst({ where: { id: usuarioId }, select: { nombre: true, email: true, cargo: true, telefono: true } }),
+      this.marcaDe(marcaId),
     ]);
     return {
       tarjetas: await Promise.all(
         tarjetas.map(async (t) => ({ ...t, url: this.urlDe(t.slug), qr: await this.qrDe(this.urlDe(t.slug), t), faltantes: faltantes(t) })),
       ),
       sugerido: { nombre: usuario?.nombre ?? '', email: usuario?.email ?? '', cargo: usuario?.cargo ?? '', telefono: usuario?.telefono ?? '' },
+      marca,
       webBase: this.webBase(),
     };
   }
@@ -129,9 +131,10 @@ export class TarjetasService {
 
   /** Dashboard (admin/marketing): el equipo con su tarjeta, qué le falta a cada una y quién aún no la creó. */
   async listar(marcaId: string) {
-    const [tarjetas, equipo] = await Promise.all([
+    const [tarjetas, equipo, marca] = await Promise.all([
       this.prisma.tarjetaDigital.findMany({ where: { marcaId }, orderBy: { nombre: 'asc' } }),
       this.prisma.usuarioMarcaRol.findMany({ where: { marcaId }, include: { usuario: { select: { id: true, nombre: true, email: true } }, rol: { select: { nombre: true } } } }),
+      this.marcaDe(marcaId),
     ]);
     const duenos = new Map(equipo.map((e) => [e.usuarioId, e.usuario.nombre ?? e.usuario.email]));
     const conTarjeta = new Set(tarjetas.map((t) => t.usuarioId));
@@ -139,6 +142,7 @@ export class TarjetasService {
     return {
       tarjetas: tarjetas.map((t) => ({ ...t, propietario: duenos.get(t.usuarioId) ?? null, faltantes: faltantes(t), url: this.urlDe(t.slug) })),
       sinTarjeta,
+      marca,
       webBase: this.webBase(),
     };
   }
@@ -168,12 +172,17 @@ export class TarjetasService {
   private async publica(marcaId: string, slug: string) {
     const t = await this.prisma.tarjetaDigital.findFirst({ where: { marcaId, slug: slug.toLowerCase(), activo: true } });
     if (!t) throw new NotFoundException('Tarjeta no encontrada');
-    const marca = await this.prisma.marca.findFirst({ where: { id: marcaId }, select: { nombre: true } });
-    return { t, empresa: marca?.nombre ?? 'FPTecnologi & System' };
+    const marca = await this.marcaDe(marcaId);
+    return { t, empresa: marca?.nombre ?? 'FPTecnologi & System', marca };
+  }
+
+  /** Identidad de la marca para el encabezado de la tarjeta: sin portada propia se usa su color y su logo. */
+  private marcaDe(marcaId: string) {
+    return this.prisma.marca.findFirst({ where: { id: marcaId }, select: { nombre: true, logo: true, colorPrimario: true, colorSecundario: true } });
   }
 
   async ver(marcaId: string, slug: string) {
-    const { t, empresa } = await this.publica(marcaId, slug);
+    const { t, empresa, marca } = await this.publica(marcaId, slug);
     // Contador de visitas: no debe frenar ni romper la página.
     void this.prisma.tarjetaDigital.updateMany({ where: { id: t.id, marcaId }, data: { vistas: { increment: 1 } } }).catch(() => undefined);
     const url = this.urlDe(t.slug);
@@ -181,7 +190,7 @@ export class TarjetasService {
     const p = aplicarMostrar(t, mostrar); // lo que su dueño ocultó ni siquiera sale de la API
     return {
       slug: t.slug, estilo: t.estilo, vista: t.vista, nombre: t.nombre, cargo: p.cargo, area: p.area, bio: p.bio, fotoUrl: p.fotoUrl, portadaUrl: t.portadaUrl, telefono: p.telefono, whatsapp: p.whatsapp,
-      email: p.email, linkedin: p.linkedin, web: p.web, agendaUrl: p.agendaUrl, enlaces: p.enlaces, empresa, url, mostrar,
+      email: p.email, linkedin: p.linkedin, web: p.web, agendaUrl: p.agendaUrl, enlaces: p.enlaces, empresa, marca: marca ? { logo: marca.logo, colorPrimario: marca.colorPrimario, colorSecundario: marca.colorSecundario } : null, url, mostrar,
       qr: mostrar.qr === false ? null : await this.qrDe(url, t),
     };
   }

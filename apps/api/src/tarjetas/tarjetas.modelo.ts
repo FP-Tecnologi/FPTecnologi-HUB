@@ -37,7 +37,6 @@ export function limpiarMostrar(v: unknown): Mostrar {
 export function aplicarMostrar<T extends { fotoUrl?: string | null; cargo?: string | null; area?: string | null; bio?: string | null; telefono?: string | null; whatsapp?: string | null; email?: string | null; linkedin?: string | null; web?: string | null; agendaUrl?: string | null; enlaces?: unknown }>(t: T, m: unknown): T {
   const o = limpiarMostrar(m);
   const r = { ...t };
-  if (o.foto === false) r.fotoUrl = null;
   if (o.cargo === false) r.cargo = null;
   if (o.area === false) r.area = null;
   if (o.bio === false) r.bio = null;

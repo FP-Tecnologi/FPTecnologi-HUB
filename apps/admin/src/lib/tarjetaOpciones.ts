@@ -7,7 +7,6 @@ export const GRUPOS_MOSTRAR: { titulo: string; campos: { id: CampoMostrar; etiqu
   {
     titulo: 'Tu perfil',
     campos: [
-      { id: 'foto', etiqueta: 'Foto de perfil' },
       { id: 'cargo', etiqueta: 'Cargo' },
       { id: 'area', etiqueta: 'Área' },
       { id: 'bio', etiqueta: 'Presentación corta' },
@@ -40,7 +39,6 @@ export const GRUPOS_MOSTRAR: { titulo: string; campos: { id: CampoMostrar; etiqu
 export function aplicarMostrar(t: Tarjeta): Tarjeta {
   const m = t.mostrar ?? {};
   const r = { ...t };
-  if (m.foto === false) r.fotoUrl = null;
   if (m.cargo === false) r.cargo = null;
   if (m.area === false) r.area = null;
   if (m.bio === false) r.bio = null;

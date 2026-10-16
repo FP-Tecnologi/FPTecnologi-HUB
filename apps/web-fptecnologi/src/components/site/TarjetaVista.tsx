@@ -2,12 +2,15 @@ import Image from 'next/image';
 import { CalendarCheck, Download, FileText, Globe, Link2, Mail, Phone, type LucideIcon } from 'lucide-react';
 import { LinkedinIcon, WhatsAppIcon } from '@/components/site/icons';
 import { CompartirTarjeta } from '@/components/site/CompartirTarjeta';
+import { imagenLanding } from '@/lib/landings';
 
 export type EstiloTarjeta = 'clasico' | 'moderno' | 'oscuro' | 'minimal';
 export interface DatosTarjeta {
   slug: string; estilo: EstiloTarjeta; vista: 'perfil' | 'linktree'; nombre: string; cargo: string | null; area: string | null; bio: string | null; fotoUrl: string | null; portadaUrl?: string | null; telefono: string | null;
   whatsapp: string | null; email: string | null; linkedin: string | null; web: string | null; agendaUrl: string | null;
   enlaces: { titulo: string; url: string }[]; empresa: string; url: string; qr: string | null;
+  /** Identidad de la marca: sin portada propia, el encabezado usa su color y su logo. */
+  marca?: { logo: string | null; colorPrimario: string | null; colorSecundario: string | null } | null;
   /** Bloques que su dueño ocultó (false). Lo no listado se muestra. */
   mostrar?: Partial<Record<'cotizar' | 'vcard' | 'compartir' | 'qr', boolean>>;
 }
@@ -55,9 +58,17 @@ export function TarjetaVista({ t }: { t: DatosTarjeta }) {
   const verCompartir = m.compartir !== false;
   const qr = m.qr === false ? null : t.qr;
   const inicial = t.nombre.trim().charAt(0).toUpperCase();
-  // Con portada propia se usa el encabezado con imagen y la foto como círculo, en cualquier estilo.
-  const conAvatar = e.avatar || !!t.portadaUrl;
-  const estiloPortada = t.portadaUrl ? { backgroundImage: `url("${t.portadaUrl.replace(/"/g, '%22')}")`, backgroundSize: 'cover', backgroundPosition: 'center' } : undefined;
+  // Encabezado de portada + foto como avatar circular en todos los estilos. Sin portada propia: fondo de la marca con el logo.
+  const conAvatar = true;
+  const colorMarca = t.marca?.colorPrimario || null;
+  const estiloPortada = t.portadaUrl
+    ? { backgroundImage: `url("${t.portadaUrl.replace(/"/g, '%22')}")`, backgroundSize: 'cover', backgroundPosition: 'center' }
+    : colorMarca ? { backgroundImage: `linear-gradient(135deg, ${colorMarca}, ${t.marca?.colorSecundario || colorMarca})` } : undefined;
+  // Logo de la marca en blanco sobre su color; si la marca no cargó el suyo, el de FPTecnologi.
+  const logoMarca = (alto: string) => (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={t.marca?.logo ? imagenLanding(t.marca.logo) : '/logo-fptecnologi.svg'} alt={t.empresa} className={`${alto} w-auto max-w-[70%] object-contain brightness-0 invert opacity-90`} />
+  );
   const wa = t.whatsapp ? `https://wa.me/${t.whatsapp}?text=${encodeURIComponent(`Hola ${t.nombre.split(' ')[0]}, vi tu tarjeta digital de ${t.empresa} y quiero más información.`)}` : null;
   const claseCompartir = `inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-[15px] font-semibold ring-1 transition-colors ${t.estilo === 'oscuro' ? 'text-white ring-white/25 hover:bg-white/10' : 'text-brand-700 ring-brand-primary/40 hover:bg-brand-50'}`;
 
@@ -72,7 +83,9 @@ export function TarjetaVista({ t }: { t: DatosTarjeta }) {
     return (
       <div className={`min-h-screen ${e.fondo}`}>
         <main className="mx-auto flex w-full max-w-md flex-col items-center px-5 pb-10 pt-10 text-center">
-          {t.portadaUrl && <div aria-hidden className="-mb-14 h-32 w-full rounded-2xl bg-brand-50" style={estiloPortada} />}
+          <div aria-hidden className={`-mb-14 flex h-32 w-full items-center justify-center rounded-2xl ${t.portadaUrl ? 'bg-brand-50' : e.portada}`} style={estiloPortada}>
+            {!t.portadaUrl && logoMarca('h-9')}
+          </div>
           <div className={`relative h-28 w-28 overflow-hidden rounded-full border-4 border-white shadow-lg ${e.portada}`}>
             {t.fotoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
@@ -137,7 +150,8 @@ export function TarjetaVista({ t }: { t: DatosTarjeta }) {
       <main className="mx-auto grid max-w-5xl gap-6 px-4 py-6 sm:py-10 lg:grid-cols-[22rem_1fr] lg:items-start lg:gap-8">
         {/* Perfil */}
         <section className={`overflow-hidden rounded-[2rem] lg:sticky lg:top-6 ${e.panel}`}>
-          <div className={`relative ${conAvatar ? 'h-36' : 'h-72'} ${e.portada}`} style={estiloPortada}>
+          <div className={`relative flex items-center justify-center ${conAvatar ? 'h-36' : 'h-72'} ${e.portada}`} style={estiloPortada}>
+            {!t.portadaUrl && logoMarca('h-9')}
             {!conAvatar && foto}
             {!conAvatar && (
               <svg aria-hidden viewBox="0 0 400 60" preserveAspectRatio="none" className="absolute inset-x-0 bottom-0 h-12 w-full text-white">

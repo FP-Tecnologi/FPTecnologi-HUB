@@ -10,7 +10,7 @@ import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
 import { ApiError, useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { PanelOpciones } from '../../components/tarjeta/PanelOpciones';
-import { VistaPreviaReal } from '../../components/tarjeta/VistaPreviaReal';
+import { VistaPreviaReal, type MarcaTarjeta } from '../../components/tarjeta/VistaPreviaReal';
 import { aplicarMostrar } from '../../lib/tarjetaOpciones';
 import { descargarCanvas, dibujarTarjeta, ESTILOS_TARJETA, type EstiloTarjeta } from '../../lib/tarjetaGrafica';
 
@@ -23,7 +23,7 @@ export interface Tarjeta {
   enlaces: { titulo: string; url: string }[]; activo: boolean; vistas: number;
 }
 type Guardada = Tarjeta & { id: string; url: string; qr: string };
-interface Respuesta { tarjetas: Guardada[]; sugerido: { nombre: string; email: string; cargo: string; telefono: string }; guardadaId?: string | null; webBase?: string }
+interface Respuesta { tarjetas: Guardada[]; sugerido: { nombre: string; email: string; cargo: string; telefono: string }; guardadaId?: string | null; webBase?: string; marca?: MarcaTarjeta | null }
 
 export const VACIA: Tarjeta = { etiqueta: 'Principal', slug: '', estilo: 'clasico', vista: 'perfil', nombre: '', cargo: '', area: '', bio: '', fotoUrl: '', portadaUrl: '', mostrar: {}, qrColor: '', qrFondo: '', telefono: '', whatsapp: '', email: '', linkedin: '', web: '', agendaUrl: '', enlaces: [], activo: true, vistas: 0 };
 const v = (x: string | null | undefined) => x ?? '';
@@ -341,7 +341,7 @@ export function MiTarjeta() {
               </div>
             </div>
             {panel === 'vivo' ? (
-              <VistaPreviaReal t={form} url={urlPublica} base={resp?.webBase} />
+              <VistaPreviaReal t={form} url={urlPublica} base={resp?.webBase} marca={resp?.marca} />
             ) : guardada ? (
               <div style={{ border: '1px solid var(--ax-border)', borderRadius: 12, overflow: 'hidden', height: 520 }}>
                 <iframe key={`${selId}-${recarga}`} title="Página publicada" src={urlPublica} style={{ width: '100%', height: '100%', border: 0, background: '#fff' }} />

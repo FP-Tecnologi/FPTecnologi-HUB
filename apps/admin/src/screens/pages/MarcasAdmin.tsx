@@ -9,6 +9,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { ApiError, useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
 
 interface Marca {
   id: string; nombre: string; logo: string | null; colorPrimario: string | null; colorSecundario: string | null;
@@ -16,8 +17,8 @@ interface Marca {
   sitios: { id: string; dominio: string }[];
   _count: { usuarios: number; productos: number; soporteTickets: number };
 }
-type Form = { nombre: string; colorPrimario: string; colorSecundario: string; contactoEmail: string; contactoTelefono: string };
-const VACIO: Form = { nombre: '', colorPrimario: '', colorSecundario: '', contactoEmail: '', contactoTelefono: '' };
+type Form = { nombre: string; logo: string; colorPrimario: string; colorSecundario: string; contactoEmail: string; contactoTelefono: string };
+const VACIO: Form = { nombre: '', logo: '', colorPrimario: '', colorSecundario: '', contactoEmail: '', contactoTelefono: '' };
 const msg = (e: unknown, d: string) => (e instanceof ApiError ? e.message : d);
 
 export function MarcasAdmin() {
@@ -49,7 +50,7 @@ export function MarcasAdmin() {
 
   function abrir(m: Marca | 'nueva') {
     setEditando(m); setModalErr('');
-    setForm(m === 'nueva' ? VACIO : { nombre: m.nombre, colorPrimario: m.colorPrimario ?? '', colorSecundario: m.colorSecundario ?? '', contactoEmail: m.contactoEmail ?? '', contactoTelefono: m.contactoTelefono ?? '' });
+    setForm(m === 'nueva' ? VACIO : { nombre: m.nombre, logo: m.logo ?? '', colorPrimario: m.colorPrimario ?? '', colorSecundario: m.colorSecundario ?? '', contactoEmail: m.contactoEmail ?? '', contactoTelefono: m.contactoTelefono ?? '' });
   }
 
   async function guardar(ev: React.FormEvent) {
@@ -60,7 +61,7 @@ export function MarcasAdmin() {
     const body = Object.fromEntries(Object.entries(form).map(([k, v]) => [k, v.trim()]).filter(([, v]) => v));
     try {
       if (editando === 'nueva') { await api.post('/marcas', body); setOk('Marca creada.'); await refreshMarcas(); }
-      else { await api.patch(`/marcas/${editando.id}`, body, { marcaId: editando.id }); setOk('Marca actualizada.'); }
+      else { await api.patch(`/marcas/${editando.id}`, Object.fromEntries(Object.entries(form).map(([k, v]) => [k, v.trim()])), { marcaId: editando.id }); setOk('Marca actualizada.'); }
       setEditando(null);
       await cargar();
     } catch (e) { setModalErr(msg(e, 'No se pudo guardar la marca.')); }
@@ -140,6 +141,17 @@ export function MarcasAdmin() {
             <form className="ax-card__body" style={{ paddingTop: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }} onSubmit={guardar}>
               {modalErr && <div role="alert" className="ax-alert ax-alert--danger"><div className="ax-alert__content"><p className="ax-alert__message">{modalErr}</p></div></div>}
               {campo('nombre', 'Nombre', { required: true, maxLength: 80 })}
+              <div className="ax-field">
+                <span className="ax-label">Logo (se usa en la portada de las tarjetas digitales)</span>
+                <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
+                  {form.logo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={urlImagen(form.logo)} alt="Logo" style={{ height: 40, maxWidth: 160, objectFit: 'contain', background: form.colorPrimario || 'var(--ax-surface-subtle)', borderRadius: 8, padding: 6 }} />
+                  ) : <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Sin logo</span>}
+                  <SubirImagen etiqueta={form.logo ? 'Cambiar logo' : 'Subir logo'} onSubida={(urls) => setForm({ ...form, logo: urls[0] })} />
+                  {form.logo && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setForm({ ...form, logo: '' })}>Quitar</button>}
+                </div>
+              </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--ax-space-3)' }}>
                 {campo('colorPrimario', 'Color principal', { placeholder: '#238DC1', maxLength: 9 })}
                 {campo('colorSecundario', 'Color secundario', { placeholder: '#385CAD', maxLength: 9 })}

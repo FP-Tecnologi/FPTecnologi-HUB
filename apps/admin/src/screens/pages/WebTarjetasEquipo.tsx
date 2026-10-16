@@ -11,14 +11,14 @@ import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
 import { ApiError, useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { PanelOpciones } from '../../components/tarjeta/PanelOpciones';
-import { VistaPreviaReal } from '../../components/tarjeta/VistaPreviaReal';
+import { VistaPreviaReal, type MarcaTarjeta } from '../../components/tarjeta/VistaPreviaReal';
 import type { CampoMostrar } from '../../lib/tarjetaOpciones';
 import { MenuPuntos } from '../../components/ui/MenuPuntos';
 import { VACIA, type Tarjeta } from './MiTarjeta';
 
 type Fila = Tarjeta & { id: string; usuarioId: string; propietario: string | null; url: string; faltantes: { campo: string; aviso: string }[] };
 interface SinTarjeta { usuarioId: string; nombre: string; email: string; rol: string }
-interface Datos { tarjetas: Fila[]; sinTarjeta: SinTarjeta[]; webBase?: string }
+interface Datos { tarjetas: Fila[]; sinTarjeta: SinTarjeta[]; webBase?: string; marca?: MarcaTarjeta | null }
 /** Qué se está editando: una tarjeta existente (id) o una nueva para alguien del equipo (usuarioId). */
 type Edicion = { id?: string; usuarioId?: string; externa?: boolean; quien: string; form: Tarjeta };
 
@@ -140,7 +140,6 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
                 )}
                 <SubirImagen etiqueta={edit.form.fotoUrl ? 'Cambiar foto' : 'Subir foto'} onSubida={(urls) => set('fotoUrl', urls[0])} />
                 {edit.form.fotoUrl && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => set('fotoUrl', '')}>Quitar foto</button>}
-                {interruptor('foto', 'la foto')}
               </div>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
                 {edit.form.portadaUrl ? (
@@ -196,7 +195,7 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
           </section>
 
           <div style={{ flex: '1.7 1 36rem', minWidth: 0 }}>
-            <VistaPreviaReal onCambio={set} base={datos?.webBase} t={edit.form} url={edit.id ? datos?.tarjetas.find((x) => x.id === edit.id)?.url : undefined} />
+            <VistaPreviaReal onCambio={set} base={datos?.webBase} marca={datos?.marca} t={edit.form} url={edit.id ? datos?.tarjetas.find((x) => x.id === edit.id)?.url : undefined} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)', marginBlockStart: 'var(--ax-space-4)' }}>
               <section className="ax-card" style={{ padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
                 <strong>Botones de la tarjeta</strong>
