@@ -1,19 +1,25 @@
 import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
-import { IsBoolean, IsString } from 'class-validator';
+import { IsBoolean, IsString, MinLength } from 'class-validator';
 import { UsuariosGlobalService } from './usuarios-global.service.js';
+import { ActividadService } from '../actividad/actividad.service.js';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import { SuperAdminGuard } from '../common/guards/super-admin.guard.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user.js';
 
 class ActivoDto { @IsBoolean() activo!: boolean }
+class PasswordDto { @IsString() @MinLength(8) password!: string }
 class AsignacionDto { @IsString() marcaId!: string; @IsString() rolId!: string }
 
 /** Administración global: todos los usuarios de todas las marcas. Solo super admin (admin de todas las marcas). */
 @UseGuards(JwtAuthGuard, SuperAdminGuard)
 @Controller('usuarios/global')
 export class UsuariosGlobalController {
-  constructor(private readonly global: UsuariosGlobalService) {}
+  constructor(private readonly global: UsuariosGlobalService, private readonly actividad: ActividadService) {}
+
+  private log(user: AuthenticatedUser, accion: string, detalle: string, marcaId?: string) {
+    void this.actividad.registrar({ usuarioId: user.sub, email: user.email, accion, detalle, marcaId });
+  }
 
   @Get()
   listar(@Query('q') q?: string, @Query('marcaId') marcaId?: string, @Query('rolId') rolId?: string) {
@@ -23,16 +29,36 @@ export class UsuariosGlobalController {
   @Patch(':id/activo')
   activo(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string, @Body() dto: ActivoDto) {
     if (id === user.sub) throw new BadRequestException('No puedes desactivar tu propia cuenta');
-    return this.global.activar(id, dto.activo);
+    return this.global.activar(id, dto.activo).then((r) => { this.log(user, dto.activo ? 'cuenta_activada' : 'cuenta_desactivada', `Usuario ${id}`); return r; });
   }
 
   @Post(':id/asignaciones')
-  asignar(@Param('id') id: string, @Body() dto: AsignacionDto) {
-    return this.global.asignar(id, dto.marcaId, dto.rolId);
+  asignar(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string, @Body() dto: AsignacionDto) {
+    return this.global.asignar(id, dto.marcaId, dto.rolId).then((r) => { this.log(user, 'rol_asignado', `Usuario ${id} · rol ${dto.rolId}`, dto.marcaId); return r; });
   }
 
   @Delete(':id/asignaciones/:marcaId/:rolId')
   quitar(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string, @Param('marcaId') marcaId: string, @Param('rolId') rolId: string) {
-    return this.global.quitar(user.sub, id, marcaId, rolId);
+    return this.global.quitar(user.sub, id, marcaId, rolId).then((r) => { this.log(user, 'rol_quitado', `Usuario ${id} · rol ${rolId}`, marcaId); return r; });
+  }
+
+  @Post(':id/reset-password')
+  resetPassword(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.global.enviarResetPassword(id).then((r) => { this.log(user, 'correo_restablecer_password', r.email); return r; });
+  }
+
+  @Post(':id/password')
+  password(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string, @Body() dto: PasswordDto) {
+    return this.global.cambiarPassword(id, dto.password).then((r) => { this.log(user, 'password_cambiada_por_admin', `Usuario ${id}`); return r; });
+  }
+
+  @Post(':id/2fa/reset')
+  reset2fa(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.global.reset2fa(id).then((r) => { this.log(user, '2fa_restablecido', `Usuario ${id}`); return r; });
+  }
+
+  @Post(':id/sesiones/cerrar')
+  cerrarSesiones(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.global.cerrarSesiones(id).then((r) => { this.log(user, 'sesiones_cerradas', `Usuario ${id}`); return r; });
   }
 }

@@ -169,7 +169,8 @@ interface GroupProps {
 function Group({ node, level, activeSlug, roleName }: GroupProps) {
   const router = useRouter();
   const { marcas, activeMarcaId: activeId, adminMode: am } = useAuth();
-  const children = manifest.childrenOf(node.id).filter((c) => c.inMenu && visibleForRole(c, roleName));
+  const visible = (c: NavNode) => c.inMenu && visibleForRole(c, roleName) && !(am && c.soloMarca);
+  const children = manifest.childrenOf(node.id).filter(visible);
   const showBrands = node.id === 'inicio.dashboards' && marcas.length > 0;
   const containsActive = useMemo(
     () => subtreeContainsSlug(node, activeSlug),
@@ -224,7 +225,7 @@ function Group({ node, level, activeSlug, roleName }: GroupProps) {
         hidden={!isOpen}
       >
         {children.map((child) =>
-          manifest.childrenOf(child.id).filter((c) => c.inMenu && visibleForRole(c, roleName)).length > 0 ? (
+          manifest.childrenOf(child.id).filter(visible).length > 0 ? (
             <Group
               key={child.id}
               node={child}
@@ -331,6 +332,8 @@ export function Sidebar({ drawerOpen = false, onNavToggle }: { drawerOpen?: bool
     : (marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre ?? null);
   const marcaActiva = !adminMode ? (marcas.find((m) => m.marcaId === activeMarcaId) ?? null) : null;
   useFocusTrap(rootRef, drawerOpen, '.ax-marcaswitch__trigger');
+  // Quamtu solo tiene CMS del cotizador; el resto de módulos (web, tienda, chat…) es de FPTecnologi.
+  const soloQuamtu = /quamtu/i.test(marcaActiva?.marca.nombre ?? '');
 
   return (
     <aside className="ax-sidebar" role="navigation" aria-label="Primary" ref={rootRef}>
@@ -356,7 +359,7 @@ export function Sidebar({ drawerOpen = false, onNavToggle }: { drawerOpen?: bool
       {/* ===== NAV TREE ===== */}
       <nav className="ax-sidebar__nav" role="tree" aria-label="Main menu">
         {sections().map((section) => {
-          const groups = groupsInSection(section).filter((g) => g.inMenu && visibleForRole(g, roleName) && (g.section !== 'MARCA' || !adminMode) && (g.section !== 'GENERAL' || adminMode) && (g.id !== 'inicio.dashboards' || adminMode));
+          const groups = groupsInSection(section).filter((g) => g.inMenu && visibleForRole(g, roleName) && (g.section !== 'MARCA' || !adminMode) && (g.section !== 'MARCA' || !soloQuamtu || g.id === 'marca.cotizador' || g.id === 'marca.equipo') && (g.section !== 'GENERAL' || adminMode) && (g.id !== 'inicio.dashboards' || adminMode));
           if (groups.length === 0) return null;
           return (
             <div key={section}>

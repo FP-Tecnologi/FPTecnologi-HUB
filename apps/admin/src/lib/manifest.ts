@@ -36,6 +36,8 @@ export interface NavNode {
    * defined (still a manual whitelist, not a full permissions engine).
    */
   roles?: string[];
+  /** Solo en la vista de una marca; oculto en el modo Administración (global). */
+  soloMarca?: boolean;
 }
 interface RawManifest {
   meta?: Record<string, unknown>;

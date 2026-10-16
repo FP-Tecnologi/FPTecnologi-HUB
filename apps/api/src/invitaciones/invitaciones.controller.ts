@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { InvitacionesService } from './invitaciones.service.js';
+import { ActividadService } from '../actividad/actividad.service.js';
 import { AceptarInvitacionDto, CrearInvitacionDto } from './invitaciones.dto.js';
 import { MarcaRolGuard } from '../common/guards/marca-rol.guard.js';
 import { MarcaActual } from '../common/decorators/marca-actual.decorator.js';
@@ -13,7 +14,7 @@ import type { AuthenticatedUser } from '../auth/types/authenticated-user.js';
 @Roles('admin')
 @Controller('invitaciones')
 export class InvitacionesController {
-  constructor(private readonly invitaciones: InvitacionesService) {}
+  constructor(private readonly invitaciones: InvitacionesService, private readonly actividad: ActividadService) {}
 
   @Get()
   pendientes(@MarcaActual() marcaId: string) {
@@ -22,7 +23,10 @@ export class InvitacionesController {
 
   @Post()
   crear(@MarcaActual() marcaId: string, @Body() dto: CrearInvitacionDto, @CurrentUser() user: AuthenticatedUser) {
-    return this.invitaciones.crear(marcaId, dto, user.email);
+    return this.invitaciones.crear(marcaId, dto, user.email).then((r) => {
+      void this.actividad.registrar({ usuarioId: user.sub, email: user.email, accion: 'invitacion_enviada', detalle: `${r.email} · rol ${dto.rolId}`, marcaId });
+      return r;
+    });
   }
 
   @Post(':id/reenviar')

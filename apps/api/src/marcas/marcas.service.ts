@@ -15,6 +15,15 @@ export class MarcasService {
     return this.prisma.marca.findMany({ orderBy: { nombre: 'asc' } });
   }
 
+  /** Marcas con sus dominios y cuántos usuarios y tickets tienen (para la pantalla de gestión). */
+  async resumen() {
+    const marcas = await this.prisma.marca.findMany({
+      orderBy: { nombre: 'asc' },
+      include: { sitios: { select: { id: true, dominio: true } }, _count: { select: { usuarios: true, productos: true, soporteTickets: true } } },
+    });
+    return marcas;
+  }
+
   async findOne(id: string) {
     const marca = await this.prisma.marca.findUnique({ where: { id } });
     if (!marca) {

@@ -40,6 +40,8 @@ import { PopupsModule } from './popups/popups.module.js';
 import { TarjetasModule } from './tarjetas/tarjetas.module.js';
 import { FolletosModule } from './folletos/folletos.module.js';
 import { TicketsModule } from './tickets/tickets.module.js';
+import { SoporteModule } from './soporte/soporte.module.js';
+import { ActividadModule } from './actividad/actividad.module.js';
 import { RecursosModule } from './recursos/recursos.module.js';
 
 @Module({
@@ -79,6 +81,8 @@ import { RecursosModule } from './recursos/recursos.module.js';
     TarjetasModule,
     FolletosModule,
     TicketsModule,
+    SoporteModule,
+    ActividadModule,
     RecursosModule,
   ],
   controllers: [HealthController],

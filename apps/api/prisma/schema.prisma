@@ -66,6 +66,7 @@ model Marca {
   socios             Socio[]
   recursos           Recurso[]
   folletos           Folleto[]
+  soporteTickets     SoporteTicket[]
 }
 
 model Sitio {
@@ -114,6 +115,7 @@ model Usuario {
   notificaciones         Notificacion[]
   dispositivosConfiables DispositivoConfiable[]
   chatsAtendidos         ChatConversacion[]
+  soporteTickets         SoporteTicket[]
 }
 
 // "Confiar en este dispositivo por 30 días": al confirmar el 2FA se guarda un
@@ -1196,4 +1198,42 @@ model TarjetaDigital {
 
   @@unique([marcaId, slug])
   @@index([marcaId, usuarioId])
+}
+
+// Ticket de soporte de la PLATAFORMA (dashboard): lo abre un usuario desde «Centro de ayuda» de su marca y lo atiende
+// el super admin en Administración → Soporte. No es el Ticket de la web (reclamos de clientes finales). Fuera de
+// TENANT_MODELS a propósito: el usuario lo ve por usuarioId y el super admin ve los de todas las marcas.
+model SoporteTicket {
+  id            String    @id @default(uuid())
+  usuarioId     String
+  usuario       Usuario   @relation(fields: [usuarioId], references: [id])
+  marcaId       String?
+  marca         Marca?    @relation(fields: [marcaId], references: [id])
+  asunto        String
+  categoria     String
+  mensaje       String
+  estado        String    @default("ABIERTO") // ABIERTO | EN_REVISION | CERRADO
+  respuesta     String?
+  respondidoPor String?
+  respondidoAt  DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([usuarioId, createdAt])
+  @@index([estado, createdAt])
+}
+
+// Registro de actividad (auditoría de seguridad): inicios de sesión y acciones administrativas. Sin relaciones a
+// propósito: el historial se conserva aunque se borre el usuario o la marca. Solo lo lee el super admin.
+model ActividadLog {
+  id        String   @id @default(uuid())
+  usuarioId String?
+  email     String?
+  accion    String
+  detalle   String?
+  marcaId   String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([accion, createdAt])
 }

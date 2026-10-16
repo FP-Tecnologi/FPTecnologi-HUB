@@ -1,4 +1,5 @@
 import {
+  Optional,
   BadRequestException,
   ConflictException,
   Injectable,
@@ -13,6 +14,7 @@ import * as QRCode from 'qrcode';
 import { randomBytes, randomInt } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { MailService } from '../mail/mail.service.js';
+import { ActividadService } from '../actividad/actividad.service.js';
 import { normalizeEmail } from '../common/utils/normalize-email.js';
 import type { AppConfig } from '../config/configuration.js';
 import { OtpProposito } from '../generated/prisma/enums.js';
@@ -33,6 +35,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly mailService: MailService,
+    @Optional() private readonly actividad?: ActividadService,
   ) {}
 
   /** Step 1 of forgot-password: emails a reset code if the account exists (anti-enumeration: same response either way). */
@@ -80,6 +83,7 @@ export class AuthService {
       this.prisma.dispositivoConfiable.updateMany({ where: { usuarioId: usuario.id, revoked: false }, data: { revoked: true } }),
     ]);
 
+    void this.actividad?.registrar({ usuarioId: usuario.id, email: usuario.email, accion: 'password_restablecida', detalle: 'Con código enviado al correo' });
     await this.mailService.sendPasswordChanged(usuario.email);
   }
 
@@ -101,11 +105,13 @@ export class AuthService {
       include: { marcas: { include: { rol: true } } },
     });
     if (!usuario || !usuario.activo) {
+      void this.actividad?.registrar({ email, accion: 'login_fallido', detalle: usuario ? 'Cuenta desactivada' : 'Correo no registrado' });
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
     const passwordOk = await bcrypt.compare(password, usuario.passwordHash);
     if (!passwordOk) {
+      void this.actividad?.registrar({ usuarioId: usuario.id, email: usuario.email, accion: 'login_fallido', detalle: 'Contraseña incorrecta' });
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
@@ -430,6 +436,7 @@ export class AuthService {
       { secret: jwtConfig.refreshSecret, expiresIn: jwtConfig.refreshExpiresIn } as JwtSignOptions,
     );
 
+    if (opts.markWelcome) void this.actividad?.registrar({ usuarioId: usuario.id, email: usuario.email, accion: 'login' });
     const refreshTokenHash = await bcrypt.hash(refreshToken, SALT_ROUNDS);
     const expiresAt = this.parseExpiryToDate(jwtConfig.refreshExpiresIn);
     await this.prisma.refreshToken.create({

@@ -1,11 +1,18 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { AuthService } from '../auth/auth.service.js';
+import { MailService } from '../mail/mail.service.js';
 
 const MAX = 300;
 
 @Injectable()
 export class UsuariosGlobalService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auth: AuthService,
+    private readonly mail: MailService,
+  ) {}
 
   async listar(f: { q?: string; marcaId?: string; rolId?: string }) {
     const q = f.q?.trim();
@@ -54,5 +61,47 @@ export class UsuariosGlobalService {
     const { count } = await this.prisma.usuarioMarcaRol.deleteMany({ where: { usuarioId, marcaId, rolId } });
     if (!count) throw new NotFoundException('Asignación no encontrada');
     return { quitado: true };
+  }
+
+  private async usuario(id: string) {
+    const u = await this.prisma.usuario.findUnique({ where: { id }, select: { id: true, email: true } });
+    if (!u) throw new NotFoundException('Usuario no encontrado');
+    return u;
+  }
+
+  /** Envía al correo del usuario el código para restablecer su contraseña (mismo flujo que «Olvidé mi contraseña»). */
+  async enviarResetPassword(id: string) {
+    const u = await this.usuario(id);
+    await this.auth.requestPasswordReset(u.email);
+    return { enviado: true, email: u.email };
+  }
+
+  /** Cambia la contraseña por una nueva y cierra todas sus sesiones y dispositivos confiables. */
+  async cambiarPassword(id: string, password: string) {
+    const u = await this.usuario(id);
+    const passwordHash = await bcrypt.hash(password, 10);
+    await this.prisma.$transaction([
+      this.prisma.usuario.update({ where: { id }, data: { passwordHash } }),
+      this.prisma.refreshToken.updateMany({ where: { usuarioId: id, revoked: false }, data: { revoked: true } }),
+      this.prisma.dispositivoConfiable.updateMany({ where: { usuarioId: id, revoked: false }, data: { revoked: true } }),
+    ]);
+    await this.mail.sendPasswordChanged(u.email);
+    return { cambiada: true };
+  }
+
+  /** Apaga el 2FA por app (secreto + códigos de respaldo) y cierra sesiones: vuelve a entrar con código al correo y puede activarlo de nuevo. */
+  async reset2fa(id: string) {
+    await this.usuario(id);
+    await this.prisma.usuario.update({ where: { id }, data: { totpEnabled: false, totpSecret: null } });
+    await this.prisma.totpBackupCode.deleteMany({ where: { usuarioId: id } });
+    await this.prisma.refreshToken.updateMany({ where: { usuarioId: id, revoked: false }, data: { revoked: true } });
+    return { reset: true };
+  }
+
+  /** Cierra todas las sesiones abiertas del usuario. */
+  async cerrarSesiones(id: string) {
+    await this.usuario(id);
+    await this.prisma.refreshToken.updateMany({ where: { usuarioId: id, revoked: false }, data: { revoked: true } });
+    return { cerradas: true };
   }
 }
