@@ -14,6 +14,7 @@ import { PanelOpciones } from '../../components/tarjeta/PanelOpciones';
 import { VistaPreviaReal, type MarcaTarjeta } from '../../components/tarjeta/VistaPreviaReal';
 import type { CampoMostrar } from '../../lib/tarjetaOpciones';
 import { MenuPuntos } from '../../components/ui/MenuPuntos';
+import { SelectorArea } from '../../components/tarjeta/SelectorArea';
 import { VACIA, type Tarjeta } from './MiTarjeta';
 
 type Fila = Tarjeta & { id: string; usuarioId: string; propietario: string | null; url: string; faltantes: { campo: string; aviso: string }[] };
@@ -155,13 +156,19 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
             {campo('etiqueta', 'Nombre de la versión', 'Comercial, Redes…')}
             {campo('nombre', 'Nombre completo')}
             {campo('cargo', 'Cargo', undefined, 'cargo')}
-            {campo('area', 'Área', undefined, 'area')}
+            <div className="ax-field">
+              <div className="ax-cluster" style={{ justifyContent: 'space-between', flexWrap: 'nowrap' }}>
+                <label className="ax-label" htmlFor="a-area">Área</label>
+                {interruptor('area', 'el área')}
+              </div>
+              <SelectorArea id="a-area" valor={v(edit.form.area)} onCambio={(x) => set('area', x)} />
+            </div>
             <div className="ax-field">
               <div className="ax-cluster" style={{ justifyContent: 'space-between', flexWrap: 'nowrap' }}>
                 <label className="ax-label" htmlFor="a-bio">Presentación corta</label>
                 {interruptor('bio', 'la presentación')}
               </div>
-              <textarea id="a-bio" className="ax-textarea" rows={3} maxLength={400} value={v(edit.form.bio)} onChange={(e) => set('bio', e.target.value)} />
+              <input id="a-bio" className="ax-input" maxLength={400} placeholder="Qué haces y cómo ayudas al cliente" value={v(edit.form.bio)} onChange={(e) => set('bio', e.target.value)} />
             </div>
             {campo('telefono', 'Teléfono', '+51 970 614 881', 'telefono')}
             {campo('whatsapp', 'WhatsApp (solo números con código de país)', '51970614881', 'whatsapp')}

@@ -10,6 +10,7 @@ import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
 import { ApiError, useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { PanelOpciones } from '../../components/tarjeta/PanelOpciones';
+import { SelectorArea } from '../../components/tarjeta/SelectorArea';
 import { VistaPreviaReal, type MarcaTarjeta } from '../../components/tarjeta/VistaPreviaReal';
 import { aplicarMostrar } from '../../lib/tarjetaOpciones';
 import { descargarCanvas, dibujarTarjeta, ESTILOS_TARJETA, type EstiloTarjeta } from '../../lib/tarjetaGrafica';
@@ -163,7 +164,7 @@ export function MiTarjeta() {
     <div className="ax-field">
       <label className="ax-label" htmlFor={`t-${k}`}>{label}</label>
       {opciones.area ? (
-        <textarea id={`t-${k}`} className="ax-textarea" rows={3} maxLength={400} value={v(form[k] as string)} onChange={(e) => set(k, e.target.value as never)} />
+        <input id={`t-${k}`} className="ax-input" maxLength={400} value={v(form[k] as string)} onChange={(e) => set(k, e.target.value as never)} />
       ) : (
         <input id={`t-${k}`} className="ax-input" placeholder={opciones.placeholder} value={v(form[k] as string)} onChange={(e) => set(k, e.target.value as never)} />
       )}
@@ -237,7 +238,10 @@ export function MiTarjeta() {
           {campo('etiqueta', 'Nombre de esta versión', { placeholder: 'Comercial, Redes, Soporte…', ayuda: 'Solo para que la identifiques tú; no se muestra al público.' })}
           {campo('nombre', 'Nombre completo')}
           {campo('cargo', 'Cargo', { placeholder: 'Ejecutiva de ventas' })}
-          {campo('area', 'Área', { placeholder: 'Ventas, Soporte, Marketing…' })}
+          <div className="ax-field">
+            <label className="ax-label" htmlFor="t-area">Área</label>
+            <SelectorArea id="t-area" valor={v(form.area)} onCambio={(x) => set('area', x)} />
+          </div>
           {campo('bio', 'Presentación corta', { area: true, ayuda: 'Hasta 400 caracteres. Qué haces y cómo ayudas al cliente.' })}
           {campo('telefono', 'Teléfono (como se muestra)', { placeholder: '+51 970 614 881' })}
           {campo('whatsapp', 'WhatsApp (con código de país)', { placeholder: '51970614881', ayuda: 'Solo números. Abre un chat directo contigo.' })}
