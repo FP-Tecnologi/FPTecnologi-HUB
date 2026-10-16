@@ -278,7 +278,7 @@ export function UsuariosGlobal() {
                 <legend className="ax-label" style={{ fontWeight: 600, marginBlockEnd: 'var(--ax-space-2)' }}>Acceso</legend>
                 <label className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap', fontSize: 'var(--ax-text-sm)' }}>
                   <input type="checkbox" className="ax-switch" checked={cf.superAdmin} onChange={(e) => setCf({ ...cf, superAdmin: e.target.checked, ...(e.target.checked ? { marcaId: '', rolId: '' } : {}) })} />
-                  <span><strong>Super administrador</strong> <span style={{ color: 'var(--ax-text-subtle)' }}>· accede a toda la plataforma y a todas las empresas (no necesita empresa ni rol)</span></span>
+                  <span><strong>Super administrador</strong> <span style={{ color: 'var(--ax-text-subtle)' }}>· accede a toda la plataforma y a todas las empresas</span></span>
                 </label>
                 <div style={{ display: 'grid', gap: 'var(--ax-space-3)', gridTemplateColumns: 'repeat(auto-fit, minmax(14rem, 1fr))' }}>
                   <div className="ax-field"><label className="ax-label" htmlFor="cu-marca">Empresa{cf.superAdmin ? '' : ' *'}</label>
