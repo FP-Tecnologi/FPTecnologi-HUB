@@ -1,5 +1,6 @@
-import { metadataForSlug } from '../../../../src/lib/pageMetadata';
+import { redirect } from 'next/navigation';
 
-export const metadata = metadataForSlug('web/tarjetas');
-
-export { WebTarjetasEquipo as default } from '../../../../src/screens/pages/WebTarjetasEquipo';
+/** «Tarjetas del equipo» ahora es la pestaña Equipo de Mi cuenta → Tarjeta digital. */
+export default function Page() {
+  redirect('/mi-tarjeta');
+}
