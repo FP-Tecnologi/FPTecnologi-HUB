@@ -401,6 +401,41 @@ export class AuthService {
     }
   }
 
+  /**
+   * Paso extra antes de una acción sensible: con 2FA por app activo se pide el código de la app; si no, se envía un código
+   * al correo de quien actúa. Devuelve cuál método usar.
+   */
+  async solicitarConfirmacion(usuarioId: string): Promise<{ metodo: 'totp' | 'correo'; correo?: string }> {
+    const u = await this.prisma.usuario.findUnique({ where: { id: usuarioId }, select: { id: true, email: true, totpEnabled: true } });
+    if (!u) throw new NotFoundException('Usuario no encontrado');
+    if (u.totpEnabled) return { metodo: 'totp' };
+    const minutos = this.configService.get<AppConfig['otp']>('otp')!.expiresInMinutes;
+    await this.issueOtp(u.id, u.email, OtpProposito.CONFIRMAR_ACCION, (e, c) =>
+      this.mailService.sendAviso(e, {
+        asunto: 'Código para confirmar una acción en FPTecnologi',
+        titulo: 'Confirma la acción',
+        parrafos: [`Tu código de verificación es ${c}. Vence en ${minutos} minutos.`, 'Si no lo pediste tú, ignora este correo y cambia tu contraseña.'],
+      }),
+    );
+    const [usuario, dominio] = u.email.split('@');
+    return { metodo: 'correo', correo: `${usuario.slice(0, 2)}***@${dominio}` };
+  }
+
+  /** Valida el código de la acción sensible (app autenticadora o código por correo). Lanza 400 si falta o es incorrecto. */
+  async confirmarAccion(usuarioId: string, codigo?: string): Promise<void> {
+    const limpio = codigo?.trim();
+    if (!limpio) throw new BadRequestException('Falta el código de verificación');
+    const u = await this.prisma.usuario.findUnique({ where: { id: usuarioId }, select: { id: true, totpEnabled: true, totpSecret: true } });
+    if (!u) throw new NotFoundException('Usuario no encontrado');
+    if (u.totpEnabled && u.totpSecret) {
+      if (!(await this.verifyTotpOrBackupCode(u.id, u.totpSecret, limpio))) throw new BadRequestException('Código incorrecto');
+      return;
+    }
+    const otp = await this.prisma.otpCode.findFirst({ where: { usuarioId, consumedAt: null, proposito: OtpProposito.CONFIRMAR_ACCION }, orderBy: { createdAt: 'desc' } });
+    if (!otp || otp.expiresAt < new Date() || !(await bcrypt.compare(limpio, otp.codigoHash))) throw new BadRequestException('Código incorrecto o vencido');
+    await this.prisma.otpCode.update({ where: { id: otp.id }, data: { consumedAt: new Date() } });
+  }
+
   private async issueOtp(
     usuarioId: string,
     email: string,

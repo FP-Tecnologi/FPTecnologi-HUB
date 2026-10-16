@@ -162,6 +162,7 @@ model RefreshToken {
 enum OtpProposito {
   LOGIN_2FA
   RESET_PASSWORD
+  CONFIRMAR_ACCION // paso extra antes de acciones sensibles de un super administrador
 }
 
 model OtpCode {

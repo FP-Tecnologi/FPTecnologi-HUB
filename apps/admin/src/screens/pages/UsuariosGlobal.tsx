@@ -7,11 +7,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
+import { VerificacionModal } from '../../components/ui/VerificacionModal';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 
 interface Asig { marcaId: string; rolId: string; marca: { nombre: string }; rol: { nombre: string } }
-interface Usuario { id: string; email: string; nombre: string | null; cargo: string | null; activo: boolean; totpEnabled: boolean; superAdmin: boolean; createdAt: string; marcas: Asig[] }
+interface Usuario { id: string; email: string; nombre: string | null; cargo: string | null; telefono?: string | null; dni?: string | null; activo: boolean; totpEnabled: boolean; superAdmin: boolean; createdAt: string; marcas: Asig[] }
 interface Respuesta { usuarios: Usuario[]; marcas: { id: string; nombre: string }[]; roles: { id: string; nombre: string }[] }
 
 const msg = (e: unknown, d: string) => (e instanceof ApiError ? e.message : d);
@@ -79,9 +80,37 @@ export function UsuariosGlobal() {
   async function seguridad(fn: () => Promise<unknown>, okTexto: string, d: string) {
     try { await fn(); setError(''); setOk(okTexto); await cargar(); } catch (e) { setOk(''); setError(msg(e, d)); }
   }
+  // Editar usuario: nombre, correo, cargo, teléfono y DNI (sobre un super administrador pide verificación).
+  const [edU, setEdU] = useState<Usuario | null>(null);
+  const [ed, setEd] = useState({ nombre: '', email: '', cargo: '', telefono: '', dni: '' });
+  const [edErr, setEdErr] = useState('');
+  function abrirEditar(u: Usuario) { setEd({ nombre: u.nombre ?? '', email: u.email, cargo: u.cargo ?? '', telefono: u.telefono ?? '', dni: u.dni ?? '' }); setEdErr(''); setEdU(u); }
+  async function guardarEdicion(ev: React.FormEvent) {
+    ev.preventDefault();
+    if (!edU) return;
+    const objetivo = edU;
+    if (objetivo.superAdmin) {
+      setEdU(null);
+      conVerificacion('Verifica que eres tú', `Vas a editar los datos de ${objetivo.email}, que es super administrador.`, 'Usuario actualizado.', (codigo) => api.patch(`/usuarios/global/${objetivo.id}`, { ...ed, codigo }));
+      return;
+    }
+    try { await api.patch(`/usuarios/global/${objetivo.id}`, ed); setOk('Usuario actualizado.'); setError(''); setEdU(null); await cargar(); }
+    catch (e) { setEdErr(msg(e, 'No se pudo guardar.')); }
+  }
+
+  // Acciones sobre un super administrador (o dar/quitar el rol): piden el código de verificación de quien actúa.
+  const [verif, setVerif] = useState<{ titulo: string; detalle: string; ejecutar: (codigo: string) => Promise<unknown>; okTexto: string } | null>(null);
+  const conVerificacion = (titulo: string, detalle: string, okTexto: string, ejecutar: (codigo: string) => Promise<unknown>) => setVerif({ titulo, detalle, okTexto, ejecutar });
+
   async function guardarPw(ev: React.FormEvent) {
     ev.preventDefault();
     if (!pwU) return;
+    if (pwU.superAdmin) {
+      const objetivo = pwU; const nueva = pw;
+      setPwU(null); setPw(''); setPwErr('');
+      conVerificacion('Verifica que eres tú', `Vas a cambiar la contraseña de ${objetivo.email}, que es super administrador.`, `Contraseña de ${objetivo.email} cambiada; sus sesiones se cerraron.`, (codigo) => api.post(`/usuarios/global/${objetivo.id}/password`, { password: nueva, codigo }));
+      return;
+    }
     try {
       await api.post(`/usuarios/global/${pwU.id}/password`, { password: pw });
       setOk(`Contraseña de ${pwU.email} cambiada; sus sesiones se cerraron.`); setPwU(null); setPw(''); setPwErr('');
@@ -168,22 +197,26 @@ export function UsuariosGlobal() {
                   </td>
                   <td className="ax-table__td">{u.totpEnabled ? 'Sí' : 'No'}</td>
                   <td className="ax-table__td">
-                    <input type="checkbox" className="ax-switch" checked={u.activo} disabled={u.id === user?.id} aria-label={`Cuenta activa de ${u.email}`} onChange={() => accion(() => api.patch(`/usuarios/global/${u.id}/activo`, { activo: !u.activo }), 'No se pudo actualizar.')} />
+                    <input type="checkbox" className="ax-switch" checked={u.activo} disabled={u.id === user?.id} aria-label={`Cuenta activa de ${u.email}`} onChange={() => (u.superAdmin && u.activo ? conVerificacion('Desactivar un super administrador', `Vas a desactivar la cuenta de ${u.email}: no podrá entrar a la plataforma.`, `Cuenta de ${u.email} desactivada.`, (codigo) => api.patch(`/usuarios/global/${u.id}/activo`, { activo: false, codigo })) : accion(() => api.patch(`/usuarios/global/${u.id}/activo`, { activo: !u.activo }), 'No se pudo actualizar.'))} />
                   </td>
                   <td className="ax-table__td" style={{ textAlign: 'right' }}>
                     <details style={{ position: 'relative', display: 'inline-block' }}>
                       <summary className="ax-btn ax-btn--ghost ax-btn--sm" style={{ listStyle: 'none', cursor: 'pointer' }}>Acciones ▾</summary>
                       <div className="ax-card" style={{ position: 'absolute', right: 0, zIndex: 20, minWidth: 230, padding: 'var(--ax-space-1)', textAlign: 'left' }}>
+                        <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm ax-btn--block" style={{ justifyContent: 'flex-start' }}
+                          onClick={(e) => { cerrarMenu(e.currentTarget); abrirEditar(u); }}>Editar usuario</button>
                         <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm ax-btn--block" style={{ justifyContent: 'flex-start' }} disabled={u.id === user?.id && u.superAdmin}
-                          onClick={(e) => { cerrarMenu(e.currentTarget); window.confirm(u.superAdmin ? `¿Quitar el rol de super administrador a ${u.email}? Dejará de ver Administración (seguirá como admin de sus marcas).` : `¿Hacer super administrador a ${u.email}? Verá y podrá usar toda la Administración y será admin de todas las marcas.`) && void seguridad(() => api.patch(`/usuarios/global/${u.id}/super-admin`, { superAdmin: !u.superAdmin }), u.superAdmin ? 'Ya no es super administrador.' : `${u.email} ahora es super administrador.`, 'No se pudo cambiar el rol de super administrador.'); }}>{u.superAdmin ? 'Quitar super administrador' : 'Hacer super administrador'}</button>
+                          onClick={(e) => { cerrarMenu(e.currentTarget); conVerificacion(u.superAdmin ? 'Quitar super administrador' : 'Hacer super administrador', u.superAdmin ? `${u.email} dejará de ver Administración (seguirá como admin de sus marcas).` : `${u.email} verá y podrá usar toda la Administración y será admin de todas las marcas.`, u.superAdmin ? 'Ya no es super administrador.' : `${u.email} ahora es super administrador.`, (codigo) => api.patch(`/usuarios/global/${u.id}/super-admin`, { superAdmin: !u.superAdmin, codigo })); }}>{u.superAdmin ? 'Quitar super administrador' : 'Hacer super administrador'}</button>
                         <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm ax-btn--block" style={{ justifyContent: 'flex-start' }}
                           onClick={(e) => { cerrarMenu(e.currentTarget); void seguridad(() => api.post(`/usuarios/global/${u.id}/reset-password`), `Correo de restablecimiento enviado a ${u.email}.`, 'No se pudo enviar el correo.'); }}>Enviar correo para restablecer contraseña</button>
                         <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm ax-btn--block" style={{ justifyContent: 'flex-start' }}
                           onClick={(e) => { cerrarMenu(e.currentTarget); setPwU(u); setPw(''); setPwErr(''); }}>Cambiar contraseña…</button>
                         <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm ax-btn--block" style={{ justifyContent: 'flex-start' }} disabled={!u.totpEnabled}
-                          onClick={(e) => { cerrarMenu(e.currentTarget); window.confirm(`¿Restablecer el 2FA de ${u.email}? Podrá volver a activarlo desde su Configuración.`) && void seguridad(() => api.post(`/usuarios/global/${u.id}/2fa/reset`), `2FA restablecido para ${u.email}.`, 'No se pudo restablecer el 2FA.'); }}>Restablecer 2FA{u.totpEnabled ? '' : ' (no activo)'}</button>
+                          onClick={(e) => { cerrarMenu(e.currentTarget); if (u.superAdmin) conVerificacion('Restablecer el 2FA de un super administrador', `Vas a quitar el 2FA por app de ${u.email}.`, `2FA restablecido para ${u.email}.`, (codigo) => api.post(`/usuarios/global/${u.id}/2fa/reset`, { codigo })); else if (window.confirm(`¿Restablecer el 2FA de ${u.email}? Podrá volver a activarlo desde su Configuración.`)) void seguridad(() => api.post(`/usuarios/global/${u.id}/2fa/reset`, {}), `2FA restablecido para ${u.email}.`, 'No se pudo restablecer el 2FA.'); }}>Restablecer 2FA{u.totpEnabled ? '' : ' (no activo)'}</button>
                         <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm ax-btn--block" style={{ justifyContent: 'flex-start' }}
                           onClick={(e) => { cerrarMenu(e.currentTarget); window.confirm(`¿Cerrar todas las sesiones de ${u.email}?`) && void seguridad(() => api.post(`/usuarios/global/${u.id}/sesiones/cerrar`), 'Sesiones cerradas.', 'No se pudieron cerrar las sesiones.'); }}>Cerrar todas sus sesiones</button>
+                        <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm ax-btn--block" style={{ justifyContent: 'flex-start', color: 'var(--ax-danger-500)' }} disabled={u.id === user?.id || u.superAdmin} title={u.superAdmin ? 'Quítale primero el rol de super administrador' : undefined}
+                          onClick={(e) => { cerrarMenu(e.currentTarget); conVerificacion('Eliminar usuario', `Vas a eliminar a ${u.email} con sus accesos y tarjetas. No se puede deshacer. Si tiene pedidos o chats, mejor desactívalo.`, `${u.email} eliminado.`, (codigo) => api.post(`/usuarios/global/${u.id}/eliminar`, { codigo })); }}>Eliminar usuario</button>
                       </div>
                     </details>
                   </td>
@@ -223,6 +256,35 @@ export function UsuariosGlobal() {
             </form>
           </div>
         </div>
+      )}
+
+      {edU && (
+        <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 60, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
+          <div onClick={() => setEdU(null)} style={{ position: 'absolute', inset: 0, background: 'rgba(8,10,16,.55)', backdropFilter: 'blur(2px)' }} />
+          <div role="dialog" aria-modal="true" aria-labelledby="eu-title" className="ax-card" style={{ position: 'relative', maxWidth: 460, width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
+            <div className="ax-card__header"><div className="ax-card__titles"><h2 className="ax-card__title" id="eu-title">Editar usuario</h2><p className="ax-card__subtitle">{edU.email}. Si cambias el correo se cierran sus sesiones.</p></div></div>
+            <form className="ax-card__body" style={{ paddingTop: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }} onSubmit={guardarEdicion}>
+              {edErr && <div role="alert" className="ax-alert ax-alert--danger"><div className="ax-alert__content"><p className="ax-alert__message">{edErr}</p></div></div>}
+              {([['nombre', 'Nombre', 'text'], ['email', 'Correo', 'email'], ['cargo', 'Cargo', 'text'], ['telefono', 'Teléfono', 'tel'], ['dni', 'DNI', 'text']] as const).map(([k, label, tipo]) => (
+                <div className="ax-field" key={k}><label className="ax-label" htmlFor={`eu-${k}`}>{label}</label>
+                  <input id={`eu-${k}`} type={tipo} className="ax-input" required={k === 'email'} value={ed[k]} onChange={(e) => setEd({ ...ed, [k]: e.target.value })} /></div>
+              ))}
+              <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'flex-end' }}>
+                <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEdU(null)}>Cancelar</button>
+                <button type="submit" className="ax-btn ax-btn--primary" disabled={!ed.email.trim()}>Guardar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {verif && (
+        <VerificacionModal
+          titulo={verif.titulo}
+          detalle={verif.detalle}
+          onCerrar={() => setVerif(null)}
+          onConfirmar={async (codigo) => { await verif.ejecutar(codigo); setError(''); setOk(verif.okTexto); await cargar(); }}
+        />
       )}
 
       {pwU && (
