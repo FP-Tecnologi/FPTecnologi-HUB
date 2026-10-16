@@ -5,6 +5,7 @@
  */
 import { useEffect, useState } from 'react';
 import { api } from '../../lib/api';
+import { descargarQrPng, descargarQrSvg } from '../../lib/descargarQr';
 import { contrasteQr, GRUPOS_MOSTRAR, type CampoMostrar } from '../../lib/tarjetaOpciones';
 import type { Tarjeta } from '../../screens/pages/MiTarjeta';
 
@@ -92,8 +93,15 @@ export function PanelOpciones({ t, onCambio, solo }: { t: Tarjeta; onCambio: <K 
         )}
         </div>
         {qr && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(qr)}`} alt="Vista previa del código QR" width={150} height={150} style={{ width: 150, height: 150, borderRadius: 8, border: '1px solid var(--ax-border)', flexShrink: 0 }} />
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--ax-space-2)', flexShrink: 0 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(qr)}`} alt="Vista previa del código QR" width={150} height={150} style={{ width: 150, height: 150, borderRadius: 8, border: '1px solid var(--ax-border)' }} />
+            <div className="ax-cluster" style={{ gap: 4 }}>
+              <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" disabled={!t.slug} title={t.slug ? undefined : 'Guarda la tarjeta para generar el QR con su enlace'} onClick={() => void descargarQrPng(qr, t.slug)}>Descargar PNG</button>
+              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" disabled={!t.slug} onClick={() => descargarQrSvg(qr, t.slug)}>SVG</button>
+            </div>
+            <span style={{ fontSize: 'var(--ax-text-2xs, 11px)', color: 'var(--ax-text-subtle)', textAlign: 'center', maxWidth: 170 }}>Al escanearlo abre el enlace de esta tarjeta.</span>
+          </div>
         )}
         </div>
       </section>}

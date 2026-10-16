@@ -15,6 +15,7 @@ import { VistaPreviaReal, type MarcaTarjeta } from '../../components/tarjeta/Vis
 import type { CampoMostrar } from '../../lib/tarjetaOpciones';
 import { MenuPuntos } from '../../components/ui/MenuPuntos';
 import { SelectorArea } from '../../components/tarjeta/SelectorArea';
+import { descargarQrPng } from '../../lib/descargarQr';
 import { VACIA, type Tarjeta } from './MiTarjeta';
 
 type Fila = Tarjeta & { id: string; usuarioId: string; propietario: string | null; url: string; faltantes: { campo: string; aviso: string }[] };
@@ -37,6 +38,7 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
   const [edit, setEdit] = useState<Edicion | null>(null);
   const [guardando, setGuardando] = useState(false);
   const [eligiendo, setEligiendo] = useState(false);
+  const [viendo, setViendo] = useState<Fila | null>(null);
 
   // Si la API se reinicia o hay un corte breve, se reintenta una vez sola antes de mostrar el aviso.
   const reintento = useRef(false);
@@ -51,6 +53,12 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
     }
   }, []);
   useEffect(() => { cargar(); }, [cargar, activeMarcaId]);
+  useEffect(() => {
+    if (!viendo) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setViendo(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [viendo]);
   useEffect(() => {
     if (!eligiendo) return;
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setEligiendo(false); };
@@ -73,6 +81,15 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
       await cargar();
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'No se pudo cambiar.');
+    }
+  }
+  /** QR de la tarjeta (con sus colores) listo para imprimir: al escanearlo abre el enlace de su perfil. */
+  async function descargarQr(f: Fila) {
+    try {
+      const r = await api.post<{ qr: string }>('/tarjetas/qr', { slug: f.slug, color: f.qrColor ?? '', fondo: f.qrFondo ?? '' });
+      await descargarQrPng(r.qr, f.slug);
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'No se pudo generar el QR.');
     }
   }
   async function copiar(url: string) {
@@ -242,8 +259,7 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
               <tr>
                 <th className="ax-table__th" scope="col">Visible</th>
                 <th className="ax-table__th" scope="col">Persona</th>
-                <th className="ax-table__th" scope="col">Contacto</th>
-                <th className="ax-table__th" scope="col">Cargo / área</th>
+                                <th className="ax-table__th" scope="col">Cargo / área</th>
                 <th className="ax-table__th" scope="col">Diseño</th>
                 <th className="ax-table__th" scope="col">Visitas</th>
                 <th className="ax-table__th" scope="col">Estado</th>
@@ -252,9 +268,9 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
             </thead>
             <tbody>
               {!datos ? (
-                <tr><td className="ax-table__td" colSpan={8}>Cargando…</td></tr>
+                <tr><td className="ax-table__td" colSpan={7}>Cargando…</td></tr>
               ) : visibles.length === 0 ? (
-                <tr><td className="ax-table__td" colSpan={8} style={{ color: 'var(--ax-text-muted)' }}>{datos.tarjetas.length === 0 ? 'Aún nadie del equipo creó su tarjeta.' : 'Ninguna tarjeta coincide con el filtro.'}</td></tr>
+                <tr><td className="ax-table__td" colSpan={7} style={{ color: 'var(--ax-text-muted)' }}>{datos.tarjetas.length === 0 ? 'Aún nadie del equipo creó su tarjeta.' : 'Ninguna tarjeta coincide con el filtro.'}</td></tr>
               ) : (
                 visibles.map((f) => (
                   <tr key={f.id} className="ax-table__row" style={{ opacity: f.activo ? 1 : 0.6 }}>
@@ -275,8 +291,7 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
                         </div>
                       </div>
                     </td>
-                    <td className="ax-table__td">{[f.email, f.telefono || (f.whatsapp ? `+${f.whatsapp}` : null)].filter(Boolean).join(' · ') || <span style={{ color: 'var(--ax-text-subtle)' }}>Sin contacto</span>}</td>
-                    <td className="ax-table__td">{[f.cargo, f.area].filter(Boolean).join(' · ') || <span style={{ color: 'var(--ax-text-subtle)' }}>Sin cargo</span>}</td>
+                                        <td className="ax-table__td">{[f.cargo, f.area].filter(Boolean).join(' · ') || <span style={{ color: 'var(--ax-text-subtle)' }}>Sin cargo</span>}</td>
                     <td className="ax-table__td">{f.vista === 'linktree' ? 'Linktree' : 'Perfil'} · {ESTILO[f.estilo] ?? f.estilo}</td>
                     <td className="ax-table__td">{f.vistas}</td>
                     <td className="ax-table__td">
@@ -285,7 +300,9 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
                     </td>
                     <td className="ax-table__td" style={{ textAlign: 'right' }}>
                       <MenuPuntos etiqueta={`Acciones de ${f.nombre}`} opciones={[
+                        { etiqueta: 'Ver tarjeta', onClick: () => setViendo(f) },
                         { etiqueta: 'Editar', onClick: () => setEdit({ id: f.id, quien: f.propietario ?? f.nombre, form: f }) },
+                        { etiqueta: 'Descargar QR', onClick: () => void descargarQr(f) },
                         { etiqueta: 'Copiar enlace', onClick: () => void copiar(f.url) },
                         { etiqueta: 'Abrir tarjeta', href: f.url },
                       ]} />
@@ -297,6 +314,42 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
           </table>
         </div>
       </section>
+
+      {viendo && createPortal(
+        <div role="dialog" aria-modal="true" aria-labelledby="vt-title" style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(8,10,16,.55)', backdropFilter: 'blur(2px)', display: 'grid', placeItems: 'center', padding: 'var(--ax-space-4)' }} onClick={(e) => { if (e.target === e.currentTarget) setViendo(null); }}>
+          <div className="ax-card" style={{ width: 'min(1100px, 100%)', maxHeight: '92vh', overflowY: 'auto', padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 'var(--ax-space-5)', alignItems: 'flex-start' }}>
+            <div style={{ flex: '1 1 18rem', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
+              <div>
+                <h2 id="vt-title" style={{ margin: 0, fontSize: 'var(--ax-text-xl)' }}>{viendo.nombre}</h2>
+                <p style={{ margin: 0, color: 'var(--ax-text-muted)' }}>{[viendo.cargo, viendo.area].filter(Boolean).join(' · ') || 'Sin cargo'}</p>
+              </div>
+              <dl style={{ margin: 0, display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '6px var(--ax-space-3)', fontSize: 'var(--ax-text-sm)' }}>
+                {([['Correo', viendo.email], ['Teléfono', viendo.telefono], ['WhatsApp', viendo.whatsapp ? `+${viendo.whatsapp}` : null], ['LinkedIn', viendo.linkedin], ['Enlace', viendo.url]] as const).map(([k, val]) => (
+                  <div key={k} style={{ display: 'contents' }}>
+                    <dt style={{ color: 'var(--ax-text-subtle)' }}>{k}</dt>
+                    <dd style={{ margin: 0, overflowWrap: 'anywhere', color: val ? 'var(--ax-text-strong)' : 'var(--ax-text-subtle)' }}>{val || 'Sin registrar'}</dd>
+                  </div>
+                ))}
+              </dl>
+              {viendo.enlaces.length > 0 && (
+                <div style={{ fontSize: 'var(--ax-text-sm)' }}>
+                  <div style={{ color: 'var(--ax-text-subtle)', marginBlockEnd: 2 }}>Enlaces extra</div>
+                  {viendo.enlaces.map((l, i) => <div key={i}>{l.titulo}: <span style={{ color: 'var(--ax-text-muted)', overflowWrap: 'anywhere' }}>{l.url}</span></div>)}
+                </div>
+              )}
+              <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
+                <button type="button" className="ax-btn ax-btn--primary" onClick={() => { const f = viendo; setViendo(null); setEdit({ id: f.id, quien: f.propietario ?? f.nombre, form: f }); }}>Editar</button>
+                <button type="button" className="ax-btn ax-btn--secondary" onClick={() => void descargarQr(viendo)}>Descargar QR</button>
+                <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setViendo(null)}>Cerrar</button>
+              </div>
+            </div>
+            <div style={{ flex: '1.6 1 28rem', minWidth: 0 }}>
+              <VistaPreviaReal base={datos?.webBase} marca={datos?.marca} t={viendo} url={viendo.url} />
+            </div>
+          </div>
+        </div>,
+        document.body,
+      )}
 
       {eligiendo && datos && createPortal(
         <div role="dialog" aria-modal="true" aria-labelledby="nt-title" style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(8,10,16,.55)', backdropFilter: 'blur(2px)', display: 'grid', placeItems: 'center', padding: 'var(--ax-space-4)' }} onClick={(e) => { if (e.target === e.currentTarget) setEligiendo(false); }}>
