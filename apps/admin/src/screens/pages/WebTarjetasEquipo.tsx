@@ -256,7 +256,6 @@ export function WebTarjetasEquipo() {
                   {ESTILOS_TARJETA.map((e) => <option key={e.id} value={e.id}>Estilo: {e.nombre}</option>)}
                 </select>
               </div>
-              <PanelOpciones t={edit.form} onCambio={set} solo="mostrar" />
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
                 <button type="button" className="ax-btn ax-btn--primary" disabled={guardando || edit.form.nombre.trim().length < 2} onClick={guardar}>{guardando ? 'Guardando…' : 'Guardar cambios'}</button>
                 <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEdit(null)}>Cancelar</button>
@@ -273,6 +272,7 @@ export function WebTarjetasEquipo() {
                     {edit.form.activo ? 'Tarjeta visible al público' : 'Tarjeta oculta: el enlace y el QR no muestran nada'}
                   </label>
                 </section>
+                <PanelOpciones t={edit.form} onCambio={set} solo="mostrar" />
                 <PanelOpciones t={edit.form} onCambio={set} solo="qr" />
               </div>
             </div>

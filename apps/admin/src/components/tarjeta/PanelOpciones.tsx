@@ -56,10 +56,8 @@ export function PanelOpciones({ t, onCambio, solo }: { t: Tarjeta; onCambio: <K 
       {solo !== 'mostrar' && <section className="ax-card" style={{ padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
         <strong>Personaliza el código QR</strong>
         <span style={ayuda}>Elige los colores del QR de esta tarjeta. Se ve en tu página y en la tarjeta que descargas. Si cambias el color, el QR sigue llevando al mismo enlace.</span>
-        {qr && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(qr)}`} alt="Vista previa del código QR" width={160} height={160} style={{ width: 160, height: 160, borderRadius: 8, border: '1px solid var(--ax-border)', alignSelf: 'center' }} />
-        )}
+        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 'var(--ax-space-5)', alignItems: 'center' }}>
+        <div style={{ flex: '1 1 16rem', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
         <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
           {PRESETS.map((p) => (
             <button key={p.nombre} type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => { onCambio('qrColor', p.color); onCambio('qrFondo', p.fondo); }}>
@@ -84,6 +82,12 @@ export function PanelOpciones({ t, onCambio, solo }: { t: Tarjeta; onCambio: <K 
             {invertido ? 'El QR es más claro que su fondo: algunos lectores no lo reconocen. Usa un color oscuro sobre fondo claro.' : 'Poco contraste entre el QR y su fondo: puede costar escanearlo. Prueba un color más oscuro.'}
           </span>
         )}
+        </div>
+        {qr && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(qr)}`} alt="Vista previa del código QR" width={150} height={150} style={{ width: 150, height: 150, borderRadius: 8, border: '1px solid var(--ax-border)', flexShrink: 0 }} />
+        )}
+        </div>
       </section>}
     </>
   );
