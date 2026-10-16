@@ -1,21 +1,20 @@
 'use client';
 /*
- * FPTecnologi-HUB — Mi tarjeta digital (Mi cuenta). Cada persona del equipo, de cualquier área, arma y gestiona AQUÍ su
- * tarjeta: datos, foto, estilo, enlace único para compartir, QR y tarjeta gráfica descargable (PNG). La página pública
- * /tarjeta/<enlace> solo muestra el resultado; no se edita ahí.
+ * FPTecnologi-HUB — Mi tarjeta digital (Mi cuenta). Primero se ve lo ya generado (la tarjeta, su vista previa, el enlace, el
+ * QR y las versiones) con un botón «Editar»; al pulsarlo se abre el editor completo (el mismo que usa el administrador):
+ * datos con interruptor de visibilidad, diseño y estilo en la vista previa, botones y QR personalizable.
+ * La página pública /tarjeta/<enlace> solo muestra el resultado; no se edita ahí.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
-import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
+import { urlImagen } from '../../components/ui/SubirImagen';
 import { ApiError, useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
-import { PanelOpciones } from '../../components/tarjeta/PanelOpciones';
-import { SelectorArea } from '../../components/tarjeta/SelectorArea';
+import { EditorTarjeta } from '../../components/tarjeta/EditorTarjeta';
 import { VistaPreviaReal, type MarcaTarjeta } from '../../components/tarjeta/VistaPreviaReal';
 import { aplicarMostrar } from '../../lib/tarjetaOpciones';
-import { descargarCanvas, dibujarTarjeta, ESTILOS_TARJETA, type EstiloTarjeta } from '../../lib/tarjetaGrafica';
-
-const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
+import { descargarCanvas, dibujarTarjeta, type EstiloTarjeta } from '../../lib/tarjetaGrafica';
+import { descargarQrPng, descargarQrSvg } from '../../lib/descargarQr';
 
 export interface Tarjeta {
   id?: string; etiqueta: string; slug: string; estilo: EstiloTarjeta; vista: 'perfil' | 'linktree'; nombre: string; cargo: string | null; area: string | null; bio: string | null; fotoUrl: string | null; portadaUrl?: string | null; telefono: string | null;
@@ -27,12 +26,11 @@ type Guardada = Tarjeta & { id: string; url: string; qr: string };
 interface Respuesta { tarjetas: Guardada[]; sugerido: { nombre: string; email: string; cargo: string; telefono: string }; guardadaId?: string | null; webBase?: string; marca?: MarcaTarjeta | null }
 
 export const VACIA: Tarjeta = { etiqueta: 'Principal', slug: '', estilo: 'clasico', vista: 'perfil', nombre: '', cargo: '', area: '', bio: '', fotoUrl: '', portadaUrl: '', mostrar: {}, qrColor: '', qrFondo: '', telefono: '', whatsapp: '', email: '', linkedin: '', web: '', agendaUrl: '', enlaces: [], activo: true, vistas: 0 };
-const v = (x: string | null | undefined) => x ?? '';
 
-/** Qué le falta a la tarjeta (sobre lo que hay en el formulario) y qué hacer. */
+/** Qué le falta a la tarjeta y qué hacer. */
 function pendientes(f: Tarjeta) {
   const p: { campo: string; aviso: string }[] = [];
-  if (!f.fotoUrl) p.push({ campo: 'foto', aviso: 'Falta tu foto: pulsa «Subir foto» (arriba, junto a tu nombre). Las tarjetas con foto generan más confianza.' });
+  if (!f.fotoUrl) p.push({ campo: 'foto', aviso: 'Sube tu foto: las tarjetas con foto generan más confianza.' });
   if (!f.cargo?.trim()) p.push({ campo: 'cargo', aviso: 'Escribe tu cargo para que el cliente sepa quién eres.' });
   if (!f.bio?.trim()) p.push({ campo: 'bio', aviso: 'Agrega una presentación corta de lo que haces.' });
   if (!f.whatsapp?.trim() && !f.telefono?.trim()) p.push({ campo: 'contacto', aviso: 'Agrega tu WhatsApp o teléfono para que te puedan contactar.' });
@@ -40,32 +38,16 @@ function pendientes(f: Tarjeta) {
   return p;
 }
 
-/** Miniatura de un estilo (se dibuja con el mismo código de la tarjeta descargable). */
-function Mini({ estilo, datos, activo, onElegir, nombre, detalle }: { estilo: EstiloTarjeta; datos: Tarjeta; activo: boolean; onElegir: () => void; nombre: string; detalle: string }) {
-  const ref = useRef<HTMLCanvasElement>(null);
-  useEffect(() => {
-    if (ref.current) dibujarTarjeta(ref.current, estilo, { ...datos, empresa: 'FPTecnologi & System' }, null, urlImagen).catch(() => undefined);
-  }, [estilo, datos]);
-  return (
-    <button type="button" onClick={onElegir} aria-pressed={activo} style={{ textAlign: 'left', padding: 6, borderRadius: 12, border: activo ? '2px solid var(--ax-primary-500, #2898ee)' : '2px solid var(--ax-border)', background: 'transparent', cursor: 'pointer' }}>
-      <canvas ref={ref} style={{ width: '100%', height: 'auto', aspectRatio: '1050 / 600', borderRadius: 8, display: 'block' }} />
-      <strong style={{ display: 'block', fontSize: 'var(--ax-text-sm)', marginTop: 6 }}>{nombre}</strong>
-      <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{detalle}</span>
-    </button>
-  );
-}
-
 export function MiTarjeta() {
   const { activeMarcaId } = useAuth();
   const [form, setForm] = useState<Tarjeta>(VACIA);
   const [resp, setResp] = useState<Respuesta | null>(null);
-  /** Versión que se edita: el id de una guardada, o null si es una nueva aún sin guardar. */
+  /** Versión que se ve o edita: el id de una guardada, o null si es una nueva aún sin guardar. */
   const [selId, setSelId] = useState<string | null>(null);
-  const [panel, setPanel] = useState<'vivo' | 'publicada'>('vivo');
+  const [modo, setModo] = useState<'resumen' | 'editar'>('resumen');
   const [error, setError] = useState('');
   const [ok, setOk] = useState('');
   const [guardando, setGuardando] = useState(false);
-  const [recarga, setRecarga] = useState(0);
   const lienzo = useRef<HTMLCanvasElement>(null);
 
   const nuevaBase = useCallback((r: Respuesta, etiqueta: string): Tarjeta => ({ ...VACIA, etiqueta, nombre: r.sugerido.nombre, email: r.sugerido.email, cargo: r.sugerido.cargo, telefono: r.sugerido.telefono }), []);
@@ -76,6 +58,8 @@ export function MiTarjeta() {
       const primera = r.tarjetas[0];
       setSelId(primera?.id ?? null);
       setForm(primera ?? nuevaBase(r, 'Principal'));
+      // Sin tarjeta todavía: se empieza directo por el editor.
+      setModo(primera ? 'resumen' : 'editar');
       setError('');
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'No se pudo cargar tu tarjeta.');
@@ -84,14 +68,16 @@ export function MiTarjeta() {
   useEffect(() => { cargar(); }, [cargar, activeMarcaId]);
 
   const actual = resp?.tarjetas.find((t) => t.id === selId) ?? null;
-  function elegir(t: Guardada) { setSelId(t.id); setForm(t); setOk(''); setError(''); }
+  const set = <K extends keyof Tarjeta>(k: K, valor: Tarjeta[K]) => setForm((f) => ({ ...f, [k]: valor }));
+  function elegir(t: Guardada) { setSelId(t.id); setForm(t); setOk(''); setError(''); setModo('resumen'); }
   function nuevaVersion(copiar: boolean) {
     if (!resp) return;
     const n = resp.tarjetas.length + 1;
     setSelId(null);
-    setForm(copiar ? { ...form, id: undefined, slug: '', etiqueta: `${form.etiqueta || 'Versión'} (copia)`, vistas: 0 } : nuevaBase(resp, `Versión ${n}`));
-    setOk(copiar ? 'Copia lista: cámbiale lo que quieras y pulsa «Guardar» para publicarla con su propio enlace.' : 'Versión nueva: completa los datos y pulsa «Guardar».');
+    setForm(copiar && actual ? { ...actual, id: undefined, slug: '', etiqueta: `${actual.etiqueta || 'Versión'} (copia)`, vistas: 0 } : nuevaBase(resp, `Versión ${n}`));
+    setOk('');
     setError('');
+    setModo('editar');
   }
   async function eliminar() {
     if (!actual || !window.confirm(`¿Eliminar la versión «${actual.etiqueta}»? Su enlace y su QR dejarán de funcionar.`)) return;
@@ -100,43 +86,54 @@ export function MiTarjeta() {
       setResp(r);
       setSelId(r.tarjetas[0]?.id ?? null);
       setForm(r.tarjetas[0] ?? nuevaBase(r, 'Principal'));
+      setModo(r.tarjetas[0] ? 'resumen' : 'editar');
       setOk('Versión eliminada.');
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'No se pudo eliminar.');
     }
   }
 
-  const set = <K extends keyof Tarjeta>(k: K, valor: Tarjeta[K]) => setForm((f) => ({ ...f, [k]: valor }));
-  const faltan = useMemo(() => pendientes(form), [form]);
-  const completa = Math.round(((5 - faltan.length) / 5) * 100);
-  const guardada = !!actual;
-  const urlPublica = actual?.url ?? '';
-  const datosGrafica = useMemo(() => ({ ...aplicarMostrar(form), web: resp?.marca?.web ?? null, empresa: 'FPTecnologi & System' }), [form, resp?.marca?.web]);
-
-  // Tarjeta gráfica grande (con el QR de la tarjeta ya guardada).
-  useEffect(() => {
-    if (lienzo.current) dibujarTarjeta(lienzo.current, form.estilo, datosGrafica, form.mostrar?.qr === false ? null : (actual?.qr ?? null), urlImagen).catch(() => undefined);
-  }, [form.estilo, form.mostrar?.qr, datosGrafica, actual?.qr]);
-
-  async function guardar() {
+  async function guardar(datosForm: Tarjeta = form): Promise<boolean> {
     setGuardando(true);
     setError('');
     setOk('');
     try {
-      const { vistas: _vistas, id: _id, ...datos } = form;
+      const { vistas: _vistas, id: _id, ...datos } = datosForm;
       void _vistas; void _id;
       const r = selId ? await api.put<Respuesta>(`/tarjetas/mias/${selId}`, datos) : await api.post<Respuesta>('/tarjetas/mias', datos);
       setResp(r);
       const g = r.tarjetas.find((t) => t.id === r.guardadaId) ?? r.tarjetas[0];
       if (g) { setSelId(g.id); setForm(g); }
       setOk('Tarjeta guardada. Ya puedes compartir tu enlace y descargar tu tarjeta.');
-      setRecarga((n) => n + 1);
+      return true;
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'No se pudo guardar.');
+      return false;
     } finally {
       setGuardando(false);
     }
   }
+  async function guardarYVolver() { if (await guardar()) setModo('resumen'); }
+  /** Interruptor «visible al público» de la vista inicial: se guarda al instante. */
+  async function alternarVisible() {
+    if (!actual) return;
+    await guardar({ ...actual, activo: !actual.activo });
+  }
+  function cancelarEdicion() {
+    setError('');
+    if (actual) { setForm(actual); setModo('resumen'); } else if (resp?.tarjetas[0]) { elegir(resp.tarjetas[0]); }
+  }
+
+  const urlPublica = actual?.url ?? '';
+  const faltan = useMemo(() => pendientes(actual ?? form), [actual, form]);
+  const completa = Math.round(((5 - faltan.length) / 5) * 100);
+  const datosGrafica = useMemo(() => (actual ? { ...aplicarMostrar(actual), web: resp?.marca?.web ?? null, empresa: resp?.marca?.nombre ?? 'FPTecnologi & System' } : null), [actual, resp?.marca]);
+
+  // Tarjeta gráfica descargable (con el QR de la tarjeta guardada).
+  useEffect(() => {
+    if (modo !== 'resumen' || !actual || !datosGrafica || !lienzo.current) return;
+    dibujarTarjeta(lienzo.current, actual.estilo, datosGrafica, actual.mostrar?.qr === false ? null : actual.qr, urlImagen).catch(() => undefined);
+  }, [modo, actual, datosGrafica]);
 
   async function copiar() {
     if (!urlPublica) return;
@@ -144,217 +141,128 @@ export function MiTarjeta() {
   }
   async function compartir() {
     if (!urlPublica) return;
-    if (navigator.share) { try { await navigator.share({ title: form.nombre, text: `Tarjeta digital de ${form.nombre}`, url: urlPublica }); } catch { /* cerrado */ } } else await copiar();
+    if (navigator.share) { try { await navigator.share({ title: actual?.nombre, text: `Tarjeta digital de ${actual?.nombre}`, url: urlPublica }); } catch { /* cerrado */ } } else await copiar();
   }
   function bajarTarjeta() {
-    if (!lienzo.current) return;
-    if (!form.fotoUrl && !window.confirm('Tu tarjeta no tiene foto. ¿Descargarla igual? Puedes agregar tu foto con «Subir foto» y volver a descargarla.')) return;
-    descargarCanvas(lienzo.current, `tarjeta-${form.slug || 'fptecnologi'}-${form.estilo}.png`);
-  }
-  function bajarQr() {
-    if (!actual?.qr) return;
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([actual.qr], { type: 'image/svg+xml' }));
-    a.download = `qr-${form.slug || 'tarjeta'}.svg`;
-    a.click();
-    URL.revokeObjectURL(a.href);
+    if (!lienzo.current || !actual) return;
+    if (!actual.fotoUrl && !window.confirm('Tu tarjeta no tiene foto. ¿Descargarla igual?')) return;
+    descargarCanvas(lienzo.current, `tarjeta-${actual.slug || 'fptecnologi'}-${actual.estilo}.png`);
   }
 
-  const campo = (k: keyof Tarjeta, label: string, opciones: { ayuda?: string; area?: boolean; placeholder?: string } = {}) => (
-    <div className="ax-field">
-      <label className="ax-label" htmlFor={`t-${k}`}>{label}</label>
-      {opciones.area ? (
-        <input id={`t-${k}`} className="ax-input" maxLength={400} value={v(form[k] as string)} onChange={(e) => set(k, e.target.value as never)} />
-      ) : (
-        <input id={`t-${k}`} className="ax-input" placeholder={opciones.placeholder} value={v(form[k] as string)} onChange={(e) => set(k, e.target.value as never)} />
-      )}
-      {opciones.ayuda && <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{opciones.ayuda}</span>}
-    </div>
-  );
+  // ---------------------------------------------------------------- editor
+  if (modo === 'editar') {
+    return (
+      <EditorTarjeta
+        titulo={selId ? `Editar mi tarjeta · ${form.etiqueta || 'Principal'}` : resp?.tarjetas.length ? 'Nueva versión de mi tarjeta' : 'Crea tu tarjeta digital'}
+        volver="← Volver a mi tarjeta"
+        form={form}
+        set={set}
+        onGuardar={guardarYVolver}
+        onCancelar={cancelarEdicion}
+        guardando={guardando}
+        error={error}
+        webBase={resp?.webBase}
+        marca={resp?.marca}
+        url={urlPublica || undefined}
+        conVersion={(resp?.tarjetas.length ?? 0) > 0 || !!selId}
+        extra={actual && (resp?.tarjetas.length ?? 0) > 1 ? <button type="button" className="ax-btn ax-btn--ghost" style={{ color: 'var(--ax-danger-500)' }} onClick={eliminar}>Eliminar esta versión</button> : undefined}
+      />
+    );
+  }
 
+  // ---------------------------------------------------------------- vista inicial: lo ya generado
   return (
     <>
       <PageHead
         title="Mi tarjeta digital"
-        subtitle="Tu perfil profesional, de cualquier área del equipo. Aquí lo gestionas todo: tus datos, el estilo, tu enlace único para compartir y la tarjeta gráfica para descargar."
+        subtitle="Tu tarjeta, su vista previa, tu enlace y tu QR para compartir."
+        actions={
+          <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
+            <button type="button" className="ax-btn ax-btn--ghost" onClick={() => nuevaVersion(false)}>+ Nueva versión</button>
+            <button type="button" className="ax-btn ax-btn--primary" disabled={!actual} onClick={() => { setForm(actual!); setOk(''); setModo('editar'); }}><span className="ax-btn__label">Editar tarjeta</span></button>
+          </div>
+        }
       />
       {error && <p role="alert" style={{ color: 'var(--ax-danger-500)' }}>{error}</p>}
       {ok && <p role="status" style={{ color: 'var(--ax-success-600, #15803d)' }}>{ok}</p>}
 
-      <section className="ax-card" style={{ padding: 'var(--ax-space-4)', marginBlockEnd: 'var(--ax-space-4)' }}>
-        <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
+      {(resp?.tarjetas.length ?? 0) > 1 && (
+        <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap', marginBlockEnd: 'var(--ax-space-4)' }}>
           <strong style={{ marginInlineEnd: 'var(--ax-space-2)' }}>Mis versiones</strong>
           {resp?.tarjetas.map((t) => (
             <button key={t.id} type="button" aria-pressed={t.id === selId} className={`ax-btn ax-btn--sm ${t.id === selId ? 'ax-btn--primary' : 'ax-btn--ghost'}`} onClick={() => elegir(t)}>{t.etiqueta}{t.activo ? '' : ' (oculta)'}</button>
           ))}
-          {selId === null && <span className="ax-btn ax-btn--sm ax-btn--primary" aria-current="true">{form.etiqueta || 'Nueva'} · sin guardar</span>}
-          <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => nuevaVersion(false)}>+ Nueva versión</button>
-          <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => nuevaVersion(true)}>Duplicar esta</button>
         </div>
-        <span style={{ display: 'block', marginBlockStart: 6, fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Cada versión tiene su propio enlace, QR y diseño: por ejemplo una para clientes y otra para redes. Los datos y la foto se editan en cada una.</span>
-      </section>
+      )}
 
-      <section className="ax-card" style={{ padding: 'var(--ax-space-4)', marginBlockEnd: 'var(--ax-space-4)' }}>
-        <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
-          <strong>Tu tarjeta está al {completa}%</strong>
-          <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{faltan.length === 0 ? 'Todo listo para compartir.' : `${faltan.length} cosa${faltan.length === 1 ? '' : 's'} por completar`}</span>
-        </div>
-        <div aria-hidden style={{ height: 8, borderRadius: 99, background: 'var(--ax-surface-subtle)', marginBlock: 8, overflow: 'hidden' }}>
-          <div style={{ width: `${completa}%`, height: '100%', background: 'var(--ax-primary-500, #2898ee)', transition: 'width .3s' }} />
-        </div>
-        {faltan.length > 0 && (
-          <ul style={{ margin: 0, paddingInlineStart: 18, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)', display: 'grid', gap: 4 }}>
-            {faltan.map((f) => <li key={f.campo}>{f.aviso}</li>)}
-          </ul>
-        )}
-      </section>
-
-      <div style={{ display: 'grid', gap: 'var(--ax-space-5)', gridTemplateColumns: 'repeat(auto-fit, minmax(22rem, 1fr))', alignItems: 'start' }}>
-        <section className="ax-card" style={{ padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
-          <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
-            {form.fotoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={urlImagen(form.fotoUrl)} alt="Tu foto" width={72} height={72} style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover' }} />
-            ) : (
-              <span style={{ width: 72, height: 72, borderRadius: '50%', background: 'var(--ax-surface-subtle)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>{(form.nombre || '?').charAt(0).toUpperCase()}</span>
-            )}
-            <SubirImagen etiqueta={form.fotoUrl ? 'Cambiar foto' : 'Subir foto'} onSubida={(urls) => set('fotoUrl', urls[0])} />
-            {form.fotoUrl && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => set('fotoUrl', '')}>Quitar foto</button>}
-          </div>
-          <div className="ax-field">
-            <span className="ax-label">Foto de portada</span>
-            <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
-              {form.portadaUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={urlImagen(form.portadaUrl)} alt="Portada" style={{ width: 160, height: 60, borderRadius: 8, objectFit: 'cover' }} />
-              ) : (
-                <span style={{ width: 160, height: 60, borderRadius: 8, background: 'var(--ax-surface-subtle)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Sin portada</span>
-              )}
-              <SubirImagen etiqueta={form.portadaUrl ? 'Cambiar portada' : 'Subir portada'} onSubida={(urls) => set('portadaUrl', urls[0])} />
-              {form.portadaUrl && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => set('portadaUrl', '')}>Quitar portada</button>}
-            </div>
-            <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Imagen ancha (por ejemplo 1200 × 400 px) que se ve arriba de tu página. Opcional.</span>
-          </div>
-          {campo('etiqueta', 'Nombre de esta versión', { placeholder: 'Comercial, Redes, Soporte…', ayuda: 'Solo para que la identifiques tú; no se muestra al público.' })}
-          {campo('nombre', 'Nombre completo')}
-          {campo('cargo', 'Cargo', { placeholder: 'Ejecutiva de ventas' })}
-          <div className="ax-field">
-            <label className="ax-label" htmlFor="t-area">Área</label>
-            <SelectorArea id="t-area" valor={v(form.area)} onCambio={(x) => set('area', x)} />
-          </div>
-          {campo('bio', 'Presentación corta', { area: true, ayuda: 'Hasta 400 caracteres. Qué haces y cómo ayudas al cliente.' })}
-          {campo('telefono', 'Teléfono (como se muestra)', { placeholder: '+51 970 614 881' })}
-          {campo('whatsapp', 'WhatsApp (con código de país)', { placeholder: '51970614881', ayuda: 'Solo números. Abre un chat directo contigo.' })}
-          {campo('email', 'Correo')}
-          {campo('linkedin', 'LinkedIn (enlace)', { placeholder: 'https://www.linkedin.com/in/…' })}
-          {campo('cotizarUrl', 'Enlace del botón «Pide una cotización»', { placeholder: 'https://… (vacío: el cotizador de la web)' })}
-
-          <div className="ax-field" style={{ gap: 'var(--ax-space-2)' }}>
-            <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
-              <span className="ax-label">Enlaces extra (aparecen como botones; hasta 12)</span>
-              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" disabled={form.enlaces.length >= 12} onClick={() => set('enlaces', [...form.enlaces, { titulo: '', url: '' }])}>Agregar</button>
-            </div>
-            {form.enlaces.map((e, i) => (
-              <div key={i} className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
-                <input className="ax-input" placeholder="Título" aria-label={`Título del enlace ${i + 1}`} value={e.titulo} onChange={(ev) => set('enlaces', form.enlaces.map((x, j) => (j === i ? { ...x, titulo: ev.target.value } : x)))} />
-                <input className="ax-input" placeholder="https://…" aria-label={`Enlace ${i + 1}`} value={e.url} onChange={(ev) => set('enlaces', form.enlaces.map((x, j) => (j === i ? { ...x, url: ev.target.value } : x)))} />
-                <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" aria-label="Quitar enlace" onClick={() => set('enlaces', form.enlaces.filter((_, j) => j !== i))}>✕</button>
+      {!actual ? (
+        <p style={{ color: 'var(--ax-text-muted)' }}>Cargando tu tarjeta…</p>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 'var(--ax-space-5)', alignItems: 'flex-start' }}>
+          <div style={{ flex: '1 1 24rem', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
+            <section className="ax-card" style={{ padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
+              <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
+                <strong>Tu tarjeta</strong>
+                <label className="ax-cluster" style={{ gap: 6, flexWrap: 'nowrap', fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-muted)', cursor: 'pointer' }}>
+                  <input type="checkbox" className="ax-switch" checked={actual.activo} disabled={guardando} onChange={() => void alternarVisible()} aria-label="Tarjeta visible al público" />
+                  {actual.activo ? 'Visible al público' : 'Oculta'}
+                </label>
               </div>
-            ))}
-          </div>
+              <canvas ref={lienzo} style={{ width: '100%', height: 'auto', aspectRatio: '1050 / 600', borderRadius: 12, border: '1px solid var(--ax-border)' }} />
+              <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
+                <button type="button" className="ax-btn ax-btn--primary ax-btn--sm" onClick={bajarTarjeta}>Descargar tarjeta (PNG)</button>
+              </div>
+              <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Imagen de 1050 × 600 px (3,5 × 2 pulgadas a 300 dpi), lista para imprimir o enviar por WhatsApp.</span>
+            </section>
 
-          <div className="ax-field">
-            <label className="ax-label" htmlFor="t-slug">Tu enlace único</label>
-            <div className="ax-cluster" style={{ gap: 4, flexWrap: 'nowrap' }}>
-              <span style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-subtle)' }}>/tarjeta/</span>
-              <input id="t-slug" className="ax-input" placeholder="se genera con tu nombre" value={form.slug} onChange={(e) => set('slug', e.target.value.toLowerCase())} />
-            </div>
-            <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Letras minúsculas, números y guiones. Es único para ti. Si lo cambias, el QR anterior deja de funcionar.</span>
-          </div>
-          <label className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap', fontSize: 'var(--ax-text-sm)' }}>
-            <input type="checkbox" className="ax-switch" checked={form.activo} onChange={(e) => set('activo', e.target.checked)} />
-            Tarjeta visible al público
-          </label>
-          <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
-            <button type="button" className="ax-btn ax-btn--primary" disabled={guardando || form.nombre.trim().length < 2} onClick={guardar}>{guardando ? 'Guardando…' : selId ? 'Guardar cambios' : 'Guardar tarjeta'}</button>
-            {guardada && (resp?.tarjetas.length ?? 0) > 1 && <button type="button" className="ax-btn ax-btn--ghost" onClick={eliminar}>Eliminar esta versión</button>}
-          </div>
-        </section>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
-          <section className="ax-card" style={{ padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
-            <strong>Diseño de tu página</strong>
-            <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Tu enlace único abre una página que puedes poner en tus redes, en tu biografía o enviar por WhatsApp.</span>
-            <div style={{ display: 'grid', gap: 'var(--ax-space-3)', gridTemplateColumns: 'repeat(auto-fit, minmax(12rem, 1fr))' }}>
-              {([['perfil', 'Perfil completo', 'Tarjeta con tu presentación, contacto y QR. En computadora se ve en dos columnas.'], ['linktree', 'Estilo Linktree', 'Tu foto y una lista de botones grandes con todos tus enlaces, ideal para redes sociales.']] as const).map(([id, nombre, detalle]) => (
-                <button key={id} type="button" aria-pressed={form.vista === id} onClick={() => set('vista', id)} style={{ textAlign: 'left', padding: 12, borderRadius: 12, border: form.vista === id ? '2px solid var(--ax-primary-500, #2898ee)' : '2px solid var(--ax-border)', background: 'transparent', cursor: 'pointer' }}>
-                  <strong style={{ display: 'block', fontSize: 'var(--ax-text-sm)' }}>{nombre}</strong>
-                  <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{detalle}</span>
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="ax-card" style={{ padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
-            <strong>Estilo de tarjeta</strong>
-            <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Los colores se aplican a tu página (en cualquier diseño) y a la tarjeta que descargas. Recuerda guardar para publicarlo.</span>
-            <div style={{ display: 'grid', gap: 'var(--ax-space-3)', gridTemplateColumns: 'repeat(auto-fit, minmax(10rem, 1fr))' }}>
-              {ESTILOS_TARJETA.map((e) => (
-                <Mini key={e.id} estilo={e.id} datos={form} activo={form.estilo === e.id} onElegir={() => set('estilo', e.id)} nombre={e.nombre} detalle={e.detalle} />
-              ))}
-            </div>
-          </section>
-
-          <PanelOpciones t={form} onCambio={set} />
-
-          <section className="ax-card" style={{ padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
-            <strong>Tarjeta para descargar</strong>
-            <canvas ref={lienzo} style={{ width: '100%', height: 'auto', aspectRatio: '1050 / 600', borderRadius: 12, border: '1px solid var(--ax-border)' }} />
-            {!guardada && <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Guarda tu tarjeta para que se agregue tu código QR.</span>}
-            <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
-              <button type="button" className="ax-btn ax-btn--primary ax-btn--sm" onClick={bajarTarjeta}>Descargar tarjeta (PNG)</button>
-              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" disabled={!guardada} onClick={bajarQr}>Descargar solo el QR</button>
-            </div>
-            <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Imagen de 1050 × 600 px (3,5 × 2 pulgadas a 300 dpi), lista para imprimir o enviar por WhatsApp.</span>
-          </section>
-
-          <section className="ax-card" style={{ padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
-            <strong>Tu enlace para compartir</strong>
-            {guardada ? (
-              <>
-                <code style={{ wordBreak: 'break-all', fontSize: 'var(--ax-text-sm)' }}>{urlPublica}</code>
-                <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
-                  <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={copiar}>Copiar enlace</button>
-                  <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={compartir}>Compartir…</button>
-                  <a className="ax-btn ax-btn--ghost ax-btn--sm" href={urlPublica} target="_blank" rel="noreferrer">Abrir mi página</a>
-                  <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{actual!.vistas} visitas</span>
+            <section className="ax-card" style={{ padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
+              <strong>Tu enlace y tu QR</strong>
+              <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 'var(--ax-space-4)', alignItems: 'center' }}>
+                {actual.mostrar?.qr !== false && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(actual.qr)}`} alt="Tu código QR" width={132} height={132} style={{ width: 132, height: 132, borderRadius: 8, border: '1px solid var(--ax-border)', flexShrink: 0 }} />
+                )}
+                <div style={{ flex: '1 1 14rem', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-2)' }}>
+                  <code style={{ wordBreak: 'break-all', fontSize: 'var(--ax-text-sm)' }}>{urlPublica}</code>
+                  <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{actual.vistas} {actual.vistas === 1 ? 'visita' : 'visitas'} · al escanear el QR se abre este enlace.</span>
+                  <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
+                    <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={copiar}>Copiar enlace</button>
+                    <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={compartir}>Compartir…</button>
+                    <a className="ax-btn ax-btn--ghost ax-btn--sm" href={urlPublica} target="_blank" rel="noreferrer">Abrir mi página</a>
+                  </div>
+                  {actual.mostrar?.qr !== false && (
+                    <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
+                      <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => void descargarQrPng(actual.qr, actual.slug)}>Descargar QR (PNG)</button>
+                      <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => descargarQrSvg(actual.qr, actual.slug)}>SVG</button>
+                    </div>
+                  )}
                 </div>
-              </>
-            ) : (
-              <p style={{ margin: 0, color: 'var(--ax-text-muted)' }}>Pulsa «Guardar» para generar el enlace único, el QR y poder compartir esta versión.</p>
-            )}
-          </section>
+              </div>
+            </section>
 
-          <section className="ax-card" style={{ padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
-            <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
-              <strong>{panel === 'vivo' ? 'Así se ve tu tarjeta' : 'Vista previa'}</strong>
-              <div className="ax-cluster" style={{ gap: 4 }}>
-                <button type="button" aria-pressed={panel === 'vivo'} className={`ax-btn ax-btn--sm ${panel === 'vivo' ? 'ax-btn--secondary' : 'ax-btn--ghost'}`} onClick={() => setPanel('vivo')}>En vivo</button>
-                <button type="button" aria-pressed={panel === 'publicada'} className={`ax-btn ax-btn--sm ${panel === 'publicada' ? 'ax-btn--secondary' : 'ax-btn--ghost'}`} onClick={() => setPanel('publicada')}>Página publicada</button>
+            <section className="ax-card" style={{ padding: 'var(--ax-space-4) var(--ax-space-5)' }}>
+              <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
+                <strong>Tu tarjeta está al {completa}%</strong>
+                <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{faltan.length === 0 ? 'Todo listo para compartir.' : `${faltan.length} por completar`}</span>
               </div>
-            </div>
-            {panel === 'vivo' ? (
-              <VistaPreviaReal t={form} url={urlPublica} base={resp?.webBase} marca={resp?.marca} />
-            ) : guardada ? (
-              <div style={{ border: '1px solid var(--ax-border)', borderRadius: 12, overflow: 'hidden', height: 520 }}>
-                <iframe key={`${selId}-${recarga}`} title="Página publicada" src={urlPublica} style={{ width: '100%', height: '100%', border: 0, background: '#fff' }} />
+              <div aria-hidden style={{ height: 8, borderRadius: 99, background: 'var(--ax-surface-subtle)', marginBlock: 8, overflow: 'hidden' }}>
+                <div style={{ width: `${completa}%`, height: '100%', background: 'var(--ax-primary-500, #2898ee)', transition: 'width .3s' }} />
               </div>
-            ) : (
-              <p style={{ margin: 0, color: 'var(--ax-text-muted)' }}>Esta versión aún no está publicada. Pulsa «Guardar» para verla.</p>
-            )}
-          </section>
+              {faltan.length > 0 && (
+                <ul style={{ margin: 0, paddingInlineStart: 18, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)', display: 'grid', gap: 4 }}>
+                  {faltan.map((f) => <li key={f.campo}>{f.aviso}</li>)}
+                </ul>
+              )}
+            </section>
+          </div>
+
+          <div style={{ flex: '1.4 1 28rem', minWidth: 0 }}>
+            <section className="ax-card" style={{ padding: 'var(--ax-space-5)' }}>
+              <VistaPreviaReal t={actual} url={urlPublica} base={resp?.webBase} marca={resp?.marca} />
+            </section>
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }
