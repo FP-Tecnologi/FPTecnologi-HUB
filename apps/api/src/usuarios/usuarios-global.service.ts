@@ -103,11 +103,22 @@ export class UsuariosGlobalService {
    *  - invitacion: le llega un correo para crear su propia contraseña (los datos quedan cargados);
    *  - password: la cuenta se crea ya activa con la contraseña indicada (y, si se pide, se le envía un código para que la cambie).
    */
-  async crearUsuario(actorEmail: string, d: { email: string; nombre?: string; cargo?: string; telefono?: string; dni?: string; marcaId: string; rolId: string; acceso: 'invitacion' | 'password'; password?: string; enviarCambio?: boolean }) {
+  async crearUsuario(actorId: string, actorEmail: string, d: { email: string; nombre?: string; cargo?: string; telefono?: string; dni?: string; marcaId?: string; rolId?: string; superAdmin?: boolean; codigo?: string; acceso: 'invitacion' | 'password'; password?: string; enviarCambio?: boolean }) {
     const email = normalizeEmail(d.email);
+    // Super administrador: no lleva empresa ni rol propios (queda admin de todas las marcas) y pide verificación.
+    let marcaId = d.marcaId;
+    let rolId = d.rolId;
+    let marcasTodas: { id: string }[] = [];
+    if (d.superAdmin) {
+      await this.auth.confirmarAccion(actorId, d.codigo);
+      const [ms, admin] = await Promise.all([this.prisma.marca.findMany({ select: { id: true }, orderBy: { createdAt: 'asc' } }), this.prisma.rol.findUnique({ where: { nombre: 'admin' }, select: { id: true } })]);
+      if (!ms.length || !admin) throw new BadRequestException('No hay marcas o falta el rol admin');
+      marcasTodas = ms; marcaId = ms[0].id; rolId = admin.id;
+    }
+    if (!marcaId || !rolId) throw new BadRequestException('Elige la empresa y el rol');
     const [marca, rol, existe] = await Promise.all([
-      this.prisma.marca.findUnique({ where: { id: d.marcaId }, select: { id: true } }),
-      this.prisma.rol.findUnique({ where: { id: d.rolId }, select: { id: true, nombre: true } }),
+      this.prisma.marca.findUnique({ where: { id: marcaId }, select: { id: true } }),
+      this.prisma.rol.findUnique({ where: { id: rolId }, select: { id: true, nombre: true } }),
       this.prisma.usuario.findUnique({ where: { email }, select: { id: true } }),
     ]);
     if (!marca) throw new NotFoundException('Empresa no encontrada');
@@ -115,14 +126,15 @@ export class UsuariosGlobalService {
     if (existe) throw new BadRequestException('Ese correo ya tiene cuenta: agrégale la empresa y el rol con «+ Rol» en la lista');
     const limpio = (x?: string) => x?.trim() || undefined;
     const datos = { nombre: limpio(d.nombre), cargo: limpio(d.cargo), telefono: limpio(d.telefono), dni: limpio(d.dni) };
+    const asignaciones = d.superAdmin ? marcasTodas.map((m) => ({ marcaId: m.id, rolId })) : [{ marcaId, rolId }];
 
     if (d.acceso === 'invitacion') {
-      await this.invitaciones.crear(d.marcaId, { email, rolId: d.rolId }, actorEmail, datos);
+      await this.invitaciones.crear(marcaId, { email, rolId }, actorEmail, d.superAdmin ? { ...datos, superAdmin: true } : datos);
       return { creado: false, invitado: true, email };
     }
     if (!d.password || d.password.length < 8) throw new BadRequestException('La contraseña debe tener al menos 8 caracteres');
     const u = await this.prisma.usuario.create({
-      data: { email, passwordHash: await bcrypt.hash(d.password, 10), ...datos, bienvenidaVista: false, marcas: { create: { marcaId: d.marcaId, rolId: d.rolId } } },
+      data: { email, passwordHash: await bcrypt.hash(d.password, 10), ...datos, bienvenidaVista: false, superAdmin: !!d.superAdmin, marcas: { create: asignaciones } },
       select: { id: true, email: true, nombre: true },
     });
     await this.mail.sendWelcome(u.email, u.nombre);

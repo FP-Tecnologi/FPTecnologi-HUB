@@ -12,7 +12,7 @@ const VIGENCIA_DIAS = 7;
 const ROL_CLIENTE = 'cliente';
 
 /** Datos de la cuenta que el super administrador carga al crear el usuario (se aplican al aceptar la invitación). */
-export interface DatosCuenta { nombre?: string; cargo?: string; telefono?: string; dni?: string }
+export interface DatosCuenta { nombre?: string; cargo?: string; telefono?: string; dni?: string; superAdmin?: boolean }
 
 const hashToken = (token: string) => createHash('sha256').update(token).digest('hex');
 
@@ -96,6 +96,12 @@ export class InvitacionesService {
       create: { usuarioId: usuario.id, marcaId: inv.marcaId, rolId: inv.rolId },
       update: {},
     });
+    // Invitación de un super administrador (creada desde Administración): se activa la marca y queda admin de todas las marcas.
+    if ((inv.datos as DatosCuenta | null)?.superAdmin) {
+      const [marcas, admin] = await Promise.all([this.prisma.marca.findMany({ select: { id: true } }), this.prisma.rol.findUnique({ where: { nombre: 'admin' }, select: { id: true } })]);
+      await this.prisma.usuario.update({ where: { id: usuario.id }, data: { superAdmin: true } });
+      if (admin) await this.prisma.usuarioMarcaRol.createMany({ data: marcas.map((m) => ({ usuarioId: usuario.id, marcaId: m.id, rolId: admin.id })), skipDuplicates: true });
+    }
     await this.prisma.invitacion.update({ where: { id: inv.id }, data: { aceptadaAt: new Date() } });
     return { email: usuario.email };
   }

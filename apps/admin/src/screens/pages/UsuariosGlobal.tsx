@@ -49,7 +49,7 @@ export function UsuariosGlobal() {
 
   // Crear usuario con todos sus datos: persona (nombre, correo, cargo, teléfono, DNI), acceso (empresa y rol) y contraseña
   // (invitación por correo para que la cree él mismo, o definida ahora por el administrador).
-  const CREAR_VACIO = { nombre: '', email: '', telefono: '', dni: '', marcaId: '', rolId: '', acceso: 'invitacion' as 'invitacion' | 'password', password: '', enviarCambio: true };
+  const CREAR_VACIO = { nombre: '', email: '', telefono: '', dni: '', superAdmin: false, marcaId: '', rolId: '', acceso: 'invitacion' as 'invitacion' | 'password', password: '', enviarCambio: true };
   const [crear, setCrear] = useState(false);
   const [cf, setCf] = useState(CREAR_VACIO);
   const [verPw, setVerPw] = useState(false);
@@ -73,17 +73,24 @@ export function UsuariosGlobal() {
     setVerPw(true);
   }
 
-  const cfValido = !!cf.nombre.trim() && !!cf.email.trim() && !!cf.marcaId && !!cf.rolId && (cf.acceso === 'invitacion' || cf.password.length >= 8);
+  const cfValido = !!cf.nombre.trim() && !!cf.email.trim() && (cf.superAdmin || (!!cf.marcaId && !!cf.rolId)) && (cf.acceso === 'invitacion' || cf.password.length >= 8);
   async function enviar(ev: React.FormEvent) {
     ev.preventDefault();
     if (!cfValido || cBusy) return;
+    const cuerpo = {
+      email: cf.email.trim(), nombre: cf.nombre.trim(), telefono: cf.telefono.trim(), dni: cf.dni.trim(), acceso: cf.acceso,
+      ...(cf.superAdmin ? { superAdmin: true } : { marcaId: cf.marcaId, rolId: cf.rolId }),
+      ...(cf.acceso === 'password' ? { password: cf.password, enviarCambio: cf.enviarCambio } : {}),
+    };
+    // Un super administrador pide el código de verificación antes de crearse.
+    if (cf.superAdmin) {
+      setCrear(false);
+      conVerificacion('Crear un super administrador', `${cf.email.trim()} tendrá acceso a toda la plataforma y será admin de todas las empresas.`, cf.acceso === 'invitacion' ? `Invitación enviada a ${cf.email.trim()}: será super administrador al crear su contraseña.` : `Super administrador ${cf.email.trim()} creado.`, async (codigo) => { await api.post('/usuarios/global', { ...cuerpo, codigo }); setCf(CREAR_VACIO); });
+      return;
+    }
     setCBusy(true); setCErr('');
     try {
-      await api.post('/usuarios/global', {
-        email: cf.email.trim(), nombre: cf.nombre.trim(), telefono: cf.telefono.trim(), dni: cf.dni.trim(),
-        marcaId: cf.marcaId, rolId: cf.rolId, acceso: cf.acceso,
-        ...(cf.acceso === 'password' ? { password: cf.password, enviarCambio: cf.enviarCambio } : {}),
-      });
+      await api.post('/usuarios/global', cuerpo);
       setCrear(false);
       setOk(cf.acceso === 'invitacion' ? `Invitación enviada a ${cf.email.trim()}: creará su propia contraseña.` : `Usuario ${cf.email.trim()} creado${cf.enviarCambio ? ' y se le envió un código para que cambie su contraseña' : ''}.`);
       setCf(CREAR_VACIO);
@@ -269,16 +276,20 @@ export function UsuariosGlobal() {
 
               <fieldset style={{ border: 0, padding: 0, margin: 0, display: 'grid', gap: 'var(--ax-space-3)' }}>
                 <legend className="ax-label" style={{ fontWeight: 600, marginBlockEnd: 'var(--ax-space-2)' }}>Acceso</legend>
+                <label className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap', fontSize: 'var(--ax-text-sm)' }}>
+                  <input type="checkbox" className="ax-switch" checked={cf.superAdmin} onChange={(e) => setCf({ ...cf, superAdmin: e.target.checked, ...(e.target.checked ? { marcaId: '', rolId: '' } : {}) })} />
+                  <span><strong>Super administrador</strong> <span style={{ color: 'var(--ax-text-subtle)' }}>· accede a toda la plataforma y a todas las empresas (no necesita empresa ni rol)</span></span>
+                </label>
                 <div style={{ display: 'grid', gap: 'var(--ax-space-3)', gridTemplateColumns: 'repeat(auto-fit, minmax(14rem, 1fr))' }}>
-                  <div className="ax-field"><label className="ax-label" htmlFor="cu-marca">Empresa *</label>
-                    <select id="cu-marca" className="ax-select" required disabled={!data} value={cf.marcaId} onChange={(e) => setCf({ ...cf, marcaId: e.target.value })}>
-                      <option value="">{data ? 'Elegir empresa…' : error ? 'No se pudo cargar: reintenta' : 'Cargando empresas…'}</option>
+                  <div className="ax-field"><label className="ax-label" htmlFor="cu-marca">Empresa{cf.superAdmin ? '' : ' *'}</label>
+                    <select id="cu-marca" className="ax-select" required={!cf.superAdmin} disabled={!data || cf.superAdmin} value={cf.marcaId} onChange={(e) => setCf({ ...cf, marcaId: e.target.value })}>
+                      <option value="">{cf.superAdmin ? 'Todas las empresas' : data ? 'Elegir empresa…' : error ? 'No se pudo cargar: reintenta' : 'Cargando empresas…'}</option>
                       {data?.marcas.map((m) => <option key={m.id} value={m.id}>{m.nombre}</option>)}
                     </select>
                   </div>
-                  <div className="ax-field"><label className="ax-label" htmlFor="cu-rol">Rol *</label>
-                    <select id="cu-rol" className="ax-select" required disabled={!data} value={cf.rolId} onChange={(e) => setCf({ ...cf, rolId: e.target.value })}>
-                      <option value="">{data ? 'Elegir rol…' : error ? 'No se pudo cargar: reintenta' : 'Cargando roles…'}</option>
+                  <div className="ax-field"><label className="ax-label" htmlFor="cu-rol">Rol{cf.superAdmin ? '' : ' *'}</label>
+                    <select id="cu-rol" className="ax-select" required={!cf.superAdmin} disabled={!data || cf.superAdmin} value={cf.rolId} onChange={(e) => setCf({ ...cf, rolId: e.target.value })}>
+                      <option value="">{cf.superAdmin ? 'Super administrador' : data ? 'Elegir rol…' : error ? 'No se pudo cargar: reintenta' : 'Cargando roles…'}</option>
                       {data?.roles.filter((r) => r.nombre !== 'cliente').map((r) => <option key={r.id} value={r.id}>{r.nombre}</option>)}
                     </select>
                   </div>

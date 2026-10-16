@@ -23,8 +23,10 @@ class CrearUsuarioDto {
   @IsOptional() @IsString() @MaxLength(80) cargo?: string;
   @IsOptional() @IsString() @MaxLength(30) telefono?: string;
   @IsOptional() @IsString() @MaxLength(20) dni?: string;
-  @IsString() marcaId!: string;
-  @IsString() rolId!: string;
+  @IsOptional() @IsString() marcaId?: string;
+  @IsOptional() @IsString() rolId?: string;
+  @IsOptional() @IsBoolean() superAdmin?: boolean;
+  @IsOptional() @IsString() codigo?: string;
   @IsIn(['invitacion', 'password']) acceso!: 'invitacion' | 'password';
   @IsOptional() @IsString() @MinLength(8) password?: string;
   @IsOptional() @IsBoolean() enviarCambio?: boolean;
@@ -67,7 +69,7 @@ export class UsuariosGlobalController {
 
   @Post()
   crear(@CurrentUser() user: AuthenticatedUser, @Body() dto: CrearUsuarioDto) {
-    return this.global.crearUsuario(user.email, dto).then((r) => { this.log(user, 'usuario_creado', `${r.email} · ${dto.acceso === 'invitacion' ? 'invitación' : 'contraseña definida'}`, dto.marcaId); return r; });
+    return this.global.crearUsuario(user.sub, user.email, dto).then((r) => { this.log(user, dto.superAdmin ? 'super_admin_creado' : 'usuario_creado', `${r.email} · ${dto.acceso === 'invitacion' ? 'invitación' : 'contraseña definida'}`, dto.marcaId); return r; });
   }
 
   /** Inicia la verificación de una acción sensible: pide el código de la app autenticadora o envía uno al correo. */
