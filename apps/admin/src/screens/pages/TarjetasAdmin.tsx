@@ -1,0 +1,45 @@
+'use client';
+/*
+ * FPTecnologi-HUB — Administración → Tarjetas digitales: el administrador de la plataforma gestiona las tarjetas de
+ * cualquier marca (ver todas, crear la de quien no tiene, editar, ocultar, copiar enlace). Reutiliza la tabla del
+ * equipo de una marca; aquí se elige la marca y las llamadas a la API (/tarjetas, /uploads) salen con ESA marca.
+ * Cada persona sigue editando la suya en Mi cuenta → Tarjeta digital.
+ */
+import { useEffect, useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { tokenStore } from '../../lib/api';
+import { WebTarjetasEquipo } from './WebTarjetasEquipo';
+
+export function TarjetasAdmin() {
+  const { marcas } = useAuth();
+  const [sel, setSel] = useState('');
+  const [listo, setListo] = useState('');
+
+  // Marca inicial: la última usada o la primera asignada.
+  useEffect(() => {
+    if (sel || marcas.length === 0) return;
+    const ultima = tokenStore.getActiveMarcaId();
+    setSel(marcas.some((m) => m.marcaId === ultima) ? (ultima as string) : marcas[0].marcaId);
+  }, [marcas, sel]);
+
+  // El cliente HTTP manda la marca guardada en cada petición: se fija antes de montar la tabla.
+  useEffect(() => {
+    if (!sel) return;
+    tokenStore.setActiveMarcaId(sel);
+    setListo(sel);
+  }, [sel]);
+
+  return (
+    <>
+      <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', marginBlockEnd: 'var(--ax-space-4)', justifyContent: 'flex-end' }}>
+        <label htmlFor="ta-marca" style={{ color: 'var(--ax-text-muted)', fontSize: 'var(--ax-text-sm)' }}>Marca</label>
+        <select id="ta-marca" className="ax-select" style={{ width: 'auto' }} value={sel} onChange={(e) => setSel(e.target.value)}>
+          {marcas.map((m) => <option key={m.marcaId} value={m.marcaId}>{m.marca.nombre}</option>)}
+        </select>
+      </div>
+      {listo && listo === sel ? <WebTarjetasEquipo key={sel} /> : null}
+    </>
+  );
+}
+
+export default TarjetasAdmin;
