@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import * as QRCode from 'qrcode';
 import { PrismaService } from '../prisma/prisma.service.js';
@@ -143,8 +144,10 @@ export class TarjetasService {
   }
 
   /** Quien administra edita o crea la tarjeta de otra persona del equipo; devuelve el listado completo. */
-  async guardarComoAdmin(marcaId: string, dto: GuardarTarjetaDto, destino: { id: string } | { usuarioId: string }) {
+  async guardarComoAdmin(marcaId: string, dto: GuardarTarjetaDto, destino: { id: string } | { usuarioId: string } | { externa: true }) {
     if ('id' in destino) await this.guardarMia(marcaId, '', dto, { id: destino.id, comoAdmin: true });
+    // Tarjeta de alguien sin cuenta (un proveedor, un invitado…): el «dueño» es un identificador propio que no es de ningún usuario.
+    else if ('externa' in destino) await this.guardarMia(marcaId, `externo:${randomUUID()}`, dto, { nueva: true });
     else {
       const miembro = await this.prisma.usuarioMarcaRol.findFirst({ where: { marcaId, usuarioId: destino.usuarioId }, select: { usuarioId: true } });
       if (!miembro) throw new NotFoundException('Esa persona no es del equipo');

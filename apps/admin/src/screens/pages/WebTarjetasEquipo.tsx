@@ -20,7 +20,7 @@ type Fila = Tarjeta & { id: string; usuarioId: string; propietario: string | nul
 interface SinTarjeta { usuarioId: string; nombre: string; email: string; rol: string }
 interface Datos { tarjetas: Fila[]; sinTarjeta: SinTarjeta[]; webBase?: string }
 /** Qué se está editando: una tarjeta existente (id) o una nueva para alguien del equipo (usuarioId). */
-type Edicion = { id?: string; usuarioId?: string; quien: string; form: Tarjeta };
+type Edicion = { id?: string; usuarioId?: string; externa?: boolean; quien: string; form: Tarjeta };
 
 const ESTILO: Record<string, string> = { clasico: 'Clásico', moderno: 'Moderno', oscuro: 'Oscuro', minimal: 'Minimal' };
 const v = (x: string | null | undefined) => x ?? '';
@@ -83,7 +83,7 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
     try {
       const { vistas: _vistas, id: _id, ...cuerpo } = edit.form;
       void _vistas; void _id;
-      const r = edit.id ? await api.put<Datos>(`/tarjetas/${edit.id}`, cuerpo) : await api.post<Datos>(`/tarjetas/para/${edit.usuarioId}`, cuerpo);
+      const r = edit.id ? await api.put<Datos>(`/tarjetas/${edit.id}`, cuerpo) : edit.externa ? await api.post<Datos>('/tarjetas/externa', cuerpo) : await api.post<Datos>(`/tarjetas/para/${edit.usuarioId}`, cuerpo);
       setDatos(r);
       setEdit(null);
       setAviso('Tarjeta guardada.');
@@ -215,7 +215,7 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
 
   return (
     <>
-      <PageHead title="Tarjetas del equipo" subtitle="Todas las tarjetas digitales del equipo en una tabla. Puedes editar la de cualquier persona, crear la de quien aún no la tiene, ocultarla o copiar su enlace." actions={<button type="button" className="ax-btn ax-btn--primary" disabled={!datos || datos.sinTarjeta.length === 0} title={datos && datos.sinTarjeta.length === 0 ? 'Todo el equipo ya tiene su tarjeta' : undefined} onClick={() => setEligiendo(true)}><span className="ax-btn__label">Crear tarjeta</span></button>} />
+      <PageHead title="Tarjetas del equipo" subtitle="Edita, crea u oculta las tarjetas del equipo y copia su enlace." actions={<button type="button" className="ax-btn ax-btn--primary" disabled={!datos} onClick={() => setEligiendo(true)}><span className="ax-btn__label">Crear tarjeta</span></button>} />
       {error && <p role="alert" style={{ color: 'var(--ax-danger-500)' }}>{error}</p>}
       {aviso && <p role="status" style={{ color: 'var(--ax-text-muted)' }}>{aviso}</p>}
 
@@ -264,7 +264,7 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
                         )}
                         <div style={{ minWidth: 0 }}>
                           <strong style={{ display: 'block' }}>{f.nombre}</strong>
-                          <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>/tarjeta/{f.slug}</span>
+                          <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>/tarjeta/{f.slug}{!f.propietario && ' · Externa'}</span>
                         </div>
                       </div>
                     </td>
@@ -295,18 +295,28 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
         <div role="dialog" aria-modal="true" aria-labelledby="nt-title" style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(8,10,16,.55)', backdropFilter: 'blur(2px)', display: 'grid', placeItems: 'center', padding: 'var(--ax-space-4)' }} onClick={(e) => { if (e.target === e.currentTarget) setEligiendo(false); }}>
           <div className="ax-card" style={{ width: 'min(480px, 100%)', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
             <div className="ax-card__header">
-              <div className="ax-card__titles"><h2 className="ax-card__title" id="nt-title">Nueva tarjeta</h2><p className="ax-card__subtitle">Estas personas del equipo aún no tienen tarjeta. Elige para quién la creas.</p></div>
+              <div className="ax-card__titles"><h2 className="ax-card__title" id="nt-title">Nueva tarjeta</h2><p className="ax-card__subtitle">Elige a quién del equipo le falta su tarjeta (se abre con sus datos) o crea una para alguien externo.</p></div>
             </div>
-            <ul className="ax-card__body" style={{ listStyle: 'none', margin: 0, paddingTop: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-1)' }}>
-              {datos.sinTarjeta.map((p) => (
-                <li key={p.usuarioId}>
-                  <button type="button" className="ax-btn ax-btn--ghost ax-btn--block" style={{ justifyContent: 'space-between' }} onClick={() => { setEligiendo(false); setEdit({ usuarioId: p.usuarioId, quien: p.nombre, form: { ...VACIA, nombre: p.nombre, email: p.email } }); }}>
-                    <span>{p.nombre}</span>
-                    <span style={{ color: 'var(--ax-text-subtle)', fontSize: 'var(--ax-text-xs)' }}>{p.rol}</span>
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <div className="ax-card__body" style={{ paddingTop: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
+              <div>
+                <div style={{ fontSize: 'var(--ax-text-xs)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '.06em', color: 'var(--ax-text-muted)', marginBlockEnd: 4 }}>Recomendadas · les falta su tarjeta ({datos.sinTarjeta.length})</div>
+                {datos.sinTarjeta.length === 0 && <p style={{ margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>Todo el equipo ya tiene su tarjeta.</p>}
+                <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-1)' }}>
+                  {datos.sinTarjeta.map((p) => (
+                    <li key={p.usuarioId}>
+                      <button type="button" className="ax-btn ax-btn--ghost ax-btn--block" style={{ justifyContent: 'space-between' }} onClick={() => { setEligiendo(false); setEdit({ usuarioId: p.usuarioId, quien: p.nombre, form: { ...VACIA, nombre: p.nombre, email: p.email } }); }}>
+                        <span>{p.nombre}</span>
+                        <span style={{ color: 'var(--ax-text-subtle)', fontSize: 'var(--ax-text-xs)' }}>{p.rol}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div style={{ borderTop: '1px solid var(--ax-border)', paddingBlockStart: 'var(--ax-space-3)' }}>
+                <button type="button" className="ax-btn ax-btn--secondary ax-btn--block" onClick={() => { setEligiendo(false); setEdit({ externa: true, quien: 'una persona externa', form: { ...VACIA } }); }}>Crear tarjeta externa (en blanco)</button>
+                <p style={{ margin: '6px 0 0', fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Para alguien sin cuenta en la plataforma: la llenas tú con sus datos.</p>
+              </div>
+            </div>
             <div className="ax-card__body" style={{ paddingTop: 0, display: 'flex', justifyContent: 'flex-end' }}>
               <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEligiendo(false)}>Cancelar</button>
             </div>

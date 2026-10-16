@@ -61,6 +61,13 @@ export class TarjetasController {
     return this.tarjetas.listar(marcaId);
   }
 
+  /** Crear la tarjeta de alguien sin cuenta en la plataforma (externa). */
+  @Roles('admin', 'marketing')
+  @Post('externa')
+  crearExterna(@MarcaActual() marcaId: string, @Body() dto: GuardarTarjetaDto) {
+    return this.tarjetas.guardarComoAdmin(marcaId, dto, { externa: true });
+  }
+
   /** Crear la tarjeta de alguien del equipo que aún no la tiene. */
   @Roles('admin', 'marketing')
   @Post('para/:usuarioId')
