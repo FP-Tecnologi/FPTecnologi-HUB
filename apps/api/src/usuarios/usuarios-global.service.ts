@@ -25,7 +25,8 @@ export class UsuariosGlobalService {
         id: true, email: true, nombre: true, cargo: true, activo: true, totpEnabled: true, superAdmin: true, createdAt: true,
         marcas: { select: { marcaId: true, rolId: true, marca: { select: { nombre: true } }, rol: { select: { nombre: true } } } },
       },
-      orderBy: { createdAt: 'desc' },
+      // Los super administradores primero.
+      orderBy: [{ superAdmin: 'desc' }, { createdAt: 'desc' }],
       take: MAX,
     });
     const [marcas, roles] = await Promise.all([
