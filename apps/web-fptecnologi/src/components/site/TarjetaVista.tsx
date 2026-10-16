@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import Image from 'next/image';
 import { Download, FileText, Globe, Link2, Mail, Phone, type LucideIcon } from 'lucide-react';
 import { LinkedinIcon, WhatsAppIcon } from '@/components/site/icons';
@@ -43,6 +44,33 @@ const BOTON: Record<EstiloTarjeta, string> = {
   minimal: 'bg-white text-ink ring-1 ring-ink/80 hover:bg-ink hover:text-white',
 };
 
+/** Paleta de la marca: se generan los tonos 50–950 a partir de su color principal y secundario (sin tocar la paleta global). */
+function paletaMarca(p: string, s: string): CSSProperties {
+  const mix = (c: string, pct: number, con = 'white') => `color-mix(in srgb, ${c} ${pct}%, ${con})`;
+  const t600 = `color-mix(in srgb, ${p} 55%, ${s})`;
+  return {
+    '--color-brand-50': mix(p, 8), '--color-brand-100': mix(p, 16), '--color-brand-200': mix(p, 32), '--color-brand-300': mix(p, 55), '--color-brand-400': mix(p, 78),
+    '--color-brand-500': p, '--color-brand-600': t600, '--color-brand-700': s,
+    '--color-brand-800': mix(s, 78, 'black'), '--color-brand-900': mix(s, 58, 'black'), '--color-brand-950': mix(s, 36, 'black'),
+    '--color-brand-primary': p, '--color-brand-dark': t600, '--color-brand-petrol': t600, '--color-brand-teal': mix(p, 78), '--color-brand-teal-light': mix(p, 55),
+    '--color-paper': mix(p, 8),
+  } as CSSProperties;
+}
+
+/** Fondo decorativo de la página: puntos de la marca y resplandores suaves (cambia con el estilo). */
+function Decor({ estilo }: { estilo: EstiloTarjeta }) {
+  const oscuro = estilo === 'oscuro';
+  const tenue = estilo === 'minimal' ? 0.55 : 1;
+  const punto = oscuro ? 'rgba(255,255,255,.10)' : 'color-mix(in srgb, var(--color-brand-600) 17%, transparent)';
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 overflow-hidden" style={{ opacity: tenue }}>
+      <div className="absolute inset-0" style={{ backgroundImage: `radial-gradient(circle, ${punto} 1.2px, transparent 1.4px)`, backgroundSize: '22px 22px', maskImage: 'linear-gradient(to bottom, black 20%, transparent 95%)', WebkitMaskImage: 'linear-gradient(to bottom, black 20%, transparent 95%)' }} />
+      <div className="absolute -left-40 -top-44 h-[36rem] w-[36rem] rounded-full blur-3xl" style={{ background: `color-mix(in srgb, var(--color-brand-${oscuro ? 500 : 300}) ${oscuro ? 30 : 42}%, transparent)` }} />
+      <div className="absolute -bottom-52 -right-40 h-[32rem] w-[32rem] rounded-full blur-3xl" style={{ background: `color-mix(in srgb, var(--color-brand-${oscuro ? 700 : 400}) ${oscuro ? 38 : 28}%, transparent)` }} />
+    </div>
+  );
+}
+
 /** El QR (SVG de la API) como imagen: así nunca ejecuta nada, venga de donde venga. */
 function Qr({ svg, className, label }: { svg: string; className: string; label: string }) {
   // eslint-disable-next-line @next/next/no-img-element
@@ -64,13 +92,23 @@ export function TarjetaVista({ t }: { t: DatosTarjeta }) {
   // Encabezado de portada + foto como avatar circular en todos los estilos. Sin portada propia: fondo de la marca con el logo.
   const conAvatar = true;
   const colorMarca = t.marca?.colorPrimario || null;
+  const varsMarca = colorMarca ? paletaMarca(colorMarca, t.marca?.colorSecundario || colorMarca) : undefined;
   const estiloPortada = t.portadaUrl
     ? { backgroundImage: `url("${t.portadaUrl.replace(/"/g, '%22')}")`, backgroundSize: 'cover', backgroundPosition: 'center' }
-    : colorMarca ? { backgroundImage: `linear-gradient(135deg, ${colorMarca}, ${t.marca?.colorSecundario || colorMarca})` } : undefined;
+    : undefined;
   // Logo de la marca en blanco sobre su color; si la marca no cargó el suyo, el de FPTecnologi.
+  const urlLogo = t.marca?.logo ? imagenLanding(t.marca.logo) : '/logo-fptecnologi.svg';
+  // Puntos y logo en marca de agua sobre la portada por defecto.
+  const decorPortada = (
+    <>
+      <span aria-hidden className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, rgba(255,255,255,.22) 1.2px, transparent 1.4px)', backgroundSize: '18px 18px' }} />
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img aria-hidden src={urlLogo} alt="" className="absolute -bottom-12 -right-10 h-44 w-auto object-contain opacity-[0.07] brightness-0 invert" />
+    </>
+  );
   const logoMarca = (alto: string) => (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={t.marca?.logo ? imagenLanding(t.marca.logo) : '/logo-fptecnologi.svg'} alt={t.empresa} className={`${alto} w-auto max-w-[70%] object-contain brightness-0 invert opacity-90`} />
+    <img src={urlLogo} alt={t.empresa} className={`relative ${alto} w-auto max-w-[70%] object-contain brightness-0 invert opacity-95`} />
   );
   const wa = t.whatsapp ? `https://wa.me/${t.whatsapp}?text=${encodeURIComponent(`Hola ${t.nombre.split(' ')[0]}, vi tu tarjeta digital de ${t.empresa} y quiero más información.`)}` : null;
   // La web de la marca (su primer dominio) va como pie de la tarjeta.
@@ -91,9 +129,11 @@ export function TarjetaVista({ t }: { t: DatosTarjeta }) {
       </a>
     );
     return (
-      <div className={`min-h-screen ${e.fondo}`}>
+      <div className={`relative isolate min-h-screen overflow-hidden ${e.fondo}`} style={varsMarca}>
+      <Decor estilo={t.estilo} />
         <main className="mx-auto flex w-full max-w-md flex-col items-center px-5 pb-10 pt-10 text-center">
-          <div aria-hidden className={`-mb-14 flex h-32 w-full items-center justify-center rounded-2xl ${t.portadaUrl ? 'bg-brand-50' : e.portada}`} style={estiloPortada}>
+          <div aria-hidden className={`relative -mb-14 flex h-32 w-full items-center justify-center overflow-hidden rounded-2xl ${t.portadaUrl ? 'bg-brand-50' : e.portada}`} style={estiloPortada}>
+            {!t.portadaUrl && decorPortada}
             {!t.portadaUrl && logoMarca('h-9')}
           </div>
           <div className={`relative h-28 w-28 overflow-hidden rounded-full border-4 border-white shadow-lg ${e.portada}`}>
@@ -150,7 +190,8 @@ export function TarjetaVista({ t }: { t: DatosTarjeta }) {
   const hayContacto = !!(wa || t.telefono || t.email || t.linkedin || verCotizar);
 
   return (
-    <div className={`min-h-screen ${e.fondo}`}>
+    <div className={`relative isolate min-h-screen overflow-hidden ${e.fondo}`} style={varsMarca}>
+      <Decor estilo={t.estilo} />
       <header className="mx-auto flex max-w-5xl items-center justify-between px-5 pt-5">
         <Image src="/logo-fptecnologi.svg" alt={t.empresa} width={150} height={36} className={`h-8 w-auto ${t.estilo === 'oscuro' ? 'brightness-0 invert' : ''}`} />
         <span className={`text-xs font-semibold uppercase tracking-[0.18em] ${e.suave}`}>Tarjeta digital</span>
@@ -159,7 +200,8 @@ export function TarjetaVista({ t }: { t: DatosTarjeta }) {
       <main className="mx-auto grid max-w-5xl gap-6 px-4 py-6 sm:py-10 lg:grid-cols-[22rem_1fr] lg:items-start lg:gap-8">
         {/* Perfil */}
         <section className={`overflow-hidden rounded-[2rem] lg:sticky lg:top-6 ${e.panel}`}>
-          <div className={`relative flex items-center justify-center ${conAvatar ? 'h-36' : 'h-72'} ${e.portada}`} style={estiloPortada}>
+          <div className={`relative flex items-center justify-center overflow-hidden ${conAvatar ? 'h-36' : 'h-72'} ${e.portada}`} style={estiloPortada}>
+            {!t.portadaUrl && decorPortada}
             {!t.portadaUrl && logoMarca('h-9')}
             {!conAvatar && foto}
             {!conAvatar && (

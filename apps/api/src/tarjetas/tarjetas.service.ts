@@ -9,6 +9,9 @@ import { aplicarMostrar, faltantes, limpiarColor, limpiarEnlaces, limpiarMostrar
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const texto = (t: string | undefined) => (t ?? '').trim() || null;
 
+/** Colores y logo de marcas con identidad propia. Quamtu: azul #238DC1, azul profundo #385CAD y logo blanco. */
+const IDENTIDAD_BASE = [{ clave: 'quamtu', primario: '#238DC1', secundario: '#385CAD', logo: '/brand/quamtu-blanco.png' }];
+
 @Injectable()
 export class TarjetasService {
   constructor(private readonly prisma: PrismaService) {}
@@ -186,7 +189,15 @@ export class TarjetasService {
     if (!m) return null;
     // La web de la marca sale de su primer dominio registrado: se muestra como pie de la tarjeta (ya no se pide en cada tarjeta).
     const dominio = m.sitios?.[0]?.dominio.replace(/^https?:\/\//, '').replace(/\/$/, '');
-    return { nombre: m.nombre, logo: m.logo, colorPrimario: m.colorPrimario, colorSecundario: m.colorSecundario, web: dominio ? `https://${dominio}` : null };
+    // Identidad por defecto de las marcas que aún no la cargaron en Administración → Marcas (FPTecnologi usa la paleta base de la web).
+    const base = IDENTIDAD_BASE.find((b) => m.nombre.toLowerCase().includes(b.clave));
+    return {
+      nombre: m.nombre,
+      logo: m.logo || base?.logo || null,
+      colorPrimario: m.colorPrimario || base?.primario || null,
+      colorSecundario: m.colorSecundario || base?.secundario || null,
+      web: dominio ? `https://${dominio}` : null,
+    };
   }
 
   async ver(marcaId: string, slug: string) {
