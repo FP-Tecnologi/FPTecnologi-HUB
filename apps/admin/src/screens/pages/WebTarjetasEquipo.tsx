@@ -4,14 +4,14 @@
  * el equipo, qué le falta a cada una, enlace único, y puede EDITAR cualquiera (o crear la de quien aún no la tiene), con
  * vista previa en vivo. Cada persona también edita la suya en Mi cuenta → Mi tarjeta digital.
  */
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { createPortal } from 'react-dom';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
 import { ApiError, useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { PanelOpciones } from '../../components/tarjeta/PanelOpciones';
 import { VistaPreviaReal } from '../../components/tarjeta/VistaPreviaReal';
+import type { CampoMostrar } from '../../lib/tarjetaOpciones';
 import { MenuPuntos } from '../../components/ui/MenuPuntos';
 import { VACIA, type Tarjeta } from './MiTarjeta';
 
@@ -24,7 +24,8 @@ type Edicion = { id?: string; usuarioId?: string; quien: string; form: Tarjeta }
 const ESTILO: Record<string, string> = { clasico: 'Clásico', moderno: 'Moderno', oscuro: 'Oscuro', minimal: 'Minimal' };
 const v = (x: string | null | undefined) => x ?? '';
 
-export function WebTarjetasEquipo() {
+/** `acciones`: se muestran a la derecha del título de la lista (p. ej. el selector de marca en Administración). */
+export function WebTarjetasEquipo({ acciones }: { acciones?: ReactNode }) {
   const { activeMarcaId } = useAuth();
   const [datos, setDatos] = useState<Datos | null>(null);
   const [error, setError] = useState('');
@@ -85,16 +86,128 @@ export function WebTarjetasEquipo() {
     }
   }
 
-  const campo = (k: keyof Tarjeta, label: string, placeholder?: string) => (
+  // «Mostrar en la tarjeta»: cada dato tiene su interruptor al lado; las mismas claves que usa la API.
+  const mostrar = edit?.form.mostrar ?? {};
+  const alternarMostrar = (id: CampoMostrar, visible: boolean) => set('mostrar', { ...mostrar, [id]: visible });
+  const interruptor = (id: CampoMostrar, etiqueta: string) => (
+    <label className="ax-cluster" style={{ gap: 6, flexWrap: 'nowrap', fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-muted)', cursor: 'pointer' }}>
+      <input type="checkbox" className="ax-switch" checked={mostrar[id] !== false} onChange={(e) => alternarMostrar(id, e.target.checked)} aria-label={`Mostrar ${etiqueta} en la tarjeta`} />
+      {mostrar[id] !== false ? 'Visible' : 'Oculto'}
+    </label>
+  );
+
+  const campo = (k: keyof Tarjeta, label: string, placeholder?: string, id?: CampoMostrar) => (
     <div className="ax-field">
-      <label className="ax-label" htmlFor={`a-${k}`}>{label}</label>
+      <div className="ax-cluster" style={{ justifyContent: 'space-between', flexWrap: 'nowrap' }}>
+        <label className="ax-label" htmlFor={`a-${k}`}>{label}</label>
+        {id && interruptor(id, label)}
+      </div>
       <input id={`a-${k}`} className="ax-input" placeholder={placeholder} value={v(edit?.form[k] as string)} onChange={(e) => set(k, e.target.value as never)} />
     </div>
   );
 
+  // Editar en la misma pantalla (sin ventana): reemplaza la lista y se vuelve con «Volver a la lista».
+  if (edit) {
+    return (
+      <>
+        <PageHead
+          title={`${edit.id ? 'Editar tarjeta de' : 'Nueva tarjeta para'} ${edit.quien}`}
+          subtitle="Los cambios se ven en la vista previa mientras editas. Guarda para publicarlos."
+          actions={<button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEdit(null)}>← Volver a la lista</button>}
+        />
+        {error && <p role="alert" style={{ color: 'var(--ax-danger-500)' }}>{error}</p>}
+        <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 'var(--ax-space-5)', alignItems: 'flex-start' }}>
+          <section className="ax-card" style={{ flex: '1 1 24rem', minWidth: 0, padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
+            <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 'var(--ax-space-4)', alignItems: 'flex-start' }}>
+              <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
+                {edit.form.fotoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={urlImagen(edit.form.fotoUrl)} alt="Foto" width={64} height={64} style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover' }} />
+                ) : (
+                  <span style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--ax-surface-subtle)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>{(edit.form.nombre || '?').charAt(0).toUpperCase()}</span>
+                )}
+                <SubirImagen etiqueta={edit.form.fotoUrl ? 'Cambiar foto' : 'Subir foto'} onSubida={(urls) => set('fotoUrl', urls[0])} />
+                {edit.form.fotoUrl && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => set('fotoUrl', '')}>Quitar foto</button>}
+                {interruptor('foto', 'la foto')}
+              </div>
+              <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
+                {edit.form.portadaUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={urlImagen(edit.form.portadaUrl)} alt="Portada" style={{ width: 160, height: 60, borderRadius: 8, objectFit: 'cover' }} />
+                ) : (
+                  <span style={{ width: 160, height: 60, borderRadius: 8, background: 'var(--ax-surface-subtle)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Sin portada</span>
+                )}
+                <SubirImagen etiqueta={edit.form.portadaUrl ? 'Cambiar portada' : 'Subir portada'} onSubida={(urls) => set('portadaUrl', urls[0])} />
+                {edit.form.portadaUrl && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => set('portadaUrl', '')}>Quitar portada</button>}
+              </div>
+            </div>
+            {campo('etiqueta', 'Nombre de la versión', 'Comercial, Redes…')}
+            {campo('nombre', 'Nombre completo')}
+            {campo('cargo', 'Cargo', undefined, 'cargo')}
+            {campo('area', 'Área', undefined, 'area')}
+            <div className="ax-field">
+              <div className="ax-cluster" style={{ justifyContent: 'space-between', flexWrap: 'nowrap' }}>
+                <label className="ax-label" htmlFor="a-bio">Presentación corta</label>
+                {interruptor('bio', 'la presentación')}
+              </div>
+              <textarea id="a-bio" className="ax-textarea" rows={3} maxLength={400} value={v(edit.form.bio)} onChange={(e) => set('bio', e.target.value)} />
+            </div>
+            {campo('telefono', 'Teléfono', '+51 970 614 881', 'telefono')}
+            {campo('whatsapp', 'WhatsApp (solo números con código de país)', '51970614881', 'whatsapp')}
+            {campo('email', 'Correo', undefined, 'email')}
+            {campo('linkedin', 'LinkedIn (enlace)', 'https://www.linkedin.com/in/…', 'linkedin')}
+            {campo('web', 'Sitio web (enlace)', 'https://fptecnologi.com', 'web')}
+            {campo('agendaUrl', 'Enlace para agendar', 'https://calendly.com/…', 'agenda')}
+            {campo('slug', 'Enlace único (/tarjeta/…)', 'se genera con el nombre')}
+
+            <div className="ax-field" style={{ gap: 'var(--ax-space-2)' }}>
+              <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
+                <span className="ax-label">Enlaces extra (hasta 12)</span>
+                <span className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
+                  {interruptor('enlaces', 'los enlaces extra')}
+                  <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" disabled={edit.form.enlaces.length >= 12} onClick={() => set('enlaces', [...edit.form.enlaces, { titulo: '', url: '' }])}>Agregar</button>
+                </span>
+              </div>
+              {edit.form.enlaces.map((e, i) => (
+                <div key={i} className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
+                  <input className="ax-input" placeholder="Título" aria-label={`Título del enlace ${i + 1}`} value={e.titulo} onChange={(ev) => set('enlaces', edit.form.enlaces.map((x, j) => (j === i ? { ...x, titulo: ev.target.value } : x)))} />
+                  <input className="ax-input" placeholder="https://…" aria-label={`Enlace ${i + 1}`} value={e.url} onChange={(ev) => set('enlaces', edit.form.enlaces.map((x, j) => (j === i ? { ...x, url: ev.target.value } : x)))} />
+                  <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" aria-label="Quitar enlace" onClick={() => set('enlaces', edit.form.enlaces.filter((_, j) => j !== i))}>✕</button>
+                </div>
+              ))}
+            </div>
+
+            <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
+              <button type="button" className="ax-btn ax-btn--primary" disabled={guardando || edit.form.nombre.trim().length < 2} onClick={guardar}>{guardando ? 'Guardando…' : 'Guardar cambios'}</button>
+              <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEdit(null)}>Cancelar</button>
+            </div>
+          </section>
+
+          <div style={{ flex: '1.7 1 36rem', minWidth: 0 }}>
+            <VistaPreviaReal onCambio={set} base={datos?.webBase} t={edit.form} url={edit.id ? datos?.tarjetas.find((x) => x.id === edit.id)?.url : undefined} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)', marginBlockStart: 'var(--ax-space-4)' }}>
+              <section className="ax-card" style={{ padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
+                <strong>Botones de la tarjeta</strong>
+                <div className="ax-cluster" style={{ gap: 'var(--ax-space-5)', flexWrap: 'wrap' }}>
+                  {([['cotizar', 'Pide una cotización'], ['vcard', 'Guardar contacto'], ['compartir', 'Compartir']] as const).map(([id, nombre]) => (
+                    <label key={id} className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap', fontSize: 'var(--ax-text-sm)' }}>
+                      <input type="checkbox" className="ax-switch" checked={mostrar[id] !== false} onChange={(e) => alternarMostrar(id, e.target.checked)} />
+                      {nombre}
+                    </label>
+                  ))}
+                </div>
+              </section>
+              <PanelOpciones t={edit.form} onCambio={set} solo="qr" />
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  }
+
   return (
     <>
-      <PageHead title="Tarjetas del equipo" subtitle="Todas las tarjetas digitales del equipo en una tabla. Puedes editar la de cualquier persona, crear la de quien aún no la tiene, ocultarla o copiar su enlace." />
+      <PageHead title="Tarjetas del equipo" subtitle="Todas las tarjetas digitales del equipo en una tabla. Puedes editar la de cualquier persona, crear la de quien aún no la tiene, ocultarla o copiar su enlace." actions={acciones} />
       {error && <p role="alert" style={{ color: 'var(--ax-danger-500)' }}>{error}</p>}
       {aviso && <p role="status" style={{ color: 'var(--ax-text-muted)' }}>{aviso}</p>}
 
@@ -188,85 +301,6 @@ export function WebTarjetasEquipo() {
             </table>
           </div>
         </section>
-      )}
-
-      {edit && createPortal(
-        <div role="dialog" aria-modal="true" aria-label={`Editar tarjeta de ${edit.quien}`} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,.45)', display: 'flex', justifyContent: 'flex-end' }} onClick={(e) => { if (e.target === e.currentTarget) setEdit(null); }}>
-          <div className="ax-card" style={{ width: 'min(1280px, 100%)', height: '100%', overflowY: 'auto', padding: 'var(--ax-space-5)', borderRadius: 0, display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 'var(--ax-space-5)', alignContent: 'flex-start' }}>
-            <div style={{ flex: '1 1 100%' }} className="ax-cluster">
-              <strong style={{ flex: 1 }}>{edit.id ? 'Editar tarjeta de' : 'Nueva tarjeta para'} {edit.quien}</strong>
-              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setEdit(null)}>Cerrar</button>
-            </div>
-
-            <div style={{ flex: '1 1 24rem', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
-              <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 'var(--ax-space-4)', alignItems: 'flex-start' }}>
-              <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
-                {edit.form.fotoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={urlImagen(edit.form.fotoUrl)} alt="Foto" width={64} height={64} style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover' }} />
-                ) : (
-                  <span style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--ax-surface-subtle)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>{(edit.form.nombre || '?').charAt(0).toUpperCase()}</span>
-                )}
-                <SubirImagen etiqueta={edit.form.fotoUrl ? 'Cambiar foto' : 'Subir foto'} onSubida={(urls) => set('fotoUrl', urls[0])} />
-                {edit.form.fotoUrl && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => set('fotoUrl', '')}>Quitar foto</button>}
-              </div>
-              <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
-                {edit.form.portadaUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={urlImagen(edit.form.portadaUrl)} alt="Portada" style={{ width: 160, height: 60, borderRadius: 8, objectFit: 'cover' }} />
-                ) : (
-                  <span style={{ width: 160, height: 60, borderRadius: 8, background: 'var(--ax-surface-subtle)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Sin portada</span>
-                )}
-                <SubirImagen etiqueta={edit.form.portadaUrl ? 'Cambiar portada' : 'Subir portada'} onSubida={(urls) => set('portadaUrl', urls[0])} />
-                {edit.form.portadaUrl && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => set('portadaUrl', '')}>Quitar portada</button>}
-              </div>
-              </div>
-              {campo('etiqueta', 'Nombre de la versión', 'Comercial, Redes…')}
-              {campo('nombre', 'Nombre completo')}
-              {campo('cargo', 'Cargo')}
-              {campo('area', 'Área')}
-              <div className="ax-field">
-                <label className="ax-label" htmlFor="a-bio">Presentación corta</label>
-                <textarea id="a-bio" className="ax-textarea" rows={3} maxLength={400} value={v(edit.form.bio)} onChange={(e) => set('bio', e.target.value)} />
-              </div>
-              {campo('telefono', 'Teléfono', '+51 970 614 881')}
-              {campo('whatsapp', 'WhatsApp (solo números con código de país)', '51970614881')}
-              {campo('email', 'Correo')}
-              {campo('linkedin', 'LinkedIn (enlace)', 'https://www.linkedin.com/in/…')}
-              {campo('web', 'Sitio web (enlace)', 'https://fptecnologi.com')}
-              {campo('agendaUrl', 'Enlace para agendar', 'https://calendly.com/…')}
-              {campo('slug', 'Enlace único (/tarjeta/…)', 'se genera con el nombre')}
-
-              <div className="ax-field" style={{ gap: 'var(--ax-space-2)' }}>
-                <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
-                  <span className="ax-label">Enlaces extra (hasta 12)</span>
-                  <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" disabled={edit.form.enlaces.length >= 12} onClick={() => set('enlaces', [...edit.form.enlaces, { titulo: '', url: '' }])}>Agregar</button>
-                </div>
-                {edit.form.enlaces.map((e, i) => (
-                  <div key={i} className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
-                    <input className="ax-input" placeholder="Título" aria-label={`Título del enlace ${i + 1}`} value={e.titulo} onChange={(ev) => set('enlaces', edit.form.enlaces.map((x, j) => (j === i ? { ...x, titulo: ev.target.value } : x)))} />
-                    <input className="ax-input" placeholder="https://…" aria-label={`Enlace ${i + 1}`} value={e.url} onChange={(ev) => set('enlaces', edit.form.enlaces.map((x, j) => (j === i ? { ...x, url: ev.target.value } : x)))} />
-                    <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" aria-label="Quitar enlace" onClick={() => set('enlaces', edit.form.enlaces.filter((_, j) => j !== i))}>✕</button>
-                  </div>
-                ))}
-              </div>
-
-              <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
-                <button type="button" className="ax-btn ax-btn--primary" disabled={guardando || edit.form.nombre.trim().length < 2} onClick={guardar}>{guardando ? 'Guardando…' : 'Guardar cambios'}</button>
-                <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEdit(null)}>Cancelar</button>
-              </div>
-            </div>
-
-            <div style={{ flex: '1.7 1 36rem', minWidth: 0, alignSelf: 'flex-start' }}>
-              <VistaPreviaReal onCambio={set} base={datos?.webBase} t={edit.form} url={edit.id ? datos?.tarjetas.find((x) => x.id === edit.id)?.url : undefined} />
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)', marginBlockStart: 'var(--ax-space-4)' }}>
-                <PanelOpciones t={edit.form} onCambio={set} solo="mostrar" />
-                <PanelOpciones t={edit.form} onCambio={set} solo="qr" />
-              </div>
-            </div>
-          </div>
-        </div>,
-        document.body,
       )}
     </>
   );

@@ -54,7 +54,15 @@ export function PanelOpciones({ t, onCambio, solo }: { t: Tarjeta; onCambio: <K 
       </section>}
 
       {solo !== 'mostrar' && <section className="ax-card" style={{ padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
-        <strong>Personaliza el código QR</strong>
+        <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
+          <strong>Personaliza el código QR</strong>
+          {solo === 'qr' && (
+            <label className="ax-cluster" style={{ gap: 6, flexWrap: 'nowrap', fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-muted)', cursor: 'pointer' }}>
+              <input type="checkbox" className="ax-switch" checked={mostrar.qr !== false} onChange={(e) => alternar('qr', e.target.checked)} aria-label="Mostrar el código QR en la tarjeta" />
+              {mostrar.qr !== false ? 'Visible' : 'Oculto'}
+            </label>
+          )}
+        </div>
         <span style={ayuda}>Elige los colores del QR de esta tarjeta. Se ve en tu página y en la tarjeta que descargas. Si cambias el color, el QR sigue llevando al mismo enlace.</span>
         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 'var(--ax-space-5)', alignItems: 'center' }}>
         <div style={{ flex: '1 1 16rem', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>

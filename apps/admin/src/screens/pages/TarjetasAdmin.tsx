@@ -31,17 +31,16 @@ export function TarjetasAdmin() {
   }, [sel]);
   useEffect(() => () => setMarcaForzada(null), []);
 
-  return (
-    <>
-      <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', marginBlockEnd: 'var(--ax-space-4)', justifyContent: 'flex-end' }}>
-        <label htmlFor="ta-marca" style={{ color: 'var(--ax-text-muted)', fontSize: 'var(--ax-text-sm)' }}>Marca</label>
-        <select id="ta-marca" className="ax-select" style={{ width: 'auto' }} value={sel} onChange={(e) => setSel(e.target.value)}>
-          {marcas.map((m) => <option key={m.marcaId} value={m.marcaId}>{m.marca.nombre}</option>)}
-        </select>
-      </div>
-      {listo && listo === sel ? <WebTarjetasEquipo key={sel} /> : null}
-    </>
+  const selector = (
+    <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
+      <label htmlFor="ta-marca" style={{ color: 'var(--ax-text-muted)', fontSize: 'var(--ax-text-sm)' }}>Marca</label>
+      <select id="ta-marca" className="ax-select" style={{ width: 'auto' }} value={sel} onChange={(e) => setSel(e.target.value)}>
+        {marcas.map((m) => <option key={m.marcaId} value={m.marcaId}>{m.marca.nombre}</option>)}
+      </select>
+    </div>
   );
+
+  return listo && listo === sel ? <WebTarjetasEquipo key={sel} acciones={selector} /> : null;
 }
 
 export default TarjetasAdmin;
