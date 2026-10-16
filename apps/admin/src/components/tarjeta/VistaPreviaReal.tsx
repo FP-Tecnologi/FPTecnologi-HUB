@@ -1,7 +1,7 @@
 'use client';
 /*
  * Vista previa de la tarjeta: la MISMA página pública (web /tarjeta/vista-previa) dentro de un iframe, alimentada en vivo
- * con lo que se edita (sin guardar). Se puede ver en celular o en escritorio, con íconos, QR y portada reales.
+ * con lo que se edita (sin guardar). Se puede ver en escritorio o en celular, con íconos, QR y portada reales.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '../../lib/api';
@@ -12,8 +12,8 @@ import { urlImagen } from '../ui/SubirImagen';
 const WEB_ENV = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
 const MODOS = {
-  celular: { nombre: 'Celular', ancho: 390, alto: 800 },
   escritorio: { nombre: 'Escritorio', ancho: 1180, alto: 760 },
+  celular: { nombre: 'Celular', ancho: 390, alto: 800 },
 } as const;
 type Modo = keyof typeof MODOS;
 
@@ -21,10 +21,9 @@ type Modo = keyof typeof MODOS;
 export function VistaPreviaReal({ t, url, base }: { t: Tarjeta; url?: string; base?: string }) {
   const WEB = (base || WEB_ENV).replace(/\/$/, '');
   const ORIGEN = (() => { try { return new URL(WEB).origin; } catch { return '*'; } })();
-  const [modo, setModo] = useState<Modo>('celular');
+  const [modo, setModo] = useState<Modo>('escritorio');
   const [qr, setQr] = useState<string | null>(null);
   const [listo, setListo] = useState(false);
-  const [ampliado, setAmpliado] = useState(false);
   const [ancho, setAncho] = useState(360);
   const marco = useRef<HTMLDivElement>(null);
   const frame = useRef<HTMLIFrameElement>(null);
@@ -78,14 +77,13 @@ export function VistaPreviaReal({ t, url, base }: { t: Tarjeta; url?: string; ba
   const escala = Math.min(1, ancho / m.ancho);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)', ...(ampliado ? { position: 'fixed', inset: 0, zIndex: 60, background: 'var(--ax-surface, #fff)', padding: 16, overflow: 'auto' } : {}) }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
       <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
         <strong>Vista previa</strong>
         <div className="ax-cluster" style={{ gap: 4 }}>
           {(Object.keys(MODOS) as Modo[]).map((k) => (
             <button key={k} type="button" aria-pressed={modo === k} className={`ax-btn ax-btn--sm ${modo === k ? 'ax-btn--secondary' : 'ax-btn--ghost'}`} onClick={() => setModo(k)}>{MODOS[k].nombre}</button>
           ))}
-          <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setAmpliado((a) => !a)}>{ampliado ? 'Cerrar' : 'Ampliar'}</button>
         </div>
       </div>
       <div ref={marco} style={{ width: '100%' }}>

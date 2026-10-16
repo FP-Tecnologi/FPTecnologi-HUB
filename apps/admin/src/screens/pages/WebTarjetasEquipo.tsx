@@ -5,6 +5,7 @@
  * vista previa en vivo. Cada persona también edita la suya en Mi cuenta → Mi tarjeta digital.
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { PageHead } from '../../components/shell/PageHead';
 import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
 import { ApiError, useAuth } from '../../context/AuthContext';
@@ -186,15 +187,15 @@ export function WebTarjetasEquipo() {
         </section>
       )}
 
-      {edit && (
-        <div role="dialog" aria-modal="true" aria-label={`Editar tarjeta de ${edit.quien}`} style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,.45)', display: 'flex', justifyContent: 'flex-end' }} onClick={(e) => { if (e.target === e.currentTarget) setEdit(null); }}>
-          <div className="ax-card" style={{ width: 'min(1280px, 100%)', height: '100%', overflowY: 'auto', padding: 'var(--ax-space-5)', borderRadius: 0, display: 'grid', gap: 'var(--ax-space-5)', gridTemplateColumns: 'repeat(auto-fit, minmax(22rem, 1fr))', alignContent: 'start' }}>
-            <div style={{ gridColumn: '1 / -1' }} className="ax-cluster">
+      {edit && createPortal(
+        <div role="dialog" aria-modal="true" aria-label={`Editar tarjeta de ${edit.quien}`} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,.45)', display: 'flex', justifyContent: 'flex-end' }} onClick={(e) => { if (e.target === e.currentTarget) setEdit(null); }}>
+          <div className="ax-card" style={{ width: 'min(1280px, 100%)', height: '100%', overflowY: 'auto', padding: 'var(--ax-space-5)', borderRadius: 0, display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 'var(--ax-space-5)', alignContent: 'flex-start' }}>
+            <div style={{ flex: '1 1 100%' }} className="ax-cluster">
               <strong style={{ flex: 1 }}>{edit.id ? 'Editar tarjeta de' : 'Nueva tarjeta para'} {edit.quien}</strong>
               <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setEdit(null)}>Cerrar</button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
+            <div style={{ flex: '1 1 24rem', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
                 {edit.form.fotoUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
@@ -265,11 +266,12 @@ export function WebTarjetasEquipo() {
               </div>
             </div>
 
-            <div style={{ position: 'sticky', top: 0, alignSelf: 'start' }}>
+            <div style={{ flex: '1.7 1 36rem', minWidth: 0, position: 'sticky', top: 0, alignSelf: 'flex-start' }}>
               <VistaPreviaReal base={datos?.webBase} t={edit.form} url={edit.id ? datos?.tarjetas.find((x) => x.id === edit.id)?.url : undefined} />
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );
