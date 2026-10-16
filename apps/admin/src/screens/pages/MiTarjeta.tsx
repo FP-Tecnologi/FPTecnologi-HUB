@@ -20,7 +20,7 @@ const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 export interface Tarjeta {
   id?: string; etiqueta: string; slug: string; estilo: EstiloTarjeta; vista: 'perfil' | 'linktree'; nombre: string; cargo: string | null; area: string | null; bio: string | null; fotoUrl: string | null; portadaUrl?: string | null; telefono: string | null;
   mostrar?: Record<string, boolean>; qrColor?: string | null; qrFondo?: string | null;
-  whatsapp: string | null; email: string | null; linkedin: string | null; web: string | null; agendaUrl: string | null;
+  whatsapp: string | null; email: string | null; linkedin: string | null; web: string | null; agendaUrl: string | null; cotizarUrl?: string | null;
   enlaces: { titulo: string; url: string }[]; activo: boolean; vistas: number;
 }
 type Guardada = Tarjeta & { id: string; url: string; qr: string };
@@ -247,6 +247,7 @@ export function MiTarjeta() {
           {campo('whatsapp', 'WhatsApp (con código de país)', { placeholder: '51970614881', ayuda: 'Solo números. Abre un chat directo contigo.' })}
           {campo('email', 'Correo')}
           {campo('linkedin', 'LinkedIn (enlace)', { placeholder: 'https://www.linkedin.com/in/…' })}
+          {campo('cotizarUrl', 'Enlace del botón «Pide una cotización»', { placeholder: 'https://… (vacío: el cotizador de la web)' })}
 
           <div className="ax-field" style={{ gap: 'var(--ax-space-2)' }}>
             <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>

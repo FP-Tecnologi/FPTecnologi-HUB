@@ -1187,7 +1187,8 @@ model TarjetaDigital {
   email     String?
   linkedin  String?
   web       String?
-  agendaUrl String? // enlace para reservar una reunión (Calendly, Google Calendar…)
+  agendaUrl String? // enlace para reservar una reunión (Calendly, Google Calendar…) — ya no se pide en el dashboard
+  cotizarUrl String? // enlace propio del botón «Pide una cotización»; vacío = el cotizador de la web
   enlaces   Json     @default("[]") // [{ titulo, url }]
   vista     String   @default("perfil") // perfil (tarjeta completa) | linktree (lista de botones, como Linktree)
   estilo    String   @default("clasico") // clasico | moderno | oscuro | minimal (página pública y tarjeta gráfica)

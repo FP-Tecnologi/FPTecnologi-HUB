@@ -191,6 +191,7 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
             {campo('whatsapp', 'WhatsApp (solo números con código de país)', '51970614881', 'whatsapp')}
             {campo('email', 'Correo', undefined, 'email')}
             {campo('linkedin', 'LinkedIn (enlace)', 'https://www.linkedin.com/in/…', 'linkedin')}
+            {campo('cotizarUrl', 'Botón «Pide una cotización» (enlace)', 'Vacío = el cotizador de la web', 'cotizar')}
 
             <div className="ax-field" style={{ gap: 'var(--ax-space-2)' }}>
               <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
@@ -218,10 +219,10 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
           <div style={{ flex: '1.7 1 36rem', minWidth: 0 }}>
             <VistaPreviaReal onCambio={set} base={datos?.webBase} marca={datos?.marca} t={edit.form} url={edit.id ? datos?.tarjetas.find((x) => x.id === edit.id)?.url : undefined} />
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)', marginBlockStart: 'var(--ax-space-4)' }}>
-              <section className="ax-card" style={{ padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
-                <strong>Botones de la tarjeta</strong>
+              <section className="ax-card" style={{ padding: 'var(--ax-space-3) var(--ax-space-4)' }}>
                 <div className="ax-cluster" style={{ gap: 'var(--ax-space-5)', flexWrap: 'wrap' }}>
-                  {([['cotizar', 'Pide una cotización'], ['vcard', 'Guardar contacto'], ['compartir', 'Compartir']] as const).map(([id, nombre]) => (
+                  <strong style={{ fontSize: 'var(--ax-text-sm)' }}>Botones</strong>
+                  {([['vcard', 'Guardar contacto'], ['compartir', 'Compartir']] as const).map(([id, nombre]) => (
                     <label key={id} className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap', fontSize: 'var(--ax-text-sm)' }}>
                       <input type="checkbox" className="ax-switch" checked={mostrar[id] !== false} onChange={(e) => alternarMostrar(id, e.target.checked)} />
                       {nombre}

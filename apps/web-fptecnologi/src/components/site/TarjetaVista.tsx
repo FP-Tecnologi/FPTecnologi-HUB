@@ -6,7 +6,7 @@ import { imagenLanding } from '@/lib/landings';
 
 export type EstiloTarjeta = 'clasico' | 'moderno' | 'oscuro' | 'minimal';
 export interface DatosTarjeta {
-  slug: string; estilo: EstiloTarjeta; vista: 'perfil' | 'linktree'; nombre: string; cargo: string | null; area: string | null; bio: string | null; fotoUrl: string | null; portadaUrl?: string | null; telefono: string | null;
+  slug: string; estilo: EstiloTarjeta; vista: 'perfil' | 'linktree'; nombre: string; cargo: string | null; area: string | null; bio: string | null; fotoUrl: string | null; portadaUrl?: string | null; cotizarUrl?: string | null; telefono: string | null;
   whatsapp: string | null; email: string | null; linkedin: string | null; web: string | null; agendaUrl: string | null;
   enlaces: { titulo: string; url: string }[]; empresa: string; url: string; qr: string | null;
   /** Identidad de la marca: sin portada propia, el encabezado usa su color y su logo. */
@@ -54,6 +54,9 @@ export function TarjetaVista({ t }: { t: DatosTarjeta }) {
   const e = ESTILO[t.estilo] ?? ESTILO.clasico;
   const m = t.mostrar ?? {};
   const verCotizar = m.cotizar !== false;
+  // Enlace propio del botón de cotización; sin él, el cotizador de la web.
+  const hrefCotizar = t.cotizarUrl || '/cotizador';
+  const cotizarExterno = /^https?:\/\//i.test(hrefCotizar);
   const verVcard = m.vcard !== false;
   const verCompartir = m.compartir !== false;
   const qr = m.qr === false ? null : t.qr;
@@ -109,7 +112,7 @@ export function TarjetaVista({ t }: { t: DatosTarjeta }) {
           <div className="mt-6 flex w-full flex-col gap-3">
             {wa && <Boton href={wa} Icon={WhatsAppIcon}>Escríbeme por WhatsApp</Boton>}
             {t.enlaces.map((l, i) => <Boton key={`${l.url}-${i}`} href={l.url} Icon={Link2}>{l.titulo}</Boton>)}
-            {verCotizar && <Boton href="/cotizador" Icon={FileText} externo={false}>Pide una cotización</Boton>}
+            {verCotizar && <Boton href={hrefCotizar} Icon={FileText} externo={cotizarExterno}>Pide una cotización</Boton>}
             {t.linkedin && <Boton href={t.linkedin} Icon={LinkedinIcon}>LinkedIn</Boton>}
             {t.email && <Boton href={`mailto:${t.email}`} Icon={Mail} externo={false}>{t.email}</Boton>}
             {t.telefono && <Boton href={`tel:${t.telefono.replace(/[^\d+]/g, '')}`} Icon={Phone} externo={false}>{t.telefono}</Boton>}
@@ -196,7 +199,7 @@ export function TarjetaVista({ t }: { t: DatosTarjeta }) {
                   {t.telefono && <Accion href={`tel:${t.telefono.replace(/[^\d+]/g, '')}`} Icon={Phone} externo={false}>{t.telefono}</Accion>}
                   {t.email && <Accion href={`mailto:${t.email}`} Icon={Mail} externo={false}>{t.email}</Accion>}
                   {t.linkedin && <Accion href={t.linkedin} Icon={LinkedinIcon}>Conecta conmigo en LinkedIn</Accion>}
-                  {verCotizar && <Accion href="/cotizador" Icon={FileText} externo={false}>Pide una cotización</Accion>}
+                  {verCotizar && <Accion href={hrefCotizar} Icon={FileText} externo={cotizarExterno}>Pide una cotización</Accion>}
                 </div>
               </>
             )}

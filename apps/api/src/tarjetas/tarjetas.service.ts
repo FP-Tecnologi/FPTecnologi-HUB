@@ -108,6 +108,7 @@ export class TarjetasService {
       linkedin: url(dto.linkedin, 'LinkedIn'),
       web: url(dto.web, 'Sitio web'),
       agendaUrl: url(dto.agendaUrl, 'Enlace para agendar'),
+      cotizarUrl: url(dto.cotizarUrl, 'Enlace de cotización'),
       enlaces: enlaces as unknown as Prisma.InputJsonValue,
       estilo: dto.estilo ?? actual?.estilo ?? 'clasico',
       vista: dto.vista ?? actual?.vista ?? 'perfil',
@@ -197,7 +198,7 @@ export class TarjetasService {
     const p = aplicarMostrar(t, mostrar); // lo que su dueño ocultó ni siquiera sale de la API
     return {
       slug: t.slug, estilo: t.estilo, vista: t.vista, nombre: t.nombre, cargo: p.cargo, area: p.area, bio: p.bio, fotoUrl: p.fotoUrl, portadaUrl: t.portadaUrl, telefono: p.telefono, whatsapp: p.whatsapp,
-      email: p.email, linkedin: p.linkedin, web: null, agendaUrl: null, enlaces: p.enlaces, empresa, marca: marca ? { logo: marca.logo, colorPrimario: marca.colorPrimario, colorSecundario: marca.colorSecundario, web: marca.web } : null, url, mostrar,
+      email: p.email, linkedin: p.linkedin, web: null, agendaUrl: null, cotizarUrl: t.cotizarUrl, enlaces: p.enlaces, empresa, marca: marca ? { logo: marca.logo, colorPrimario: marca.colorPrimario, colorSecundario: marca.colorSecundario, web: marca.web } : null, url, mostrar,
       qr: mostrar.qr === false ? null : await this.qrDe(url, t),
     };
   }

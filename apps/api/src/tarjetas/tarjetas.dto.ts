@@ -54,6 +54,9 @@ export class GuardarTarjetaDto {
   @IsOptional() @IsString() @MaxLength(500)
   agendaUrl?: string;
 
+  @IsOptional() @IsString() @MaxLength(500)
+  cotizarUrl?: string;
+
   @IsOptional() @IsArray()
   enlaces?: unknown[];
 
