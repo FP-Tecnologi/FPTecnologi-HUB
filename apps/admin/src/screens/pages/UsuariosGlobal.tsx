@@ -28,13 +28,17 @@ export function UsuariosGlobal() {
   const [nuevaMarca, setNuevaMarca] = useState('');
   const [nuevoRol, setNuevoRol] = useState('');
 
+  const reintento = useRef(false);
   const cargar = useCallback(async () => {
     const p = new URLSearchParams();
     if (q.trim()) p.set('q', q.trim());
     if (marcaF) p.set('marcaId', marcaF);
     if (rolF) p.set('rolId', rolF);
-    try { setData(await api.get<Respuesta>(`/usuarios/global?${p}`)); setError(''); }
-    catch (e) { setError(msg(e, 'No se pudieron cargar los usuarios.')); }
+    try { setData(await api.get<Respuesta>(`/usuarios/global?${p}`)); setError(''); reintento.current = false; }
+    catch (e) {
+      if (!reintento.current) { reintento.current = true; setTimeout(() => void cargar(), 2500); return; }
+      setError(msg(e, 'No se pudieron cargar los usuarios.'));
+    }
   }, [q, marcaF, rolF]);
 
   useEffect(() => { const t = setTimeout(cargar, 250); return () => clearTimeout(t); }, [cargar]);
@@ -45,7 +49,7 @@ export function UsuariosGlobal() {
 
   // Crear usuario con todos sus datos: persona (nombre, correo, cargo, teléfono, DNI), acceso (empresa y rol) y contraseña
   // (invitación por correo para que la cree él mismo, o definida ahora por el administrador).
-  const CREAR_VACIO = { nombre: '', email: '', cargo: '', telefono: '', dni: '', marcaId: '', rolId: '', acceso: 'invitacion' as 'invitacion' | 'password', password: '', enviarCambio: true };
+  const CREAR_VACIO = { nombre: '', email: '', telefono: '', dni: '', marcaId: '', rolId: '', acceso: 'invitacion' as 'invitacion' | 'password', password: '', enviarCambio: true };
   const [crear, setCrear] = useState(false);
   const [cf, setCf] = useState(CREAR_VACIO);
   const [verPw, setVerPw] = useState(false);
@@ -76,7 +80,7 @@ export function UsuariosGlobal() {
     setCBusy(true); setCErr('');
     try {
       await api.post('/usuarios/global', {
-        email: cf.email.trim(), nombre: cf.nombre.trim(), cargo: cf.cargo.trim(), telefono: cf.telefono.trim(), dni: cf.dni.trim(),
+        email: cf.email.trim(), nombre: cf.nombre.trim(), telefono: cf.telefono.trim(), dni: cf.dni.trim(),
         marcaId: cf.marcaId, rolId: cf.rolId, acceso: cf.acceso,
         ...(cf.acceso === 'password' ? { password: cf.password, enviarCambio: cf.enviarCambio } : {}),
       });
@@ -138,7 +142,7 @@ export function UsuariosGlobal() {
       <PageHead
         title="Todos los usuarios"
         subtitle="Cuentas de todas las marcas y sus roles. Solo el super administrador (admin de todas las marcas)."
-        actions={<button type="button" className="ax-btn ax-btn--primary" onClick={() => { setCf(CREAR_VACIO); setVerPw(false); setCrear(true); setCErr(''); setOk(''); }}><span className="ax-btn__label">Crear usuario</span></button>}
+        actions={<button type="button" className="ax-btn ax-btn--primary" onClick={() => { setCf(CREAR_VACIO); setVerPw(false); setCrear(true); setCErr(''); setOk(''); void cargar(); }}><span className="ax-btn__label">Crear usuario</span></button>}
       />
       {ok && (
         <div role="status" className="ax-alert ax-alert--success" style={{ marginBlockEnd: 'var(--ax-space-4)', padding: 'var(--ax-space-3) var(--ax-space-4)' }}>
@@ -251,13 +255,13 @@ export function UsuariosGlobal() {
             </div>
             <form className="ax-card__body" style={{ paddingTop: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-5)' }} onSubmit={enviar}>
               {cErr && <div role="alert" className="ax-alert ax-alert--danger"><div className="ax-alert__content"><p className="ax-alert__message">{cErr}</p></div></div>}
+              {!data && error && <div role="alert" className="ax-alert ax-alert--danger"><div className="ax-alert__content"><p className="ax-alert__message">No se pudieron cargar las empresas y los roles. <button type="button" className="ax-btn ax-btn--link" onClick={() => void cargar()}>Reintentar</button></p></div></div>}
 
               <fieldset style={{ border: 0, padding: 0, margin: 0, display: 'grid', gap: 'var(--ax-space-3)' }}>
                 <legend className="ax-label" style={{ fontWeight: 600, marginBlockEnd: 'var(--ax-space-2)' }}>Datos de la persona</legend>
                 <div style={{ display: 'grid', gap: 'var(--ax-space-3)', gridTemplateColumns: 'repeat(auto-fit, minmax(14rem, 1fr))' }}>
                 <div className="ax-field"><label className="ax-label" htmlFor="cu-nombre">Nombre completo *</label><input id="cu-nombre" type="text" className="ax-input" placeholder="Ana Pérez" required value={cf.nombre} onChange={(e) => setCf({ ...cf, nombre: e.target.value })} /></div>
                 <div className="ax-field"><label className="ax-label" htmlFor="cu-email">Correo electrónico *</label><input id="cu-email" type="email" className="ax-input" placeholder="nombre@empresa.com" required value={cf.email} onChange={(e) => setCf({ ...cf, email: e.target.value })} /></div>
-                <div className="ax-field"><label className="ax-label" htmlFor="cu-cargo">Cargo</label><input id="cu-cargo" type="text" className="ax-input" placeholder="Ejecutiva comercial" value={cf.cargo} onChange={(e) => setCf({ ...cf, cargo: e.target.value })} /></div>
                 <div className="ax-field"><label className="ax-label" htmlFor="cu-telefono">Teléfono</label><input id="cu-telefono" type="tel" className="ax-input" placeholder="+51 999 999 999" value={cf.telefono} onChange={(e) => setCf({ ...cf, telefono: e.target.value })} /></div>
                 <div className="ax-field"><label className="ax-label" htmlFor="cu-dni">DNI</label><input id="cu-dni" type="text" className="ax-input" placeholder="" value={cf.dni} onChange={(e) => setCf({ ...cf, dni: e.target.value })} /></div>
                 </div>
@@ -267,14 +271,14 @@ export function UsuariosGlobal() {
                 <legend className="ax-label" style={{ fontWeight: 600, marginBlockEnd: 'var(--ax-space-2)' }}>Acceso</legend>
                 <div style={{ display: 'grid', gap: 'var(--ax-space-3)', gridTemplateColumns: 'repeat(auto-fit, minmax(14rem, 1fr))' }}>
                   <div className="ax-field"><label className="ax-label" htmlFor="cu-marca">Empresa *</label>
-                    <select id="cu-marca" className="ax-select" required value={cf.marcaId} onChange={(e) => setCf({ ...cf, marcaId: e.target.value })}>
-                      <option value="">Elegir empresa…</option>
+                    <select id="cu-marca" className="ax-select" required disabled={!data} value={cf.marcaId} onChange={(e) => setCf({ ...cf, marcaId: e.target.value })}>
+                      <option value="">{data ? 'Elegir empresa…' : error ? 'No se pudo cargar: reintenta' : 'Cargando empresas…'}</option>
                       {data?.marcas.map((m) => <option key={m.id} value={m.id}>{m.nombre}</option>)}
                     </select>
                   </div>
                   <div className="ax-field"><label className="ax-label" htmlFor="cu-rol">Rol *</label>
-                    <select id="cu-rol" className="ax-select" required value={cf.rolId} onChange={(e) => setCf({ ...cf, rolId: e.target.value })}>
-                      <option value="">Elegir rol…</option>
+                    <select id="cu-rol" className="ax-select" required disabled={!data} value={cf.rolId} onChange={(e) => setCf({ ...cf, rolId: e.target.value })}>
+                      <option value="">{data ? 'Elegir rol…' : error ? 'No se pudo cargar: reintenta' : 'Cargando roles…'}</option>
                       {data?.roles.filter((r) => r.nombre !== 'cliente').map((r) => <option key={r.id} value={r.id}>{r.nombre}</option>)}
                     </select>
                   </div>
