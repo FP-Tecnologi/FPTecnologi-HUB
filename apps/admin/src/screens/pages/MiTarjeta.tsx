@@ -5,7 +5,7 @@
  * datos con interruptor de visibilidad, diseño y estilo en la vista previa, botones y QR personalizable.
  * La página pública /tarjeta/<enlace> solo muestra el resultado; no se edita ahí.
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { urlImagen } from '../../components/ui/SubirImagen';
 import { ApiError, useAuth } from '../../context/AuthContext';
@@ -13,7 +13,8 @@ import { api } from '../../lib/api';
 import { EditorTarjeta } from '../../components/tarjeta/EditorTarjeta';
 import { VistaPreviaReal, type MarcaTarjeta } from '../../components/tarjeta/VistaPreviaReal';
 import { aplicarMostrar } from '../../lib/tarjetaOpciones';
-import { descargarCanvas, dibujarTarjeta, type EstiloTarjeta } from '../../lib/tarjetaGrafica';
+import type { EstiloTarjeta } from '../../lib/tarjetaGrafica';
+import { descargarFisicaPng, descargarFisicaSvg, svgADataUrl, tarjetaFisicaSvg, type DatosFisica, type Lado } from '../../lib/tarjetaFisica';
 import { descargarQrPng, descargarQrSvg } from '../../lib/descargarQr';
 
 export interface Tarjeta {
@@ -48,7 +49,13 @@ export function MiTarjeta() {
   const [error, setError] = useState('');
   const [ok, setOk] = useState('');
   const [guardando, setGuardando] = useState(false);
-  const lienzo = useRef<HTMLCanvasElement>(null);
+  // Vista inicial: estilo y diseño que se prueban en la vista previa (se publican con «Guardar estilo»).
+  const [estiloSel, setEstiloSel] = useState<EstiloTarjeta>('clasico');
+  const [vistaSel, setVistaSel] = useState<'perfil' | 'linktree'>('perfil');
+  const [lado, setLado] = useState<Lado>('frente');
+  const [svgTarjeta, setSvgTarjeta] = useState('');
+  const [editandoEnlace, setEditandoEnlace] = useState(false);
+  const [slugNuevo, setSlugNuevo] = useState('');
 
   const nuevaBase = useCallback((r: Respuesta, etiqueta: string): Tarjeta => ({ ...VACIA, etiqueta, nombre: r.sugerido.nombre, email: r.sugerido.email, cargo: r.sugerido.cargo, telefono: r.sugerido.telefono }), []);
   const cargar = useCallback(async () => {
@@ -127,13 +134,25 @@ export function MiTarjeta() {
   const urlPublica = actual?.url ?? '';
   const faltan = useMemo(() => pendientes(actual ?? form), [actual, form]);
   const completa = Math.round(((5 - faltan.length) / 5) * 100);
-  const datosGrafica = useMemo(() => (actual ? { ...aplicarMostrar(actual), web: resp?.marca?.web ?? null, empresa: resp?.marca?.nombre ?? 'FPTecnologi & System' } : null), [actual, resp?.marca]);
+  // Al cambiar de versión o guardar, el estilo y diseño de prueba vuelven a los guardados.
+  useEffect(() => { if (actual) { setEstiloSel(actual.estilo); setVistaSel(actual.vista); setEditandoEnlace(false); } }, [actual]);
+  const estiloCambiado = !!actual && (estiloSel !== actual.estilo || vistaSel !== actual.vista);
 
-  // Tarjeta gráfica descargable (con el QR de la tarjeta guardada).
+  const datosFisica = useMemo<DatosFisica | null>(() => (actual ? { ...aplicarMostrar(actual), web: resp?.marca?.web ?? null, empresa: resp?.marca?.nombre ?? 'FPTecnologi & System', url: actual.url } : null), [actual, resp?.marca]);
+  const generar = useCallback(async (l: Lado) => {
+    if (!datosFisica || !actual) return '';
+    return tarjetaFisicaSvg(estiloSel, datosFisica, l, {
+      qrSvg: actual.mostrar?.qr === false ? null : actual.qr,
+      logoUrl: resp?.marca?.logo, colorMarca: resp?.marca?.colorPrimario, colorMarca2: resp?.marca?.colorSecundario, resolver: urlImagen,
+    });
+  }, [datosFisica, actual, estiloSel, resp?.marca]);
+  // Tarjeta física (frente o reverso) con el estilo que se está viendo.
   useEffect(() => {
-    if (modo !== 'resumen' || !actual || !datosGrafica || !lienzo.current) return;
-    dibujarTarjeta(lienzo.current, actual.estilo, datosGrafica, actual.mostrar?.qr === false ? null : actual.qr, urlImagen).catch(() => undefined);
-  }, [modo, actual, datosGrafica]);
+    if (modo !== 'resumen') return;
+    let vivo = true;
+    void generar(lado).then((svg) => { if (vivo) setSvgTarjeta(svg); });
+    return () => { vivo = false; };
+  }, [modo, lado, generar]);
 
   async function copiar() {
     if (!urlPublica) return;
@@ -143,10 +162,23 @@ export function MiTarjeta() {
     if (!urlPublica) return;
     if (navigator.share) { try { await navigator.share({ title: actual?.nombre, text: `Tarjeta digital de ${actual?.nombre}`, url: urlPublica }); } catch { /* cerrado */ } } else await copiar();
   }
-  function bajarTarjeta() {
-    if (!lienzo.current || !actual) return;
-    if (!actual.fotoUrl && !window.confirm('Tu tarjeta no tiene foto. ¿Descargarla igual?')) return;
-    descargarCanvas(lienzo.current, `tarjeta-${actual.slug || 'fptecnologi'}-${actual.estilo}.png`);
+  const nombreArchivo = (l: Lado) => `tarjeta-${actual?.slug || 'fptecnologi'}-${estiloSel}-${l}`;
+  async function bajar(formato: 'png' | 'svg', lados: Lado[]) {
+    if (!actual) return;
+    if (!actual.fotoUrl && lados.includes('frente') && !window.confirm('Tu tarjeta no tiene foto. ¿Descargarla igual?')) return;
+    try {
+      for (const l of lados) {
+        const svg = l === lado && svgTarjeta ? svgTarjeta : await generar(l);
+        if (formato === 'svg') descargarFisicaSvg(svg, nombreArchivo(l)); else await descargarFisicaPng(svg, nombreArchivo(l));
+      }
+    } catch { setError('No se pudo generar la tarjeta para descargar.'); }
+  }
+  async function guardarEstilo() { if (actual) await guardar({ ...actual, estilo: estiloSel, vista: vistaSel }); }
+  async function guardarEnlace() {
+    if (!actual) return;
+    const nuevo = slugNuevo.trim().toLowerCase();
+    if (nuevo === actual.slug) { setEditandoEnlace(false); return; }
+    if (await guardar({ ...actual, slug: nuevo })) setEditandoEnlace(false);
   }
 
   // ---------------------------------------------------------------- editor
@@ -202,17 +234,27 @@ export function MiTarjeta() {
           <div style={{ flex: '1 1 24rem', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
             <section className="ax-card" style={{ padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
               <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
-                <strong>Tu tarjeta</strong>
+                <strong>Tu tarjeta física</strong>
                 <label className="ax-cluster" style={{ gap: 6, flexWrap: 'nowrap', fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-muted)', cursor: 'pointer' }}>
-                  <input type="checkbox" className="ax-switch" checked={actual.activo} disabled={guardando} onChange={() => void alternarVisible()} aria-label="Tarjeta visible al público" />
-                  {actual.activo ? 'Visible al público' : 'Oculta'}
+                  <input type="checkbox" className="ax-switch" checked={actual.activo} disabled={guardando} onChange={() => void alternarVisible()} aria-label="Tarjeta digital visible al público" />
+                  {actual.activo ? 'Digital visible' : 'Digital oculta'}
                 </label>
               </div>
-              <canvas ref={lienzo} style={{ width: '100%', height: 'auto', aspectRatio: '1050 / 600', borderRadius: 12, border: '1px solid var(--ax-border)' }} />
-              <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
-                <button type="button" className="ax-btn ax-btn--primary ax-btn--sm" onClick={bajarTarjeta}>Descargar tarjeta (PNG)</button>
+              <div className="ax-btn-group ax-btn-group--segmented" role="radiogroup" aria-label="Lado de la tarjeta" style={{ alignSelf: 'flex-start' }}>
+                {(['frente', 'reverso'] as const).map((l) => (
+                  <button key={l} type="button" role="radio" aria-checked={lado === l} className={`ax-btn ax-btn--sm${lado === l ? ' is-selected' : ''}`} onClick={() => setLado(l)}>{l === 'frente' ? 'Frente' : 'Reverso'}</button>
+                ))}
               </div>
-              <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Imagen de 1050 × 600 px (3,5 × 2 pulgadas a 300 dpi), lista para imprimir o enviar por WhatsApp.</span>
+              {svgTarjeta ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={svgADataUrl(svgTarjeta)} alt={`Tarjeta física, ${lado}`} style={{ width: '100%', height: 'auto', aspectRatio: '1050 / 600', borderRadius: 12, border: '1px solid var(--ax-border)', background: '#fff' }} />
+              ) : <div style={{ aspectRatio: '1050 / 600', borderRadius: 12, background: 'var(--ax-surface-subtle)' }} />}
+              <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
+                <button type="button" className="ax-btn ax-btn--primary ax-btn--sm" onClick={() => void bajar('png', [lado])}>Descargar PNG</button>
+                <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => void bajar('svg', [lado])}>Descargar SVG</button>
+                <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => void bajar('png', ['frente', 'reverso'])}>Frente y reverso (PNG)</button>
+              </div>
+              <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Tarjeta de presentación de 3,5 × 2 pulgadas (1050 × 600 px a 300 dpi), lista para imprimir. El reverso lleva tu QR y el logo de la marca.</span>
             </section>
 
             <section className="ax-card" style={{ padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
@@ -223,7 +265,24 @@ export function MiTarjeta() {
                   <img src={`data:image/svg+xml;charset=utf-8,${encodeURIComponent(actual.qr)}`} alt="Tu código QR" width={132} height={132} style={{ width: 132, height: 132, borderRadius: 8, border: '1px solid var(--ax-border)', flexShrink: 0 }} />
                 )}
                 <div style={{ flex: '1 1 14rem', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-2)' }}>
-                  <code style={{ wordBreak: 'break-all', fontSize: 'var(--ax-text-sm)' }}>{urlPublica}</code>
+                  {editandoEnlace ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                      <div className="ax-cluster" style={{ gap: 4, flexWrap: 'nowrap' }}>
+                        <span style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-subtle)', whiteSpace: 'nowrap' }}>/tarjeta/</span>
+                        <input className="ax-input" aria-label="Tu enlace único" maxLength={60} value={slugNuevo} onChange={(e) => setSlugNuevo(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))} />
+                      </div>
+                      <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Debe ser único: letras minúsculas, números y guiones (mínimo 3). Si ya lo usa otra persona, te avisamos. Al cambiarlo, el QR y el enlace anteriores dejan de funcionar; el QR nuevo se genera solo.</span>
+                      <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
+                        <button type="button" className="ax-btn ax-btn--primary ax-btn--sm" disabled={guardando || slugNuevo.length < 3} onClick={() => void guardarEnlace()}>{guardando ? 'Guardando…' : 'Guardar enlace'}</button>
+                        <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setEditandoEnlace(false)}>Cancelar</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <code style={{ wordBreak: 'break-all', fontSize: 'var(--ax-text-sm)' }}>{urlPublica}</code>
+                      <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ alignSelf: 'flex-start' }} onClick={() => { setSlugNuevo(actual.slug); setEditandoEnlace(true); setError(''); }}>Personalizar enlace</button>
+                    </>
+                  )}
                   <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{actual.vistas} {actual.vistas === 1 ? 'visita' : 'visitas'} · al escanear el QR se abre este enlace.</span>
                   <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
                     <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={copiar}>Copiar enlace</button>
@@ -243,7 +302,20 @@ export function MiTarjeta() {
 
           <div style={{ flex: '1.4 1 28rem', minWidth: 0 }}>
             <section className="ax-card" style={{ padding: 'var(--ax-space-5)' }}>
-              <VistaPreviaReal t={actual} url={urlPublica} base={resp?.webBase} marca={resp?.marca} />
+              <VistaPreviaReal
+                t={{ ...actual, estilo: estiloSel, vista: vistaSel }}
+                url={urlPublica}
+                base={resp?.webBase}
+                marca={resp?.marca}
+                onCambio={(k, valor) => { if (k === 'estilo') setEstiloSel(valor as EstiloTarjeta); else setVistaSel(valor as 'perfil' | 'linktree'); }}
+              />
+              {estiloCambiado && (
+                <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', marginBlockStart: 'var(--ax-space-3)', justifyContent: 'flex-end' }}>
+                  <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-muted)' }}>Estás probando otro estilo.</span>
+                  <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => { setEstiloSel(actual.estilo); setVistaSel(actual.vista); }}>Descartar</button>
+                  <button type="button" className="ax-btn ax-btn--primary ax-btn--sm" disabled={guardando} onClick={() => void guardarEstilo()}>{guardando ? 'Guardando…' : 'Guardar estilo'}</button>
+                </div>
+              )}
             </section>
             <section className="ax-card" style={{ padding: 'var(--ax-space-4) var(--ax-space-5)', marginBlockStart: 'var(--ax-space-4)' }}>
               <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
