@@ -167,8 +167,6 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
             {campo('whatsapp', 'WhatsApp (solo números con código de país)', '51970614881', 'whatsapp')}
             {campo('email', 'Correo', undefined, 'email')}
             {campo('linkedin', 'LinkedIn (enlace)', 'https://www.linkedin.com/in/…', 'linkedin')}
-            {campo('web', 'Sitio web (enlace)', 'https://fptecnologi.com', 'web')}
-            {campo('agendaUrl', 'Enlace para agendar', 'https://calendly.com/…', 'agenda')}
             {campo('slug', 'Enlace único (/tarjeta/…)', 'se genera con el nombre')}
 
             <div className="ax-field" style={{ gap: 'var(--ax-space-2)' }}>

@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { CalendarCheck, Download, FileText, Globe, Link2, Mail, Phone, type LucideIcon } from 'lucide-react';
+import { Download, FileText, Globe, Link2, Mail, Phone, type LucideIcon } from 'lucide-react';
 import { LinkedinIcon, WhatsAppIcon } from '@/components/site/icons';
 import { CompartirTarjeta } from '@/components/site/CompartirTarjeta';
 import { imagenLanding } from '@/lib/landings';
@@ -10,7 +10,7 @@ export interface DatosTarjeta {
   whatsapp: string | null; email: string | null; linkedin: string | null; web: string | null; agendaUrl: string | null;
   enlaces: { titulo: string; url: string }[]; empresa: string; url: string; qr: string | null;
   /** Identidad de la marca: sin portada propia, el encabezado usa su color y su logo. */
-  marca?: { logo: string | null; colorPrimario: string | null; colorSecundario: string | null } | null;
+  marca?: { logo: string | null; colorPrimario: string | null; colorSecundario: string | null; web?: string | null } | null;
   /** Bloques que su dueño ocultó (false). Lo no listado se muestra. */
   mostrar?: Partial<Record<'cotizar' | 'vcard' | 'compartir' | 'qr', boolean>>;
 }
@@ -70,6 +70,13 @@ export function TarjetaVista({ t }: { t: DatosTarjeta }) {
     <img src={t.marca?.logo ? imagenLanding(t.marca.logo) : '/logo-fptecnologi.svg'} alt={t.empresa} className={`${alto} w-auto max-w-[70%] object-contain brightness-0 invert opacity-90`} />
   );
   const wa = t.whatsapp ? `https://wa.me/${t.whatsapp}?text=${encodeURIComponent(`Hola ${t.nombre.split(' ')[0]}, vi tu tarjeta digital de ${t.empresa} y quiero más información.`)}` : null;
+  // La web de la marca (su primer dominio) va como pie de la tarjeta.
+  const webMarca = t.marca?.web ?? null;
+  const pieWeb = webMarca ? (
+    <a href={webMarca} target="_blank" rel="noreferrer" className={`inline-flex items-center gap-1.5 text-sm font-medium hover:underline ${e.suave}`}>
+      <Globe className="h-4 w-4" strokeWidth={1.9} /> {webMarca.replace(/^https?:\/\//, '')}
+    </a>
+  ) : null;
   const claseCompartir = `inline-flex items-center justify-center gap-2 rounded-2xl px-5 py-3 text-[15px] font-semibold ring-1 transition-colors ${t.estilo === 'oscuro' ? 'text-white ring-white/25 hover:bg-white/10' : 'text-brand-700 ring-brand-primary/40 hover:bg-brand-50'}`;
 
   if (t.vista === 'linktree') {
@@ -101,10 +108,8 @@ export function TarjetaVista({ t }: { t: DatosTarjeta }) {
 
           <div className="mt-6 flex w-full flex-col gap-3">
             {wa && <Boton href={wa} Icon={WhatsAppIcon}>Escríbeme por WhatsApp</Boton>}
-            {t.agendaUrl && <Boton href={t.agendaUrl} Icon={CalendarCheck}>Agenda una reunión</Boton>}
             {t.enlaces.map((l, i) => <Boton key={`${l.url}-${i}`} href={l.url} Icon={Link2}>{l.titulo}</Boton>)}
             {verCotizar && <Boton href="/cotizador" Icon={FileText} externo={false}>Pide una cotización</Boton>}
-            {t.web && <Boton href={t.web} Icon={Globe}>Visita nuestra web</Boton>}
             {t.linkedin && <Boton href={t.linkedin} Icon={LinkedinIcon}>LinkedIn</Boton>}
             {t.email && <Boton href={`mailto:${t.email}`} Icon={Mail} externo={false}>{t.email}</Boton>}
             {t.telefono && <Boton href={`tel:${t.telefono.replace(/[^\d+]/g, '')}`} Icon={Phone} externo={false}>{t.telefono}</Boton>}
@@ -118,6 +123,7 @@ export function TarjetaVista({ t }: { t: DatosTarjeta }) {
           )}
           {qr && <Qr svg={qr} label="Código QR de esta tarjeta" className="mt-6 h-28 w-28 rounded-xl bg-white p-2 shadow-md" />}
           <Image src="/logo-fptecnologi.svg" alt={t.empresa} width={130} height={32} className={`mt-8 h-7 w-auto opacity-80 ${t.estilo === 'oscuro' ? 'brightness-0 invert' : ''}`} />
+          {pieWeb && <div className="mt-3">{pieWeb}</div>}
         </main>
       </div>
     );
@@ -138,7 +144,7 @@ export function TarjetaVista({ t }: { t: DatosTarjeta }) {
   ) : (
     <span className={`flex items-center justify-center font-display font-bold ${conAvatar ? 'h-full w-full text-5xl text-white/80' : 'absolute inset-0 text-8xl text-white/30'}`}>{inicial}</span>
   );
-  const hayContacto = !!(wa || t.telefono || t.email || t.agendaUrl || t.linkedin || t.web || verCotizar);
+  const hayContacto = !!(wa || t.telefono || t.email || t.linkedin || verCotizar);
 
   return (
     <div className={`min-h-screen ${e.fondo}`}>
@@ -189,9 +195,7 @@ export function TarjetaVista({ t }: { t: DatosTarjeta }) {
                   {wa && <Accion href={wa} Icon={WhatsAppIcon}>Escríbeme por WhatsApp</Accion>}
                   {t.telefono && <Accion href={`tel:${t.telefono.replace(/[^\d+]/g, '')}`} Icon={Phone} externo={false}>{t.telefono}</Accion>}
                   {t.email && <Accion href={`mailto:${t.email}`} Icon={Mail} externo={false}>{t.email}</Accion>}
-                  {t.agendaUrl && <Accion href={t.agendaUrl} Icon={CalendarCheck}>Agenda una reunión conmigo</Accion>}
                   {t.linkedin && <Accion href={t.linkedin} Icon={LinkedinIcon}>Conecta conmigo en LinkedIn</Accion>}
-                  {t.web && <Accion href={t.web} Icon={Globe}>Visita nuestra web</Accion>}
                   {verCotizar && <Accion href="/cotizador" Icon={FileText} externo={false}>Pide una cotización</Accion>}
                 </div>
               </>
@@ -213,6 +217,7 @@ export function TarjetaVista({ t }: { t: DatosTarjeta }) {
           </section>
         )}
       </main>
+      {pieWeb && <footer className="mx-auto max-w-5xl px-5 pb-8 text-center">{pieWeb}</footer>}
     </div>
   );
 }

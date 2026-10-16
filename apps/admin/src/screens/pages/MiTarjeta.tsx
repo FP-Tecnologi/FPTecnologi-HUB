@@ -110,7 +110,7 @@ export function MiTarjeta() {
   const completa = Math.round(((5 - faltan.length) / 5) * 100);
   const guardada = !!actual;
   const urlPublica = actual?.url ?? '';
-  const datosGrafica = useMemo(() => ({ ...aplicarMostrar(form), empresa: 'FPTecnologi & System' }), [form]);
+  const datosGrafica = useMemo(() => ({ ...aplicarMostrar(form), web: resp?.marca?.web ?? null, empresa: 'FPTecnologi & System' }), [form, resp?.marca?.web]);
 
   // Tarjeta gráfica grande (con el QR de la tarjeta ya guardada).
   useEffect(() => {
@@ -243,8 +243,6 @@ export function MiTarjeta() {
           {campo('whatsapp', 'WhatsApp (con código de país)', { placeholder: '51970614881', ayuda: 'Solo números. Abre un chat directo contigo.' })}
           {campo('email', 'Correo')}
           {campo('linkedin', 'LinkedIn (enlace)', { placeholder: 'https://www.linkedin.com/in/…' })}
-          {campo('web', 'Sitio web (enlace)', { placeholder: 'https://fptecnologi.com' })}
-          {campo('agendaUrl', 'Enlace para agendar una reunión', { placeholder: 'https://calendly.com/…', ayuda: 'Opcional: Calendly, Google Calendar, Teams…' })}
 
           <div className="ax-field" style={{ gap: 'var(--ax-space-2)' }}>
             <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>

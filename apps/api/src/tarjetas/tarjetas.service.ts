@@ -177,8 +177,15 @@ export class TarjetasService {
   }
 
   /** Identidad de la marca para el encabezado de la tarjeta: sin portada propia se usa su color y su logo. */
-  private marcaDe(marcaId: string) {
-    return this.prisma.marca.findFirst({ where: { id: marcaId }, select: { nombre: true, logo: true, colorPrimario: true, colorSecundario: true } });
+  private async marcaDe(marcaId: string) {
+    const m = await this.prisma.marca.findFirst({
+      where: { id: marcaId },
+      select: { nombre: true, logo: true, colorPrimario: true, colorSecundario: true, sitios: { select: { dominio: true }, orderBy: { createdAt: 'asc' }, take: 1 } },
+    });
+    if (!m) return null;
+    // La web de la marca sale de su primer dominio registrado: se muestra como pie de la tarjeta (ya no se pide en cada tarjeta).
+    const dominio = m.sitios?.[0]?.dominio.replace(/^https?:\/\//, '').replace(/\/$/, '');
+    return { nombre: m.nombre, logo: m.logo, colorPrimario: m.colorPrimario, colorSecundario: m.colorSecundario, web: dominio ? `https://${dominio}` : null };
   }
 
   async ver(marcaId: string, slug: string) {
@@ -190,15 +197,15 @@ export class TarjetasService {
     const p = aplicarMostrar(t, mostrar); // lo que su dueño ocultó ni siquiera sale de la API
     return {
       slug: t.slug, estilo: t.estilo, vista: t.vista, nombre: t.nombre, cargo: p.cargo, area: p.area, bio: p.bio, fotoUrl: p.fotoUrl, portadaUrl: t.portadaUrl, telefono: p.telefono, whatsapp: p.whatsapp,
-      email: p.email, linkedin: p.linkedin, web: p.web, agendaUrl: p.agendaUrl, enlaces: p.enlaces, empresa, marca: marca ? { logo: marca.logo, colorPrimario: marca.colorPrimario, colorSecundario: marca.colorSecundario } : null, url, mostrar,
+      email: p.email, linkedin: p.linkedin, web: null, agendaUrl: null, enlaces: p.enlaces, empresa, marca: marca ? { logo: marca.logo, colorPrimario: marca.colorPrimario, colorSecundario: marca.colorSecundario, web: marca.web } : null, url, mostrar,
       qr: mostrar.qr === false ? null : await this.qrDe(url, t),
     };
   }
 
   async vcard(marcaId: string, slug: string) {
-    const { t: tarjeta, empresa } = await this.publica(marcaId, slug);
+    const { t: tarjeta, empresa, marca } = await this.publica(marcaId, slug);
     if (limpiarMostrar(tarjeta.mostrar).vcard === false) throw new NotFoundException('Tarjeta no encontrada');
     const t = aplicarMostrar(tarjeta, tarjeta.mostrar);
-    return { nombre: `${tarjeta.slug}.vcf`, contenido: vcard({ nombre: tarjeta.nombre, cargo: t.cargo, empresa, telefono: t.telefono, whatsapp: t.whatsapp, email: t.email, web: t.web, linkedin: t.linkedin, urlTarjeta: this.urlDe(tarjeta.slug) }) };
+    return { nombre: `${tarjeta.slug}.vcf`, contenido: vcard({ nombre: tarjeta.nombre, cargo: t.cargo, empresa, telefono: t.telefono, whatsapp: t.whatsapp, email: t.email, web: marca?.web ?? null, linkedin: t.linkedin, urlTarjeta: this.urlDe(tarjeta.slug) }) };
   }
 }

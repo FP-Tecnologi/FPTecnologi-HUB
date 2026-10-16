@@ -20,7 +20,7 @@ type Modo = keyof typeof MODOS;
 
 /** `base`: dirección de la web pública que informa la API (WEB_PUBLICA_URL); si no llega, la del panel. */
 /** `onCambio`: si se pasa, la vista previa trae también los selectores de diseño y estilo (se cambian y se ven ahí mismo). */
-export interface MarcaTarjeta { nombre: string; logo: string | null; colorPrimario: string | null; colorSecundario: string | null }
+export interface MarcaTarjeta { nombre: string; logo: string | null; colorPrimario: string | null; colorSecundario: string | null; web?: string | null }
 
 export function VistaPreviaReal({ t, url, base, marca, onCambio }: { t: Tarjeta; url?: string; base?: string; marca?: MarcaTarjeta | null; onCambio?: <K extends 'vista' | 'estilo'>(k: K, valor: Tarjeta[K]) => void }) {
   const WEB = (base || WEB_ENV).replace(/\/$/, '');
@@ -68,7 +68,9 @@ export function VistaPreviaReal({ t, url, base, marca, onCambio }: { t: Tarjeta;
       fotoUrl: v.fotoUrl ? urlImagen(v.fotoUrl) : null,
       portadaUrl: v.portadaUrl ? urlImagen(v.portadaUrl) : null,
       empresa: marca?.nombre ?? 'FPTecnologi & System',
-      marca: marca ? { logo: marca.logo ? urlImagen(marca.logo) : null, colorPrimario: marca.colorPrimario, colorSecundario: marca.colorSecundario } : null,
+      web: null,
+      agendaUrl: null,
+      marca: marca ? { logo: marca.logo ? urlImagen(marca.logo) : null, colorPrimario: marca.colorPrimario, colorSecundario: marca.colorSecundario, web: marca.web ?? null } : null,
       url: url || `${WEB}/tarjeta/${t.slug || 'tu-enlace'}`,
       qr: m.qr === false ? null : qr,
       mostrar: { cotizar: m.cotizar !== false, vcard: m.vcard !== false, compartir: m.compartir !== false, qr: m.qr !== false },
