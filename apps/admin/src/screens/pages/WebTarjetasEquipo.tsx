@@ -4,7 +4,7 @@
  * el equipo, qué le falta a cada una, enlace único, y puede EDITAR cualquiera (o crear la de quien aún no la tiene), con
  * vista previa en vivo. Cada persona también edita la suya en Mi cuenta → Mi tarjeta digital.
  */
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { PageHead } from '../../components/shell/PageHead';
 import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
@@ -37,12 +37,16 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
   const [guardando, setGuardando] = useState(false);
   const [eligiendo, setEligiendo] = useState(false);
 
+  // Si la API se reinicia o hay un corte breve, se reintenta una vez sola antes de mostrar el aviso.
+  const reintento = useRef(false);
   const cargar = useCallback(async () => {
     try {
       setDatos(await api.get<Datos>('/tarjetas'));
       setError('');
+      reintento.current = false;
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : 'No se pudieron cargar las tarjetas.');
+      if (!reintento.current) { reintento.current = true; setTimeout(() => void cargar(), 2500); return; }
+      setError(e instanceof ApiError ? e.message : 'No se pudieron cargar las tarjetas. Recarga la página.');
     }
   }, []);
   useEffect(() => { cargar(); }, [cargar, activeMarcaId]);
