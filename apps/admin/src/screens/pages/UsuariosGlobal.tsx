@@ -11,7 +11,7 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 
 interface Asig { marcaId: string; rolId: string; marca: { nombre: string }; rol: { nombre: string } }
-interface Usuario { id: string; email: string; nombre: string | null; cargo: string | null; activo: boolean; totpEnabled: boolean; createdAt: string; marcas: Asig[] }
+interface Usuario { id: string; email: string; nombre: string | null; cargo: string | null; activo: boolean; totpEnabled: boolean; superAdmin: boolean; createdAt: string; marcas: Asig[] }
 interface Respuesta { usuarios: Usuario[]; marcas: { id: string; nombre: string }[]; roles: { id: string; nombre: string }[] }
 
 const msg = (e: unknown, d: string) => (e instanceof ApiError ? e.message : d);
@@ -138,7 +138,7 @@ export function UsuariosGlobal() {
                     <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'nowrap' }}>
                       <span className="ax-avatar ax-avatar--sm" style={{ background: 'var(--ax-accent-wash)', color: 'var(--ax-accent)' }}><span className="ax-avatar__initials">{(u.nombre || u.email).split(/[\s@.]+/).filter(Boolean).slice(0, 2).map((x) => x[0]!.toUpperCase()).join('')}</span></span>
                       <div>
-                        <div style={{ fontWeight: 'var(--ax-weight-medium)', color: 'var(--ax-text-strong)' }}>{u.nombre || u.email}{u.id === user?.id ? ' (tú)' : ''}</div>
+                        <div style={{ fontWeight: 'var(--ax-weight-medium)', color: 'var(--ax-text-strong)' }}>{u.nombre || u.email}{u.id === user?.id ? ' (tú)' : ''}{u.superAdmin && <span className="ax-badge ax-badge--soft ax-badge--accent ax-badge--pill" style={{ marginInlineStart: 8 }}>Super admin</span>}</div>
                         <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{u.email}{u.cargo ? ` · ${u.cargo}` : ''}</div>
                       </div>
                     </div>
@@ -173,6 +173,8 @@ export function UsuariosGlobal() {
                     <details style={{ position: 'relative', display: 'inline-block' }}>
                       <summary className="ax-btn ax-btn--ghost ax-btn--sm" style={{ listStyle: 'none', cursor: 'pointer' }}>Acciones ▾</summary>
                       <div className="ax-card" style={{ position: 'absolute', right: 0, zIndex: 20, minWidth: 230, padding: 'var(--ax-space-1)', textAlign: 'left' }}>
+                        <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm ax-btn--block" style={{ justifyContent: 'flex-start' }} disabled={u.id === user?.id && u.superAdmin}
+                          onClick={(e) => { cerrarMenu(e.currentTarget); window.confirm(u.superAdmin ? `¿Quitar el rol de super administrador a ${u.email}? Dejará de ver Administración (seguirá como admin de sus marcas).` : `¿Hacer super administrador a ${u.email}? Verá y podrá usar toda la Administración y será admin de todas las marcas.`) && void seguridad(() => api.patch(`/usuarios/global/${u.id}/super-admin`, { superAdmin: !u.superAdmin }), u.superAdmin ? 'Ya no es super administrador.' : `${u.email} ahora es super administrador.`, 'No se pudo cambiar el rol de super administrador.'); }}>{u.superAdmin ? 'Quitar super administrador' : 'Hacer super administrador'}</button>
                         <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm ax-btn--block" style={{ justifyContent: 'flex-start' }}
                           onClick={(e) => { cerrarMenu(e.currentTarget); void seguridad(() => api.post(`/usuarios/global/${u.id}/reset-password`), `Correo de restablecimiento enviado a ${u.email}.`, 'No se pudo enviar el correo.'); }}>Enviar correo para restablecer contraseña</button>
                         <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm ax-btn--block" style={{ justifyContent: 'flex-start' }}

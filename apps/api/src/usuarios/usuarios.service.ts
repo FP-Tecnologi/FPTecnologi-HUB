@@ -16,9 +16,9 @@ export class UsuariosService {
 
   /** Estado del 2FA por app autenticadora del propio usuario (la pantalla de Ajustes lo muestra). */
   async seguridad(usuarioId: string) {
-    const u = await this.prisma.usuario.findUnique({ where: { id: usuarioId }, select: { totpEnabled: true } });
+    const u = await this.prisma.usuario.findUnique({ where: { id: usuarioId }, select: { totpEnabled: true, superAdmin: true } });
     if (!u) throw new NotFoundException('Usuario no encontrado');
-    return { totpEnabled: u.totpEnabled };
+    return { totpEnabled: u.totpEnabled, superAdmin: u.superAdmin };
   }
 
   /**

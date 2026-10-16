@@ -53,11 +53,11 @@ const CARET = (
 );
 
 function MarcaSwitcher() {
-  const { marcas, activeMarcaId, setActiveMarcaId, adminMode, setAdminMode } = useAuth();
+  const { marcas, activeMarcaId, setActiveMarcaId, adminMode, setAdminMode, esSuperAdmin } = useAuth();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const active = marcas.find((m) => m.marcaId === activeMarcaId) ?? marcas[0] ?? null;
-  const isAdmin = marcas.some((m) => m.rol.nombre.toLowerCase() === 'admin');
+  const isAdmin = esSuperAdmin;
   const showCombo = marcas.length > 1 || isAdmin;
 
   return (
@@ -325,8 +325,8 @@ function ApiStatus() {
 export function Sidebar({ drawerOpen = false, onNavToggle }: { drawerOpen?: boolean; onNavToggle: () => void }) {
   const activeSlug = slugFromPath(usePathname() || '/');
   const rootRef = useRef<HTMLElement>(null);
-  const { marcas, activeMarcaId, adminMode } = useAuth();
-  const isAdmin = marcas.some((m) => m.rol.nombre.toLowerCase() === 'admin');
+  const { marcas, activeMarcaId, adminMode, esSuperAdmin } = useAuth();
+  const isAdmin = esSuperAdmin;
   const roleName = adminMode
     ? (isAdmin ? 'admin' : (marcas[0]?.rol.nombre ?? null))
     : (marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre ?? null);

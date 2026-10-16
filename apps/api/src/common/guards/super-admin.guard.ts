@@ -3,30 +3,31 @@ import type { Request } from 'express';
 import { PrismaService } from '../../prisma/prisma.service.js';
 import type { AuthenticatedUser } from '../../auth/types/authenticated-user.js';
 
-const CACHE_MS = 30_000;
+const CACHE_MS = 15_000;
 
 /**
- * Super admin = usuario con rol `admin` en TODAS las marcas existentes. No hay un rol aparte: se deduce de las
- * asignaciones, así que no hay nada que migrar ni un rol "especial" que pueda quedar suelto. Protege lo que cruza
- * marcas (alta/baja de marcas, listado global de usuarios). Usar después de JwtAuthGuard.
+ * Super administrador = usuario con la marca `superAdmin` (Usuario.superAdmin). Es el único rol que ve y usa
+ * Administración (usuarios de todas las marcas, marcas, actividad, soporte). Ser admin de una marca no basta.
+ * Se asigna y se quita desde Administración → Usuarios. Usar después de JwtAuthGuard.
  */
 @Injectable()
 export class SuperAdminGuard implements CanActivate {
-  private cache: { at: number; ids: string[] } | null = null;
+  private readonly cache = new Map<string, { at: number; ok: boolean }>();
 
   constructor(private readonly prisma: PrismaService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const user = context.switchToHttp().getRequest<Request & { user?: AuthenticatedUser }>().user;
     if (!user) throw new ForbiddenException('Sin sesión');
-    if (!this.cache || Date.now() - this.cache.at > CACHE_MS) {
-      const marcas = await this.prisma.marca.findMany({ select: { id: true } });
-      this.cache = { at: Date.now(), ids: marcas.map((m) => m.id) };
+    const hit = this.cache.get(user.sub);
+    let ok: boolean;
+    if (hit && Date.now() - hit.at < CACHE_MS) ok = hit.ok;
+    else {
+      const u = await this.prisma.usuario.findUnique({ where: { id: user.sub }, select: { superAdmin: true, activo: true } });
+      ok = !!u?.superAdmin && u.activo;
+      this.cache.set(user.sub, { at: Date.now(), ok });
     }
-    const admin = new Set(user.marcas.filter((m) => m.rol === 'admin').map((m) => m.marcaId));
-    if (this.cache.ids.length === 0 || !this.cache.ids.every((id) => admin.has(id))) {
-      throw new ForbiddenException('Solo el super administrador (admin de todas las marcas) puede hacer esto');
-    }
+    if (!ok) throw new ForbiddenException('Solo el super administrador puede hacer esto');
     return true;
   }
 }

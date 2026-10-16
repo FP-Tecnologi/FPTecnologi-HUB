@@ -8,6 +8,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user.js';
 
 class ActivoDto { @IsBoolean() activo!: boolean }
+class SuperAdminDto { @IsBoolean() superAdmin!: boolean }
 class PasswordDto { @IsString() @MinLength(8) password!: string }
 class AsignacionDto { @IsString() marcaId!: string; @IsString() rolId!: string }
 
@@ -40,6 +41,11 @@ export class UsuariosGlobalController {
   @Delete(':id/asignaciones/:marcaId/:rolId')
   quitar(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string, @Param('marcaId') marcaId: string, @Param('rolId') rolId: string) {
     return this.global.quitar(user.sub, id, marcaId, rolId).then((r) => { this.log(user, 'rol_quitado', `Usuario ${id} · rol ${rolId}`, marcaId); return r; });
+  }
+
+  @Patch(':id/super-admin')
+  superAdmin(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string, @Body() dto: SuperAdminDto) {
+    return this.global.superAdmin(user.sub, id, dto.superAdmin).then((r) => { this.log(user, dto.superAdmin ? 'super_admin_asignado' : 'super_admin_quitado', `Usuario ${id}`); return r; });
   }
 
   @Post(':id/reset-password')

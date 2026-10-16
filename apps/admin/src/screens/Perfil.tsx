@@ -30,13 +30,12 @@ function Dato({ label, valor }: { label: string; valor?: string | null }) {
 }
 
 export function Perfil() {
-  const { user, marcas, activeMarcaId, setActiveMarcaId } = useAuth();
+  const { user, marcas, activeMarcaId, setActiveMarcaId, esSuperAdmin } = useAuth();
   const [totp, setTotp] = useState<boolean | null>(null);
   useEffect(() => {
     api.get<{ totpEnabled: boolean }>('/usuarios/me/seguridad').then((r) => setTotp(r.totpEnabled)).catch(() => setTotp(null));
   }, []);
 
-  const esSuperAdmin = marcas.length > 0 && marcas.every((m) => m.rol.nombre.toLowerCase() === 'admin');
   const rolesUnicos = [...new Set(marcas.map((m) => m.rol.nombre))];
   const rolPrincipal = esSuperAdmin ? 'Super administrador' : (rolesUnicos[0] ?? 'Sin rol');
 

@@ -22,7 +22,7 @@ export class UsuariosGlobalService {
         ...(f.marcaId || f.rolId ? { marcas: { some: { ...(f.marcaId ? { marcaId: f.marcaId } : {}), ...(f.rolId ? { rolId: f.rolId } : {}) } } } : {}),
       },
       select: {
-        id: true, email: true, nombre: true, cargo: true, activo: true, totpEnabled: true, createdAt: true,
+        id: true, email: true, nombre: true, cargo: true, activo: true, totpEnabled: true, superAdmin: true, createdAt: true,
         marcas: { select: { marcaId: true, rolId: true, marca: { select: { nombre: true } }, rol: { select: { nombre: true } } } },
       },
       orderBy: { createdAt: 'desc' },
@@ -50,6 +50,31 @@ export class UsuariosGlobalService {
     if (!u || !m || !r) throw new NotFoundException('Usuario, marca o rol no encontrado');
     await this.prisma.usuarioMarcaRol.createMany({ data: [{ usuarioId, marcaId, rolId }], skipDuplicates: true });
     return { asignado: true };
+  }
+
+  /**
+   * Hacer o quitar el rol de super administrador. Al hacerlo se le asigna además admin en todas las marcas (para que
+   * pueda gestionarlas). Nadie se lo quita a sí mismo y siempre debe quedar al menos uno.
+   */
+  async superAdmin(actorId: string, usuarioId: string, activar: boolean) {
+    const u = await this.prisma.usuario.findUnique({ where: { id: usuarioId }, select: { id: true, activo: true } });
+    if (!u) throw new NotFoundException('Usuario no encontrado');
+    if (!activar) {
+      if (actorId === usuarioId) throw new BadRequestException('No puedes quitarte tu propio rol de super administrador');
+      const otros = await this.prisma.usuario.count({ where: { superAdmin: true, activo: true, id: { not: usuarioId } } });
+      if (otros === 0) throw new BadRequestException('Debe quedar al menos un super administrador');
+    } else if (!u.activo) {
+      throw new BadRequestException('Activa la cuenta antes de hacerla super administradora');
+    }
+    await this.prisma.usuario.update({ where: { id: usuarioId }, data: { superAdmin: activar } });
+    if (activar) {
+      const [marcas, admin] = await Promise.all([
+        this.prisma.marca.findMany({ select: { id: true } }),
+        this.prisma.rol.findUnique({ where: { nombre: 'admin' }, select: { id: true } }),
+      ]);
+      if (admin) await this.prisma.usuarioMarcaRol.createMany({ data: marcas.map((m) => ({ usuarioId, marcaId: m.id, rolId: admin.id })), skipDuplicates: true });
+    }
+    return { superAdmin: activar };
   }
 
   /** Nadie se quita a sí mismo el rol admin (podría quedarse sin acceso a la administración global). */

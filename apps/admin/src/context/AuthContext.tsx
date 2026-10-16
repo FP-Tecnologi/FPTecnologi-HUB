@@ -63,6 +63,8 @@ interface AuthContextValue {
   }) => Promise<AuthUser>;
   /** Vista global de administración (Panel general + gestión): sin marca activa. */
   adminMode: boolean;
+  /** Super administrador de la plataforma: el único que ve y usa Administración. */
+  esSuperAdmin: boolean;
   setAdminMode: (on: boolean) => void;
   refreshMarcas: () => Promise<void>;
 }
@@ -96,6 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [marcas, setMarcas] = useState<MarcaAsignada[]>([]);
   const [activeMarcaId, setActiveMarcaIdState] = useState<string | null>(null);
   const [adminMode, setAdminModeState] = useState(false);
+  const [esSuperAdmin, setEsSuperAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const setAdminMode = useCallback((on: boolean) => {
@@ -116,9 +119,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const refreshMarcas = useCallback(async () => {
     try {
-      const list = await api.get<MarcaAsignada[]>('/usuarios/me/marcas');
+      const [list, seg] = await Promise.all([
+        api.get<MarcaAsignada[]>('/usuarios/me/marcas'),
+        api.get<{ superAdmin?: boolean }>('/usuarios/me/seguridad').catch(() => ({ superAdmin: false })),
+      ]);
       setMarcas(list);
-      const isAdmin = list.some((m) => m.rol.nombre.toLowerCase() === 'admin');
+      const isAdmin = !!seg.superAdmin;
+      setEsSuperAdmin(isAdmin);
       if (readAdminFlag() && isAdmin) {
         tokenStore.setActiveMarcaId(null);
         setActiveMarcaIdState(null);
@@ -239,11 +246,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AuthContextValue>(() => ({
     user, marcas, activeMarcaId, loading, login, verifyOtp, verifyTotp, completeGoogleLogin,
     requestPasswordReset, confirmPasswordReset,
-    logout, setActiveMarcaId, adminMode, setAdminMode, refreshMarcas, updateProfile,
+    logout, setActiveMarcaId, adminMode, esSuperAdmin, setAdminMode, refreshMarcas, updateProfile,
   }), [
     user, marcas, activeMarcaId, loading, login, verifyOtp, verifyTotp, completeGoogleLogin,
     requestPasswordReset, confirmPasswordReset,
-    logout, setActiveMarcaId, adminMode, setAdminMode, refreshMarcas, updateProfile,
+    logout, setActiveMarcaId, adminMode, esSuperAdmin, setAdminMode, refreshMarcas, updateProfile,
   ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

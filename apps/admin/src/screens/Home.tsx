@@ -17,8 +17,8 @@ import { useAuth } from '../context/AuthContext';
 
 export function Home() {
   const router = useRouter();
-  const { user, marcas, activeMarcaId, adminMode, setAdminMode } = useAuth();
-  const esAdmin = marcas.some((m) => m.rol.nombre.toLowerCase() === 'admin');
+  const { user, marcas, activeMarcaId, adminMode, setAdminMode, esSuperAdmin } = useAuth();
+  const esAdmin = esSuperAdmin;
 
   function gestionar(marcaId: string) {
     // "Ver dashboard" desde Administración no debe activar la marca ni sacar
