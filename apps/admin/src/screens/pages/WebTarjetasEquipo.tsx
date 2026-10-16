@@ -10,7 +10,6 @@ import { PageHead } from '../../components/shell/PageHead';
 import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
 import { ApiError, useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
-import { ESTILOS_TARJETA, type EstiloTarjeta } from '../../lib/tarjetaGrafica';
 import { PanelOpciones } from '../../components/tarjeta/PanelOpciones';
 import { VistaPreviaReal } from '../../components/tarjeta/VistaPreviaReal';
 import { MenuPuntos } from '../../components/ui/MenuPuntos';
@@ -112,6 +111,7 @@ export function WebTarjetasEquipo() {
           <table className="ax-table ax-table--hover">
             <thead className="ax-table__head">
               <tr>
+                <th className="ax-table__th" scope="col">Visible</th>
                 <th className="ax-table__th" scope="col">Persona</th>
                 <th className="ax-table__th" scope="col">Versión</th>
                 <th className="ax-table__th" scope="col">Cargo / área</th>
@@ -123,12 +123,15 @@ export function WebTarjetasEquipo() {
             </thead>
             <tbody>
               {!datos ? (
-                <tr><td className="ax-table__td" colSpan={7}>Cargando…</td></tr>
+                <tr><td className="ax-table__td" colSpan={8}>Cargando…</td></tr>
               ) : visibles.length === 0 ? (
-                <tr><td className="ax-table__td" colSpan={7} style={{ color: 'var(--ax-text-muted)' }}>{datos.tarjetas.length === 0 ? 'Aún nadie del equipo creó su tarjeta.' : 'Ninguna tarjeta coincide con el filtro.'}</td></tr>
+                <tr><td className="ax-table__td" colSpan={8} style={{ color: 'var(--ax-text-muted)' }}>{datos.tarjetas.length === 0 ? 'Aún nadie del equipo creó su tarjeta.' : 'Ninguna tarjeta coincide con el filtro.'}</td></tr>
               ) : (
                 visibles.map((f) => (
                   <tr key={f.id} className="ax-table__row" style={{ opacity: f.activo ? 1 : 0.6 }}>
+                    <td className="ax-table__td">
+                      <input type="checkbox" className="ax-switch" checked={f.activo} aria-label={`Tarjeta de ${f.nombre} visible al público`} onChange={() => void alternar(f)} />
+                    </td>
                     <td className="ax-table__td">
                       <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'nowrap' }}>
                         {f.fotoUrl ? (
@@ -156,7 +159,6 @@ export function WebTarjetasEquipo() {
                         { etiqueta: 'Editar', onClick: () => setEdit({ id: f.id, quien: f.propietario ?? f.nombre, form: f }) },
                         { etiqueta: 'Copiar enlace', onClick: () => void copiar(f.url) },
                         { etiqueta: 'Abrir tarjeta', href: f.url },
-                        { etiqueta: f.activo ? 'Ocultar al público' : 'Mostrar al público', onClick: () => void alternar(f) },
                       ]} />
                     </td>
                   </tr>
@@ -247,15 +249,6 @@ export function WebTarjetasEquipo() {
                 ))}
               </div>
 
-              <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
-                <select className="ax-select" aria-label="Diseño de la página" value={edit.form.vista} onChange={(e) => set('vista', e.target.value as Tarjeta['vista'])}>
-                  <option value="perfil">Diseño: Perfil completo</option>
-                  <option value="linktree">Diseño: Linktree</option>
-                </select>
-                <select className="ax-select" aria-label="Estilo" value={edit.form.estilo} onChange={(e) => set('estilo', e.target.value as EstiloTarjeta)}>
-                  {ESTILOS_TARJETA.map((e) => <option key={e.id} value={e.id}>Estilo: {e.nombre}</option>)}
-                </select>
-              </div>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
                 <button type="button" className="ax-btn ax-btn--primary" disabled={guardando || edit.form.nombre.trim().length < 2} onClick={guardar}>{guardando ? 'Guardando…' : 'Guardar cambios'}</button>
                 <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEdit(null)}>Cancelar</button>
@@ -263,15 +256,8 @@ export function WebTarjetasEquipo() {
             </div>
 
             <div style={{ flex: '1.7 1 36rem', minWidth: 0, alignSelf: 'flex-start' }}>
-              <VistaPreviaReal base={datos?.webBase} t={edit.form} url={edit.id ? datos?.tarjetas.find((x) => x.id === edit.id)?.url : undefined} />
+              <VistaPreviaReal onCambio={set} base={datos?.webBase} t={edit.form} url={edit.id ? datos?.tarjetas.find((x) => x.id === edit.id)?.url : undefined} />
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)', marginBlockStart: 'var(--ax-space-4)' }}>
-                <section className="ax-card" style={{ padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-2)' }}>
-                  <strong>Visibilidad</strong>
-                  <label className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap', fontSize: 'var(--ax-text-sm)' }}>
-                    <input type="checkbox" className="ax-switch" checked={edit.form.activo} onChange={(e) => set('activo', e.target.checked)} />
-                    {edit.form.activo ? 'Tarjeta visible al público' : 'Tarjeta oculta: el enlace y el QR no muestran nada'}
-                  </label>
-                </section>
                 <PanelOpciones t={edit.form} onCambio={set} solo="mostrar" />
                 <PanelOpciones t={edit.form} onCambio={set} solo="qr" />
               </div>
