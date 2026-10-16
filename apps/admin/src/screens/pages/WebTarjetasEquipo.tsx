@@ -5,6 +5,7 @@
  * vista previa en vivo. Cada persona también edita la suya en Mi cuenta → Mi tarjeta digital.
  */
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { PageHead } from '../../components/shell/PageHead';
 import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
 import { ApiError, useAuth } from '../../context/AuthContext';
@@ -24,8 +25,8 @@ type Edicion = { id?: string; usuarioId?: string; quien: string; form: Tarjeta }
 const ESTILO: Record<string, string> = { clasico: 'Clásico', moderno: 'Moderno', oscuro: 'Oscuro', minimal: 'Minimal' };
 const v = (x: string | null | undefined) => x ?? '';
 
-/** `acciones`: se muestran a la derecha del título de la lista (p. ej. el selector de marca en Administración). */
-export function WebTarjetasEquipo({ acciones }: { acciones?: ReactNode }) {
+/** `filtroMarca`: selector de marca que se suma a los filtros de la tabla (Administración). */
+export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) {
   const { activeMarcaId } = useAuth();
   const [datos, setDatos] = useState<Datos | null>(null);
   const [error, setError] = useState('');
@@ -34,6 +35,7 @@ export function WebTarjetasEquipo({ acciones }: { acciones?: ReactNode }) {
   const [filtro, setFiltro] = useState<'todas' | 'incompletas' | 'ocultas'>('todas');
   const [edit, setEdit] = useState<Edicion | null>(null);
   const [guardando, setGuardando] = useState(false);
+  const [eligiendo, setEligiendo] = useState(false);
 
   const cargar = useCallback(async () => {
     try {
@@ -44,6 +46,12 @@ export function WebTarjetasEquipo({ acciones }: { acciones?: ReactNode }) {
     }
   }, []);
   useEffect(() => { cargar(); }, [cargar, activeMarcaId]);
+  useEffect(() => {
+    if (!eligiendo) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setEligiendo(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [eligiendo]);
 
   const visibles = useMemo(() => {
     const t = q.trim().toLowerCase();
@@ -207,18 +215,19 @@ export function WebTarjetasEquipo({ acciones }: { acciones?: ReactNode }) {
 
   return (
     <>
-      <PageHead title="Tarjetas del equipo" subtitle="Todas las tarjetas digitales del equipo en una tabla. Puedes editar la de cualquier persona, crear la de quien aún no la tiene, ocultarla o copiar su enlace." actions={acciones} />
+      <PageHead title="Tarjetas del equipo" subtitle="Todas las tarjetas digitales del equipo en una tabla. Puedes editar la de cualquier persona, crear la de quien aún no la tiene, ocultarla o copiar su enlace." actions={<button type="button" className="ax-btn ax-btn--primary" disabled={!datos || datos.sinTarjeta.length === 0} title={datos && datos.sinTarjeta.length === 0 ? 'Todo el equipo ya tiene su tarjeta' : undefined} onClick={() => setEligiendo(true)}><span className="ax-btn__label">Crear tarjeta</span></button>} />
       {error && <p role="alert" style={{ color: 'var(--ax-danger-500)' }}>{error}</p>}
       {aviso && <p role="status" style={{ color: 'var(--ax-text-muted)' }}>{aviso}</p>}
 
       <section className="ax-card" style={{ padding: 'var(--ax-space-4)' }}>
-        <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap', marginBlockEnd: 'var(--ax-space-3)' }}>
-          <input className="ax-input" style={{ maxWidth: 260 }} placeholder="Buscar persona, cargo, área o enlace…" aria-label="Buscar" value={q} onChange={(e) => setQ(e.target.value)} />
-          {(['todas', 'incompletas', 'ocultas'] as const).map((id) => (
-            <button key={id} type="button" aria-pressed={filtro === id} className={`ax-btn ax-btn--sm ${filtro === id ? 'ax-btn--secondary' : 'ax-btn--ghost'}`} onClick={() => setFiltro(id)}>
-              {id === 'todas' ? `Todas (${datos?.tarjetas.length ?? 0})` : id === 'incompletas' ? 'Incompletas' : 'Ocultas'}
-            </button>
-          ))}
+        <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', marginBlockEnd: 'var(--ax-space-3)', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <input type="search" className="ax-input" style={{ width: 240 }} placeholder="Buscar persona, cargo o enlace" aria-label="Buscar" value={q} onChange={(e) => setQ(e.target.value)} />
+          {filtroMarca}
+          <select className="ax-select" style={{ width: 'auto' }} aria-label="Filtrar por estado" value={filtro} onChange={(e) => setFiltro(e.target.value as typeof filtro)}>
+            <option value="todas">Todas ({datos?.tarjetas.length ?? 0})</option>
+            <option value="incompletas">Incompletas</option>
+            <option value="ocultas">Ocultas</option>
+          </select>
         </div>
         <div className="ax-table-wrap">
           <table className="ax-table ax-table--hover">
@@ -282,25 +291,28 @@ export function WebTarjetasEquipo({ acciones }: { acciones?: ReactNode }) {
         </div>
       </section>
 
-      {datos && datos.sinTarjeta.length > 0 && (
-        <section className="ax-card" style={{ padding: 'var(--ax-space-4)', marginBlockStart: 'var(--ax-space-4)' }}>
-          <strong>Aún sin tarjeta ({datos.sinTarjeta.length})</strong>
-          <p style={{ margin: '4px 0 8px', fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>Puedes crearla tú por ellos o pedirles que entren a Mi cuenta → Mi tarjeta digital.</p>
-          <div className="ax-table-wrap">
-            <table className="ax-table">
-              <tbody>
-                {datos.sinTarjeta.map((s) => (
-                  <tr key={s.usuarioId} className="ax-table__row">
-                    <td className="ax-table__td">{s.nombre}<span style={{ color: 'var(--ax-text-subtle)' }}> · {s.rol}</span></td>
-                    <td className="ax-table__td" style={{ textAlign: 'right' }}>
-                      <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => setEdit({ usuarioId: s.usuarioId, quien: s.nombre, form: { ...VACIA, nombre: s.nombre, email: s.email } })}>Crear tarjeta</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {eligiendo && datos && createPortal(
+        <div role="dialog" aria-modal="true" aria-labelledby="nt-title" style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(8,10,16,.55)', backdropFilter: 'blur(2px)', display: 'grid', placeItems: 'center', padding: 'var(--ax-space-4)' }} onClick={(e) => { if (e.target === e.currentTarget) setEligiendo(false); }}>
+          <div className="ax-card" style={{ width: 'min(480px, 100%)', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
+            <div className="ax-card__header">
+              <div className="ax-card__titles"><h2 className="ax-card__title" id="nt-title">Nueva tarjeta</h2><p className="ax-card__subtitle">Estas personas del equipo aún no tienen tarjeta. Elige para quién la creas.</p></div>
+            </div>
+            <ul className="ax-card__body" style={{ listStyle: 'none', margin: 0, paddingTop: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-1)' }}>
+              {datos.sinTarjeta.map((p) => (
+                <li key={p.usuarioId}>
+                  <button type="button" className="ax-btn ax-btn--ghost ax-btn--block" style={{ justifyContent: 'space-between' }} onClick={() => { setEligiendo(false); setEdit({ usuarioId: p.usuarioId, quien: p.nombre, form: { ...VACIA, nombre: p.nombre, email: p.email } }); }}>
+                    <span>{p.nombre}</span>
+                    <span style={{ color: 'var(--ax-text-subtle)', fontSize: 'var(--ax-text-xs)' }}>{p.rol}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+            <div className="ax-card__body" style={{ paddingTop: 0, display: 'flex', justifyContent: 'flex-end' }}>
+              <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEligiendo(false)}>Cancelar</button>
+            </div>
           </div>
-        </section>
+        </div>,
+        document.body,
       )}
     </>
   );

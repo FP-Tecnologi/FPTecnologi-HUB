@@ -33,14 +33,13 @@ export function TarjetasAdmin() {
 
   const selector = (
     <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
-      <label htmlFor="ta-marca" style={{ color: 'var(--ax-text-muted)', fontSize: 'var(--ax-text-sm)' }}>Marca</label>
-      <select id="ta-marca" className="ax-select" style={{ width: 'auto' }} value={sel} onChange={(e) => setSel(e.target.value)}>
+      <select id="ta-marca" className="ax-select" aria-label="Filtrar por marca" style={{ width: 'auto' }} value={sel} onChange={(e) => setSel(e.target.value)}>
         {marcas.map((m) => <option key={m.marcaId} value={m.marcaId}>{m.marca.nombre}</option>)}
       </select>
     </div>
   );
 
-  return listo && listo === sel ? <WebTarjetasEquipo key={sel} acciones={selector} /> : null;
+  return listo && listo === sel ? <WebTarjetasEquipo key={sel} filtroMarca={selector} /> : null;
 }
 
 export default TarjetasAdmin;
