@@ -153,8 +153,8 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
                 {edit.form.portadaUrl && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => set('portadaUrl', '')}>Quitar portada</button>}
               </div>
             </div>
-            {campo('etiqueta', 'Nombre de la versión', 'Comercial, Redes…')}
             {campo('nombre', 'Nombre completo')}
+            {campo('slug', 'Enlace único (/tarjeta/…)', 'se genera con el nombre')}
             {campo('cargo', 'Cargo', undefined, 'cargo')}
             <div className="ax-field">
               <div className="ax-cluster" style={{ justifyContent: 'space-between', flexWrap: 'nowrap' }}>
@@ -174,7 +174,6 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
             {campo('whatsapp', 'WhatsApp (solo números con código de país)', '51970614881', 'whatsapp')}
             {campo('email', 'Correo', undefined, 'email')}
             {campo('linkedin', 'LinkedIn (enlace)', 'https://www.linkedin.com/in/…', 'linkedin')}
-            {campo('slug', 'Enlace único (/tarjeta/…)', 'se genera con el nombre')}
 
             <div className="ax-field" style={{ gap: 'var(--ax-space-2)' }}>
               <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
@@ -243,7 +242,7 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
               <tr>
                 <th className="ax-table__th" scope="col">Visible</th>
                 <th className="ax-table__th" scope="col">Persona</th>
-                <th className="ax-table__th" scope="col">Versión</th>
+                <th className="ax-table__th" scope="col">Contacto</th>
                 <th className="ax-table__th" scope="col">Cargo / área</th>
                 <th className="ax-table__th" scope="col">Diseño</th>
                 <th className="ax-table__th" scope="col">Visitas</th>
@@ -276,7 +275,7 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
                         </div>
                       </div>
                     </td>
-                    <td className="ax-table__td">{f.etiqueta}</td>
+                    <td className="ax-table__td">{[f.email, f.telefono || (f.whatsapp ? `+${f.whatsapp}` : null)].filter(Boolean).join(' · ') || <span style={{ color: 'var(--ax-text-subtle)' }}>Sin contacto</span>}</td>
                     <td className="ax-table__td">{[f.cargo, f.area].filter(Boolean).join(' · ') || <span style={{ color: 'var(--ax-text-subtle)' }}>Sin cargo</span>}</td>
                     <td className="ax-table__td">{f.vista === 'linktree' ? 'Linktree' : 'Perfil'} · {ESTILO[f.estilo] ?? f.estilo}</td>
                     <td className="ax-table__td">{f.vistas}</td>
