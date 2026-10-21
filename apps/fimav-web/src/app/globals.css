@@ -12,7 +12,7 @@
 
 html { background: #fff; color: var(--color-carbon); scroll-behavior: smooth; }
 body { font-family: var(--font-sans); }
-:focus-visible { outline: 2px solid var(--color-rojo); outline-offset: 3px; border-radius: 4px; }
+@layer base { :focus-visible { outline: 2px solid var(--color-rojo); outline-offset: 3px; border-radius: 4px; } }
 ::selection { background: rgba(224, 36, 36, 0.25); }
 h1, h2, h3 { text-wrap: balance; }
 p, li { text-wrap: pretty; }
