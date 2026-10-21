@@ -13,7 +13,7 @@ const legales = [
 
 export default function Footer() {
   return (
-    <footer className="mt-16 bg-carbon pt-32 text-white" style={{ clipPath: 'polygon(0 0, 50% 18%, 100% 0, 100% 100%, 0 100%)' }}>
+    <footer className="print:hidden mt-16 bg-carbon pt-32 text-white" style={{ clipPath: 'polygon(0 0, 50% 18%, 100% 0, 100% 100%, 0 100%)' }}>
       <div className="mx-auto grid max-w-6xl gap-10 px-4 pb-10 md:grid-cols-3">
         <div>
           <span className="inline-block rounded-xl bg-white p-2">

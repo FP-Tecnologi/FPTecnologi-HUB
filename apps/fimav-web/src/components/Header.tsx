@@ -11,7 +11,7 @@ const enlaces = [
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-40 border-b border-gris bg-white">
+    <header className="print:hidden sticky top-0 z-40 border-b border-gris bg-white">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4">
         <Link href="/" aria-label="Fimav Perú, inicio">
           <Logo className="h-14 w-auto object-contain" />
