@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef } from 'react';
-import BotonHex from './hex/BotonHex';
+import BotonHex, { CapasHex } from './hex/BotonHex';
 
 export default function MenuMovil({ enlaces }: { enlaces: { href: string; texto: string }[] }) {
   const ref = useRef<HTMLDetailsElement>(null);
@@ -23,7 +23,9 @@ export default function MenuMovil({ enlaces }: { enlaces: { href: string; texto:
 
   return (
     <details ref={ref} className="relative md:hidden">
-      <summary className="cursor-pointer list-none flex min-h-11 items-center rounded-lg border border-gris px-4 font-medium text-carbon">Menú</summary>
+      <summary className="group/hex relative isolate flex min-h-11 cursor-pointer list-none items-center px-7 font-medium text-carbon focus-visible:outline-hidden [&::-webkit-details-marker]:hidden">
+        <CapasHex variante="contorno" />Menú
+      </summary>
       <nav aria-label="Principal" className="absolute right-0 top-full mt-2 flex w-56 flex-col gap-1 rounded-2xl border border-gris bg-white p-3 shadow-lg">
         {enlaces.map((e) => (
           <Link key={e.href} href={e.href} className="flex min-h-11 items-center rounded-lg px-3 text-carbon hover:text-rojo">

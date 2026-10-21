@@ -1,3 +1,4 @@
+import Reveal from '@/components/motion/Reveal';
 import { Megaphone } from 'lucide-react';
 import Hexagono from '@/components/Hexagono';
 import Titulo from '@/components/Titulo';
@@ -26,7 +27,7 @@ export default function PeruComprasPage() {
   return (
     <main>
       <section className="bg-white py-16 lg:py-24">
-        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_auto]">
+        <div className="entrada mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_auto]">
           <div>
             <Titulo nivel="h1" claro="Estamos en" rojo="Perú Compras" className="text-4xl sm:text-5xl" />
             <div className="mt-8 flex items-center gap-4">
@@ -48,21 +49,21 @@ export default function PeruComprasPage() {
       </section>
 
       <section className="bg-boton py-10 text-white">
-        <div className="mx-auto flex max-w-6xl justify-center px-4 sm:px-6 md:justify-start">
+        <Reveal className="mx-auto flex max-w-6xl justify-center px-4 sm:px-6 md:justify-start">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/peru-compras/logo-blanco.png" alt="Perú Compras" width={900} height={427} loading="lazy" className="h-auto w-56 sm:w-72" />
-        </div>
+        </Reveal>
       </section>
 
       <section className="bg-gris py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Titulo claro="Cómo" rojo="trabajamos" className="text-3xl sm:text-4xl" />
+          <Reveal><Titulo claro="Cómo" rojo="trabajamos" className="text-3xl sm:text-4xl" /></Reveal>
           <ul className="mt-8 grid gap-4 sm:grid-cols-2">
-            {trabajo.map(([t, d]) => (
-              <li key={t} className="rounded-2xl bg-white p-6">
+            {trabajo.map(([t, d], i) => (
+              <Reveal as="li" key={t} retraso={(i % 2) * 90} className="rounded-2xl bg-white p-6">
                 <h3 className="text-lg font-semibold text-carbon">{t}</h3>
                 <p className="mt-2 leading-relaxed text-carbon/80">{d}</p>
-              </li>
+              </Reveal>
             ))}
           </ul>
         </div>
@@ -70,14 +71,16 @@ export default function PeruComprasPage() {
 
       <section className="bg-white py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Titulo claro="Nuestras" rojo="categorías" className="text-3xl sm:text-4xl" />
-          <p className="mt-4 max-w-3xl leading-relaxed text-carbon/80">Bienes y servicios que atendemos para entidades del Estado y empresas privadas.</p>
+          <Reveal>
+            <Titulo claro="Nuestras" rojo="categorías" className="text-3xl sm:text-4xl" />
+            <p className="mt-4 max-w-3xl leading-relaxed text-carbon/80">Bienes y servicios que atendemos para entidades del Estado y empresas privadas.</p>
+          </Reveal>
           <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {categorias.map((c) => (
-              <li key={c.slug} className="flex items-center gap-3 rounded-2xl bg-gris p-4 text-carbon">
+            {categorias.map((c, i) => (
+              <Reveal as="li" key={c.slug} retraso={(i % 3) * 70} className="flex items-center gap-3 rounded-2xl bg-gris p-4 text-carbon">
                 <Hexagono icono={c.icono} tam={44} />
                 <span className="font-medium">{c.nombre}</span>
-              </li>
+              </Reveal>
             ))}
           </ul>
         </div>
@@ -85,13 +88,15 @@ export default function PeruComprasPage() {
 
       <section className="bg-gris py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Titulo claro="Marcas con las que" rojo="trabajamos" className="text-3xl sm:text-4xl" />
-          <FranjaMarcas className="mt-6" />
+          <Reveal>
+            <Titulo claro="Marcas con las que" rojo="trabajamos" className="text-3xl sm:text-4xl" />
+            <FranjaMarcas className="mt-6" />
+          </Reveal>
         </div>
       </section>
 
       <section className="bg-carbon py-14 text-white">
-        <div className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 sm:px-6 md:flex-row md:items-center md:justify-between">
+        <Reveal className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 sm:px-6 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="text-3xl font-medium">¿Tu entidad necesita una cotización?</h2>
             <span aria-hidden="true" className="mt-3 block h-1 w-16 rounded-full bg-rojo" />
@@ -101,7 +106,7 @@ export default function PeruComprasPage() {
             </p>
           </div>
           <BotonHex href="/cotizar" size="lg">Cotizar ahora</BotonHex>
-        </div>
+        </Reveal>
       </section>
     </main>
   );

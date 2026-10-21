@@ -20,7 +20,7 @@ export default function Header() {
         </Link>
         <nav aria-label="Principal" className="hidden items-center gap-8 md:flex">
           {enlaces.map((e) => (
-            <Link key={e.href} href={e.href} className="font-medium text-carbon hover:text-rojo">
+            <Link key={e.href} href={e.href} className="relative font-medium text-carbon after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5 after:origin-left after:scale-x-0 after:rounded-full after:bg-rojo after:transition-transform after:duration-300 hover:text-rojo-hondo hover:after:scale-x-100 focus-visible:after:scale-x-100">
               {e.texto}
             </Link>
           ))}

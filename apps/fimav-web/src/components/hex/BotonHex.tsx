@@ -6,7 +6,7 @@ import { redondear } from './rutaHexagono';
 const S = 0.29, R = 0.15, W = S + 2 * R;
 const TAPA = `${redondear([[W, 0], [S, 0], [0, 0.5], [S, 1], [W, 1]], R, false)}Z`;
 
-function Forma({ className }: { className: string }) {
+export function Forma({ className }: { className: string }) {
   const tapa = (extra = '') => (
     <svg viewBox={`0 0 ${W} 1`} preserveAspectRatio="none" className={`h-full shrink-0 ${extra}`} style={{ aspectRatio: `${W} / 1` }}>
       <path d={TAPA} fill="currentColor" />
@@ -29,6 +29,19 @@ const VARIANTES = {
 };
 const TAM = { md: 'min-h-11 px-8 py-2 text-base', lg: 'min-h-13 px-10 py-3 text-lg' };
 
+/** Capas de fondo de un control hexagonal: anillo de foco (en `group-focus-visible/hex`), forma de la variante y brillo de hover.
+ *  El control debe llevar `group/hex relative isolate`. */
+export function CapasHex({ variante = 'rojo' }: { variante?: keyof typeof VARIANTES }) {
+  return (
+    <>
+      <Forma className="-inset-[5px] text-tinta opacity-0 group-focus-visible/hex:opacity-100" />
+      <Forma className="-inset-[3px] text-white opacity-0 group-focus-visible/hex:opacity-100" />
+      {VARIANTES[variante].capas}
+      <span aria-hidden="true" className={`barrido ${variante === 'contorno' ? '[--brillo:rgb(224_36_36/0.14)]' : ''}`}><span /></span>
+    </>
+  );
+}
+
 type Props = {
   href?: string;
   onClick?: () => void;
@@ -42,17 +55,12 @@ type Props = {
 
 /** Botón o enlace con forma de hexágono alargado. Foco: anillo blanco + tinta que sigue la forma (visible sobre claro y sobre carbón). */
 export default function BotonHex({ href, onClick, type = 'button', variante = 'rojo', size = 'md', disabled, className = '', children }: Props) {
-  const v = VARIANTES[variante];
-  const cls = `group/hex relative isolate inline-flex items-center justify-center gap-2 text-center font-semibold leading-snug focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-60 ${TAM[size]} ${v.texto} ${className}`;
-  const contenido = (
-    <>
-      <Forma className="-inset-[5px] text-tinta opacity-0 group-focus-visible/hex:opacity-100" />
-      <Forma className="-inset-[3px] text-white opacity-0 group-focus-visible/hex:opacity-100" />
-      {v.capas}
-      {children}
-    </>
-  );
-  if (href?.startsWith('/')) return <Link href={href} className={cls}>{contenido}</Link>;
-  if (href) return <a href={href} target="_blank" rel="noopener noreferrer" className={cls}>{contenido}</a>;
-  return <button type={type} onClick={onClick} disabled={disabled} className={cls}>{contenido}</button>;
+  const cls = `group/hex relative isolate inline-flex items-center justify-center gap-2 text-center font-semibold leading-snug focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-60 ${TAM[size]} ${VARIANTES[variante].texto} ${className}`;
+  const contenido = <><CapasHex variante={variante} />{children}</>;
+  if (!href) return <button type={type} onClick={onClick} disabled={disabled} className={cls}>{contenido}</button>;
+  // Enlace deshabilitado: fuera del tab y sin clics, anunciado como deshabilitado.
+  const apagado = disabled ? { 'aria-disabled': true, tabIndex: -1, className: `${cls} pointer-events-none opacity-60` } : { className: cls };
+  if (href.startsWith('/')) return <Link href={href} {...apagado}>{contenido}</Link>;
+  const externo = /^https?:/.test(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {}; // mailto:, tel:, # se quedan en la pestaña
+  return <a href={href} {...externo} {...apagado}>{contenido}</a>;
 }

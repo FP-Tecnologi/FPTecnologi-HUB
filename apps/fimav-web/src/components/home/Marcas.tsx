@@ -1,3 +1,4 @@
+import Reveal from '@/components/motion/Reveal';
 import { contenido } from '@/lib/contenido';
 
 // Franja de logos con desplazamiento continuo. La lista va dos veces: la copia es decorativa (aria-hidden + inert).
@@ -19,7 +20,8 @@ export function FranjaMarcas({ className = '' }: { className?: string }) {
                   <img
                     src={m.logo}
                     alt={copia ? '' : m.nombre}
-                    className={`h-10 w-auto max-w-none transition ${m.solido ? '' : 'opacity-70 grayscale group-hover:opacity-100 group-hover:grayscale-0'}`}
+                    style={{ height: m.alto ?? 40 }}
+                    className={`w-auto max-w-none transition ${m.solido ? '' : 'opacity-70 grayscale group-hover:opacity-100 group-hover:grayscale-0'}`}
                   />
                 ) : (
                   <span className="font-titulo text-2xl font-semibold leading-10 text-carbon/70 transition group-hover:text-carbon">{m.nombre}</span>
@@ -36,10 +38,10 @@ export function FranjaMarcas({ className = '' }: { className?: string }) {
 export default function Marcas() {
   return (
     <section className="bg-white py-14">
-      <div className="mx-auto max-w-6xl px-4 text-center sm:px-6">
+      <Reveal className="mx-auto max-w-6xl px-4 text-center sm:px-6">
         <h2 className="text-sm font-semibold uppercase tracking-widest text-rojo-hondo">Marcas aliadas</h2>
         <FranjaMarcas className="mt-6" />
-      </div>
+      </Reveal>
     </section>
   );
 }
