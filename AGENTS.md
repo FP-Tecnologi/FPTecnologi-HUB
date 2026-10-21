@@ -67,6 +67,11 @@ apps/
                     (el nombre "web" es heredado de la plantilla Vireo)
   web-fptecnologi/  Next.js — web pública de fptecnologi.com (Fase 2,
                     sin login, catálogo/servicios/carrito/chat propios)
+  fimav-web/        Next.js 16 — web pública de fimavperu.com (marca
+                    `fimavperu`, puerto 3005, solo modo claro). Contenido
+                    fijo en `src/lib` (categorías, textos, legales). El
+                    cotizador envía a la API vía su proxy
+                    `/api/hub/cotizador` (env `HUB_API_URL`, `HUB_MARCA_ID`).
 docs/     Documentación de negocio y planificación
 ```
 

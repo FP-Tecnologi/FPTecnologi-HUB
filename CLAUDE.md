@@ -19,8 +19,9 @@ scripts **dentro de la app** (`cd apps/<app>`), siempre con npm (no pnpm/yarn).
 | `apps/api` (NestJS) | 3001 | `npm run start:dev` | `npm run build` | `npm run lint` (oxlint) |
 | `apps/admin` (dashboard, Next 15) | 3000 | `npm run dev` | `npm run build` | `npm run lint` |
 | `apps/web-fptecnologi` (web pública, Next 16) | 3002 | `npm run dev -- --port 3002` | `npm run build` | `npm run lint` |
+| `apps/fimav-web` (web pública Fimav Perú, Next 16) | 3005 | `npm run dev -- --port 3005` | `npm run build` | `npm run lint` |
 
-`.claude/launch.json` define estos servidores (`api`, `admin`, `web-fptecnologi`, `leads` → repo aparte) para
+`.claude/launch.json` define estos servidores (`api`, `admin`, `web-fptecnologi`, `fimav-web`, `leads` → repo aparte) para
 `preview_start`.
 
 Tests (solo `apps/api`, Vitest, `*.spec.ts` junto al archivo probado):

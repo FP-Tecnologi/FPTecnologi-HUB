@@ -1092,3 +1092,14 @@ Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «V
 ### 2026-10-09 (4) — Tarjeta digital: perfil digital estilo Linktree, estilos y tarjeta descargable
 - **Perfil digital** por persona (cualquier área): enlace único editable (`/tarjeta/<enlace>`), con **dos diseños** (`vista`: *perfil* completo en dos columnas responsivo, o *linktree* con lista de botones) y **cuatro estilos de color** (`estilo`: clásico, moderno, oscuro, minimal). Migraciones `20261009130000_tarjeta_estilo` y `20261009140000_tarjeta_vista` (aplicadas). Hasta 12 enlaces extra. Sin burbuja de chat ni popups en estas páginas; no se indexan en Google.
 - **Se gestiona en el dashboard**: Mi cuenta → Mi tarjeta digital (datos, foto, diseño, estilo, % de avance con avisos de qué falta —p. ej. «Falta tu foto: pulsa Subir foto»—, enlace para copiar/compartir, QR, **tarjeta gráfica PNG 1050×600** dibujada en el navegador en los 4 estilos). Web informativa → **Tarjetas del equipo** (admin/marketing): todas las tarjetas, qué le falta a cada una, ocultar/mostrar y quién aún no creó la suya. API: `GET/PUT /tarjetas/mia`, `GET /tarjetas`, `PATCH /tarjetas/:id/activo`. Las imágenes de `/uploads` ahora llevan CORS abierto (contenido público) para poder dibujarlas en el canvas. 209 tests.
+
+### 2026-10-21 — Web pública de Fimav Perú (`apps/fimav-web`)
+- Nueva app Next.js 16 (puerto 3005, solo modo claro, marca `fimavperu`): home, nosotros, catálogo con 12 categorías (`/catalogo/[categoria]`), cotizador (`/cotizar`, proxy `/api/hub/cotizador` hacia la API), contacto y 5 páginas legales (`/legal/[slug]`). Contenido fijo en `src/lib`; paleta roja/carbón/plata del logo. `npm run lint` (tsc) y `npm run build` pasan.
+- **Pendientes**:
+  - WhatsApp real: hoy provisional 01 397-9527 (`wa.me/5113979527`).
+  - `HUB_MARCA_ID` de la marca `fimavperu` (debe existir en la tabla `Marca`); sin él el cotizador responde 503.
+  - Textos legales (los 5 son referenciales): validarlos con la persona legal de Fimav.
+  - Despliegue en el servidor de fimavperu.com (el sitio actual es WordPress).
+  - Productos desde la API en lugar de las categorías fijas.
+  - El logo es un raster de 480x270: pedir a Fimav el vector/SVG.
+  - Las fotos salen del brochure 2023: pedir los originales.
