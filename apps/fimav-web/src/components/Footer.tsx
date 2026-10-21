@@ -23,6 +23,7 @@ export default function Footer() {
             <Logo className="block h-14 w-auto object-contain" />
           </span>
           <p className="mt-4 text-sm leading-relaxed">{contenido.frase}</p>
+          <p className="mt-4 text-sm"><Link href="/peru-compras" className="font-semibold underline focus-visible:outline-white">Estamos en Perú Compras</Link></p>
         </div>
         <div className="space-y-2 text-sm">
           <h3 className="font-semibold">Contacto</h3>

@@ -7,6 +7,7 @@ const enlaces = [
   { href: '/', texto: 'Inicio' },
   { href: '/catalogo', texto: 'Catálogo' },
   { href: '/nosotros', texto: 'Nosotros' },
+  { href: '/peru-compras', texto: 'Perú Compras' },
   { href: '/contacto', texto: 'Contacto' },
 ];
 
