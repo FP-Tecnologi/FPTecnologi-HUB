@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Headers, Ip, Param, Patch, Post, Query, UseGuards, BadRequestException } from '@nestjs/common';
 import { LibroReclamacionesService } from './libro-reclamaciones.service.js';
-import { CrearHojaDto, ResponderHojaDto } from './libro-reclamaciones.dto.js';
+import { ConsultaHojaDto, CrearHojaDto, ResponderHojaDto } from './libro-reclamaciones.dto.js';
 import { MarcaRolGuard } from '../common/guards/marca-rol.guard.js';
 import { MarcaActual } from '../common/decorators/marca-actual.decorator.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
@@ -61,24 +61,24 @@ export class PublicLibroReclamacionesController {
     @Ip() ip: string,
     @Headers('x-forwarded-for') forwarded?: string,
   ) {
-    if (!marcaId) throw new BadRequestException('Falta marcaId');
+    textoCorto(marcaId, 'marcaId');
     // Tope suave anti-spam: la IP real del visitante viaja en x-forwarded-for (web vía proxy).
     return this.libro.crearPublico(marcaId, dto, forwarded?.split(',')[0]?.trim() || ip);
   }
 
+  // POST (no GET): el documento del consumidor no debe quedar en la URL ni en los logs de acceso.
   @Limite(30)
-  @Get('consulta')
+  @Post('consulta')
   consultar(
     @Query('marcaId') marcaId: string,
-    @Query('codigo') codigo: string,
-    @Query('documento') documento: string,
+    @Body() dto: ConsultaHojaDto,
     @Ip() ip: string,
     @Headers('x-forwarded-for') forwarded?: string,
   ) {
     return this.libro.consultar(
       textoCorto(marcaId, 'marcaId'),
-      textoCorto(codigo, 'codigo'),
-      textoCorto(documento, 'documento'),
+      dto.codigo,
+      dto.documento,
       forwarded?.split(',')[0]?.trim() || ip,
     );
   }
@@ -86,7 +86,6 @@ export class PublicLibroReclamacionesController {
   @Limite(60)
   @Get('proveedor')
   proveedor(@Query('marcaId') marcaId: string) {
-    if (!marcaId) throw new BadRequestException('Falta marcaId');
-    return this.libro.proveedor(marcaId);
+    return this.libro.proveedor(textoCorto(marcaId, 'marcaId'));
   }
 }

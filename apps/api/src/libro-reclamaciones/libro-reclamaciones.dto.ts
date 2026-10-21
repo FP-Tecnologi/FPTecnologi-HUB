@@ -79,3 +79,11 @@ export class ResponderHojaDto {
   @IsString() @MinLength(10) @MaxLength(4000) @Matches(TEXTO)
   respuesta!: string;
 }
+
+export class ConsultaHojaDto {
+  @IsString() @MinLength(1) @MaxLength(40) @Matches(TEXTO)
+  codigo!: string;
+
+  @IsString() @MinLength(1) @MaxLength(40) @Matches(TEXTO)
+  documento!: string;
+}
