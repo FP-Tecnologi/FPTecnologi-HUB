@@ -13,10 +13,9 @@ export default function Hero() {
         <p className="mt-6 max-w-md text-lg text-carbon/80">Proveedor corporativo y de gobierno con más de 10 años de experiencia</p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Link href="/cotizar" className="rounded-full bg-boton px-6 py-3 font-semibold text-white">Solicitar cotización</Link>
-          <Link href="/catalogo" className="rounded-full border-2 border-rojo px-6 py-3 font-semibold text-rojo">Ver catálogo</Link>
+          <Link href="/catalogo" className="rounded-full border-2 border-rojo-hondo px-6 py-3 font-semibold text-rojo-hondo">Ver catálogo</Link>
         </div>
       </div>
-      <style>{`@keyframes giro{to{transform:rotate(360deg)}}`}</style>
     </section>
   );
 }

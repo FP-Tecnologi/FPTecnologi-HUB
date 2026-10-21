@@ -7,6 +7,7 @@ export default function Nosotros() {
     <section className="bg-gris py-16 lg:py-24">
       <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2">
         <div>
+          <h2 className="sr-only">Sobre nosotros</h2>
           <p className="text-2xl font-medium italic text-rojo">Especialistas en Bienes y Servicios</p>
           <p className="mt-4 leading-relaxed text-carbon/80">{contenido.nosotros}</p>
         </div>

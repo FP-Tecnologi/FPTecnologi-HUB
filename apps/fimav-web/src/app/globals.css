@@ -16,4 +16,5 @@ body { font-family: var(--font-sans); }
 ::selection { background: rgba(224, 36, 36, 0.25); }
 h1, h2, h3 { text-wrap: balance; }
 p, li { text-wrap: pretty; }
+@keyframes giro { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { animation: none !important; transition: none !important; } }
