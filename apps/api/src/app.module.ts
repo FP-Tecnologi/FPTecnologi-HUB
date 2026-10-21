@@ -23,6 +23,7 @@ import { ChatModule } from './chat/chat.module.js';
 import { BoletinModule } from './boletin/boletin.module.js';
 import { InvitacionesModule } from './invitaciones/invitaciones.module.js';
 import { CotizadorModule } from './cotizador/cotizador.module.js';
+import { LibroReclamacionesModule } from './libro-reclamaciones/libro-reclamaciones.module.js';
 import { ClientesTiendaModule } from './clientes-tienda/clientes-tienda.module.js';
 import { CampanasModule } from './campanas/campanas.module.js';
 import { LandingsModule } from './landings/landings.module.js';
@@ -63,6 +64,7 @@ import { RecursosModule } from './recursos/recursos.module.js';
     ChatModule,
     ContenidoModule,
     CotizadorModule,
+    LibroReclamacionesModule,
     ContactoWebModule,
     EnviosModule,
     UploadsModule,
