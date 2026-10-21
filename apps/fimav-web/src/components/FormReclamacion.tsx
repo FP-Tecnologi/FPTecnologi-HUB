@@ -47,7 +47,12 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
   useEffect(() => { if (hoja || fallo) resultadoRef.current?.focus(); }, [hoja, fallo]);
   useEffect(() => { if (errorApi) errorApiRef.current?.focus(); }, [errorApi]);
 
-  const set = <K extends keyof Datos>(k: K, v: Datos[K]) => setF((x) => ({ ...x, [k]: v }));
+  const set = <K extends keyof Datos>(k: K, v: Datos[K]) => {
+    setF((x) => ({ ...x, [k]: v }));
+    setErrores((x) => (x[k] ? { ...x, [k]: '' } : x));
+  };
+  const volver = useRef(false);
+  useEffect(() => { if (!hoja && !fallo && volver.current) { volver.current = false; document.getElementById('nombres')?.focus(); } }, [hoja, fallo]);
 
   const validar = () => {
     const e: Record<string, string> = {};
@@ -117,7 +122,7 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
           <li><a href={`mailto:${proveedor.email}`} className="flex min-h-11 items-center gap-3 break-all hover:underline"><Mail aria-hidden="true" size={18} className="shrink-0" /> {proveedor.email}</a></li>
           <li><a href={contacto.telefonoHref} className="flex min-h-11 items-center gap-3 hover:underline"><Phone aria-hidden="true" size={18} className="shrink-0" /> {contacto.telefono}</a></li>
         </ul>
-        <button type="button" onClick={() => setFallo(false)} className="mt-4 inline-flex min-h-11 items-center rounded-full bg-boton px-6 py-3 text-white hover:bg-rojo-hondo">Volver al formulario</button>
+        <button type="button" onClick={() => { volver.current = true; setFallo(false); }} className="mt-4 inline-flex min-h-11 items-center rounded-full bg-boton px-6 py-3 text-white hover:bg-rojo-hondo">Volver al formulario</button>
       </div>
     );
 
@@ -158,7 +163,7 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
 
         <div className="mt-6 flex flex-wrap gap-3 print:hidden">
           <button type="button" onClick={() => window.print()} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-boton px-6 py-3 text-white hover:bg-rojo-hondo"><Printer aria-hidden="true" size={18} /> Imprimir / guardar PDF</button>
-          <button type="button" onClick={() => { setHoja(null); setF(inicial); setErrores({}); }} className="inline-flex min-h-11 items-center rounded-full border border-carbon/60 bg-white px-6 py-3 text-carbon hover:bg-gris">Registrar otro</button>
+          <button type="button" onClick={() => { volver.current = true; setHoja(null); setF(inicial); setErrores({}); }} className="inline-flex min-h-11 items-center rounded-full border border-carbon/60 bg-white px-6 py-3 text-carbon hover:bg-gris">Registrar otro</button>
         </div>
       </div>
     );
@@ -206,11 +211,14 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
 
       <fieldset className={`${grupo} grid gap-4 sm:grid-cols-2`}>
         <legend className="float-left mb-4 w-full text-xl font-medium text-carbon">2. Bien contratado</legend>
-        <div className="flex flex-wrap gap-3 sm:col-span-2" role="radiogroup" aria-label="Tipo de bien">
-          {([['PRODUCTO', 'Producto'], ['SERVICIO', 'Servicio']] as const).map(([v, t]) => (
-            <label key={v} className={radio}><input type="radio" name="tipoBien" checked={f.tipoBien === v} onChange={() => set('tipoBien', v)} className="h-4 w-4 accent-boton" /> {t}</label>
-          ))}
-        </div>
+        <fieldset className="sm:col-span-2">
+          <legend className="text-sm font-medium text-carbon">Tipo de bien</legend>
+          <div className="mt-2 flex flex-wrap gap-3">
+            {([['PRODUCTO', 'Producto'], ['SERVICIO', 'Servicio']] as const).map(([v, t]) => (
+              <label key={v} className={radio}><input type="radio" name="tipoBien" checked={f.tipoBien === v} onChange={() => set('tipoBien', v)} className="h-4 w-4 accent-boton" /> {t}</label>
+            ))}
+          </div>
+        </fieldset>
         <div>
           {lbl('monto', 'Monto reclamado (opcional)', false)}
           <div className="flex gap-2">
@@ -225,21 +233,27 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
 
       <fieldset className={`${grupo} grid gap-4`}>
         <legend className="float-left mb-4 w-full text-xl font-medium text-carbon">3. Detalle de la reclamación</legend>
-        <div className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Tipo de hoja">
+        <fieldset>
+          <legend className="text-sm font-medium text-carbon">Tipo de hoja</legend>
+          <div className="mt-2 grid gap-3 sm:grid-cols-2">
           {([['RECLAMO', 'Reclamo', 'Disconformidad con el producto o servicio.'], ['QUEJA', 'Queja', 'Malestar por la atención al público, sin relación con el producto o servicio.']] as const).map(([v, t, d]) => (
             <label key={v} className={`${radio} items-start py-3`}>
               <input type="radio" name="tipo" checked={f.tipo === v} onChange={() => set('tipo', v)} className="mt-1 h-4 w-4 accent-boton" />
               <span><strong>{t}</strong><br /><span className="text-sm">{d}</span></span>
             </label>
           ))}
-        </div>
+          </div>
+        </fieldset>
         <div>{lbl('detalle', 'Detalle')}<textarea id="detalle" value={f.detalle} onChange={(e) => set('detalle', e.target.value)} rows={5} maxLength={2000} className={campo} aria-required="true" {...aria('detalle')} />{err('detalle')}</div>
         <div>{lbl('pedidoConsumidor', 'Pedido del consumidor')}<textarea id="pedidoConsumidor" value={f.pedidoConsumidor} onChange={(e) => set('pedidoConsumidor', e.target.value)} rows={3} maxLength={1000} className={campo} aria-required="true" {...aria('pedidoConsumidor')} />{err('pedidoConsumidor')}</div>
-        <div role="radiogroup" aria-label="Medio de respuesta" className="flex flex-wrap gap-3">
-          {([['CORREO', 'Respuesta por correo'], ['CARTA', 'Respuesta por carta']] as const).map(([v, t]) => (
-            <label key={v} className={radio}><input type="radio" name="medio" checked={f.medioRespuesta === v} onChange={() => set('medioRespuesta', v)} className="h-4 w-4 accent-boton" /> {t}</label>
-          ))}
-        </div>
+        <fieldset>
+          <legend className="text-sm font-medium text-carbon">Medio de respuesta</legend>
+          <div className="mt-2 flex flex-wrap gap-3">
+            {([['CORREO', 'Respuesta por correo'], ['CARTA', 'Respuesta por carta']] as const).map(([v, t]) => (
+              <label key={v} className={radio}><input type="radio" name="medio" checked={f.medioRespuesta === v} onChange={() => set('medioRespuesta', v)} className="h-4 w-4 accent-boton" /> {t}</label>
+            ))}
+          </div>
+        </fieldset>
       </fieldset>
 
       <input name="website" value={f.website} onChange={(e) => set('website', e.target.value)} className="hidden" tabIndex={-1} autoComplete="off" aria-hidden="true" />

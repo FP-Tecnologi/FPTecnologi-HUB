@@ -15,7 +15,7 @@ export async function getProveedor(): Promise<Proveedor> {
   const marca = process.env.HUB_MARCA_ID;
   if (!marca) return respaldo;
   try {
-    const res = await fetch(`${process.env.HUB_API_URL ?? 'http://localhost:3001'}/public/libro-reclamaciones/proveedor?marcaId=${encodeURIComponent(marca)}`, { next: { revalidate: 3600 } });
+    const res = await fetch(`${process.env.HUB_API_URL ?? 'http://localhost:3001'}/public/libro-reclamaciones/proveedor?marcaId=${encodeURIComponent(marca)}`, { next: { revalidate: 3600 }, signal: AbortSignal.timeout(4000) });
     if (!res.ok) return respaldo;
     const j = await res.json();
     const d = j.data ?? j;

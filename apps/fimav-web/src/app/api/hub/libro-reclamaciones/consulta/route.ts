@@ -7,7 +7,10 @@ const MARCA_ID = process.env.HUB_MARCA_ID ?? '';
 
 export async function POST(req: Request) {
   if (!MARCA_ID) return Response.json({ message: 'Libro de reclamaciones no configurado' }, { status: 503 });
-  const j = (await req.json().catch(() => null)) as { codigo?: unknown; documento?: unknown } | null;
+  const raw = await req.text();
+  if (raw.length > 1024) return Response.json({ message: 'Solicitud demasiado grande' }, { status: 413 });
+  let j: { codigo?: unknown; documento?: unknown } | null = null;
+  try { j = JSON.parse(raw); } catch { /* 400 abajo */ }
   const { codigo, documento } = j ?? {};
   const ok = (v: unknown): v is string => typeof v === 'string' && v.trim().length > 0 && v.length <= 40;
   if (!ok(codigo) || !ok(documento)) return Response.json({ message: 'Código o documento inválido' }, { status: 400 });

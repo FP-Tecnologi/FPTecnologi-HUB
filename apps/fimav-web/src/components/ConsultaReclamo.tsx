@@ -13,13 +13,14 @@ export default function ConsultaReclamo() {
   const [cargando, setCargando] = useState(false);
   const [hoja, setHoja] = useState<Hoja | null>(null);
   const [error, setError] = useState('');
+  const [vacio, setVacio] = useState(false);
   const salidaRef = useRef<HTMLDivElement>(null);
   useEffect(() => { if (hoja || error) salidaRef.current?.focus(); }, [hoja, error]);
 
   const consultar = async (ev: React.FormEvent) => {
     ev.preventDefault();
-    setHoja(null); setError('');
-    if (!codigo.trim() || !documento.trim()) { setError('Ingresa el código y el documento.'); return; }
+    setHoja(null); setError(''); setVacio(false);
+    if (!codigo.trim() || !documento.trim()) { setVacio(true); setError('Ingresa el código y el documento.'); return; }
     setCargando(true);
     try {
       const res = await fetch('/api/hub/libro-reclamaciones/consulta', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ codigo: codigo.trim(), documento: documento.trim() }) });
@@ -40,11 +41,11 @@ export default function ConsultaReclamo() {
       <form onSubmit={consultar} noValidate className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="c-codigo" className="text-sm font-medium text-carbon">Código de la hoja</label>
-          <input id="c-codigo" value={codigo} onChange={(e) => setCodigo(e.target.value)} maxLength={40} placeholder="LR-0001-2026" className={campo} />
+          <input id="c-codigo" value={codigo} onChange={(e) => { setCodigo(e.target.value); setVacio(false); }} maxLength={40} aria-invalid={vacio && !codigo.trim() ? true : undefined} aria-describedby={vacio && !codigo.trim() ? 'c-error' : undefined} placeholder="LR-0001-2026" className={campo} />
         </div>
         <div>
           <label htmlFor="c-doc" className="text-sm font-medium text-carbon">N.º de documento</label>
-          <input id="c-doc" value={documento} onChange={(e) => setDocumento(e.target.value)} maxLength={40} className={campo} />
+          <input id="c-doc" value={documento} onChange={(e) => { setDocumento(e.target.value); setVacio(false); }} maxLength={40} aria-invalid={vacio && !documento.trim() ? true : undefined} aria-describedby={vacio && !documento.trim() ? 'c-error' : undefined} className={campo} />
         </div>
         <div className="sm:col-span-2">
           <button disabled={cargando} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-boton px-8 py-3 text-white hover:bg-rojo-hondo disabled:opacity-60 sm:w-auto">
@@ -52,10 +53,10 @@ export default function ConsultaReclamo() {
           </button>
         </div>
       </form>
-      <div ref={salidaRef} tabIndex={-1} role="status" className="outline-none">
-        {error && <p role="alert" className="mt-4 text-sm text-rojo-hondo">{error}</p>}
+      <div ref={salidaRef} tabIndex={-1} className="outline-none">
+        {error && <p id="c-error" role="alert" className="mt-4 text-sm text-rojo-hondo">{error}</p>}
         {hoja && (
-          <dl className="mt-4 grid gap-1 text-carbon">
+          <dl role="status" className="mt-4 grid gap-1 text-carbon">
             <div><dt className="inline font-medium">Hoja: </dt><dd className="inline">{hoja.codigo} ({hoja.tipo === 'QUEJA' ? 'Queja' : 'Reclamo'})</dd></div>
             <div><dt className="inline font-medium">Estado: </dt><dd className="inline">{ESTADOS[hoja.estado] ?? hoja.estado}</dd></div>
             <div><dt className="inline font-medium">Registrada: </dt><dd className="inline">{fecha(hoja.fecha)}</dd></div>
