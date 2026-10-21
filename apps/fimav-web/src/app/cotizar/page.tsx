@@ -13,7 +13,7 @@ export default function CotizarPage() {
         <Titulo nivel="h1" claro="Solicita tu" rojo="Cotización" className="text-4xl sm:text-5xl" />
         <p className="mt-4 max-w-2xl leading-relaxed text-carbon/80">Atendemos entidades del Estado y empresas privadas</p>
         <div className="mt-10 grid items-start gap-8 lg:grid-cols-[1fr_320px]">
-          <Suspense>
+          <Suspense fallback={<p className="rounded-2xl bg-gris p-6 text-carbon">Cargando formulario…</p>}>
             <FormCotizar />
           </Suspense>
           <aside className="rounded-2xl bg-gris p-6">
