@@ -1107,7 +1107,7 @@ Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «V
 ### 2026-10-21 (2) — Libro de Reclamaciones (módulo `libro-reclamaciones` + formulario de Fimav)
 - **Hecho**: API `apps/api/src/libro-reclamaciones` (modelo `HojaReclamacion`, correlativo `LR-0001-AAAA`, plazo de 15 días hábiles, consulta por código + documento, correos, endpoints públicos y de dashboard `GET/PATCH`; campos `razonSocial`/`ruc`/`direccionFiscal` en `Marca`). En `apps/fimav-web`: página `/libro-de-reclamaciones` (formulario + consulta), proxies `/api/hub/libro-reclamaciones[/consulta]`, distintivo visible en el inicio y el pie, redirección 308 de `/legal/reclamaciones` y plazo corregido (antes decía 30 días calendario).
 - **Pendientes**:
-  - Aplicar la migración `20261021120000_libro_reclamaciones` a la base real por el puerto 5432 (**NO aplicada todavía**; sin ella los endpoints fallan).
+  - Migración `20261021120000_libro_reclamaciones`: **aplicada a la base real el 2026-10-21** (puerto 5432, en una sola transacción) y registrada con `prisma migrate resolve --applied`.
   - Cargar `razonSocial`, RUC y `direccionFiscal` de cada marca.
   - Configurar `HUB_MARCA_ID` de `fimavperu` en `apps/fimav-web`.
   - Pantalla del dashboard para atender y responder las hojas.
@@ -1115,4 +1115,4 @@ Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «V
   - Revisión del texto legal por la persona legal.
   - El plazo de 15 días hábiles no excluye feriados.
   - Retención: el reglamento exige conservar las hojas al menos 2 años; nada las borra (FK `Marca` ON DELETE RESTRICT).
-  - Checklist de puesta en marcha: aplicar la migración ANTES de desplegar el código de la API (las consultas de `Marca` seleccionan las columnas nuevas); cargar `razonSocial`/`ruc`/`direccionFiscal` y `contactoEmail` por marca; asignar un usuario admin/comercial a `fimavperu`; `HUB_MARCA_ID`/`HUB_API_URL` en fimav-web; `WEB_ORIGIN` en la API; comprobar que `x-forwarded-for` llega al servidor Next; probar de punta a punta una hoja real.
+  - Checklist de puesta en marcha (la migración ya está aplicada; en futuras migraciones que agreguen columnas a `Marca`, aplicarlas ANTES de desplegar la API porque sus consultas seleccionan las columnas nuevas): cargar `razonSocial`/`ruc`/`direccionFiscal` y `contactoEmail` por marca; asignar un usuario admin/comercial a `fimavperu`; `HUB_MARCA_ID`/`HUB_API_URL` en fimav-web; `WEB_ORIGIN` en la API; comprobar que `x-forwarded-for` llega al servidor Next; probar de punta a punta una hoja real.
