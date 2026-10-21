@@ -67,7 +67,7 @@ export class CrearHojaDto {
   @Equals(true, { message: 'Debes declarar que la información es veraz' })
   aceptaVeracidad!: boolean;
 
-  @IsOptional() @IsString() @MaxLength(200)
+  @IsOptional() @IsString() @MaxLength(200) @Matches(TEXTO)
   origen?: string;
 
   // Honeypot: un humano nunca lo llena.

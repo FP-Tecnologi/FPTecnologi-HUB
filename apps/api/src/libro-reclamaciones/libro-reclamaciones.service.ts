@@ -25,17 +25,25 @@ function limitar(mapa: Map<string, number[]>, clave: string, max: number) {
   if (mapa.size > 5000) for (const [k, v] of mapa) if (!v.some((t) => ahora - t < VENTANA_MS)) mapa.delete(k);
 }
 
+/** Solo para tests: vacía los topes en memoria. */
+export function reiniciarLimitadores() {
+  intentosCrear.clear();
+  intentosConsulta.clear();
+}
+
 const norm = (s: string) => s.trim().toUpperCase();
 
 function validarDocumento(tipo: string, nro: string, etiqueta: string) {
   const ok =
     tipo === 'DNI' ? /^\d{8}$/.test(nro)
     : tipo === 'RUC' ? /^\d{11}$/.test(nro)
-    : /^[A-Za-z0-9]{9,12}$/.test(nro); // CE / PASAPORTE
+    : tipo === 'PASAPORTE' ? /^[A-Za-z0-9]{6,15}$/.test(nro)
+    : /^[A-Za-z0-9]{9,12}$/.test(nro); // CE
   if (!ok) {
     throw new BadRequestException(
       tipo === 'DNI' ? `${etiqueta}: el DNI debe tener 8 dígitos`
       : tipo === 'RUC' ? `${etiqueta}: el RUC debe tener 11 dígitos`
+      : tipo === 'PASAPORTE' ? `${etiqueta}: el pasaporte debe tener entre 6 y 15 caracteres alfanuméricos`
       : `${etiqueta}: el documento debe tener entre 9 y 12 caracteres alfanuméricos`,
     );
   }
@@ -68,8 +76,8 @@ export class LibroReclamacionesService {
       validarDocumento(dto.repTipoDocumento, dto.repNroDocumento, 'Representante');
     }
 
-    const anio = new Date().getFullYear();
     const fecha = new Date();
+    const anio = Number(fecha.toLocaleDateString('en-CA', { timeZone: 'America/Lima' }).slice(0, 4));
     const fechaLimite = sumarDiasHabiles(fecha, DIAS_RESPUESTA);
 
     let hoja: HojaReclamacion | undefined;
@@ -150,7 +158,7 @@ export class LibroReclamacionesService {
       where: {
         marcaId,
         ...(filtro.estado ? { estado: filtro.estado } : {}),
-        ...(filtro.vencidas ? { estado: { not: 'RESPONDIDO' as const }, fechaLimite: { lt: new Date() } } : {}),
+        ...(filtro.vencidas ? { AND: [{ estado: { not: 'RESPONDIDO' as const } }, { fechaLimite: { lt: new Date() } }] } : {}),
       },
       orderBy: { fecha: 'desc' },
       take: 1000,
@@ -164,20 +172,23 @@ export class LibroReclamacionesService {
   }
 
   async responder(marcaId: string, id: string, dto: ResponderHojaDto, email: string) {
-    const hoja = await this.get(marcaId, id);
-    if (hoja.estado === 'RESPONDIDO') throw new BadRequestException('Ya fue respondida');
-    const actualizada = await this.prisma.hojaReclamacion.update({
-      where: { id, marcaId },
-      data: { estado: 'RESPONDIDO', respuesta: dto.respuesta.trim(), respondidoAt: new Date(), respondidoPor: email },
+    await this.get(marcaId, id);
+    const respuesta = dto.respuesta.trim();
+    // Atómico: dos respuestas simultáneas no pueden ganar ambas.
+    const { count } = await this.prisma.hojaReclamacion.updateMany({
+      where: { id, marcaId, estado: { not: 'RESPONDIDO' } },
+      data: { estado: 'RESPONDIDO', respuesta, respondidoAt: new Date(), respondidoPor: email },
     });
+    if (count === 0) throw new BadRequestException('Ya fue respondida');
+    const hoja = await this.get(marcaId, id);
     const prov = await this.proveedor(marcaId);
     await this.mail.sendRespuestaReclamo(hoja.email, {
       codigo: hoja.codigo,
       tipo: hoja.tipo,
-      respuesta: dto.respuesta.trim(),
+      respuesta,
       proveedor: { razonSocial: prov.razonSocial, nombreComercial: prov.nombreComercial },
     });
-    return actualizada;
+    return hoja;
   }
 
   // ------------------------------------------------------------------ interno
@@ -197,7 +208,8 @@ export class LibroReclamacionesService {
       pedido: h.pedidoConsumidor,
       medioRespuesta: h.medioRespuesta,
     };
-    await Promise.allSettled([this.mail.sendHojaConsumidor(h.email, datos), this.avisarEquipo(h.marcaId, h, datos)]);
+    const res = await Promise.allSettled([this.mail.sendHojaConsumidor(h.email, datos), this.avisarEquipo(h.marcaId, h, datos)]);
+    for (const r of res) if (r.status === 'rejected') this.logger.error('Falló un aviso de la hoja de reclamación', r.reason as Error);
   }
 
   private async avisarEquipo(marcaId: string, h: HojaReclamacion, datos: HojaCorreo) {
