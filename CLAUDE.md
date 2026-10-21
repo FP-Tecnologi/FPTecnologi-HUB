@@ -64,10 +64,12 @@ Prisma (en `apps/api`, requiere `.env` con `DATABASE_URL`; ver `.env.example`):
   (tsc + navegador, todo bien), commit y push a `develop`, y luego fast-forward de `main`
   (`git pull --rebase origin develop`; push develop; `checkout main`; `merge --ff-only develop`;
   push main; volver a develop). No preguntar antes. Si algo no está bien, no pasa a `main`.
-- **Dos repos**: el HUB (este, `FP-Tecnologi/FPTecnologi-HUB`) tiene TODO (API, dashboard, web). El repo
-  `FP-Tecnologi/fptecnologi-web` tiene **solo la web pública** (`apps/web-fptecnologi` en su raíz). Cada vez que un cambio toque
-  `apps/web-fptecnologi`, tras subir a `develop` y `main` del HUB, publicar el espejo con
-  `TMPDIR=/tmp bash scripts/publicar-snapshot.sh` (main y develop del repo web quedan iguales). Nunca editar a mano ese repo.
+- **Repos espejo**: el HUB (este, `FP-Tecnologi/FPTecnologi-HUB`) tiene TODO (API, dashboard, webs). Cada web pública tiene además un
+  repo espejo con **solo esa web en su raíz**: `apps/web-fptecnologi` → `fptecnologi-web`, `apps/fimav-web` → `fimav-peru` (privado),
+  `apps/quamtu-web` → `quamtu-web` (privado). Cada vez que un cambio toque una de esas apps, tras subir a `develop` y `main` del
+  HUB, publicar su espejo (main y develop del repo quedan iguales): `TMPDIR=/tmp bash scripts/publicar-snapshot.sh` (fptecnologi),
+  `... publicar-snapshot.sh fimav-web fimav-peru Fimav`, `... publicar-snapshot.sh quamtu-web quamtu-web Quamtu`. Nunca editar a mano
+  esos repos. El script no crea repos: deben existir y la cuenta de git debe poder escribir en ellos.
 - Las ramas que ya no sirven (mergeadas o abandonadas) se eliminan; no dejar ramas viejas.
 - Antes de `git add`, revisa `git status` por archivos de otras sesiones; nunca subas
   `envs/.env` ni `envs/.env.local`.
