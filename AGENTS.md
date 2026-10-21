@@ -157,6 +157,7 @@ vez del contenido hardcodeado que usa hoy).
 | `blog` | `GET/POST /blog`, `GET/PATCH/DELETE /blog/:id` (admin/marketing); públicos `GET /public/blog`, `/public/blog/:slug` (solo PUBLICADO) | Blog de las webs: artículos en Markdown, slug único por marca, borrador/publicado, destacado |
 | `popups` | `GET/POST /popups`, `GET /popups/plantillas`, `PATCH/DELETE /popups/:id`, `POST /popups/:id/duplicar` (admin/marketing); públicos `GET /public/popups?marcaId&pagina=`, `POST /public/popups/:id/evento` | Avisos emergentes de la web: plantilla (aviso/promoción/descuento/evento/producto) × formato (modal/esquina/barra), botón a URL/producto/WhatsApp, disparador, frecuencia, páginas y fechas inicio/fin. Contador de vistas/clics. La web los muestra con `PopupsSitio` |
 | `cotizador` | `GET/PATCH/DELETE /cotizador/leads[/:id]` (admin/comercial); público `POST /public/cotizador/leads?marcaId` | Leads del formulario `/cotizador` de la web (`LeadCotizador`: nombres, persona natural/jurídica, DNI/RUC, empresa, correo, celular, interés). Estados NUEVO→CONTACTADO→COTIZADO→GANADO/PERDIDO + notas. Honeypot + tope por IP; avisa a admin/comercial (notificación + correo). El formulario se edita como CMS con `contenido` (página `cotizador`) |
+| `libro-reclamaciones` | `GET /libro-reclamaciones[/:id]`, `PATCH /libro-reclamaciones/:id` (responder/cambiar estado); públicos `POST /public/libro-reclamaciones`, `POST /public/libro-reclamaciones/consulta` (código + documento), `GET /public/libro-reclamaciones/proveedor?marcaId` | Libro de Reclamaciones virtual (hoja `HojaReclamacion`, correlativo `LR-0001-AAAA` por marca y año). Plazo de respuesta: **15 días hábiles** (sin excluir feriados). Los datos del proveedor salen de los campos nuevos de `Marca`: `razonSocial`, `ruc`, `direccionFiscal`. Honeypot + tope por IP; correos al consumidor y a la marca |
 | `mail` | — | Wrapper de Resend, usado por `auth` (OTP) y `pedidos` (confirmación) |
 | `health` | `GET /health` | — |
 
@@ -172,7 +173,7 @@ Ver [`apps/api/prisma/schema.prisma`](apps/api/prisma/schema.prisma) —
 es la fuente de verdad, no la dupliques en prosa aquí porque se desactualiza.
 Modelos clave: `Marca`, `Sitio`, `Usuario`, `OtpCode`, `RefreshToken`, `Rol`,
 `UsuarioMarcaRol`, `Categoria`, `Producto`, `Pedido`/`PedidoItem`,
-`Servicio`, `Proyecto`, `Cliente`, `Cotizacion`, `Notificacion`, `ChatAsesor`, `ChatConversacion`/`ChatMensaje`, `ContenidoWeb`, `BlogArticulo`, `LeadCotizador`, `Popup`.
+`Servicio`, `Proyecto`, `Cliente`, `Cotizacion`, `Notificacion`, `ChatAsesor`, `ChatConversacion`/`ChatMensaje`, `ContenidoWeb`, `BlogArticulo`, `LeadCotizador`, `Popup`, `HojaReclamacion`.
 
 ## Roles del sistema
 

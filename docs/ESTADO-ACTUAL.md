@@ -1103,3 +1103,14 @@ Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «V
   - Productos desde la API en lugar de las categorías fijas.
   - El logo es un raster de 480x270: pedir a Fimav el vector/SVG.
   - Las fotos salen del brochure 2023: pedir los originales.
+
+### 2026-10-21 (2) — Libro de Reclamaciones (módulo `libro-reclamaciones` + formulario de Fimav)
+- **Hecho**: API `apps/api/src/libro-reclamaciones` (modelo `HojaReclamacion`, correlativo `LR-0001-AAAA`, plazo de 15 días hábiles, consulta por código + documento, correos, endpoints públicos y de dashboard `GET/PATCH`; campos `razonSocial`/`ruc`/`direccionFiscal` en `Marca`). En `apps/fimav-web`: página `/libro-de-reclamaciones` (formulario + consulta), proxies `/api/hub/libro-reclamaciones[/consulta]`, distintivo visible en el inicio y el pie, redirección 308 de `/legal/reclamaciones` y plazo corregido (antes decía 30 días calendario).
+- **Pendientes**:
+  - Aplicar la migración `20261021120000_libro_reclamaciones` a la base real por el puerto 5432 (**NO aplicada todavía**; sin ella los endpoints fallan).
+  - Cargar `razonSocial`, RUC y `direccionFiscal` de cada marca.
+  - Configurar `HUB_MARCA_ID` de `fimavperu` en `apps/fimav-web`.
+  - Pantalla del dashboard para atender y responder las hojas.
+  - Formularios para las webs de FPTecnologi y Quamtu, y reemplazar el formulario antiguo de FPTecnologi.
+  - Revisión del texto legal por la persona legal.
+  - El plazo de 15 días hábiles no excluye feriados.

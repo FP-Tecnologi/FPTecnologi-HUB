@@ -73,18 +73,6 @@ export const legal: Record<string, { titulo: string; parrafos: string[] }> = {
       'Una vez realizada la compra, el pedido no puede cancelarse ni modificarse, salvo lo dispuesto en esta política o por ley.',
     ],
   },
-  reclamaciones: {
-    titulo: 'Libro de reclamaciones',
-    parrafos: [
-      `Conforme al Código de Protección y Defensa del Consumidor, ${contacto.razonSocialLegal} pone a tu disposición su libro de reclamaciones. Puedes presentar un reclamo o una queja por correo electrónico o por teléfono.`,
-      '## Datos del proveedor',
-      `${contacto.razonSocialLegal}, RUC N.° ${contacto.ruc}. Domicilio: ${contacto.direccion}.`,
-      '## Cómo presentarlo',
-      `Escribe a ${contacto.comercial} o llama al ${contacto.telefono} indicando: número de pedido o cotización y fecha; tu identificación (nombres y apellidos, DNI, o RUC y razón social si eres empresa); tu domicilio, correo y teléfono; si se trata de un producto o de un servicio y su descripción; si presentas un reclamo (disconformidad con el producto o servicio) o una queja (disconformidad no relacionada con ellos); el detalle de lo ocurrido; y tu pedido concreto.`,
-      '## Respuesta',
-      'Atenderemos tu reclamo y te daremos respuesta en un plazo no mayor a treinta (30) días calendario, conforme a ley. Presentar un reclamo no impide acudir a Indecopi.',
-    ],
-  },
   'preguntas-frecuentes': {
     titulo: 'Preguntas frecuentes',
     parrafos: [
@@ -104,6 +92,8 @@ export const legal: Record<string, { titulo: string; parrafos: string[] }> = {
       'Una vez realizada la compra, el pedido no puede cancelarse ni modificarse. Consulta la política de devoluciones para los casos en que sí corresponde un cambio o reembolso.',
       '## ¿Atienden compras a través de Perú Compras?',
       'Sí. Somos proveedores de equipos de cómputo, oficina y afines para entidades del Estado. Escríbenos con tu requerimiento y te orientamos.',
+      '## ¿Cómo presento un reclamo o una queja?',
+      'En la página Libro de Reclamaciones (/libro-de-reclamaciones), accesible desde el inicio y el pie de página. Te responderemos en un plazo no mayor a quince (15) días hábiles y recibirás una constancia por correo.',
       '## ¿Hacen entregas fuera de Lima?',
       'Sí, atendemos Lima Metropolitana y los demás departamentos del país. La cobertura y los plazos de entrega se detallan en cada cotización.',
     ],

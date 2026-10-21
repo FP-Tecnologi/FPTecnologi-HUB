@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Logo from './Logo';
+import LibroBadge from './LibroBadge';
 import { contacto } from '@/lib/contacto';
 import { contenido } from '@/lib/contenido';
 
@@ -7,7 +8,6 @@ const legales = [
   { href: '/legal/privacidad', texto: 'Política de privacidad' },
   { href: '/legal/terminos', texto: 'Términos y condiciones' },
   { href: '/legal/devoluciones', texto: 'Devoluciones' },
-  { href: '/legal/reclamaciones', texto: 'Libro de reclamaciones' },
   { href: '/legal/preguntas-frecuentes', texto: 'Preguntas frecuentes' },
 ];
 
@@ -35,6 +35,7 @@ export default function Footer() {
               <li key={l.href}><Link href={l.href} className="hover:underline focus-visible:outline-white">{l.texto}</Link></li>
             ))}
           </ul></nav>
+          <div className="mt-4"><LibroBadge /></div>
         </div>
       </div>
       <p className="border-t border-white/20 pb-24 pt-4 text-center md:pb-4 text-sm">© {new Date().getFullYear()} {contacto.razonSocial}</p>
