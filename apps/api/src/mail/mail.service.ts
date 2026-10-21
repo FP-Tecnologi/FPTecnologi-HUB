@@ -19,6 +19,10 @@ import {
   presupuestoClienteEmail,
   codigoCuentaEmail,
   avisoEmail,
+  hojaConsumidorEmail,
+  hojaEquipoEmail,
+  respuestaReclamoEmail,
+  type HojaCorreo,
 } from './templates.js';
 
 /** Archivo adjunto de un correo (ej. el PDF del presupuesto). */
@@ -81,6 +85,18 @@ export class MailService {
 
   async sendLeadNuevo(to: string, nombre: string, interes: string, url: string): Promise<void> {
     await this.send(to, leadNuevoEmail(nombre, interes, url));
+  }
+
+  async sendHojaConsumidor(to: string, h: HojaCorreo): Promise<void> {
+    await this.send(to, hojaConsumidorEmail(h));
+  }
+
+  async sendHojaEquipo(to: string, h: HojaCorreo, url: string): Promise<void> {
+    await this.send(to, hojaEquipoEmail(h, url));
+  }
+
+  async sendRespuestaReclamo(to: string, d: Parameters<typeof respuestaReclamoEmail>[0]): Promise<void> {
+    await this.send(to, respuestaReclamoEmail(d));
   }
 
   async sendContactoNuevo(to: string, titulo: string, nombre: string, mensaje: string, url: string): Promise<void> {

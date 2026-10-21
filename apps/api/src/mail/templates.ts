@@ -261,3 +261,100 @@ export function avisoEmail(d: { asunto: string; titulo: string; parrafos: string
     `),
   };
 }
+
+// ---------------------------------------------------------------------------
+// Libro de reclamaciones
+// ---------------------------------------------------------------------------
+
+export interface HojaCorreo {
+  codigo: string;
+  fecha: Date;
+  fechaLimite: Date;
+  proveedor: { razonSocial: string | null; ruc: string | null; nombreComercial: string; direccion: string | null };
+  consumidor: { nombres: string; apellidos: string; tipoDocumento: string; nroDocumento: string; domicilio: string; telefono: string; email: string };
+  menorEdad: boolean;
+  representante?: { nombres: string; tipoDocumento: string; nroDocumento: string };
+  bien: { tipo: string; monto: string | null; moneda: string; descripcion: string; nroPedido: string | null };
+  tipo: 'RECLAMO' | 'QUEJA';
+  detalle: string;
+  pedido: string;
+  medioRespuesta: string;
+}
+
+const fechaCorta = (d: Date) => d.toLocaleDateString('es-PE', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'America/Lima' });
+
+function filas(pares: Array<[string, string | null | undefined]>): string {
+  return pares
+    .filter(([, v]) => v)
+    .map(([k, v]) => `<tr><td style="padding:4px 12px 4px 0;color:${MUTED_COLOR};vertical-align:top;">${escapeHtml(k)}</td><td style="padding:4px 0;">${escapeHtml(String(v))}</td></tr>`)
+    .join('');
+}
+
+function cuerpoHoja(h: HojaCorreo): string {
+  const p = h.proveedor;
+  const c = h.consumidor;
+  const monto = h.bien.monto ? `${h.bien.moneda} ${h.bien.monto}` : null;
+  return `
+      <table style="border-collapse:collapse;font-size:14px;color:${TEXT_COLOR};">${filas([
+        ['Código', h.codigo],
+        ['Fecha', fechaCorta(h.fecha)],
+        ['Proveedor', p.razonSocial ?? p.nombreComercial],
+        ['RUC', p.ruc],
+        ['Dirección', p.direccion],
+        ['Consumidor', `${c.nombres} ${c.apellidos}`],
+        [c.tipoDocumento, c.nroDocumento],
+        ['Domicilio', c.domicilio],
+        ['Teléfono', c.telefono],
+        ['Correo', c.email],
+        ['Representante', h.menorEdad && h.representante ? `${h.representante.nombres} (${h.representante.tipoDocumento} ${h.representante.nroDocumento})` : null],
+        ['Bien contratado', h.bien.tipo],
+        ['Monto reclamado', monto],
+        ['Descripción', h.bien.descripcion],
+        ['N.º de pedido', h.bien.nroPedido],
+        ['Tipo', h.tipo],
+        ['Detalle', h.detalle],
+        ['Pedido del consumidor', h.pedido],
+        ['Medio de respuesta', h.medioRespuesta],
+      ])}</table>`;
+}
+
+export function hojaConsumidorEmail(h: HojaCorreo): { subject: string; html: string } {
+  return {
+    subject: `Tu hoja de reclamación ${h.codigo}`,
+    html: layout(`
+      <h1 style="margin:0 0 12px;font-size:20px;">Recibimos tu hoja de reclamación</h1>
+      <p style="margin:0 0 12px;color:${MUTED_COLOR};">Esta es la copia de tu hoja de reclamación. Presentar un reclamo no impide acudir a Indecopi.</p>
+      <p style="margin:0 0 12px;">Te responderemos a más tardar el <strong>${escapeHtml(fechaCorta(h.fechaLimite))}</strong> (15 días hábiles). Con el código <strong>${escapeHtml(h.codigo)}</strong> y tu documento puedes consultar el estado en la web.</p>
+      <div style="margin:20px 0;padding:14px 20px;background:${CODE_BG};border-radius:8px;">${cuerpoHoja(h)}</div>
+    `),
+  };
+}
+
+export function hojaEquipoEmail(h: HojaCorreo, url: string): { subject: string; html: string } {
+  return {
+    subject: `Nueva hoja de reclamación ${h.codigo}`,
+    html: layout(`
+      <h1 style="margin:0 0 12px;font-size:20px;">Nueva hoja de reclamación</h1>
+      <p style="margin:0 0 12px;color:${MUTED_COLOR};">Plazo de respuesta: ${escapeHtml(fechaCorta(h.fechaLimite))} (15 días hábiles).</p>
+      <div style="margin:20px 0;padding:14px 20px;background:${CODE_BG};border-radius:8px;">${cuerpoHoja(h)}</div>
+      <a href="${escapeHtml(url)}" style="display:inline-block;background:${BRAND_COLOR};color:#FFFFFF;text-decoration:none;font-weight:700;padding:12px 20px;border-radius:8px;">Ver en el dashboard</a>
+    `),
+  };
+}
+
+export function respuestaReclamoEmail(d: {
+  codigo: string;
+  tipo: string;
+  respuesta: string;
+  proveedor: { razonSocial: string | null; nombreComercial: string };
+}): { subject: string; html: string } {
+  return {
+    subject: `Respuesta a tu ${d.tipo === 'QUEJA' ? 'queja' : 'reclamo'} ${d.codigo}`,
+    html: layout(`
+      <h1 style="margin:0 0 12px;font-size:20px;">Respuesta a tu hoja ${escapeHtml(d.codigo)}</h1>
+      <p style="margin:0 0 12px;color:${MUTED_COLOR};">${escapeHtml(d.proveedor.razonSocial ?? d.proveedor.nombreComercial)} respondió a tu ${d.tipo === 'QUEJA' ? 'queja' : 'reclamo'}:</p>
+      <div style="margin:20px 0;padding:14px 20px;background:${CODE_BG};border-radius:8px;color:${TEXT_COLOR};white-space:pre-wrap;">${escapeHtml(d.respuesta)}</div>
+      <p style="margin:0;color:${MUTED_COLOR};">Si no estás conforme, puedes acudir a Indecopi.</p>
+    `),
+  };
+}
