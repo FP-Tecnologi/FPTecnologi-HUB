@@ -20,3 +20,13 @@ h1, h2, h3 { text-wrap: balance; }
 p, li { text-wrap: pretty; }
 @keyframes giro { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { animation: none !important; transition: none !important; } }
+@keyframes marquesina { to { transform: translateX(-50%); } }
+.marquesina { mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); }
+.marquesina-pista { animation: marquesina 40s linear infinite; will-change: transform; }
+.marquesina:hover .marquesina-pista, .marquesina:focus-within .marquesina-pista { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .marquesina { mask-image: none; -webkit-mask-image: none; }
+  .marquesina-pista { width: 100%; flex-wrap: wrap; justify-content: center; }
+  .marquesina-lista { flex-shrink: 1; flex-wrap: wrap; justify-content: center; row-gap: 1rem; padding-right: 0; }
+  .marquesina-lista[aria-hidden='true'] { display: none; }
+}

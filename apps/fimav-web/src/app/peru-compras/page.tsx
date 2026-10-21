@@ -1,6 +1,7 @@
 import { Megaphone } from 'lucide-react';
 import Hexagono from '@/components/Hexagono';
 import Titulo from '@/components/Titulo';
+import { FranjaMarcas } from '@/components/home/Marcas';
 import BotonHex from '@/components/hex/BotonHex';
 import HexImagen from '@/components/hex/HexImagen';
 import { categorias } from '@/lib/categorias';
@@ -85,11 +86,7 @@ export default function PeruComprasPage() {
       <section className="bg-gris py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Titulo claro="Marcas con las que" rojo="trabajamos" className="text-3xl sm:text-4xl" />
-          <ul className="mt-6 flex flex-wrap gap-3">
-            {contenido.marcas.map((m) => (
-              <li key={m} className="rounded-full bg-white px-5 py-2 font-medium text-carbon">{m}</li>
-            ))}
-          </ul>
+          <FranjaMarcas className="mt-6" />
         </div>
       </section>
 

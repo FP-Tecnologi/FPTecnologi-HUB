@@ -18,5 +18,17 @@ export const contenido = {
   ],
   frase:
     'Somos una organización en constante transformación, enfocada en la sostenibilidad de nuestro crecimiento y participación en el mercado, mejorando la calidad de las soluciones proporcionadas a nuestros clientes, dentro de un ecosistema empresarial sostenible.',
-  marcas: ['Dell', 'HP', 'Lenovo', 'Epson', 'LG', 'Lexmark', 'Daikin', 'HPE'],
+  // `solido`: el logo trae caja/fondo de color y se muestra siempre a color (en gris saldría un bloque).
+  // Lexmark y Daikin: sin logo disponible, se muestran como texto.
+  marcas: [
+    { nombre: 'Dell', logo: '/marcas/dell.svg', solido: true },
+    { nombre: 'HP', logo: '/marcas/hp.svg', solido: true },
+    { nombre: 'Lenovo', logo: '/marcas/lenovo.svg', solido: true },
+    { nombre: 'Epson', logo: '/marcas/epson.svg' },
+    { nombre: 'LG', logo: '/marcas/lg.svg', solido: true },
+    { nombre: 'Samsung', logo: '/marcas/samsung.svg' },
+    { nombre: 'Lexmark' },
+    { nombre: 'Daikin' },
+    { nombre: 'HPE', logo: '/marcas/hpe.svg' },
+  ] as { nombre: string; logo?: string; solido?: boolean }[],
 };
