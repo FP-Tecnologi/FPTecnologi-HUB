@@ -8,7 +8,7 @@ const hoja: HojaCorreo = {
   proveedor: { razonSocial: 'Fimav SAC', ruc: '20123456789', nombreComercial: 'Fimav', direccion: 'Lima' },
   consumidor: { nombres: '<script>alert(1)</script>', apellidos: 'Pérez', tipoDocumento: 'DNI', nroDocumento: '12345678', domicilio: 'Av. 1', telefono: '999', email: 'a@b.pe' },
   menorEdad: false,
-  bien: { tipo: 'PRODUCTO', monto: '10.00', moneda: 'PEN', descripcion: 'Router', nroPedido: null },
+  bien: { tipo: 'PRODUCTO', monto: '10.5', moneda: 'PEN', descripcion: 'Router', nroPedido: null },
   tipo: 'RECLAMO',
   detalle: '<script>x</script>',
   pedido: 'Reembolso',
@@ -23,6 +23,11 @@ describe('hojaConsumidorEmail', () => {
     expect(html).toContain('LR-0001-2026');
     expect(html).toContain('15 días hábiles');
     expect(html).toContain('no impide acudir a Indecopi');
+    expect(html).toContain('Correo electrónico');
+    expect(html).toContain('Reclamo');
+    expect(html).toContain('Producto');
+    expect(html).toContain('PEN 10.50');
+    expect(html).not.toContain('>CORREO<');
   });
 });
 

@@ -290,10 +290,16 @@ function filas(pares: Array<[string, string | null | undefined]>): string {
     .join('');
 }
 
+const ETIQUETAS: Record<string, string> = {
+  CORREO: 'Correo electrónico', CARTA: 'Carta al domicilio', RECLAMO: 'Reclamo', QUEJA: 'Queja', PRODUCTO: 'Producto', SERVICIO: 'Servicio',
+};
+const etiqueta = (v: string) => ETIQUETAS[v] ?? v;
+const dosDecimales = (m: string) => (Number.isFinite(Number(m)) ? Number(m).toFixed(2) : m);
+
 function cuerpoHoja(h: HojaCorreo): string {
   const p = h.proveedor;
   const c = h.consumidor;
-  const monto = h.bien.monto ? `${h.bien.moneda} ${h.bien.monto}` : null;
+  const monto = h.bien.monto ? `${h.bien.moneda} ${dosDecimales(h.bien.monto)}` : null;
   return `
       <table style="border-collapse:collapse;font-size:14px;color:${TEXT_COLOR};">${filas([
         ['Código', h.codigo],
@@ -307,14 +313,14 @@ function cuerpoHoja(h: HojaCorreo): string {
         ['Teléfono', c.telefono],
         ['Correo', c.email],
         ['Representante', h.menorEdad && h.representante ? `${h.representante.nombres} (${h.representante.tipoDocumento} ${h.representante.nroDocumento})` : null],
-        ['Bien contratado', h.bien.tipo],
+        ['Bien contratado', etiqueta(h.bien.tipo)],
         ['Monto reclamado', monto],
         ['Descripción', h.bien.descripcion],
         ['N.º de pedido', h.bien.nroPedido],
-        ['Tipo', h.tipo],
+        ['Tipo', etiqueta(h.tipo)],
         ['Detalle', h.detalle],
         ['Pedido del consumidor', h.pedido],
-        ['Medio de respuesta', h.medioRespuesta],
+        ['Medio de respuesta', etiqueta(h.medioRespuesta)],
       ])}</table>`;
 }
 

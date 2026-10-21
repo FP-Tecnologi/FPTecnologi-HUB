@@ -1114,3 +1114,5 @@ Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «V
   - Formularios para las webs de FPTecnologi y Quamtu, y reemplazar el formulario antiguo de FPTecnologi.
   - Revisión del texto legal por la persona legal.
   - El plazo de 15 días hábiles no excluye feriados.
+  - Retención: el reglamento exige conservar las hojas al menos 2 años; nada las borra (FK `Marca` ON DELETE RESTRICT).
+  - Checklist de puesta en marcha: aplicar la migración ANTES de desplegar el código de la API (las consultas de `Marca` seleccionan las columnas nuevas); cargar `razonSocial`/`ruc`/`direccionFiscal` y `contactoEmail` por marca; asignar un usuario admin/comercial a `fimavperu`; `HUB_MARCA_ID`/`HUB_API_URL` en fimav-web; `WEB_ORIGIN` en la API; comprobar que `x-forwarded-for` llega al servidor Next; probar de punta a punta una hoja real.

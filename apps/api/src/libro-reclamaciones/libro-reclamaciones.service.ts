@@ -66,8 +66,6 @@ export class LibroReclamacionesService {
     const marca = await this.prisma.marca.findUnique({ where: { id: marcaId } });
     if (!marca) throw new BadRequestException('Marca inválida');
 
-    limitar(intentosCrear, `${marcaId}:${ip}`, 5);
-
     validarDocumento(dto.tipoDocumento, dto.nroDocumento, 'Documento');
     if (dto.menorEdad) {
       if (!dto.repNombres?.trim() || !dto.repTipoDocumento || !dto.repNroDocumento) {
@@ -75,6 +73,9 @@ export class LibroReclamacionesService {
       }
       validarDocumento(dto.repTipoDocumento, dto.repNroDocumento, 'Representante');
     }
+
+    // El tope cuenta solo envíos válidos: los rechazados por validación no lo consumen.
+    limitar(intentosCrear, `${marcaId}:${ip}`, 5);
 
     const fecha = new Date();
     const anio = Number(fecha.toLocaleDateString('en-CA', { timeZone: 'America/Lima' }).slice(0, 4));
@@ -193,7 +194,7 @@ export class LibroReclamacionesService {
 
   // ------------------------------------------------------------------ interno
 
-  private async notificar(marca: { id: string; nombre: string; razonSocial: string | null; ruc: string | null; direccionFiscal: string | null }, h: HojaReclamacion) {
+  private async notificar(marca: { id: string; nombre: string; razonSocial: string | null; ruc: string | null; direccionFiscal: string | null; contactoEmail: string | null }, h: HojaReclamacion) {
     const datos: HojaCorreo = {
       codigo: h.codigo,
       fecha: h.fecha,
@@ -208,18 +209,23 @@ export class LibroReclamacionesService {
       pedido: h.pedidoConsumidor,
       medioRespuesta: h.medioRespuesta,
     };
-    const res = await Promise.allSettled([this.mail.sendHojaConsumidor(h.email, datos), this.avisarEquipo(h.marcaId, h, datos)]);
+    const res = await Promise.allSettled([this.mail.sendHojaConsumidor(h.email, datos), this.avisarEquipo(h.marcaId, h, datos, marca.contactoEmail)]);
     for (const r of res) if (r.status === 'rejected') this.logger.error('Falló un aviso de la hoja de reclamación', r.reason as Error);
   }
 
-  private async avisarEquipo(marcaId: string, h: HojaReclamacion, datos: HojaCorreo) {
+  private async avisarEquipo(marcaId: string, h: HojaReclamacion, datos: HojaCorreo, contactoEmail: string | null) {
     const asignaciones = await this.prisma.usuarioMarcaRol.findMany({
       where: { marcaId, rol: { nombre: { in: ROLES_AVISO } } },
       include: { usuario: { select: { id: true, email: true, activo: true } } },
     });
     const usuarios = [...new Map(asignaciones.filter((a) => a.usuario.activo).map((a) => [a.usuario.id, a.usuario])).values()];
-    if (usuarios.length === 0) return;
     const url = `${process.env.WEB_ORIGIN ?? 'http://localhost:3000'}/libro-reclamaciones?id=${h.id}`;
+    if (usuarios.length === 0) {
+      // Sin usuarios asignados, la hoja no puede quedar sin aviso dentro del plazo de 15 días hábiles.
+      if (contactoEmail) await this.mail.sendHojaEquipo(contactoEmail, datos, url);
+      else this.logger.warn(`Hoja ${h.codigo} (marca ${marcaId}) sin destinatarios: no hay usuarios admin/comercial ni contactoEmail`);
+      return;
+    }
     await this.prisma.notificacion.createMany({
       data: usuarios.map((u) => ({
         marcaId,

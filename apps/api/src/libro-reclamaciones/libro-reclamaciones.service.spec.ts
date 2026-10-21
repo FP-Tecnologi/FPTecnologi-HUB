@@ -114,6 +114,8 @@ describe('LibroReclamacionesService.crearPublico', () => {
 
   it('(g) la 6.ª en 10 min desde la misma IP → 429', async () => {
     const { service } = setup();
+    // Los rechazados por validación no consumen el tope.
+    for (let i = 0; i < 6; i++) await expect(service.crearPublico('m1', { ...base, nroDocumento: '1' + '2'.repeat(6) }, '10.0.1.1')).rejects.toBeInstanceOf(BadRequestException);
     for (let i = 0; i < 5; i++) await service.crearPublico('m1', base, '10.0.1.1');
     await expect(service.crearPublico('m1', base, '10.0.1.1')).rejects.toMatchObject({ status: 429 });
   });
@@ -169,6 +171,38 @@ describe('LibroReclamacionesService.crearPublico (casos adicionales)', () => {
     const { service, create } = setup({ createErrors: [{ code: 'P2002' }, { code: 'P2002' }, { code: 'P2002' }] });
     await expect(service.crearPublico('m1', base, '10.9.0.4')).rejects.toMatchObject({ code: 'P2002' });
     expect(create).toHaveBeenCalledTimes(3);
+  });
+});
+
+describe('LibroReclamacionesService aviso al equipo', () => {
+  it('(I1a) sin usuarios y con contactoEmail → correo a contactoEmail', async () => {
+    const { service, prisma, mail } = setup();
+    prisma.usuarioMarcaRol.findMany.mockResolvedValue([] as never);
+    await service.crearPublico('m1', base, '10.8.0.1');
+    await flush();
+    expect(mail.sendHojaEquipo).toHaveBeenCalledTimes(1);
+    expect(mail.sendHojaEquipo).toHaveBeenCalledWith('a@b.pe', expect.anything(), expect.any(String));
+  });
+
+  it('(I1b) sin usuarios ni contactoEmail → warn y registro ok', async () => {
+    const warn = vi.spyOn(Logger.prototype, 'warn').mockImplementation(() => undefined);
+    const { service, prisma, mail } = setup();
+    prisma.usuarioMarcaRol.findMany.mockResolvedValue([] as never);
+    prisma.marca.findUnique.mockResolvedValueOnce({ id: 'm1', nombre: 'Fimav', razonSocial: null, ruc: null, direccionFiscal: null, contactoEmail: null } as never);
+    await expect(service.crearPublico('m1', base, '10.8.0.2')).resolves.toMatchObject({ ok: true });
+    await flush();
+    expect(mail.sendHojaEquipo).not.toHaveBeenCalled();
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining(`LR-0001-${anio}`));
+    expect(warn.mock.calls[0]![0]).not.toContain('ana@correo.com');
+    warn.mockRestore();
+  });
+
+  it('(I1c) con usuarios → solo a los usuarios', async () => {
+    const { service, mail } = setup();
+    await service.crearPublico('m1', base, '10.8.0.3');
+    await flush();
+    expect(mail.sendHojaEquipo).toHaveBeenCalledTimes(1);
+    expect(mail.sendHojaEquipo).toHaveBeenCalledWith('eq@x.pe', expect.anything(), expect.any(String));
   });
 });
 
