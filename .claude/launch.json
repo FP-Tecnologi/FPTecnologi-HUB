@@ -52,6 +52,20 @@
       "port": 3004
     },
     {
+      "name": "fimav-web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "apps/fimav-web",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "3005"
+      ],
+      "port": 3005
+    },
+    {
       "name": "leads",
       "runtimeExecutable": "npm",
       "runtimeArgs": [
