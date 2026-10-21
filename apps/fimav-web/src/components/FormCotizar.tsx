@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { Loader2, MessageCircle } from 'lucide-react';
 import { categorias } from '@/lib/categorias';
 import { contacto, waUrl } from '@/lib/contacto';
+import BotonHex from './hex/BotonHex';
 
 type Tipo = 'NATURAL' | 'JURIDICA';
 const limpio = (t: string) => t.replace(/[<>]/g, '');
@@ -82,9 +83,9 @@ export default function FormCotizar() {
         <h2 className="text-2xl font-medium text-carbon">{resultado.guardado ? 'Solicitud enviada' : 'Casi listo'}</h2>
         <p className="mt-3 leading-relaxed text-carbon">{resultado.texto}</p>
         {!resultado.guardado && (
-          <a href={waUrl(mensajeWa())} target="_blank" rel="noreferrer" className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-boton px-6 py-3 text-white hover:bg-rojo-hondo">
+          <BotonHex href={waUrl(mensajeWa())} className="mt-6">
             <MessageCircle aria-hidden="true" size={18} /> Enviar por WhatsApp
-          </a>
+          </BotonHex>
         )}
       </div>
     );
@@ -151,9 +152,9 @@ export default function FormCotizar() {
 
       <div className="sm:col-span-2">
         {errorApi && <p ref={errorApiRef} tabIndex={-1} role="alert" className="mb-3 text-sm text-rojo-hondo">{errorApi}</p>}
-        <button disabled={enviando} className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-boton px-8 py-3 text-white hover:bg-rojo-hondo disabled:opacity-60 sm:w-auto">
+        <BotonHex type="submit" disabled={enviando} size="lg" className="w-full sm:w-auto">
           {enviando && <Loader2 aria-hidden="true" size={18} className="animate-spin" />} Solicitar cotización
-        </button>
+        </BotonHex>
       </div>
     </form>
   );

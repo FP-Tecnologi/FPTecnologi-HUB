@@ -1,4 +1,5 @@
 import Titulo from '@/components/Titulo';
+import BotonHex from '@/components/hex/BotonHex';
 import { contacto, waUrl } from '@/lib/contacto';
 
 export const metadata = { title: 'Contacto' };
@@ -21,7 +22,7 @@ export default function ContactoPage() {
         <section className={tarjeta}>
           <h2 className="text-xl font-medium text-carbon">Teléfono</h2>
           <p className="mt-3"><a href={contacto.telefonoHref} className={enlace}>{contacto.telefono}</a></p>
-          <a href={waUrl('Hola, quisiera información sobre una cotización.')} target="_blank" rel="noopener noreferrer" className="mt-4 inline-block rounded-full bg-boton px-6 py-3 font-medium text-white">Escribir por WhatsApp</a>
+          <BotonHex href={waUrl('Hola, quisiera información sobre una cotización.')} className="mt-4">Escribir por WhatsApp</BotonHex>
         </section>
         <section className={`${tarjeta} md:col-span-2`}>
           <h2 className="text-xl font-medium text-carbon">Correo</h2>

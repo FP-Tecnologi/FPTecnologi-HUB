@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Loader2, Mail, Phone, Printer } from 'lucide-react';
 import { contacto } from '@/lib/contacto';
 import type { Proveedor } from '@/lib/proveedor';
+import BotonHex from './hex/BotonHex';
 
 type TipoDoc = 'DNI' | 'CE' | 'PASAPORTE' | 'RUC';
 const limpio = (t: string) => t.replace(/[<>]/g, '');
@@ -122,7 +123,7 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
           <li><a href={`mailto:${proveedor.email}`} className="flex min-h-11 items-center gap-3 break-all hover:underline"><Mail aria-hidden="true" size={18} className="shrink-0" /> {proveedor.email}</a></li>
           <li><a href={contacto.telefonoHref} className="flex min-h-11 items-center gap-3 hover:underline"><Phone aria-hidden="true" size={18} className="shrink-0" /> {contacto.telefono}</a></li>
         </ul>
-        <button type="button" onClick={() => { volver.current = true; setFallo(false); }} className="mt-4 inline-flex min-h-11 items-center rounded-full bg-boton px-6 py-3 text-white hover:bg-rojo-hondo">Volver al formulario</button>
+        <BotonHex onClick={() => { volver.current = true; setFallo(false); }} className="mt-4">Volver al formulario</BotonHex>
       </div>
     );
 
@@ -162,8 +163,8 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
         <p className="mt-6 hidden text-sm text-carbon print:block">Ley 29571, Código de Protección y Defensa del Consumidor, y su reglamento.</p>
 
         <div className="mt-6 flex flex-wrap gap-3 print:hidden">
-          <button type="button" onClick={() => window.print()} className="inline-flex min-h-11 items-center gap-2 rounded-full bg-boton px-6 py-3 text-white hover:bg-rojo-hondo"><Printer aria-hidden="true" size={18} /> Imprimir / guardar PDF</button>
-          <button type="button" onClick={() => { volver.current = true; setHoja(null); setF(inicial); setErrores({}); }} className="inline-flex min-h-11 items-center rounded-full border border-carbon/60 bg-white px-6 py-3 text-carbon hover:bg-gris">Registrar otro</button>
+          <BotonHex onClick={() => window.print()}><Printer aria-hidden="true" size={18} /> Imprimir / guardar PDF</BotonHex>
+          <BotonHex variante="contorno" onClick={() => { volver.current = true; setHoja(null); setF(inicial); setErrores({}); }}>Registrar otro</BotonHex>
         </div>
       </div>
     );
@@ -222,8 +223,8 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
         <div>
           {lbl('monto', 'Monto reclamado (opcional)', false)}
           <div className="flex gap-2">
-            <select aria-label="Moneda" value={f.moneda} onChange={(e) => set('moneda', e.target.value as 'PEN' | 'USD')} className={`${campo} w-28 shrink-0`}><option value="PEN">S/</option><option value="USD">US$</option></select>
-            <input id="monto" value={f.monto} onChange={(e) => set('monto', e.target.value)} inputMode="decimal" placeholder="0.00" className={campo} {...aria('monto')} />
+            <select aria-label="Moneda" value={f.moneda} onChange={(e) => set('moneda', e.target.value as 'PEN' | 'USD')} className={`${campo.replace('w-full', 'w-28')} shrink-0`}><option value="PEN">S/</option><option value="USD">US$</option></select>
+            <input id="monto" value={f.monto} onChange={(e) => set('monto', e.target.value)} inputMode="decimal" placeholder="0.00" className={`${campo} min-w-0`}{...aria('monto')} />
           </div>
           {err('monto')}
         </div>
@@ -266,9 +267,9 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
         {err('acepta')}
         <p className="mt-3 text-sm text-carbon">Responderemos en un plazo máximo de 15 días hábiles. Presentar un reclamo no impide acudir a Indecopi.</p>
         {errorApi && <p ref={errorApiRef} tabIndex={-1} role="alert" className="mt-3 text-sm text-rojo-hondo">{errorApi}</p>}
-        <button disabled={enviando} className="mt-4 inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-full bg-boton px-8 py-3 text-white hover:bg-rojo-hondo disabled:opacity-60 sm:w-auto">
+        <BotonHex type="submit" disabled={enviando} size="lg" className="mt-4 w-full sm:w-auto">
           {enviando && <Loader2 aria-hidden="true" size={18} className="animate-spin" />} Enviar hoja de reclamación
-        </button>
+        </BotonHex>
       </div>
     </form>
   );

@@ -1,11 +1,13 @@
 import type { Metadata } from 'next';
-import { Poppins } from 'next/font/google';
+import { Poppins, Source_Sans_3 } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import WhatsAppFlotante from '@/components/WhatsAppFlotante';
 
 const poppins = Poppins({ subsets: ['latin'], variable: '--font-poppins', weight: ['400', '500', '600', '700'] });
+// Humanista tipo Myriad (la del brochure) para títulos; fuente variable, cubre 400–600.
+const titulo = Source_Sans_3({ subsets: ['latin'], variable: '--font-source' });
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://fimavperu.com'),
@@ -16,7 +18,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={poppins.variable}>
+    <html lang="es" className={`${poppins.variable} ${titulo.variable}`}>
       <body>
         <Header />
         {children}

@@ -1,6 +1,6 @@
-import Link from 'next/link';
 import Espiral from '@/components/Espiral';
 import Titulo from '@/components/Titulo';
+import BotonHex from '@/components/hex/BotonHex';
 import { contenido } from '@/lib/contenido';
 
 export default function Hero() {
@@ -11,9 +11,9 @@ export default function Hero() {
       <div className="relative mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:py-32">
         <Titulo nivel="h1" claro={contenido.hero.linea1} rojo={contenido.hero.linea2} className="max-w-xl text-4xl sm:text-5xl lg:text-6xl" />
         <p className="mt-6 max-w-md text-lg text-carbon/80">Proveedor corporativo y de gobierno con más de 10 años de experiencia</p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Link href="/cotizar" className="rounded-full bg-boton px-6 py-3 font-semibold text-white">Solicitar cotización</Link>
-          <Link href="/catalogo" className="rounded-full border-2 border-rojo-hondo px-6 py-3 font-semibold text-rojo-hondo">Ver catálogo</Link>
+        <div className="mt-8 flex flex-wrap gap-4">
+          <BotonHex href="/cotizar" size="lg">Solicitar cotización</BotonHex>
+          <BotonHex href="/catalogo" size="lg" variante="contorno">Ver catálogo</BotonHex>
         </div>
       </div>
     </section>

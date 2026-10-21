@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Logo from './Logo';
+import BotonHex from './hex/BotonHex';
 import MenuMovil from './MenuMovil';
 
 const enlaces = [
@@ -22,9 +23,7 @@ export default function Header() {
               {e.texto}
             </Link>
           ))}
-          <Link href="/cotizar" className="rounded-full bg-boton px-5 py-2 font-semibold text-white">
-            Cotizar
-          </Link>
+          <BotonHex href="/cotizar">Cotizar</BotonHex>
         </nav>
         <MenuMovil enlaces={enlaces} />
       </div>

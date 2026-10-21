@@ -1,6 +1,7 @@
-import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Hexagono from '@/components/Hexagono';
+import BotonHex from '@/components/hex/BotonHex';
+import HexImagen from '@/components/hex/HexImagen';
 import { categoriaPorSlug, categorias } from '@/lib/categorias';
 
 export const dynamicParams = false;
@@ -23,16 +24,15 @@ export default async function CategoriaPage({ params }: { params: Promise<{ cate
       {c.fotos.length > 0 ? (
         <div className="mt-10 grid gap-6 sm:grid-cols-3">
           {c.fotos.map((f, n) => (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img key={f} src={f} alt={`${c.nombre}, ejemplo ${n + 1}`} loading="lazy" className="aspect-square w-full rounded-2xl border border-carbon/20 object-cover" />
+            <HexImagen key={f} src={f} alt={`${c.nombre}, ejemplo ${n + 1}`} sizes="(min-width: 640px) 33vw, 90vw" />
           ))}
         </div>
       ) : (
         <p className="mt-10 rounded-2xl border border-carbon/20 bg-gris p-6 text-carbon/80">Consulta disponibilidad con nuestro equipo.</p>
       )}
-      <Link href={`/cotizar?categoria=${c.slug}`} className="mt-10 inline-block rounded-full bg-boton px-7 py-3 font-medium text-white">
+      <BotonHex href={`/cotizar?categoria=${c.slug}`} size="lg" className="mt-10">
         Cotizar {c.nombre}
-      </Link>
+      </BotonHex>
     </main>
   );
 }

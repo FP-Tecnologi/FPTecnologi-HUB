@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Logo from './Logo';
 import LibroBadge from './LibroBadge';
+import CorteHex from './hex/CorteHex';
 import { contacto } from '@/lib/contacto';
 import { contenido } from '@/lib/contenido';
 
@@ -13,7 +14,9 @@ const legales = [
 
 export default function Footer() {
   return (
-    <footer className="print:hidden mt-16 bg-carbon pt-32 text-white" style={{ clipPath: 'polygon(0 0, 50% 18%, 100% 0, 100% 100%, 0 100%)' }}>
+    <footer className="print:hidden mt-16 text-white">
+      <CorteHex lado="arriba" color="var(--color-carbon)" />
+      <div className="bg-carbon pt-12">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 pb-10 md:grid-cols-3">
         <div>
           <span className="inline-block rounded-xl bg-white p-2">
@@ -35,10 +38,11 @@ export default function Footer() {
               <li key={l.href}><Link href={l.href} className="hover:underline focus-visible:outline-white">{l.texto}</Link></li>
             ))}
           </ul></nav>
-          <div className="mt-4"><LibroBadge className="focus-visible:outline-white" /></div>
+          <div className="mt-4"><LibroBadge /></div>
         </div>
       </div>
       <p className="border-t border-white/20 pb-24 pt-4 text-center md:pb-4 text-sm">© {new Date().getFullYear()} {contacto.razonSocial}</p>
+      </div>
     </footer>
   );
 }

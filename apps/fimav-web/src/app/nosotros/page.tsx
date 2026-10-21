@@ -1,5 +1,6 @@
 import Espiral from '@/components/Espiral';
 import Titulo from '@/components/Titulo';
+import CorteHex from '@/components/hex/CorteHex';
 import { contenido } from '@/lib/contenido';
 
 export const metadata = { title: 'Nosotros' };
@@ -16,14 +17,16 @@ export default function NosotrosPage() {
           <p className="mt-4 max-w-3xl leading-relaxed text-carbon/80">{contenido.mision}</p>
         </div>
       </section>
-      <section className="overflow-hidden bg-white">
-        <div className="rounded-l-[6rem] bg-carbon py-16 text-white lg:ml-24 lg:py-24">
+      <section className="bg-white">
+        <CorteHex lado="arriba" color="var(--color-carbon)" />
+        <div className="bg-carbon py-16 text-white lg:py-24">
           <div className="mx-auto max-w-6xl px-4 sm:px-6">
             <h2 className="text-2xl font-medium">Visión</h2>
             <span aria-hidden="true" className="mt-2 block h-1 w-16 rounded-full bg-rojo" />
             <p className="mt-4 max-w-3xl leading-relaxed text-white/90">{contenido.vision}</p>
           </div>
         </div>
+        <CorteHex lado="abajo" color="var(--color-carbon)" />
       </section>
       <section className="bg-white py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">

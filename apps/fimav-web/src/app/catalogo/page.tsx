@@ -1,6 +1,7 @@
-import Link from 'next/link';
 import Hexagono from '@/components/Hexagono';
 import Titulo from '@/components/Titulo';
+import BotonHex from '@/components/hex/BotonHex';
+import HexImagen from '@/components/hex/HexImagen';
 import { categorias } from '@/lib/categorias';
 
 export const metadata = { title: 'Catálogo' };
@@ -23,16 +24,15 @@ export default function CatalogoPage() {
                 <h2 className="text-2xl font-medium text-carbon">{c.nombre}</h2>
                 <p className="mt-2 max-w-xl text-carbon/80">{c.resumen}</p>
                 {c.marcas.length > 0 && <p className="mt-2 text-sm font-medium text-rojo-hondo">Marcas: {c.marcas.join(' · ')}</p>}
-                <Link href={`/catalogo/${c.slug}`} className="mt-4 inline-block rounded-full bg-boton px-6 py-2.5 font-medium text-white">
+                <BotonHex href={`/catalogo/${c.slug}`} className="mt-4">
                   Ver y cotizar<span className="sr-only"> {c.nombre}</span>
-                </Link>
+                </BotonHex>
               </div>
             </div>
             {c.fotos.length > 0 && (
               <div className="grid grid-cols-3 gap-3 lg:w-96">
                 {c.fotos.map((f, n) => (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img key={f} src={f} alt={`${c.nombre}, ejemplo ${n + 1}`} loading="lazy" className="aspect-square w-full rounded-2xl border border-carbon/20 object-cover" />
+                  <HexImagen key={f} src={f} alt={`${c.nombre}, ejemplo ${n + 1}`} sizes="128px" />
                 ))}
               </div>
             )}

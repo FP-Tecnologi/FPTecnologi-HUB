@@ -8,10 +8,12 @@
   --color-tinta: #111111;
   --color-gris: #f3f3f4;
   --font-sans: var(--font-poppins), system-ui, sans-serif;
+  --font-titulo: var(--font-source), 'Myriad Pro', system-ui, sans-serif;
 }
 
 html { background: #fff; color: var(--color-carbon); scroll-behavior: smooth; }
 body { font-family: var(--font-sans); }
+@layer base { h1, h2, h3 { font-family: var(--font-titulo); } }
 @layer base { :focus-visible { outline: 2px solid var(--color-rojo); outline-offset: 3px; border-radius: 4px; } }
 ::selection { background: rgba(224, 36, 36, 0.25); }
 h1, h2, h3 { text-wrap: balance; }

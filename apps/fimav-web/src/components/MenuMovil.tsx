@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef } from 'react';
+import BotonHex from './hex/BotonHex';
 
 export default function MenuMovil({ enlaces }: { enlaces: { href: string; texto: string }[] }) {
   const ref = useRef<HTMLDetailsElement>(null);
@@ -22,16 +23,14 @@ export default function MenuMovil({ enlaces }: { enlaces: { href: string; texto:
 
   return (
     <details ref={ref} className="relative md:hidden">
-      <summary className="cursor-pointer list-none rounded-full border border-gris px-4 py-2 font-medium text-carbon">Menú</summary>
+      <summary className="cursor-pointer list-none flex min-h-11 items-center rounded-lg border border-gris px-4 font-medium text-carbon">Menú</summary>
       <nav aria-label="Principal" className="absolute right-0 top-full mt-2 flex w-56 flex-col gap-1 rounded-2xl border border-gris bg-white p-3 shadow-lg">
         {enlaces.map((e) => (
           <Link key={e.href} href={e.href} className="rounded-lg px-3 py-2 text-carbon hover:text-rojo">
             {e.texto}
           </Link>
         ))}
-        <Link href="/cotizar" className="mt-1 rounded-full bg-boton px-5 py-2 text-center font-semibold text-white">
-          Cotizar
-        </Link>
+        <BotonHex href="/cotizar" className="mt-2">Cotizar</BotonHex>
       </nav>
     </details>
   );
