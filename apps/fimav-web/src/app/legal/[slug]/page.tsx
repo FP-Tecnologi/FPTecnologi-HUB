@@ -19,8 +19,6 @@ export default async function LegalPage({ params }: { params: Promise<{ slug: st
         {p.parrafos.map((t) =>
           t.startsWith('## ') ? (
             <h2 key={t} className="pt-4 text-xl font-medium text-carbon">{t.slice(3)}</h2>
-          ) : t.startsWith('Texto referencial') ? (
-            <p key={t} className="rounded-2xl border border-carbon/20 bg-gris p-4 text-sm font-medium text-rojo-hondo">{t}</p>
           ) : (
             <p key={t}>{t}</p>
           ),

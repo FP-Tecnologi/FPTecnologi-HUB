@@ -1098,7 +1098,7 @@ Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «V
 - **Pendientes**:
   - WhatsApp real: hoy provisional 01 397-9527 (`wa.me/5113979527`).
   - `HUB_MARCA_ID` de la marca `fimavperu` (debe existir en la tabla `Marca`); sin él el cotizador responde 503.
-  - Textos legales (los 5 son referenciales): validarlos con la persona legal de Fimav.
+  - Textos legales: reescritos a partir de los de la web anterior (RUC 20606256486, "FIMAV PERU S.A.C."; el brochure y el pie dicen "E.I.R.L."). Confirmar la razón social vigente y que la persona legal de Fimav los revise.
   - Despliegue en el servidor de fimavperu.com (el sitio actual es WordPress).
   - Productos desde la API en lugar de las categorías fijas.
   - El logo es un raster de 480x270: pedir a Fimav el vector/SVG.
