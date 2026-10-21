@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString, Matches, MaxLength } from 'class-validator';
 
 export class CreateMarcaDto {
   @IsString()
@@ -23,4 +23,17 @@ export class CreateMarcaDto {
   @IsOptional()
   @IsString()
   contactoTelefono?: string;
+
+  @IsOptional()
+  @IsString()
+  razonSocial?: string;
+
+  @IsOptional()
+  @Matches(/^\d{11}$/, { message: 'El RUC debe tener 11 dígitos' })
+  ruc?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(200)
+  direccionFiscal?: string;
 }

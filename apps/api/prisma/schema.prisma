@@ -28,6 +28,9 @@ model Marca {
   colorSecundario  String?
   contactoEmail    String?
   contactoTelefono String?
+  razonSocial      String?
+  ruc              String?
+  direccionFiscal  String?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -48,6 +51,7 @@ model Marca {
   contenidos         ContenidoWeb[]
   blogArticulos      BlogArticulo[]
   leadsCotizador     LeadCotizador[]
+  hojasReclamacion   HojaReclamacion[]
   contactosWeb       ContactoWeb[]
   suscriptores       SuscriptorBoletin[]
   invitaciones       Invitacion[]
@@ -672,6 +676,59 @@ model LeadCotizador {
   updatedAt     DateTime    @updatedAt
 
   @@index([marcaId, estado, createdAt])
+}
+
+enum TipoHoja {
+  RECLAMO
+  QUEJA
+}
+
+enum EstadoHoja {
+  RECIBIDO
+  EN_PROCESO
+  RESPONDIDO
+}
+
+model HojaReclamacion {
+  id               String     @id @default(uuid())
+  marcaId          String
+  marca            Marca      @relation(fields: [marcaId], references: [id])
+  anio             Int
+  correlativo      Int
+  codigo           String
+  fecha            DateTime   @default(now())
+  nombres          String
+  apellidos        String
+  tipoDocumento    String // DNI | CE | PASAPORTE | RUC
+  nroDocumento     String
+  domicilio        String
+  telefono         String
+  email            String
+  menorEdad        Boolean    @default(false)
+  repNombres       String?
+  repTipoDocumento String?
+  repNroDocumento  String?
+  tipoBien         String // PRODUCTO | SERVICIO
+  montoReclamado   Decimal?   @db.Decimal(12, 2)
+  moneda           String     @default("PEN") // PEN | USD
+  descripcionBien  String
+  nroPedido        String?
+  tipo             TipoHoja
+  detalle          String
+  pedidoConsumidor String
+  medioRespuesta   String // CORREO | CARTA
+  origen           String?
+  estado           EstadoHoja @default(RECIBIDO)
+  fechaLimite      DateTime
+  respuesta        String?
+  respondidoAt     DateTime?
+  respondidoPor    String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  @@unique([marcaId, anio, correlativo])
+  @@index([marcaId, estado, fechaLimite])
+  @@index([marcaId, codigo])
 }
 
 // ---------------------------------------------------------------------------

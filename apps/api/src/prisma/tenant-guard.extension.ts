@@ -40,6 +40,7 @@ const TENANT_MODELS = new Set([
   'BlogArticulo',
   'LeadCotizador',
   'ContactoWeb',
+  'HojaReclamacion',
   'Ticket',
   'TicketMensaje',
   'Socio',
