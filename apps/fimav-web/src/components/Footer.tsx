@@ -35,7 +35,7 @@ export default function Footer() {
               <li key={l.href}><Link href={l.href} className="hover:underline focus-visible:outline-white">{l.texto}</Link></li>
             ))}
           </ul></nav>
-          <div className="mt-4"><LibroBadge /></div>
+          <div className="mt-4"><LibroBadge className="focus-visible:outline-white" /></div>
         </div>
       </div>
       <p className="border-t border-white/20 pb-24 pt-4 text-center md:pb-4 text-sm">© {new Date().getFullYear()} {contacto.razonSocial}</p>
