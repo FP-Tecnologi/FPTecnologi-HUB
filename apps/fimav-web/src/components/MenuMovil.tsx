@@ -26,7 +26,7 @@ export default function MenuMovil({ enlaces }: { enlaces: { href: string; texto:
       <summary className="cursor-pointer list-none flex min-h-11 items-center rounded-lg border border-gris px-4 font-medium text-carbon">Menú</summary>
       <nav aria-label="Principal" className="absolute right-0 top-full mt-2 flex w-56 flex-col gap-1 rounded-2xl border border-gris bg-white p-3 shadow-lg">
         {enlaces.map((e) => (
-          <Link key={e.href} href={e.href} className="rounded-lg px-3 py-2 text-carbon hover:text-rojo">
+          <Link key={e.href} href={e.href} className="flex min-h-11 items-center rounded-lg px-3 text-carbon hover:text-rojo">
             {e.texto}
           </Link>
         ))}

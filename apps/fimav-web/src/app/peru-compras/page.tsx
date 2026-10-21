@@ -49,7 +49,7 @@ export default function PeruComprasPage() {
       <section className="bg-boton py-10 text-white">
         <div className="mx-auto flex max-w-6xl justify-center px-4 sm:px-6 md:justify-start">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/peru-compras/logo-blanco.png" alt="Perú Compras" width={900} height={427} className="h-auto w-56 sm:w-72" />
+          <img src="/peru-compras/logo-blanco.png" alt="Perú Compras" width={900} height={427} loading="lazy" className="h-auto w-56 sm:w-72" />
         </div>
       </section>
 
@@ -69,7 +69,8 @@ export default function PeruComprasPage() {
 
       <section className="bg-white py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Titulo claro="Qué ofrecemos a las" rojo="entidades" className="text-3xl sm:text-4xl" />
+          <Titulo claro="Nuestras" rojo="categorías" className="text-3xl sm:text-4xl" />
+          <p className="mt-4 max-w-3xl leading-relaxed text-carbon/80">Bienes y servicios que atendemos para entidades del Estado y empresas privadas.</p>
           <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {categorias.map((c) => (
               <li key={c.slug} className="flex items-center gap-3 rounded-2xl bg-gris p-4 text-carbon">
@@ -83,7 +84,7 @@ export default function PeruComprasPage() {
 
       <section className="bg-gris py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Titulo claro="Marcas" rojo="aliadas" className="text-3xl sm:text-4xl" />
+          <Titulo claro="Marcas con las que" rojo="trabajamos" className="text-3xl sm:text-4xl" />
           <ul className="mt-6 flex flex-wrap gap-3">
             {contenido.marcas.map((m) => (
               <li key={m} className="rounded-full bg-white px-5 py-2 font-medium text-carbon">{m}</li>
