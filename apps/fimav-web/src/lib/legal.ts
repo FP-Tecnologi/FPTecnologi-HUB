@@ -32,6 +32,7 @@ export const legal: Record<string, { titulo: string; parrafos: string[] }> = {
       'Los productos cuentan con la garantía del fabricante de cada marca, según sus condiciones y plazos. La garantía no cubre daños por mal uso, manipulación indebida ni desgaste normal.',
       '## Contacto',
       `Para cualquier consulta sobre estos términos escríbenos a ${contacto.ventas} o llámanos al ${contacto.telefono}.`,
+      PENDIENTE,
     ],
   },
   devoluciones: {
@@ -43,6 +44,7 @@ export const legal: Record<string, { titulo: string; parrafos: string[] }> = {
       '## Condiciones',
       'Los plazos, el estado en que debe encontrarse el producto y los costos asociados son los indicados en cada cotización u orden de compra. Por lo general, el producto debe devolverse en su empaque original y con todos sus accesorios.',
       'Los equipos con defecto de fábrica se atienden por garantía con el fabricante o su servicio técnico autorizado.',
+      PENDIENTE,
     ],
   },
   reclamaciones: {
@@ -73,6 +75,7 @@ export const legal: Record<string, { titulo: string; parrafos: string[] }> = {
       'Sí. Somos proveedores de equipos de cómputo, oficina y afines para entidades del Estado. Escríbenos con tu requerimiento y te orientamos.',
       '## ¿Hacen entregas fuera de Lima?',
       'Consúltanos según tu ubicación; la cobertura y los plazos de entrega se detallan en cada cotización.',
+      PENDIENTE,
     ],
   },
 };
