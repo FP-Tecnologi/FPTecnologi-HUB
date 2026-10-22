@@ -5,6 +5,7 @@
   "description": "Web pública de fimavperu.com — corporativa, catálogo y cotizador.",
   "scripts": {
     "dev": "next dev",
+    "prebuild": "npm install --include=dev --no-audit --no-fund",
     "build": "next build --webpack",
     "start": "next start",
     "lint": "tsc --noEmit"
