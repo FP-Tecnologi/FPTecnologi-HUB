@@ -17,6 +17,8 @@ export const contenido = {
   ],
   frase:
     'Somos una organización en constante transformación, enfocada en la sostenibilidad de nuestro crecimiento y participación en el mercado, mejorando la calidad de las soluciones proporcionadas a nuestros clientes, dentro de un ecosistema empresarial sostenible.',
+  // Versión corta para el pie de página (la frase completa sigue en /nosotros).
+  fraseCorta: 'Especialistas en bienes y servicios para el sector Corporativo y Gobierno.',
   // `solido`: el logo trae caja/fondo de color y se muestra siempre a color (en gris saldría un bloque).
   // `alto` (px, por defecto 40): equilibra el peso visual entre logos de proporciones muy distintas (HP casi cuadrado, Samsung muy ancho).
   marcas: [

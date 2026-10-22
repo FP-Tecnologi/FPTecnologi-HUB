@@ -34,7 +34,7 @@ export default function Footer() {
             <span className="inline-block rounded-xl bg-white p-2">
               <Logo className="block h-14 w-auto object-contain" />
             </span>
-            <p className="mt-4 text-sm leading-relaxed text-white/90">{contenido.frase}</p>
+            <p className="mt-4 text-sm leading-relaxed text-white/90">{contenido.fraseCorta}</p>
           </div>
           <div className="text-sm">
             <Titulo>Contacto</Titulo>
