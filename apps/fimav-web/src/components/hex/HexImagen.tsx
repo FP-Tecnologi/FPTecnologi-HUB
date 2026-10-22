@@ -9,12 +9,14 @@ type Props = {
   sizes?: string;
   /** `eager` para fotos sobre el pliegue (hero). */
   carga?: 'lazy' | 'eager';
+  /** Imagen LCP: fetchPriority alta. */
+  prioridad?: boolean;
 };
 
 /** Foto recortada en hexágono de vértices redondeados (clipPath SVG en objectBoundingBox).
  *  El recorte va en el contenedor para que la foto pueda hacer zoom al hover sin deformar el marco;
  *  un trazo plata dibuja el borde para que las fotos de producto (fondo blanco) no se pierdan sobre blanco. */
-export default function HexImagen({ src, alt, className = '', orientacion = 'punta-arriba', sizes, carga = 'lazy' }: Props) {
+export default function HexImagen({ src, alt, className = '', orientacion = 'punta-arriba', sizes, carga = 'lazy', prioridad }: Props) {
   const id = `hex${useId().replace(/[^\w-]/g, '')}`;
   const d = rutaHexagono({ orientacion, radio: 0.08 });
   return (
@@ -24,7 +26,7 @@ export default function HexImagen({ src, alt, className = '', orientacion = 'pun
       </svg>
       <div className="size-full bg-white" style={{ clipPath: `url(#${id})` }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={src} alt={alt} sizes={sizes} loading={carga} className="size-full object-cover transition-transform duration-700 ease-out motion-safe:group-hover/foto:scale-[1.06]" />
+        <img src={src} alt={alt} sizes={sizes} loading={carga} fetchPriority={prioridad ? 'high' : undefined} className="size-full object-cover transition-transform duration-700 ease-out motion-safe:group-hover/foto:scale-[1.06]" />
       </div>
       <svg viewBox="0 0 1 1" preserveAspectRatio="none" className="pointer-events-none absolute inset-0 size-full overflow-visible" aria-hidden="true">
         <path d={d} fill="none" stroke="#c9ced2" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />

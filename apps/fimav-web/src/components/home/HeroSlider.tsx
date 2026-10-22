@@ -40,22 +40,22 @@ export default function HeroSlider() {
       <Carrusel
         etiqueta="Fimav Perú"
         auto={6000}
-        className="relative mx-auto max-w-6xl px-4 pb-8 pt-8 sm:px-6 lg:pb-10 lg:pt-14"
+        className="relative mx-auto max-w-6xl px-4 pb-6 pt-4 sm:px-6 sm:pb-8 sm:pt-8 lg:pb-10 lg:pt-14"
         diapositivas={diapositivas.map((d, i) => (
-          <div key={d.rojo} className="grid items-center gap-6 px-1 py-1 lg:min-h-[480px] lg:grid-cols-[1.05fr_1fr] lg:gap-4">
+          <div key={d.rojo} className="grid items-center gap-3 px-1 py-1 sm:gap-6 lg:min-h-[480px] lg:grid-cols-[1.05fr_1fr] lg:gap-4">
             {/* Imagen central única: espiral con la foto en el hueco; arriba del texto en móvil. */}
-            <div className="relative mx-auto aspect-square w-full max-w-[190px] sm:max-w-[340px] lg:order-2 lg:max-w-[460px]">
-              <Espiral className="absolute inset-[6%] size-[88%] animate-[giro_60s_linear_infinite]" />
+            <div className="relative mx-auto aspect-square w-full max-w-[150px] sm:max-w-[340px] lg:order-2 lg:max-w-[460px]">
+              <Espiral className="absolute inset-[6%] size-[88%] animate-[giro_60s_linear_infinite] [[inert]_&]:animate-none" />
               <div className="absolute left-[33.5%] top-[31.85%] w-[33%]">
-                <HexImagen src={d.foto} alt={d.alt} carga={i === 0 ? 'eager' : 'lazy'} sizes="180px" />
+                <HexImagen src={d.foto} alt={d.alt} carga={i === 0 ? 'eager' : 'lazy'} prioridad={i === 0} sizes="180px" />
               </div>
             </div>
             <div className="lg:order-1">
               <SeccionTitulo nivel={i === 0 ? 'h1' : 'h2'} tam="lg" claro={d.claro} rojo={d.rojo} className="max-w-xl" />
-              <p className="mt-5 max-w-md text-carbon/80 sm:text-lg">{d.texto}</p>
-              <div className="mt-7 flex flex-col items-stretch gap-4 sm:flex-row sm:flex-wrap">
+              <p className="mt-3 max-w-md text-carbon/80 sm:mt-5 sm:text-lg">{d.texto}</p>
+              <div className="mt-4 flex flex-wrap gap-2 sm:mt-7 sm:gap-4">
                 {d.botones.map((b) => (
-                  <BotonHex key={b.texto} href={b.href} size="lg" icono={b.icono} variante={'contorno' in b ? 'contorno' : 'rojo'}>{b.texto}</BotonHex>
+                  <BotonHex key={b.texto} href={b.href} size="sm" className="max-sm:flex-1 sm:!min-h-13 sm:!px-10 sm:!text-lg" icono={b.icono} variante={'contorno' in b ? 'contorno' : 'rojo'}>{b.texto}</BotonHex>
                 ))}
               </div>
             </div>
