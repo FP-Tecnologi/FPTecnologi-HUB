@@ -17,7 +17,7 @@ const legales = [
 const enlace = 'flex min-h-11 items-center gap-3 hover:underline focus-visible:outline-white';
 const Titulo = ({ children }: { children: string }) => (
   <>
-    <h3 className="titulo-menor text-xl tracking-widest text-white">{children}</h3>
+    <h2 className="titulo-menor text-xl tracking-widest text-white">{children}</h2>
     <span aria-hidden="true" className="mb-3 mt-2 block h-0.5 w-8 rounded-full bg-rojo" />
   </>
 );

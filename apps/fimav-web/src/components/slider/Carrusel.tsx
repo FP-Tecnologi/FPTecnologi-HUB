@@ -19,7 +19,7 @@ type Props = {
   className?: string;
 };
 
-const BTN = 'w-14 !px-0 sm:w-16';
+const BTN = 'w-12 !px-0 sm:w-16';
 
 /** Carrusel sin librerías: scroll-snap nativo (swipe táctil), autoavance que se pausa con hover/foco de teclado/toque y se apaga
  *  con prefers-reduced-motion, flechas, puntos y teclado (←/→). Las no visibles quedan `inert`.
@@ -114,6 +114,7 @@ export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full',
       ref={raiz}
       aria-roledescription="carrusel"
       aria-label={etiqueta}
+      data-rep={reproduciendo}
       className={className}
       onMouseEnter={() => setEncima(true)}
       onMouseLeave={() => setEncima(false)}
@@ -146,25 +147,7 @@ export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full',
       </div>
 
       {N > 1 && (
-        <div className={`mt-5 flex items-center justify-center gap-2 sm:mt-6 sm:gap-3 ${controles}`}>
-          <BotonHex variante="carbon" size="sm" icono={ChevronLeft} onClick={anterior} className={BTN}><span className="sr-only">Anterior</span></BotonHex>
-          <ul className="flex items-center">
-            {diapositivas.map((_, i) => (
-              <li key={i}>
-                <button
-                  type="button"
-                  aria-label={`Ir a la diapositiva ${i + 1}`}
-                  aria-current={i === activa ? 'true' : undefined}
-                  onClick={() => ir(i)}
-                  className="group/punto grid h-11 w-8 place-items-center sm:w-11"
-                >
-                  {/* Inactivo carbon/60: 3.5:1 sobre blanco y 3.4:1 sobre gris; activo tinta y alargado (≈5:1 frente al inactivo). */}
-                  <span className={`block h-2.5 rounded-full transition-all ${i === activa ? 'w-7 bg-tinta' : 'w-2.5 bg-carbon/60 group-hover/punto:bg-carbon'}`} />
-                </button>
-              </li>
-            ))}
-          </ul>
-          <BotonHex variante="carbon" size="sm" icono={ChevronRight} onClick={() => siguiente()} className={BTN}><span className="sr-only">Siguiente</span></BotonHex>
+        <div className={`mt-5 flex items-center justify-start gap-2 sm:mt-6 sm:justify-center sm:gap-3 ${controles}`}>
           {auto > 0 && (puedeAuto ? (
             <BotonHex
               variante="contorno"
@@ -176,8 +159,26 @@ export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full',
               <span className="sr-only">{reproduciendo ? 'Pausar avance automático' : 'Reanudar avance automático'}</span>
             </BotonHex>
           ) : (
-            <span aria-hidden="true" className="w-14 sm:w-16" /> // reserva el hueco: nada se mueve al hidratar
+            <span aria-hidden="true" className="w-12 sm:w-16" /> // reserva el hueco: nada se mueve al hidratar
           ))}
+          <BotonHex variante="carbon" size="sm" icono={ChevronLeft} onClick={anterior} className={BTN}><span className="sr-only">Anterior</span></BotonHex>
+          <ul className="flex items-center">
+            {diapositivas.map((_, i) => (
+              <li key={i}>
+                <button
+                  type="button"
+                  aria-label={`Ir a la diapositiva ${i + 1}`}
+                  aria-current={i === activa ? 'true' : undefined}
+                  onClick={() => ir(i)}
+                  className="group/punto grid h-11 w-6 place-items-center sm:w-11"
+                >
+                  {/* Inactivo carbon/60: 3.5:1 sobre blanco y 3.4:1 sobre gris; activo tinta y alargado (≈5:1 frente al inactivo). */}
+                  <span className={`block h-2.5 rounded-full transition-all ${i === activa ? 'w-7 bg-tinta' : 'w-2.5 bg-carbon/60 group-hover/punto:bg-carbon'}`} />
+                </button>
+              </li>
+            ))}
+          </ul>
+          <BotonHex variante="carbon" size="sm" icono={ChevronRight} onClick={() => siguiente()} className={BTN}><span className="sr-only">Siguiente</span></BotonHex>
         </div>
       )}
     </section>

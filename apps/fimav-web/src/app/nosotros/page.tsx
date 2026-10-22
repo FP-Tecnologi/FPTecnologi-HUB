@@ -13,7 +13,7 @@ export default function NosotrosPage() {
         <Espiral contorno className="aparecer pointer-events-none absolute -right-24 -top-24 w-80 opacity-20" />
         <div className="entrada relative mx-auto max-w-6xl px-4 sm:px-6">
           <SeccionTitulo nivel="h1" tam="lg" claro="Sobre" rojo="Fimav Perú" subtitulo="Especialistas en Bienes y Servicios" />
-          <SeccionTitulo nivel="h2" className="mt-14" claro="Nuestra" rojo="Misión" subtitulo="Entre los primeros proveedores de Gobierno y Privado." />
+          <SeccionTitulo nivel="h2" className="mt-14" claro="Nuestra" rojo="Misión" subtitulo="Estar entre los primeros proveedores de Gobierno y Privado." />
           <p className="mt-6 max-w-3xl leading-relaxed text-carbon/80">{contenido.mision}</p>
         </div>
       </section>
@@ -21,7 +21,7 @@ export default function NosotrosPage() {
         <CorteHex lado="arriba" color="var(--color-carbon)" />
         <div className="bg-carbon py-16 text-white lg:py-24">
           <Reveal className="mx-auto max-w-6xl px-4 sm:px-6">
-            <SeccionTitulo nivel="h2" claroSobreOscuro claro="Nuestra" rojo="Visión" subtitulo="Un proveedor internacional con sostenibilidad empresarial." />
+            <SeccionTitulo nivel="h2" claroSobreOscuro claro="Nuestra" rojo="Visión" subtitulo="Ser un proveedor internacional con sostenibilidad empresarial." />
             <p className="mt-6 max-w-3xl leading-relaxed text-white/90">{contenido.vision}</p>
           </Reveal>
         </div>

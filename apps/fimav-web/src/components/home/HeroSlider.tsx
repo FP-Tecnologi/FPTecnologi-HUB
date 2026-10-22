@@ -37,6 +37,7 @@ export default function HeroSlider() {
   return (
     <section className="relative overflow-hidden bg-white">
       <Espiral contorno className="pointer-events-none absolute -bottom-32 -left-28 w-56 opacity-40 sm:-bottom-24 sm:-left-24 sm:opacity-60" />
+      <h1 className="sr-only">Fimav Perú — Especialistas en bienes y servicios</h1>
       <Carrusel
         etiqueta="Fimav Perú"
         auto={6000}
@@ -45,13 +46,13 @@ export default function HeroSlider() {
           <div key={d.rojo} className="grid items-center gap-3 px-1 py-1 sm:gap-6 lg:min-h-[480px] lg:grid-cols-[1.05fr_1fr] lg:gap-4">
             {/* Imagen central única: espiral con la foto en el hueco; arriba del texto en móvil. */}
             <div className="relative mx-auto aspect-square w-full max-w-[150px] sm:max-w-[340px] lg:order-2 lg:max-w-[460px]">
-              <Espiral className="absolute inset-[6%] size-[88%] animate-[giro_60s_linear_infinite] [[inert]_&]:animate-none" />
+              <Espiral className="absolute inset-[6%] size-[88%] animate-[giro_60s_linear_infinite] [[inert]_&]:animate-none [[data-rep='false']_&]:animate-none" />
               <div className="absolute left-[33.5%] top-[31.85%] w-[33%]">
                 <HexImagen src={d.foto} alt={d.alt} carga={i === 0 ? 'eager' : 'lazy'} prioridad={i === 0} sizes="180px" />
               </div>
             </div>
             <div className="lg:order-1">
-              <SeccionTitulo nivel={i === 0 ? 'h1' : 'h2'} tam="lg" claro={d.claro} rojo={d.rojo} className="max-w-xl" />
+              <SeccionTitulo nivel="h2" tam="lg" claro={d.claro} rojo={d.rojo} className="max-w-xl" />
               <p className="mt-3 max-w-md text-carbon/80 sm:mt-5 sm:text-lg">{d.texto}</p>
               <div className="mt-4 flex flex-wrap gap-2 sm:mt-7 sm:gap-4">
                 {d.botones.map((b) => (

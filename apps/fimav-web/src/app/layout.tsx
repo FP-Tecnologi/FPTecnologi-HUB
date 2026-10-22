@@ -6,12 +6,12 @@ import Footer from '@/components/Footer';
 import WhatsAppFlotante from '@/components/WhatsAppFlotante';
 import HaloCursor from '@/components/motion/HaloCursor';
 
-const poppins = Poppins({ subsets: ['latin'], variable: '--font-poppins', weight: ['400', '500', '600', '700'] });
+const poppins = Poppins({ subsets: ['latin'], variable: '--font-poppins', weight: ['400', '500', '600'] });
 // Humanista tipo Myriad (la del brochure) para títulos; fuente variable, cubre 400–600.
 const titulo = Source_Sans_3({ subsets: ['latin'], variable: '--font-source' });
 
 // Display cuadrada y condensada para títulos en mayúscula, cercana al rotulado del brochure.
-const display = Rajdhani({ subsets: ['latin'], variable: '--font-rajdhani', weight: ['600', '700'] });
+const display = Rajdhani({ subsets: ['latin'], variable: '--font-rajdhani', weight: ['700'] });
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://fimavperu.com'),

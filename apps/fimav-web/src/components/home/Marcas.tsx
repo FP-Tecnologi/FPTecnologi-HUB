@@ -1,12 +1,14 @@
 import SeccionTitulo from '@/components/SeccionTitulo';
 import Reveal from '@/components/motion/Reveal';
 import { contenido } from '@/lib/contenido';
+import PausaMarquesina from './PausaMarquesina';
 
 // Franja de logos con desplazamiento continuo. La lista va dos veces: la copia es decorativa (aria-hidden + inert).
 // Con prefers-reduced-motion se oculta la copia y queda una cuadrícula estática (ver globals.css).
 export function FranjaMarcas({ className = '' }: { className?: string }) {
   return (
-    <div className={`marquesina overflow-hidden ${className}`}>
+    <div className={className}>
+    <div className="marquesina overflow-hidden">
       <div className="marquesina-pista flex w-max">
         {[false, true].map((copia) => (
           <ul
@@ -32,6 +34,8 @@ export function FranjaMarcas({ className = '' }: { className?: string }) {
           </ul>
         ))}
       </div>
+    </div>
+    <PausaMarquesina />
     </div>
   );
 }

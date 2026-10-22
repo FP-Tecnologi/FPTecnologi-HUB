@@ -1,6 +1,6 @@
-// node src/components/hex/rutaHexagono.check.mts  (Node ≥22.18 quita los tipos solo)
+// node scripts/ruta-hexagono.check.mts  (Node ≥22.18 quita los tipos solo)
 import assert from 'node:assert/strict';
-import { rutaHexagono, VERTICES } from './rutaHexagono.ts';
+import { rutaHexagono, VERTICES } from '../src/components/hex/rutaHexagono.ts';
 
 for (const orientacion of ['punta-arriba', 'punta-lado'] as const) {
   for (const radio of [0, 0.08, 0.3]) {
