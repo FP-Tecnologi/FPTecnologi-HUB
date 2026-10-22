@@ -129,7 +129,7 @@ function seccionLegal(legal: LegalDoc[]): string {
   });
   return `TEXTOS LEGALES (informativos; para el detalle oficial, enviar a la página)
 ${docs.join('\n')}
-- Libro de reclamaciones virtual (/libro-de-reclamaciones): formulario conforme a la Ley N.° 29571; responden en un máximo de 15 días hábiles.`;
+- Libro de reclamaciones virtual (/libro-de-reclamaciones): formulario conforme a la Ley N.° 29571 y su reglamento, con consulta de estado por código y documento; responden en un máximo de 15 días hábiles (no calendario). Presentar un reclamo no impide acudir a Indecopi.`;
 }
 
 const MAPA_WEB = `MAPA DE LA WEB

@@ -1096,3 +1096,10 @@ body.pagina-saliendo footer {
   body.pagina-saliendo main, body.pagina-saliendo footer { animation: none; }
   .hover-lift:hover, .hover-slide:hover, .group:hover .icon-pop, .icon-pop:hover { transform: none; }
 }
+
+/* Libro de reclamaciones: al imprimir solo sale la hoja registrada (#hoja-impresion). */
+@media print {
+  body[data-imprimir-hoja] * { visibility: hidden !important; }
+  body[data-imprimir-hoja] #hoja-impresion, body[data-imprimir-hoja] #hoja-impresion * { visibility: visible !important; }
+  body[data-imprimir-hoja] #hoja-impresion { position: absolute; inset: 0 auto auto 0; width: 100%; background: #fff; color: #000; }
+}

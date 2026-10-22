@@ -1,5 +1,5 @@
 /*
- * Formulario de contacto y Libro de Reclamaciones -> API central
+ * Formulario de contacto -> API central
  * (POST /public/contacto). El navegador no habla directo con la API: el
  * marcaId lo pone el servidor y la IP real del visitante viaja en
  * x-forwarded-for para el tope anti-spam de la API.
@@ -13,7 +13,7 @@ const MARCA_ID = process.env.HUB_MARCA_ID ?? '';
 const LEADS_URL = process.env.LEADS_SUPABASE_URL;
 const LEADS_KEY = process.env.LEADS_SUPABASE_ANON_KEY;
 
-type Entrada = { name?: string; email?: string; phone?: string; company?: string; message?: string; tipo?: string; origen?: string; website?: string };
+type Entrada = { name?: string; email?: string; phone?: string; company?: string; message?: string; origen?: string; website?: string };
 
 export async function POST(req: Request) {
   if (!MARCA_ID) return Response.json({ error: 'Contacto no configurado' }, { status: 503 });
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
         'x-forwarded-for': req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? '',
       },
       body: JSON.stringify({
-        tipo: b.tipo === 'RECLAMO' ? 'RECLAMO' : 'CONTACTO',
+        tipo: 'CONTACTO',
         nombre: b.name,
         email: b.email,
         celular: b.phone || undefined,
@@ -74,7 +74,7 @@ export async function POST(req: Request) {
         email: b.email,
         telefono: b.phone || null,
         empresa: b.company || null,
-        origen: b.tipo === 'RECLAMO' ? 'web-fptecnologi-reclamo' : 'web-fptecnologi-contacto',
+        origen: 'web-fptecnologi-contacto',
         extra: { mensaje: b.message },
       }),
     }).catch((err) => console.error('Copia a leads externo falló:', err));

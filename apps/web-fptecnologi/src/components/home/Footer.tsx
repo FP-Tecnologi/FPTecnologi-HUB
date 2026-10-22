@@ -6,12 +6,12 @@ import { NewsletterForm } from './NewsletterForm';
 import { FooterNav } from './FooterNav';
 
 
-// Columna "Soporte": tickets (/tickets), contacto, cotizador y reclamaciones (libro de reclamaciones).
+// Columna "Soporte": tickets (/tickets), contacto, cotizador y Libro de Reclamaciones.
 const SOPORTE = [
   { label: 'Tickets', href: '/tickets' },
   { label: 'Contacto', href: '/contacto' },
   { label: 'Cotizar', href: '/cotizador' },
-  { label: 'Reclamaciones', href: '/libro-de-reclamaciones' },
+  { label: 'Libro de Reclamaciones', href: '/libro-de-reclamaciones' },
   { label: 'Socios', href: '/socios' },
 ];
 

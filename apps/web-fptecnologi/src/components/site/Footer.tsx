@@ -1,7 +1,12 @@
 import Image from 'next/image';
 import { NAV_LINKS } from '@/lib/nav';
 
-const LEGAL_LINKS = ['Política de privacidad', 'Devoluciones', 'Términos y condiciones', 'Libro de reclamaciones'];
+const LEGAL_LINKS = [
+  { label: 'Política de privacidad', href: '/legal/privacidad' },
+  { label: 'Devoluciones', href: '/legal/devoluciones' },
+  { label: 'Términos y condiciones', href: '/legal/terminos' },
+  { label: 'Libro de Reclamaciones', href: '/libro-de-reclamaciones' },
+];
 
 export function Footer() {
   return (
@@ -32,9 +37,9 @@ export function Footer() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-white/80">Enlaces útiles</p>
             <ul className="mt-4 space-y-2 text-sm">
-              {LEGAL_LINKS.map((label) => (
-                <li key={label}>
-                  <span className="transition-colors hover:text-white">{label}</span>
+              {LEGAL_LINKS.map((l) => (
+                <li key={l.href}>
+                  <a href={l.href} className="transition-colors hover:text-white">{l.label}</a>
                 </li>
               ))}
             </ul>
