@@ -90,7 +90,7 @@ export default function FormContacto() {
     );
 
   return (
-    <form onSubmit={enviar} noValidate className="grid gap-4 rounded-2xl bg-gris p-5 sm:grid-cols-2 sm:p-8">
+    <form id="contacto-form" onSubmit={enviar} noValidate className="grid gap-4 rounded-2xl bg-gris p-5 sm:grid-cols-2 sm:p-8">
       <p className="text-sm text-carbon sm:col-span-2">* obligatorio</p>
       <div>
         <label htmlFor="nombre" className="text-sm font-medium text-carbon">Nombres <span aria-hidden="true">*</span></label>

@@ -91,7 +91,7 @@ export default function FormCotizar() {
     );
 
   return (
-    <form onSubmit={enviar} noValidate className="grid gap-4 rounded-2xl bg-gris p-5 sm:grid-cols-2 sm:p-8">
+    <form id="cotizar-form" onSubmit={enviar} noValidate className="grid gap-4 rounded-2xl bg-gris p-5 sm:grid-cols-2 sm:p-8">
       <fieldset className="sm:col-span-2">
         <legend className="text-sm font-medium text-carbon">Tipo de persona</legend>
         <div className="mt-2 flex flex-wrap gap-3">
