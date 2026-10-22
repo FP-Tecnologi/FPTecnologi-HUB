@@ -2,9 +2,11 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef } from 'react';
+import { FileText, Menu } from 'lucide-react';
 import BotonHex, { CapasHex } from './hex/BotonHex';
+import { enlaces, esActivo } from './EnlacesNav';
 
-export default function MenuMovil({ enlaces }: { enlaces: { href: string; texto: string }[] }) {
+export default function MenuMovil() {
   const ref = useRef<HTMLDetailsElement>(null);
   const ruta = usePathname();
   const cerrar = () => ref.current?.removeAttribute('open');
@@ -23,16 +25,16 @@ export default function MenuMovil({ enlaces }: { enlaces: { href: string; texto:
 
   return (
     <details ref={ref} className="relative md:hidden">
-      <summary className="group/hex relative isolate flex min-h-11 cursor-pointer list-none items-center px-7 font-medium text-carbon focus-visible:outline-hidden [&::-webkit-details-marker]:hidden">
-        <CapasHex variante="contorno" />Menú
+      <summary className="group/hex relative isolate flex min-h-11 cursor-pointer list-none items-center gap-2 px-6 font-display text-lg font-bold uppercase tracking-widest text-carbon focus-visible:outline-hidden [&::-webkit-details-marker]:hidden">
+        <CapasHex variante="contorno" /><Menu aria-hidden="true" size={18} />Menú
       </summary>
-      <nav aria-label="Principal" className="absolute right-0 top-full mt-2 flex w-56 flex-col gap-1 rounded-2xl border border-gris bg-white p-3 shadow-lg">
+      <nav aria-label="Principal" className="absolute right-0 top-full mt-2 flex w-72 flex-col gap-1 rounded-2xl border border-gris bg-white p-3 shadow-lg">
         {enlaces.map((e) => (
-          <Link key={e.href} href={e.href} className="flex min-h-11 items-center rounded-lg px-3 text-carbon hover:text-rojo">
+          <Link key={e.href} href={e.href} aria-current={esActivo(ruta, e.href) ? 'page' : undefined} className={`flex min-h-12 items-center rounded-lg border-l-4 px-3 font-display text-2xl font-bold uppercase tracking-widest hover:bg-gris hover:text-rojo-hondo ${esActivo(ruta, e.href) ? 'border-rojo text-rojo-hondo' : 'border-transparent text-carbon'}`}>
             {e.texto}
           </Link>
         ))}
-        <BotonHex href="/cotizar" className="mt-2">Cotizar</BotonHex>
+        <BotonHex href="/cotizar" icono={FileText} size="lg" className="mt-2 font-display text-xl font-bold uppercase tracking-widest">Cotizar</BotonHex>
       </nav>
     </details>
   );

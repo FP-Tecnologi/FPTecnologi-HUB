@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Poppins, Source_Sans_3 } from 'next/font/google';
+import { Poppins, Rajdhani, Source_Sans_3 } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -10,6 +10,9 @@ const poppins = Poppins({ subsets: ['latin'], variable: '--font-poppins', weight
 // Humanista tipo Myriad (la del brochure) para títulos; fuente variable, cubre 400–600.
 const titulo = Source_Sans_3({ subsets: ['latin'], variable: '--font-source' });
 
+// Display cuadrada y condensada para títulos en mayúscula, cercana al rotulado del brochure.
+const display = Rajdhani({ subsets: ['latin'], variable: '--font-rajdhani', weight: ['600', '700'] });
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://fimavperu.com'),
   title: { default: 'Fimav Perú — Especialistas en bienes y servicios', template: '%s | Fimav Perú' },
@@ -19,7 +22,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${poppins.variable} ${titulo.variable}`}>
+    <html lang="es" className={`${poppins.variable} ${titulo.variable} ${display.variable}`}>
       <body>
         <Header />
         {children}

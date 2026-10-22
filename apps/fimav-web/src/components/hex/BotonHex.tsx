@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import type { LucideIcon } from 'lucide-react';
 import { redondear } from './rutaHexagono';
 
 // Tapa izquierda en unidades de la altura del botón: punta a 60° (como un hexágono regular) con vértices redondeados.
@@ -49,14 +50,22 @@ type Props = {
   variante?: keyof typeof VARIANTES;
   size?: keyof typeof TAM;
   disabled?: boolean;
+  /** Icono lucide decorativo (aria-hidden); en hover se desplaza (derecha) o gira (izquierda). */
+  icono?: LucideIcon;
+  iconoPos?: 'izq' | 'der';
+  /** Icono girando (estado de carga). */
+  cargando?: boolean;
   className?: string;
   children: React.ReactNode;
 };
 
 /** Botón o enlace con forma de hexágono alargado. Foco: anillo blanco + tinta que sigue la forma (visible sobre claro y sobre carbón). */
-export default function BotonHex({ href, onClick, type = 'button', variante = 'rojo', size = 'md', disabled, className = '', children }: Props) {
-  const cls = `group/hex relative isolate inline-flex items-center justify-center gap-2 text-center font-semibold leading-snug focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-60 ${TAM[size]} ${VARIANTES[variante].texto} ${className}`;
-  const contenido = <><CapasHex variante={variante} />{children}</>;
+export default function BotonHex({ href, onClick, type = 'button', variante = 'rojo', size = 'md', disabled, icono: Icono, iconoPos = 'izq', cargando, className = '', children }: Props) {
+  const cls = `group/hex relative isolate inline-flex items-center justify-center gap-2 text-center font-semibold leading-snug focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-60 motion-safe:transition-transform motion-safe:hover:not-disabled:not-aria-disabled:scale-[1.03] ${TAM[size]} ${VARIANTES[variante].texto} ${className}`;
+  const icon = Icono && (
+    <Icono aria-hidden="true" size={size === 'lg' ? 22 : 18} className={`shrink-0 ${cargando ? 'animate-spin' : ''} motion-safe:transition-transform motion-safe:duration-300 ${iconoPos === 'der' ? 'motion-safe:group-hover/hex:translate-x-1' : 'motion-safe:group-hover/hex:-rotate-12 motion-safe:group-hover/hex:scale-110'}`} />
+  );
+  const contenido = <><CapasHex variante={variante} />{iconoPos === 'izq' && icon}{children}{iconoPos === 'der' && icon}</>;
   if (!href) return <button type={type} onClick={onClick} disabled={disabled} className={cls}>{contenido}</button>;
   // Enlace deshabilitado: no es un enlace (sin href ni foco), anunciado como deshabilitado.
   if (disabled) return <span role="link" aria-disabled="true" className={`${cls} cursor-not-allowed opacity-60`}>{contenido}</span>;

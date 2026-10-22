@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { Loader2, Mail, Phone, Printer } from 'lucide-react';
+import { Loader2, Mail, Phone, Printer, Send } from 'lucide-react';
 import { contacto } from '@/lib/contacto';
 import type { Proveedor } from '@/lib/proveedor';
 import BotonHex from './hex/BotonHex';
@@ -117,7 +117,7 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
   if (fallo)
     return (
       <div ref={resultadoRef} tabIndex={-1} role="status" className="rounded-2xl bg-gris p-6 outline-none sm:p-8">
-        <h2 className="text-2xl font-medium text-carbon">No pudimos registrar tu hoja</h2>
+        <h2 className="titulo-menor text-2xl text-carbon">No pudimos registrar tu hoja</h2>
         <p className="mt-3 leading-relaxed text-carbon">Por un problema temporal no se guardó. Puedes presentarla escribiéndonos o llamándonos; tus datos siguen en el formulario.</p>
         <ul className="mt-4 space-y-1 text-carbon">
           <li><a href={`mailto:${proveedor.email}`} className="flex min-h-11 items-center gap-3 break-all hover:underline"><Mail aria-hidden="true" size={18} className="shrink-0" /> {proveedor.email}</a></li>
@@ -140,7 +140,7 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
     ];
     return (
       <div ref={resultadoRef} tabIndex={-1} role="status" className="rounded-2xl bg-gris p-6 outline-none sm:p-8 print:rounded-none print:bg-white print:p-0">
-        <h2 className="text-2xl font-medium text-carbon">{hoja.codigo ? 'Hoja de reclamación registrada' : 'Recibimos tu hoja'}</h2>
+        <h2 className="titulo-menor text-2xl text-carbon">{hoja.codigo ? 'Hoja de reclamación registrada' : 'Recibimos tu hoja'}</h2>
         {hoja.codigo ? (
           <>
             <p className="mt-3 text-carbon">Código: <strong className="text-xl text-tinta">{hoja.codigo}</strong></p>
@@ -151,7 +151,7 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
         <p className="mt-2 text-sm text-carbon print:hidden">Enviamos una copia a tu correo. Guarda el código para consultar el estado.</p>
 
         <div className="mt-6 hidden print:block">
-          <h3 className="text-lg font-medium text-tinta">Proveedor</h3>
+          <h3 className="titulo-menor text-lg text-tinta">Proveedor</h3>
           <p className="text-carbon">{proveedor.razonSocial} — RUC {proveedor.ruc}</p>
           <p className="text-carbon">{proveedor.nombreComercial}. {proveedor.direccion}. {proveedor.email}</p>
         </div>
@@ -163,7 +163,7 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
         <p className="mt-6 hidden text-sm text-carbon print:block">Ley 29571, Código de Protección y Defensa del Consumidor, y su reglamento.</p>
 
         <div className="mt-6 flex flex-wrap gap-3 print:hidden">
-          <BotonHex onClick={() => window.print()}><Printer aria-hidden="true" size={18} /> Imprimir / guardar PDF</BotonHex>
+          <BotonHex onClick={() => window.print()} icono={Printer}>Imprimir / guardar PDF</BotonHex>
           <BotonHex variante="contorno" onClick={() => { volver.current = true; setHoja(null); setF(inicial); setErrores({}); }}>Registrar otro</BotonHex>
         </div>
       </div>
@@ -180,7 +180,7 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
   return (
     <form onSubmit={enviar} noValidate className="grid gap-6">
       <section aria-labelledby="h-prov" className={grupo}>
-        <h2 id="h-prov" className="text-xl font-medium text-carbon">Datos del proveedor</h2>
+        <h2 id="h-prov" className="titulo-menor text-xl text-carbon">Datos del proveedor</h2>
         <p className="mt-2 text-carbon">{proveedor.razonSocial} — RUC {proveedor.ruc}</p>
         <p className="text-carbon">{proveedor.direccion}</p>
         <p className="break-all text-carbon">{proveedor.email}</p>
@@ -267,8 +267,8 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
         {err('acepta')}
         <p className="mt-3 text-sm text-carbon">Responderemos en un plazo máximo de 15 días hábiles. Presentar un reclamo no impide acudir a Indecopi.</p>
         {errorApi && <p ref={errorApiRef} tabIndex={-1} role="alert" className="mt-3 text-sm text-rojo-hondo">{errorApi}</p>}
-        <BotonHex type="submit" disabled={enviando} size="lg" className="mt-4 w-full sm:w-auto">
-          {enviando && <Loader2 aria-hidden="true" size={18} className="animate-spin" />} Enviar hoja de reclamación
+        <BotonHex type="submit" disabled={enviando} size="lg" icono={enviando ? Loader2 : Send} cargando={enviando} className="mt-4 w-full sm:w-auto">
+          Enviar hoja de reclamación
         </BotonHex>
       </div>
     </form>

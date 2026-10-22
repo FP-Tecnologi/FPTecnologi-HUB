@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Search } from 'lucide-react';
 import BotonHex from './hex/BotonHex';
 
 const campo = 'mt-1 block min-h-11 w-full rounded-lg border border-carbon/60 bg-white px-4 py-2.5 text-base text-tinta';
@@ -49,8 +49,8 @@ export default function ConsultaReclamo() {
           <input id="c-doc" value={documento} onChange={(e) => { setDocumento(e.target.value); setVacio(false); }} maxLength={40} aria-invalid={vacio && !documento.trim() ? true : undefined} aria-describedby={vacio && !documento.trim() ? 'c-error' : undefined} className={campo} />
         </div>
         <div className="sm:col-span-2">
-          <BotonHex type="submit" disabled={cargando} className="w-full sm:w-auto">
-            {cargando && <Loader2 aria-hidden="true" size={18} className="animate-spin" />} Consultar estado
+          <BotonHex type="submit" disabled={cargando} icono={cargando ? Loader2 : Search} cargando={cargando} className="w-full sm:w-auto">
+            Consultar estado
           </BotonHex>
         </div>
       </form>

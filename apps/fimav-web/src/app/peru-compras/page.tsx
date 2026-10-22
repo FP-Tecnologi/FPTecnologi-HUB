@@ -1,12 +1,10 @@
 import Reveal from '@/components/motion/Reveal';
 import { Megaphone } from 'lucide-react';
 import Hexagono from '@/components/Hexagono';
-import Titulo from '@/components/Titulo';
+import SeccionTitulo from '@/components/SeccionTitulo';
 import { FranjaMarcas } from '@/components/home/Marcas';
-import BotonHex from '@/components/hex/BotonHex';
 import HexImagen from '@/components/hex/HexImagen';
 import { categorias } from '@/lib/categorias';
-import { contacto } from '@/lib/contacto';
 import { contenido } from '@/lib/contenido';
 
 const descripcion = 'Fimav Perú atiende al sector Estado en Perú Compras: venta de bienes y servicios, postventa y soluciones tecnológicas según la necesidad de cada entidad.';
@@ -29,10 +27,10 @@ export default function PeruComprasPage() {
       <section className="bg-white py-16 lg:py-24">
         <div className="entrada mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_auto]">
           <div>
-            <Titulo nivel="h1" claro="Estamos en" rojo="Perú Compras" className="text-4xl sm:text-5xl" />
+            <SeccionTitulo nivel="h1" tam="lg" claro="Estamos en" rojo="Perú Compras" subtitulo="Atendemos al sector Estado en la plataforma de contratación pública." />
             <div className="mt-8 flex items-center gap-4">
               <Hexagono icono={Megaphone} tam={64} />
-              <h2 className="font-titulo text-3xl text-carbon">Sector Estatal</h2>
+              <h2 className="titulo-menor text-3xl text-carbon">Sector Estatal</h2>
             </div>
             <p className="mt-5 max-w-2xl leading-relaxed text-carbon/80">{contenido.perucompras}</p>
             <p className="mt-4 max-w-2xl leading-relaxed text-carbon/80">
@@ -57,11 +55,11 @@ export default function PeruComprasPage() {
 
       <section className="bg-gris py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Reveal><Titulo claro="Cómo" rojo="trabajamos" className="text-3xl sm:text-4xl" /></Reveal>
+          <Reveal><SeccionTitulo nivel="h2" claro="Cómo" rojo="trabajamos" subtitulo="Venta, postventa y soluciones tecnológicas para cada entidad." /></Reveal>
           <ul className="mt-8 grid gap-4 sm:grid-cols-2">
             {trabajo.map(([t, d], i) => (
               <Reveal as="li" key={t} retraso={(i % 2) * 90} className="rounded-2xl bg-white p-6">
-                <h3 className="text-lg font-semibold text-carbon">{t}</h3>
+                <h3 className="titulo-menor text-xl text-carbon">{t}</h3>
                 <p className="mt-2 leading-relaxed text-carbon/80">{d}</p>
               </Reveal>
             ))}
@@ -72,8 +70,7 @@ export default function PeruComprasPage() {
       <section className="bg-white py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
-            <Titulo claro="Nuestras" rojo="categorías" className="text-3xl sm:text-4xl" />
-            <p className="mt-4 max-w-3xl leading-relaxed text-carbon/80">Bienes y servicios que atendemos para entidades del Estado y empresas privadas.</p>
+            <SeccionTitulo nivel="h2" claro="Nuestras" rojo="categorías" subtitulo="Bienes y servicios que atendemos para entidades del Estado y empresas privadas." />
           </Reveal>
           <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {categorias.map((c, i) => (
@@ -89,25 +86,12 @@ export default function PeruComprasPage() {
       <section className="bg-gris py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
-            <Titulo claro="Marcas con las que" rojo="trabajamos" className="text-3xl sm:text-4xl" />
+            <SeccionTitulo nivel="h2" claro="Marcas con las que" rojo="trabajamos" subtitulo="Socios estratégicos de las marcas más comerciales del mercado." />
             <FranjaMarcas className="mt-6" />
           </Reveal>
         </div>
       </section>
 
-      <section className="bg-carbon py-14 text-white">
-        <Reveal className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 sm:px-6 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="text-3xl font-medium">¿Tu entidad necesita una cotización?</h2>
-            <span aria-hidden="true" className="mt-3 block h-1 w-16 rounded-full bg-rojo" />
-            <p className="mt-2 text-white/80">
-              Escríbenos a <a href={`mailto:${contacto.ventas}`} className="underline focus-visible:outline-white">{contacto.ventas}</a> o llámanos al{' '}
-              <a href={contacto.telefonoHref} className="underline focus-visible:outline-white">{contacto.telefono}</a>.
-            </p>
-          </div>
-          <BotonHex href="/cotizar" size="lg">Cotizar ahora</BotonHex>
-        </Reveal>
-      </section>
     </main>
   );
 }

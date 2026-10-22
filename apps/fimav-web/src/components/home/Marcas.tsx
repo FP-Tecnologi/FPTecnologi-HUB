@@ -1,3 +1,4 @@
+import SeccionTitulo from '@/components/SeccionTitulo';
 import Reveal from '@/components/motion/Reveal';
 import { contenido } from '@/lib/contenido';
 
@@ -38,8 +39,8 @@ export function FranjaMarcas({ className = '' }: { className?: string }) {
 export default function Marcas() {
   return (
     <section className="bg-white py-14">
-      <Reveal className="mx-auto max-w-6xl px-4 text-center sm:px-6">
-        <h2 className="text-sm font-semibold uppercase tracking-widest text-rojo-hondo">Marcas aliadas</h2>
+      <Reveal className="mx-auto max-w-6xl px-4 sm:px-6">
+        <SeccionTitulo nivel="h2" alineacion="centro" claro="Marcas" rojo="aliadas" subtitulo="Socios estratégicos de las marcas más comerciales del mercado." />
         <FranjaMarcas className="mt-6" />
       </Reveal>
     </section>

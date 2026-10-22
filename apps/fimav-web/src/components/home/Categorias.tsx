@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Hexagono from '@/components/Hexagono';
-import Titulo from '@/components/Titulo';
+import SeccionTitulo from '@/components/SeccionTitulo';
 import Inclinar from '@/components/motion/Inclinar';
 import Reveal from '@/components/motion/Reveal';
 import { categorias } from '@/lib/categorias';
@@ -10,8 +10,7 @@ export default function Categorias() {
     <section className="bg-white py-16 lg:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal>
-          <Titulo claro="¿Cuáles" rojo="Servicios Ofrecemos?" className="text-3xl sm:text-4xl" />
-          <p className="mt-3 max-w-xl text-carbon/80">Nuestras categorías de bienes y servicios para empresas y entidades del Estado.</p>
+          <SeccionTitulo nivel="h2" claro="¿Cuáles" rojo="Servicios Ofrecemos?" subtitulo="Nuestras categorías de bienes y servicios para empresas y entidades del Estado." />
         </Reveal>
         <ul className="mt-10 grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4">
           {categorias.map((c, i) => (

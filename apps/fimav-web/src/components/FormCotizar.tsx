@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { Loader2, MessageCircle } from 'lucide-react';
+import { Loader2, MessageCircle, Send } from 'lucide-react';
 import { categorias } from '@/lib/categorias';
 import { contacto, waUrl } from '@/lib/contacto';
 import BotonHex from './hex/BotonHex';
@@ -80,11 +80,11 @@ export default function FormCotizar() {
   if (resultado)
     return (
       <div ref={resultadoRef} tabIndex={-1} role="status" className="rounded-2xl bg-gris p-6 outline-none sm:p-8">
-        <h2 className="text-2xl font-medium text-carbon">{resultado.guardado ? 'Solicitud enviada' : 'Casi listo'}</h2>
+        <h2 className="titulo-menor text-2xl text-carbon">{resultado.guardado ? 'Solicitud enviada' : 'Casi listo'}</h2>
         <p className="mt-3 leading-relaxed text-carbon">{resultado.texto}</p>
         {!resultado.guardado && (
-          <BotonHex href={waUrl(mensajeWa())} className="mt-6">
-            <MessageCircle aria-hidden="true" size={18} /> Enviar por WhatsApp
+          <BotonHex href={waUrl(mensajeWa())} icono={MessageCircle} className="mt-6">
+            Enviar por WhatsApp
           </BotonHex>
         )}
       </div>
@@ -152,8 +152,8 @@ export default function FormCotizar() {
 
       <div className="sm:col-span-2">
         {errorApi && <p ref={errorApiRef} tabIndex={-1} role="alert" className="mb-3 text-sm text-rojo-hondo">{errorApi}</p>}
-        <BotonHex type="submit" disabled={enviando} size="lg" className="w-full sm:w-auto">
-          {enviando && <Loader2 aria-hidden="true" size={18} className="animate-spin" />} Solicitar cotización
+        <BotonHex type="submit" disabled={enviando} size="lg" icono={enviando ? Loader2 : Send} cargando={enviando} className="w-full sm:w-auto">
+          Solicitar cotización
         </BotonHex>
       </div>
     </form>

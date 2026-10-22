@@ -1,7 +1,7 @@
 import Reveal from '@/components/motion/Reveal';
-import { Megaphone } from 'lucide-react';
+import { Landmark, Megaphone } from 'lucide-react';
 import Hexagono from '@/components/Hexagono';
-import Titulo from '@/components/Titulo';
+import SeccionTitulo from '@/components/SeccionTitulo';
 import BotonHex from '@/components/hex/BotonHex';
 import HexImagen from '@/components/hex/HexImagen';
 import { contenido } from '@/lib/contenido';
@@ -12,10 +12,10 @@ export default function PeruCompras() {
       <div className="bg-white py-16 lg:py-24">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_auto]">
           <Reveal>
-            <Titulo claro="Estamos en" rojo="Perú Compras" className="text-4xl sm:text-5xl" />
+            <SeccionTitulo nivel="h2" tam="lg" claro="Estamos en" rojo="Perú Compras" subtitulo="Atendemos al sector Estado en la plataforma de contratación pública." />
             <div className="mt-8 flex items-center gap-4">
               <Hexagono icono={Megaphone} tam={64} />
-              <h3 className="font-titulo text-3xl text-carbon">Sector Estatal</h3>
+              <h3 className="titulo-menor text-3xl text-carbon">Sector Estatal</h3>
             </div>
             <p className="mt-5 max-w-2xl leading-relaxed text-carbon/80">{contenido.perucompras}</p>
           </Reveal>
@@ -35,7 +35,7 @@ export default function PeruCompras() {
           <img src="/peru-compras/logo-blanco.png" alt="Perú Compras" width={900} height={427} loading="lazy" className="h-auto w-56 sm:w-72" />
           <div className="flex flex-col items-center gap-4 text-center md:items-end md:text-right">
             <p className="max-w-md text-lg">Atendemos al Estado a través de la plataforma de contratación pública.</p>
-            <BotonHex href="/peru-compras" variante="contorno" size="lg">Conoce cómo atendemos al Estado</BotonHex>
+            <BotonHex href="/peru-compras" variante="contorno" size="lg" icono={Landmark}>Conoce cómo atendemos al Estado</BotonHex>
           </div>
         </Reveal>
       </div>

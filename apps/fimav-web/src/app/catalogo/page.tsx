@@ -1,6 +1,7 @@
 import Reveal from '@/components/motion/Reveal';
+import { ArrowRight } from 'lucide-react';
 import Hexagono from '@/components/Hexagono';
-import Titulo from '@/components/Titulo';
+import SeccionTitulo from '@/components/SeccionTitulo';
 import BotonHex from '@/components/hex/BotonHex';
 import HexImagen from '@/components/hex/HexImagen';
 import { categorias } from '@/lib/categorias';
@@ -12,8 +13,7 @@ export default function CatalogoPage() {
     <main>
       <section className="bg-white py-16">
         <div className="entrada mx-auto max-w-6xl px-4 sm:px-6">
-          <Titulo nivel="h1" claro="Portafolio" rojo="Especializado" className="text-4xl sm:text-5xl" />
-          <p className="mt-3 max-w-xl text-carbon/80">Bienes y servicios para empresas y entidades del Estado.</p>
+          <SeccionTitulo nivel="h1" tam="lg" claro="Portafolio" rojo="Especializado" subtitulo="Bienes y servicios para empresas y entidades del Estado." />
         </div>
       </section>
       {categorias.map((c, i) => (
@@ -22,10 +22,9 @@ export default function CatalogoPage() {
             <Reveal className="flex gap-5">
               <div className="shrink-0"><Hexagono icono={c.icono} tam={64} /></div>
               <div>
-                <h2 className="text-2xl font-medium text-carbon">{c.nombre}</h2>
-                <p className="mt-2 max-w-xl text-carbon/80">{c.resumen}</p>
+                <SeccionTitulo nivel="h2" tam="sm" claro={c.nombre} subtitulo={c.resumen} />
                 {c.marcas.length > 0 && <p className="mt-2 text-sm font-medium text-rojo-hondo">Marcas: {c.marcas.join(' · ')}</p>}
-                <BotonHex href={`/catalogo/${c.slug}`} className="mt-4">
+                <BotonHex href={`/catalogo/${c.slug}`} icono={ArrowRight} iconoPos="der" className="mt-4">
                   Ver y cotizar<span className="sr-only"> {c.nombre}</span>
                 </BotonHex>
               </div>

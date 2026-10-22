@@ -1,6 +1,6 @@
 import Reveal from '@/components/motion/Reveal';
 import { Check } from 'lucide-react';
-import Titulo from '@/components/Titulo';
+import SeccionTitulo from '@/components/SeccionTitulo';
 import { contenido } from '@/lib/contenido';
 import HexImagen from '@/components/hex/HexImagen';
 
@@ -13,8 +13,8 @@ export default function PorQue() {
         </Reveal>
         <div>
           <Reveal>
-          <Titulo claro="¿Por qué" rojo="Escogernos?" className="text-3xl sm:text-4xl" />
-          <p className="mt-4 text-carbon/80">{contenido.porQueIntro}</p>
+          <SeccionTitulo nivel="h2" claro="¿Por qué" rojo="Escogernos?" subtitulo="Soluciones innovadoras, confiables y personalizadas." />
+          <p className="mt-6 text-carbon/80">{contenido.porQueIntro}</p>
           </Reveal>
           <ul className="mt-6 space-y-3">
             {contenido.porQue.map((t, i) => (

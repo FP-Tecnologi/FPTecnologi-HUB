@@ -1,21 +1,17 @@
+'use client';
+import { usePathname } from 'next/navigation';
+import { FileText } from 'lucide-react';
 import Reveal from '@/components/motion/Reveal';
+import SeccionTitulo from '@/components/SeccionTitulo';
 import BotonHex from '@/components/hex/BotonHex';
-import CorteHex from '@/components/hex/CorteHex';
 
+/** CTA de cotización: es el tramo superior del pie (un solo bloque carbón). En /cotizar no se muestra (ya estás ahí). */
 export default function CtaCotizar() {
+  if (usePathname() === '/cotizar') return null;
   return (
-    <section className="text-white">
-      <CorteHex lado="arriba" color="var(--color-carbon)" />
-      <div className="bg-carbon py-14">
-        <Reveal className="mx-auto flex max-w-6xl flex-col items-start gap-6 px-4 sm:px-6 md:flex-row md:items-center md:justify-between">
-          <div>
-            <h2 className="text-3xl font-medium">Cotiza con Fimav Perú</h2>
-            <span aria-hidden="true" className="mt-3 block h-1 w-16 rounded-full bg-rojo" />
-            <p className="mt-2 text-white/80">Cuéntanos qué necesitas y te respondemos con una propuesta.</p>
-          </div>
-          <BotonHex href="/cotizar" size="lg">Cotizar ahora</BotonHex>
-        </Reveal>
-      </div>
-    </section>
+    <Reveal className="mx-auto flex max-w-6xl flex-col items-start gap-8 px-4 pb-4 pt-6 sm:px-6 md:flex-row md:items-center md:justify-between">
+      <SeccionTitulo nivel="h2" claroSobreOscuro claro="Cotiza con" rojo="Fimav Perú" subtitulo="Cuéntanos qué necesitas y te respondemos con una propuesta" />
+      <BotonHex href="/cotizar" size="lg" icono={FileText} className="font-display font-bold uppercase tracking-widest">Cotizar ahora</BotonHex>
+    </Reveal>
   );
 }
