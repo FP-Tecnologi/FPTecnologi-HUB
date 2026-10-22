@@ -15,3 +15,6 @@ export const contacto = {
 };
 
 export const waUrl = (texto: string) => `https://wa.me/${contacto.whatsapp}?text=${encodeURIComponent(texto)}`;
+
+// Redes sociales: completar con las URL reales de la empresa (https://...). Vacío = el ícono se muestra sin enlace. No inventar URL.
+export const redes = { facebook: '', instagram: '' };
