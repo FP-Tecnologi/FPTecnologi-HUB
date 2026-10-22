@@ -1,5 +1,4 @@
 export const contenido = {
-  hero: { linea1: 'Especialistas en', linea2: 'Bienes y Servicios' },
   nosotros:
     'Somos una organización comercial especializada en el sector Corporativo/Gobierno con una experiencia de más de 10 años en el mercado, posicionados en los primeros puestos del ranking comercial de gobierno en la plataforma de contratación del Estado (PERÚ COMPRAS). Tenemos un creciente y sólido lazo comercial con las marcas transnacionales más representativas en el segmento tecnológico, sumado a ello contamos con un staff corporativo con amplia experiencia y compromiso de servicio para el desarrollo de negocios en los diferentes tipos de soluciones que exige el mercado actual.',
   mision:
@@ -20,7 +19,6 @@ export const contenido = {
     'Somos una organización en constante transformación, enfocada en la sostenibilidad de nuestro crecimiento y participación en el mercado, mejorando la calidad de las soluciones proporcionadas a nuestros clientes, dentro de un ecosistema empresarial sostenible.',
   // `solido`: el logo trae caja/fondo de color y se muestra siempre a color (en gris saldría un bloque).
   // `alto` (px, por defecto 40): equilibra el peso visual entre logos de proporciones muy distintas (HP casi cuadrado, Samsung muy ancho).
-  // Lexmark y Daikin: sin logo disponible, se muestran como texto.
   marcas: [
     { nombre: 'Dell', logo: '/marcas/dell.svg', solido: true, alto: 36 },
     { nombre: 'HP', logo: '/marcas/hp.svg', solido: true, alto: 48 },
@@ -28,8 +26,8 @@ export const contenido = {
     { nombre: 'Epson', logo: '/marcas/epson.svg', alto: 30 },
     { nombre: 'LG', logo: '/marcas/lg.svg', solido: true },
     { nombre: 'Samsung', logo: '/marcas/samsung.svg', alto: 22 },
-    { nombre: 'Lexmark' },
-    { nombre: 'Daikin' },
+    { nombre: 'Lexmark', logo: '/marcas/lexmark.svg', alto: 30 },
+    { nombre: 'Daikin', logo: '/marcas/daikin.svg', alto: 28 },
     { nombre: 'HPE', logo: '/marcas/hpe.svg' },
   ] as { nombre: string; logo?: string; solido?: boolean; alto?: number }[],
 };
