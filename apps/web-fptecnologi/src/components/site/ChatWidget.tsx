@@ -28,6 +28,8 @@ import { useSitio } from '@/context/SitioContext';
 import { WhatsAppIcon } from './icons';
 import { resolveAction, type ChatAction, type ChatActionKind } from '@/lib/chatActions';
 import { useChatWidget } from '@/context/ChatWidgetContext';
+import type { CotizacionChat } from '@/lib/chatCotizacion';
+import { ChatCotizacion, type EnvioCotizacion } from './ChatCotizacion';
 
 /*
  * Íconos: todos de lucide-react (un solo estilo de trazo en todo el widget),
@@ -47,6 +49,9 @@ type ChatMsg = {
   instant?: boolean;
   actions?: ChatAction[];
   options?: string[];
+  // Cotización armada por el asistente (montos del servidor) y, si ya se envió, su registro.
+  cotizacion?: CotizacionChat;
+  enviada?: EnvioCotizacion;
   at?: number;
   sid?: string;
   name?: string;
@@ -58,7 +63,7 @@ type Agent = { estado: 'BOT' | 'ASESOR' | 'CERRADA'; asesor: { nombre: string | 
 type Area = { label: string; contact: string; phone: string; number: string; photo: string | null };
 // Conversación archivada (historial): se guarda al tocar "Nueva".
 type ChatSession = { id: number; title: string; at: number; messages: ChatMsg[]; remote?: Remote | null };
-type BotReply = { text: string; actions: ChatAction[]; options: string[] };
+type BotReply = { text: string; actions: ChatAction[]; options: string[]; cotizacion?: CotizacionChat };
 
 const GREETING: ChatMsg = {
   from: 'bot',
@@ -91,6 +96,8 @@ function loadHistory(): ChatMsg[] | null {
           ? m.actions.filter((a: ChatAction) => typeof a?.href === 'string' && SAFE_HREF.test(a.href) && a.kind in ACTION_ICON)
           : undefined,
         options: Array.isArray(m.options) ? m.options.filter((o: unknown) => typeof o === 'string') : undefined,
+        cotizacion: cotizacionGuardada(m.cotizacion),
+        enviada: m.enviada && typeof m.enviada === 'object' && (m.enviada.tipo === 'presupuesto' || m.enviada.tipo === 'servicio') ? m.enviada : undefined,
         at: typeof m.at === 'number' ? m.at : undefined,
         sid: typeof m.sid === 'string' ? m.sid : undefined,
         name: typeof m.name === 'string' ? m.name : undefined,
@@ -98,6 +105,25 @@ function loadHistory(): ChatMsg[] | null {
   } catch {
     return null;
   }
+}
+
+/** Cotización del historial: solo si tiene la forma esperada y sus enlaces son internos. */
+function cotizacionGuardada(c: unknown): CotizacionChat | undefined {
+  if (!c || typeof c !== 'object') return undefined;
+  const x = c as CotizacionChat;
+  if (x.tipo === 'servicio') return typeof x.servicio?.slug === 'string' && typeof x.servicio.title === 'string' ? x : undefined;
+  if (x.tipo !== 'productos' || !Array.isArray(x.lineas) || typeof x.total !== 'number') return undefined;
+  return x.lineas.every((l) => typeof l?.href === 'string' && l.href.startsWith('/') && typeof l.subtotal === 'number') ? x : undefined;
+}
+
+/** Lo que la IA ve de un mensaje suyo con cotización (para que siga la charla con el detalle a la vista). */
+function contenidoParaIA(m: ChatMsg): string {
+  const c = m.cotizacion;
+  if (!c) return m.text;
+  const detalle = c.tipo === 'servicio'
+    ? `servicio ${c.servicio.slug}`
+    : `${c.lineas.map((l) => `${l.cantidad} x SKU ${l.sku}`).join(', ')}; total USD ${c.total} con IGV`;
+  return `${m.text} [Cotización mostrada: ${detalle}${c.contacto ? `; contacto ${c.contacto.nombre} <${c.contacto.email}>` : '; sin datos de contacto'}${m.enviada ? '; YA ENVIADA' : ''}]`;
 }
 
 const REMOTE_KEY = 'fp-chat-remote-v1';
@@ -654,12 +680,12 @@ function ChatWidgetInner() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          messages: history.filter((m) => m.from !== 'system').map((m) => ({ role: m.from === 'user' ? 'user' : 'assistant', content: m.text })),
+          messages: history.filter((m) => m.from !== 'system').map((m) => ({ role: m.from === 'user' ? 'user' : 'assistant', content: contenidoParaIA(m).slice(0, 2000) })),
         }),
       });
       if (!res.ok) throw new Error(String(res.status));
       const data = await res.json();
-      answer = { text: data.reply, actions: data.actions ?? [], options: data.options ?? [] };
+      answer = { text: data.reply, actions: data.actions ?? [], options: data.options ?? [], cotizacion: cotizacionGuardada(data.cotizacion) };
     } catch {
       answer = fallbackReply(text);
       if (greet) answer.text = `¡Hola! 👋 ${answer.text}`;
@@ -932,6 +958,14 @@ function ChatWidgetInner() {
                             <ActionLink key={a.href} action={a} t={t} />
                           ))}
                         </div>
+                      )}
+
+                      {m.from === 'bot' && ready && m.cotizacion && (
+                        <ChatCotizacion
+                          cotizacion={m.cotizacion}
+                          enviada={m.enviada}
+                          onEnviada={(enviada) => setMessages((ms) => ms.map((x, k) => (k === i ? { ...x, enviada } : x)))}
+                        />
                       )}
 
                       {/* Respuestas rápidas: solo en el último mensaje del bot. */}

@@ -42,6 +42,16 @@ const fijas = (): Record<string, ChatAction> => ({
   marcas: { kind: 'page', label: 'Marcas', href: '/marcas' },
   devoluciones: { kind: 'page', label: 'Cambios y devoluciones', href: '/legal/devoluciones' },
   reclamaciones: { kind: 'page', label: 'Libro de reclamaciones', href: '/libro-de-reclamaciones' },
+  alquiler: { kind: 'page', label: 'Alquiler de equipos', href: '/alquiler-equipos' },
+  educacion: { kind: 'page', label: 'FP Education', href: '/educacion' },
+  compliance: { kind: 'page', label: 'Compliance', href: '/compliance' },
+  catalogos: { kind: 'page', label: 'Catálogos PDF', href: '/catalogos' },
+  tickets: { kind: 'page', label: 'Abrir un ticket', href: '/tickets' },
+  seguimiento: { kind: 'page', label: 'Seguimiento de ticket', href: '/tickets/seguimiento' },
+  presupuesto: { kind: 'page', label: 'Presupuesto mayorista', href: '/presupuesto' },
+  cuenta: { kind: 'page', label: 'Mi cuenta', href: '/cuenta' },
+  socios: { kind: 'page', label: 'Registro de socios', href: '/socios/registro' },
+  carrito: { kind: 'page', label: 'Ver carrito', href: '/carrito' },
 });
 
 /** Productos reales de la tienda (sku -> nombre/slug) para el id `producto:<sku>`; los pasa el servidor. */
@@ -87,6 +97,9 @@ export const actionIdsHelp = (servicios: readonly ServicioEnlace[] = SOLUTIONS) 
   'cotizar (cotizador)',
   'servicios, tienda, contacto, nosotros, proyectos, blog, marcas (páginas)',
   'devoluciones (cambios y devoluciones), reclamaciones (libro de reclamaciones)',
+  'alquiler (alquiler de equipos), educacion (FP Education), compliance, catalogos (catálogos PDF)',
+  'tickets (abrir ticket de soporte), seguimiento (seguimiento de ticket), cuenta (mi cuenta: pedidos y cotizaciones)',
+  'presupuesto (presupuesto mayorista), carrito, socios (registro de socios/partners)',
   'producto:<SKU exacto del producto> (ficha de un producto de la lista)',
   'marca:<nombre en minúsculas> (ej. marca:dell)',
   ...servicios.map((s) => `servicio:${s.slug} (${s.title})`),

@@ -1,6 +1,9 @@
 import Groq from 'groq-sdk';
-import { actionIdsHelp, resolveAction, type ChatAction, type ProductoEnlace, type ServicioEnlace } from '@/lib/chatActions';
+import { actionIdsHelp, resolveAction, type ChatAction } from '@/lib/chatActions';
 import { getConocimiento } from '@/lib/chatConocimiento';
+import { armarCotizacion, type CotizacionChat } from '@/lib/chatCotizacion';
+import type { CatalogProduct } from '@/lib/catalog';
+import type { ServicioPublico } from '@/lib/servicios';
 
 /*
  * Asistente virtual del widget de chat. La API key vive solo en el servidor
@@ -13,18 +16,24 @@ const MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
 const MAX_MESSAGES = 12;
 const MAX_CHARS = 2000;
 
-const buildSystemPrompt = (siteData: string, idsAcciones: string) => `Eres el asistente virtual de la web de FP Tecnologi & System.
-Responde en español neutro de Perú (tú, no vos), breve (2-4 oraciones), claro y amable.
+const buildSystemPrompt = (siteData: string, idsAcciones: string) => `Eres el asistente virtual de FP Tecnologi & System (FPTecnologi), en su web fptecnologi.com. Atiendes como un asesor completo de la empresa: productos de la tienda, servicios TI, alquiler de equipos, FP Education, partners, soporte, compras, cotizaciones, políticas y datos de contacto.
+Responde en español neutro de Perú (tú, no vos), claro y amable, breve (2-4 oraciones; hasta 6 si comparas productos o explicas una cotización).
 Texto plano en un solo párrafo: sin markdown (nada de **, #, listas ni saltos de línea), el chat no lo renderiza.
 Si en la conversación todavía no hay un saludo tuyo, empieza con un saludo breve ("¡Hola! 👋") y responde directo a lo consultado.
-Usa SOLO la información de abajo (es el contenido real de la web y de su base de datos). Si no está, dilo y sugiere hablar con un asesor por WhatsApp o usar el botón Cotizar. No inventes precios, stock, plazos, tarifas de envío, proyectos ni datos.
-Sobre productos: di nombre, marca y precio en USD sin IGV tal como figura abajo, aclara que el stock y el precio final los confirma un asesor, y adjunta la ficha con "producto:SKU" (SKU exacto de la lista). Si piden algo que no está en la lista, ofrece cotizarlo.
+Usa SOLO la información de abajo (es el contenido real de la web y de su base de datos). Si no está, dilo y sugiere hablar con un asesor por WhatsApp o pedir una cotización. No inventes precios, stock, plazos, tarifas de envío o alquiler, proyectos, clientes ni datos. Si la pregunta no tiene que ver con FPTecnologi ni con tecnología para empresas, dilo amablemente y vuelve a lo que puedes ayudar.
+Sobre productos: di nombre, marca y precio en USD sin IGV tal como figura abajo (y el precio mayorista desde 6 u. si existe), aclara que el stock y el precio final los confirma un asesor, y adjunta la ficha con "producto:SKU" (SKU exacto de la lista). Si piden algo que no está en la lista, ofrece cotizarlo.
 Sobre servicios: explica en qué consisten y qué incluyen según la lista, y adjunta "servicio:slug"; todos se cotizan por proyecto.
 
+COTIZACIONES (puedes armarlas tú en el chat):
+- Productos: cuando la persona diga qué productos y cuántas unidades quiere, agrega "cotizacion": {"tipo": "productos", "items": [{"sku": "SKU exacto", "cantidad": n}]}. El sistema calcula precios, IGV y total con el catálogo y los muestra en una tarjeta: tú NO escribas montos calculados en "text", solo di que ahí está el detalle. Si no dijo cantidad, pregúntala. Desde 6 u. por producto se aplica precio mayorista y puede pedir un presupuesto formal.
+- Servicios o alquiler: cuando quede claro qué servicio y lo que necesita (sede, cantidad, plazo, etc.), agrega "cotizacion": {"tipo": "servicio", "servicio": "slug del servicio", "detalle": "resumen de lo que pidió"}. Para alquiler de equipos usa el servicio más cercano o el cotizador si no hay uno.
+- Para registrar la solicitud hacen falta nombre y correo (teléfono, empresa y DNI/RUC opcionales). Pídelos con amabilidad una sola vez; cuando los tenga, repite "cotizacion" e incluye "contacto": {"nombre": "...", "email": "...", "telefono": "...", "empresa": "..."} solo con lo que la persona escribió (nunca inventes datos). La persona confirma el envío con un botón de la tarjeta.
+- Si la persona cambia productos o cantidades, vuelve a mandar "cotizacion" completa con lo actualizado.
+
 Responde SIEMPRE con un objeto JSON, sin nada más:
-{"text": "tu respuesta", "actions": ["id", ...], "options": ["pregunta corta", ...]}
-- actions: 0 a 3 IDs de la lista de abajo, solo los que ayuden a lo consultado (ej. ubicación -> "maps"; derivar a asesor -> "whatsapp"; correo -> "email"; un servicio -> "servicio:slug"). Nunca escribas URLs en "text": el enlace va en actions.
-- options: 0 a 4 respuestas cortas (máx. 5 palabras) que el USUARIO puede tocar para seguir, escritas desde el usuario, no preguntas tuyas. Úsalas cuando le pides elegir algo (ej. si preguntas qué servicio: ["Videoconferencia", "Data centers", "Soluciones cloud"]; qué marca: ["Dell", "HP", "Lenovo"]). Si no hay nada que elegir, [].
+{"text": "tu respuesta", "actions": ["id", ...], "options": ["pregunta corta", ...], "cotizacion": {...} (opcional), "contacto": {...} (opcional)}
+- actions: 0 a 3 IDs de la lista de abajo, solo los que ayuden a lo consultado (ej. ubicación -> "maps"; derivar a asesor -> "whatsapp"; correo -> "email"; un servicio -> "servicio:slug"; alquiler -> "alquiler"). Nunca escribas URLs en "text": el enlace va en actions.
+- options: 0 a 4 respuestas cortas (máx. 5 palabras) que el USUARIO puede tocar para seguir, escritas desde el usuario, no preguntas tuyas. Úsalas cuando le pides elegir algo (ej. si preguntas qué servicio: ["Videoconferencia", "Data centers", "Soluciones cloud"]; qué marca: ["Dell", "HP", "Lenovo"]; cantidad: ["1 unidad", "6 unidades", "10 unidades"]). Si no hay nada que elegir, [].
 
 IDs de acciones válidos:
 ${idsAcciones}
@@ -95,8 +104,10 @@ function parseMessages(body: unknown): ChatMessage[] | null {
 
 // Valida el JSON de la IA: IDs de acción desconocidos se descartan (la IA
 // nunca decide URLs), opciones recortadas a 3 textos cortos.
-function parseReply(raw: string | null | undefined, productos: readonly ProductoEnlace[], servicios: readonly ServicioEnlace[]): { reply: string; actions: ChatAction[]; options: string[] } | null {
-  let data: { text?: unknown; actions?: unknown; options?: unknown };
+type Reply = { reply: string; actions: ChatAction[]; options: string[]; cotizacion?: CotizacionChat };
+
+function parseReply(raw: string | null | undefined, productos: readonly CatalogProduct[], servicios: readonly ServicioPublico[]): Reply | null {
+  let data: { text?: unknown; actions?: unknown; options?: unknown; cotizacion?: unknown; contacto?: unknown };
   try {
     data = JSON.parse(raw ?? '');
   } catch {
@@ -111,7 +122,8 @@ function parseReply(raw: string | null | undefined, productos: readonly Producto
   const options = (Array.isArray(data.options) ? data.options : [])
     .filter((o): o is string => typeof o === 'string' && o.trim().length > 0 && o.length <= 60)
     .slice(0, 4);
-  return { reply: data.text.trim(), actions, options };
+  const cotizacion = armarCotizacion(data.cotizacion, data.contacto, productos, servicios);
+  return { reply: data.text.trim(), actions, options, ...(cotizacion ? { cotizacion } : {}) };
 }
 
 export async function POST(req: Request) {
@@ -128,8 +140,10 @@ export async function POST(req: Request) {
   if (!messages) return Response.json({ error: 'Mensajes inválidos' }, { status: 400 });
 
   try {
-    const ultima = [...messages].reverse().find((m) => m.role === 'user')?.content ?? '';
-    const [conocimiento, extra] = await Promise.all([getConocimiento(), infoAdicional(ultima, ip)]);
+    const delUsuario = messages.filter((m) => m.role === 'user').map((m) => m.content);
+    const ultima = delUsuario.at(-1) ?? '';
+    // Los productos se eligen por la última pregunta y las dos anteriores (ej. "¿y en Dell?" tras "monitores 27").
+    const [conocimiento, extra] = await Promise.all([getConocimiento(delUsuario.slice(-3).join(' ')), infoAdicional(ultima, ip)]);
     const groq = new Groq();
     const completion = await groq.chat.completions.create({
       model: MODEL,
@@ -137,7 +151,7 @@ export async function POST(req: Request) {
 
 ${extra}` : conocimiento.text, actionIdsHelp(conocimiento.servicios)) }, ...messages],
       temperature: 0.3,
-      max_completion_tokens: 600,
+      max_completion_tokens: 900,
       reasoning_effort: MODEL.startsWith('openai/gpt-oss') ? 'low' : undefined,
       response_format: { type: 'json_object' },
     });

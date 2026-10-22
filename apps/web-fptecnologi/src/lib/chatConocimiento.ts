@@ -6,6 +6,10 @@
  * (precio, marca, categoría), servicios cargados en el dashboard y artículos
  * del blog. Se cachea 60 s para no pegarle a la API en cada mensaje.
  *
+ * Productos: no se manda todo el catálogo. Se puntúa cada producto contra la
+ * pregunta (nombre, marca, SKU, categoría; sin tildes) y van con detalle los más
+ * relevantes; el resto, resumido por categoría (cantidad y rango de precios).
+ *
  * Proyectos y clientes: solo los que NO estén marcados como ejemplo en el
  * dashboard; si no hay ninguno real, se le indica que no cite casos.
  */
@@ -30,9 +34,10 @@ import { getLegalDocs, type LegalDoc } from './legal';
 import { getSitio, type Sitio } from './sitio';
 import { getPagina } from './paginasContenido';
 import type { CatalogProduct } from './catalog';
+import { COMPLIANCE } from './compliance';
 
 const CACHE_MS = 60_000;
-const MAX_PRODUCTOS = 80;
+const MAX_PRODUCTOS = 30;
 const MAX_ARTICULOS = 8;
 
 const lista = (items: readonly string[]) => items.join('; ');
@@ -79,22 +84,58 @@ P: ${FAQ_COMUNES.soporte.p} R: ${FAQ_COMUNES.soporte.r}
 Proceso: levantamiento de información, propuesta a medida, instalación y soporte técnico local.`;
 }
 
-function seccionTienda(products: CatalogProduct[]): string {
-  const categorias = categoriasDe(products)
-    .map((c) => `${c.title} (/tienda/${c.slug})`)
-    .join(', ');
-  const filas = products.slice(0, MAX_PRODUCTOS).map((p) => {
-    const antes = p.priceBefore ? ` (antes USD ${p.priceBefore})` : '';
-    return `- ${p.name.slice(0, 90)} | ${p.brand} | SKU ${p.sku} | USD ${p.price}${antes} | ${p.category}`;
+const normalizar = (t: string) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9ñ.#-]+/g, ' ').trim();
+const VACIAS = new Set(['de', 'la', 'el', 'los', 'las', 'un', 'una', 'para', 'con', 'que', 'por', 'en', 'y', 'o', 'me', 'mi', 'tienen', 'tienes', 'hay', 'quiero', 'precio', 'cuanto', 'cuesta', 'necesito', 'busco', 'del', 'al', 'su', 'sus', 'es']);
+
+/** Productos ordenados por cuánto coinciden con la pregunta (los que no coinciden, fuera). */
+export function productosRelevantes(pregunta: string, products: readonly CatalogProduct[]): CatalogProduct[] {
+  const terminos = [...new Set(normalizar(pregunta).split(' ').filter((t) => t.length > 1 && !VACIAS.has(t)))];
+  if (terminos.length === 0) return [];
+  const puntuados = products.map((p) => {
+    const nombre = normalizar(p.name);
+    const otros = normalizar(`${p.brand} ${p.category}`);
+    const sku = normalizar(p.sku);
+    let puntos = 0;
+    for (const t of terminos) {
+      if (sku === t) puntos += 10;
+      else if (nombre.split(' ').includes(t)) puntos += 3;
+      else if (nombre.includes(t)) puntos += 1.5;
+      if (otros.includes(t) || otros.includes(t.replace(/s$/, ''))) puntos += 2;
+    }
+    return { p, puntos };
+  });
+  return puntuados.filter((x) => x.puntos > 0).sort((a, b) => b.puntos - a.puntos).map((x) => x.p);
+}
+
+const filaProducto = (p: CatalogProduct) => {
+  const antes = p.priceBefore ? ` (antes USD ${p.priceBefore})` : '';
+  const mayor = p.priceMayor ? ` | mayorista USD ${p.priceMayor} desde 6 u.` : '';
+  const stock = p.stock === undefined ? '' : p.stock > 0 ? ' | con stock' : ' | sin stock (a pedido)';
+  return `- ${p.name.slice(0, 90)} | ${p.brand} | SKU ${p.sku} | USD ${p.price}${antes}${mayor}${stock} | ${p.category}`;
+};
+
+/** Tienda: reglas fijas + los productos más relevantes para la pregunta + resumen del resto por categoría. */
+export function seccionTienda(products: readonly CatalogProduct[], pregunta = ''): string {
+  const categorias = categoriasDe([...products]);
+  const relevantes = productosRelevantes(pregunta, products);
+  const lista = (relevantes.length > 0 ? relevantes : products).slice(0, MAX_PRODUCTOS);
+  const resumen = categorias.map((c) => {
+    const de = products.filter((p) => p.category === c.slug);
+    const precios = de.map((p) => p.price);
+    const marcas = [...new Set(de.map((p) => p.brand))].join(', ');
+    return `- ${c.title} (/tienda/${c.slug}): ${de.length} productos, USD ${Math.min(...precios)}–${Math.max(...precios)}, marcas ${marcas}`;
   });
   const marcas = [...new Set(products.map((p) => p.brand))].sort().join(', ');
   return `TIENDA B2B (páginas /tienda, /producto/<slug>, /marcas, /carrito, /finalizar-compra)
-Categorías: ${categorias}. Marcas con productos hoy: ${marcas}.
+Catálogo: ${products.length} productos. Marcas con productos hoy: ${marcas}.
+Por categoría:
+${resumen.join('\n')}
 Precios en USD sin IGV (se suma IGV 18 %); la web permite ver los precios en soles (PEN) con el interruptor de moneda.
-Cómo comprar: agregar al carrito → "Finalizar compra" con datos del comprador, comprobante (boleta o factura con DNI/RUC), entrega (recojo en tienda o envío a domicilio) y forma de pago. El costo de envío NO está en el total: se coordina por WhatsApp con un asesor; el pago también se confirma por WhatsApp. También se puede cotizar un pedido grande desde el carrito.
-Cambios y devoluciones: ver /legal/devoluciones. No tengo stock en tiempo real: el stock y el precio final los confirma un asesor.
-Productos (datos de la tienda en este momento):
-${filas.join('\n')}`;
+Cómo comprar: agregar al carrito → "Finalizar compra" con datos del comprador, comprobante (boleta o factura con DNI/RUC), entrega (recojo en tienda o envío a domicilio) y forma de pago. El costo de envío NO está en el total: se coordina por WhatsApp con un asesor; el pago también se confirma por WhatsApp.
+Compra mayorista: desde 6 unidades por producto se aplica el precio mayorista (si el producto lo tiene) y se pide un presupuesto formal (/presupuesto) con PDF; un asesor lo confirma.
+Cambios y devoluciones: ver /legal/devoluciones. No tengo stock en tiempo real exacto: el stock y el precio final los confirma un asesor.
+${relevantes.length > 0 ? `Productos que coinciden con la consulta (${relevantes.length}; se muestran ${lista.length}):` : `Algunos productos (no hubo coincidencia directa con la consulta; si buscan algo concreto que no está, ofrece cotizarlo):`}
+${lista.map(filaProducto).join('\n')}`;
 }
 
 function seccionMarcasYPartners(): string {
@@ -132,8 +173,36 @@ ${docs.join('\n')}
 - Libro de reclamaciones virtual (/libro-de-reclamaciones): formulario conforme a la Ley N.° 29571 y su reglamento, con consulta de estado por código y documento; responden en un máximo de 15 días hábiles (no calendario). Presentar un reclamo no impide acudir a Indecopi.`;
 }
 
+async function seccionesPaginasNuevas(sitio: Sitio): Promise<string> {
+  const [alquiler, education, compliance, catalogos] = await Promise.all([getPagina('alquiler'), getPagina('education'), getPagina('compliance'), getPagina('catalogos')]);
+  const items = (xs: { title: string; text: string }[]) => xs.map((x) => `${x.title}: ${x.text}`).join(' ');
+  const secciones = compliance.contenido.texto
+    ? compliance.contenido.texto.split(/^##\s+/m).slice(1).map((b) => b.split('\n')[0]!.trim()).filter(Boolean)
+    : COMPLIANCE.map((c) => c.titulo);
+  return `ALQUILER DE EQUIPOS (página /alquiler-equipos)
+${alquiler.hero.descripcion}
+Beneficios: ${items(alquiler.beneficios.items)}
+Equipos que se alquilan: ${items(alquiler.equipos.items)}
+Cómo funciona: ${items(alquiler.pasos.items)} El precio del alquiler se cotiza según cantidad, modelo y tiempo (no hay tarifas publicadas): ofrece el cotizador o WhatsApp.
+
+FP EDUCATION (página /educacion): ${education.hero.descripcion}
+${items(education.tarjetas.items)} ${education.accion.texto}
+
+COMPLIANCE (página /compliance): ${compliance.hero.descripcion} Secciones: ${secciones.join(', ')}. Documentos descargables: ${compliance.documentos.items.map((d) => d.titulo).join('; ')}.
+
+CATÁLOGOS EN PDF (página /catalogos): ${catalogos.lista.items.map((c) => c.titulo).join(', ')}. Se ven como folleto o se descargan.
+
+SOPORTE POR TICKETS (página /tickets; seguimiento en /tickets/seguimiento con el número de ticket)
+Para clientes que compraron con nosotros: verificar un producto, registrar un reclamo (pedido, garantía o atención) o pedir soporte técnico. Se dejan los datos, el pedido o producto, la descripción y evidencias (fotos, comprobante); el área comercial contacta para el seguimiento. Para un reclamo formal ante Indecopi existe además el libro de reclamaciones.
+
+MI CUENTA (página /cuenta): sin contraseña, con el correo usado al comprar o cotizar llega un código de 6 dígitos; ahí se ven los pedidos, su estado y las cotizaciones.
+
+SOCIOS / PARTNERS (registro en /socios/registro): empresas integradoras o revendedoras se registran; al aprobarlas acceden a la intranet de socios con material de marcas, soporte y precios para socios.
+${sitio.stats.length ? `\nCIFRAS DE LA EMPRESA: ${sitio.stats.map((s) => `${s.value}${s.suffix} ${s.label}`).join('; ')}.` : ''}`;
+}
+
 const MAPA_WEB = `MAPA DE LA WEB
-Inicio (/), Servicios (/servicios y /servicios/<servicio>), Tienda (/tienda, /tienda/<categoría>, /producto/<producto>), Marcas (/marcas), Nosotros (/nosotros), Proyectos (/proyectos), Blog (/blog), Cotizador (/cotizador), Contacto (/contacto), Carrito y compra (/carrito, /finalizar-compra), textos legales y libro de reclamaciones.`;
+Inicio (/), Servicios (/servicios y /servicios/<servicio>), Tienda (/tienda, /tienda/<categoría>, /producto/<producto>), Marcas (/marcas), Nosotros (/nosotros), Proyectos (/proyectos), Blog (/blog), Cotizador (/cotizador), Contacto (/contacto), Alquiler de equipos (/alquiler-equipos), FP Education (/educacion), Compliance (/compliance), Catálogos PDF (/catalogos), Tickets de soporte (/tickets), Mi cuenta (/cuenta), Socios (/socios/registro), Carrito y compra (/carrito, /finalizar-compra), Presupuesto mayorista (/presupuesto), textos legales y libro de reclamaciones (/libro-de-reclamaciones).`;
 
 
 /** Solo proyectos y clientes reales (los marcados como ejemplo en el dashboard no se citan). */
@@ -149,10 +218,10 @@ async function seccionReferencias(): Promise<string> {
 ${reales.map((p) => `- ${p.title} — ${p.client}, ${dept(p.department)}${p.year ? `, ${p.year}` : ''}${p.monto ? `, monto bruto ${montoSoles(p.monto)}` : ''}: ${p.description} Alcance: ${lista(p.scope)}.`).join('\n')}${clientes.length ? `\nClientes: ${clientes.join(', ')}.` : ''}`;
 }
 
-let cache: { at: number; text: string; products: CatalogProduct[]; servicios: ServicioPublico[] } | null = null;
+type Base = { at: number; text: string; products: CatalogProduct[]; servicios: ServicioPublico[] };
+let cache: Base | null = null;
 
-/** Texto completo de conocimiento + los productos (para validar los enlaces `producto:<slug>`). */
-export async function getConocimiento(): Promise<{ text: string; products: CatalogProduct[]; servicios: ServicioPublico[] }> {
+async function base(): Promise<Base> {
   if (cache && Date.now() - cache.at < CACHE_MS) return cache;
   const [{ products }, servicios, cotizador, blog, referencias, sitio, contactoPag, legal] = await Promise.all([
     getCatalogo(),
@@ -168,9 +237,10 @@ export async function getConocimiento(): Promise<{ text: string; products: Catal
     seccionEmpresa(sitio, contactoPag.visita.horario),
     seccionNosotros(),
     seccionServicios(servicios),
-    seccionTienda(products),
+    '{{TIENDA}}',
     seccionMarcasYPartners(),
     cotizador,
+    await seccionesPaginasNuevas(sitio),
     blog,
     referencias,
     seccionLegal(legal),
@@ -178,4 +248,13 @@ export async function getConocimiento(): Promise<{ text: string; products: Catal
   ].join('\n\n');
   cache = { at: Date.now(), text, products, servicios };
   return cache;
+}
+
+/**
+ * Conocimiento para una pregunta: el texto base (cacheado) con la sección de tienda armada para esa pregunta, más
+ * los productos y servicios reales (para validar los enlaces `producto:<sku>`/`servicio:<slug>` y las cotizaciones).
+ */
+export async function getConocimiento(pregunta = ''): Promise<{ text: string; products: CatalogProduct[]; servicios: ServicioPublico[] }> {
+  const b = await base();
+  return { text: b.text.replace('{{TIENDA}}', () => seccionTienda(b.products, pregunta)), products: b.products, servicios: b.servicios };
 }

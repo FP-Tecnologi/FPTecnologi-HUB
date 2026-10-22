@@ -44,6 +44,7 @@ import { TicketsModule } from './tickets/tickets.module.js';
 import { SoporteModule } from './soporte/soporte.module.js';
 import { ActividadModule } from './actividad/actividad.module.js';
 import { RecursosModule } from './recursos/recursos.module.js';
+import { AsistenteModule } from './asistente/asistente.module.js';
 
 @Module({
   imports: [
@@ -86,6 +87,7 @@ import { RecursosModule } from './recursos/recursos.module.js';
     SoporteModule,
     ActividadModule,
     RecursosModule,
+    AsistenteModule,
   ],
   controllers: [HealthController],
   providers: [
