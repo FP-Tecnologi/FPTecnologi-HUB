@@ -7,7 +7,7 @@ import { productHref } from './catalog';
  * resuelve acá, así no puede inventar ni inyectar links.
  */
 export type ChatActionKind = 'whatsapp' | 'maps' | 'email' | 'phone' | 'page';
-export type ChatAction = { kind: ChatActionKind; label: string; href: string };
+export type ChatAction = { kind: ChatActionKind; label: string; href: string; /** Descripción corta (tarjeta de página en el chat). */ desc?: string };
 
 // Datos de contacto vigentes (los fija lib/sitio.ts al leer los ajustes del dashboard; por defecto, content.ts).
 // ponytail: estado de módulo, válido porque cada despliegue atiende una sola marca.
@@ -32,26 +32,26 @@ const fijas = (): Record<string, ChatAction> => ({
   },
   email: { kind: 'email', label: CONTACTO.email, href: `mailto:${CONTACTO.email}` },
   telefono: { kind: 'phone', label: `Llamar ${CONTACTO.phoneVentas}`, href: `tel:${CONTACTO.phoneVentas.replace(/\s/g, '')}` },
-  cotizar: { kind: 'page', label: 'Ir al cotizador', href: COTIZADOR_URL },
-  servicios: { kind: 'page', label: 'Ver servicios', href: '/servicios' },
-  tienda: { kind: 'page', label: 'Ver tienda', href: '/tienda' },
-  contacto: { kind: 'page', label: 'Contacto', href: '/contacto' },
-  nosotros: { kind: 'page', label: 'Nosotros', href: '/nosotros' },
-  proyectos: { kind: 'page', label: 'Proyectos', href: '/proyectos' },
-  blog: { kind: 'page', label: 'Blog', href: '/blog' },
-  marcas: { kind: 'page', label: 'Marcas', href: '/marcas' },
-  devoluciones: { kind: 'page', label: 'Cambios y devoluciones', href: '/legal/devoluciones' },
-  reclamaciones: { kind: 'page', label: 'Libro de reclamaciones', href: '/libro-de-reclamaciones' },
-  alquiler: { kind: 'page', label: 'Alquiler de equipos', href: '/alquiler-equipos' },
-  educacion: { kind: 'page', label: 'FP Education', href: '/educacion' },
-  compliance: { kind: 'page', label: 'Compliance', href: '/compliance' },
-  catalogos: { kind: 'page', label: 'Catálogos PDF', href: '/catalogos' },
-  tickets: { kind: 'page', label: 'Abrir un ticket', href: '/tickets' },
-  seguimiento: { kind: 'page', label: 'Seguimiento de ticket', href: '/tickets/seguimiento' },
-  presupuesto: { kind: 'page', label: 'Presupuesto mayorista', href: '/presupuesto' },
-  cuenta: { kind: 'page', label: 'Mi cuenta', href: '/cuenta' },
-  socios: { kind: 'page', label: 'Registro de socios', href: '/socios/registro' },
-  carrito: { kind: 'page', label: 'Ver carrito', href: '/carrito' },
+  cotizar: { kind: 'page', label: 'Ir al cotizador', href: COTIZADOR_URL, desc: 'Pide tu cotización en 3 pasos' },
+  servicios: { kind: 'page', label: 'Ver servicios', href: '/servicios', desc: 'Soluciones TI a medida para tu empresa' },
+  tienda: { kind: 'page', label: 'Ver tienda', href: '/tienda', desc: 'Equipos con stock local y precios B2B' },
+  contacto: { kind: 'page', label: 'Contacto', href: '/contacto', desc: 'Teléfonos, correo y oficina' },
+  nosotros: { kind: 'page', label: 'Nosotros', href: '/nosotros', desc: 'Quiénes somos y cómo trabajamos' },
+  proyectos: { kind: 'page', label: 'Proyectos', href: '/proyectos', desc: 'Casos y proyectos realizados' },
+  blog: { kind: 'page', label: 'Blog', href: '/blog', desc: 'Novedades y guías de tecnología' },
+  marcas: { kind: 'page', label: 'Marcas', href: '/marcas', desc: 'Marcas que distribuimos' },
+  devoluciones: { kind: 'page', label: 'Cambios y devoluciones', href: '/legal/devoluciones', desc: 'Condiciones de cambios y devoluciones' },
+  reclamaciones: { kind: 'page', label: 'Libro de reclamaciones', href: '/libro-de-reclamaciones', desc: 'Registra o consulta un reclamo' },
+  alquiler: { kind: 'page', label: 'Alquiler de equipos', href: '/alquiler-equipos', desc: 'Laptops, PCs y más, entrega en 24 h' },
+  educacion: { kind: 'page', label: 'FP Education', href: '/educacion', desc: 'Tecnología para el aula' },
+  compliance: { kind: 'page', label: 'Compliance', href: '/compliance', desc: 'Ética y cumplimiento' },
+  catalogos: { kind: 'page', label: 'Catálogos PDF', href: '/catalogos', desc: 'Catálogos en PDF para hojear' },
+  tickets: { kind: 'page', label: 'Abrir un ticket', href: '/tickets', desc: 'Soporte de productos comprados' },
+  seguimiento: { kind: 'page', label: 'Seguimiento de ticket', href: '/tickets/seguimiento', desc: 'Revisa el estado de tu ticket' },
+  presupuesto: { kind: 'page', label: 'Presupuesto mayorista', href: '/presupuesto', desc: 'Compra mayorista desde 6 unidades' },
+  cuenta: { kind: 'page', label: 'Mi cuenta', href: '/cuenta', desc: 'Tus pedidos y cotizaciones' },
+  socios: { kind: 'page', label: 'Registro de socios', href: '/socios/registro', desc: 'Programa de partners' },
+  carrito: { kind: 'page', label: 'Ver carrito', href: '/carrito', desc: 'Revisa tu compra' },
 });
 
 /** Productos reales de la tienda (sku -> nombre/slug) para el id `producto:<sku>`; los pasa el servidor. */
@@ -75,11 +75,11 @@ export function resolveAction(
   }
   if (prefix === 'tienda') {
     const c = TIENDA_CATEGORIES.find((x) => x.slug === slug);
-    if (c) return { kind: 'page', label: c.title, href: `/tienda/${c.slug}` };
+    if (c) return { kind: 'page', label: c.title, href: `/tienda/${c.slug}`, desc: 'Categoría de la tienda' };
   }
   if (prefix === 'marca') {
     const b = PARTNER_BRANDS.find((x) => brandSlug(x.name) === slug);
-    if (b) return { kind: 'page', label: b.name, href: `/marcas/${brandSlug(b.name)}` };
+    if (b) return { kind: 'page', label: b.name, href: `/marcas/${brandSlug(b.name)}`, desc: 'Productos de la marca' };
   }
   if (prefix === 'producto') {
     const p = productos.find((x) => x.sku === slug);

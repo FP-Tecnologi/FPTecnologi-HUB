@@ -1,7 +1,7 @@
 import Groq from 'groq-sdk';
 import { actionIdsHelp, resolveAction, type ChatAction } from '@/lib/chatActions';
 import { getConocimiento } from '@/lib/chatConocimiento';
-import { armarCotizacion, productoChat, type CotizacionChat, type ProductoChat } from '@/lib/chatCotizacion';
+import { armarCotizacion, datosDe, productoChat, servicioChat, type CotizacionChat, type DatosChat, type ProductoChat, type ServicioChat } from '@/lib/chatCotizacion';
 import type { CatalogProduct } from '@/lib/catalog';
 import type { ServicioPublico } from '@/lib/servicios';
 
@@ -35,7 +35,9 @@ ALCANCE (muy importante):
 - Saludos, agradecimientos y despedidas sí los respondes con amabilidad y brevedad.
 Usa SOLO la información de abajo (es el contenido real de la web y de su base de datos). Si es un tema de FPTecnologi pero el dato no está abajo, dilo con honestidad y ofrece hablar con un asesor por WhatsApp o pedir una cotización. No inventes precios, stock, plazos, tarifas de envío o alquiler, proyectos, clientes, RUC ni datos.
 Sobre productos: SIEMPRE adjunta en actions "producto:SKU" (SKU exacto de la lista) de cada producto que menciones (máx. 3, los más adecuados): el chat los muestra como tarjetas con foto, título, precio y stock que llevan a su ficha. Por eso en "text" no repitas la ficha completa: di cuál conviene y por qué, el precio en USD sin IGV (y el mayorista desde 6 u. si existe) y la disponibilidad según la lista ("con stock" = disponible para despacho; "sin stock" = a pedido, consultar plazo; sin dato = lo confirma un asesor). El precio final lo confirma un asesor. Si piden algo que no está en la lista, dilo y ofrece cotizarlo.
-Sobre servicios: explica en qué consisten y qué incluyen según la lista, y adjunta "servicio:slug"; todos se cotizan por proyecto.
+Sobre servicios: explica en qué consisten y qué incluyen según la lista, y adjunta "servicio:slug" de cada servicio que menciones (máx. 3): el chat lo muestra como tarjeta con foto que lleva a su página. Todos se cotizan por proyecto.
+Sobre páginas: cuando la respuesta tenga una página propia (alquiler, tickets, cotizador, catálogos, etc.), adjunta su ID: se muestra como tarjeta con ícono y descripción.
+Datos puntuales (horario, dirección, teléfonos, plazos, requisitos, formas de pago, tarifas de envío): además del texto puedes agregar "datos": {"titulo": "Horario y contacto", "filas": [{"etiqueta": "Horario", "valor": "Lunes a viernes, 9:00 a 18:00"}, ...]} (máx. 6 filas, valores copiados de la información de abajo, sin URLs). Úsalo solo cuando ordene mejor la respuesta; no repitas en "text" lo que va en la tabla.
 
 COTIZACIONES (puedes armarlas tú en el chat):
 - Productos: cuando la persona diga qué productos y cuántas unidades quiere, agrega "cotizacion": {"tipo": "productos", "items": [{"sku": "SKU exacto", "cantidad": n}]}. El sistema calcula precios, IGV y total con el catálogo y los muestra en una tarjeta: tú NO escribas montos calculados en "text", solo di que ahí está el detalle. Si no dijo cantidad, pregúntala. Desde 6 u. por producto se aplica precio mayorista y puede pedir un presupuesto formal.
@@ -44,8 +46,8 @@ COTIZACIONES (puedes armarlas tú en el chat):
 - Si la persona cambia productos o cantidades, vuelve a mandar "cotizacion" completa con lo actualizado.
 
 Responde SIEMPRE con un objeto JSON, sin nada más:
-{"text": "tu respuesta", "actions": ["id", ...], "options": ["pregunta corta", ...], "cotizacion": {...} (opcional), "contacto": {...} (opcional)}
-- actions: 0 a 3 IDs de la lista de abajo, solo los que ayuden a lo consultado (ej. ubicación -> "maps"; derivar a asesor -> "whatsapp"; correo -> "email"; un servicio -> "servicio:slug"; alquiler -> "alquiler"). Nunca escribas URLs en "text": el enlace va en actions.
+{"text": "tu respuesta", "actions": ["id", ...], "options": ["pregunta corta", ...], "datos": {...} (opcional), "cotizacion": {...} (opcional), "contacto": {...} (opcional)}
+- actions: 0 a 5 IDs de la lista de abajo (productos y servicios cuentan aparte, máx. 3 de cada uno), solo los que ayuden a lo consultado (ej. ubicación -> "maps"; derivar a asesor -> "whatsapp"; correo -> "email"; un servicio -> "servicio:slug"; alquiler -> "alquiler"). Nunca escribas URLs en "text": el enlace va en actions.
 - text: con el formato descrito arriba (\n para saltos de línea dentro del string JSON).
 - options: 0 a 4 respuestas cortas (máx. 5 palabras) que el USUARIO puede tocar para seguir, escritas desde el usuario, no preguntas tuyas. Úsalas cuando le pides elegir algo (ej. si preguntas qué servicio: ["Videoconferencia", "Data centers", "Soluciones cloud"]; qué marca: ["Dell", "HP", "Lenovo"]; cantidad: ["1 unidad", "6 unidades", "10 unidades"]). Si no hay nada que elegir, [].
 
@@ -118,14 +120,14 @@ function parseMessages(body: unknown): ChatMessage[] | null {
 
 // Valida el JSON de la IA: IDs de acción desconocidos se descartan (la IA
 // nunca decide URLs), opciones recortadas a 3 textos cortos.
-type Reply = { reply: string; actions: ChatAction[]; options: string[]; productos: ProductoChat[]; cotizacion?: CotizacionChat };
+type Reply = { reply: string; actions: ChatAction[]; options: string[]; productos: ProductoChat[]; servicios: ServicioChat[]; datos?: DatosChat; cotizacion?: CotizacionChat };
 
 function parseReply(raw: string | null | undefined, products: readonly CatalogProduct[], servicios: readonly ServicioPublico[]): Reply | null {
-  let data: { text?: unknown; actions?: unknown; options?: unknown; cotizacion?: unknown; contacto?: unknown };
+  let data: { text?: unknown; actions?: unknown; options?: unknown; datos?: unknown; cotizacion?: unknown; contacto?: unknown };
   try {
     data = JSON.parse(raw ?? '');
   } catch {
-    return raw?.trim() ? { reply: raw.trim(), actions: [], options: [], productos: [] } : null;
+    return raw?.trim() ? { reply: raw.trim(), actions: [], options: [], productos: [], servicios: [] } : null;
   }
   if (typeof data.text !== 'string' || !data.text.trim()) return null;
   const ids = (Array.isArray(data.actions) ? data.actions : []).filter((id): id is string => typeof id === 'string');
@@ -135,16 +137,24 @@ function parseReply(raw: string | null | undefined, products: readonly CatalogPr
     .filter((p): p is CatalogProduct => !!p)
     .slice(0, 3)
     .map(productoChat);
+  const tarjetasServicio = [...new Set(ids.filter((id) => id.startsWith('servicio:')).map((id) => id.slice('servicio:'.length)))]
+    .map((slug) => servicios.find((x) => x.slug === slug))
+    .filter((x): x is ServicioPublico => !!x)
+    .slice(0, 3)
+    .map(servicioChat);
   const actions = ids
-    .filter((id) => !id.startsWith('producto:'))
+    .filter((id) => !id.startsWith('producto:') && !id.startsWith('servicio:'))
     .map((id) => resolveAction(id, products, servicios))
     .filter((a): a is ChatAction => a !== null)
-    .slice(0, 3);
+    .filter((a, i, all) => all.findIndex((x) => x.href === a.href) === i)
+    // Hasta 3 páginas y 3 canales de contacto (se muestran como tarjetas y como botones).
+    .filter((a, i, all) => all.slice(0, i).filter((x) => (x.kind === 'page') === (a.kind === 'page')).length < 3);
   const options = (Array.isArray(data.options) ? data.options : [])
     .filter((o): o is string => typeof o === 'string' && o.trim().length > 0 && o.length <= 60)
     .slice(0, 4);
   const cotizacion = armarCotizacion(data.cotizacion, data.contacto, products, servicios);
-  return { reply: data.text.trim(), actions, options, productos, ...(cotizacion ? { cotizacion } : {}) };
+  const datos = datosDe(data.datos);
+  return { reply: data.text.trim(), actions, options, productos, servicios: tarjetasServicio, ...(datos ? { datos } : {}), ...(cotizacion ? { cotizacion } : {}) };
 }
 
 export async function POST(req: Request) {

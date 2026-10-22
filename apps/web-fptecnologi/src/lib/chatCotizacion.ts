@@ -57,6 +57,28 @@ export function productoChat(p: CatalogProduct): ProductoChat {
   };
 }
 
+/** Tarjeta de servicio en el chat (datos del servicio cargado en el dashboard). */
+export type ServicioChat = { slug: string; titulo: string; etiqueta: string; descripcion: string; imagen: string; precioDesde: number | null; href: string };
+
+export function servicioChat(s: { slug: string; title: string; tag: string; description: string; image: string; precioDesde: number | null }): ServicioChat {
+  const d = s.description.trim();
+  return { slug: s.slug, titulo: s.title, etiqueta: s.tag, descripcion: d.length > 150 ? `${d.slice(0, 147)}…` : d, imagen: s.image, precioDesde: s.precioDesde, href: `/servicios/${s.slug}` };
+}
+
+/** Bloque de datos (horario, dirección, plazos…) que el modelo arma con la información de la web. */
+export type DatosChat = { titulo: string; filas: { etiqueta: string; valor: string }[] };
+
+export function datosDe(raw: unknown): DatosChat | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const r = raw as { titulo?: unknown; filas?: unknown };
+  const limpio = (v: unknown, max: number) => (typeof v === 'string' ? v.replace(/[<>]/g, '').replace(/https?:\/\/\S+/g, '').trim().slice(0, max) : '');
+  const filas = (Array.isArray(r.filas) ? r.filas : [])
+    .map((f) => ({ etiqueta: limpio(f?.etiqueta, 40), valor: limpio(f?.valor, 160) }))
+    .filter((f) => f.etiqueta && f.valor)
+    .slice(0, 6);
+  return filas.length ? { titulo: limpio(r.titulo, 60) || 'Datos', filas } : null;
+}
+
 const redondear = (n: number) => Math.round(n * 100) / 100;
 const texto = (v: unknown, max: number) => (typeof v === 'string' ? v.replace(/[<>]/g, '').trim().slice(0, max) : '');
 
