@@ -12,7 +12,7 @@ export const metadata = { title: 'Catálogo' };
 export default function CatalogoPage() {
   return (
     <main>
-      <BannerPagina titulo="Portafolio" resaltado="Especializado" subtitulo="Bienes y servicios para empresas y entidades del Estado." />
+      <BannerPagina titulo="Portafolio" resaltado="Especializado" subtitulo="Bienes y servicios para empresas y entidades del Estado." imagen="/fotos/networking-2.jpg" />
       {categorias.map((c, i) => (
         <section key={c.slug} className={`py-12 ${i % 2 ? 'bg-white' : 'bg-gris'}`}>
           <div className="mx-auto grid max-w-6xl items-center gap-6 px-4 sm:px-6 lg:grid-cols-[1fr_auto]">

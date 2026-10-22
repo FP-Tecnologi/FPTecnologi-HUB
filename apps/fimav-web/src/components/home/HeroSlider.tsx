@@ -45,14 +45,21 @@ const FUNDIDO = (activo: boolean) => `transition-opacity ease-out ${activo ? 'op
 
 export default function HeroSlider() {
   return (
-    <section className="relative overflow-hidden bg-white">
+    <section className="relative flex min-h-[calc(100svh-var(--alto-cabecera))] items-center overflow-hidden bg-linear-to-br from-white via-white to-gris">
+      {/* Fondo de marca: hexágonos grandes translúcidos (relleno rojo muy tenue + línea fina) y espiral de línea fina. */}
+      <svg viewBox="0 0 100 100" aria-hidden="true" className="pointer-events-none absolute -right-[12%] -top-[18%] w-[min(70vw,640px)]">
+        <path d="M50 4 94 27v46L50 96 6 73V27Z" fill="#e02424" fillOpacity="0.05" stroke="#e02424" strokeOpacity="0.18" strokeWidth="0.5" strokeLinejoin="round" />
+      </svg>
+      <svg viewBox="0 0 100 100" aria-hidden="true" className="pointer-events-none absolute -bottom-[22%] left-[38%] hidden w-[min(40vw,420px)] sm:block">
+        <path d="M50 4 94 27v46L50 96 6 73V27Z" fill="#38383c" fillOpacity="0.04" stroke="#38383c" strokeOpacity="0.14" strokeWidth="0.5" strokeLinejoin="round" />
+      </svg>
       <Espiral contorno className="pointer-events-none absolute -bottom-32 -left-28 w-56 opacity-40 sm:-bottom-24 sm:-left-24 sm:opacity-60" />
       <h1 className="sr-only">Fimav Perú — Especialistas en bienes y servicios</h1>
       <Carrusel
         etiqueta="Fimav Perú"
         auto={6000}
         fundido
-        className="relative mx-auto grid max-w-6xl items-center gap-3 px-4 pb-6 pt-4 sm:gap-6 sm:px-6 sm:pb-8 sm:pt-8 lg:min-h-[480px] lg:grid-cols-[1.05fr_1fr] lg:gap-4 lg:pb-10 lg:pt-14"
+        className="relative mx-auto grid w-full max-w-6xl items-center gap-3 px-4 py-8 sm:gap-6 sm:px-6 sm:py-12 lg:grid-cols-[1.05fr_1fr] lg:gap-4 lg:py-16"
         /* Visual único dentro del carrusel (hover/foco pausan): la espiral gira sin parar, nada la reinicia, y no lleva foto en el centro. */
         visual={(activa) => (
           <div className="relative mx-auto aspect-square w-full max-w-[220px] sm:max-w-[340px] lg:order-2 lg:max-w-[460px]">
@@ -73,7 +80,7 @@ export default function HeroSlider() {
         diapositivas={diapositivas.map((d) => (
           <div key={d.rojo} className="px-1 py-1">
             <SeccionTitulo nivel="h2" tam="lg" claro={d.claro} rojo={d.rojo} className="max-w-xl" />
-            <p className="mt-3 max-w-md text-carbon/80 sm:mt-5 sm:text-lg">{d.texto}</p>
+            <p className="mt-3 max-w-md text-carbon sm:mt-5 sm:text-lg">{d.texto}</p>
             <div className="mt-4 flex flex-wrap gap-2 sm:mt-7 sm:gap-4">
               {d.botones.map((b) => (
                 <BotonHex key={b.texto} href={b.href} size="sm" className="max-sm:flex-1 sm:!min-h-13 sm:!px-10 sm:!text-lg" icono={b.icono} variante={'contorno' in b ? 'contorno' : 'rojo'}>{b.texto}</BotonHex>

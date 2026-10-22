@@ -12,7 +12,7 @@ const tarjeta = 'rounded-2xl border border-carbon/20 bg-gris p-6';
 export default function ContactoPage() {
   return (
     <main>
-      <BannerPagina titulo="Hablemos de" resaltado="tu cotización" subtitulo="Escríbenos o llámanos y te respondemos con una propuesta a tu medida." />
+      <BannerPagina titulo="Hablemos de" resaltado="tu cotización" subtitulo="Escríbenos o llámanos y te respondemos con una propuesta a tu medida." imagen="/fondos/contacto.jpg" />
       <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6">
       <div className="grid gap-6 md:grid-cols-2">
         <section className={tarjeta}>

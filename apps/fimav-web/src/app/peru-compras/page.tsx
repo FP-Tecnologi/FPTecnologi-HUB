@@ -25,7 +25,7 @@ const trabajo = [
 export default function PeruComprasPage() {
   return (
     <main>
-      <BannerPagina titulo="Estamos en" resaltado="Perú Compras" subtitulo="Atendemos al sector Estado en la plataforma de contratación pública." />
+      <BannerPagina titulo="Estamos en" resaltado="Perú Compras" subtitulo="Atendemos al sector Estado en la plataforma de contratación pública." imagen="/peru-compras/contenedor.jpg" posicion="center 45%" />
       <section className="bg-white pb-16 pt-8 lg:pb-24">
         <div className="entrada mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_auto]">
           <div>

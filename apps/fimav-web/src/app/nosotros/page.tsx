@@ -10,7 +10,7 @@ export const metadata = { title: 'Nosotros' };
 export default function NosotrosPage() {
   return (
     <main>
-      <BannerPagina titulo="Sobre" resaltado="Fimav Perú" subtitulo="Especialistas en Bienes y Servicios" />
+      <BannerPagina titulo="Sobre" resaltado="Fimav Perú" subtitulo="Especialistas en Bienes y Servicios" imagen="/fotos/nosotros.jpg" posicion="center 35%" />
       <section className="relative overflow-hidden bg-white pb-16 pt-8 lg:pb-24">
         <Espiral contorno className="aparecer pointer-events-none absolute -right-24 -top-24 w-80 opacity-20" />
         <div className="entrada relative mx-auto max-w-6xl px-4 sm:px-6">

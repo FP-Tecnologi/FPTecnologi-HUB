@@ -9,7 +9,7 @@ export const metadata = { title: 'Cotizar' };
 export default function CotizarPage() {
   return (
     <main>
-      <BannerPagina titulo="Solicita tu" resaltado="Cotización" subtitulo="Atendemos entidades del Estado y empresas privadas." />
+      <BannerPagina titulo="Solicita tu" resaltado="Cotización" subtitulo="Atendemos entidades del Estado y empresas privadas." imagen="/fotos/escogernos.jpg" posicion="center 30%" />
       <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 lg:pb-24">
         <div className="grid items-start gap-8 lg:grid-cols-[1fr_320px]">
           <Suspense fallback={<p className="rounded-2xl bg-gris p-6 text-carbon">Cargando formulario…</p>}>

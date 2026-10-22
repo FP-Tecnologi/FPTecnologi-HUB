@@ -9,7 +9,7 @@ export default async function LibroReclamacionesPage() {
   const proveedor = await getProveedor();
   return (
     <main className="bg-white">
-      <div className="print:hidden"><BannerPagina titulo="Libro de" resaltado="Reclamaciones" subtitulo="Registra un reclamo o una queja conforme a la Ley 29571." /></div>
+      <div className="print:hidden"><BannerPagina titulo="Libro de" resaltado="Reclamaciones" subtitulo="Registra un reclamo o una queja conforme a la Ley 29571." imagen="/fotos/mobiliario-2.jpg" /></div>
       <div className="mx-auto max-w-4xl px-4 pb-16 pt-8 sm:px-6 lg:pb-24">
         <div className="print:hidden">
           <p className="max-w-2xl leading-relaxed text-carbon">
