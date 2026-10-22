@@ -6,6 +6,7 @@ import Espiral from '@/components/Espiral';
 import BotonHex from '@/components/hex/BotonHex';
 import HexImagen from '@/components/hex/HexImagen';
 import Carrusel from '@/components/slider/Carrusel';
+import DatosConfianza from '@/components/home/DatosConfianza';
 
 // Solo lo que consta en el brochure.
 const diapositivas = [
@@ -45,7 +46,15 @@ const FUNDIDO = (activo: boolean) => `transition-opacity ease-out ${activo ? 'op
 
 export default function HeroSlider() {
   return (
-    <section className="relative flex min-h-[calc(100svh-var(--alto-cabecera))] items-center overflow-hidden bg-linear-to-br from-white via-white to-gris">
+    <section className="relative flex min-h-[max(36rem,calc(80svh-var(--alto-cabecera)))] flex-col overflow-hidden bg-linear-to-br from-white via-white to-gris">
+      {/* Fotos de producto del brochure muy tenues (gris, borrosas, ≤14 %), fundidas con máscaras hacia el blanco. Decorativas. */}
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.14]">
+        {/* eslint-disable @next/next/no-img-element */}
+        <img src="/fondos/hero-servidores-1.jpg" alt="" width={900} height={675} loading="lazy" decoding="async" fetchPriority="low" className="absolute -left-[8%] top-0 h-full w-[60%] object-cover [mask-image:radial-gradient(ellipse_at_20%_30%,#000_0%,transparent_70%)]" />
+        <img src="/fondos/hero-monitores-1.jpg" alt="" width={900} height={675} loading="lazy" decoding="async" fetchPriority="low" className="absolute -right-[6%] top-0 hidden h-[70%] w-[50%] object-cover [mask-image:radial-gradient(ellipse_at_80%_30%,#000_0%,transparent_70%)] sm:block" />
+        <img src="/fondos/hero-impresoras-2.jpg" alt="" width={900} height={675} loading="lazy" decoding="async" fetchPriority="low" className="absolute bottom-0 right-[18%] hidden h-[55%] w-[45%] object-cover [mask-image:radial-gradient(ellipse_at_50%_80%,#000_0%,transparent_70%)] lg:block" />
+        {/* eslint-enable @next/next/no-img-element */}
+      </div>
       {/* Fondo de marca: hexágonos grandes translúcidos (relleno rojo muy tenue + línea fina) y espiral de línea fina. */}
       <svg viewBox="0 0 100 100" aria-hidden="true" className="pointer-events-none absolute -right-[12%] -top-[18%] w-[min(70vw,640px)]">
         <path d="M50 4 94 27v46L50 96 6 73V27Z" fill="#e02424" fillOpacity="0.05" stroke="#e02424" strokeOpacity="0.18" strokeWidth="0.5" strokeLinejoin="round" />
@@ -55,11 +64,12 @@ export default function HeroSlider() {
       </svg>
       <Espiral contorno className="pointer-events-none absolute -bottom-32 -left-28 w-56 opacity-40 sm:-bottom-24 sm:-left-24 sm:opacity-60" />
       <h1 className="sr-only">Fimav Perú — Especialistas en bienes y servicios</h1>
+      <div className="relative flex flex-1 items-center">
       <Carrusel
         etiqueta="Fimav Perú"
         auto={6000}
         fundido
-        className="relative mx-auto grid w-full max-w-6xl items-center gap-3 px-4 py-8 sm:gap-6 sm:px-6 sm:py-12 lg:grid-cols-[1.05fr_1fr] lg:gap-4 lg:py-16"
+        className="relative mx-auto grid w-full max-w-6xl items-center gap-3 px-4 pb-12 pt-6 sm:gap-6 sm:px-6 sm:pt-8 lg:grid-cols-[1.05fr_1fr] lg:gap-4"
         /* Visual único dentro del carrusel (hover/foco pausan): la espiral gira sin parar, nada la reinicia, y no lleva foto en el centro. */
         visual={(activa) => (
           <div className="relative mx-auto aspect-square w-full max-w-[220px] sm:max-w-[340px] lg:order-2 lg:max-w-[460px]">
@@ -89,6 +99,8 @@ export default function HeroSlider() {
           </div>
         ))}
       />
+      </div>
+      <DatosConfianza />
     </section>
   );
 }

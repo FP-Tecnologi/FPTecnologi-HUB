@@ -12,7 +12,7 @@ const datos = [
 
 export default function DatosConfianza() {
   return (
-    <section className="bg-white pb-10 pt-2">
+    <div className="relative pb-5 pt-1 sm:pb-6">
       <Carrusel
         etiqueta="Fimav Perú en datos"
         auto={8000}
@@ -21,7 +21,7 @@ export default function DatosConfianza() {
         gap="gap-4"
         className="mx-auto max-w-6xl px-4 sm:px-6"
         diapositivas={datos.map((d) => (
-          <div key={d.cifra} className="flex h-full items-center gap-4 rounded-2xl bg-gris px-5 py-4">
+          <div key={d.cifra} className="flex h-full items-center gap-4 rounded-2xl border border-carbon/10 bg-white/90 px-5 py-4 shadow-[0_10px_24px_-14px_rgb(56_56_60/0.35)]">
             <Hexagono icono={d.icono} tam={56} />
             <div>
               <p className="font-display text-2xl font-bold uppercase leading-none tracking-wide text-carbon">{d.cifra}</p>
@@ -30,6 +30,6 @@ export default function DatosConfianza() {
           </div>
         ))}
       />
-    </section>
+    </div>
   );
 }
