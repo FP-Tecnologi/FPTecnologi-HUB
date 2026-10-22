@@ -3,7 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 
 const INTERACTIVOS = 'a, button, summary, label, input, select, textarea, [data-halo]';
 
-/** Halo rojo suave que sigue al puntero. Solo con puntero fino y sin reduced-motion; decorativo (aria-hidden, sin eventos). */
+/** Halo rojo suave que sigue al puntero. Alfa 0.10 en el centro: blanco sobre `boton` queda en 4.77:1 y `rojo-hondo` sobre blanco en 5.05:1 (AA).
+ * Solo con puntero fino y sin reduced-motion; decorativo (aria-hidden, sin eventos). */
 export default function HaloCursor() {
   const [activo, setActivo] = useState(false);
   const halo = useRef<HTMLDivElement>(null);
@@ -48,7 +49,7 @@ export default function HaloCursor() {
   if (!activo) return null;
   return (
     <div ref={halo} aria-hidden="true" className="group/halo pointer-events-none fixed left-0 top-0 z-[60] size-[200px] opacity-0 transition-opacity duration-300 data-visible:opacity-100">
-      <div className="size-full rounded-full bg-[radial-gradient(circle,rgb(224_36_36/0.16),transparent_68%)] transition-transform duration-300 ease-out group-data-sobre/halo:scale-150" />
+      <div className="size-full rounded-full bg-[radial-gradient(circle,rgb(224_36_36/0.1),transparent_68%)] transition-transform duration-300 ease-out group-data-sobre/halo:scale-150" />
     </div>
   );
 }

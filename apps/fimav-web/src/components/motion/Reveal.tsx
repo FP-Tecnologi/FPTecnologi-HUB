@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef } from 'react';
 
-// Un solo observador para toda la página. El margen superior (-15 %) hace que el elemento se atenúe mientras aún se ve al salir por arriba.
+// Un solo observador para toda la página. Margen superior = alto del header fijo (~57 px): la atenuación de salida ocurre bajo el header.
 let io: IntersectionObserver | undefined;
 const observador = () =>
   (io ??= new IntersectionObserver(
@@ -10,7 +10,7 @@ const observador = () =>
         (e.target as HTMLElement).dataset.estado = e.isIntersecting ? 'dentro' : e.boundingClientRect.top < 0 ? 'arriba' : 'abajo';
       }
     },
-    { rootMargin: '-15% 0px -8% 0px' },
+    { rootMargin: '-64px 0px -8% 0px' },
   ));
 
 type Props = { children: React.ReactNode; retraso?: number; as?: 'div' | 'li' | 'section'; className?: string };

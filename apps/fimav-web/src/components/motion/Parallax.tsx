@@ -1,15 +1,19 @@
 'use client';
 import { useEffect, useRef } from 'react';
 
+const MQ = '(pointer: fine) and (prefers-reduced-motion: no-preference)';
+
 /** Escribe --px/--py (-1…1, posición del cursor respecto al centro del bloque) para las `.capa` hijas.
- *  Solo puntero fino y sin reduced-motion: en táctil las capas quedan quietas. */
+ *  Solo ratón con puntero fino y sin reduced-motion (se reevalúa si cambia la preferencia); en táctil las capas quedan quietas. */
 export default function Parallax({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = ref.current;
-    if (!el || !matchMedia('(pointer: fine) and (prefers-reduced-motion: no-preference)').matches) return;
+    if (!el) return;
+    const mq = matchMedia(MQ);
     let raf = 0, cx = 0, cy = 0;
     const mover = (e: PointerEvent) => {
+      if (e.pointerType !== 'mouse') return;
       cx = e.clientX;
       cy = e.clientY;
       raf ||= requestAnimationFrame(() => {
@@ -21,10 +25,19 @@ export default function Parallax({ children, className = '' }: { children: React
         el.style.setProperty('--py', clamp((cy - (r.top + r.height / 2)) / (innerHeight / 2)).toFixed(3));
       });
     };
-    window.addEventListener('pointermove', mover, { passive: true });
-    return () => {
-      cancelAnimationFrame(raf);
+    const aplicar = () => {
       window.removeEventListener('pointermove', mover);
+      cancelAnimationFrame(raf);
+      raf = 0;
+      if (mq.matches) window.addEventListener('pointermove', mover, { passive: true });
+      else { el.style.removeProperty('--px'); el.style.removeProperty('--py'); }
+    };
+    aplicar();
+    mq.addEventListener('change', aplicar);
+    return () => {
+      mq.removeEventListener('change', aplicar);
+      window.removeEventListener('pointermove', mover);
+      cancelAnimationFrame(raf);
     };
   }, []);
   return <div ref={ref} className={className}>{children}</div>;

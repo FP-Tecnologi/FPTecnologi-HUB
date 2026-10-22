@@ -58,9 +58,9 @@ export default function BotonHex({ href, onClick, type = 'button', variante = 'r
   const cls = `group/hex relative isolate inline-flex items-center justify-center gap-2 text-center font-semibold leading-snug focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-60 ${TAM[size]} ${VARIANTES[variante].texto} ${className}`;
   const contenido = <><CapasHex variante={variante} />{children}</>;
   if (!href) return <button type={type} onClick={onClick} disabled={disabled} className={cls}>{contenido}</button>;
-  // Enlace deshabilitado: fuera del tab y sin clics, anunciado como deshabilitado.
-  const apagado = disabled ? { 'aria-disabled': true, tabIndex: -1, className: `${cls} pointer-events-none opacity-60` } : { className: cls };
-  if (href.startsWith('/')) return <Link href={href} {...apagado}>{contenido}</Link>;
+  // Enlace deshabilitado: no es un enlace (sin href ni foco), anunciado como deshabilitado.
+  if (disabled) return <span role="link" aria-disabled="true" className={`${cls} cursor-not-allowed opacity-60`}>{contenido}</span>;
+  if (href.startsWith('/')) return <Link href={href} className={cls}>{contenido}</Link>;
   const externo = /^https?:/.test(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {}; // mailto:, tel:, # se quedan en la pestaña
-  return <a href={href} {...externo} {...apagado}>{contenido}</a>;
+  return <a href={href} {...externo} className={cls}>{contenido}</a>;
 }
