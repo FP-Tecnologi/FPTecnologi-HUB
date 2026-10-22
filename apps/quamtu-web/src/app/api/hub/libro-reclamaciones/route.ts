@@ -20,6 +20,7 @@ export async function POST(req: Request) {
       },
       body,
       cache: 'no-store',
+      signal: AbortSignal.timeout(15_000),
     });
     return new Response(await res.text(), { status: res.status, headers: { 'Content-Type': 'application/json' } });
   } catch {

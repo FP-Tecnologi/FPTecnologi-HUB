@@ -204,7 +204,7 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
         <div>{lbl('telefono', 'Teléfono')}<input id="telefono" type="tel" value={f.telefono} onChange={(e) => set('telefono', e.target.value)} autoComplete="tel" maxLength={20} className={campo} aria-required="true" {...aria('telefono')} />{err('telefono')}</div>
         <div>{lbl('email', 'Correo')}<input id="email" type="email" value={f.email} onChange={(e) => set('email', e.target.value)} autoComplete="email" maxLength={120} className={campo} aria-required="true" {...aria('email')} />{err('email')}</div>
         <label className={`${opcion} sm:col-span-2`}>
-          <input type="checkbox" checked={f.menorEdad} onChange={(e) => { set('menorEdad', e.target.checked); setErrores((x) => ({ ...x, repNombres: '', repNroDocumento: '' })); }} className="h-5 w-5 shrink-0 accent-[#238DC1]" /> Soy menor de edad
+          <input type="checkbox" checked={f.menorEdad} onChange={(e) => { set('menorEdad', e.target.checked); setErrores((x) => ({ ...x, repNombres: '', repNroDocumento: '' })); }} className="h-5 w-5 shrink-0 accent-cyan" /> Soy menor de edad
         </label>
         {f.menorEdad && (
           <>
@@ -222,7 +222,7 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
           <legend className={etiqueta}>Tipo de bien</legend>
           <div className="mt-2 flex flex-wrap gap-3">
             {([['PRODUCTO', 'Producto'], ['SERVICIO', 'Servicio']] as const).map(([v, t]) => (
-              <label key={v} className={opcion}><input type="radio" name="tipoBien" checked={f.tipoBien === v} onChange={() => set('tipoBien', v)} className="h-5 w-5 accent-[#238DC1]" /> {t}</label>
+              <label key={v} className={opcion}><input type="radio" name="tipoBien" checked={f.tipoBien === v} onChange={() => set('tipoBien', v)} className="h-5 w-5 accent-cyan" /> {t}</label>
             ))}
           </div>
         </fieldset>
@@ -245,7 +245,7 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
           <div className="mt-2 grid gap-3 sm:grid-cols-2">
             {([['RECLAMO', 'Reclamo', 'Disconformidad con el producto o servicio.'], ['QUEJA', 'Queja', 'Malestar por la atención al público, sin relación con el producto o servicio.']] as const).map(([v, t, d]) => (
               <label key={v} className={`${opcion} items-start py-3`}>
-                <input type="radio" name="tipo" checked={f.tipo === v} onChange={() => set('tipo', v)} className="mt-0.5 h-5 w-5 shrink-0 accent-[#238DC1]" />
+                <input type="radio" name="tipo" checked={f.tipo === v} onChange={() => set('tipo', v)} className="mt-0.5 h-5 w-5 shrink-0 accent-cyan" />
                 <span><strong>{t}</strong><br /><span className="text-slate-300">{d}</span></span>
               </label>
             ))}
@@ -257,7 +257,7 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
           <legend className={etiqueta}>Medio de respuesta</legend>
           <div className="mt-2 flex flex-wrap gap-3">
             {([['CORREO', 'Respuesta por correo'], ['CARTA', 'Respuesta por carta']] as const).map(([v, t]) => (
-              <label key={v} className={opcion}><input type="radio" name="medio" checked={f.medioRespuesta === v} onChange={() => set('medioRespuesta', v)} className="h-5 w-5 accent-[#238DC1]" /> {t}</label>
+              <label key={v} className={opcion}><input type="radio" name="medio" checked={f.medioRespuesta === v} onChange={() => set('medioRespuesta', v)} className="h-5 w-5 accent-cyan" /> {t}</label>
             ))}
           </div>
         </fieldset>
@@ -267,7 +267,7 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
 
       <div>
         <label className="flex min-h-11 cursor-pointer items-start gap-3 text-slate-200">
-          <input id="acepta" type="checkbox" checked={f.acepta} onChange={(e) => set('acepta', e.target.checked)} className="mt-1 h-5 w-5 shrink-0 accent-[#238DC1]" aria-required="true" {...aria('acepta')} />
+          <input id="acepta" type="checkbox" checked={f.acepta} onChange={(e) => set('acepta', e.target.checked)} className="mt-1 h-5 w-5 shrink-0 accent-cyan" aria-required="true" {...aria('acepta')} />
           <span>Declaro que la información es veraz y corresponde a lo ocurrido. <span aria-hidden="true">*</span></span>
         </label>
         {err('acepta')}
