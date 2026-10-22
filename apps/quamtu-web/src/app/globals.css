@@ -30,6 +30,7 @@
 :root, [data-tema="oscuro"], .tema-oscuro, [data-tema="medio"] footer, [data-tema="medio"] .zona-oscura {
   --color-bg: #060b17; --color-panel: #0a1426; --color-line: #16284a; --color-claro: #6cc3ee;
   --c-cuerpo: #dbe7f3; --c-titulo: #ffffff; --c-2: #e2e8f0; --c-3: #cbd5e1; --c-4: #90a1b9; --c-ph: #8294ad;
+  --c-borde: #6b88b0; --c-error: #fca5a5;
   --hud-fondo: linear-gradient(160deg, rgba(35,141,193,.14), rgba(10,20,38,.8));
   --hud-borde: rgba(35,141,193,.45);
   --hud-sombra: inset 0 1px 0 rgba(108,195,238,.12), 0 12px 32px rgba(0,0,0,.35);
@@ -40,6 +41,7 @@
 [data-tema="claro"], [data-tema="medio"], .tema-claro {
   --color-bg: #ffffff; --color-panel: #f2f6fa; --color-line: #d5e0ea; --color-claro: #1b79ab;
   --c-cuerpo: #686058; --c-titulo: #385cad; --c-2: #4d463f; --c-3: #5f5850; --c-4: #6b645b; --c-ph: #8a8379;
+  --c-borde: #6b7f95; --c-error: #b91c1c;
   --hud-fondo: linear-gradient(160deg, rgba(35,141,193,.08), #ffffff);
   --hud-borde: rgba(35,141,193,.4);
   --hud-sombra: inset 0 1px 0 rgba(255,255,255,.9), 0 10px 28px rgba(27,60,100,.12);
@@ -48,6 +50,8 @@
   --d-logo-osc: none; --d-logo-cla: inline;
 }
 [data-tema="medio"] .zona-oscura, [data-tema="medio"] footer { color: var(--c-cuerpo); }
+/* El pie del tema medio es oscuro: fondo opaco (con el 60% sobre el cuerpo blanco quedaba gris y los textos no llegaban a AA). */
+[data-tema="medio"] footer { background: var(--color-panel); }
 
 html { background: var(--color-bg); color: var(--c-cuerpo); scroll-behavior: smooth; }
 
@@ -135,3 +139,17 @@ html, body { overflow-x: clip; }
 @keyframes faq-abre { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 .faq[open] .faq-resp { animation: faq-abre .3s ease; }
 @media (prefers-reduced-motion: reduce) { .faq[open] .faq-resp { animation: none; } }
+
+/* Impresión de la hoja de reclamación: papel blanco, tinta del tema claro, sin cabecera, pie ni botones flotantes. */
+@media print {
+  :root, [data-tema] {
+    --color-bg: #fff; --color-panel: #fff; --color-line: #999; --color-claro: #1b79ab;
+    --c-cuerpo: #222; --c-titulo: #000; --c-2: #222; --c-3: #222; --c-4: #444;
+    --c-error: #b91c1c;
+  }
+  html, body { background: #fff !important; color: #222; }
+  header, footer, .fixed { display: none !important; }
+  main { padding-top: 0 !important; }
+  .hud, .glass { background: #fff !important; border: 0 !important; box-shadow: none !important; backdrop-filter: none !important; }
+  .hud::before, .hud::after { display: none; }
+}

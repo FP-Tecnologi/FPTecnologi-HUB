@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, BadgeCheck, ClipboardList, ShieldCheck, Wrench, MapPin, MessageCircle, PackageCheck, Gauge, MousePointerClick, Headset, UserCheck } from 'lucide-react';
+import { ArrowRight, BadgeCheck, BookOpen, ClipboardList, ShieldCheck, Wrench, MapPin, MessageCircle, PackageCheck, Gauge, MousePointerClick, Headset, UserCheck } from 'lucide-react';
 import PcEscena from '@/components/PcEscena';
 import Reveal from '@/components/Reveal';
 import ComparaLineas from '@/components/ComparaLineas';
@@ -365,6 +365,9 @@ export default function Home() {
             <p data-r className="mt-8 flex items-center gap-2 text-sm text-slate-400">
               <MapPin size={16} className="shrink-0 text-claro" /> Jr. Huaraz 1841, Breña, Lima · <Link href="/cotizar" className="underline underline-offset-4 hover:text-claro">Cotizar para mi empresa</Link>
             </p>
+            <Link data-r href="/libro-de-reclamaciones" className="btn-borde mt-4 inline-flex min-h-11 items-center gap-2 rounded-full px-4 font-display text-xs">
+              <BookOpen aria-hidden="true" size={15} /> LIBRO DE RECLAMACIONES
+            </Link>
           </div>
           <div data-r className="relative mx-auto aspect-square w-full max-w-md">
             {/* eslint-disable-next-line @next/next/no-img-element */}

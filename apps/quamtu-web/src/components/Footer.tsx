@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, ClipboardList, Globe, MapPin, MessageCircle, ShieldCheck, Truck, Wrench } from 'lucide-react';
+import { ArrowRight, BookOpen, ClipboardList, Globe, MapPin, MessageCircle, ShieldCheck, Truck, Wrench } from 'lucide-react';
 import { CATS } from '@/lib/piezas';
 import { WHATSAPP, waUrl } from '@/lib/contacto';
 import AyudaPie from './AyudaPie';
@@ -29,6 +29,7 @@ const COLUMNAS = [
       { href: '/#organizaciones', texto: 'Para empresas' },
       { href: '/#respaldo', texto: 'Respaldo y garantía' },
       { href: '/#contacto', texto: 'Contacto' },
+      { href: '/libro-de-reclamaciones', texto: 'Libro de Reclamaciones' },
     ],
   },
 ];
@@ -114,6 +115,9 @@ export default function Footer() {
       <div className="border-t border-line">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-5 py-6 text-center text-xs text-slate-400 sm:flex-row sm:text-left">
           <p>© {new Date().getFullYear()} Quamtu. Todos los derechos reservados.</p>
+          <Link href="/libro-de-reclamaciones" className="btn-borde inline-flex min-h-11 items-center gap-2 rounded-full px-4 font-display text-xs">
+            <BookOpen aria-hidden="true" size={15} /> LIBRO DE RECLAMACIONES
+          </Link>
           <ConmutadorTema etiqueta />
           <p>Precios y disponibilidad referenciales, sujetos a confirmación.</p>
         </div>
