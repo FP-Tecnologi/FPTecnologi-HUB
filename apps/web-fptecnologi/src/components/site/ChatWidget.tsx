@@ -28,7 +28,8 @@ import { useSitio } from '@/context/SitioContext';
 import { WhatsAppIcon } from './icons';
 import { resolveAction, type ChatAction, type ChatActionKind } from '@/lib/chatActions';
 import { useChatWidget } from '@/context/ChatWidgetContext';
-import type { CotizacionChat } from '@/lib/chatCotizacion';
+import type { CotizacionChat, ProductoChat } from '@/lib/chatCotizacion';
+import { ChatProductos } from './ChatProductos';
 import { ChatCotizacion, type EnvioCotizacion } from './ChatCotizacion';
 
 /*
@@ -49,6 +50,8 @@ type ChatMsg = {
   instant?: boolean;
   actions?: ChatAction[];
   options?: string[];
+  // Productos sugeridos (tarjetas con foto, precio y stock del catálogo).
+  productos?: ProductoChat[];
   // Cotización armada por el asistente (montos del servidor) y, si ya se envió, su registro.
   cotizacion?: CotizacionChat;
   enviada?: EnvioCotizacion;
@@ -63,7 +66,7 @@ type Agent = { estado: 'BOT' | 'ASESOR' | 'CERRADA'; asesor: { nombre: string | 
 type Area = { label: string; contact: string; phone: string; number: string; photo: string | null };
 // Conversación archivada (historial): se guarda al tocar "Nueva".
 type ChatSession = { id: number; title: string; at: number; messages: ChatMsg[]; remote?: Remote | null };
-type BotReply = { text: string; actions: ChatAction[]; options: string[]; cotizacion?: CotizacionChat };
+type BotReply = { text: string; actions: ChatAction[]; options: string[]; productos?: ProductoChat[]; cotizacion?: CotizacionChat };
 
 const GREETING: ChatMsg = {
   from: 'bot',
@@ -96,6 +99,7 @@ function loadHistory(): ChatMsg[] | null {
           ? m.actions.filter((a: ChatAction) => typeof a?.href === 'string' && SAFE_HREF.test(a.href) && a.kind in ACTION_ICON)
           : undefined,
         options: Array.isArray(m.options) ? m.options.filter((o: unknown) => typeof o === 'string') : undefined,
+        productos: productosGuardados(m.productos),
         cotizacion: cotizacionGuardada(m.cotizacion),
         enviada: m.enviada && typeof m.enviada === 'object' && (m.enviada.tipo === 'presupuesto' || m.enviada.tipo === 'servicio') ? m.enviada : undefined,
         at: typeof m.at === 'number' ? m.at : undefined,
@@ -116,10 +120,18 @@ function cotizacionGuardada(c: unknown): CotizacionChat | undefined {
   return x.lineas.every((l) => typeof l?.href === 'string' && l.href.startsWith('/') && typeof l.subtotal === 'number') ? x : undefined;
 }
 
+/** Tarjetas de producto del historial: forma esperada y enlace interno. */
+function productosGuardados(ps: unknown): ProductoChat[] | undefined {
+  if (!Array.isArray(ps)) return undefined;
+  const ok = ps.filter((p): p is ProductoChat => !!p && typeof p.sku === 'string' && typeof p.nombre === 'string' && typeof p.precio === 'number' && typeof p.href === 'string' && p.href.startsWith('/') && (p.stock === 'si' || p.stock === 'no' || p.stock === 'consultar') && (typeof p.imagen !== 'string' || !/^\s*javascript:/i.test(p.imagen)));
+  return ok.length ? ok.slice(0, 3) : undefined;
+}
+
 /** Lo que la IA ve de un mensaje suyo con cotización (para que siga la charla con el detalle a la vista). */
 function contenidoParaIA(m: ChatMsg): string {
   const c = m.cotizacion;
-  if (!c) return m.text;
+  const fichas = m.productos?.length ? ` [Productos mostrados: ${m.productos.map((p) => `SKU ${p.sku}`).join(', ')}]` : '';
+  if (!c) return m.text + fichas;
   const detalle = c.tipo === 'servicio'
     ? `servicio ${c.servicio.slug}`
     : `${c.lineas.map((l) => `${l.cantidad} x SKU ${l.sku}`).join(', ')}; total USD ${c.total} con IGV`;
@@ -748,7 +760,7 @@ function ChatWidgetInner() {
       });
       if (!res.ok) throw new Error(String(res.status));
       const data = await res.json();
-      answer = { text: data.reply, actions: data.actions ?? [], options: data.options ?? [], cotizacion: cotizacionGuardada(data.cotizacion) };
+      answer = { text: data.reply, actions: data.actions ?? [], options: data.options ?? [], productos: productosGuardados(data.productos), cotizacion: cotizacionGuardada(data.cotizacion) };
     } catch {
       answer = fallbackReply(text);
       if (greet) answer.text = `¡Hola! 👋 ${answer.text}`;
@@ -1014,6 +1026,8 @@ function ChatWidgetInner() {
                           </span>
                         </div>
                       </div>
+
+                      {m.from === 'bot' && ready && !!m.productos?.length && <ChatProductos productos={m.productos} />}
 
                       {m.from === 'bot' && ready && !!m.actions?.length && (
                         <div className="animate-pop-in ml-9 flex flex-wrap gap-1.5">

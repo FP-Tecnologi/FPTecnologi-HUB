@@ -136,7 +136,7 @@ Precios en USD sin IGV (se suma IGV 18 %); la web permite ver los precios en sol
 Cómo comprar: agregar al carrito → "Finalizar compra" con datos del comprador, comprobante (boleta con DNI o factura con RUC y razón social), entrega y forma de pago. Al terminar, el pedido se confirma por WhatsApp con un asesor y se puede seguir en Mi cuenta (/cuenta).
 Formas de pago: transferencia bancaria, Yape / Plin o efectivo en tienda (no hay pago con tarjeta en línea). El comprobante se emite al confirmar el pago.
 Compra mayorista: desde 6 unidades por producto se aplica el precio mayorista (si el producto lo tiene) y se pide un presupuesto formal (/presupuesto) con PDF; un asesor lo confirma.
-Cambios y devoluciones: ver /legal/devoluciones. No tengo stock en tiempo real exacto: el stock y el precio final los confirma un asesor.
+Cambios y devoluciones: ver /legal/devoluciones. La disponibilidad de cada producto figura en la lista (con stock / sin stock, a pedido); la cantidad exacta y el precio final los confirma un asesor.
 ${relevantes.length > 0 ? `Productos que coinciden con la consulta (${relevantes.length}; se muestran ${lista.length}):` : `Algunos productos (no hubo coincidencia directa con la consulta; si buscan algo concreto que no está, ofrece cotizarlo):`}
 ${lista.map(filaProducto).join('\n')}`;
 }

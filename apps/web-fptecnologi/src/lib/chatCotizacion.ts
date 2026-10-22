@@ -40,6 +40,23 @@ export type CotizacionChat =
     }
   | { tipo: 'servicio'; servicio: { slug: string; title: string }; detalle: string; contacto: ContactoCotizacion | null };
 
+/** Tarjeta de producto que el chat muestra (foto, título, precio y stock reales del catálogo). */
+export type ProductoChat = { sku: string; nombre: string; marca: string; imagen: string; href: string; precio: number; precioAntes: number | null; stock: 'si' | 'no' | 'consultar' };
+
+export function productoChat(p: CatalogProduct): ProductoChat {
+  return {
+    sku: p.sku,
+    nombre: p.name,
+    marca: p.brand,
+    imagen: p.images[0] ?? '',
+    href: productHref(p.sku, p.slug),
+    precio: p.price,
+    precioAntes: p.priceBefore ?? null,
+    // Sin dato de la API (catálogo local de respaldo) no se afirma nada.
+    stock: p.stock === undefined ? 'consultar' : p.stock > 0 ? 'si' : 'no',
+  };
+}
+
 const redondear = (n: number) => Math.round(n * 100) / 100;
 const texto = (v: unknown, max: number) => (typeof v === 'string' ? v.replace(/[<>]/g, '').trim().slice(0, max) : '');
 
