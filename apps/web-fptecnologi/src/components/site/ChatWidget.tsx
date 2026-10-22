@@ -377,6 +377,68 @@ function Linkified({ text }: { text: string }) {
   );
 }
 
+/** **negrita** dentro de una línea (un "**" suelto, p. ej. a medio escribir, no se muestra) + enlaces. */
+function Inline({ text }: { text: string }) {
+  const partes = text.split(/\*\*(.+?)\*\*/g);
+  return (
+    <>
+      {partes.map((p, i) =>
+        i % 2 === 1 ? (
+          <strong key={i} className="font-semibold text-ink">{p}</strong>
+        ) : (
+          <Linkified key={i} text={p.replace(/\*\*/g, '')} />
+        ),
+      )}
+    </>
+  );
+}
+
+const VINETA = /^\s*[-•*]\s+/;
+const NUMERO = /^\s*(\d+)[.)]\s+/;
+
+/*
+ * Respuesta del asistente con formato liviano (lo que pide el prompt de app/api/chat): párrafos por salto de línea,
+ * listas con "- " o "1. " y **negrita**. Se arma con elementos de React, nunca con HTML del modelo.
+ */
+function TextoBot({ text }: { text: string }) {
+  const bloques: ({ tipo: 'p'; linea: string } | { tipo: 'ul' | 'ol'; items: string[] })[] = [];
+  for (const linea of text.split('\n')) {
+    if (!linea.trim()) continue;
+    const tipo = VINETA.test(linea) ? 'ul' : NUMERO.test(linea) ? 'ol' : 'p';
+    const ultimo = bloques[bloques.length - 1];
+    if (tipo === 'p') bloques.push({ tipo, linea });
+    else if (ultimo && ultimo.tipo === tipo) ultimo.items.push(linea.replace(tipo === 'ul' ? VINETA : NUMERO, ''));
+    else bloques.push({ tipo, items: [linea.replace(tipo === 'ul' ? VINETA : NUMERO, '')] });
+  }
+  return (
+    <div className="space-y-1.5">
+      {bloques.map((b, i) =>
+        b.tipo === 'p' ? (
+          <p key={i}><Inline text={b.linea} /></p>
+        ) : b.tipo === 'ul' ? (
+          <ul key={i} className="space-y-1">
+            {b.items.map((it, k) => (
+              <li key={k} className="flex gap-2">
+                <span aria-hidden className="mt-[0.55em] h-1.5 w-1.5 shrink-0 rounded-full bg-brand-primary" />
+                <span><Inline text={it} /></span>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <ol key={i} className="space-y-1">
+            {b.items.map((it, k) => (
+              <li key={k} className="flex gap-2">
+                <span aria-hidden className="mt-px flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-brand-primary text-[10px] font-bold text-white">{k + 1}</span>
+                <span><Inline text={it} /></span>
+              </li>
+            ))}
+          </ol>
+        ),
+      )}
+    </div>
+  );
+}
+
 /* Texto que se escribe letra por letra — solo la primera vez que aparece
    cada mensaje (skip=true lo muestra completo de una, para no repetir la
    animación cuando el usuario vuelve a esta vista). */
@@ -389,9 +451,11 @@ function TypewriterText({ text, skip, onDone }: { text: string; skip: boolean; o
     // Array.from: recorre por caracteres reales, no por unidades UTF-16 --
     // si no, los emojis (👋) se cortan a la mitad y se ve "�" un instante.
     const chars = Array.from(text);
+    // Respuestas largas (listas) se escriben más rápido: ~2,5 s como máximo.
+    const paso = Math.max(1, Math.ceil(chars.length / 160));
     let i = 0;
     const id = window.setInterval(() => {
-      i++;
+      i = Math.min(chars.length, i + paso);
       setShown(chars.slice(0, i).join(''));
       if (i >= chars.length) {
         window.clearInterval(id);
@@ -403,11 +467,10 @@ function TypewriterText({ text, skip, onDone }: { text: string; skip: boolean; o
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (done) return <Linkified text={text} />;
+  if (done) return <TextoBot text={text} />;
   return (
     <>
-      {shown}
-      <span className="animate-pulse">▍</span>
+      <TextoBot text={`${shown}▍`} />
     </>
   );
 }

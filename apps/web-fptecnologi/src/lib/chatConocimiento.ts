@@ -35,6 +35,8 @@ import { getSitio, type Sitio } from './sitio';
 import { getPagina } from './paginasContenido';
 import type { CatalogProduct } from './catalog';
 import { COMPLIANCE } from './compliance';
+import { getHomeContenido } from './homeContenido';
+import { getProveedor } from './proveedorLibro';
 
 const CACHE_MS = 60_000;
 const MAX_PRODUCTOS = 30;
@@ -131,7 +133,8 @@ Catálogo: ${products.length} productos. Marcas con productos hoy: ${marcas}.
 Por categoría:
 ${resumen.join('\n')}
 Precios en USD sin IGV (se suma IGV 18 %); la web permite ver los precios en soles (PEN) con el interruptor de moneda.
-Cómo comprar: agregar al carrito → "Finalizar compra" con datos del comprador, comprobante (boleta o factura con DNI/RUC), entrega (recojo en tienda o envío a domicilio) y forma de pago. El costo de envío NO está en el total: se coordina por WhatsApp con un asesor; el pago también se confirma por WhatsApp.
+Cómo comprar: agregar al carrito → "Finalizar compra" con datos del comprador, comprobante (boleta con DNI o factura con RUC y razón social), entrega y forma de pago. Al terminar, el pedido se confirma por WhatsApp con un asesor y se puede seguir en Mi cuenta (/cuenta).
+Formas de pago: transferencia bancaria, Yape / Plin o efectivo en tienda (no hay pago con tarjeta en línea). El comprobante se emite al confirmar el pago.
 Compra mayorista: desde 6 unidades por producto se aplica el precio mayorista (si el producto lo tiene) y se pide un presupuesto formal (/presupuesto) con PDF; un asesor lo confirma.
 Cambios y devoluciones: ver /legal/devoluciones. No tengo stock en tiempo real exacto: el stock y el precio final los confirma un asesor.
 ${relevantes.length > 0 ? `Productos que coinciden con la consulta (${relevantes.length}; se muestran ${lista.length}):` : `Algunos productos (no hubo coincidencia directa con la consulta; si buscan algo concreto que no está, ofrece cotizarlo):`}
@@ -171,6 +174,37 @@ function seccionLegal(legal: LegalDoc[]): string {
   return `TEXTOS LEGALES (informativos; para el detalle oficial, enviar a la página)
 ${docs.join('\n')}
 - Libro de reclamaciones virtual (/libro-de-reclamaciones): formulario conforme a la Ley N.° 29571 y su reglamento, con consulta de estado por código y documento; responden en un máximo de 15 días hábiles (no calendario). Presentar un reclamo no impide acudir a Indecopi.`;
+}
+
+type Tarifa = { departamento: string; proveedor: string; costo: number; plazoDias: string | null };
+
+/** Tarifas de envío por departamento (dashboard → Envíos; GET /public/envios/tarifas). */
+async function seccionEnvios(): Promise<string> {
+  let tarifas: Tarifa[] = [];
+  const marca = process.env.HUB_MARCA_ID;
+  if (marca) {
+    try {
+      const res = await fetch(`${process.env.HUB_API_URL ?? 'http://localhost:3001'}/public/envios/tarifas?marcaId=${encodeURIComponent(marca)}`, { next: { revalidate: 300 }, signal: AbortSignal.timeout(3000) });
+      if (res.ok) tarifas = ((await res.json())?.data ?? []) as Tarifa[];
+    } catch {
+      tarifas = [];
+    }
+  }
+  const lista = tarifas.slice(0, 30).map((t) => `${t.departamento}: USD ${t.costo}${t.plazoDias ? `, llega en ${t.plazoDias}` : ''}`).join('; ');
+  return `ENTREGAS Y ENVÍOS
+- Recojo en tienda (oficina de Lima): gratis.
+- Envío por ${tarifas[0]?.proveedor === 'SHALOM' || !tarifas.length ? 'Shalom' : tarifas[0]!.proveedor} a provincias: se recoge en la agencia elegida en el checkout (se puede buscar la más cercana con la ubicación); el costo se suma al total y se envía código de seguimiento.${lista ? ` Tarifas por departamento (USD): ${lista}.` : ' Las tarifas por departamento se ven en el checkout.'}
+- Envío a domicilio: costo a coordinar por WhatsApp según el distrito.`;
+}
+
+/** Textos del inicio editables en el dashboard (presentación y "por qué elegirnos") + datos fiscales. */
+async function seccionPresentacion(): Promise<string> {
+  const [home, prov] = await Promise.all([getHomeContenido(), getProveedor()]);
+  const fiscal = [prov.razonSocial && `Razón social: ${prov.razonSocial}`, prov.ruc && `RUC: ${prov.ruc}`, prov.direccion && `Dirección fiscal: ${prov.direccion}`].filter(Boolean).join('. ');
+  return `PRESENTACIÓN (página de inicio)
+${home.nosotros.descripcion}
+Por qué elegirnos: ${home.porque.items.map((i) => `${i.title}: ${i.text}`).join(' ')}
+${fiscal ? `Datos fiscales: ${fiscal}.` : 'Razón social y RUC: los confirma un asesor (no los inventes).'}`;
 }
 
 async function seccionesPaginasNuevas(sitio: Sitio): Promise<string> {
@@ -235,9 +269,11 @@ async function base(): Promise<Base> {
   ]);
   const text = [
     seccionEmpresa(sitio, contactoPag.visita.horario),
+    await seccionPresentacion(),
     seccionNosotros(),
     seccionServicios(servicios),
     '{{TIENDA}}',
+    await seccionEnvios(),
     seccionMarcasYPartners(),
     cotizador,
     await seccionesPaginasNuevas(sitio),
