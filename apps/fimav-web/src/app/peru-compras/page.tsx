@@ -25,7 +25,7 @@ const trabajo = [
 export default function PeruComprasPage() {
   return (
     <main>
-      <BannerPagina titulo="Estamos en" resaltado="Perú Compras" subtitulo="Atendemos al sector Estado en la plataforma de contratación pública." imagen="/peru-compras/contenedor.jpg" posicion="center 45%" />
+      <BannerPagina eyebrow="Perú Compras" titulo="Atendemos al" resaltado="sector Estado" imagen="/peru-compras/contenedor.jpg" posicion="center 45%" />
       <section className="bg-white pb-16 pt-8 lg:pb-24">
         <div className="entrada mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_auto]">
           <div>
@@ -56,7 +56,7 @@ export default function PeruComprasPage() {
 
       <section className="bg-gris py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Reveal><SeccionTitulo nivel="h2" claro="Cómo" rojo="trabajamos" subtitulo="Venta, postventa y soluciones tecnológicas para cada entidad." /></Reveal>
+          <Reveal><SeccionTitulo nivel="h2" eyebrow="Cómo trabajamos" claro="Venta, postventa y" rojo="soluciones" /></Reveal>
           <ul className="mt-8 grid gap-4 sm:grid-cols-2">
             {trabajo.map(([t, d], i) => (
               <Reveal as="li" key={t} retraso={(i % 2) * 90} className="rounded-2xl bg-white p-6">
@@ -71,7 +71,7 @@ export default function PeruComprasPage() {
       <section className="bg-white py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
-            <SeccionTitulo nivel="h2" claro="Nuestras" rojo="categorías" subtitulo="Bienes y servicios que atendemos para entidades del Estado y empresas privadas." />
+            <SeccionTitulo nivel="h2" eyebrow="Nuestras categorías" claro="Bienes y servicios" rojo="para el Estado" />
           </Reveal>
           <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {categorias.map((c, i) => (
@@ -87,7 +87,7 @@ export default function PeruComprasPage() {
       <section className="bg-gris py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
-            <SeccionTitulo nivel="h2" claro="Marcas con las que" rojo="trabajamos" subtitulo="Socios estratégicos de las marcas más comerciales del mercado." />
+            <SeccionTitulo nivel="h2" eyebrow="Marcas con las que trabajamos" claro="Socios de las marcas" rojo="más comerciales" />
             <FranjaMarcas className="mt-6" />
           </Reveal>
         </div>

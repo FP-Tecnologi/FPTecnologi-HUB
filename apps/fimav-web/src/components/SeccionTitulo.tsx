@@ -1,7 +1,8 @@
 type Props = {
   claro: string;
   rojo?: string;
-  subtitulo?: string;
+  /** Sobretítulo corto (la etiqueta de la sección). Es un <p>, no un encabezado. */
+  eyebrow?: string;
   alineacion?: 'izquierda' | 'centro';
   nivel: 'h1' | 'h2' | 'h3';
   /** Sobre bandas carbón: el rojo #E02424 no llega a 3:1 contra el carbón, así que el contraste de dos tonos pasa a blanco pleno / blanco atenuado. */
@@ -16,16 +17,15 @@ const TAM = {
   sm: 'text-[clamp(1.625rem,4vw,2rem)]',
 };
 
-/** Título de sección: subtítulo como sobretítulo (mayúscula, más pequeño) arriba, título display en mayúscula a dos tonos y barra roja corta debajo. */
-export default function SeccionTitulo({ claro, rojo, subtitulo, alineacion = 'izquierda', nivel: N, claroSobreOscuro = false, tam = 'md', className = '' }: Props) {
+/** Título de sección: etiqueta corta (eyebrow: pequeña, espaciada, mayúscula) arriba, título display grande a dos tonos (corto y directo) y barra roja corta debajo. */
+export default function SeccionTitulo({ claro, rojo, eyebrow, alineacion = 'izquierda', nivel: N, claroSobreOscuro = false, tam = 'md', className = '' }: Props) {
   const centro = alineacion === 'centro';
   return (
     <div className={`${centro ? 'text-center' : ''} ${className}`}>
-      {subtitulo && (
-        // Sobretítulo corto: mayúscula con tracking. Frases largas: minúscula normal, más legible (mismos colores, AA).
-        <p className={`mb-2 max-w-2xl leading-snug ${subtitulo.length <= 45 ? 'font-display text-sm font-semibold uppercase tracking-wide sm:text-base' : 'text-[15px] font-medium sm:text-base'} ${centro ? 'mx-auto' : ''} ${claroSobreOscuro ? 'text-white/80' : 'text-rojo-hondo'}`}>{subtitulo}</p>
+      {eyebrow && (
+        <p className={`mb-2 font-display text-[13px] font-semibold uppercase leading-snug tracking-[0.16em] sm:text-sm ${centro ? 'mx-auto' : ''} ${claroSobreOscuro ? 'text-white/85' : 'text-rojo-hondo'}`}>{eyebrow}</p>
       )}
-      <N className={`font-display font-bold uppercase leading-[1.05] tracking-wide ${TAM[tam]}`}>
+      <N className={`font-display font-extrabold uppercase leading-[1.05] tracking-wide text-balance ${TAM[tam]}`}>
         <span className={claroSobreOscuro ? 'text-white/75' : 'text-carbon'}>{claro}</span>
         {claro && rojo ? ' ' : ''}
         {rojo && <span className={claroSobreOscuro ? 'text-white' : 'text-rojo'}>{rojo}</span>}

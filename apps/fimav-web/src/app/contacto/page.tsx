@@ -21,11 +21,11 @@ const numero = 'mt-1 font-display text-2xl font-bold tracking-wide text-carbon';
 export default function ContactoPage() {
   return (
     <main>
-      <BannerPagina titulo="Hablemos de" resaltado="tu cotización" subtitulo="Escríbenos o llámanos y te respondemos con una propuesta a tu medida." imagen="/fondos/contacto.jpg" />
+      <BannerPagina eyebrow="Contacto" titulo="Hablemos de" resaltado="tu cotización" imagen="/fondos/contacto.jpg" />
 
       <section className="bg-white py-16">
         <Reveal className="mx-auto max-w-6xl px-4 sm:px-6">
-          <SeccionTitulo nivel="h2" claro="Datos de" rojo="contacto" subtitulo="Estamos para atenderte." />
+          <SeccionTitulo nivel="h2" eyebrow="Datos de contacto" claro="Estamos para" rojo="atenderte" />
           <div className="mt-10 grid gap-6 md:grid-cols-3">
             <div className={tarjeta}>
               <span className="motion-safe:transition-transform motion-safe:duration-300 motion-safe:group-hover/card:scale-110"><Hexagono icono={Phone} tam={72} /></span>
@@ -53,7 +53,7 @@ export default function ContactoPage() {
 
       <section className="bg-gris py-16">
         <Reveal className="mx-auto max-w-6xl px-4 sm:px-6">
-          <SeccionTitulo nivel="h2" claro="Cómo" rojo="llegar" subtitulo="Jr. Huaraz 1833, Breña, Lima." />
+          <SeccionTitulo nivel="h2" eyebrow="Cómo llegar" claro="Visítanos en" rojo="Breña, Lima" />
           {/* Las opciones van DENTRO del mapa (siempre visibles, también en táctil); al pasar el cursor el marco se resalta y los botones suben un poco. */}
           <div className="group/mapa relative mt-8 h-96 overflow-hidden rounded-[2rem] border border-carbon/20 bg-white motion-safe:transition-all motion-safe:duration-300 hover:border-rojo/60 hover:shadow-[0_18px_40px_-16px_rgb(224_36_36/0.4)] focus-within:border-rojo/60 sm:h-[26rem]">
             <iframe src={incrustado} title="Mapa: ubicación de Fimav Perú, Jr. Huaraz 1833, Breña, Lima" loading="lazy" referrerPolicy="strict-origin-when-cross-origin" className="size-full border-0 motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover/mapa:scale-[1.015]" />
@@ -68,7 +68,7 @@ export default function ContactoPage() {
 
       <section className="bg-white py-16">
         <Reveal className="mx-auto max-w-3xl px-4 sm:px-6">
-          <SeccionTitulo nivel="h2" claro="Escríbenos" rojo="un mensaje" subtitulo="Te respondemos a la brevedad." />
+          <SeccionTitulo nivel="h2" eyebrow="Escríbenos un mensaje" claro="Te respondemos" rojo="a la brevedad" />
           <div className="mt-8"><FormContacto /></div>
         </Reveal>
       </section>

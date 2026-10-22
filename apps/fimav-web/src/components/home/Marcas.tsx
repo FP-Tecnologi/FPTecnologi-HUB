@@ -44,7 +44,7 @@ export default function Marcas() {
   return (
     <section className="bg-white py-14">
       <Reveal className="mx-auto max-w-6xl px-4 sm:px-6">
-        <SeccionTitulo nivel="h2" alineacion="centro" claro="Marcas" rojo="aliadas" subtitulo="Socios estratégicos de las marcas más comerciales del mercado." />
+        <SeccionTitulo nivel="h2" alineacion="centro" eyebrow="Marcas aliadas" claro="Socios de las marcas" rojo="más comerciales" />
         <FranjaMarcas className="mt-6" />
       </Reveal>
     </section>

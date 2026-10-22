@@ -13,7 +13,7 @@ export default function PorQue() {
         </Reveal>
         <div>
           <Reveal>
-          <SeccionTitulo nivel="h2" claro="¿Por qué" rojo="Escogernos?" subtitulo="Soluciones innovadoras, confiables y personalizadas." />
+          <SeccionTitulo nivel="h2" eyebrow="¿Por qué escogernos?" claro="Soluciones innovadoras" rojo="y confiables" />
           <p className="mt-6 text-carbon/80">{contenido.porQueIntro}</p>
           </Reveal>
           <ul className="mt-6 space-y-3">

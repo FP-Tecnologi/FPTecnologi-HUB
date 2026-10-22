@@ -14,7 +14,7 @@ export default async function LegalPage({ params }: { params: Promise<{ slug: st
   if (!p) notFound();
   return (
     <main>
-      <BannerPagina titulo={p.titulo.split(' ').slice(0, -1).join(' ')} resaltado={p.titulo.split(' ').at(-1)} subtitulo="Información legal de Fimav Perú." imagen="/fotos/nosotros.jpg" posicion="center 80%" />
+      <BannerPagina eyebrow="Legales" titulo={p.titulo} imagen="/fotos/nosotros.jpg" posicion="center 80%" />
       <div className="mx-auto max-w-3xl space-y-4 px-4 pb-16 pt-8 leading-relaxed text-carbon/80 sm:px-6">
         {p.parrafos.map((t) =>
           t.startsWith('## ') ? (

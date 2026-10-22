@@ -6,9 +6,13 @@ import CorteHex from '@/components/hex/CorteHex';
 
 type Miga = { texto: string; href: string };
 type Props = {
+  /** Etiqueta corta de la página (sobretítulo y miga actual). */
+  eyebrow: string;
+  /** Título corto: el h1. Si no hay `resaltado`, la última palabra va en rojo. */
   titulo: string;
   resaltado?: string;
-  subtitulo?: string;
+  /** Texto de la miga actual si no es el eyebrow. */
+  miga?: string;
   /** Migas intermedias; "Inicio" y la página actual (el propio título) se agregan solas. */
   migas?: Miga[];
   /** Foto de fondo (decorativa), ruta bajo /public. */
@@ -22,8 +26,11 @@ type Props = {
 const enlace = 'inline-flex min-h-6 items-center rounded-sm underline-offset-2 hover:text-white hover:underline focus-visible:outline-white';
 
 /** Banner de página interna: foto de fondo con degradado carbón (texto blanco AA sobre cualquier zona), motivos del brochure, borde inferior con muesca hexagonal y migas de pan. El título es el h1 de la página. */
-export default function BannerPagina({ titulo, resaltado, subtitulo, migas = [], imagen = '/fotos/networking-2.jpg', posicion = 'center', producto = false }: Props) {
-  const actual = [titulo, resaltado].filter(Boolean).join(' ');
+export default function BannerPagina({ eyebrow, titulo, resaltado, miga, migas = [], imagen = '/fotos/networking-2.jpg', posicion = 'center', producto = false }: Props) {
+  const actual = miga ?? eyebrow;
+  const palabras = titulo.split(' ');
+  const claro = resaltado === undefined ? palabras.slice(0, -1).join(' ') : titulo;
+  const rojo = resaltado === undefined ? palabras.at(-1) : resaltado;
   return (
     <header>
       <div className="relative overflow-hidden bg-carbon text-white">
@@ -56,7 +63,7 @@ export default function BannerPagina({ titulo, resaltado, subtitulo, migas = [],
               <li aria-current="page" title={actual} className="min-w-0 truncate font-semibold text-white">{actual}</li>
             </ol>
           </nav>
-          <SeccionTitulo nivel="h1" tam="md" claroSobreOscuro className="max-w-xl max-sm:[&>h1]:text-[1.5rem] [&>p]:line-clamp-2 [&_h1>span:first-child]:text-white/90" claro={titulo} rojo={resaltado} subtitulo={subtitulo} />
+          <SeccionTitulo nivel="h1" tam="md" claroSobreOscuro className="max-w-xl max-sm:[&>h1]:text-[1.5rem] [&_h1>span:first-child]:text-white/90" eyebrow={eyebrow} claro={claro} rojo={rojo} />
         </div>
       </div>
       <CorteHex lado="abajo" color="var(--color-carbon)" />
