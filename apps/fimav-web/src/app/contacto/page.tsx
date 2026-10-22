@@ -56,7 +56,7 @@ export default function ContactoPage() {
         <Reveal className="mx-auto max-w-6xl px-4 sm:px-6">
           <SeccionTitulo nivel="h2" claro="Cómo" rojo="llegar" subtitulo="Jr. Huaraz 1833, Breña, Lima." />
           <div className="mt-8 h-96 overflow-hidden rounded-[2rem] border border-carbon/20 bg-white sm:h-[26rem]">
-            <iframe src={incrustado} title="Mapa: ubicación de Fimav Perú, Jr. Huaraz 1833, Breña, Lima" loading="lazy" referrerPolicy="no-referrer-when-downgrade" className="size-full border-0" />
+            <iframe src={incrustado} title="Mapa: ubicación de Fimav Perú, Jr. Huaraz 1833, Breña, Lima" loading="lazy" referrerPolicy="strict-origin-when-cross-origin" className="size-full border-0" />
           </div>
           <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-1">
             <a href={verMapa} target="_blank" rel="noopener noreferrer" className={enlace}><ExternalLink aria-hidden="true" size={18} />Abrir en Google Maps<span className="sr-only"> (se abre en otra pestaña)</span></a>

@@ -14,6 +14,8 @@ export const legal: Record<string, { titulo: string; parrafos: string[] }> = {
       '## Qué información recopilamos',
       'Datos personales: nombres y apellidos, documento de identidad (DNI) o RUC, correo electrónico, número de celular o teléfono, domicilio o dirección fiscal y, si corresponde, el nombre de tu empresa o entidad, además del detalle de los productos que solicitas.',
       'Datos de navegación: dirección IP, navegador, páginas visitadas, página de origen, ubicación aproximada y estadísticas de uso y tráfico del sitio.',
+      'Formulario de contacto: los datos que escribes (nombres, correo, celular, empresa y mensaje) se usan solo para responderte.',
+      'Mapa de contacto: la página de contacto incluye un mapa de Google Maps. Al cargarlo, Google puede recibir tu dirección IP y la dirección de la página, y puede usar cookies, según su propia política de privacidad.',
       '## Veracidad de los datos',
       'La información que proporcionas debe ser verdadera, completa y exacta. Cada Usuario es responsable de su veracidad y vigencia. Fimav Perú puede verificarla con fuentes de acceso público cuando sea necesario para atender tu solicitud.',
       '## Para qué la usamos',
