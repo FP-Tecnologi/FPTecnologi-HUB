@@ -12,3 +12,16 @@ export function sumarDiasHabiles(desde: Date, dias: number): Date {
   return new Date(d.getTime() + LIMA_MS);
 }
 // ponytail: solo excluye sábado y domingo; agregar la lista de feriados nacionales si Indecopi/legal lo exige.
+
+/** Días hábiles (lun-vie, hora de Lima) de `desde` a `hasta`: 0 el mismo día, negativo si `hasta` es anterior. */
+export function diasHabilesEntre(desde: Date, hasta: Date): number {
+  const dia = (d: Date) => Math.floor((d.getTime() - LIMA_MS) / 86_400_000);
+  const [a, b] = [dia(desde), dia(hasta)];
+  const [ini, fin] = a <= b ? [a, b] : [b, a];
+  let n = 0;
+  for (let d = ini + 1; d <= fin; d++) {
+    const dow = new Date(d * 86_400_000).getUTCDay();
+    if (dow !== 0 && dow !== 6) n++;
+  }
+  return a <= b ? n : -n;
+}

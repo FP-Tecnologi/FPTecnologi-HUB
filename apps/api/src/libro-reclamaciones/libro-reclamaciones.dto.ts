@@ -87,3 +87,12 @@ export class ConsultaHojaDto {
   @IsString() @MinLength(1) @MaxLength(40) @Matches(TEXTO)
   documento!: string;
 }
+
+export class ActualizarHojaDto {
+  // RESPONDIDO solo se alcanza con /:id/responder.
+  @IsOptional() @IsIn(['RECIBIDO', 'EN_PROCESO'])
+  estado?: 'RECIBIDO' | 'EN_PROCESO';
+
+  @IsOptional() @IsString() @MaxLength(2000) @Matches(TEXTO)
+  notasInternas?: string;
+}

@@ -3,7 +3,7 @@ import { BadRequestException } from '@nestjs/common';
 import { LibroReclamacionesController, PublicLibroReclamacionesController } from './libro-reclamaciones.controller.js';
 
 const servicio = () => ({
-  crearPublico: vi.fn(), consultar: vi.fn(), proveedor: vi.fn(), list: vi.fn(), get: vi.fn(), responder: vi.fn(),
+  crearPublico: vi.fn(), consultar: vi.fn(), proveedor: vi.fn(), list: vi.fn(), get: vi.fn(), responder: vi.fn(), actualizar: vi.fn(), resumen: vi.fn(),
 });
 const pub = (s = servicio()) => ({ s, c: new PublicLibroReclamacionesController(s as never) });
 
@@ -42,9 +42,9 @@ describe('LibroReclamacionesController', () => {
     const s = servicio();
     const c = new LibroReclamacionesController(s as never);
     c.list('m1', 'RECIBIDO', 'true');
-    expect(s.list).toHaveBeenCalledWith('m1', { estado: 'RECIBIDO', vencidas: true });
+    expect(s.list).toHaveBeenCalledWith('m1', { estado: 'RECIBIDO', vencidas: true, q: undefined });
     c.list('m1', undefined, undefined);
-    expect(s.list).toHaveBeenLastCalledWith('m1', { estado: undefined, vencidas: false });
+    expect(s.list).toHaveBeenLastCalledWith('m1', { estado: undefined, vencidas: false, q: undefined });
     expect(() => c.list('m1', 'XYZ', undefined)).toThrow(BadRequestException);
   });
 
@@ -53,5 +53,32 @@ describe('LibroReclamacionesController', () => {
     const dto = { respuesta: 'Texto de respuesta' };
     new LibroReclamacionesController(s as never).responder('m1', 'h1', dto, { email: 'a@b.pe' } as never);
     expect(s.responder).toHaveBeenCalledWith('m1', 'h1', dto, 'a@b.pe');
+  });
+
+  it('list pasa q y rechaza q de más de 60 caracteres', () => {
+    const s = servicio();
+    const c = new LibroReclamacionesController(s as never);
+    c.list('m1', undefined, undefined, 'ana');
+    expect(s.list).toHaveBeenCalledWith('m1', { estado: undefined, vencidas: false, q: 'ana' });
+    expect(() => c.list('m1', undefined, undefined, 'x'.repeat(61))).toThrow(BadRequestException);
+    expect(() => c.list('m1', undefined, undefined, ['a', 'b'] as never)).toThrow(BadRequestException);
+  });
+
+  it('resumen delega con la marca', () => {
+    const s = servicio();
+    new LibroReclamacionesController(s as never).resumen('m1');
+    expect(s.resumen).toHaveBeenCalledWith('m1');
+  });
+
+  it('resumen se declara antes que :id', () => {
+    const orden = Object.getOwnPropertyNames(LibroReclamacionesController.prototype);
+    expect(orden.indexOf('resumen')).toBeLessThan(orden.indexOf('get'));
+  });
+
+  it('actualizar delega con el email del usuario', () => {
+    const s = servicio();
+    const dto = { estado: 'EN_PROCESO' as const };
+    new LibroReclamacionesController(s as never).actualizar('m1', 'h1', dto, { email: 'a@b.pe' } as never);
+    expect(s.actualizar).toHaveBeenCalledWith('m1', 'h1', dto, 'a@b.pe');
   });
 });

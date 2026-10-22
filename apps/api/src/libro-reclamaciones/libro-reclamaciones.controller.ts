@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Headers, Ip, Param, Patch, Post, Query, UseGuards, BadRequestException } from '@nestjs/common';
 import { LibroReclamacionesService } from './libro-reclamaciones.service.js';
-import { ConsultaHojaDto, CrearHojaDto, ResponderHojaDto } from './libro-reclamaciones.dto.js';
+import { ActualizarHojaDto, ConsultaHojaDto, CrearHojaDto, ResponderHojaDto } from './libro-reclamaciones.dto.js';
 import { MarcaRolGuard } from '../common/guards/marca-rol.guard.js';
 import { MarcaActual } from '../common/decorators/marca-actual.decorator.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
@@ -23,17 +23,35 @@ export class LibroReclamacionesController {
   constructor(private readonly libro: LibroReclamacionesService) {}
 
   @Get()
-  list(@MarcaActual() marcaId: string, @Query('estado') estado?: string, @Query('vencidas') vencidas?: string) {
+  list(@MarcaActual() marcaId: string, @Query('estado') estado?: string, @Query('vencidas') vencidas?: string, @Query('q') q?: string) {
     if (estado && !(Object.values(EstadoHoja) as string[]).includes(estado)) throw new BadRequestException('Estado inválido');
+    if (q !== undefined && (typeof q !== 'string' || q.length > 60)) throw new BadRequestException('Búsqueda inválida');
     return this.libro.list(marcaId, {
       estado: estado as EstadoHoja | undefined,
       vencidas: vencidas === 'true' || vencidas === '1',
+      q,
     });
+  }
+
+  // Antes de ':id' para que "resumen" no se tome como un id.
+  @Get('resumen')
+  resumen(@MarcaActual() marcaId: string) {
+    return this.libro.resumen(marcaId);
   }
 
   @Get(':id')
   get(@MarcaActual() marcaId: string, @Param('id') id: string) {
     return this.libro.get(marcaId, id);
+  }
+
+  @Patch(':id')
+  actualizar(
+    @MarcaActual() marcaId: string,
+    @Param('id') id: string,
+    @Body() dto: ActualizarHojaDto,
+    @CurrentUser() user: AuthenticatedUser,
+  ) {
+    return this.libro.actualizar(marcaId, id, dto, user.email);
   }
 
   @Patch(':id/responder')

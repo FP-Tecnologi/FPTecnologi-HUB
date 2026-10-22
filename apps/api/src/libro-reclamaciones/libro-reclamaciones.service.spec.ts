@@ -45,6 +45,7 @@ function setup(opts: { max?: number; createErrors?: unknown[] } = {}) {
       findFirst: vi.fn(),
       findMany: vi.fn(async (_a?: { where: Record<string, any> }) => []),
       updateMany: vi.fn(async (_a?: unknown) => ({ count: 1 })),
+      count: vi.fn(async (_a?: { where: Record<string, any> }) => 0),
     },
     usuarioMarcaRol: { findMany: vi.fn(async () => [{ usuario: { id: 'u1', email: 'eq@x.pe', activo: true } }]) },
     notificacion: { createMany: vi.fn() },
@@ -233,7 +234,7 @@ describe('LibroReclamacionesService.consultar', () => {
 describe('LibroReclamacionesService.responder', () => {
   it('(j) marca RESPONDIDO atómicamente, guarda autor y envía correo; segunda vez → BadRequest', async () => {
     const { service, prisma, mail } = setup();
-    const h = { id: 'h1', marcaId: 'm1', codigo: 'LR-0001-2026', tipo: 'RECLAMO', email: 'a@b.pe', estado: 'RECIBIDO' };
+    const h = { id: 'h1', marcaId: 'm1', codigo: 'LR-0001-2026', tipo: 'RECLAMO', email: 'a@b.pe', estado: 'RECIBIDO', fechaLimite: new Date() };
     prisma.hojaReclamacion.findFirst.mockResolvedValue(h as never);
     await service.responder('m1', 'h1', { respuesta: 'Le devolveremos su dinero.' }, 'ag@fp.pe');
     const arg = prisma.hojaReclamacion.updateMany.mock.calls[0]![0] as { where: unknown; data: Record<string, unknown> };
@@ -261,5 +262,135 @@ describe('LibroReclamacionesService.list', () => {
     const { service, prisma } = setup();
     await service.list('m1');
     expect(prisma.hojaReclamacion.findMany.mock.calls[0]![0]!.where).toEqual({ marcaId: 'm1' });
+  });
+});
+
+const lima = (s: string) => new Date(`${s}T12:00:00-05:00`);
+
+describe('LibroReclamacionesService.list (q y campos calculados)', () => {
+  it('q busca en código, nombres, apellidos, documento y correo (insensible) AND estado/vencidas, siempre con marcaId', async () => {
+    const { service, prisma } = setup();
+    await service.list('m1', { q: ' ana ', estado: 'RECIBIDO', vencidas: true });
+    const arg = prisma.hojaReclamacion.findMany.mock.calls[0]![0] as any;
+    expect(arg.where.marcaId).toBe('m1');
+    expect(arg.where.estado).toBe('RECIBIDO');
+    expect(arg.where.AND).toHaveLength(2);
+    const campos = ['codigo', 'nombres', 'apellidos', 'nroDocumento', 'email'];
+    expect(arg.where.OR).toEqual(campos.map((c) => ({ [c]: { contains: 'ana', mode: 'insensitive' } })));
+    expect(arg.take).toBe(1000);
+  });
+
+  it('calcula diasHabilesRestantes y vencida', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(lima('2026-10-21')); // miércoles
+    const { service, prisma } = setup();
+    prisma.hojaReclamacion.findMany.mockResolvedValue([
+      { id: '1', estado: 'RECIBIDO', fechaLimite: lima('2026-10-26') },
+      { id: '2', estado: 'EN_PROCESO', fechaLimite: lima('2026-10-19') },
+      { id: '3', estado: 'RESPONDIDO', fechaLimite: lima('2026-10-19') },
+    ] as never);
+    const r = await service.list('m1');
+    expect(r.map((h: any) => [h.diasHabilesRestantes, h.vencida])).toEqual([[3, false], [-2, true], [null, false]]);
+  });
+
+  it('get agrega los campos calculados', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(lima('2026-10-21'));
+    const { service, prisma } = setup();
+    prisma.hojaReclamacion.findFirst.mockResolvedValue({ id: '1', estado: 'RECIBIDO', fechaLimite: lima('2026-10-22') } as never);
+    expect(await service.get('m1', '1')).toMatchObject({ diasHabilesRestantes: 1, vencida: false });
+  });
+});
+
+describe('LibroReclamacionesService.resumen', () => {
+  it('cuenta por estado, vencidas y porVencer (≤3 días hábiles, no vencidas), todo con marcaId', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(lima('2026-10-21')); // miércoles
+    const { service, prisma } = setup();
+    prisma.hojaReclamacion.count.mockImplementation(async (a) => {
+      const w = a!.where;
+      if (w.estado === 'RECIBIDO') return 4;
+      if (w.estado === 'EN_PROCESO') return 2;
+      if (w.estado === 'RESPONDIDO') return 7;
+      return 1; // vencidas
+    });
+    prisma.hojaReclamacion.findMany.mockResolvedValue([
+      { fechaLimite: lima('2026-10-26') }, // 3 días → por vencer
+      { fechaLimite: lima('2026-10-27') }, // 4 días → no
+      { fechaLimite: lima('2026-10-21') }, // hoy → 0 → por vencer
+    ] as never);
+    const r = await service.resumen('m1');
+    expect(r).toEqual({ recibidas: 4, enProceso: 2, respondidas: 7, vencidas: 1, porVencer: 2 });
+    expect(prisma.hojaReclamacion.count).toHaveBeenCalledTimes(4);
+    for (const c of prisma.hojaReclamacion.count.mock.calls) expect(c[0]!.where.marcaId).toBe('m1');
+    const fm = prisma.hojaReclamacion.findMany.mock.calls[0]![0]!.where;
+    expect(fm).toMatchObject({ marcaId: 'm1', estado: { not: 'RESPONDIDO' } });
+    expect(fm.fechaLimite).toEqual({ gte: expect.any(Date) });
+  });
+});
+
+describe('LibroReclamacionesService.actualizar', () => {
+  const hoja = (estado: string) => ({ id: 'h1', marcaId: 'm1', estado, fechaLimite: lima('2030-01-01') });
+
+  it('cambia estado y notas, guarda atendidoPor y filtra siempre por marcaId', async () => {
+    const { service, prisma } = setup();
+    prisma.hojaReclamacion.findFirst.mockResolvedValue(hoja('RECIBIDO') as never);
+    await service.actualizar('m1', 'h1', { estado: 'EN_PROCESO', notasInternas: ' llamar al cliente ' }, 'ag@fp.pe');
+    const arg = prisma.hojaReclamacion.updateMany.mock.calls[0]![0] as any;
+    expect(arg.where).toEqual({ id: 'h1', marcaId: 'm1', estado: { not: 'RESPONDIDO' } });
+    expect(arg.data).toEqual({ estado: 'EN_PROCESO', notasInternas: 'llamar al cliente', atendidoPor: 'ag@fp.pe' });
+    expect(prisma.hojaReclamacion.findFirst.mock.calls[0]![0]).toMatchObject({ where: { id: 'h1', marcaId: 'm1' } });
+  });
+
+  it('solo notas: no toca el estado; notas vacías → null', async () => {
+    const { service, prisma } = setup();
+    prisma.hojaReclamacion.findFirst.mockResolvedValue(hoja('RECIBIDO') as never);
+    await service.actualizar('m1', 'h1', { notasInternas: '  ' }, 'ag@fp.pe');
+    expect((prisma.hojaReclamacion.updateMany.mock.calls[0]![0] as any).data).toEqual({ notasInternas: null, atendidoPor: 'ag@fp.pe' });
+  });
+
+  it('rechaza RESPONDIDO y estados desconocidos', async () => {
+    const { service, prisma } = setup();
+    prisma.hojaReclamacion.findFirst.mockResolvedValue(hoja('RECIBIDO') as never);
+    await expect(service.actualizar('m1', 'h1', { estado: 'RESPONDIDO' as never }, 'a@b.pe')).rejects.toBeInstanceOf(BadRequestException);
+    await expect(service.actualizar('m1', 'h1', { estado: 'XYZ' as never }, 'a@b.pe')).rejects.toBeInstanceOf(BadRequestException);
+    expect(prisma.hojaReclamacion.updateMany).not.toHaveBeenCalled();
+  });
+
+  it('una hoja ya RESPONDIDO no cambia → "Ya fue respondida" (también ante carrera)', async () => {
+    const { service, prisma } = setup();
+    prisma.hojaReclamacion.findFirst.mockResolvedValue(hoja('RESPONDIDO') as never);
+    await expect(service.actualizar('m1', 'h1', { estado: 'EN_PROCESO' }, 'a@b.pe')).rejects.toThrow('Ya fue respondida');
+    expect(prisma.hojaReclamacion.updateMany).not.toHaveBeenCalled();
+    prisma.hojaReclamacion.findFirst.mockResolvedValue(hoja('RECIBIDO') as never);
+    prisma.hojaReclamacion.updateMany.mockResolvedValue({ count: 0 });
+    await expect(service.actualizar('m1', 'h1', { estado: 'EN_PROCESO' }, 'a@b.pe')).rejects.toThrow('Ya fue respondida');
+  });
+
+  it('sin cambios → BadRequest; hoja de otra marca → NotFound', async () => {
+    const { service, prisma } = setup();
+    prisma.hojaReclamacion.findFirst.mockResolvedValue(hoja('RECIBIDO') as never);
+    await expect(service.actualizar('m1', 'h1', {}, 'a@b.pe')).rejects.toBeInstanceOf(BadRequestException);
+    prisma.hojaReclamacion.findFirst.mockResolvedValue(null as never);
+    await expect(service.actualizar('m1', 'h1', { estado: 'EN_PROCESO' }, 'a@b.pe')).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('responder también guarda atendidoPor', async () => {
+    const { service, prisma } = setup();
+    prisma.hojaReclamacion.findFirst.mockResolvedValue({ id: 'h1', marcaId: 'm1', codigo: 'C', tipo: 'RECLAMO', email: 'a@b.pe', estado: 'RECIBIDO', fechaLimite: new Date() } as never);
+    await service.responder('m1', 'h1', { respuesta: 'Le devolveremos su dinero.' }, 'ag@fp.pe');
+    expect((prisma.hojaReclamacion.updateMany.mock.calls[0]![0] as any).data).toMatchObject({ atendidoPor: 'ag@fp.pe' });
+  });
+});
+
+describe('consultar (privacidad)', () => {
+  it('no expone notasInternas, atendidoPor ni nroDocumento', async () => {
+    const { service, prisma } = setup();
+    prisma.hojaReclamacion.findFirst.mockResolvedValue({
+      codigo: 'LR-1', tipo: 'RECLAMO', estado: 'RECIBIDO', nroDocumento: 'AB1', fecha: new Date(), fechaLimite: new Date(),
+      respuesta: null, respondidoAt: null, notasInternas: 'secreto', atendidoPor: 'x@y.pe',
+    } as never);
+    const r = await service.consultar('m1', 'LR-1', 'AB1');
+    expect(Object.keys(r).sort()).toEqual(['codigo', 'estado', 'fecha', 'fechaLimite', 'respondidoAt', 'respuesta', 'tipo']);
   });
 });

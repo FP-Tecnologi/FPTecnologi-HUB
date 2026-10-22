@@ -1109,6 +1109,7 @@ Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «V
 - **Hecho**: API `apps/api/src/libro-reclamaciones` (modelo `HojaReclamacion`, correlativo `LR-0001-AAAA`, plazo de 15 días hábiles, consulta por código + documento, correos, endpoints públicos y de dashboard `GET/PATCH`; campos `razonSocial`/`ruc`/`direccionFiscal` en `Marca`). En `apps/fimav-web`: página `/libro-de-reclamaciones` (formulario + consulta), proxies `/api/hub/libro-reclamaciones[/consulta]`, distintivo visible en el inicio y el pie, redirección 308 de `/legal/reclamaciones` y plazo corregido (antes decía 30 días calendario).
 - **Pendientes**:
   - Migración `20261021120000_libro_reclamaciones`: **aplicada a la base real el 2026-10-21** (puerto 5432, en una sola transacción) y registrada con `prisma migrate resolve --applied`.
+  - Migración `20261022120000_libro_notas` (columnas `notasInternas` y `atendidoPor` de `HojaReclamacion`): **pendiente, NO aplicada** a la base real. Aplicarla (puerto 5432) ANTES de desplegar la API: sus consultas seleccionan las columnas nuevas.
   - Cargar `razonSocial`, RUC y `direccionFiscal` de cada marca.
   - Configurar `HUB_MARCA_ID` de `fimavperu` en `apps/fimav-web`.
   - Pantalla del dashboard para atender y responder las hojas.

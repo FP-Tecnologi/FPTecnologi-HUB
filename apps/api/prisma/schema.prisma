@@ -723,6 +723,8 @@ model HojaReclamacion {
   respuesta        String?
   respondidoAt     DateTime?
   respondidoPor    String?
+  notasInternas    String?
+  atendidoPor      String?
   createdAt        DateTime   @default(now())
   updatedAt        DateTime   @updatedAt
 

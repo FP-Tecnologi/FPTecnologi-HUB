@@ -4,11 +4,24 @@ import { MailService } from '../mail/mail.service.js';
 import type { HojaCorreo } from '../mail/templates.js';
 import type { EstadoHoja } from '../generated/prisma/enums.js';
 import type { HojaReclamacion } from '../generated/prisma/client.js';
-import { sumarDiasHabiles } from './dias-habiles.js';
-import type { CrearHojaDto, ResponderHojaDto } from './libro-reclamaciones.dto.js';
+import { diasHabilesEntre, sumarDiasHabiles } from './dias-habiles.js';
+import type { ActualizarHojaDto, CrearHojaDto, ResponderHojaDto } from './libro-reclamaciones.dto.js';
 
 const ROLES_AVISO = ['admin', 'comercial'];
 const DIAS_RESPUESTA = 15;
+const DIAS_POR_VENCER = 3;
+const CAMPOS_BUSQUEDA = ['codigo', 'nombres', 'apellidos', 'nroDocumento', 'email'] as const;
+
+/** Agrega el plazo restante (null si ya se respondió; negativo si venció) y si está vencida. */
+function conPlazo<T extends { estado: string; fechaLimite: Date }>(h: T) {
+  const pendiente = h.estado !== 'RESPONDIDO';
+  const ahora = new Date();
+  return {
+    ...h,
+    diasHabilesRestantes: pendiente ? diasHabilesEntre(ahora, h.fechaLimite) : null,
+    vencida: pendiente && h.fechaLimite < ahora,
+  };
+}
 const VENTANA_MS = 10 * 60_000;
 // Topes por marca+IP (el throttler global está deshabilitado). En memoria alcanza para spam básico.
 const intentosCrear = new Map<string, number[]>();
@@ -154,22 +167,62 @@ export class LibroReclamacionesService {
 
   // ---------------------------------------------------------------- dashboard
 
-  list(marcaId: string, filtro: { estado?: EstadoHoja; vencidas?: boolean } = {}) {
-    return this.prisma.hojaReclamacion.findMany({
+  async list(marcaId: string, filtro: { estado?: EstadoHoja; vencidas?: boolean; q?: string } = {}) {
+    const q = filtro.q?.trim();
+    const hojas = await this.prisma.hojaReclamacion.findMany({
       where: {
         marcaId,
         ...(filtro.estado ? { estado: filtro.estado } : {}),
         ...(filtro.vencidas ? { AND: [{ estado: { not: 'RESPONDIDO' as const } }, { fechaLimite: { lt: new Date() } }] } : {}),
+        ...(q ? { OR: CAMPOS_BUSQUEDA.map((c) => ({ [c]: { contains: q, mode: 'insensitive' as const } })) } : {}),
       },
       orderBy: { fecha: 'desc' },
       take: 1000,
     });
+    return hojas.map(conPlazo);
   }
 
   async get(marcaId: string, id: string) {
     const hoja = await this.prisma.hojaReclamacion.findFirst({ where: { id, marcaId } });
     if (!hoja) throw new NotFoundException('Hoja no encontrada');
-    return hoja;
+    return conPlazo(hoja);
+  }
+
+  async resumen(marcaId: string) {
+    const ahora = new Date();
+    const [recibidas, enProceso, respondidas, vencidas, pendientes] = await Promise.all([
+      this.prisma.hojaReclamacion.count({ where: { marcaId, estado: 'RECIBIDO' } }),
+      this.prisma.hojaReclamacion.count({ where: { marcaId, estado: 'EN_PROCESO' } }),
+      this.prisma.hojaReclamacion.count({ where: { marcaId, estado: 'RESPONDIDO' } }),
+      this.prisma.hojaReclamacion.count({ where: { marcaId, estado: { not: 'RESPONDIDO' }, fechaLimite: { lt: ahora } } }),
+      this.prisma.hojaReclamacion.findMany({
+        where: { marcaId, estado: { not: 'RESPONDIDO' }, fechaLimite: { gte: ahora } },
+        select: { fechaLimite: true },
+        take: 1000,
+      }),
+    ]);
+    const porVencer = pendientes.filter((h) => diasHabilesEntre(ahora, h.fechaLimite) <= DIAS_POR_VENCER).length;
+    return { recibidas, enProceso, respondidas, vencidas, porVencer };
+  }
+
+  async actualizar(marcaId: string, id: string, dto: ActualizarHojaDto, email: string) {
+    if (dto.estado !== undefined && dto.estado !== 'RECIBIDO' && dto.estado !== 'EN_PROCESO') {
+      throw new BadRequestException('Estado inválido: para responder usa /responder');
+    }
+    if (dto.estado === undefined && dto.notasInternas === undefined) throw new BadRequestException('Nada que actualizar');
+    const actual = await this.get(marcaId, id);
+    if (actual.estado === 'RESPONDIDO') throw new BadRequestException('Ya fue respondida');
+    // Atómico: si la responden entre la lectura y el guardado, no se pisa.
+    const { count } = await this.prisma.hojaReclamacion.updateMany({
+      where: { id, marcaId, estado: { not: 'RESPONDIDO' } },
+      data: {
+        ...(dto.estado ? { estado: dto.estado } : {}),
+        ...(dto.notasInternas !== undefined ? { notasInternas: dto.notasInternas.trim() || null } : {}),
+        atendidoPor: email,
+      },
+    });
+    if (count === 0) throw new BadRequestException('Ya fue respondida');
+    return this.get(marcaId, id);
   }
 
   async responder(marcaId: string, id: string, dto: ResponderHojaDto, email: string) {
@@ -178,7 +231,7 @@ export class LibroReclamacionesService {
     // Atómico: dos respuestas simultáneas no pueden ganar ambas.
     const { count } = await this.prisma.hojaReclamacion.updateMany({
       where: { id, marcaId, estado: { not: 'RESPONDIDO' } },
-      data: { estado: 'RESPONDIDO', respuesta, respondidoAt: new Date(), respondidoPor: email },
+      data: { estado: 'RESPONDIDO', respuesta, respondidoAt: new Date(), respondidoPor: email, atendidoPor: email },
     });
     if (count === 0) throw new BadRequestException('Ya fue respondida');
     const hoja = await this.get(marcaId, id);
