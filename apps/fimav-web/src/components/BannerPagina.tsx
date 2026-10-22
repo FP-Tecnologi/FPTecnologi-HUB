@@ -29,19 +29,19 @@ export default function BannerPagina({ titulo, resaltado, subtitulo, migas = [] 
         <svg viewBox="0 0 100 100" aria-hidden="true" className="pointer-events-none absolute right-[34%] top-2 hidden w-9 opacity-20 md:block">
           <path d="M50 4 94 27v46L50 96 6 73V27Z" fill="none" stroke="#e02424" strokeWidth="3" strokeLinejoin="round" />
         </svg>
-        <div className="entrada relative mx-auto max-w-6xl px-4 pb-8 pt-6 sm:px-6 sm:pb-10 sm:pt-8">
-          <nav aria-label="Ruta de navegación" className="mb-4 text-sm text-white/80">
-            <ol className="flex flex-wrap items-center gap-x-1.5 gap-y-1">
+        <div className="entrada relative mx-auto max-w-6xl px-4 pb-5 pt-4 sm:px-6 sm:pb-10 sm:pt-8">
+          <nav aria-label="Ruta de navegación" className="mb-2 text-sm text-white/80 sm:mb-4">
+            <ol className="flex flex-nowrap items-center gap-x-1.5">
               {[{ texto: 'Inicio', href: '/' }, ...migas].map((m) => (
-                <li key={m.href} className="flex items-center gap-1.5">
+                <li key={m.href} className="flex shrink-0 items-center gap-1.5">
                   <Link href={m.href} className={enlace}>{m.texto}</Link>
                   <ChevronRight aria-hidden="true" size={14} className="shrink-0" />
                 </li>
               ))}
-              <li aria-current="page" className="font-semibold text-white">{actual}</li>
+              <li aria-current="page" title={actual} className="min-w-0 truncate font-semibold text-white">{actual}</li>
             </ol>
           </nav>
-          <SeccionTitulo nivel="h1" tam="md" claroSobreOscuro claro={titulo} rojo={resaltado} subtitulo={subtitulo} />
+          <SeccionTitulo nivel="h1" tam="md" claroSobreOscuro className="max-sm:[&>h1]:text-[1.5rem] [&>p]:line-clamp-2" claro={titulo} rojo={resaltado} subtitulo={subtitulo} />
         </div>
       </div>
       <CorteHex lado="abajo" color="var(--color-carbon)" />
