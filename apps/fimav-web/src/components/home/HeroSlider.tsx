@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { ArrowRight, FileText, Landmark, LayoutGrid } from 'lucide-react';
 import SeccionTitulo from '@/components/SeccionTitulo';
 import Espiral from '@/components/Espiral';
@@ -38,51 +37,51 @@ const diapositivas = [
 
 // Dos fotos flotantes a los lados de la espiral; cada diapositiva trae su par y se funden con ella.
 const POS = [
-  'left-[-3%] top-[2%] w-[31%]',
-  'bottom-[0%] right-[-2%] w-[33%]',
+  'left-[-3%] top-[2%] w-[34%] sm:w-[31%]',
+  'bottom-[0%] right-[-2%] w-[36%] sm:w-[33%]',
 ];
 
+const FUNDIDO = (activo: boolean) => `transition-opacity ease-out ${activo ? 'opacity-100 duration-500 delay-300' : 'opacity-0 duration-300'}`;
+
 export default function HeroSlider() {
-  const [activa, setActiva] = useState(0);
   return (
     <section className="relative overflow-hidden bg-white">
       <Espiral contorno className="pointer-events-none absolute -bottom-32 -left-28 w-56 opacity-40 sm:-bottom-24 sm:-left-24 sm:opacity-60" />
       <h1 className="sr-only">Fimav Perú — Especialistas en bienes y servicios</h1>
-      <div className="relative mx-auto grid max-w-6xl items-center gap-3 px-4 pb-6 pt-4 sm:gap-6 sm:px-6 sm:pb-8 sm:pt-8 lg:min-h-[480px] lg:grid-cols-[1.05fr_1fr] lg:gap-4 lg:pb-10 lg:pt-14">
-        {/* Visual único: la espiral gira sin parar (fuera de la pista, nada la reinicia) y no lleva foto en el centro. */}
-        <div className="relative mx-auto aspect-square w-full max-w-[170px] sm:max-w-[340px] lg:order-2 lg:max-w-[460px]">
-          <Espiral className="absolute inset-[6%] size-[88%] animate-[giro_60s_linear_infinite]" />
-          {diapositivas.map((d, i) => (
-            <div key={d.rojo} aria-hidden={i === activa ? undefined : true} className={`absolute inset-0 transition-opacity duration-700 ease-out ${i === activa ? 'opacity-100' : 'opacity-0'}`}>
-              {d.fotos.map((f, j) => (
-                <div key={f.src} className={`absolute ${POS[j]}`}>
-                  <div className={`drop-shadow-[0_14px_22px_rgb(56_56_60/0.22)] ${j ? 'animate-[flotar_8.5s_ease-in-out_infinite]' : 'animate-[flotar_7s_ease-in-out_infinite]'}`}>
-                    <HexImagen src={f.src} alt={i === activa ? f.alt : ''} carga={i === 0 ? 'eager' : 'lazy'} prioridad={i === 0} sizes="180px" />
+      <Carrusel
+        etiqueta="Fimav Perú"
+        auto={6000}
+        fundido
+        className="relative mx-auto grid max-w-6xl items-center gap-3 px-4 pb-6 pt-4 sm:gap-6 sm:px-6 sm:pb-8 sm:pt-8 lg:min-h-[480px] lg:grid-cols-[1.05fr_1fr] lg:gap-4 lg:pb-10 lg:pt-14"
+        /* Visual único dentro del carrusel (hover/foco pausan): la espiral gira sin parar, nada la reinicia, y no lleva foto en el centro. */
+        visual={(activa) => (
+          <div className="relative mx-auto aspect-square w-full max-w-[220px] sm:max-w-[340px] lg:order-2 lg:max-w-[460px]">
+            <Espiral className="absolute inset-[6%] size-[88%] animate-[giro_60s_linear_infinite]" />
+            {diapositivas.map((d, i) => (
+              <div key={d.rojo} aria-hidden={i === activa ? undefined : true} className={`absolute inset-0 ${FUNDIDO(i === activa)}`}>
+                {d.fotos.map((f, j) => (
+                  <div key={f.src} className={`absolute ${POS[j]}`}>
+                    <div className={i === activa ? `drop-shadow-[0_14px_22px_rgb(56_56_60/0.22)] ${j ? 'animate-[flotar_8.5s_ease-in-out_infinite]' : 'animate-[flotar_7s_ease-in-out_infinite]'}` : ''}>
+                      <HexImagen src={f.src} alt={i === activa ? f.alt : ''} carga={i === 0 ? 'eager' : 'lazy'} prioridad={i === 0} sizes="180px" />
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-        <Carrusel
-          etiqueta="Fimav Perú"
-          auto={6000}
-          fundido
-          alCambiar={setActiva}
-          className="lg:order-1"
-          diapositivas={diapositivas.map((d) => (
-            <div key={d.rojo} className="px-1 py-1">
-              <SeccionTitulo nivel="h2" tam="lg" claro={d.claro} rojo={d.rojo} className="max-w-xl" />
-              <p className="mt-3 max-w-md text-carbon/80 sm:mt-5 sm:text-lg">{d.texto}</p>
-              <div className="mt-4 flex flex-wrap gap-2 sm:mt-7 sm:gap-4">
-                {d.botones.map((b) => (
-                  <BotonHex key={b.texto} href={b.href} size="sm" className="max-sm:flex-1 sm:!min-h-13 sm:!px-10 sm:!text-lg" icono={b.icono} variante={'contorno' in b ? 'contorno' : 'rojo'}>{b.texto}</BotonHex>
                 ))}
               </div>
+            ))}
+          </div>
+        )}
+        diapositivas={diapositivas.map((d) => (
+          <div key={d.rojo} className="px-1 py-1">
+            <SeccionTitulo nivel="h2" tam="lg" claro={d.claro} rojo={d.rojo} className="max-w-xl" />
+            <p className="mt-3 max-w-md text-carbon/80 sm:mt-5 sm:text-lg">{d.texto}</p>
+            <div className="mt-4 flex flex-wrap gap-2 sm:mt-7 sm:gap-4">
+              {d.botones.map((b) => (
+                <BotonHex key={b.texto} href={b.href} size="sm" className="max-sm:flex-1 sm:!min-h-13 sm:!px-10 sm:!text-lg" icono={b.icono} variante={'contorno' in b ? 'contorno' : 'rojo'}>{b.texto}</BotonHex>
+              ))}
             </div>
-          ))}
-        />
-      </div>
+          </div>
+        ))}
+      />
     </section>
   );
 }

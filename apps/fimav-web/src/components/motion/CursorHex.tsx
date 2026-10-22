@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { rutaHexagono } from '@/components/hex/rutaHexagono';
 
-const INTERACTIVOS = 'a, button, summary, label, input, select, textarea, [data-halo]';
+const INTERACTIVOS = 'a, button, summary, label, input, select, textarea';
 const LADO = 28;
 const RUTA = rutaHexagono({ orientacion: 'punta-arriba', radio: 0.12 });
 
@@ -43,15 +43,23 @@ export default function CursorHex() {
     const salir = () => el.removeAttribute('data-visible');
     const bajar = () => el.setAttribute('data-presion', '');
     const subir = () => el.removeAttribute('data-presion');
+    const ocultar = () => { salir(); subir(); };
+    const alVisibilidad = () => { if (document.hidden) ocultar(); };
     window.addEventListener('pointermove', mover, { passive: true });
     window.addEventListener('pointerdown', bajar);
     window.addEventListener('pointerup', subir);
+    window.addEventListener('pointercancel', subir);
+    window.addEventListener('blur', ocultar);
+    document.addEventListener('visibilitychange', alVisibilidad);
     document.documentElement.addEventListener('pointerleave', salir);
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener('pointermove', mover);
       window.removeEventListener('pointerdown', bajar);
       window.removeEventListener('pointerup', subir);
+      window.removeEventListener('pointercancel', subir);
+      window.removeEventListener('blur', ocultar);
+      document.removeEventListener('visibilitychange', alVisibilidad);
       document.documentElement.removeEventListener('pointerleave', salir);
     };
   }, [activo]);

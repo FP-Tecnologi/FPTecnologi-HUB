@@ -19,8 +19,9 @@ type Props = {
   /** Modo fundido: diapositivas apiladas que cambian con fundido (sin scroll), sin flechas ni puntos; solo queda el botón de pausa,
    *  visible únicamente con foco de teclado (WCAG 2.2.2). Avanza también con prefers-reduced-motion (cambio instantáneo). */
   fundido?: boolean;
-  /** Se llama con el índice activo (modo fundido) para sincronizar elementos fuera de la pista. */
-  alCambiar?: (i: number) => void;
+  /** Modo fundido: elemento decorativo hermano de la pista que depende de la diapositiva activa (p. ej. fotos del hero).
+   *  Queda dentro del carrusel, así hover/foco/toque sobre él también pausan el avance (WCAG 2.2.2). */
+  visual?: (activa: number) => React.ReactNode;
   className?: string;
 };
 
@@ -29,7 +30,7 @@ const BTN = 'w-12 !px-0 sm:w-16';
 /** Carrusel sin librerías: scroll-snap nativo (swipe táctil), autoavance que se pausa con hover/foco de teclado/toque y se apaga
  *  con prefers-reduced-motion, flechas, puntos y teclado (←/→). Las no visibles quedan `inert`.
  *  El botón Pausar/Reanudar es autoritativo: manda sobre hover y foco (WCAG 2.2.2). */
-export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full', gap = 'gap-0', auto = 0, controles = '', fundido = false, alCambiar, className = '' }: Props) {
+export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full', gap = 'gap-0', auto = 0, controles = '', fundido = false, visual, className = '' }: Props) {
   const raiz = useRef<HTMLElement>(null);
   const pista = useRef<HTMLDivElement>(null);
   const [visibles, setVisibles] = useState<boolean[]>(() => diapositivas.map(() => true)); // SSR: todas visibles, sin JS no se oculta nada
@@ -46,8 +47,8 @@ export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full',
 
   const todas = !fundido && visibles.every(Boolean);
   const vis = (i: number) => (fundido ? i === activa : visibles[i]);
-  // En fundido el cambio no es movimiento (con reduced-motion es instantáneo), así que el autoavance sigue activo.
-  const puedeAuto = auto > 0 && (fundido || !reducido) && !todas;
+  // Con prefers-reduced-motion no hay avance automático (se respeta el ajuste del SO); solo si el usuario pulsa Reproducir.
+  const puedeAuto = auto > 0 && !todas && (!reducido || manual === 'play');
   const automatica = manual === 'play' || (manual === null && !encima && !foco && !tocado);
   const reproduciendo = puedeAuto && automatica && enPantalla && !oculta;
 
@@ -91,8 +92,6 @@ export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full',
     return () => { io.disconnect(); ioPantalla.disconnect(); el.removeEventListener('scroll', alScroll); cancelAnimationFrame(raf); };
   }, [N, fundido]);
 
-  useEffect(() => { alCambiar?.(activa); }, [activa, alCambiar]);
-
   const ir = useCallback((i: number, usuario = true) => {
     if (fundido) { if (usuario) setReinicio((n) => n + 1); setActiva(i); return; }
     const el = pista.current;
@@ -105,6 +104,7 @@ export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full',
   const siguiente = (usuario = true) => ir(activa >= N - 1 ? 0 : activa + 1, usuario);
   const anterior = () => ir((activa - 1 + N) % N);
 
+  const controlFundido = useRef<HTMLDivElement>(null);
   const sig = useRef(siguiente);
   sig.current = siguiente;
   useEffect(() => {
@@ -125,22 +125,28 @@ export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full',
       ref={raiz}
       aria-roledescription="carrusel"
       aria-label={etiqueta}
-      data-rep={reproduciendo}
       className={className}
       onMouseEnter={() => setEncima(true)}
       onMouseLeave={() => setEncima(false)}
       onFocus={(e) => { if (e.target.matches(':focus-visible')) setFoco(true); }}
       onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setFoco(false); }}
+      onTouchStart={() => setTocado(true)}
       onKeyDown={(e) => {
-        if (e.key === 'ArrowRight') { e.preventDefault(); siguiente(); }
-        else if (e.key === 'ArrowLeft') { e.preventDefault(); anterior(); }
+        const dir = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+        if (!dir) return;
+        e.preventDefault();
+        // Cualquier uso del teclado deja el carrusel en pausa hasta que el usuario pulse Reproducir.
+        if (auto > 0) setManual('pausa');
+        // La diapositiva enfocada pasará a `inert`: el foco se mueve antes al botón de pausa para no caer en <body>.
+        if (fundido) controlFundido.current?.querySelector('button')?.focus();
+        if (dir > 0) siguiente(); else anterior();
       }}
     >
+      {fundido && visual?.(activa)}
       <div
         ref={pista}
         aria-live={reproduciendo ? 'off' : 'polite'}
-        onTouchStart={() => setTocado(true)}
-        className={fundido ? 'grid' : `-my-4 flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${gap}`}
+        className={fundido ? 'grid lg:order-1' : `-my-4 flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${gap}`}
       >
         {diapositivas.map((d, i) => (
           <div
@@ -159,10 +165,11 @@ export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full',
         ))}
       </div>
 
-      {fundido && N > 1 && puedeAuto && (
-        <div className="sr-only focus-within:not-sr-only focus-within:mt-3">
+      {fundido && N > 1 && auto > 0 && (
+        // Invisible hasta recibir foco de teclado y fuera del flujo (absoluto): no desplaza el hero. Requiere `relative` en className.
+        <div ref={controlFundido} className="pointer-events-none absolute bottom-1 left-4 z-10 opacity-0 focus-within:pointer-events-auto focus-within:opacity-100">
           <BotonHex variante="contorno" size="sm" icono={reproduciendo ? Pause : Play} onClick={() => setManual(reproduciendo ? 'pausa' : 'play')}>
-            <span className="sr-only">{reproduciendo ? 'Pausar avance automático' : 'Reanudar avance automático'}</span>
+            <span className="sr-only">{reproduciendo ? 'Pausar avance automático' : 'Reproducir avance automático'}</span>
           </BotonHex>
         </div>
       )}
@@ -176,7 +183,7 @@ export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full',
               onClick={() => setManual(reproduciendo ? 'pausa' : 'play')}
               className={BTN}
             >
-              <span className="sr-only">{reproduciendo ? 'Pausar avance automático' : 'Reanudar avance automático'}</span>
+              <span className="sr-only">{reproduciendo ? 'Pausar avance automático' : 'Reproducir avance automático'}</span>
             </BotonHex>
           ) : (
             <span aria-hidden="true" className="w-12 sm:w-16" /> // reserva el hueco: nada se mueve al hidratar

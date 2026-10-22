@@ -22,7 +22,8 @@ export default function SeccionTitulo({ claro, rojo, subtitulo, alineacion = 'iz
   return (
     <div className={`${centro ? 'text-center' : ''} ${className}`}>
       {subtitulo && (
-        <p className={`mb-2 max-w-2xl font-display text-sm font-semibold uppercase leading-snug tracking-wide sm:text-base ${centro ? 'mx-auto' : ''} ${claroSobreOscuro ? 'text-white/80' : 'text-rojo-hondo'}`}>{subtitulo}</p>
+        // Sobretítulo corto: mayúscula con tracking. Frases largas: minúscula normal, más legible (mismos colores, AA).
+        <p className={`mb-2 max-w-2xl leading-snug ${subtitulo.length <= 45 ? 'font-display text-sm font-semibold uppercase tracking-wide sm:text-base' : 'text-[15px] font-medium sm:text-base'} ${centro ? 'mx-auto' : ''} ${claroSobreOscuro ? 'text-white/80' : 'text-rojo-hondo'}`}>{subtitulo}</p>
       )}
       <N className={`font-display font-bold uppercase leading-[1.05] tracking-wide ${TAM[tam]}`}>
         <span className={claroSobreOscuro ? 'text-white/75' : 'text-carbon'}>{claro}</span>
