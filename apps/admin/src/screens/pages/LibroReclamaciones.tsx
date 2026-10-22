@@ -78,9 +78,14 @@ function plazo(h: Hoja): { texto: string; badge: string } {
 /** CSV de uso INTERNO: incluye documento y notas internas. Escapa fórmulas como CotizadorLeads. */
 function csv(hojas: Hoja[]) {
   const cab = ['Código', 'Fecha', 'Tipo', 'Estado', 'Plazo', 'Fecha límite', 'Nombres', 'Apellidos', 'Tipo documento', 'Nro documento', 'Domicilio', 'Teléfono', 'Correo', 'Menor de edad', 'Representante', 'Doc. representante', 'Bien', 'Descripción del bien', 'Monto', 'Nro pedido', 'Detalle', 'Pedido del consumidor', 'Medio de respuesta', 'Respuesta', 'Respondido el', 'Respondido por', 'Atendido por', 'Notas internas'];
-  const esc = (v: string) => `"${v.replace(/"/g, '""').replace(/^([=+\-@\t\r])/, "'$1")}"`;
+  // Texto libre: escapa cualquier inicio de fórmula. Columnas de teléfono/número: solo lo que no parece número ("+51 987…" queda intacto).
+  const NUM = new Set([9, 11, 15, 18]); // Nro documento, Teléfono, Doc. representante, Monto
+  const esc = (v: string, i: number) => {
+    const ini = NUM.has(i) ? /^([=@\t\r]|[+-](?![\d\s().-]))/ : /^([=+\-@\t\r])/;
+    return `"${v.replace(/"/g, '""').replace(ini, "'$1")}"`;
+  };
   const filas = hojas.map((h) => [h.codigo, fecha(h.fecha), tipoLabel(h.tipo), meta(h.estado).label, plazo(h).texto, fecha(h.fechaLimite), h.nombres, h.apellidos, h.tipoDocumento, h.nroDocumento, h.domicilio, h.telefono, h.email, h.menorEdad ? 'Sí' : 'No', `${h.repNombres ?? ''}`, `${h.repTipoDocumento ?? ''} ${h.repNroDocumento ?? ''}`.trim(), h.tipoBien === 'PRODUCTO' ? 'Producto' : 'Servicio', h.descripcionBien, monto(h), h.nroPedido ?? '', h.detalle, h.pedidoConsumidor, h.medioRespuesta === 'CARTA' ? 'Carta' : 'Correo', h.respuesta ?? '', h.respondidoAt ? fechaHora(h.respondidoAt) : '', h.respondidoPor ?? '', h.atendidoPor ?? '', h.notasInternas ?? '']);
-  const blob = new Blob(['﻿' + [cab, ...filas].map((f) => f.map(esc).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
+  const blob = new Blob(['﻿' + [cab, ...filas].map((f) => f.map((v, i) => esc(v, i)).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `libro-reclamaciones-INTERNO-${new Date().toISOString().slice(0, 10)}.csv`;
@@ -115,6 +120,10 @@ export function LibroReclamaciones() {
   const [modalErr, setModalErr] = useState('');
   const dialogRef = useRef<HTMLDivElement>(null);
   const seq = useRef(0);
+  const selId = useRef<string | null>(null);
+  const montado = useRef(true);
+  const [alerta, setAlerta] = useState('');
+  useEffect(() => { montado.current = true; return () => { montado.current = false; }; }, []);
   useFocusTrap(dialogRef, !!sel);
 
   useEffect(() => {
@@ -123,7 +132,7 @@ export function LibroReclamaciones() {
   }, [q]);
 
   const cargar = useCallback(async () => {
-    if (!activeMarcaId) return;
+    if (!activeMarcaId) { setCargando(false); return; }
     const mi = ++seq.current;
     const qs = new URLSearchParams();
     if (filtro) qs.set('estado', filtro);
@@ -151,40 +160,70 @@ export function LibroReclamaciones() {
   }, [cargar]);
 
   function abrir(h: Hoja) {
+    selId.current = h.id;
     setSel(h);
+    setAlerta('');
     setNotas(h.notasInternas ?? '');
     setRespuesta('');
     setAviso('');
     setModalErr('');
   }
-  const cerrar = useCallback(() => setSel(null), []);
-
+  const sucio = !!sel && sel.estado !== 'RESPONDIDO' && (notas !== (sel.notasInternas ?? '') || respuesta.trim() !== '');
+  function cerrar() {
+    if (guardando) return; // hay una petición en curso: no se cierra hasta que termine
+    if (sucio && !window.confirm('Hay notas o una respuesta sin guardar. ¿Cerrar y descartarlas?')) return;
+    selId.current = null;
+    setSel(null);
+  }
+  const cerrarRef = useRef(cerrar);
+  cerrarRef.current = cerrar;
+  const abierta = !!sel;
   useEffect(() => {
-    if (!sel) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') cerrar(); };
+    if (!abierta) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') cerrarRef.current(); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [sel, cerrar]);
+  }, [abierta]);
 
-  async function guardar(req: () => Promise<Hoja>, okTexto: string, errTexto: string) {
+  async function guardar(h: Hoja, req: () => Promise<Hoja>, okTexto: string, errTexto: string) {
+    const id = h.id;
+    const vigente = () => montado.current && selId.current === id; // el diálogo sigue abierto en esta hoja
     setGuardando(true);
     setAviso('');
     setModalErr('');
+    setAlerta('');
     try {
       const nueva = await req();
+      void cargar();
+      if (!vigente()) return;
       setSel(nueva);
       setNotas(nueva.notasInternas ?? '');
+      setRespuesta('');
       setAviso(okTexto);
-      void cargar();
     } catch (e) {
-      setModalErr(e instanceof ApiError ? e.message : errTexto);
+      void cargar();
+      const msg = e instanceof ApiError ? e.message : errTexto;
+      // La API pudo guardar antes de fallar (p. ej. el correo): se relee la hoja para no dejarla desfasada.
+      let fresca: Hoja | null = null;
+      try { fresca = await api.get<Hoja>(`/libro-reclamaciones/${id}`); } catch { /* se muestra el error original */ }
+      if (vigente()) {
+        if (fresca && fresca.estado === 'RESPONDIDO' && h.estado !== 'RESPONDIDO') {
+          setSel(fresca);
+          setNotas(fresca.notasInternas ?? '');
+          setRespuesta('');
+          setAlerta(`La hoja quedó respondida, pero el correo pudo no enviarse: contacta al consumidor a ${fresca.email}.`);
+        } else {
+          if (fresca) setSel(fresca);
+          setModalErr(msg);
+        }
+      }
     } finally {
-      setGuardando(false);
+      if (montado.current) setGuardando(false);
     }
   }
 
-  const marcarEnProceso = (h: Hoja) => guardar(() => api.patch<Hoja>(`/libro-reclamaciones/${h.id}`, { estado: 'EN_PROCESO' }), 'Marcada en proceso.', 'No se pudo cambiar el estado.');
-  const guardarNotas = (h: Hoja) => guardar(() => api.patch<Hoja>(`/libro-reclamaciones/${h.id}`, { notasInternas: notas }), 'Notas guardadas.', 'No se pudieron guardar las notas.');
+  const marcarEnProceso = (h: Hoja) => guardar(h, () => api.patch<Hoja>(`/libro-reclamaciones/${h.id}`, { estado: 'EN_PROCESO' }), 'Marcada en proceso.', 'No se pudo cambiar el estado.');
+  const guardarNotas = (h: Hoja) => guardar(h, () => api.patch<Hoja>(`/libro-reclamaciones/${h.id}`, { notasInternas: notas }), 'Notas guardadas.', 'No se pudieron guardar las notas.');
   function responder(h: Hoja) {
     const carta = h.medioRespuesta === 'CARTA';
     const ok = window.confirm(
@@ -193,7 +232,7 @@ export function LibroReclamaciones() {
       '\n\n¿Enviar la respuesta?',
     );
     if (!ok) return;
-    void guardar(() => api.patch<Hoja>(`/libro-reclamaciones/${h.id}/responder`, { respuesta: respuesta.trim() }), 'Respuesta enviada por correo al consumidor.', 'No se pudo enviar la respuesta.');
+    void guardar(h, () => api.patch<Hoja>(`/libro-reclamaciones/${h.id}/responder`, { respuesta: respuesta.trim() }), 'Respuesta enviada por correo al consumidor.', 'No se pudo enviar la respuesta.');
   }
 
   const tarjetas: { icon: string; tono: string; label: string; valor: number | undefined }[] = [
@@ -205,6 +244,9 @@ export function LibroReclamaciones() {
   ];
   const filtrando = !!(filtro || vencidas || qDeb);
   const respondida = sel?.estado === 'RESPONDIDO';
+  const MAL = /[<>]/;
+  const notasMal = MAL.test(notas);
+  const respMal = MAL.test(respuesta);
 
   return (
     <>
@@ -262,8 +304,14 @@ export function LibroReclamaciones() {
               <input type="search" className="ax-input" placeholder="Buscar código, nombre, documento, correo…" value={q} maxLength={60} onChange={(e) => setQ(e.target.value)} aria-label="Buscar hojas de reclamación" style={{ maxWidth: 320 }} />
             </div>
           </div>
+          <div className="ax-card__body" style={{ paddingBlock: 0 }}>
+            <p aria-live="polite" style={{ margin: 0, fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-muted)' }}>
+              {cargando ? 'Cargando…' : `${lista.length} reclamo${lista.length === 1 ? '' : 's'}`}
+              {!cargando && lista.length >= 1000 ? ' · Mostrando los primeros 1000; usa los filtros para acotar.' : ''}
+            </p>
+          </div>
           <div className="ax-table-wrap">
-            <table className="ax-table ax-table--hover">
+            <table className="ax-table ax-table--hover" aria-label="Hojas de reclamación">
               <thead className="ax-table__head">
                 <tr>
                   <th className="ax-table__th" scope="col">Código</th>
@@ -278,7 +326,7 @@ export function LibroReclamaciones() {
                 {cargando ? (
                   <tr><td className="ax-table__td" colSpan={6}>Cargando…</td></tr>
                 ) : lista.length === 0 ? (
-                  <tr><td className="ax-table__td" colSpan={6} style={{ color: 'var(--ax-text-muted)' }}>{error ? 'No se pudo cargar la lista.' : filtrando ? 'Ninguna hoja coincide con el filtro.' : 'Todavía no hay hojas de reclamación. Aparecerán cuando alguien llene el libro en la web.'}</td></tr>
+                  <tr><td className="ax-table__td" colSpan={6} style={{ color: 'var(--ax-text-muted)' }}>{!activeMarcaId ? 'Selecciona una marca para ver su libro de reclamaciones.' : error ? 'No se pudo cargar la lista.' : filtrando ? 'Ninguna hoja coincide con el filtro.' : 'Todavía no hay hojas de reclamación. Aparecerán cuando alguien llene el libro en la web.'}</td></tr>
                 ) : (
                   lista.map((h) => {
                     const p = plazo(h);
@@ -326,6 +374,7 @@ export function LibroReclamaciones() {
               <div aria-live="polite">
                 {aviso && <div role="status" className="ax-alert ax-alert--success" style={{ padding: 'var(--ax-space-2) var(--ax-space-3)' }}><div className="ax-alert__content"><p className="ax-alert__message">{aviso}</p></div></div>}
               </div>
+              {alerta && <div role="alert" className="ax-alert ax-alert--warning" style={{ padding: 'var(--ax-space-2) var(--ax-space-3)' }}><div className="ax-alert__content"><p className="ax-alert__message">{alerta}</p></div></div>}
               {modalErr && <div role="alert" className="ax-alert ax-alert--danger" style={{ padding: 'var(--ax-space-2) var(--ax-space-3)' }}><div className="ax-alert__content"><p className="ax-alert__message">{modalErr}</p></div></div>}
 
               <section aria-label="Consumidor">
@@ -369,9 +418,10 @@ export function LibroReclamaciones() {
                 <div className="ax-field">
                   <label className="ax-label" htmlFor="lr-notas">Notas internas (el consumidor no las ve)</label>
                   <textarea id="lr-notas" className="ax-textarea" rows={3} maxLength={2000} value={notas} readOnly={respondida} onChange={(e) => setNotas(e.target.value)} placeholder="Llamadas, acuerdos, próximos pasos…" />
+                  {notasMal && <p role="alert" style={{ margin: 0, fontSize: 'var(--ax-text-xs)', color: 'var(--ax-danger-500)' }}>No se admiten los caracteres &lt; y &gt;.</p>}
                   {!respondida && (
                     <div className="ax-cluster" style={{ justifyContent: 'flex-end' }}>
-                      <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" disabled={guardando || notas === (sel.notasInternas ?? '')} onClick={() => guardarNotas(sel)}><span className="ax-btn__label">Guardar notas</span></button>
+                      <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" disabled={guardando || notasMal || notas === (sel.notasInternas ?? '')} onClick={() => guardarNotas(sel)}><span className="ax-btn__label">Guardar notas</span></button>
                     </div>
                   )}
                 </div>
@@ -393,9 +443,10 @@ export function LibroReclamaciones() {
                       </p>
                     )}
                     <textarea id="lr-respuesta" className="ax-textarea" rows={5} maxLength={5000} value={respuesta} onChange={(e) => setRespuesta(e.target.value)} placeholder="Escribe la respuesta (mínimo 10 caracteres). Se enviará por correo a quien reclamó." aria-describedby="lr-resp-ayuda" />
+                    {respMal && <p role="alert" style={{ margin: 0, fontSize: 'var(--ax-text-xs)', color: 'var(--ax-danger-500)' }}>No se admiten los caracteres &lt; y &gt;.</p>}
                     <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
                       <span id="lr-resp-ayuda" style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Se envía a {sel.email}. Al responder, la hoja se cierra.</span>
-                      <button type="submit" className="ax-btn ax-btn--primary ax-btn--sm" disabled={guardando || respuesta.trim().length < 10}><span className="ax-btn__label">{guardando ? 'Enviando…' : 'Responder'}</span></button>
+                      <button type="submit" className="ax-btn ax-btn--primary ax-btn--sm" disabled={guardando || respMal || respuesta.trim().length < 10}><span className="ax-btn__label">{guardando ? 'Enviando…' : 'Responder'}</span></button>
                     </div>
                   </form>
                 )}
