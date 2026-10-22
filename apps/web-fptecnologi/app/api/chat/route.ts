@@ -12,6 +12,9 @@ import { getConocimiento } from '@/lib/chatConocimiento';
 const MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
 const MAX_MESSAGES = 12;
 const MAX_CHARS = 2000;
+// Plan gratis de Groq: 8000 tokens por minuto sumando prompt + historial + respuesta.
+const MAX_HISTORIAL = 3000;
+const MAX_EXTRA = 2000;
 
 const buildSystemPrompt = (siteData: string, idsAcciones: string) => `Eres el asistente virtual de la web de FP Tecnologi & System.
 Responde en español neutro de Perú (tú, no vos), breve (2-4 oraciones), claro y amable.
@@ -67,7 +70,7 @@ async function infoAdicional(pregunta: string, ip: string): Promise<string> {
     return [
       data?.instrucciones ? `INSTRUCCIONES DEL NEGOCIO (respétalas):\n${data.instrucciones}` : '',
       frags ? `INFORMACIÓN ADICIONAL OFICIAL (úsala si es relevante para lo consultado; tiene prioridad sobre lo demás):\n${frags}` : '',
-    ].filter(Boolean).join('\n\n');
+    ].filter(Boolean).join('\n\n').slice(0, MAX_EXTRA);
   } catch {
     return '';
   }
@@ -90,7 +93,15 @@ function parseMessages(body: unknown): ChatMessage[] | null {
       return null;
     }
   }
-  return msgs.map((m) => ({ role: m.role, content: m.content }));
+  // Los más recientes, hasta MAX_HISTORIAL caracteres (el último siempre queda).
+  const out: ChatMessage[] = [];
+  let total = 0;
+  for (const m of [...msgs].reverse()) {
+    total += m.content.length;
+    if (out.length > 0 && total > MAX_HISTORIAL) break;
+    out.unshift({ role: m.role, content: m.content });
+  }
+  return out;
 }
 
 // Valida el JSON de la IA: IDs de acción desconocidos se descartan (la IA

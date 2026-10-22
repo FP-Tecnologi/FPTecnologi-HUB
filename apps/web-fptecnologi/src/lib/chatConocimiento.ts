@@ -8,6 +8,11 @@
  *
  * Proyectos y clientes: solo los que NO estén marcados como ejemplo en el
  * dashboard; si no hay ninguno real, se le indica que no cite casos.
+ *
+ * Todo viaja en cada mensaje a Groq, cuyo plan gratis corta a 8000 tokens por
+ * minuto (entrada + respuesta): cada sección va resumida y con tope.
+ * ponytail: contexto completo en el prompt; si crece mucho, buscar por la
+ * pregunta (como /public/conocimiento/consultar) en vez de mandarlo todo.
  */
 import {
   BUSINESS_PATHS,
@@ -23,7 +28,6 @@ import { getCatalogo, categoriasDe } from './catalogo';
 import { getServicios, type ServicioPublico } from './servicios';
 import { getClientes, getProyectos } from './referencias';
 import { PERU_DEPARTMENTS } from './peruDepartments';
-import { montoSoles } from './projects';
 import { getCotizadorContenido } from './cotizadorContenido';
 import { getArticulos } from './blog';
 import { getLegalDocs, type LegalDoc } from './legal';
@@ -32,8 +36,9 @@ import { getPagina } from './paginasContenido';
 import type { CatalogProduct } from './catalog';
 
 const CACHE_MS = 60_000;
-const MAX_PRODUCTOS = 80;
-const MAX_ARTICULOS = 8;
+const MAX_PRODUCTOS = 40;
+const MAX_ARTICULOS = 6;
+const MAX_PROYECTOS = 15;
 
 const lista = (items: readonly string[]) => items.join('; ');
 
@@ -58,18 +63,10 @@ ${WHY_CHOOSE_US.map((w) => `- ${w.title}: ${w.text}`).join('\n')}`;
 }
 
 function seccionServicios(servicios: ServicioPublico[]): string {
-  const comunes = new Set([FAQ_COMUNES.visita.p, FAQ_COMUNES.soporte.p]);
   const detalle = servicios.map((s) => {
     const d = s.detalle;
-    const propias = d?.faqs.filter((f) => !comunes.has(f.p)) ?? [];
-    return [
-      `- ${s.title} (página /servicios/${s.slug}): ${d?.intro ?? s.description}${s.precioDesde ? ` Desde USD ${s.precioDesde}.` : ''}`,
-      d && d.incluye.length > 0 && `  Incluye: ${lista(d.incluye)}.`,
-      d && `  Beneficios: ${lista(d.beneficios.map((b) => b.titulo))}. Sectores: ${lista(d.sectores)}.`,
-      ...propias.map((f) => `  P: ${f.p} R: ${f.r}`),
-    ]
-      .filter(Boolean)
-      .join('\n');
+    const incluye = d && d.incluye.length > 0 ? ` Incluye: ${lista(d.incluye.slice(0, 3))}.` : '';
+    return `- ${s.title} (/servicios/${s.slug}): ${(d?.intro ?? s.description).slice(0, 130)}${s.precioDesde ? ` Desde USD ${s.precioDesde}.` : ''}${incluye}`;
   });
   return `SERVICIOS TI (página /servicios; todos se cotizan por proyecto: botón Cotizar o cotizador)
 ${detalle.join('\n')}
@@ -85,7 +82,7 @@ function seccionTienda(products: CatalogProduct[]): string {
     .join(', ');
   const filas = products.slice(0, MAX_PRODUCTOS).map((p) => {
     const antes = p.priceBefore ? ` (antes USD ${p.priceBefore})` : '';
-    return `- ${p.name.slice(0, 90)} | ${p.brand} | SKU ${p.sku} | USD ${p.price}${antes} | ${p.category}`;
+    return `- ${p.name.slice(0, 60)} | ${p.brand} | SKU ${p.sku} | USD ${p.price}${antes}`;
   });
   const marcas = [...new Set(products.map((p) => p.brand))].sort().join(', ');
   return `TIENDA B2B (páginas /tienda, /producto/<slug>, /marcas, /carrito, /finalizar-compra)
@@ -116,14 +113,14 @@ async function seccionBlog(): Promise<string> {
   const arts = (await getArticulos()).slice(0, MAX_ARTICULOS);
   if (arts.length === 0) return 'BLOG (página /blog): sin artículos publicados por ahora.';
   return `BLOG (página /blog, artículos recientes)
-${arts.map((a) => `- ${a.titulo} (/blog/${a.slug}) [${a.categoria}]: ${a.resumen}`).join('\n')}`;
+${arts.map((a) => `- ${a.titulo} (/blog/${a.slug})`).join('\n')}`;
 }
 
 function seccionLegal(legal: LegalDoc[]): string {
   const docs = legal.map((d) => {
     const cuerpo =
       d.slug === 'devoluciones'
-        ? ` Contenido: ${d.secciones.map((s) => `${s.titulo}: ${s.parrafos.join(' ')}`).join(' ').slice(0, 1800)}`
+        ? ` Contenido: ${d.secciones.map((s) => `${s.titulo}: ${s.parrafos.join(' ')}`).join(' ').slice(0, 400)}`
         : ` Secciones: ${d.secciones.map((s) => s.titulo).join(', ')}.`;
     return `- ${d.titulo} ${d.destacado} (/legal/${d.slug}): ${d.resumen}${cuerpo}`;
   });
@@ -146,7 +143,8 @@ async function seccionReferencias(): Promise<string> {
   }
   const dept = (id: string) => PERU_DEPARTMENTS.find((d) => d.id === id)?.name ?? id;
   return `PROYECTOS Y CLIENTES (página /proyectos)
-${reales.map((p) => `- ${p.title} — ${p.client}, ${dept(p.department)}${p.year ? `, ${p.year}` : ''}${p.monto ? `, monto bruto ${montoSoles(p.monto)}` : ''}: ${p.description} Alcance: ${lista(p.scope)}.`).join('\n')}${clientes.length ? `\nClientes: ${clientes.join(', ')}.` : ''}`;
+${reales.length} proyectos en total; algunos (el resto, con detalle y monto, en /proyectos):
+${reales.slice(0, MAX_PROYECTOS).map((p) => `- ${p.title.slice(0, 80)} — ${p.client}, ${dept(p.department)}${p.year ? `, ${p.year}` : ''}`).join('\n')}${clientes.length ? `\nClientes: ${clientes.slice(0, 30).join(', ')}.` : ''}`;
 }
 
 let cache: { at: number; text: string; products: CatalogProduct[]; servicios: ServicioPublico[] } | null = null;
