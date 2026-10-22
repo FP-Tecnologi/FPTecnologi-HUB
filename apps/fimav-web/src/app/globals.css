@@ -20,6 +20,7 @@ body { font-family: var(--font-sans); }
 h1, h2, h3 { text-wrap: balance; }
 p, li { text-wrap: pretty; }
 @keyframes giro { to { transform: rotate(360deg); } }
+@keyframes flotar { 50% { transform: translateY(-8px); } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { animation: none !important; transition: none !important; } }
 
 /* ---- Movimiento. Solo transform/opacity. Todo en @layer para que las utilidades de Tailwind sigan mandando;

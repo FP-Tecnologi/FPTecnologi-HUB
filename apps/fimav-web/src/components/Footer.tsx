@@ -46,7 +46,7 @@ export default function Footer() {
             </ul>
           </div>
           <div className="text-sm md:border-t md:border-white/15 lg:border-t-0">
-            <Titulo>Información legal</Titulo>
+            <Titulo>Legales</Titulo>
             <nav aria-label="Enlaces legales"><ul>
               {legales.map((l) => (
                 <li key={l.href}><Link href={l.href} className={enlace}>{l.texto}</Link></li>

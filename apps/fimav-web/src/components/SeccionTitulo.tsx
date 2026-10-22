@@ -16,20 +16,20 @@ const TAM = {
   sm: 'text-[clamp(1.625rem,4vw,2rem)]',
 };
 
-/** Título de sección: display en mayúscula a dos tonos, barra roja corta y subtítulo fino (más ligero que el título). */
+/** Título de sección: subtítulo como sobretítulo (mayúscula, más pequeño) arriba, título display en mayúscula a dos tonos y barra roja corta debajo. */
 export default function SeccionTitulo({ claro, rojo, subtitulo, alineacion = 'izquierda', nivel: N, claroSobreOscuro = false, tam = 'md', className = '' }: Props) {
   const centro = alineacion === 'centro';
   return (
     <div className={`${centro ? 'text-center' : ''} ${className}`}>
+      {subtitulo && (
+        <p className={`mb-2 max-w-2xl font-display text-sm font-semibold uppercase leading-snug tracking-wide sm:text-base ${centro ? 'mx-auto' : ''} ${claroSobreOscuro ? 'text-white/80' : 'text-rojo-hondo'}`}>{subtitulo}</p>
+      )}
       <N className={`font-display font-bold uppercase leading-[1.05] tracking-wide ${TAM[tam]}`}>
         <span className={claroSobreOscuro ? 'text-white/75' : 'text-carbon'}>{claro}</span>
         {claro && rojo ? ' ' : ''}
         {rojo && <span className={claroSobreOscuro ? 'text-white' : 'text-rojo'}>{rojo}</span>}
       </N>
       <span aria-hidden="true" className={`mt-3 block h-1 w-14 rounded-full bg-rojo ${centro ? 'mx-auto' : ''}`} />
-      {subtitulo && (
-        <p className={`mt-3 max-w-2xl font-titulo text-lg font-light leading-snug sm:text-xl ${centro ? 'mx-auto' : ''} ${claroSobreOscuro ? 'text-white/80' : 'text-carbon/80'}`}>{subtitulo}</p>
-      )}
     </div>
   );
 }

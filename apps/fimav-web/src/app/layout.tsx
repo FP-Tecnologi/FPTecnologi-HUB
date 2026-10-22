@@ -4,7 +4,7 @@ import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import WhatsAppFlotante from '@/components/WhatsAppFlotante';
-import HaloCursor from '@/components/motion/HaloCursor';
+import CursorHex from '@/components/motion/CursorHex';
 
 const poppins = Poppins({ subsets: ['latin'], variable: '--font-poppins', weight: ['400', '500', '600'] });
 // Humanista tipo Myriad (la del brochure) para títulos; fuente variable, cubre 400–600.
@@ -28,7 +28,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <Footer />
         <WhatsAppFlotante />
-        <HaloCursor />
+        <CursorHex />
       </body>
     </html>
   );

@@ -16,6 +16,11 @@ type Props = {
   auto?: number;
   /** Clases de la fila de controles (p. ej. `lg:hidden` cuando en escritorio caben todas). */
   controles?: string;
+  /** Modo fundido: diapositivas apiladas que cambian con fundido (sin scroll), sin flechas ni puntos; solo queda el botón de pausa,
+   *  visible únicamente con foco de teclado (WCAG 2.2.2). Avanza también con prefers-reduced-motion (cambio instantáneo). */
+  fundido?: boolean;
+  /** Se llama con el índice activo (modo fundido) para sincronizar elementos fuera de la pista. */
+  alCambiar?: (i: number) => void;
   className?: string;
 };
 
@@ -24,7 +29,7 @@ const BTN = 'w-12 !px-0 sm:w-16';
 /** Carrusel sin librerías: scroll-snap nativo (swipe táctil), autoavance que se pausa con hover/foco de teclado/toque y se apaga
  *  con prefers-reduced-motion, flechas, puntos y teclado (←/→). Las no visibles quedan `inert`.
  *  El botón Pausar/Reanudar es autoritativo: manda sobre hover y foco (WCAG 2.2.2). */
-export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full', gap = 'gap-0', auto = 0, controles = '', className = '' }: Props) {
+export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full', gap = 'gap-0', auto = 0, controles = '', fundido = false, alCambiar, className = '' }: Props) {
   const raiz = useRef<HTMLElement>(null);
   const pista = useRef<HTMLDivElement>(null);
   const [visibles, setVisibles] = useState<boolean[]>(() => diapositivas.map(() => true)); // SSR: todas visibles, sin JS no se oculta nada
@@ -39,8 +44,10 @@ export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full',
   const [reinicio, setReinicio] = useState(0); // cada navegación manual reinicia el temporizador
   const N = diapositivas.length;
 
-  const todas = visibles.every(Boolean);
-  const puedeAuto = auto > 0 && !reducido && !todas;
+  const todas = !fundido && visibles.every(Boolean);
+  const vis = (i: number) => (fundido ? i === activa : visibles[i]);
+  // En fundido el cambio no es movimiento (con reduced-motion es instantáneo), así que el autoavance sigue activo.
+  const puedeAuto = auto > 0 && (fundido || !reducido) && !todas;
   const automatica = manual === 'play' || (manual === null && !encima && !foco && !tocado);
   const reproduciendo = puedeAuto && automatica && enPantalla && !oculta;
 
@@ -58,6 +65,9 @@ export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full',
   useEffect(() => {
     const el = pista.current, r = raiz.current;
     if (!el || !r) return;
+    const ioPantalla = new IntersectionObserver(([e]) => setEnPantalla(e.isIntersecting));
+    ioPantalla.observe(r);
+    if (fundido) return () => ioPantalla.disconnect();
     const hijos = Array.from(el.children) as HTMLElement[];
     const estado = hijos.map(() => true);
     const io = new IntersectionObserver(
@@ -68,8 +78,6 @@ export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full',
       { root: el, threshold: [0, 0.6, 1] },
     );
     hijos.forEach((h) => io.observe(h));
-    const ioPantalla = new IntersectionObserver(([e]) => setEnPantalla(e.isIntersecting));
-    ioPantalla.observe(r);
     // Activa = progreso del scroll mapeado a 0…N-1: llega a la última aunque el scroll no alcance su inicio.
     let raf = 0;
     const alScroll = () => {
@@ -81,15 +89,18 @@ export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full',
     };
     el.addEventListener('scroll', alScroll, { passive: true });
     return () => { io.disconnect(); ioPantalla.disconnect(); el.removeEventListener('scroll', alScroll); cancelAnimationFrame(raf); };
-  }, [N]);
+  }, [N, fundido]);
+
+  useEffect(() => { alCambiar?.(activa); }, [activa, alCambiar]);
 
   const ir = useCallback((i: number, usuario = true) => {
+    if (fundido) { if (usuario) setReinicio((n) => n + 1); setActiva(i); return; }
     const el = pista.current;
     const h = el?.children[i] as HTMLElement | undefined;
     if (!el || !h) return;
     if (usuario) setReinicio((n) => n + 1);
     el.scrollTo({ left: h.offsetLeft - el.offsetLeft, behavior: reducido ? 'auto' : 'smooth' });
-  }, [reducido]);
+  }, [reducido, fundido]);
 
   const siguiente = (usuario = true) => ir(activa >= N - 1 ? 0 : activa + 1, usuario);
   const anterior = () => ir((activa - 1 + N) % N);
@@ -129,7 +140,7 @@ export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full',
         ref={pista}
         aria-live={reproduciendo ? 'off' : 'polite'}
         onTouchStart={() => setTocado(true)}
-        className={`-my-4 flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${gap}`}
+        className={fundido ? 'grid' : `-my-4 flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${gap}`}
       >
         {diapositivas.map((d, i) => (
           <div
@@ -137,16 +148,25 @@ export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full',
             role="group"
             aria-roledescription="diapositiva"
             aria-label={`${i + 1} de ${N}`}
-            aria-hidden={visibles[i] ? undefined : true}
-            inert={!visibles[i]}
-            className={`min-w-0 shrink-0 grow-0 snap-start ${ancho}`}
+            aria-hidden={vis(i) ? undefined : true}
+            inert={!vis(i)}
+            className={fundido
+              ? `col-start-1 row-start-1 min-w-0 transition-opacity ease-out ${i === activa ? 'opacity-100 duration-500 delay-300' : 'pointer-events-none opacity-0 duration-300'}`
+              : `min-w-0 shrink-0 grow-0 snap-start ${ancho}`}
           >
             {d}
           </div>
         ))}
       </div>
 
-      {N > 1 && (
+      {fundido && N > 1 && puedeAuto && (
+        <div className="sr-only focus-within:not-sr-only focus-within:mt-3">
+          <BotonHex variante="contorno" size="sm" icono={reproduciendo ? Pause : Play} onClick={() => setManual(reproduciendo ? 'pausa' : 'play')}>
+            <span className="sr-only">{reproduciendo ? 'Pausar avance automático' : 'Reanudar avance automático'}</span>
+          </BotonHex>
+        </div>
+      )}
+      {!fundido && N > 1 && (
         <div className={`mt-5 flex items-center justify-start gap-2 sm:mt-6 sm:justify-center sm:gap-3 ${controles}`}>
           {auto > 0 && (puedeAuto ? (
             <BotonHex
