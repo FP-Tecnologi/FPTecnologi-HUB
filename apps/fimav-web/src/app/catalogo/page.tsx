@@ -1,6 +1,7 @@
 import Reveal from '@/components/motion/Reveal';
 import { ArrowRight } from 'lucide-react';
 import Hexagono from '@/components/Hexagono';
+import BannerPagina from '@/components/BannerPagina';
 import SeccionTitulo from '@/components/SeccionTitulo';
 import BotonHex from '@/components/hex/BotonHex';
 import HexImagen from '@/components/hex/HexImagen';
@@ -11,11 +12,7 @@ export const metadata = { title: 'Catálogo' };
 export default function CatalogoPage() {
   return (
     <main>
-      <section className="bg-white py-16">
-        <div className="entrada mx-auto max-w-6xl px-4 sm:px-6">
-          <SeccionTitulo nivel="h1" tam="lg" claro="Portafolio" rojo="Especializado" subtitulo="Bienes y servicios para empresas y entidades del Estado." />
-        </div>
-      </section>
+      <BannerPagina titulo="Portafolio" resaltado="Especializado" subtitulo="Bienes y servicios para empresas y entidades del Estado." />
       {categorias.map((c, i) => (
         <section key={c.slug} className={`py-12 ${i % 2 ? 'bg-white' : 'bg-gris'}`}>
           <div className="mx-auto grid max-w-6xl items-center gap-6 px-4 sm:px-6 lg:grid-cols-[1fr_auto]">

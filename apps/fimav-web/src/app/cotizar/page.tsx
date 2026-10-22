@@ -1,17 +1,17 @@
 import { Suspense } from 'react';
 import { Mail, MessageCircle, Phone } from 'lucide-react';
 import FormCotizar from '@/components/FormCotizar';
-import SeccionTitulo from '@/components/SeccionTitulo';
+import BannerPagina from '@/components/BannerPagina';
 import { contacto, waUrl } from '@/lib/contacto';
 
 export const metadata = { title: 'Cotizar' };
 
 export default function CotizarPage() {
   return (
-    <main className="bg-white py-16 lg:py-24">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <SeccionTitulo nivel="h1" tam="lg" claro="Solicita tu" rojo="Cotización" subtitulo="Atendemos entidades del Estado y empresas privadas." />
-        <div className="mt-10 grid items-start gap-8 lg:grid-cols-[1fr_320px]">
+    <main>
+      <BannerPagina titulo="Solicita tu" resaltado="Cotización" subtitulo="Atendemos entidades del Estado y empresas privadas." />
+      <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 lg:pb-24">
+        <div className="grid items-start gap-8 lg:grid-cols-[1fr_320px]">
           <Suspense fallback={<p className="rounded-2xl bg-gris p-6 text-carbon">Cargando formulario…</p>}>
             <FormCotizar />
           </Suspense>

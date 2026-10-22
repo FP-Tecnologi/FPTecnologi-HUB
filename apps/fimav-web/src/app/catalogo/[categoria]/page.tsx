@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { FileText } from 'lucide-react';
 import Hexagono from '@/components/Hexagono';
-import SeccionTitulo from '@/components/SeccionTitulo';
+import BannerPagina from '@/components/BannerPagina';
 import BotonHex from '@/components/hex/BotonHex';
 import HexImagen from '@/components/hex/HexImagen';
 import { categoriaPorSlug, categorias } from '@/lib/categorias';
@@ -18,9 +18,10 @@ export default async function CategoriaPage({ params }: { params: Promise<{ cate
   const c = categoriaPorSlug((await params).categoria);
   if (!c) notFound();
   return (
-    <main className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    <main>
+      <BannerPagina titulo={c.nombre} subtitulo={c.resumen} migas={[{ texto: 'Catálogo', href: '/catalogo' }]} />
+      <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6">
       <Hexagono icono={c.icono} tam={72} />
-      <SeccionTitulo nivel="h1" tam="lg" className="mt-4" claro={c.nombre} subtitulo={c.resumen} />
       {c.marcas.length > 0 && <p className="mt-4 text-sm font-medium text-rojo-hondo">Marcas: {c.marcas.join(' · ')}</p>}
       {c.fotos.length > 0 ? (
         <div className="mt-10 grid gap-6 sm:grid-cols-3">
@@ -34,6 +35,7 @@ export default async function CategoriaPage({ params }: { params: Promise<{ cate
       <BotonHex href={`/cotizar?categoria=${c.slug}`} size="lg" icono={FileText} className="mt-10">
         Cotizar {c.nombre}
       </BotonHex>
+      </div>
     </main>
   );
 }

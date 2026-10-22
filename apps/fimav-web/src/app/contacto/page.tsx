@@ -1,4 +1,4 @@
-import SeccionTitulo from '@/components/SeccionTitulo';
+import BannerPagina from '@/components/BannerPagina';
 import { MessageCircle } from 'lucide-react';
 import BotonHex from '@/components/hex/BotonHex';
 import { contacto, waUrl } from '@/lib/contacto';
@@ -11,9 +11,10 @@ const tarjeta = 'rounded-2xl border border-carbon/20 bg-gris p-6';
 
 export default function ContactoPage() {
   return (
-    <main className="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-      <SeccionTitulo nivel="h1" tam="lg" claro="Hablemos de" rojo="tu cotización" subtitulo="Escríbenos o llámanos y te respondemos con una propuesta a tu medida." />
-      <div className="mt-10 grid gap-6 md:grid-cols-2">
+    <main>
+      <BannerPagina titulo="Hablemos de" resaltado="tu cotización" subtitulo="Escríbenos o llámanos y te respondemos con una propuesta a tu medida." />
+      <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6">
+      <div className="grid gap-6 md:grid-cols-2">
         <section className={tarjeta}>
           <h2 className="titulo-menor text-xl text-carbon">Dirección</h2>
           <p className="mt-3 text-carbon/80">{contacto.razonSocial}<br />{contacto.direccion}</p>
@@ -29,6 +30,7 @@ export default function ContactoPage() {
           <p className="mt-3 text-carbon/80">Ventas: <a href={`mailto:${contacto.ventas}`} className={enlace}>{contacto.ventas}</a></p>
           <p className="mt-1 text-carbon/80">Comercial: <a href={`mailto:${contacto.comercial}`} className={enlace}>{contacto.comercial}</a></p>
         </section>
+      </div>
       </div>
     </main>
   );

@@ -1,6 +1,7 @@
 import Reveal from '@/components/motion/Reveal';
 import { Megaphone } from 'lucide-react';
 import Hexagono from '@/components/Hexagono';
+import BannerPagina from '@/components/BannerPagina';
 import SeccionTitulo from '@/components/SeccionTitulo';
 import { FranjaMarcas } from '@/components/home/Marcas';
 import HexImagen from '@/components/hex/HexImagen';
@@ -24,11 +25,11 @@ const trabajo = [
 export default function PeruComprasPage() {
   return (
     <main>
-      <section className="bg-white py-16 lg:py-24">
+      <BannerPagina titulo="Estamos en" resaltado="Perú Compras" subtitulo="Atendemos al sector Estado en la plataforma de contratación pública." />
+      <section className="bg-white pb-16 pt-8 lg:pb-24">
         <div className="entrada mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_auto]">
           <div>
-            <SeccionTitulo nivel="h1" tam="lg" claro="Estamos en" rojo="Perú Compras" subtitulo="Atendemos al sector Estado en la plataforma de contratación pública." />
-            <div className="mt-8 flex items-center gap-4">
+            <div className="flex items-center gap-4">
               <Hexagono icono={Megaphone} tam={64} />
               <h2 className="titulo-menor text-3xl text-carbon">Sector Estatal</h2>
             </div>
