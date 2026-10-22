@@ -23,5 +23,10 @@ export function diasHabilesEntre(desde: Date, hasta: Date): number {
     const dow = new Date(d * 86_400_000).getUTCDay();
     if (dow !== 0 && dow !== 6) n++;
   }
-  return a <= b ? n : -n;
+  return a <= b || n === 0 ? n : -n;
+}
+
+/** Inicio (00:00 Lima) del día de Lima que contiene `d`. */
+export function inicioDiaLima(d: Date): Date {
+  return new Date(Math.floor((d.getTime() - LIMA_MS) / 86_400_000) * 86_400_000 + LIMA_MS);
 }

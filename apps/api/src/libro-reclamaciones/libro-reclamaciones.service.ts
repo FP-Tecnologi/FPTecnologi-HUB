@@ -4,16 +4,15 @@ import { MailService } from '../mail/mail.service.js';
 import type { HojaCorreo } from '../mail/templates.js';
 import type { EstadoHoja } from '../generated/prisma/enums.js';
 import type { HojaReclamacion } from '../generated/prisma/client.js';
-import { diasHabilesEntre, sumarDiasHabiles } from './dias-habiles.js';
+import { diasHabilesEntre, inicioDiaLima, sumarDiasHabiles } from './dias-habiles.js';
 import type { ActualizarHojaDto, CrearHojaDto, ResponderHojaDto } from './libro-reclamaciones.dto.js';
 
 const ROLES_AVISO = ['admin', 'comercial'];
 const DIAS_RESPUESTA = 15;
-const DIAS_POR_VENCER = 3;
 const CAMPOS_BUSQUEDA = ['codigo', 'nombres', 'apellidos', 'nroDocumento', 'email'] as const;
 
 /** Agrega el plazo restante (null si ya se respondió; negativo si venció) y si está vencida. */
-function conPlazo<T extends { estado: string; fechaLimite: Date }>(h: T) {
+export function conPlazo<T extends { estado: string; fechaLimite: Date }>(h: T) {
   const pendiente = h.estado !== 'RESPONDIDO';
   const ahora = new Date();
   return {
@@ -190,18 +189,16 @@ export class LibroReclamacionesService {
 
   async resumen(marcaId: string) {
     const ahora = new Date();
-    const [recibidas, enProceso, respondidas, vencidas, pendientes] = await Promise.all([
+    const [recibidas, enProceso, respondidas, vencidas, porVencer] = await Promise.all([
       this.prisma.hojaReclamacion.count({ where: { marcaId, estado: 'RECIBIDO' } }),
       this.prisma.hojaReclamacion.count({ where: { marcaId, estado: 'EN_PROCESO' } }),
       this.prisma.hojaReclamacion.count({ where: { marcaId, estado: 'RESPONDIDO' } }),
       this.prisma.hojaReclamacion.count({ where: { marcaId, estado: { not: 'RESPONDIDO' }, fechaLimite: { lt: ahora } } }),
-      this.prisma.hojaReclamacion.findMany({
-        where: { marcaId, estado: { not: 'RESPONDIDO' }, fechaLimite: { gte: ahora } },
-        select: { fechaLimite: true },
-        take: 1000,
+      // Exacto y en BD: tienen ≤3 días hábiles los días anteriores al día que está a 4 hábiles (inicio de ese día en Lima).
+      this.prisma.hojaReclamacion.count({
+        where: { marcaId, estado: { not: 'RESPONDIDO' }, fechaLimite: { gte: ahora, lt: inicioDiaLima(sumarDiasHabiles(ahora, 4)) } },
       }),
     ]);
-    const porVencer = pendientes.filter((h) => diasHabilesEntre(ahora, h.fechaLimite) <= DIAS_POR_VENCER).length;
     return { recibidas, enProceso, respondidas, vencidas, porVencer };
   }
 
@@ -209,6 +206,7 @@ export class LibroReclamacionesService {
     if (dto.estado !== undefined && dto.estado !== 'RECIBIDO' && dto.estado !== 'EN_PROCESO') {
       throw new BadRequestException('Estado inválido: para responder usa /responder');
     }
+    if (dto.notasInternas !== undefined && typeof dto.notasInternas !== 'string') throw new BadRequestException('Notas inválidas');
     if (dto.estado === undefined && dto.notasInternas === undefined) throw new BadRequestException('Nada que actualizar');
     const actual = await this.get(marcaId, id);
     if (actual.estado === 'RESPONDIDO') throw new BadRequestException('Ya fue respondida');

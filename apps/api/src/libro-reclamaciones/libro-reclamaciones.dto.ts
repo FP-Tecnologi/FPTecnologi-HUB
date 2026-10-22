@@ -1,4 +1,4 @@
-import { Equals, IsBoolean, IsEmail, IsIn, IsNumber, IsOptional, IsString, Matches, Max, MaxLength, Min, MinLength } from 'class-validator';
+import { Equals, IsBoolean, IsEmail, IsIn, IsNumber, IsOptional, IsString, Matches, Max, MaxLength, Min, MinLength, ValidateIf } from 'class-validator';
 
 const TEXTO = /^[^<>]*$/; // sin etiquetas: estos datos se muestran en el dashboard y en correos
 
@@ -89,10 +89,12 @@ export class ConsultaHojaDto {
 }
 
 export class ActualizarHojaDto {
-  // RESPONDIDO solo se alcanza con /:id/responder.
-  @IsOptional() @IsIn(['RECIBIDO', 'EN_PROCESO'])
+  // RESPONDIDO solo se alcanza con /:id/responder. Se permite volver de EN_PROCESO a RECIBIDO.
+  // ValidateIf (no IsOptional): un null explícito debe dar 400, no pasar.
+  @ValidateIf((_, v) => v !== undefined) @IsIn(['RECIBIDO', 'EN_PROCESO'])
   estado?: 'RECIBIDO' | 'EN_PROCESO';
 
-  @IsOptional() @IsString() @MaxLength(2000) @Matches(TEXTO)
+  // Cadena vacía = borrar las notas.
+  @ValidateIf((_, v) => v !== undefined) @IsString() @MaxLength(2000) @Matches(TEXTO)
   notasInternas?: string;
 }

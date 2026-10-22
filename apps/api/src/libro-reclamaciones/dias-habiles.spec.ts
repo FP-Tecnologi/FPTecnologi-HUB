@@ -49,3 +49,10 @@ describe('diasHabilesEntre', () => {
     expect(diasHabilesEntre(f('2026-10-19'), sumarDiasHabiles(f('2026-10-19'), 15))).toBe(15);
   });
 });
+
+describe('diasHabilesEntre (cero)', () => {
+  it('nunca devuelve -0', () => {
+    expect(Object.is(diasHabilesEntre(f('2026-10-24'), f('2026-10-24')), 0)).toBe(true);
+    expect(Object.is(diasHabilesEntre(f('2026-10-25'), f('2026-10-24')), 0)).toBe(true); // domingo → sábado
+  });
+});

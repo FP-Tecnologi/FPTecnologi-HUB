@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { BadRequestException, Logger, NotFoundException } from '@nestjs/common';
-import { LibroReclamacionesService, reiniciarLimitadores } from './libro-reclamaciones.service.js';
+import { LibroReclamacionesService, conPlazo, reiniciarLimitadores } from './libro-reclamaciones.service.js';
 import { sumarDiasHabiles } from './dias-habiles.js';
 import type { CrearHojaDto } from './libro-reclamaciones.dto.js';
 
@@ -303,7 +303,19 @@ describe('LibroReclamacionesService.list (q y campos calculados)', () => {
 });
 
 describe('LibroReclamacionesService.resumen', () => {
-  it('cuenta por estado, vencidas y porVencer (≤3 días hábiles, no vencidas), todo con marcaId', async () => {
+  // Simula el conteo de la BD evaluando el where contra una lista de hojas.
+  const limites = (fechas: Date[], hoy: Date) => {
+    const { service, prisma } = setup();
+    prisma.hojaReclamacion.count.mockImplementation(async (a) => {
+      const w = a!.where as any;
+      if (typeof w.estado === 'string') return 0;
+      const f = w.fechaLimite;
+      return fechas.filter((d) => (f.gte ? d >= f.gte : true) && (f.lt ? d < f.lt : true)).length;
+    });
+    return { service, prisma, hoy };
+  };
+
+  it('cuenta por estado, vencidas y porVencer, todo con marcaId y sin cargar filas', async () => {
     vi.useFakeTimers();
     vi.setSystemTime(lima('2026-10-21')); // miércoles
     const { service, prisma } = setup();
@@ -312,20 +324,46 @@ describe('LibroReclamacionesService.resumen', () => {
       if (w.estado === 'RECIBIDO') return 4;
       if (w.estado === 'EN_PROCESO') return 2;
       if (w.estado === 'RESPONDIDO') return 7;
-      return 1; // vencidas
+      return w.fechaLimite.gte ? 5 : 1; // porVencer : vencidas
     });
-    prisma.hojaReclamacion.findMany.mockResolvedValue([
-      { fechaLimite: lima('2026-10-26') }, // 3 días → por vencer
-      { fechaLimite: lima('2026-10-27') }, // 4 días → no
-      { fechaLimite: lima('2026-10-21') }, // hoy → 0 → por vencer
-    ] as never);
     const r = await service.resumen('m1');
-    expect(r).toEqual({ recibidas: 4, enProceso: 2, respondidas: 7, vencidas: 1, porVencer: 2 });
-    expect(prisma.hojaReclamacion.count).toHaveBeenCalledTimes(4);
+    expect(r).toEqual({ recibidas: 4, enProceso: 2, respondidas: 7, vencidas: 1, porVencer: 5 });
+    expect(prisma.hojaReclamacion.count).toHaveBeenCalledTimes(5);
+    expect(prisma.hojaReclamacion.findMany).not.toHaveBeenCalled();
     for (const c of prisma.hojaReclamacion.count.mock.calls) expect(c[0]!.where.marcaId).toBe('m1');
-    const fm = prisma.hojaReclamacion.findMany.mock.calls[0]![0]!.where;
-    expect(fm).toMatchObject({ marcaId: 'm1', estado: { not: 'RESPONDIDO' } });
-    expect(fm.fechaLimite).toEqual({ gte: expect.any(Date) });
+    const pv = prisma.hojaReclamacion.count.mock.calls.map((c) => c[0]!.where).find((w) => w.fechaLimite?.gte)!;
+    expect(pv.estado).toEqual({ not: 'RESPONDIDO' });
+  });
+
+  const hoyes = ['2026-10-21T10:00:00-05:00', '2026-10-23T15:00:00-05:00', '2026-10-24T10:00:00-05:00', '2026-10-25T23:00:00-05:00', '2026-10-26T08:00:00-05:00'];
+  it.each(hoyes)('porVencer == (diasHabilesRestantes ≤ 3 y no vencida) para ahora=%s', async (ahoraIso) => {
+    vi.useFakeTimers();
+    const ahora = new Date(ahoraIso);
+    vi.setSystemTime(ahora);
+    // Barrido cada 6 horas durante 12 días alrededor de "ahora", incluye fines de semana y bordes de día.
+    const fechas = Array.from({ length: 48 }, (_, i) => new Date(ahora.getTime() + (i - 8) * 6 * 3_600_000));
+    const { service } = limites(fechas, ahora);
+    const esperado = fechas.filter((d) => {
+      const h = conPlazo({ estado: 'RECIBIDO', fechaLimite: d });
+      return !h.vencida && h.diasHabilesRestantes! <= 3;
+    }).length;
+    expect((await service.resumen('m1')).porVencer).toBe(esperado);
+    expect(esperado).toBeGreaterThan(0);
+  });
+
+  it('casos puntuales: hoy más tarde cuenta, vencida hoy no, 3 hábiles sí, 4 no', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-21T10:00:00-05:00')); // miércoles
+    const { service } = limites(
+      [
+        new Date('2026-10-21T18:00:00-05:00'), // hoy más tarde → cuenta
+        new Date('2026-10-21T08:00:00-05:00'), // vencida hoy → no
+        new Date('2026-10-26T12:00:00-05:00'), // lunes = 3 hábiles → cuenta
+        new Date('2026-10-27T12:00:00-05:00'), // martes = 4 → no
+      ],
+      new Date(),
+    );
+    expect((await service.resumen('m1')).porVencer).toBe(2);
   });
 });
 
@@ -392,5 +430,33 @@ describe('consultar (privacidad)', () => {
     } as never);
     const r = await service.consultar('m1', 'LR-1', 'AB1');
     expect(Object.keys(r).sort()).toEqual(['codigo', 'estado', 'fecha', 'fechaLimite', 'respondidoAt', 'respuesta', 'tipo']);
+  });
+});
+
+describe('plazo del mismo día y valores nulos', () => {
+  it('vencida hoy → restantes 0 y vencida; vence hoy más tarde → 0 y no vencida', () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-10-21T10:00:00-05:00'));
+    expect(conPlazo({ estado: 'RECIBIDO', fechaLimite: new Date('2026-10-21T08:00:00-05:00') })).toMatchObject({ diasHabilesRestantes: 0, vencida: true });
+    expect(conPlazo({ estado: 'RECIBIDO', fechaLimite: new Date('2026-10-21T18:00:00-05:00') })).toMatchObject({ diasHabilesRestantes: 0, vencida: false });
+  });
+
+  it('actualizar con estado o notasInternas null → BadRequest (no 500)', async () => {
+    const { service, prisma } = setup();
+    prisma.hojaReclamacion.findFirst.mockResolvedValue({ id: 'h1', marcaId: 'm1', estado: 'RECIBIDO', fechaLimite: new Date() } as never);
+    await expect(service.actualizar('m1', 'h1', { notasInternas: null } as never, 'a@b.pe')).rejects.toBeInstanceOf(BadRequestException);
+    await expect(service.actualizar('m1', 'h1', { estado: null } as never, 'a@b.pe')).rejects.toBeInstanceOf(BadRequestException);
+    expect(prisma.hojaReclamacion.updateMany).not.toHaveBeenCalled();
+  });
+
+  it('el DTO rechaza null en estado y notasInternas (400 por ValidationPipe)', async () => {
+    const { plainToInstance } = await import('class-transformer');
+    const { validate } = await import('class-validator');
+    const { ActualizarHojaDto } = await import('./libro-reclamaciones.dto.js');
+    for (const body of [{ notasInternas: null }, { estado: null }, { estado: 'RESPONDIDO' }]) {
+      expect((await validate(plainToInstance(ActualizarHojaDto, body))).length).toBeGreaterThan(0);
+    }
+    expect(await validate(plainToInstance(ActualizarHojaDto, { estado: 'RECIBIDO', notasInternas: '' }))).toHaveLength(0);
+    expect(await validate(plainToInstance(ActualizarHojaDto, {}))).toHaveLength(0);
   });
 });
