@@ -28,7 +28,12 @@ const VARIANTES = {
     capas: <><Forma className="inset-0 text-rojo-hondo" /><Forma className="inset-[2px] text-white group-hover/hex:text-gris" /></>,
   },
 };
-const TAM = { md: 'min-h-11 px-8 py-2 text-base', lg: 'min-h-13 px-10 py-3 text-lg' };
+const TAM = { sm: 'min-h-11 px-6 py-2', md: 'min-h-11 px-8 py-2', lg: 'min-h-13 px-10 py-3' };
+// Tipografía: texto normal o rótulo (display, mayúscula). Va aquí y no en className para no depender del orden del CSS.
+const TIPO = {
+  normal: { sm: 'font-semibold text-sm', md: 'font-semibold text-base', lg: 'font-semibold text-lg' },
+  rotulo: { sm: 'font-display font-bold uppercase tracking-widest text-base', md: 'font-display font-bold uppercase tracking-widest text-lg', lg: 'font-display font-bold uppercase tracking-widest text-xl' },
+};
 
 /** Capas de fondo de un control hexagonal: anillo de foco (en `group-focus-visible/hex`), forma de la variante y brillo de hover.
  *  El control debe llevar `group/hex relative isolate`. */
@@ -55,18 +60,20 @@ type Props = {
   iconoPos?: 'izq' | 'der';
   /** Icono girando (estado de carga). */
   cargando?: boolean;
+  /** Texto en display y mayúscula (cabecera, CTA). */
+  rotulo?: boolean;
   className?: string;
   children: React.ReactNode;
 };
 
 /** Botón o enlace con forma de hexágono alargado. Foco: anillo blanco + tinta que sigue la forma (visible sobre claro y sobre carbón). */
-export default function BotonHex({ href, onClick, type = 'button', variante = 'rojo', size = 'md', disabled, icono: Icono, iconoPos = 'izq', cargando, className = '', children }: Props) {
-  const cls = `group/hex relative isolate inline-flex items-center justify-center gap-2 text-center font-semibold leading-snug focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-60 motion-safe:transition-transform motion-safe:hover:not-disabled:not-aria-disabled:scale-[1.03] ${TAM[size]} ${VARIANTES[variante].texto} ${className}`;
+export default function BotonHex({ href, onClick, type = 'button', variante = 'rojo', size = 'md', disabled, icono: Icono, iconoPos = 'izq', cargando, rotulo, className = '', children }: Props) {
+  const cls = `group/hex relative isolate inline-flex items-center justify-center gap-2 text-center leading-snug focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-60 motion-safe:transition-transform motion-safe:hover:not-disabled:not-aria-disabled:scale-[1.03] ${TAM[size]} ${TIPO[rotulo ? 'rotulo' : 'normal'][size]} ${VARIANTES[variante].texto} ${className}`;
   const icon = Icono && (
-    <Icono aria-hidden="true" size={size === 'lg' ? 22 : 18} className={`shrink-0 ${cargando ? 'animate-spin' : ''} motion-safe:transition-transform motion-safe:duration-300 ${iconoPos === 'der' ? 'motion-safe:group-hover/hex:translate-x-1' : 'motion-safe:group-hover/hex:-rotate-12 motion-safe:group-hover/hex:scale-110'}`} />
+    <Icono aria-hidden="true" size={size === 'lg' ? 22 : 18} className={`shrink-0 ${cargando ? 'animate-spin' : ''} motion-safe:transition-transform motion-safe:duration-300 ${cargando || disabled ? '' : iconoPos === 'der' ? 'motion-safe:group-hover/hex:translate-x-1' : 'motion-safe:group-hover/hex:-rotate-12 motion-safe:group-hover/hex:scale-110'}`} />
   );
   const contenido = <><CapasHex variante={variante} />{iconoPos === 'izq' && icon}{children}{iconoPos === 'der' && icon}</>;
-  if (!href) return <button type={type} onClick={onClick} disabled={disabled} className={cls}>{contenido}</button>;
+  if (!href) return <button type={type} onClick={onClick} disabled={disabled} aria-busy={cargando || undefined} className={cls}>{contenido}</button>;
   // Enlace deshabilitado: no es un enlace (sin href ni foco), anunciado como deshabilitado.
   if (disabled) return <span role="link" aria-disabled="true" className={`${cls} cursor-not-allowed opacity-60`}>{contenido}</span>;
   if (href.startsWith('/')) return <Link href={href} className={cls}>{contenido}</Link>;

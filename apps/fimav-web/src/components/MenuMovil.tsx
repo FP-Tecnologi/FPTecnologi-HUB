@@ -24,7 +24,7 @@ export default function MenuMovil() {
   }, []);
 
   return (
-    <details ref={ref} className="relative md:hidden">
+    <details ref={ref} className="relative lg:hidden">
       <summary className="group/hex relative isolate flex min-h-11 cursor-pointer list-none items-center gap-2 px-6 font-display text-lg font-bold uppercase tracking-widest text-carbon focus-visible:outline-hidden [&::-webkit-details-marker]:hidden">
         <CapasHex variante="contorno" /><Menu aria-hidden="true" size={18} />Menú
       </summary>
@@ -34,7 +34,7 @@ export default function MenuMovil() {
             {e.texto}
           </Link>
         ))}
-        <BotonHex href="/cotizar" icono={FileText} size="lg" className="mt-2 font-display text-xl font-bold uppercase tracking-widest">Cotizar</BotonHex>
+        <BotonHex href="/cotizar" icono={FileText} size="lg" rotulo className="mt-2">Cotizar</BotonHex>
       </nav>
     </details>
   );

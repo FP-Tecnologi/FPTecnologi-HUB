@@ -4,7 +4,6 @@ import Logo from './Logo';
 import LibroBadge from './LibroBadge';
 import CorteHex from './hex/CorteHex';
 import CtaCotizar from './home/CtaCotizar';
-import { rutaHexagono } from './hex/rutaHexagono';
 import { contacto } from '@/lib/contacto';
 import { contenido } from '@/lib/contenido';
 
@@ -15,7 +14,6 @@ const legales = [
   { href: '/legal/preguntas-frecuentes', texto: 'Preguntas frecuentes' },
 ];
 
-const HEX = rutaHexagono({ orientacion: 'punta-arriba', radio: 0.12 });
 const enlace = 'flex min-h-11 items-center gap-3 hover:underline focus-visible:outline-white';
 const Titulo = ({ children }: { children: string }) => (
   <>
@@ -31,11 +29,6 @@ export default function Footer() {
       <CorteHex lado="arriba" color="var(--color-carbon)" />
       <div className="bg-carbon pt-4">
         <CtaCotizar />
-        <div aria-hidden="true" className="mx-auto my-10 flex max-w-6xl items-center gap-4 px-4 sm:px-6">
-          <span className="h-px flex-1 bg-white/20" />
-          <svg viewBox="0 0 1 1" className="size-6 shrink-0"><path d={HEX} fill="none" stroke="var(--color-rojo)" strokeWidth="2" vectorEffect="non-scaling-stroke" /></svg>
-          <span className="h-px flex-1 bg-white/20" />
-        </div>
         <div className="mx-auto grid max-w-6xl divide-y divide-white/15 px-4 sm:px-6 md:grid-cols-2 md:divide-y-0 lg:grid-cols-[1.25fr_1.25fr_1fr_1fr] lg:divide-x [&>*]:py-6 lg:[&>*]:px-6 lg:[&>*:first-child]:pl-0 lg:[&>*:last-child]:pr-0">
           <div>
             <span className="inline-block rounded-xl bg-white p-2">

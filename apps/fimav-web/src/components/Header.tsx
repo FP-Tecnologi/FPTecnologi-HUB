@@ -13,9 +13,9 @@ export default function Header() {
         <Link href="/" aria-label="Fimav Perú, inicio" className="block">
           <Logo className="cabecera-logo h-14 w-auto object-contain" />
         </Link>
-        <nav aria-label="Principal" className="hidden items-center gap-8 md:flex">
+        <nav aria-label="Principal" className="hidden items-center gap-8 lg:flex">
           <EnlacesNav />
-          <BotonHex href="/cotizar" icono={FileText} className="font-display text-lg font-bold uppercase tracking-widest">Cotizar</BotonHex>
+          <BotonHex href="/cotizar" icono={FileText} rotulo>Cotizar</BotonHex>
         </nav>
         <MenuMovil />
       </div>
