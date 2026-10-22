@@ -14,11 +14,14 @@ import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
 interface Marca {
   id: string; nombre: string; logo: string | null; colorPrimario: string | null; colorSecundario: string | null;
   contactoEmail: string | null; contactoTelefono: string | null;
+  razonSocial: string | null; ruc: string | null; direccionFiscal: string | null;
   sitios: { id: string; dominio: string }[];
   _count: { usuarios: number; productos: number; soporteTickets: number };
 }
-type Form = { nombre: string; logo: string; colorPrimario: string; colorSecundario: string; contactoEmail: string; contactoTelefono: string };
-const VACIO: Form = { nombre: '', logo: '', colorPrimario: '', colorSecundario: '', contactoEmail: '', contactoTelefono: '' };
+type Form = { nombre: string; logo: string; colorPrimario: string; colorSecundario: string; contactoEmail: string; contactoTelefono: string; razonSocial: string; ruc: string; direccionFiscal: string };
+const VACIO: Form = { nombre: '', logo: '', colorPrimario: '', colorSecundario: '', contactoEmail: '', contactoTelefono: '', razonSocial: '', ruc: '', direccionFiscal: '' };
+const FISCALES = ['razonSocial', 'ruc', 'direccionFiscal'];
+const sinFiscales = (m: Marca) => !m.razonSocial || !m.ruc || !m.direccionFiscal;
 const msg = (e: unknown, d: string) => (e instanceof ApiError ? e.message : d);
 
 export function MarcasAdmin() {
@@ -50,18 +53,19 @@ export function MarcasAdmin() {
 
   function abrir(m: Marca | 'nueva') {
     setEditando(m); setModalErr('');
-    setForm(m === 'nueva' ? VACIO : { nombre: m.nombre, logo: m.logo ?? '', colorPrimario: m.colorPrimario ?? '', colorSecundario: m.colorSecundario ?? '', contactoEmail: m.contactoEmail ?? '', contactoTelefono: m.contactoTelefono ?? '' });
+    setForm(m === 'nueva' ? VACIO : { nombre: m.nombre, logo: m.logo ?? '', colorPrimario: m.colorPrimario ?? '', colorSecundario: m.colorSecundario ?? '', contactoEmail: m.contactoEmail ?? '', contactoTelefono: m.contactoTelefono ?? '', razonSocial: m.razonSocial ?? '', ruc: m.ruc ?? '', direccionFiscal: m.direccionFiscal ?? '' });
   }
 
   async function guardar(ev: React.FormEvent) {
     ev.preventDefault();
     if (!editando || busy) return;
+    if (form.ruc.trim() && !/^\d{11}$/.test(form.ruc.trim())) { setModalErr('El RUC debe tener 11 dígitos.'); return; }
     setBusy(true); setModalErr('');
     // Campos vacíos no se envían (la API los deja como están / sin valor).
     const body = Object.fromEntries(Object.entries(form).map(([k, v]) => [k, v.trim()]).filter(([, v]) => v));
     try {
       if (editando === 'nueva') { await api.post('/marcas', body); setOk('Marca creada.'); await refreshMarcas(); }
-      else { await api.patch(`/marcas/${editando.id}`, Object.fromEntries(Object.entries(form).map(([k, v]) => [k, v.trim()])), { marcaId: editando.id }); setOk('Marca actualizada.'); }
+      else { await api.patch(`/marcas/${editando.id}`, Object.fromEntries(Object.entries(form).map(([k, v]) => [k, v.trim() || (FISCALES.includes(k) ? null : '')])), { marcaId: editando.id }); setOk('Marca actualizada.'); }
       setEditando(null);
       await cargar();
     } catch (e) { setModalErr(msg(e, 'No se pudo guardar la marca.')); }
@@ -106,6 +110,11 @@ export function MarcasAdmin() {
               <div style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
                 {m.contactoEmail || 'Sin correo de contacto'}{m.contactoTelefono ? ` · ${m.contactoTelefono}` : ''}
               </div>
+              {sinFiscales(m) && (
+                <div className="ax-badge ax-badge--soft ax-badge--warning" role="note" style={{ whiteSpace: 'normal', height: 'auto', padding: 'var(--ax-space-2) var(--ax-space-3)' }}>
+                  Faltan datos fiscales para el Libro de Reclamaciones
+                </div>
+              )}
               <div>
                 <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)', marginBlockEnd: 4 }}>Dominios de la web</div>
                 <div className="ax-cluster" style={{ gap: 4, flexWrap: 'wrap' }}>
@@ -134,7 +143,7 @@ export function MarcasAdmin() {
       </div>
 
       {editando && (
-        <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 60, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
+        <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 400, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
           <div onClick={() => setEditando(null)} style={{ position: 'absolute', inset: 0, background: 'rgba(8,10,16,.55)', backdropFilter: 'blur(2px)' }} />
           <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="mk-title" className="ax-card" style={{ position: 'relative', maxWidth: 460, width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
             <div className="ax-card__header"><div className="ax-card__titles"><h2 className="ax-card__title" id="mk-title">{editando === 'nueva' ? 'Nueva marca' : `Editar ${editando.nombre}`}</h2></div></div>
@@ -158,6 +167,15 @@ export function MarcasAdmin() {
               </div>
               {campo('contactoEmail', 'Correo de contacto', { type: 'email' })}
               {campo('contactoTelefono', 'Teléfono de contacto', { maxLength: 30 })}
+              <fieldset style={{ border: 0, margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
+                <legend className="ax-label" style={{ marginBlockEnd: 'var(--ax-space-2)' }}>Datos fiscales (los exige el Libro de Reclamaciones)</legend>
+                {campo('razonSocial', 'Razón social', { maxLength: 150 })}
+                {campo('ruc', 'RUC', { inputMode: 'numeric', maxLength: 11, pattern: '[0-9]{11}', title: '11 dígitos', placeholder: '20123456789' })}
+                {campo('direccionFiscal', 'Dirección fiscal', { maxLength: 200 })}
+                {(!form.razonSocial.trim() || !form.ruc.trim() || !form.direccionFiscal.trim()) && (
+                  <p role="note" style={{ margin: 0, fontSize: 'var(--ax-text-xs)', color: 'var(--ax-warning-500)' }}>Completa los tres datos: sin ellos la web no puede mostrar el Libro de Reclamaciones.</p>
+                )}
+              </fieldset>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'flex-end' }}>
                 <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEditando(null)}>Cancelar</button>
                 <button type="submit" className="ax-btn ax-btn--primary" disabled={busy || !form.nombre.trim()}>{busy ? 'Guardando…' : 'Guardar'}</button>

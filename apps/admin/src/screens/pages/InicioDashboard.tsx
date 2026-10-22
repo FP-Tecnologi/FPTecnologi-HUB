@@ -33,12 +33,15 @@ export function InicioDashboard() {
   const { datos, cargando } = useResumen(activeMarcaId ? [activeMarcaId] : []);
   const [campanas, setCampanas] = useState<CampanaFila[] | null>(null);
   const [landings, setLandings] = useState<LandingFila[] | null>(null);
+  // Libro de reclamaciones: si el rol no tiene acceso o la API aún no lo tiene, la tarjeta no se muestra.
+  const [libro, setLibro] = useState<{ porVencer: number; vencidas: number } | null>(null);
   const marca = marcas.find((m) => m.marcaId === activeMarcaId)?.marca.nombre ?? 'la marca';
 
   useEffect(() => {
     if (!activeMarcaId) return;
     api.get<CampanaFila[]>('/campanas').then(setCampanas).catch(() => setCampanas(null));
     api.get<LandingFila[]>('/landings').then(setLandings).catch(() => setLandings(null));
+    api.get<{ porVencer: number; vencidas: number }>('/libro-reclamaciones/resumen').then(setLibro).catch(() => setLibro(null));
   }, [activeMarcaId]);
 
   const cuenta = (filas: { estado: string }[] | null, ...estados: string[]) => (filas ? filas.filter((f) => estados.includes(f.estado)).length : null);
@@ -79,6 +82,7 @@ export function InicioDashboard() {
               <Pendiente icon="article" tono="c2" label="Cotizaciones por responder" valor={cotizPend} href="/soluciones/cotizaciones" />
               <Pendiente icon="user" tono="c3" label="Leads nuevos" valor={leadsNuevos} href="/cotizador/leads" />
               <Pendiente icon="messages" tono="c4" label="Contactos nuevos" valor={contactosNuevos} href="/web/contactos" />
+              {libro && <Pendiente icon="files" tono="c3" label="Reclamos por vencer o vencidos" valor={libro.porVencer + libro.vencidas} href="/libro-reclamaciones" />}
               <Pendiente icon="headset" tono="c1" label="Chats con asesor" valor={chatsAsesor} href="/chat/conversaciones" />
               <Pendiente icon="folders" tono="c2" label="Productos con stock bajo" valor={stockBajo} href="/ecommerce/productos" />
             </div>

@@ -359,7 +359,7 @@ export function Sidebar({ drawerOpen = false, onNavToggle }: { drawerOpen?: bool
       {/* ===== NAV TREE ===== */}
       <nav className="ax-sidebar__nav" role="tree" aria-label="Main menu">
         {sections().map((section) => {
-          const groups = groupsInSection(section).filter((g) => g.inMenu && visibleForRole(g, roleName) && (g.section !== 'MARCA' || !adminMode) && (g.section !== 'MARCA' || !soloQuamtu || g.id === 'marca.cotizador' || g.id === 'marca.equipo') && (g.section !== 'GENERAL' || adminMode) && (g.id !== 'inicio.dashboards' || adminMode));
+          const groups = groupsInSection(section).filter((g) => g.inMenu && visibleForRole(g, roleName) && (g.section !== 'MARCA' || !adminMode) && (g.section !== 'MARCA' || !soloQuamtu || g.id === 'marca.cotizador' || g.id === 'marca.libro' || g.id === 'marca.equipo') && (g.section !== 'GENERAL' || adminMode) && (g.id !== 'inicio.dashboards' || adminMode));
           if (groups.length === 0) return null;
           return (
             <div key={section}>
