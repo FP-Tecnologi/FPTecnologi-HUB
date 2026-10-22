@@ -1,7 +1,7 @@
 import { contacto } from './contacto';
 
 // Basado en los textos legales de la web anterior de fimavperu.com, adaptados a esta web (venta por cotización).
-const titular = `${contacto.razonSocialLegal}, con RUC N.° ${contacto.ruc} y domicilio en ${contacto.direccion}`;
+const titular = `${contacto.razonSocialLegal}${contacto.ruc ? `, con RUC N.° ${contacto.ruc}` : ''} y domicilio en ${contacto.direccion}`;
 
 // Los párrafos que empiezan con "## " se muestran como subtítulo (h2).
 export const legal: Record<string, { titulo: string; parrafos: string[] }> = {

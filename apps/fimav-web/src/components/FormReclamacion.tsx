@@ -152,7 +152,7 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
 
         <div className="mt-6 hidden print:block">
           <h3 className="titulo-menor text-lg text-tinta">Proveedor</h3>
-          <p className="text-carbon">{proveedor.razonSocial} — RUC {proveedor.ruc}</p>
+          <p className="text-carbon">{proveedor.razonSocial}{proveedor.ruc ? ` — RUC ${proveedor.ruc}` : ""}</p>
           <p className="text-carbon">{proveedor.nombreComercial}. {proveedor.direccion}. {proveedor.email}</p>
         </div>
         <dl className="mt-6 hidden gap-x-6 gap-y-2 print:grid print:grid-cols-[12rem_1fr]">
@@ -181,7 +181,7 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
     <form onSubmit={enviar} noValidate className="grid gap-6">
       <section aria-labelledby="h-prov" className={grupo}>
         <h2 id="h-prov" className="titulo-menor text-xl text-carbon">Datos del proveedor</h2>
-        <p className="mt-2 text-carbon">{proveedor.razonSocial} — RUC {proveedor.ruc}</p>
+        <p className="mt-2 text-carbon">{proveedor.razonSocial}{proveedor.ruc ? ` — RUC ${proveedor.ruc}` : ""}</p>
         <p className="text-carbon">{proveedor.direccion}</p>
         <p className="break-all text-carbon">{proveedor.email}</p>
         <p className="mt-2 text-sm text-carbon">Fecha: {hoy || '—'}</p>
