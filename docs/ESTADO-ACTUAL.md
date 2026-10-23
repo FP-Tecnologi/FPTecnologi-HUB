@@ -1126,3 +1126,4 @@ Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «V
 - El encabezado ahora flota sobre los banners: transparente al inicio y compacto, blanco y con extremos hexagonales al desplazarse. Los banners internos reservan espacio para que el título no quede bajo el encabezado.
 - En Catálogo, las categorías alternan fondos empezando por blanco; Software muestra fotos de equipos y Baterías tiene tres ilustraciones propias.
 - Verificación: `npm run lint` y `npm run build` dentro de `apps/fimav-web`.
+- Ajuste solicitado durante la revisión: borde y sombra suaves en el encabezado fijo; hero con título blanco/rojo, subtítulo, emblema giratorio y widget de imagen por diapositiva; controles reducidos a flechas laterales sutiles y acceso inferior a la siguiente sección.

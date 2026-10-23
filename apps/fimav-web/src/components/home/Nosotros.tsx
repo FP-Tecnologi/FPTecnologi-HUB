@@ -5,7 +5,7 @@ import { contenido } from '@/lib/contenido';
 
 export default function Nosotros() {
   return (
-    <section className="bg-gris py-16 lg:py-24">
+    <section id="sobre-nosotros" className="bg-gris py-16 lg:py-24">
       <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2">
         <Reveal>
           <SeccionTitulo nivel="h2" eyebrow="Sobre nosotros" claro="Conoce a" rojo="Fimav Perú" />

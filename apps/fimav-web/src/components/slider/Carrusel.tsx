@@ -19,7 +19,7 @@ type Props = {
   /** Modo fundido: diapositivas apiladas que cambian con fundido (sin scroll), sin flechas ni puntos; solo queda el botón de pausa,
    *  visible únicamente con foco de teclado (WCAG 2.2.2). Avanza también con prefers-reduced-motion (cambio instantáneo). */
   fundido?: boolean;
-  /** Muestra navegación visible para el modo fundido. */
+  /** Muestra flechas laterales discretas en el modo fundido; la pausa queda disponible al enfocar con teclado. */
   controlesFundido?: boolean;
   /** Modo fundido: elemento decorativo hermano de la pista que depende de la diapositiva activa (p. ej. fotos del hero).
    *  Queda dentro del carrusel, así hover/foco/toque sobre él también pausan el avance (WCAG 2.2.2). */
@@ -168,27 +168,24 @@ export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full',
       </div>
 
       {fundido && N > 1 && auto > 0 && (
-        <div ref={controlFundido} className={controlesFundido
-          ? 'absolute bottom-6 left-4 z-20 flex items-center gap-2 rounded-full border border-white/20 bg-black/30 p-1.5 shadow-lg backdrop-blur-md sm:bottom-10 sm:left-8'
-          : 'pointer-events-none absolute bottom-1 left-4 z-10 opacity-0 focus-within:pointer-events-auto focus-within:opacity-100'}>
-          {controlesFundido && (
+        <div ref={controlFundido} className={controlesFundido ? 'contents' : 'pointer-events-none absolute bottom-1 left-4 z-10 opacity-0 focus-within:pointer-events-auto focus-within:opacity-100'}>
+          {controlesFundido ? (
             <>
-              <BotonHex variante="contorno" size="sm" icono={ChevronLeft} onClick={anterior} className="h-11 w-11 !min-h-11 !px-0"><span className="sr-only">Diapositiva anterior</span></BotonHex>
-              <ul className="flex items-center gap-0.5">
-                {diapositivas.map((_, i) => (
-                  <li key={i}>
-                    <button type="button" aria-label={`Ir a la diapositiva ${i + 1}`} aria-current={i === activa ? 'true' : undefined} onClick={() => ir(i)} className="group/punto grid h-11 w-6 place-items-center">
-                      <span className={`block h-2 rounded-full transition-all ${i === activa ? 'w-5 bg-white' : 'w-2 bg-white/50 group-hover/punto:bg-white'}`} />
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              <button type="button" aria-label="Diapositiva anterior" onClick={anterior} className="absolute left-2 top-1/2 z-20 grid size-11 -translate-y-1/2 place-items-center text-white/65 drop-shadow-md transition duration-300 hover:scale-110 hover:text-white focus-visible:rounded-full focus-visible:outline-white sm:left-5 lg:left-8">
+                <ChevronLeft aria-hidden="true" size={32} strokeWidth={1.6} />
+              </button>
+              <button type="button" aria-label="Siguiente diapositiva" onClick={() => siguiente()} className="absolute right-2 top-1/2 z-20 grid size-11 -translate-y-1/2 place-items-center text-white/65 drop-shadow-md transition duration-300 hover:scale-110 hover:text-white focus-visible:rounded-full focus-visible:outline-white sm:right-5 lg:right-8">
+                <ChevronRight aria-hidden="true" size={32} strokeWidth={1.6} />
+              </button>
+              <button type="button" onClick={() => setManual(reproduciendo ? 'pausa' : 'play')} className="sr-only focus:not-sr-only focus:fixed focus:bottom-4 focus:left-4 focus:z-[100] focus:rounded-full focus:bg-carbon focus:px-4 focus:py-3 focus:text-white focus:shadow-lg focus-visible:outline-white">
+                {reproduciendo ? 'Pausar avance automático' : 'Reanudar avance automático'}
+              </button>
             </>
+          ) : (
+            <BotonHex variante="contorno" size="sm" icono={reproduciendo ? Pause : Play} onClick={() => setManual(reproduciendo ? 'pausa' : 'play')}>
+              <span className="sr-only">{reproduciendo ? 'Pausar avance automático' : 'Reproducir avance automático'}</span>
+            </BotonHex>
           )}
-          <BotonHex variante="contorno" size="sm" icono={reproduciendo ? Pause : Play} onClick={() => setManual(reproduciendo ? 'pausa' : 'play')}>
-            <span className="sr-only">{reproduciendo ? 'Pausar avance automático' : 'Reproducir avance automático'}</span>
-          </BotonHex>
-          {controlesFundido && <BotonHex variante="contorno" size="sm" icono={ChevronRight} onClick={() => siguiente()} className="h-11 w-11 !min-h-11 !px-0"><span className="sr-only">Siguiente diapositiva</span></BotonHex>}
         </div>
       )}
       {!fundido && N > 1 && (
