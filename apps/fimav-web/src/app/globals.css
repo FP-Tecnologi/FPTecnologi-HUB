@@ -108,7 +108,6 @@ p, li { text-wrap: pretty; }
 .cabecera-logo-fijo { display: none; }
 html[data-scrolled] .cabecera-logo-transparente { display: none; }
 html[data-scrolled] .cabecera-logo-fijo { display: block; }
-/* El botón "Menú" del celular tiene fondo blanco propio (CapasHex contorno): su texto sigue oscuro sobre el banner. */
 html:not([data-scrolled]) .cabecera-link { color: white; }
 html[data-scrolled] .cabecera::before {
   background: white;
@@ -117,8 +116,7 @@ html[data-scrolled] .cabecera::before {
 }
 html[data-scrolled] .cabecera-interior { min-height: 3.8rem; }
 html[data-scrolled] .cabecera-logo { transform: scale(0.82); }
-html[data-scrolled] .cabecera-link,
-html[data-scrolled] .cabecera-movil-toggle { color: var(--color-carbon); }
+html[data-scrolled] .cabecera-link { color: var(--color-carbon); }
 .hero-fondo-imagen { filter: brightness(0.48) saturate(0.82); animation: hero-respira 24s ease-in-out infinite alternate; }
 .hero-emblema { animation: hero-emblema-giro 32s linear infinite; }
 @keyframes hero-texto-entrada { from { opacity: 0; transform: translateY(14px); } }

@@ -2,7 +2,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef } from 'react';
-import { FileText, Menu } from 'lucide-react';
+import { FileText, Menu, X } from 'lucide-react';
 import BotonHex, { CapasHex } from './hex/BotonHex';
 import { enlaces, esActivo } from './EnlacesNav';
 
@@ -24,9 +24,13 @@ export default function MenuMovil() {
   }, []);
 
   return (
-    <details ref={ref} className="relative lg:hidden">
-      <summary className="cabecera-movil-toggle group/hex relative isolate flex min-h-11 cursor-pointer list-none items-center gap-2 px-6 font-display text-lg font-bold uppercase tracking-widest text-carbon focus-visible:outline-hidden [&::-webkit-details-marker]:hidden">
-        <CapasHex variante="contorno" /><Menu aria-hidden="true" size={18} />Menú
+    <details ref={ref} className="group/menu relative lg:hidden">
+      {/* Solo el ícono (hamburguesa; ✕ con el menú abierto) en hexágono rojo, visible sobre el banner y sobre blanco. */}
+      <summary className="group/hex relative isolate grid h-12 w-16 cursor-pointer list-none place-items-center text-white focus-visible:outline-hidden [&::-webkit-details-marker]:hidden">
+        <CapasHex variante="rojo" />
+        <Menu aria-hidden="true" size={28} strokeWidth={2.5} className="group-open/menu:hidden" />
+        <X aria-hidden="true" size={28} strokeWidth={2.5} className="hidden group-open/menu:block" />
+        <span className="sr-only">Abrir menú</span>
       </summary>
       <nav aria-label="Principal" className="absolute right-0 top-full mt-2 flex w-72 flex-col gap-1 rounded-2xl border border-gris bg-white p-3 shadow-lg">
         {enlaces.map((e) => (
