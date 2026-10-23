@@ -1127,3 +1127,5 @@ Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «V
 - En Catálogo, las categorías alternan fondos empezando por blanco; Software muestra fotos de equipos y Baterías tiene tres ilustraciones propias.
 - Verificación: `npm run lint` y `npm run build` dentro de `apps/fimav-web`.
 - Ajuste solicitado durante la revisión: borde y sombra suaves en el encabezado fijo; hero con título blanco/rojo, subtítulo, emblema giratorio y widget de imagen por diapositiva; controles reducidos a flechas laterales sutiles y acceso inferior a la siguiente sección.
+- Rediseño posterior del hero: encabezado transparente sin borde/sombra hasta desplazarse; etiqueta «FIMAV PERÚ», títulos centrados de cuatro palabras con entrada suave y galería simétrica de dos imágenes alrededor del isotipo. La descripción de cada slide queda en un widget contextual; se retiraron del hero los ornamentos de marca de agua.
+- Se extendió `Reveal` a contenido principal de páginas de categoría, cotización, reclamaciones y legales; se incorporaron motivos geométricos sutiles en algunas secciones de inicio, catálogo y Perú Compras.

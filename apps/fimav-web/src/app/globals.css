@@ -85,15 +85,18 @@ p, li { text-wrap: pretty; }
 }
 /* El encabezado flota sobre los banners y solo toma su forma hexagonal al compactarse. */
 .cabecera {
-  background: rgb(17 18 20 / 0.14);
-  border: 1px solid rgb(255 255 255 / 0.12);
-  box-shadow: 0 6px 18px -10px rgb(0 0 0 / 0.55);
-  backdrop-filter: blur(10px);
+  background: transparent;
+  border: 1px solid transparent;
+  box-shadow: none;
+  backdrop-filter: none;
   transition: background-color 0.35s, border-color 0.35s, box-shadow 0.35s, filter 0.35s, clip-path 0.35s;
 }
 .cabecera-interior { transition: min-height 0.35s; }
 .cabecera-logo { transform-origin: left center; transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1); }
 .cabecera-marca { clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%); }
+.cabecera-logo-fijo { display: none; }
+html[data-scrolled] .cabecera-logo-transparente { display: none; }
+html[data-scrolled] .cabecera-logo-fijo { display: block; }
 html:not([data-scrolled]) .cabecera-link,
 html:not([data-scrolled]) .cabecera-movil-toggle { color: white; }
 html[data-scrolled] .cabecera {
@@ -108,10 +111,14 @@ html[data-scrolled] .cabecera-interior { min-height: 3.8rem; }
 html[data-scrolled] .cabecera-logo { transform: scale(0.82); }
 html[data-scrolled] .cabecera-link,
 html[data-scrolled] .cabecera-movil-toggle { color: var(--color-carbon); }
-html:not([data-scrolled]) .cabecera-marca { background: white; }
-html:not([data-scrolled]) .cabecera-marca img { mix-blend-mode: multiply; }
 .hero-fondo-imagen { filter: brightness(0.48) saturate(0.82); animation: hero-respira 24s ease-in-out infinite alternate; }
 .hero-emblema { animation: hero-emblema-giro 32s linear infinite; }
+@keyframes hero-texto-entrada { from { opacity: 0; transform: translateY(14px); } }
+.hero-titulo h2 > span { display: block; }
+.hero-etiqueta { clip-path: polygon(9px 0, calc(100% - 9px) 0, 100% 50%, calc(100% - 9px) 100%, 9px 100%, 0 50%); }
+.hero-carousel [role='group']:not([inert]) .hero-etiqueta { animation: hero-texto-entrada 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.hero-carousel [role='group']:not([inert]) .hero-titulo { animation: hero-texto-entrada 0.7s 0.08s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.hero-carousel [role='group']:not([inert]) .hero-widget { animation: hero-texto-entrada 0.6s 0.16s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 @keyframes marquesina { to { transform: translateX(-50%); } }
 .marquesina { mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); }
 .marquesina-pista { animation: marquesina 40s linear infinite; }

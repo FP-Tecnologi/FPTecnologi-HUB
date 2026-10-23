@@ -10,34 +10,34 @@ import Carrusel from '@/components/slider/Carrusel';
 // Solo lo que consta en el brochure.
 const diapositivas = [
   {
-    claro: 'Especialistas en', rojo: 'bienes y servicios',
+    claro: 'Tecnología para', rojo: 'cada organización',
     subtitulo: 'Tecnología para cada espacio de trabajo',
     texto: 'Organización comercial especializada en el sector Corporativo y Gobierno, con el respaldo de las marcas más representativas del segmento tecnológico.',
-    imagenLateral: '/fotos/all-in-one-1.jpg', detalle: 'Equipos de cómputo para organizaciones',
+    imagenIzquierda: '/fotos/escritorios-1.jpg', imagenDerecha: '/fotos/all-in-one-1.jpg',
     fondo: '/fotos/escritorios-2.jpg',
     botones: [{ href: '/cotizar', icono: FileText, texto: 'Solicitar cotización' }, { href: '/catalogo', icono: LayoutGrid, texto: 'Ver catálogo', contorno: true }],
   },
   {
-    claro: 'Tecnología para el Estado', rojo: 'y las empresas',
+    claro: 'Soluciones para', rojo: 'el Estado',
     subtitulo: 'Infraestructura que conecta y sostiene tu operación',
     texto: 'Desarrollamos soluciones tecnológicas según la necesidad de cada entidad, con equipos de las marcas más comerciales del mercado.',
-    imagenLateral: '/fotos/networking-1.jpg', detalle: 'Servidores y conectividad',
+    imagenIzquierda: '/fotos/networking-1.jpg', imagenDerecha: '/fotos/servidores-1.jpg',
     fondo: '/fotos/servidores-1.jpg',
     botones: [{ href: '/catalogo', icono: LayoutGrid, texto: 'Ver catálogo' }],
   },
   {
-    claro: 'Estamos en', rojo: 'Perú Compras',
+    claro: 'Atención a', rojo: 'Perú Compras',
     subtitulo: 'Soluciones para entidades del sector público',
     texto: 'Venta de bienes y servicios y postventa B2G, con presencia en Lima Metropolitana y los demás departamentos del país.',
-    imagenLateral: '/fotos/proyectores-1.jpg', detalle: 'Atención B2G en todo el Perú',
+    imagenIzquierda: '/fotos/proyectores-1.jpg', imagenDerecha: '/fotos/impresoras-1.jpg',
     fondo: '/peru-compras/contenedor.jpg',
     botones: [{ href: '/peru-compras', icono: Landmark, texto: 'Conoce más' }, { href: '/cotizar', icono: FileText, texto: 'Cotizar', contorno: true }],
   },
   {
-    claro: 'Impresión, redes', rojo: 'y más',
+    claro: 'Equipos para', rojo: 'tu empresa',
     subtitulo: 'Equipamiento para las necesidades de tu organización',
     texto: 'Impresión, networking, aire acondicionado, baterías, consumibles, mobiliario y papel para tu organización.',
-    imagenLateral: '/fotos/consumibles-1.jpg', detalle: 'Impresión, redes y suministros',
+    imagenIzquierda: '/fotos/impresoras-2.jpg', imagenDerecha: '/fotos/consumibles-1.jpg',
     fondo: '/fotos/impresoras-2.jpg',
     botones: [{ href: '/catalogo', icono: ArrowRight, texto: 'Explorar categorías' }],
   },
@@ -45,24 +45,35 @@ const diapositivas = [
 
 type Diapositiva = (typeof diapositivas)[number];
 
-function WidgetDiapositiva({ diapositiva, compacto = false }: { diapositiva: Diapositiva; compacto?: boolean }) {
+function GaleriaDiapositiva({ diapositiva }: { diapositiva: Diapositiva }) {
   return (
-    <div aria-hidden="true" className={compacto ? 'flex items-center gap-4 lg:hidden' : 'absolute right-[8%] top-1/2 hidden w-[min(34vw,440px)] -translate-y-1/2 lg:block'}>
-      <div className={compacto ? 'relative w-20 shrink-0 sm:w-24' : 'relative mx-auto w-[82%]'}>
-        <HexImagen
-          src={diapositiva.imagenLateral}
-          alt=""
-          carga={compacto ? 'lazy' : 'eager'}
-          sizes={compacto ? '96px' : '(min-width: 1024px) 380px, 34vw'}
-          className={compacto ? 'w-full' : 'w-full drop-shadow-[0_18px_32px_rgb(0_0_0/0.35)]'}
-        />
-        <div className={`absolute z-10 grid place-items-center rounded-full border border-white/20 bg-carbon/80 p-2 shadow-lg backdrop-blur-sm ${compacto ? '-left-2 -top-2 size-10' : '-left-5 top-[14%] size-16'}`}>
-          <Espiral className="hero-emblema size-full" />
-        </div>
+    <div aria-hidden="true" className="hero-galeria relative flex h-24 w-full max-w-md items-center justify-center sm:h-32">
+      <HexImagen
+        src={diapositiva.imagenIzquierda}
+        alt=""
+        carga="eager"
+        sizes="(min-width: 640px) 150px, 100px"
+        className="z-0 -mr-5 w-24 -rotate-6 drop-shadow-[0_16px_28px_rgb(0_0_0/0.35)] sm:-mr-7 sm:w-36"
+      />
+      <div className="relative z-10 grid size-16 shrink-0 place-items-center rounded-full border border-white/25 bg-carbon/75 p-2 shadow-[0_0_32px_rgb(224_36_36/0.3)] backdrop-blur-md sm:size-24 sm:p-3">
+        <Espiral className="hero-emblema size-full" />
       </div>
-      <p className={compacto ? 'max-w-56 text-xs font-semibold uppercase tracking-wider text-white/80 sm:text-sm' : 'mx-auto mt-5 w-fit max-w-[80%] border-l-2 border-rojo bg-black/25 px-4 py-2 text-sm font-semibold uppercase tracking-[0.12em] text-white/90 backdrop-blur-sm'}>
-        {diapositiva.detalle}
-      </p>
+      <HexImagen
+        src={diapositiva.imagenDerecha}
+        alt=""
+        carga="eager"
+        sizes="(min-width: 640px) 150px, 100px"
+        className="z-0 -ml-5 w-24 rotate-6 drop-shadow-[0_16px_28px_rgb(0_0_0/0.35)] sm:-ml-7 sm:w-36"
+      />
+    </div>
+  );
+}
+
+function WidgetDiapositiva({ diapositiva }: { diapositiva: Diapositiva }) {
+  return (
+    <div className="hero-widget mx-auto mt-3 w-full max-w-2xl rounded-xl border border-white/15 bg-black/25 px-4 py-3 text-center shadow-lg backdrop-blur-md sm:mt-4 sm:px-6">
+      <p className="font-display text-sm font-bold uppercase tracking-[0.12em] text-white/90 sm:text-base">{diapositiva.subtitulo}</p>
+      <p className="mt-1 text-xs leading-relaxed text-white/75 sm:text-sm">{diapositiva.texto}</p>
     </div>
   );
 }
@@ -76,7 +87,7 @@ export default function HeroSlider() {
         auto={6000}
         fundido
         controlesFundido
-        className="relative isolate mx-auto grid min-h-svh w-full max-w-none items-center px-4 pb-24 pt-28 sm:px-8 sm:pb-24 sm:pt-32 lg:px-16"
+        className="hero-carousel relative isolate mx-auto grid min-h-svh w-full max-w-none items-center px-4 pb-24 pt-28 sm:px-8 sm:pb-24 sm:pt-32 lg:px-16"
         visual={(activa) => (
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden bg-[#111214]">
             {diapositivas.map((d, i) => (
@@ -88,20 +99,25 @@ export default function HeroSlider() {
               </div>
             ))}
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_82%_42%,rgb(224_36_36/0.22),transparent_38%)]" />
-            <svg viewBox="0 0 100 100" aria-hidden="true" className="absolute -right-[12%] top-[10%] w-[min(68vw,780px)] opacity-25">
-              <path d="M50 4 94 27v46L50 96 6 73V27Z" fill="none" stroke="#e02424" strokeWidth="0.7" strokeLinejoin="round" />
-            </svg>
-            <Espiral contorno className="absolute -bottom-40 -right-36 w-[min(70vw,650px)] opacity-[0.14]" />
-            <WidgetDiapositiva diapositiva={diapositivas[activa]} />
           </div>
         )}
         diapositivas={diapositivas.map((d) => (
-          <div key={d.rojo} className="px-1 py-1 lg:max-w-[58%]">
-            <SeccionTitulo nivel="h2" tam="lg" claroSobreOscuro claro={d.claro} rojo={d.rojo} className="max-w-3xl [&_h2]:text-[clamp(2.75rem,7vw,5.5rem)] [&_h2]:tracking-[0.035em] [&_h2>span:first-child]:!text-white [&_h2>span:last-child]:!text-rojo" />
-            <p className="mt-4 max-w-xl font-display text-xl font-bold leading-snug text-white sm:mt-6 sm:text-2xl">{d.subtitulo}</p>
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/75 sm:text-base">{d.texto}</p>
-            <WidgetDiapositiva diapositiva={d} compacto />
-            <div className="mt-5 flex flex-wrap gap-3 sm:mt-7 sm:gap-4">
+          <div key={d.rojo} className="hero-slide-content mx-auto flex w-full max-w-5xl flex-col items-center px-1 py-1 text-center">
+            <span className="hero-etiqueta mb-3 inline-flex items-center border border-white/30 bg-white/5 px-5 py-1.5 font-display text-xs font-bold tracking-[0.22em] text-white/90 backdrop-blur-sm sm:mb-4 sm:text-sm">
+              FIMAV PERÚ
+            </span>
+            <SeccionTitulo
+              nivel="h2"
+              tam="lg"
+              claroSobreOscuro
+              alineacion="centro"
+              claro={d.claro}
+              rojo={d.rojo}
+              className="hero-titulo w-full max-w-4xl [&_h2]:text-[clamp(2.25rem,6.5vw,5rem)] [&_h2]:tracking-[0.035em] [&_h2>span:first-child]:!text-white [&_h2>span:last-child]:!text-rojo"
+            />
+            <GaleriaDiapositiva diapositiva={d} />
+            <WidgetDiapositiva diapositiva={d} />
+            <div className="mt-4 flex w-full flex-wrap justify-center gap-3 sm:mt-5 sm:gap-4">
               {d.botones.map((b) => (
                 <BotonHex key={b.texto} href={b.href} size="md" className="max-sm:flex-1 sm:!min-h-14 sm:!px-10 sm:!text-lg" icono={b.icono} variante={'contorno' in b ? 'contorno' : 'rojo'}>{b.texto}</BotonHex>
               ))}
