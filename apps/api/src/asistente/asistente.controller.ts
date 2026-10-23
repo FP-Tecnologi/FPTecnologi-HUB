@@ -2,6 +2,7 @@ import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { Type } from 'class-transformer';
 import { ArrayMaxSize, ArrayMinSize, IsArray, IsIn, IsString, MaxLength, MinLength, ValidateNested } from 'class-validator';
 import { MarcaRolGuard } from '../common/guards/marca-rol.guard.js';
+import { SuperAdminGuard } from '../common/guards/super-admin.guard.js';
 import { MarcaActual } from '../common/decorators/marca-actual.decorator.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user.js';
@@ -17,8 +18,11 @@ class ConsultarDto {
   mensajes!: MensajeDto[];
 }
 
-/** Dashboard → Asistente virtual. Cualquier rol de la marca; las herramientas se recortan según el rol. */
-@UseGuards(MarcaRolGuard)
+/**
+ * Dashboard → Administración → Asistente virtual. Solo el super administrador (la vista global del dashboard), sobre
+ * una marca a la que tenga acceso (x-marca-id); las herramientas se recortan según su rol en esa marca.
+ */
+@UseGuards(SuperAdminGuard, MarcaRolGuard)
 @Controller('asistente')
 export class AsistenteController {
   constructor(private readonly asistente: AsistenteService) {}

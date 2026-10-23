@@ -60,10 +60,16 @@ function valor(m: Metrica) {
 
 const celda = (v: string | number | null) => (v === null || v === '' ? '—' : typeof v === 'number' ? v.toLocaleString('es-PE') : v);
 
+/*
+ * Solo en Administración (vista global del super administrador): no aparece dentro de cada marca. Como ahí no hay
+ * marca activa, se elige aquí qué marca consultar; la API vuelve a exigir super administrador.
+ */
 export function AsistenteVirtual() {
-  const { activeMarcaId, marcas, adminMode } = useAuth();
+  const { marcas, adminMode, esSuperAdmin, setActiveMarcaId } = useAuth();
+  const [marcaId, setMarcaId] = useState<string | null>(null);
+  const activeMarcaId = marcaId ?? marcas[0]?.marcaId ?? null;
   const asignacion = marcas.find((m) => m.marcaId === activeMarcaId);
-  const rol = asignacion?.rol.nombre ?? null;
+  const rol = 'admin';
   const [mensajes, setMensajes] = useState<Mensaje[]>([]);
   const [borrador, setBorrador] = useState('');
   const [pensando, setPensando] = useState(false);
@@ -84,7 +90,10 @@ export function AsistenteVirtual() {
   const modulo = useMemo(() => (id: string) => {
     const nodo = manifest.byId.get(id);
     return nodo && visibleForRole(nodo, rol) && visibleParaMarca(nodo, asignacion?.marca.nombre) ? { titulo: nodo.title, href: hrefForSlug(nodo.slug) } : null;
-  }, [rol, asignacion?.marca.nombre]);
+  }, [asignacion?.marca.nombre]);
+
+  /** Los módulos son de una marca: al ir, se sale de Administración y se activa la marca consultada. */
+  const irAMarca = () => activeMarcaId && setActiveMarcaId(activeMarcaId);
 
   async function preguntar(texto: string) {
     const pregunta = texto.trim().slice(0, 2000);
@@ -99,7 +108,7 @@ export function AsistenteVirtual() {
     try {
       const r = await api.post<Respuesta>('/asistente/consultar', {
         mensajes: nuevos.slice(-12).map((m) => ({ role: m.role, content: m.content.slice(0, 2000) })),
-      });
+      }, { marcaId });
       const conRespuesta: Mensaje[] = [...nuevos, { role: 'assistant', content: r.texto, modulos: r.modulos, tablas: r.tablas, metricas: r.metricas, sugerencias: r.sugerencias }];
       setMensajes(conRespuesta);
       guardar(marcaId, conRespuesta);
@@ -118,11 +127,17 @@ export function AsistenteVirtual() {
     entradaRef.current?.focus();
   }
 
-  if (adminMode || !activeMarcaId) {
+  if (!adminMode || !esSuperAdmin || !activeMarcaId) {
     return (
       <>
-        <PageHead title="Asistente virtual" subtitle="Consulta datos, resúmenes y métricas de una marca." />
-        <div className="ax-card"><div className="ax-card__body"><p>Elige una marca en el selector del menú para usar el asistente: trabaja con los datos de la marca activa.</p></div></div>
+        <PageHead title="Asistente virtual" subtitle="Consulta datos, resúmenes y métricas de las marcas." />
+        <div className="ax-card"><div className="ax-card__body"><p>
+          {!esSuperAdmin
+            ? 'El asistente virtual es solo para el super administrador.'
+            : !adminMode
+              ? 'El asistente virtual está en Administración: elige «Administración» en el selector de marca del menú.'
+              : 'No tienes marcas asignadas para consultar.'}
+        </p></div></div>
       </>
     );
   }
@@ -136,11 +151,17 @@ export function AsistenteVirtual() {
         title="Asistente virtual"
         subtitle={`Pregunta por métricas, pendientes o cualquier dato de ${asignacion?.marca.nombre ?? 'la marca'}. Responde con los datos reales y te lleva al módulo.`}
         actions={
-          mensajes.length > 0 ? (
-            <button type="button" className="ax-btn ax-btn--secondary" onClick={nueva}>
-              <span className="ax-btn__label">Nueva conversación</span>
-            </button>
-          ) : undefined
+          <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
+            <label className="ax-visually-hidden" htmlFor="asistente-marca">Marca a consultar</label>
+            <select id="asistente-marca" className="ax-select" value={activeMarcaId} disabled={pensando} onChange={(e) => setMarcaId(e.target.value)}>
+              {marcas.map((m) => <option key={m.marcaId} value={m.marcaId}>{m.marca.nombre}</option>)}
+            </select>
+            {mensajes.length > 0 && (
+              <button type="button" className="ax-btn ax-btn--secondary" onClick={nueva}>
+                <span className="ax-btn__label">Nueva conversación</span>
+              </button>
+            )}
+          </div>
         }
       />
 
@@ -197,7 +218,7 @@ export function AsistenteVirtual() {
                               <span className="ax-statgroup__label">{x.etiqueta}</span>
                               <span className="ax-statgroup__value ax-num">{valor(x)}</span>
                               {x.detalle && <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-muted)' }}>{x.detalle}</span>}
-                              {ir && <Link href={ir.href} style={{ fontSize: 'var(--ax-text-xs)' }}>Ver en {ir.titulo}</Link>}
+                              {ir && <Link href={ir.href} onClick={irAMarca} style={{ fontSize: 'var(--ax-text-xs)' }}>Ver en {ir.titulo}</Link>}
                             </span>
                           </div>
                         );
@@ -213,7 +234,7 @@ export function AsistenteVirtual() {
                           <strong>{t.titulo}</strong>
                           <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-muted)' }}>
                             {t.total !== undefined && t.total > t.filas.length ? `Mostrando ${t.filas.length} de ${t.total}` : `${t.filas.length} resultado${t.filas.length === 1 ? '' : 's'}`}
-                            {ir && <> · <Link href={ir.href}>Abrir {ir.titulo}</Link></>}
+                            {ir && <> · <Link href={ir.href} onClick={irAMarca}>Abrir {ir.titulo}</Link></>}
                           </span>
                         </div>
                         <div className="ax-table-wrap" style={{ maxHeight: 360, overflow: 'auto' }}>
@@ -239,7 +260,7 @@ export function AsistenteVirtual() {
                       {m.modulos.map((id) => {
                         const ir = modulo(id);
                         return ir ? (
-                          <Link key={id} href={ir.href} className="ax-btn ax-btn--secondary ax-btn--sm">
+                          <Link key={id} href={ir.href} onClick={irAMarca} className="ax-btn ax-btn--secondary ax-btn--sm">
                             <span className="ax-btn__label">Ir a {ir.titulo} →</span>
                           </Link>
                         ) : null;

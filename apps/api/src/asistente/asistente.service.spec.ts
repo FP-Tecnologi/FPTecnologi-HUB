@@ -135,3 +135,12 @@ describe('permisos de herramientas', () => {
     expect(de('asesores')).toEqual(['buscar_chats', 'buscar_conocimiento', 'resumen_negocio']);
   });
 });
+
+describe('AsistenteController', () => {
+  it('solo el super administrador, y con acceso a la marca consultada', async () => {
+    const { AsistenteController } = await import('./asistente.controller.js');
+    const { SuperAdminGuard } = await import('../common/guards/super-admin.guard.js');
+    const { MarcaRolGuard } = await import('../common/guards/marca-rol.guard.js');
+    expect(Reflect.getMetadata('__guards__', AsistenteController)).toEqual([SuperAdminGuard, MarcaRolGuard]);
+  });
+});
