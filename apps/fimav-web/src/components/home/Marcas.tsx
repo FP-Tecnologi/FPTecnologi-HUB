@@ -1,7 +1,6 @@
 import SeccionTitulo from '@/components/SeccionTitulo';
 import Reveal from '@/components/motion/Reveal';
 import { contenido } from '@/lib/contenido';
-import PausaMarquesina from './PausaMarquesina';
 
 // Franja de logos con desplazamiento continuo. La lista va dos veces: la copia es decorativa (aria-hidden + inert).
 // Con prefers-reduced-motion se oculta la copia y queda una cuadrícula estática (ver globals.css).
@@ -24,10 +23,10 @@ export function FranjaMarcas({ className = '' }: { className?: string }) {
                     src={m.logo}
                     alt={copia ? '' : m.nombre}
                     style={{ height: m.alto ?? 40 }}
-                    className={`w-auto max-w-none transition ${m.solido ? '' : 'opacity-70 grayscale group-hover:opacity-100 group-hover:grayscale-0'}`}
+                    className={`w-auto max-w-none transition motion-safe:group-hover:scale-110 ${m.solido ? '' : 'opacity-70 grayscale group-hover:opacity-100 group-hover:grayscale-0'}`}
                   />
                 ) : (
-                  <span className="font-titulo text-2xl font-semibold leading-10 text-carbon/70 transition group-hover:text-carbon">{m.nombre}</span>
+                  <span className="inline-block font-titulo text-2xl font-semibold leading-10 text-carbon/70 transition motion-safe:group-hover:scale-110 group-hover:text-carbon">{m.nombre}</span>
                 )}
               </li>
             ))}
@@ -35,7 +34,6 @@ export function FranjaMarcas({ className = '' }: { className?: string }) {
         ))}
       </div>
     </div>
-    <PausaMarquesina />
     </div>
   );
 }

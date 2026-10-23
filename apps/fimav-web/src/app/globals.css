@@ -91,11 +91,7 @@ p, li { text-wrap: pretty; }
 .marquesina { mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); }
 .marquesina-pista { animation: marquesina 40s linear infinite; }
 .marquesina:hover .marquesina-pista, .marquesina:focus-within .marquesina-pista { animation-play-state: paused; }
-/* La elección del usuario (botón) manda sobre hover y foco. */
-.marquesina[data-modo='pausa'] .marquesina-pista { animation-play-state: paused; }
-.marquesina[data-modo='play'] .marquesina-pista { animation-play-state: running; }
 @media (prefers-reduced-motion: reduce) {
-  .marquesina-ctl { display: none; }
   .marquesina { mask-image: none; -webkit-mask-image: none; }
   .marquesina-pista { width: 100%; flex-wrap: wrap; justify-content: center; }
   .marquesina-lista { flex-shrink: 1; flex-wrap: wrap; justify-content: center; row-gap: 1rem; padding-right: 0; }
