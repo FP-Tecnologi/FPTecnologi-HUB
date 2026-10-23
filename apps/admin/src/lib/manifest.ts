@@ -145,6 +145,24 @@ export function visibleParaMarca(node: NavNode, marcaNombre: string | null | und
   return !hermanos.some((id) => lista.includes(id)) || lista.includes(node.id);
 }
 
+/**
+ * ¿Se ofrece este nodo a quien está usando el dashboard? Mismas reglas que el menú lateral: el nodo y todos sus
+ * ancestros deben estar en el menú y permitidos para el rol; GENERAL (Administración) e «inicio.dashboards» solo en la
+ * vista de Administración; MARCA nunca en Administración y, dentro de una marca, solo sus módulos (visibleParaMarca).
+ * La usa el buscador (⌘K) para no listar módulos que el menú oculta.
+ */
+export function visibleEnDashboard(node: NavNode, ctx: { roleName: string | null; adminMode: boolean; marcaNombre: string | null | undefined }): boolean {
+  const trail = manifest.trail(node);
+  const raiz = trail[0];
+  if (!raiz) return false;
+  if (trail.some((n) => !n.inMenu || !visibleForRole(n, ctx.roleName))) return false;
+  if (raiz.section === 'GENERAL' && !ctx.adminMode) return false;
+  if (raiz.id === 'inicio.dashboards' && !ctx.adminMode) return false;
+  if (raiz.section === 'MARCA' && ctx.adminMode) return false;
+  if (ctx.adminMode && trail.some((n) => n.soloMarca)) return false;
+  return ctx.adminMode || trail.every((n) => visibleParaMarca(n, ctx.marcaNombre));
+}
+
 export function visibleForRole(node: NavNode, roleName: string | null): boolean {
   if (!node.roles || node.roles.length === 0) return true;
   if (!roleName) return false;

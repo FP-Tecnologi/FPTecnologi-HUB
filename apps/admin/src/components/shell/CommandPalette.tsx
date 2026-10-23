@@ -31,7 +31,8 @@
  */
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { manifest, hrefForSlug } from '../../lib/manifest';
+import { manifest, hrefForSlug, visibleEnDashboard } from '../../lib/manifest';
+import { useAuth } from '../../context/AuthContext';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useCustomizer } from '../../context/CustomizerContext';
 import * as store from '../../lib/storage';
@@ -71,12 +72,14 @@ interface ResultGroup {
   items: Item[];
 }
 
-function buildItems(): Item[] {
+/** `visible`: solo lo que el menú lateral muestra a este usuario (rol, marca activa, Administración). */
+function buildItems(visible: (n: (typeof manifest.nodes)[number]) => boolean): Item[] {
   const items: Item[] = [];
   // Pages (every in-menu leaf with a real slug)
   for (const node of manifest.nodes) {
     if (node.alias) continue;
     if (node.parent === null) continue; // skip bare section groups as page rows
+    if (!visible(node)) continue;
     const trail = manifest.trail(node);
     const crumb = trail
       .slice(0, -1)
@@ -185,7 +188,11 @@ export function CommandPalette({
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
-  const items = useMemo(buildItems, []);
+  const { marcas, activeMarcaId, adminMode, esSuperAdmin } = useAuth();
+  const marcaActiva = marcas.find((m) => m.marcaId === activeMarcaId);
+  const roleName = adminMode ? (esSuperAdmin ? 'admin' : (marcas[0]?.rol.nombre ?? null)) : (marcaActiva?.rol.nombre ?? null);
+  const marcaNombre = adminMode ? null : (marcaActiva?.marca.nombre ?? null);
+  const items = useMemo(() => buildItems((n) => visibleEnDashboard(n, { roleName, adminMode, marcaNombre })), [roleName, adminMode, marcaNombre]);
   useFocusTrap(panelRef, open);
 
   const groups = useMemo(
