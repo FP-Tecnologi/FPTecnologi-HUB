@@ -5,8 +5,8 @@ import LibroBadge from './LibroBadge';
 import CorteHex from './hex/CorteHex';
 import { rutaHexagono } from './hex/rutaHexagono';
 import CtaCotizar from './home/CtaCotizar';
-import { contacto, redes } from '@/lib/contacto';
-import { contenido } from '@/lib/contenido';
+import { contacto as datosFijos } from '@/lib/contacto';
+import { getContacto, getPagina } from '@/lib/cms';
 
 const legales = [
   { href: '/legal/privacidad', texto: 'Política de privacidad' },
@@ -36,16 +36,18 @@ const Titulo = ({ children }: { children: string }) => (
 );
 
 /** Pie y CTA en un solo bloque carbón: un único borde hexagonal arriba, CTA, divisor fino y columnas. */
-export default function Footer() {
+export default async function Footer() {
+  const [contacto, ajustes] = await Promise.all([getContacto(), getPagina('ajustes')]);
+  const redes = ajustes.redes;
   return (
     <footer id="pie" className="print:hidden mt-8 text-white">
       <CorteHex lado="arriba" color="var(--color-carbon)" />
       <div className="bg-carbon pt-4">
-        <CtaCotizar />
+        <CtaCotizar datos={ajustes.cta} />
         <div className="mx-auto grid max-w-6xl divide-y divide-white/15 px-4 sm:px-6 md:grid-cols-2 md:divide-y-0 lg:grid-cols-[1.25fr_1.25fr_1fr_1fr] lg:divide-x [&>*]:py-6 lg:[&>*]:px-6 lg:[&>*:first-child]:pl-0 lg:[&>*:last-child]:pr-0">
           <div>
             <Logo src="/brand/fimav-peru-blanco.svg" className="block h-14 w-auto object-contain" />
-            <p className="mt-4 text-sm leading-relaxed text-white/90">{contenido.fraseCorta}</p>
+            <p className="mt-4 text-sm leading-relaxed text-white/90">{ajustes.pie.fraseCorta}</p>
             <p className="titulo-menor mt-5 text-sm tracking-widest text-white">Síguenos</p>
             <ul className="mt-2 flex gap-3">
               {SOCIALES.map(({ clave, Icono, nombre }) => (
@@ -87,7 +89,7 @@ export default function Footer() {
             <Link href="/peru-compras" className={`${enlace} mt-3 font-semibold`}><Landmark aria-hidden="true" size={18} className="shrink-0" />Estamos en Perú Compras</Link>
           </div>
         </div>
-        <p className="mt-6 border-t border-white/15 px-4 pb-24 pt-5 text-center text-sm text-white/90 md:pb-5">© {new Date().getFullYear()} {contacto.razonSocial}. Todos los derechos reservados.</p>
+        <p className="mt-6 border-t border-white/15 px-4 pb-24 pt-5 text-center text-sm text-white/90 md:pb-5">© {new Date().getFullYear()} {datosFijos.razonSocial}. Todos los derechos reservados.</p>
       </div>
     </footer>
   );

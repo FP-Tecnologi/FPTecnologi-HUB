@@ -3,21 +3,23 @@ import { Mail, MessageCircle, Phone } from 'lucide-react';
 import FormCotizar from '@/components/FormCotizar';
 import BannerPagina from '@/components/BannerPagina';
 import Reveal from '@/components/motion/Reveal';
-import { contacto, waUrl } from '@/lib/contacto';
+import { getCategorias, getContacto, getPagina, waUrlDe } from '@/lib/cms';
 
 export const metadata = { title: 'Cotizar' };
 
-export default function CotizarPage() {
+export default async function CotizarPage() {
+  const [c, contacto, categorias] = await Promise.all([getPagina('cotizar'), getContacto(), getCategorias()]);
+  const waUrl = (t: string) => waUrlDe(contacto.whatsapp, t);
   return (
     <main>
-      <BannerPagina eyebrow="Cotización" titulo="Cuéntanos qué" resaltado="necesitas" imagen="/fotos/escogernos.jpg" posicion="center 30%" />
+      <BannerPagina eyebrow={c.banner.eyebrow} titulo={c.banner.titulo} resaltado={c.banner.resaltado} imagen={c.banner.imagen} posicion="center 30%" />
       <Reveal className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 lg:pb-24">
         <div className="grid items-start gap-8 lg:grid-cols-[1fr_320px]">
           <Suspense fallback={<p className="rounded-2xl bg-gris p-6 text-carbon">Cargando formulario…</p>}>
-            <FormCotizar />
+            <FormCotizar categorias={categorias.map(({ slug, nombre }) => ({ slug, nombre }))} />
           </Suspense>
           <aside className="rounded-2xl bg-gris p-6">
-            <h2 className="titulo-menor text-xl text-carbon">¿Prefieres hablar con un asesor?</h2>
+            <h2 className="titulo-menor text-xl text-carbon">{c.asesor.titulo}</h2>
             <ul className="mt-4 space-y-3 text-carbon">
               <li>
                 <a href={contacto.telefonoHref} className="flex min-h-11 items-center gap-3 hover:underline">

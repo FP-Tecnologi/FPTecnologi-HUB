@@ -3,14 +3,15 @@ import Hexagono from '@/components/Hexagono';
 import SeccionTitulo from '@/components/SeccionTitulo';
 import Inclinar from '@/components/motion/Inclinar';
 import Reveal from '@/components/motion/Reveal';
-import { categorias } from '@/lib/categorias';
+import type { Categoria } from '@/lib/categorias';
+import type { CmsContenido } from '@/lib/cms';
 
-export default function Categorias() {
+export default function Categorias({ titulo: t, categorias }: { titulo: CmsContenido['inicio']['categorias']; categorias: Categoria[] }) {
   return (
     <section className="bg-white py-16 lg:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal>
-          <SeccionTitulo nivel="h2" eyebrow="¿Cuáles servicios ofrecemos?" claro="Nuestras" rojo="categorías" />
+          <SeccionTitulo nivel="h2" eyebrow={t.eyebrow} claro={t.claro} rojo={t.rojo} />
         </Reveal>
         <ul className="mt-10 grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4">
           {categorias.map((c, i) => (

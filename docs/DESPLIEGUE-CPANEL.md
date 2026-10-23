@@ -11,7 +11,7 @@ Los tres salen del mismo repo público `FP-Tecnologi/FPTecnologi-HUB` (carpetas 
 | App | Carpeta | Compilación | Inicio | Variables clave |
 | --- | --- | --- | --- | --- |
 | API | `apps/api` | `npm ci --include=dev && npx prisma generate && npm run build` | `node app.cjs` | `DATABASE_URL`, `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `WEB_ORIGIN` (= URL del dashboard), `PUBLIC_API_URL` (= URL de la API), `UPLOADS_DIR`, `SWAGGER_USER`, `SWAGGER_PASSWORD`, correo |
-| Dashboard | `apps/admin` | `npm ci && npm run build` | `node server.cjs` | `NEXT_PUBLIC_API_URL` y `NEXT_PUBLIC_WEB_PUBLICA_URL` (**antes** de compilar) |
+| Dashboard | `apps/admin` | `npm ci && npm run build` | `node server.cjs` | `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_WEB_PUBLICA_URL` y `NEXT_PUBLIC_WEB_FIMAV_URL` (web de Fimav, para su CMS) (**antes** de compilar) |
 | Web | `apps/web-fptecnologi` | `npm ci && npm run build` | `node server.cjs` | `HUB_API_URL`, `HUB_MARCA_ID`, `GROQ_API_KEY`, `SITE_URL`, `NOINDEX=1`, `DASHBOARD_ORIGIN` (= URL del dashboard) |
 
 Con dominios distintos entre sí (no subdominios de uno solo), «confiar en este dispositivo» del 2FA no persiste: se pedirá el código en cada ingreso. En pruebas es normal.
@@ -220,7 +220,9 @@ Repo espejo **privado** `FP-Tecnologi/fimav-peru` (su raíz es la app). Al ser p
 | Application root | carpeta clonada (p. ej. `fimav-peru`) |
 | Startup file | `server.cjs` |
 | Compilación | `npm ci && npm run build` (el `prebuild` instala las devDependencies) |
-| Variables | `HUB_API_URL` (URL de la API desplegada), `HUB_MARCA_ID` (id de la marca `fimavperu` en `/public/marcas`) |
+| Variables | `HUB_API_URL` (URL de la API desplegada), `HUB_MARCA_ID` (id de la marca `fimavperu` en `/public/marcas`), `DASHBOARD_ORIGIN` (URL del dashboard: el CMS lee de aquí los textos actuales) |
 
-Sin `HUB_MARCA_ID` el sitio funciona, pero cotizador, contacto y libro de reclamaciones responden 503 (muestran WhatsApp/correo).
+Sin `HUB_MARCA_ID` el sitio funciona con los textos por defecto, pero cotizador, contacto y libro de reclamaciones responden 503 (muestran WhatsApp/correo) y lo editado en Administrador → Web Fimav no se ve.
+
+**CMS**: todo el contenido se edita en el dashboard → marca **Fimav Perú** → *Web Fimav* (Inicio, Nosotros, Catálogo, Perú Compras, Contacto, Cotizar, Ajustes del sitio, Textos legales). Para que la vista previa del editor funcione, el dashboard debe compilarse con `NEXT_PUBLIC_WEB_FIMAV_URL` y la web tener `DASHBOARD_ORIGIN`.
 fimavperu.com hoy es WordPress: publica primero en un subdominio (p. ej. `nuevo.fimavperu.com`) y cambia al dominio principal al validar.

@@ -4,7 +4,7 @@ import Espiral from '@/components/Espiral';
 import Hexagono from '@/components/Hexagono';
 import BannerPagina from '@/components/BannerPagina';
 import SeccionTitulo from '@/components/SeccionTitulo';
-import { contenido } from '@/lib/contenido';
+import { getPagina } from '@/lib/cms';
 
 export const metadata = { title: 'Nosotros' };
 
@@ -27,31 +27,32 @@ function Tarjeta({ icono, eyebrow, claro, rojo, texto, retraso }: { icono: typeo
   );
 }
 
-export default function NosotrosPage() {
+export default async function NosotrosPage() {
+  const c = await getPagina('nosotros');
   return (
     <main>
-      <BannerPagina eyebrow="Nosotros" titulo="Especialistas en" resaltado="bienes y servicios" imagen="/fotos/nosotros.jpg" posicion="center 35%" />
+      <BannerPagina eyebrow={c.banner.eyebrow} titulo={c.banner.titulo} resaltado={c.banner.resaltado} imagen={c.banner.imagen} posicion="center 35%" />
       <section className="relative overflow-hidden bg-white py-16 lg:py-20">
         <Espiral contorno className="aparecer pointer-events-none absolute -right-24 -top-24 w-80 opacity-20" />
         <Reveal className="relative mx-auto max-w-6xl px-4 sm:px-6">
-          <SeccionTitulo nivel="h2" eyebrow="Quiénes somos" claro="En constante" rojo="transformación" />
-          <p className="mt-6 max-w-3xl leading-relaxed text-carbon/80">{contenido.frase}</p>
+          <SeccionTitulo nivel="h2" eyebrow={c.quienes.eyebrow} claro={c.quienes.claro} rojo={c.quienes.rojo} />
+          <p className="mt-6 max-w-3xl leading-relaxed text-carbon/80">{c.quienes.texto}</p>
         </Reveal>
       </section>
       <section className="bg-gris py-16 lg:py-20">
         <div className="mx-auto grid max-w-6xl gap-6 px-4 sm:px-6 md:grid-cols-2 lg:gap-8">
-          <Tarjeta icono={Target} eyebrow="Nuestra misión" claro="Entre los primeros" rojo="proveedores" texto={contenido.mision} retraso={0} />
-          <Tarjeta icono={Eye} eyebrow="Nuestra visión" claro="Proveedor" rojo="internacional" texto={contenido.vision} retraso={120} />
+          <Tarjeta icono={Target} eyebrow={c.mision.eyebrow} claro={c.mision.claro} rojo={c.mision.rojo} texto={c.mision.texto} retraso={0} />
+          <Tarjeta icono={Eye} eyebrow={c.vision.eyebrow} claro={c.vision.claro} rojo={c.vision.rojo} texto={c.vision.texto} retraso={120} />
         </div>
       </section>
       <section className="bg-white py-16 lg:py-20">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Reveal><SeccionTitulo nivel="h2" eyebrow="¿Por qué escogernos?" claro="Lo que" rojo="nos distingue" /></Reveal>
+          <Reveal><SeccionTitulo nivel="h2" eyebrow={c.porque.eyebrow} claro={c.porque.claro} rojo={c.porque.rojo} /></Reveal>
           <ul className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {contenido.porQue.map((t, i) => {
-              const Icono = pilares[i];
+            {c.porque.items.map((t, i) => {
+              const Icono = pilares[i % pilares.length];
               return (
-                <Reveal as="li" key={t} retraso={i * 90} className="group/tarjeta flex flex-col items-start gap-4">
+                <Reveal as="li" key={`${i}-${t}`} retraso={i * 90} className="group/tarjeta flex flex-col items-start gap-4">
                   <Hexagono icono={Icono} tam={52} />
                   <span className="text-carbon">{t}</span>
                 </Reveal>

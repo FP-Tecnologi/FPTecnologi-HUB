@@ -14,7 +14,5 @@ export const contacto = {
   comercial: 'comercial@fimavperu.com',
 };
 
-export const waUrl = (texto: string) => `https://wa.me/${contacto.whatsapp}?text=${encodeURIComponent(texto)}`;
-
-// Redes sociales: completar con las URL reales de la empresa (https://...). Vacío = el ícono se muestra sin enlace. No inventar URL.
-export const redes = { facebook: '', instagram: '' };
+// Valores de respaldo: lo vigente (dirección, teléfono, WhatsApp, correos y redes) se edita en
+// Administrador → Web Fimav → Ajustes y lo lee lib/cms.ts.

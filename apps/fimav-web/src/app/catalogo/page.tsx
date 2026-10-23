@@ -6,14 +6,15 @@ import SeccionTitulo from '@/components/SeccionTitulo';
 import BotonHex from '@/components/hex/BotonHex';
 import HexImagen from '@/components/hex/HexImagen';
 import OrnamentoGeometrico from '@/components/OrnamentoGeometrico';
-import { categorias } from '@/lib/categorias';
+import { getCategorias, getPagina } from '@/lib/cms';
 
 export const metadata = { title: 'Catálogo' };
 
-export default function CatalogoPage() {
+export default async function CatalogoPage() {
+  const [{ banner: b }, categorias] = await Promise.all([getPagina('catalogo'), getCategorias()]);
   return (
     <main>
-      <BannerPagina eyebrow="Catálogo" titulo="Bienes y" resaltado="servicios" imagen="/fotos/networking-2.jpg" />
+      <BannerPagina eyebrow={b.eyebrow} titulo={b.titulo} resaltado={b.resaltado} imagen={b.imagen} />
       {categorias.map((c, i) => (
         <section key={c.slug} className={`relative isolate overflow-hidden py-12 ${i % 2 ? 'bg-gris' : 'bg-white'}`}>
           {['all-in-one', 'proyectores', 'software'].includes(c.slug) && (
@@ -34,7 +35,7 @@ export default function CatalogoPage() {
             {c.fotos.length > 0 && (
               <div className="grid grid-cols-3 gap-3 lg:w-96">
                 {c.fotos.map((f, n) => (
-                  <Reveal key={f} retraso={120 + n * 90}>
+                  <Reveal key={`${n}-${f}`} retraso={120 + n * 90}>
                     <HexImagen src={f} alt={`${c.nombre}, ejemplo ${n + 1}`} sizes="128px" />
                   </Reveal>
                 ))}

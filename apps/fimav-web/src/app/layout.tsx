@@ -5,6 +5,8 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import WhatsAppFlotante from '@/components/WhatsAppFlotante';
 import CursorHex from '@/components/motion/CursorHex';
+import { ContactoProvider } from '@/components/ContactoContext';
+import { getContacto } from '@/lib/cms';
 
 const poppins = Poppins({ subsets: ['latin'], variable: '--font-poppins', weight: ['400', '500', '600'] });
 // Humanista tipo Myriad (la del brochure) para títulos; fuente variable, cubre 400–600.
@@ -20,15 +22,18 @@ export const metadata: Metadata = {
   openGraph: { images: ['/brand/og.jpg'], locale: 'es_PE', type: 'website' },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const contacto = await getContacto();
   return (
     <html lang="es" className={`${poppins.variable} ${titulo.variable} ${display.variable}`}>
       <body>
-        <Header />
-        {children}
-        <Footer />
-        <WhatsAppFlotante />
-        <CursorHex />
+        <ContactoProvider valor={contacto}>
+          <Header />
+          {children}
+          <Footer />
+          <WhatsAppFlotante />
+          <CursorHex />
+        </ContactoProvider>
       </body>
     </html>
   );

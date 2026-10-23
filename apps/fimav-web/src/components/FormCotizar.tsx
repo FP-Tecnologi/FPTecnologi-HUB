@@ -2,8 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Loader2, MessageCircle, Send } from 'lucide-react';
-import { categorias } from '@/lib/categorias';
-import { contacto, waUrl } from '@/lib/contacto';
+import { useContacto, waUrl as waUrlDe } from './ContactoContext';
 import BotonHex from './hex/BotonHex';
 
 type Tipo = 'NATURAL' | 'JURIDICA';
@@ -11,7 +10,10 @@ const limpio = (t: string) => t.replace(/[<>]/g, '');
 const campo = 'mt-1 block min-h-11 w-full rounded-lg border border-carbon/60 bg-white px-4 py-2.5 text-base text-tinta';
 const OTRO = 'Otro';
 
-export default function FormCotizar() {
+/** `categorias`: las del catálogo (con los nombres editados en el CMS). */
+export default function FormCotizar({ categorias }: { categorias: { slug: string; nombre: string }[] }) {
+  const contacto = useContacto();
+  const waUrl = (t: string) => waUrlDe(contacto.whatsapp, t);
   const cat = useSearchParams().get('categoria');
   const inicial = categorias.find((c) => c.slug === cat)?.nombre ?? categorias[0].nombre;
   const [f, setF] = useState({ tipo: 'JURIDICA' as Tipo, nombres: '', apellidos: '', doc: '', empresa: '', email: '', celular: '', interes: inicial, mensaje: '', website: '' });

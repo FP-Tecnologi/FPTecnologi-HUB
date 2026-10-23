@@ -1,6 +1,7 @@
 import SeccionTitulo from '@/components/SeccionTitulo';
 import Reveal from '@/components/motion/Reveal';
 import { contenido } from '@/lib/contenido';
+import type { CmsContenido } from '@/lib/cms';
 
 // Franja de logos con desplazamiento continuo. La lista va dos veces: la copia es decorativa (aria-hidden + inert).
 // Con prefers-reduced-motion se oculta la copia y queda una cuadrícula estática (ver globals.css).
@@ -38,11 +39,11 @@ export function FranjaMarcas({ className = '' }: { className?: string }) {
   );
 }
 
-export default function Marcas() {
+export default function Marcas({ titulo: t }: { titulo: CmsContenido['inicio']['marcas'] }) {
   return (
     <section className="bg-white py-14">
       <Reveal className="mx-auto max-w-6xl px-4 sm:px-6">
-        <SeccionTitulo nivel="h2" alineacion="centro" eyebrow="Marcas aliadas" claro="Socios de las marcas" rojo="más comerciales" />
+        <SeccionTitulo nivel="h2" alineacion="centro" eyebrow={t.eyebrow} claro={t.claro} rojo={t.rojo} />
         <FranjaMarcas className="mt-6" />
       </Reveal>
     </section>

@@ -4,12 +4,14 @@ import Marcas from '@/components/home/Marcas';
 import Nosotros from '@/components/home/Nosotros';
 import PeruCompras from '@/components/home/PeruCompras';
 import PorQue from '@/components/home/PorQue';
+import { getCategorias, getPagina } from '@/lib/cms';
 
-export default function Home() {
+export default async function Home() {
+  const [c, categorias] = await Promise.all([getPagina('inicio'), getCategorias()]);
   return (
     <main>
-      <HeroSlider />
-      <Nosotros /><Categorias /><PeruCompras /><PorQue /><Marcas />
+      <HeroSlider slides={c.hero.slides} />
+      <Nosotros datos={c.nosotros} /><Categorias titulo={c.categorias} categorias={categorias} /><PeruCompras datos={c.perucompras} /><PorQue datos={c.porque} /><Marcas titulo={c.marcas} />
     </main>
   );
 }

@@ -6,7 +6,7 @@ import { ChevronRight, FileText, Headset, HelpCircle, Landmark, MessageCircle, P
 import Espiral from './Espiral';
 import Hexagono from './Hexagono';
 import { rutaHexagono } from './hex/rutaHexagono';
-import { waUrl } from '@/lib/contacto';
+import { useContacto, waUrl as waUrlDe } from './ContactoContext';
 
 const HEX = rutaHexagono({ orientacion: 'punta-arriba', radio: 0.12 });
 const capa = (cls: string) => (
@@ -29,6 +29,8 @@ const MOTIVOS: { titulo: string; detalle: string; Icono: LucideIcon; mensaje: st
 const ZONAS = ['pie', 'contacto-form', 'cotizar-form'];
 
 export default function WhatsAppFlotante() {
+  const { whatsapp } = useContacto();
+  const waUrl = (t: string) => waUrlDe(whatsapp, t);
   const ruta = usePathname();
   const [abierto, setAbierto] = useState(false);
   const [sobreZona, setSobreZona] = useState(false);

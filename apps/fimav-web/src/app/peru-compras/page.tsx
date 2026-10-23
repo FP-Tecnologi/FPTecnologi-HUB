@@ -6,8 +6,7 @@ import SeccionTitulo from '@/components/SeccionTitulo';
 import { FranjaMarcas } from '@/components/home/Marcas';
 import OrnamentoGeometrico from '@/components/OrnamentoGeometrico';
 import HexImagen from '@/components/hex/HexImagen';
-import { categorias } from '@/lib/categorias';
-import { contenido } from '@/lib/contenido';
+import { getCategorias, getPagina } from '@/lib/cms';
 
 const descripcion = 'Fimav Perú atiende al sector Estado en Perú Compras: venta de bienes y servicios, postventa y soluciones tecnológicas según la necesidad de cada entidad.';
 export const metadata = {
@@ -16,32 +15,25 @@ export const metadata = {
   openGraph: { title: 'Estamos en Perú Compras | Fimav Perú', description: descripcion, images: ['/brand/og.jpg'] },
 };
 
-const trabajo = [
-  ['Venta y postventa', 'Atendemos la venta de bienes y servicios y acompañamos con postventa.'],
-  ['Soluciones a medida', 'Desarrollamos diversos tipos de soluciones tecnológicas según la necesidad de cada entidad.'],
-  ['Cobertura', 'Estamos en diversos puntos de Lima Metropolitana y en los demás departamentos del interior del país.'],
-  ['Respaldo de marcas', 'Contamos con el respaldo de las marcas más comerciales del mercado y somos socios estratégicos de ellas.'],
-];
 
-export default function PeruComprasPage() {
+export default async function PeruComprasPage() {
+  const [c, categorias] = await Promise.all([getPagina('peru-compras'), getCategorias()]);
   return (
     <main>
-      <BannerPagina eyebrow="Perú Compras" titulo="Atendemos al" resaltado="sector Estado" imagen="/peru-compras/contenedor.jpg" posicion="center 45%" />
+      <BannerPagina eyebrow={c.banner.eyebrow} titulo={c.banner.titulo} resaltado={c.banner.resaltado} imagen={c.banner.imagen} posicion="center 45%" />
       <section className="relative isolate overflow-hidden bg-white pb-16 pt-8 lg:pb-24">
         <OrnamentoGeometrico className="pointer-events-none absolute -right-24 top-1/2 z-0 hidden w-80 -translate-y-1/2 text-carbon opacity-[0.07] md:block" />
         <Reveal className="relative z-10 mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_auto]">
           <div>
             <div className="flex items-center gap-4">
               <Hexagono icono={Megaphone} tam={64} />
-              <h2 className="titulo-menor text-3xl text-carbon">Sector Estatal</h2>
+              <h2 className="titulo-menor text-3xl text-carbon">{c.sector.subtitulo}</h2>
             </div>
-            <p className="mt-5 max-w-2xl leading-relaxed text-carbon/80">{contenido.perucompras}</p>
-            <p className="mt-4 max-w-2xl leading-relaxed text-carbon/80">
-              Nuestra experiencia de más de 10 años nos ha posicionado en los primeros puestos del ranking comercial de gobierno en Perú Compras, la plataforma de contratación del Estado.
-            </p>
+            <p className="mt-5 max-w-2xl leading-relaxed text-carbon/80">{c.sector.texto}</p>
+            {c.sector.texto2 && <p className="mt-4 max-w-2xl leading-relaxed text-carbon/80">{c.sector.texto2}</p>}
           </div>
           <HexImagen
-            src="/peru-compras/contenedor.jpg"
+            src={c.sector.imagen}
             alt="Grúa de puerto levantando un contenedor con el logo de la marca Perú"
             sizes="(min-width: 1024px) 380px, 80vw"
             className="mx-auto w-full max-w-xs lg:max-w-sm"
@@ -58,10 +50,10 @@ export default function PeruComprasPage() {
 
       <section className="bg-gris py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Reveal><SeccionTitulo nivel="h2" eyebrow="Cómo trabajamos" claro="Venta, postventa y" rojo="soluciones" /></Reveal>
+          <Reveal><SeccionTitulo nivel="h2" eyebrow={c.trabajo.eyebrow} claro={c.trabajo.claro} rojo={c.trabajo.rojo} /></Reveal>
           <ul className="mt-8 grid gap-4 sm:grid-cols-2">
-            {trabajo.map(([t, d], i) => (
-              <Reveal as="li" key={t} retraso={(i % 2) * 90} className="rounded-2xl bg-white p-6">
+            {c.trabajo.items.map(({ title: t, text: d }, i) => (
+              <Reveal as="li" key={`${i}-${t}`} retraso={(i % 2) * 90} className="rounded-2xl bg-white p-6">
                 <h3 className="titulo-menor text-xl text-carbon">{t}</h3>
                 <p className="mt-2 leading-relaxed text-carbon/80">{d}</p>
               </Reveal>
@@ -73,7 +65,7 @@ export default function PeruComprasPage() {
       <section className="bg-white py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
-            <SeccionTitulo nivel="h2" eyebrow="Nuestras categorías" claro="Bienes y servicios" rojo="para el Estado" />
+            <SeccionTitulo nivel="h2" eyebrow={c.categorias.eyebrow} claro={c.categorias.claro} rojo={c.categorias.rojo} />
           </Reveal>
           <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {categorias.map((c, i) => (
@@ -89,7 +81,7 @@ export default function PeruComprasPage() {
       <section className="bg-gris py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
-            <SeccionTitulo nivel="h2" eyebrow="Marcas con las que trabajamos" claro="Socios de las marcas" rojo="más comerciales" />
+            <SeccionTitulo nivel="h2" eyebrow={c.marcas.eyebrow} claro={c.marcas.claro} rojo={c.marcas.rojo} />
             <FranjaMarcas className="mt-6" />
           </Reveal>
         </div>

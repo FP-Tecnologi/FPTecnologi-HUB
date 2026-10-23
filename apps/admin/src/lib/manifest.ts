@@ -38,6 +38,8 @@ export interface NavNode {
   roles?: string[];
   /** Solo en la vista de una marca; oculto en el modo Administración (global). */
   soloMarca?: boolean;
+  /** Solo para estas marcas (parte del nombre, sin distinguir mayúsculas). Ej. ["fimav"]. Sin lista = todas. */
+  marcas?: string[];
 }
 interface RawManifest {
   meta?: Record<string, unknown>;
@@ -117,6 +119,32 @@ export function groupsInSection(section: string): NavNode[] {
  * nodes; "admin" always passes. Nodes without a `roles` whitelist are
  * visible to everyone.
  */
+/**
+ * Módulos de la sección MARCA que ve cada marca que no es FPTecnologi (las demás webs solo usan una parte del HUB).
+ * Un grupo listado muestra todos sus hijos, salvo que la lista nombre alguno de ellos: entonces solo esos.
+ * FPTecnologi (y cualquier marca que no esté aquí) ve todos los módulos, menos los marcados `marcas` de otra marca.
+ */
+export const MODULOS_POR_MARCA: Record<string, string[]> = {
+  quamtu: ['marca.cotizador', 'marca.libro', 'marca.equipo'],
+  fimav: ['marca.webfimav', 'marca.cotizador', 'cotizador.leads', 'marca.herramientas', 'web.contactos', 'marca.libro', 'marca.equipo'],
+};
+
+/** ¿Este nodo del menú corresponde a la marca activa? (ver MODULOS_POR_MARCA y `marcas`). */
+export function visibleParaMarca(node: NavNode, marcaNombre: string | null | undefined): boolean {
+  const nombre = (marcaNombre ?? '').toLowerCase();
+  if (node.marcas?.length && !node.marcas.some((m) => nombre.includes(m.toLowerCase()))) return false;
+  const clave = Object.keys(MODULOS_POR_MARCA).find((k) => nombre.includes(k));
+  if (!clave) return true;
+  const lista = MODULOS_POR_MARCA[clave]!;
+  const raiz = manifest.trail(node)[0];
+  if (!raiz || raiz.section !== 'MARCA') return true;
+  if (!lista.includes(raiz.id)) return false;
+  if (node.id === raiz.id) return true;
+  const padre = node.parent ? manifest.byId.get(node.parent) : null;
+  const hermanos = padre ? manifest.childrenOf(padre.id).map((c) => c.id) : [];
+  return !hermanos.some((id) => lista.includes(id)) || lista.includes(node.id);
+}
+
 export function visibleForRole(node: NavNode, roleName: string | null): boolean {
   if (!node.roles || node.roles.length === 0) return true;
   if (!roleName) return false;

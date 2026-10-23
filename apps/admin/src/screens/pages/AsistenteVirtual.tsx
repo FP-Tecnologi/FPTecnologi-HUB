@@ -12,7 +12,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { Icon } from '../../components/ui/Icon';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
-import { hrefForSlug, manifest, visibleForRole } from '../../lib/manifest';
+import { hrefForSlug, manifest, visibleForRole, visibleParaMarca } from '../../lib/manifest';
 
 interface Metrica { etiqueta: string; valor: number; formato: 'numero' | 'moneda'; moneda?: string; modulo?: string; detalle?: string }
 interface Tabla { titulo: string; modulo: string; columnas: string[]; filas: (string | number | null)[][]; total?: number }
@@ -83,8 +83,8 @@ export function AsistenteVirtual() {
   /** Botón «Ir a…» solo para módulos que existen en el menú y que el rol ve. */
   const modulo = useMemo(() => (id: string) => {
     const nodo = manifest.byId.get(id);
-    return nodo && visibleForRole(nodo, rol) ? { titulo: nodo.title, href: hrefForSlug(nodo.slug) } : null;
-  }, [rol]);
+    return nodo && visibleForRole(nodo, rol) && visibleParaMarca(nodo, asignacion?.marca.nombre) ? { titulo: nodo.title, href: hrefForSlug(nodo.slug) } : null;
+  }, [rol, asignacion?.marca.nombre]);
 
   async function preguntar(texto: string) {
     const pregunta = texto.trim().slice(0, 2000);

@@ -14,17 +14,27 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api, API_URL } from '../../lib/api';
+import { SubirImagen } from '../../components/ui/SubirImagen';
 
-const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
+const WEB_FPT = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
 type Datos = Record<string, unknown>;
+/** Subcampo de una `lista-objetos` (cada elemento es un objeto con estas claves). */
+type SubCampo = { key: string; label: string; tipo: 'text' | 'textarea' | 'imagen'; ayuda?: string };
 type Campo =
   | { key: string; label: string; tipo: 'text' | 'textarea'; ayuda?: string }
   | { key: string; label: string; tipo: 'bool'; ayuda?: string }
   | { key: string; label: string; tipo: 'lista-texto' }
   | { key: string; label: string; tipo: 'lista-items'; itemLabel: string }
   | { key: string; label: string; tipo: 'lista-pdf'; itemLabel: string; ayuda?: string }
-  | { key: string; label: string; tipo: 'slides' };
+  | { key: string; label: string; tipo: 'slides' }
+  /** Imagen: ruta de la web (/fotos/…) o URL de una imagen subida desde aquí (se guarda en nuestro servidor). */
+  | { key: string; label: string; tipo: 'imagen'; ayuda?: string }
+  /**
+   * Lista de objetos con subcampos. `fijo`: no se agregan ni quitan elementos (p. ej. categorías, cuyo slug es una URL);
+   * `tituloDe`: subcampo que se muestra como nombre de cada elemento.
+   */
+  | { key: string; label: string; tipo: 'lista-objetos'; itemLabel: string; campos: SubCampo[]; fijo?: boolean; tituloDe?: string; ayuda?: string };
 
 const BADGE: Campo = { key: 'badge', label: 'Etiqueta (badge)', tipo: 'text' };
 const TITULO: Campo = { key: 'titulo', label: 'Título — parte en color sólido', tipo: 'text' };
@@ -74,6 +84,8 @@ export interface CmsConfig {
   previewPath: string;
   /** Mostrar el interruptor "Visible" por sección (la home sí; el cotizador no). */
   conVisible: boolean;
+  /** URL de la web pública de la marca (vista previa y textos actuales). Por defecto, la de FPTecnologi. */
+  web?: string;
 }
 
 const HOME_CONFIG: CmsConfig = {
@@ -91,6 +103,7 @@ export function WebHomeCms() {
 
 export function CmsEditor({ config }: { config: CmsConfig }) {
   const { pagina, secciones: SECCIONES, conVisible } = config;
+  const WEB = config.web ?? WEB_FPT;
   const { activeMarcaId } = useAuth();
   const [guardado, setGuardado] = useState<Record<string, Datos> | null>(null);
   const [borrador, setBorrador] = useState<Record<string, Datos>>({});
@@ -114,7 +127,7 @@ export function CmsEditor({ config }: { config: CmsConfig }) {
     } catch {
       setError(`No se pudo leer el contenido de la web (${WEB}). ¿Está encendida?`);
     }
-  }, []);
+  }, [pagina, WEB]);
 
   useEffect(() => {
     cargar();
@@ -205,7 +218,7 @@ export function CmsEditor({ config }: { config: CmsConfig }) {
                 Esta sección no tiene textos editables todavía. Puedes mostrarla u ocultarla con «Visible».
               </p>
             ) : (
-              seccion.campos.map((c) => <CampoEditor key={c.key} campo={c} valor={datos[c.key]} onChange={(v) => set(c.key, v)} />)
+              seccion.campos.map((c) => <CampoEditor key={c.key} campo={c} valor={datos[c.key]} onChange={(v) => set(c.key, v)} web={WEB} />)
             )}
           </div>
 
@@ -279,8 +292,59 @@ export function Preview({ src, ancho }: { src: string; ancho: number }) {
   );
 }
 
-export function CampoEditor({ campo, valor, onChange }: { campo: Campo; valor: unknown; onChange: (v: unknown) => void }) {
+export function CampoEditor({ campo, valor, onChange, web = WEB_FPT }: { campo: Campo; valor: unknown; onChange: (v: unknown) => void; web?: string }) {
   const id = `cms-${campo.key}`;
+  if (campo.tipo === 'imagen') {
+    return <CampoImagen id={id} label={campo.label} ayuda={campo.ayuda} valor={String(valor ?? '')} onChange={onChange} web={web} />;
+  }
+
+  if (campo.tipo === 'lista-objetos') {
+    const lista = Array.isArray(valor) ? (valor as Record<string, string>[]) : [];
+    const upd = (i: number, k: string, v: string) => onChange(lista.map((x, j) => (j === i ? { ...x, [k]: v } : x)));
+    const vacio = Object.fromEntries(campo.campos.map((c) => [c.key, '']));
+    const cuerpo = (
+      <>
+        {campo.ayuda && <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{campo.ayuda}</span>}
+        {lista.map((it, i) => (
+          <details key={i} open={lista.length <= 2} style={{ padding: 'var(--ax-space-3)', border: '1px solid var(--ax-border)', borderRadius: 10 }}>
+            <summary style={{ cursor: 'pointer', fontWeight: 600, fontSize: 'var(--ax-text-sm)' }}>
+              {campo.itemLabel} {i + 1}{campo.tituloDe && it[campo.tituloDe] ? `: ${it[campo.tituloDe]}` : ''}
+            </summary>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)', marginTop: 'var(--ax-space-3)' }}>
+              {!campo.fijo && (
+                <div className="ax-cluster" style={{ justifyContent: 'flex-end', gap: 'var(--ax-space-2)' }}>
+                  <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" disabled={i === 0} onClick={() => onChange(lista.map((x, j) => (j === i - 1 ? lista[i] : j === i ? lista[i - 1] : x)))}>Subir</button>
+                  <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" disabled={i === lista.length - 1} onClick={() => onChange(lista.map((x, j) => (j === i + 1 ? lista[i] : j === i ? lista[i + 1] : x)))}>Bajar</button>
+                  <Quitar onClick={() => onChange(lista.filter((_, j) => j !== i))} />
+                </div>
+              )}
+              {campo.campos.map((sc) => {
+                const sid = `${id}-${i}-${sc.key}`;
+                if (sc.tipo === 'imagen') return <CampoImagen key={sc.key} id={sid} label={sc.label} ayuda={sc.ayuda} valor={it[sc.key] ?? ''} onChange={(v) => upd(i, sc.key, v)} web={web} />;
+                return (
+                  <div key={sc.key} className="ax-field">
+                    <label className="ax-label" htmlFor={sid}>{sc.label}</label>
+                    {sc.tipo === 'text' ? (
+                      <input id={sid} className="ax-input" value={it[sc.key] ?? ''} onChange={(e) => upd(i, sc.key, e.target.value)} />
+                    ) : (
+                      <textarea id={sid} className="ax-textarea" rows={3} value={it[sc.key] ?? ''} onChange={(e) => upd(i, sc.key, e.target.value)} />
+                    )}
+                    {sc.ayuda && <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{sc.ayuda}</span>}
+                  </div>
+                );
+              })}
+            </div>
+          </details>
+        ))}
+      </>
+    );
+    return campo.fijo ? (
+      <div className="ax-field" style={{ gap: 'var(--ax-space-2)' }}><span className="ax-label">{campo.label}</span>{cuerpo}</div>
+    ) : (
+      <Grupo titulo={campo.label} onAdd={() => onChange([...lista, vacio])}>{cuerpo}</Grupo>
+    );
+  }
+
   if (campo.tipo === 'text' || campo.tipo === 'textarea') {
     return (
       <div className="ax-field">
@@ -380,6 +444,27 @@ export function CampoEditor({ campo, valor, onChange }: { campo: Campo; valor: u
         </div>
       ))}
     </>
+  );
+}
+
+/* Imagen de una sección: miniatura, ruta/URL editable y "Subir" (POST /uploads: queda en nuestro servidor). */
+function CampoImagen({ id, label, ayuda, valor, onChange, web }: { id: string; label: string; ayuda?: string; valor: string; onChange: (v: string) => void; web: string }) {
+  const vista = valor.startsWith('/uploads/') ? `${API_URL}${valor}` : valor.startsWith('/') ? `${web}${valor}` : valor;
+  return (
+    <div className="ax-field">
+      <label className="ax-label" htmlFor={id}>{label}</label>
+      <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'nowrap', alignItems: 'flex-start' }}>
+        <span style={{ flex: '0 0 auto', width: 72, height: 54, borderRadius: 8, border: '1px solid var(--ax-border)', background: 'var(--ax-surface-subtle)', overflow: 'hidden', display: 'grid', placeItems: 'center' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          {vista ? <img src={vista} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Sin imagen</span>}
+        </span>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-2)', flex: 1, minWidth: 0 }}>
+          <input id={id} className="ax-input" value={valor} placeholder="/fotos/… o súbela" onChange={(e) => onChange(e.target.value)} />
+          <SubirImagen etiqueta={valor ? 'Reemplazar imagen' : 'Subir imagen'} onSubida={(urls) => urls[0] && onChange(urls[0])} />
+        </div>
+      </div>
+      <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{ayuda ?? 'JPG, PNG o WEBP de hasta 5 MB. Si pegas un enlace de otra web, el servidor guarda una copia propia.'}</span>
+    </div>
   );
 }
 

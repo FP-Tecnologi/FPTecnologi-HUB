@@ -6,44 +6,12 @@ import Espiral from '@/components/Espiral';
 import HexImagen from '@/components/hex/HexImagen';
 import BotonHex from '@/components/hex/BotonHex';
 import Carrusel from '@/components/slider/Carrusel';
+import type { Slide } from '@/lib/cms';
 
-// Solo lo que consta en el brochure.
-const diapositivas = [
-  {
-    claro: 'Tecnología para', rojo: 'cada organización',
-    subtitulo: 'Tecnología para cada espacio de trabajo',
-    texto: 'Organización comercial especializada en el sector Corporativo y Gobierno, con el respaldo de las marcas más representativas del segmento tecnológico.',
-    imagenIzquierda: '/fotos/escritorios-1.jpg', imagenDerecha: '/fotos/all-in-one-1.jpg',
-    fondo: '/fotos/escritorios-2.jpg',
-    botones: [{ href: '/cotizar', icono: FileText, texto: 'Solicitar cotización' }, { href: '/catalogo', icono: LayoutGrid, texto: 'Ver catálogo', contorno: true }],
-  },
-  {
-    claro: 'Soluciones para', rojo: 'el Estado',
-    subtitulo: 'Infraestructura que conecta y sostiene tu operación',
-    texto: 'Desarrollamos soluciones tecnológicas según la necesidad de cada entidad, con equipos de las marcas más comerciales del mercado.',
-    imagenIzquierda: '/fotos/networking-1.jpg', imagenDerecha: '/fotos/servidores-1.jpg',
-    fondo: '/fotos/servidores-1.jpg',
-    botones: [{ href: '/catalogo', icono: LayoutGrid, texto: 'Ver catálogo' }],
-  },
-  {
-    claro: 'Atención a', rojo: 'Perú Compras',
-    subtitulo: 'Soluciones para entidades del sector público',
-    texto: 'Venta de bienes y servicios y postventa B2G, con presencia en Lima Metropolitana y los demás departamentos del país.',
-    imagenIzquierda: '/fotos/proyectores-1.jpg', imagenDerecha: '/fotos/impresoras-1.jpg',
-    fondo: '/peru-compras/contenedor.jpg',
-    botones: [{ href: '/peru-compras', icono: Landmark, texto: 'Conoce más' }, { href: '/cotizar', icono: FileText, texto: 'Cotizar', contorno: true }],
-  },
-  {
-    claro: 'Equipos para', rojo: 'tu empresa',
-    subtitulo: 'Equipamiento para las necesidades de tu organización',
-    texto: 'Impresión, networking, aire acondicionado, baterías, consumibles, mobiliario y papel para tu organización.',
-    imagenIzquierda: '/fotos/impresoras-2.jpg', imagenDerecha: '/fotos/consumibles-1.jpg',
-    fondo: '/fotos/impresoras-2.jpg',
-    botones: [{ href: '/catalogo', icono: ArrowRight, texto: 'Explorar categorías' }],
-  },
-];
+/** Ícono del botón según a dónde lleva (los botones se editan en Administrador → Web Fimav → Inicio). */
+const iconoDe = (href: string) => (href.startsWith('/cotizar') ? FileText : href.startsWith('/catalogo') ? LayoutGrid : href.startsWith('/peru-compras') ? Landmark : ArrowRight);
 
-type Diapositiva = (typeof diapositivas)[number];
+type Diapositiva = Slide;
 
 function GaleriaDiapositiva({ diapositiva }: { diapositiva: Diapositiva }) {
   return (
@@ -78,7 +46,7 @@ function WidgetDiapositiva({ diapositiva }: { diapositiva: Diapositiva }) {
   );
 }
 
-export default function HeroSlider() {
+export default function HeroSlider({ slides: diapositivas }: { slides: Slide[] }) {
   return (
     <section className="relative isolate min-h-svh overflow-hidden bg-[#111214]">
       <h1 className="sr-only">Fimav Perú — Especialistas en bienes y servicios</h1>
@@ -91,7 +59,7 @@ export default function HeroSlider() {
         visual={(activa) => (
           <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden bg-[#111214]">
             {diapositivas.map((d, i) => (
-              <div key={d.fondo} className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${i === activa ? 'opacity-100' : 'opacity-0'}`}>
+              <div key={`${i}-${d.fondo}`} className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${i === activa ? 'opacity-100' : 'opacity-0'}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={d.fondo} alt="" width={1600} height={1000} loading={i === 0 ? 'eager' : 'lazy'} fetchPriority={i === 0 ? 'high' : 'low'} decoding="async" className="hero-fondo-imagen size-full object-cover" />
                 <div className="absolute inset-0 bg-[linear-gradient(90deg,rgb(17_18_20/0.94)_0%,rgb(17_18_20/0.82)_44%,rgb(17_18_20/0.48)_100%)]" />
@@ -101,8 +69,8 @@ export default function HeroSlider() {
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_82%_42%,rgb(224_36_36/0.22),transparent_38%)]" />
           </div>
         )}
-        diapositivas={diapositivas.map((d) => (
-          <div key={d.rojo} className="hero-slide-content mx-auto flex w-full max-w-5xl flex-col items-center px-1 py-1 text-center">
+        diapositivas={diapositivas.map((d, i) => (
+          <div key={`${i}-${d.rojo}`} className="hero-slide-content mx-auto flex w-full max-w-5xl flex-col items-center px-1 py-1 text-center">
             <span className="hero-etiqueta mb-3 inline-flex items-center border border-white/30 bg-white/5 px-5 py-1.5 font-display text-xs font-bold tracking-[0.22em] text-white/90 backdrop-blur-sm sm:mb-4 sm:text-sm">
               FIMAV PERÚ
             </span>
@@ -118,8 +86,11 @@ export default function HeroSlider() {
             <GaleriaDiapositiva diapositiva={d} />
             <WidgetDiapositiva diapositiva={d} />
             <div className="mt-4 flex w-full flex-wrap justify-center gap-3 sm:mt-5 sm:gap-4">
-              {d.botones.map((b) => (
-                <BotonHex key={b.texto} href={b.href} size="md" className="max-sm:flex-1 sm:!min-h-14 sm:!px-10 sm:!text-lg" icono={b.icono} variante={'contorno' in b ? 'contorno' : 'rojo'}>{b.texto}</BotonHex>
+              {[
+                { texto: d.boton1Texto, href: d.boton1Url, contorno: false },
+                { texto: d.boton2Texto, href: d.boton2Url, contorno: true },
+              ].filter((b) => b.texto?.trim() && b.href?.trim()).map((b) => (
+                <BotonHex key={b.texto} href={b.href} size="md" className="max-sm:flex-1 sm:!min-h-14 sm:!px-10 sm:!text-lg" icono={iconoDe(b.href)} variante={b.contorno ? 'contorno' : 'rojo'}>{b.texto}</BotonHex>
               ))}
             </div>
           </div>

@@ -72,6 +72,9 @@ apps/
                     fijo en `src/lib` (categorías, textos, legales). El
                     cotizador envía a la API vía su proxy
                     `/api/hub/cotizador` (env `HUB_API_URL`, `HUB_MARCA_ID`).
+                    Todo su contenido es editable desde el dashboard (marca
+                    Fimav → *Web Fimav*): defaults en `src/lib/cms.ts`, mismo
+                    `ContenidoWeb` que FPTecnologi con el marcaId de Fimav.
 docs/     Documentación de negocio y planificación
 ```
 
@@ -202,6 +205,10 @@ sin rediseño — no construir nada de esto de forma anticipada.
   permisos) antes de sumar features nuevas encima.
 - Antes de construir una pantalla nueva en `apps/admin`, revisar si Vireo ya
   trae un patrón parecido (ver `VIREO-REFERENCE.md`).
+- **Módulos por marca en el dashboard**: cada marca ve solo lo que su web usa.
+  `MODULOS_POR_MARCA` (`apps/admin/src/lib/manifest.ts`) lista los módulos de
+  Quamtu y Fimav (FPTecnologi ve todos) y un nodo del menú con `marcas: ["fimav"]`
+  solo aparece en esa marca. Al sumar un módulo para una web, agrégalo ahí.
 - Secrets viven en `.env` (gitignorado), nunca en el código ni en
   `.env.example`.
 

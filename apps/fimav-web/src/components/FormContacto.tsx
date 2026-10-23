@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { Loader2, Mail, MessageCircle, Send } from 'lucide-react';
-import { contacto, waUrl } from '@/lib/contacto';
+import { useContacto, waUrl as waUrlDe } from './ContactoContext';
 import BotonHex from './hex/BotonHex';
 
 const limpio = (t: string) => t.replace(/[<>]/g, '');
@@ -12,6 +12,8 @@ const VACIO = { nombre: '', email: '', celular: '', empresa: '', mensaje: '', ac
 const ORDEN = ['nombre', 'email', 'celular', 'mensaje', 'acepto'];
 
 export default function FormContacto() {
+  const contacto = useContacto();
+  const waUrl = (t: string) => waUrlDe(contacto.whatsapp, t);
   const [f, setF] = useState(VACIO);
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [enviando, setEnviando] = useState(false);

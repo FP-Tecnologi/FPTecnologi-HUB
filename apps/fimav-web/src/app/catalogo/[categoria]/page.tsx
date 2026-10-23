@@ -5,18 +5,21 @@ import BannerPagina from '@/components/BannerPagina';
 import BotonHex from '@/components/hex/BotonHex';
 import HexImagen from '@/components/hex/HexImagen';
 import Reveal from '@/components/motion/Reveal';
-import { categoriaPorSlug, categorias } from '@/lib/categorias';
+import { categorias } from '@/lib/categorias';
+import { getCategorias } from '@/lib/cms';
+
+const categoriaPorSlug = async (slug: string) => (await getCategorias()).find((c) => c.slug === slug);
 
 export const dynamicParams = false;
 export const generateStaticParams = () => categorias.map((c) => ({ categoria: c.slug }));
 
 export async function generateMetadata({ params }: { params: Promise<{ categoria: string }> }) {
-  const c = categoriaPorSlug((await params).categoria);
+  const c = await categoriaPorSlug((await params).categoria);
   return { title: c?.nombre ?? 'Catálogo' };
 }
 
 export default async function CategoriaPage({ params }: { params: Promise<{ categoria: string }> }) {
-  const c = categoriaPorSlug((await params).categoria);
+  const c = await categoriaPorSlug((await params).categoria);
   if (!c) notFound();
   return (
     <main>
@@ -28,7 +31,7 @@ export default async function CategoriaPage({ params }: { params: Promise<{ cate
         {c.fotos.length > 0 ? (
           <div className="mt-10 grid gap-6 sm:grid-cols-3">
             {c.fotos.map((f, n) => (
-              <HexImagen key={f} src={f} alt={`${c.nombre}, ejemplo ${n + 1}`} sizes="(min-width: 640px) 33vw, 90vw" />
+              <HexImagen key={`${n}-${f}`} src={f} alt={`${c.nombre}, ejemplo ${n + 1}`} sizes="(min-width: 640px) 33vw, 90vw" />
             ))}
           </div>
         ) : (

@@ -21,6 +21,7 @@ import {
   slugFromPath,
   hrefForSlug,
   visibleForRole,
+  visibleParaMarca,
   type NavNode,
 } from '../../lib/manifest';
 import { Icon } from '../ui/Icon';
@@ -169,7 +170,8 @@ interface GroupProps {
 function Group({ node, level, activeSlug, roleName }: GroupProps) {
   const router = useRouter();
   const { marcas, activeMarcaId: activeId, adminMode: am } = useAuth();
-  const visible = (c: NavNode) => c.inMenu && visibleForRole(c, roleName) && !(am && c.soloMarca);
+  const nombreMarca = am ? null : (marcas.find((m) => m.marcaId === activeId)?.marca.nombre ?? null);
+  const visible = (c: NavNode) => c.inMenu && visibleForRole(c, roleName) && !(am && c.soloMarca) && (am || visibleParaMarca(c, nombreMarca));
   const children = manifest.childrenOf(node.id).filter(visible);
   const showBrands = node.id === 'inicio.dashboards' && marcas.length > 0;
   const containsActive = useMemo(
@@ -183,6 +185,9 @@ function Group({ node, level, activeSlug, roleName }: GroupProps) {
   const [open, setOpen] = useState(containsActive || level === 1 && node.section === 'MAIN');
   const selfActive = !!node.selfPage && node.slug === activeSlug;
   const isOpen = open || containsActive || selfActive;
+
+  // Un grupo cuyos hijos quedan todos ocultos (por rol o por marca) no se muestra vacío.
+  if (manifest.childrenOf(node.id).length > 0 && children.length === 0 && !showBrands) return null;
 
   const parentCls = ['ax-nav__item', 'ax-nav__item--parent'];
   if (level > 1) parentCls.push('ax-nav__item--child');
@@ -332,8 +337,7 @@ export function Sidebar({ drawerOpen = false, onNavToggle }: { drawerOpen?: bool
     : (marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre ?? null);
   const marcaActiva = !adminMode ? (marcas.find((m) => m.marcaId === activeMarcaId) ?? null) : null;
   useFocusTrap(rootRef, drawerOpen, '.ax-marcaswitch__trigger');
-  // Quamtu solo tiene CMS del cotizador; el resto de módulos (web, tienda, chat…) es de FPTecnologi.
-  const soloQuamtu = /quamtu/i.test(marcaActiva?.marca.nombre ?? '');
+  // Cada marca ve solo sus módulos (Quamtu y Fimav usan una parte del HUB): ver MODULOS_POR_MARCA en lib/manifest.ts.
 
   return (
     <aside className="ax-sidebar" role="navigation" aria-label="Primary" ref={rootRef}>
@@ -359,7 +363,7 @@ export function Sidebar({ drawerOpen = false, onNavToggle }: { drawerOpen?: bool
       {/* ===== NAV TREE ===== */}
       <nav className="ax-sidebar__nav" role="tree" aria-label="Main menu">
         {sections().map((section) => {
-          const groups = groupsInSection(section).filter((g) => g.inMenu && visibleForRole(g, roleName) && (g.section !== 'MARCA' || !adminMode) && (g.section !== 'MARCA' || !soloQuamtu || g.id === 'marca.cotizador' || g.id === 'marca.libro' || g.id === 'marca.equipo') && (g.section !== 'GENERAL' || adminMode) && (g.id !== 'inicio.dashboards' || adminMode));
+          const groups = groupsInSection(section).filter((g) => g.inMenu && visibleForRole(g, roleName) && (g.section !== 'MARCA' || !adminMode) && (adminMode || visibleParaMarca(g, marcaActiva?.marca.nombre)) && (g.section !== 'GENERAL' || adminMode) && (g.id !== 'inicio.dashboards' || adminMode));
           if (groups.length === 0) return null;
           return (
             <div key={section}>
