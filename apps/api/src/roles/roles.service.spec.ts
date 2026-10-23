@@ -73,3 +73,19 @@ describe('RolesService.crearUsuarioEnMarca', () => {
     expect(result.nuevo).toBe(true);
   });
 });
+
+describe('RolesService.marcasDeUsuario', () => {
+  it('agrega el dominio principal (primer Sitio) de cada marca, o null si no tiene', async () => {
+    const findMany = vi.fn().mockResolvedValue([
+      { usuarioId: 'u1', marcaId: 'm1', rolId: 'r1', rol: { id: 'r1', nombre: 'marketing' }, marca: { id: 'm1', nombre: 'Fimav Perú', sitios: [{ dominio: 'fimavperu.com' }] } },
+      { usuarioId: 'u1', marcaId: 'm2', rolId: 'r1', rol: { id: 'r1', nombre: 'marketing' }, marca: { id: 'm2', nombre: 'Quamtu', sitios: [] } },
+    ]);
+    const service = new RolesService({ usuarioMarcaRol: { findMany } } as never);
+    const r = await service.marcasDeUsuario('u1');
+    expect(findMany.mock.calls[0]![0].where).toEqual({ usuarioId: 'u1' });
+    expect(r.map((f) => f.marca)).toEqual([
+      { id: 'm1', nombre: 'Fimav Perú', dominioPrincipal: 'fimavperu.com' },
+      { id: 'm2', nombre: 'Quamtu', dominioPrincipal: null },
+    ]);
+  });
+});

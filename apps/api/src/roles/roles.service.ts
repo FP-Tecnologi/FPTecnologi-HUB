@@ -141,10 +141,12 @@ export class RolesService {
   }
 
   /** Marcas y roles asignados a un usuario — usado para construir el selector de marca activa. */
-  marcasDeUsuario(usuarioId: string) {
-    return this.prisma.usuarioMarcaRol.findMany({
+  /** Marcas y rol del usuario, con el dominio principal de cada marca (su primer Sitio): el dashboard lo usa para la vista previa del CMS. */
+  async marcasDeUsuario(usuarioId: string) {
+    const filas = await this.prisma.usuarioMarcaRol.findMany({
       where: { usuarioId },
-      include: { marca: true, rol: true },
+      include: { marca: { include: { sitios: { select: { dominio: true }, orderBy: { createdAt: 'asc' }, take: 1 } } }, rol: true },
     });
+    return filas.map(({ marca: { sitios, ...marca }, ...fila }) => ({ ...fila, marca: { ...marca, dominioPrincipal: sitios[0]?.dominio ?? null } }));
   }
 }

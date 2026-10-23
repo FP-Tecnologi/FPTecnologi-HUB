@@ -15,6 +15,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api, API_URL } from '../../lib/api';
 import { SubirImagen } from '../../components/ui/SubirImagen';
+import { apuntaALocal } from '../../lib/webMarca';
 
 const WEB_FPT = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
@@ -113,6 +114,8 @@ export function CmsEditor({ config }: { config: CmsConfig }) {
   const [guardando, setGuardando] = useState(false);
   const [vista, setVista] = useState<'escritorio' | 'celular'>('escritorio');
   const [recarga, setRecarga] = useState(0);
+  // La web no respondió: en vez del iframe roto ("localhost rechazó la conexión") se explica qué falta.
+  const [sinWeb, setSinWeb] = useState(false);
 
   const cargar = useCallback(async () => {
     try {
@@ -124,8 +127,14 @@ export function CmsEditor({ config }: { config: CmsConfig }) {
       setGuardado(data);
       setBorrador(structuredClone(data));
       setError('');
+      setSinWeb(false);
     } catch {
-      setError(`No se pudo leer el contenido de la web (${WEB}). ¿Está encendida?`);
+      setSinWeb(true);
+      setError(
+        apuntaALocal(WEB)
+          ? `El dashboard busca la web en ${WEB}, que solo existe en una computadora de desarrollo. Define la URL pública de esta web al compilar el dashboard (ver docs/DESPLIEGUE-CPANEL.md) o el dominio de la marca en Administración → Marcas.`
+          : `No se pudo leer el contenido de la web (${WEB}). Revisa que esté encendida y actualizada, y que su variable DASHBOARD_ORIGIN sea la dirección de este dashboard.`,
+      );
     }
   }, [pagina, WEB]);
 
@@ -251,7 +260,22 @@ export function CmsEditor({ config }: { config: CmsConfig }) {
               ))}
             </div>
           </div>
-          <Preview src={src} ancho={vista === 'escritorio' ? 1440 : 390} />
+          {sinWeb ? (
+            <div className="ax-card__body" style={{ flex: '1 1 auto', display: 'grid', placeItems: 'center', textAlign: 'center', color: 'var(--ax-text-muted)', background: 'var(--ax-surface-subtle)' }}>
+              <div style={{ maxWidth: 420 }}>
+                <p style={{ fontWeight: 600, color: 'var(--ax-text)' }}>Sin vista previa</p>
+                <p style={{ fontSize: 'var(--ax-text-sm)' }}>La web no respondió en <code>{WEB}</code>.</p>
+                {/\/\/(localhost|127\.)/.test(WEB) && (
+                  <p style={{ fontSize: 'var(--ax-text-sm)' }}>
+                    En tu computadora, arráncala desde su carpeta con <code>npm run dev -- --port {new globalThis.URL(WEB).port || '80'}</code> (con <code>HUB_API_URL</code> y <code>HUB_MARCA_ID</code> en su <code>.env.local</code>) y pulsa «Reintentar».
+                  </p>
+                )}
+                <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => cargar()}>Reintentar</button>
+              </div>
+            </div>
+          ) : (
+            <Preview src={src} ancho={vista === 'escritorio' ? 1440 : 390} />
+          )}
         </section>
       </div>
     </>

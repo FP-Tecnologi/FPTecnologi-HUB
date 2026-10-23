@@ -8,8 +8,7 @@
 import { CmsEditor, type CmsConfig, type Seccion } from './WebHomeCms';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth } from '../../context/AuthContext';
-
-const WEB_FIMAV = process.env.NEXT_PUBLIC_WEB_FIMAV_URL ?? 'http://localhost:3005';
+import { webDeMarca } from '../../lib/webMarca';
 
 type CampoDe = Seccion['campos'][number];
 const T = (key: string, label: string, ayuda?: string): CampoDe => ({ key, label, tipo: 'text', ...(ayuda ? { ayuda } : {}) });
@@ -32,7 +31,6 @@ const base = (pagina: string, titulo: string, previewPath: string, secciones: Se
   subtitulo: 'Edita los textos e imágenes de fimavperu.com. Los cambios se publican al guardar.',
   previewPath,
   conVisible: false,
-  web: WEB_FIMAV,
   secciones,
 });
 
@@ -135,7 +133,7 @@ function SoloFimav({ config }: { config: CmsConfig }) {
       </>
     );
   }
-  return <CmsEditor config={config} />;
+  return <CmsEditor config={{ ...config, web: webDeMarca(activa.marca.nombre, activa.marca.dominioPrincipal) }} />;
 }
 
 export const FimavInicioCms = () => <SoloFimav config={INICIO} />;

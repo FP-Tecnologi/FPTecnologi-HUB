@@ -5,14 +5,19 @@
  */
 import { PAGINAS_CMS, getPagina, type PaginaCms } from '@/lib/cms';
 
-const DASHBOARD_ORIGIN = process.env.DASHBOARD_ORIGIN ?? 'http://localhost:3000';
+// Orígenes que pueden leer (separados por coma). Por defecto, el dashboard de producción y el de desarrollo.
+const PERMITIDOS = (process.env.DASHBOARD_ORIGIN ?? 'https://admin.fptecnologi.com,http://localhost:3000')
+  .split(',')
+  .map((o) => o.trim().replace(/\/$/, ''))
+  .filter(Boolean);
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(_req: Request, { params }: { params: Promise<{ pagina: string }> }) {
+export async function GET(req: Request, { params }: { params: Promise<{ pagina: string }> }) {
   const { pagina } = await params;
   if (!PAGINAS_CMS.includes(pagina as PaginaCms)) return Response.json({ message: 'Página desconocida' }, { status: 404 });
+  const origen = req.headers.get('origin') ?? '';
   return Response.json(await getPagina(pagina as PaginaCms), {
-    headers: { 'Access-Control-Allow-Origin': DASHBOARD_ORIGIN, 'Cache-Control': 'no-store', Vary: 'Origin' },
+    headers: { 'Access-Control-Allow-Origin': PERMITIDOS.includes(origen) ? origen : PERMITIDOS[0]!, 'Cache-Control': 'no-store', Vary: 'Origin' },
   });
 }
