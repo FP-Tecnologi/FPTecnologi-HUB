@@ -7,10 +7,14 @@ export const contacto = {
   direccion:'Jr. Huaraz 1833, Urb. Azcona, Breña, Lima',
   telefono: '01 397-9527',
   telefonoHref: 'tel:+5113979527',
-  // Provisional: mismo número hasta confirmar el WhatsApp comercial (formato wa.me: 51 + número).
-  whatsapp: '5113979527',
+  // PROVISIONAL (marcador 999 999 999 a pedido de la empresa): reemplazar por el WhatsApp comercial real (wa.me: 51 + 9 dígitos).
+  whatsapp: '51999999999',
+  whatsappVisible: '999 999 999',
   ventas: 'ventas@fimavperu.com',
   comercial: 'comercial@fimavperu.com',
 };
 
 export const waUrl = (texto: string) => `https://wa.me/${contacto.whatsapp}?text=${encodeURIComponent(texto)}`;
+
+// Redes sociales: completar con las URL reales de la empresa (https://...). Vacío = el ícono se muestra sin enlace. No inventar URL.
+export const redes = { facebook: '', instagram: '' };

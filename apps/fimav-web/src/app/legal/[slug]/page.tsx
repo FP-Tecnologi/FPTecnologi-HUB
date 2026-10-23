@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 import BannerPagina from '@/components/BannerPagina';
+import Reveal from '@/components/motion/Reveal';
 import { legal } from '@/lib/legal';
 
 export const dynamicParams = false;
@@ -14,8 +15,8 @@ export default async function LegalPage({ params }: { params: Promise<{ slug: st
   if (!p) notFound();
   return (
     <main>
-      <BannerPagina titulo={p.titulo.split(' ').slice(0, -1).join(' ')} resaltado={p.titulo.split(' ').at(-1)} subtitulo="Información legal de Fimav Perú." />
-      <div className="mx-auto max-w-3xl space-y-4 px-4 pb-16 pt-8 leading-relaxed text-carbon/80 sm:px-6">
+      <BannerPagina eyebrow="Legales" titulo={p.titulo} imagen="/fotos/nosotros.jpg" posicion="center 80%" />
+      <Reveal className="mx-auto max-w-3xl space-y-4 px-4 pb-16 pt-8 leading-relaxed text-carbon/80 sm:px-6">
         {p.parrafos.map((t) =>
           t.startsWith('## ') ? (
             <h2 key={t} className="titulo-menor pt-4 text-xl text-carbon">{t.slice(3)}</h2>
@@ -23,7 +24,7 @@ export default async function LegalPage({ params }: { params: Promise<{ slug: st
             <p key={t}>{t}</p>
           ),
         )}
-      </div>
+      </Reveal>
     </main>
   );
 }

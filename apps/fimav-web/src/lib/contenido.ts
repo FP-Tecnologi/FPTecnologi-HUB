@@ -1,6 +1,6 @@
 export const contenido = {
   nosotros:
-    'Somos una organización comercial especializada en el sector Corporativo/Gobierno con una experiencia de más de 10 años en el mercado, posicionados en los primeros puestos del ranking comercial de gobierno en la plataforma de contratación del Estado (PERÚ COMPRAS). Tenemos un creciente y sólido lazo comercial con las marcas transnacionales más representativas en el segmento tecnológico, sumado a ello contamos con un staff corporativo con amplia experiencia y compromiso de servicio para el desarrollo de negocios en los diferentes tipos de soluciones que exige el mercado actual.',
+    'Somos una organización comercial especializada en el sector Corporativo/Gobierno. Tenemos un creciente y sólido lazo comercial con las marcas transnacionales más representativas en el segmento tecnológico, sumado a ello contamos con un staff corporativo con amplia experiencia y compromiso de servicio para el desarrollo de negocios en los diferentes tipos de soluciones que exige el mercado actual.',
   mision:
     'Estar posicionados entre los primeros proveedores en el mercado de Gobierno / Privado, prevaleciendo y marcando un diferenciador fuerte por nuestro estatus con las marcas más comerciales del mercado, contando con un equipo especializado, nuestra innovación y nuestra constante retroalimentación para el cambio tecnológico del mercado, cumpliendo con todo tipo de soluciones.',
   vision:
@@ -17,6 +17,8 @@ export const contenido = {
   ],
   frase:
     'Somos una organización en constante transformación, enfocada en la sostenibilidad de nuestro crecimiento y participación en el mercado, mejorando la calidad de las soluciones proporcionadas a nuestros clientes, dentro de un ecosistema empresarial sostenible.',
+  // Versión corta para el pie de página (la frase completa sigue en /nosotros).
+  fraseCorta: 'Especialistas en bienes y servicios para el sector Corporativo y Gobierno.',
   // `solido`: el logo trae caja/fondo de color y se muestra siempre a color (en gris saldría un bloque).
   // `alto` (px, por defecto 40): equilibra el peso visual entre logos de proporciones muy distintas (HP casi cuadrado, Samsung muy ancho).
   marcas: [

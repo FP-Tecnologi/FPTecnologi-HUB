@@ -15,8 +15,8 @@ export const categorias: Categoria[] = [
   { slug: 'consumibles', nombre: 'Consumibles', icono: Droplets, resumen: 'Tóneres, tintas y suministros originales para impresión.', marcas: ['Lexmark', 'HP', 'Epson'], fotos: fotos('consumibles') },
   { slug: 'networking', nombre: 'Networking', icono: Network, resumen: 'Redes, conectividad y cableado para operar sin interrupciones.', marcas: [], fotos: fotos('networking') },
   { slug: 'mobiliario-papel', nombre: 'Mobiliario y papel', icono: Armchair, resumen: 'Mobiliario de oficina y papelería para equipar tus espacios.', marcas: [], fotos: fotos('mobiliario') },
-  { slug: 'software', nombre: 'Software', icono: Disc3, resumen: 'Licenciamiento de software para sistemas operativos, ofimática y seguridad.', marcas: [], fotos: [] },
-  { slug: 'baterias', nombre: 'Baterías', icono: BatteryCharging, resumen: 'Baterías y respaldo de energía para equipos y continuidad operativa.', marcas: [], fotos: [] },
+  { slug: 'software', nombre: 'Software', icono: Disc3, resumen: 'Licenciamiento de software para sistemas operativos, ofimática y seguridad.', marcas: [], fotos: ['/fotos/escritorios-1.jpg', '/fotos/escritorios-2.jpg', '/fotos/all-in-one-1.jpg'] },
+  { slug: 'baterias', nombre: 'Baterías', icono: BatteryCharging, resumen: 'Baterías y respaldo de energía para equipos y continuidad operativa.', marcas: [], fotos: ['/fotos/baterias-1.svg', '/fotos/baterias-2.svg', '/fotos/baterias-3.svg'] },
 ];
 
 export const categoriaPorSlug = (slug: string) => categorias.find((c) => c.slug === slug);

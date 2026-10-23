@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 700">
+  <defs>
+    <linearGradient id="pack" x2="0" y2="1">
+      <stop stop-color="#40464d"/>
+      <stop offset="1" stop-color="#171a1e"/>
+    </linearGradient>
+    <linearGradient id="panel" x2="1" y2="1">
+      <stop stop-color="#6d747a"/>
+      <stop offset="1" stop-color="#373c42"/>
+    </linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feGaussianBlur stdDeviation="17"/>
+    </filter>
+  </defs>
+  <rect width="1000" height="700" fill="#fff"/>
+  <ellipse cx="510" cy="568" rx="300" ry="38" fill="#24282c" opacity=".18" filter="url(#shadow)"/>
+  <path d="m230 258 444-83 119 58-445 91z" fill="#5f666d"/>
+  <path d="m230 258 118 66v206l-118-64z" fill="url(#panel)"/>
+  <path d="m348 324 445-91v207l-445 90z" fill="url(#pack)"/>
+  <path d="m270 284 48 27v158l-48-26z" fill="#252a2f"/>
+  <path d="m374 346 386-78v143l-386 79z" fill="#262b30"/>
+  <path d="m401 368 180-36v89l-180 37z" fill="#16191d"/>
+  <path d="m423 385 94-19v42l-94 19z" fill="#242a30"/>
+  <path d="m431 394 24-5v23l-24 5z" fill="#92b29c"/>
+  <circle cx="551" cy="365" r="7" fill="#e02424"/>
+  <path d="m608 326 121-25v88l-121 25z" fill="url(#panel)"/>
+  <path d="m622 339 94-19v59l-94 19z" fill="#1c2024"/>
+  <path d="m641 350 15-3v29l-15 3zm31-6 15-3v29l-15 3z" fill="#afb5ba"/>
+  <path d="m371 476 391-79v9l-391 80z" fill="#939aa0" opacity=".58"/>
+  <path d="m254 476 94 51v18l-94-51zm445-79 94-19v18l-94 19z" fill="#171a1e"/>
+  <path d="m368 538 106-22v17l-106 23zm295-60 95-19v17l-95 20z" fill="#4c535a"/>
+</svg>

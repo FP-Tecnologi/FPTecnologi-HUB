@@ -2,6 +2,7 @@ import { Suspense } from 'react';
 import { Mail, MessageCircle, Phone } from 'lucide-react';
 import FormCotizar from '@/components/FormCotizar';
 import BannerPagina from '@/components/BannerPagina';
+import Reveal from '@/components/motion/Reveal';
 import { contacto, waUrl } from '@/lib/contacto';
 
 export const metadata = { title: 'Cotizar' };
@@ -9,8 +10,8 @@ export const metadata = { title: 'Cotizar' };
 export default function CotizarPage() {
   return (
     <main>
-      <BannerPagina titulo="Solicita tu" resaltado="Cotización" subtitulo="Atendemos entidades del Estado y empresas privadas." />
-      <div className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 lg:pb-24">
+      <BannerPagina eyebrow="Cotización" titulo="Cuéntanos qué" resaltado="necesitas" imagen="/fotos/escogernos.jpg" posicion="center 30%" />
+      <Reveal className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 lg:pb-24">
         <div className="grid items-start gap-8 lg:grid-cols-[1fr_320px]">
           <Suspense fallback={<p className="rounded-2xl bg-gris p-6 text-carbon">Cargando formulario…</p>}>
             <FormCotizar />
@@ -37,7 +38,7 @@ export default function CotizarPage() {
             <p className="mt-4 text-sm text-carbon/80">{contacto.direccion}</p>
           </aside>
         </div>
-      </div>
+      </Reveal>
     </main>
   );
 }

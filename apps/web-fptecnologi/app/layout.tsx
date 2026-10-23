@@ -16,6 +16,7 @@ import { api } from '@/lib/catalogo';
 import './globals.css';
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.SITE_URL ?? 'https://fptecnologi.com'),
   ...(process.env.NOINDEX === '1' ? { robots: { index: false, follow: false } } : {}),
   title: {
     default: 'FPTecnologi & System — Tecnología para tu negocio',

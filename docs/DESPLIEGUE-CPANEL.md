@@ -187,6 +187,9 @@ aplícala antes de reiniciar la API (§5).
 | Las imágenes subidas no se ven | `PUBLIC_API_URL` mal puesta, o `UPLOADS_DIR` sin permisos de escritura |
 | El formulario de contacto devuelve 503 | Faltan `LEADS_SUPABASE_URL` / `LEADS_SUPABASE_ANON_KEY` |
 | El chat de IA no responde | Falta `GROQ_API_KEY` en la web pública |
+| El chat dice "Estoy atendiendo muchas consultas" | Groq devolvió 429: el plan gratis tiene un tope de tokens por minuto para toda la cuenta. Opcional `GROQ_MODEL_RESERVA` (otro modelo de Groq, con su propio cupo) o subir de plan en console.groq.com |
+| El log de la web muestra `Killed` con la app ya en marcha | El hosting mató el proceso por memoria. Prueba `NEXT_IMAGENES_SIN_OPTIMIZAR=1` (las fotos se sirven sin redimensionar en el servidor) y `NODE_OPTIONS=--max-old-space-size=512` en las variables de la app; si sigue, sube el plan de memoria |
+| El log muestra `Could not find a production build in the '.next' directory` | La app arrancó sin compilar (o el build se cortó por memoria y no dejó `.next`). Vuelve a desplegar y revisa que `npm run build` termine; si dice `Killed`, ver la fila de arriba sobre el build |
 | Error 500 al abrir la tienda o el blog | `HUB_API_URL` / `HUB_MARCA_ID` incorrectos en la web pública |
 | No llegan correos (invitaciones, códigos) | Revisa `SMTP_*` / `MAIL_FROM_EMAIL`; en cPanel el remitente debe ser una cuenta del propio dominio |
 
@@ -204,3 +207,19 @@ aplícala antes de reiniciar la API (§5).
 - Cada app tiene su `.env.example` con las variables necesarias.
 - **Hostinger y el compilador de Next**: su Linux es antiguo (glibc 2.28) y no carga el compilador nativo de Next 16 (pide 2.29): usa el de WASM, que no lee `next.config.ts` ni compila con Turbopack. Por eso `next.config` es `.mjs` y el build es `next build --webpack` (el `dev` sigue con Turbopack). Probado con `NEXT_TEST_WASM=1`.
 - La API usa OpenSSL 1.1 en ese servidor: el motor de Prisma se genera para 1.1 y 3.0 y se copia a `dist/generated/prisma`.
+
+## Web de Fimav Perú (`apps/fimav-web`)
+
+Repo espejo **privado** `FP-Tecnologi/fimav-peru` (su raíz es la app). Al ser privado, cPanel → *Git Version Control* necesita una
+**deploy key**: en cPanel → *SSH Access → Manage SSH Keys* genera una clave, cópiala en GitHub → `fimav-peru` → *Settings → Deploy keys*
+(solo lectura) y clona con `git@github.com:FP-Tecnologi/fimav-peru.git`. Sin SSH: compila en tu PC y sube un `.zip` sin `node_modules`.
+
+| Campo | Valor |
+| --- | --- |
+| Application root | carpeta clonada (p. ej. `fimav-peru`) |
+| Startup file | `server.cjs` |
+| Compilación | `npm ci && npm run build` (el `prebuild` instala las devDependencies) |
+| Variables | `HUB_API_URL` (URL de la API desplegada), `HUB_MARCA_ID` (id de la marca `fimavperu` en `/public/marcas`) |
+
+Sin `HUB_MARCA_ID` el sitio funciona, pero cotizador, contacto y libro de reclamaciones responden 503 (muestran WhatsApp/correo).
+fimavperu.com hoy es WordPress: publica primero en un subdominio (p. ej. `nuevo.fimavperu.com`) y cambia al dominio principal al validar.

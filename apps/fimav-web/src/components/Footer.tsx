@@ -1,10 +1,11 @@
 import Link from 'next/link';
-import { Landmark, Mail, MapPin, Phone } from 'lucide-react';
+import { Facebook, Instagram, Landmark, Mail, MapPin, Phone } from 'lucide-react';
 import Logo from './Logo';
 import LibroBadge from './LibroBadge';
 import CorteHex from './hex/CorteHex';
+import { rutaHexagono } from './hex/rutaHexagono';
 import CtaCotizar from './home/CtaCotizar';
-import { contacto } from '@/lib/contacto';
+import { contacto, redes } from '@/lib/contacto';
 import { contenido } from '@/lib/contenido';
 
 const legales = [
@@ -13,6 +14,18 @@ const legales = [
   { href: '/legal/devoluciones', texto: 'Devoluciones' },
   { href: '/legal/preguntas-frecuentes', texto: 'Preguntas frecuentes' },
 ];
+
+const SOCIALES = [
+  { clave: 'facebook', Icono: Facebook, nombre: 'Facebook' },
+  { clave: 'instagram', Icono: Instagram, nombre: 'Instagram' },
+] as const;
+const HEX_SOC = rutaHexagono({ orientacion: 'punta-arriba', radio: 0.12 });
+const hexSocial = 'group/s relative grid h-12 w-11 place-items-center text-white';
+const marco = (
+  <svg viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true" className="absolute inset-0 size-full fill-transparent stroke-white/70 transition-colors group-hover/s:fill-white group-hover/s:stroke-white">
+    <path d={HEX_SOC} strokeWidth="2" vectorEffect="non-scaling-stroke" />
+  </svg>
+);
 
 const enlace = 'flex min-h-11 items-center gap-3 hover:underline focus-visible:outline-white';
 const Titulo = ({ children }: { children: string }) => (
@@ -25,7 +38,7 @@ const Titulo = ({ children }: { children: string }) => (
 /** Pie y CTA en un solo bloque carbón: un único borde hexagonal arriba, CTA, divisor fino y columnas. */
 export default function Footer() {
   return (
-    <footer className="print:hidden mt-8 text-white">
+    <footer id="pie" className="print:hidden mt-8 text-white">
       <CorteHex lado="arriba" color="var(--color-carbon)" />
       <div className="bg-carbon pt-4">
         <CtaCotizar />
@@ -34,7 +47,24 @@ export default function Footer() {
             <span className="inline-block rounded-xl bg-white p-2">
               <Logo className="block h-14 w-auto object-contain" />
             </span>
-            <p className="mt-4 text-sm leading-relaxed text-white/90">{contenido.frase}</p>
+            <p className="mt-4 text-sm leading-relaxed text-white/90">{contenido.fraseCorta}</p>
+            <p className="titulo-menor mt-5 text-sm tracking-widest text-white">Síguenos</p>
+            <ul className="mt-2 flex gap-3">
+              {SOCIALES.map(({ clave, Icono, nombre }) => (
+                <li key={clave}>
+                  {redes[clave] ? (
+                    <a href={redes[clave]} target="_blank" rel="noopener noreferrer" aria-label={`${nombre} de Fimav Perú (se abre en otra pestaña)`} className={`${hexSocial} transition duration-200 hover:-translate-y-0.5 hover:text-carbon focus-visible:outline-white motion-reduce:transition-none`}>
+                      {marco}<Icono aria-hidden="true" size={20} className="relative" />
+                    </a>
+                  ) : (
+                    <span aria-disabled="true" title="Próximamente" className={`${hexSocial} opacity-60`}>
+                      {marco}<Icono aria-hidden="true" size={20} className="relative" />
+                      <span className="sr-only">{nombre} de Fimav Perú (próximamente)</span>
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
           </div>
           <div className="text-sm">
             <Titulo>Contacto</Titulo>

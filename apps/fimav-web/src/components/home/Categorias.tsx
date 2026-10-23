@@ -10,7 +10,7 @@ export default function Categorias() {
     <section className="bg-white py-16 lg:py-24">
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <Reveal>
-          <SeccionTitulo nivel="h2" claro="¿Cuáles" rojo="Servicios Ofrecemos?" subtitulo="Nuestras categorías de bienes y servicios para empresas y entidades del Estado." />
+          <SeccionTitulo nivel="h2" eyebrow="¿Cuáles servicios ofrecemos?" claro="Nuestras" rojo="categorías" />
         </Reveal>
         <ul className="mt-10 grid grid-cols-2 gap-4 sm:gap-6 md:grid-cols-4">
           {categorias.map((c, i) => (

@@ -34,6 +34,10 @@ const nextConfig = {
   },
   images: {
     remotePatterns: [{ protocol: 'https', hostname: 'fptecnologi.com' }],
+    // En un hosting con poca RAM, redimensionar fotos en el servidor (sharp) es lo que más memoria pide y puede hacer
+    // que el sistema mate el proceso ("Killed"). NEXT_IMAGENES_SIN_OPTIMIZAR=1 sirve las fotos tal cual.
+    unoptimized: process.env.NEXT_IMAGENES_SIN_OPTIMIZAR === '1',
+    minimumCacheTTL: 60 * 60 * 24 * 30,
   },
 };
 

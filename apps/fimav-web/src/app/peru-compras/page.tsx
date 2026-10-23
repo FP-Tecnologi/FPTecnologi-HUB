@@ -4,6 +4,7 @@ import Hexagono from '@/components/Hexagono';
 import BannerPagina from '@/components/BannerPagina';
 import SeccionTitulo from '@/components/SeccionTitulo';
 import { FranjaMarcas } from '@/components/home/Marcas';
+import OrnamentoGeometrico from '@/components/OrnamentoGeometrico';
 import HexImagen from '@/components/hex/HexImagen';
 import { categorias } from '@/lib/categorias';
 import { contenido } from '@/lib/contenido';
@@ -25,9 +26,10 @@ const trabajo = [
 export default function PeruComprasPage() {
   return (
     <main>
-      <BannerPagina titulo="Estamos en" resaltado="Perú Compras" subtitulo="Atendemos al sector Estado en la plataforma de contratación pública." />
-      <section className="bg-white pb-16 pt-8 lg:pb-24">
-        <div className="entrada mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_auto]">
+      <BannerPagina eyebrow="Perú Compras" titulo="Atendemos al" resaltado="sector Estado" imagen="/peru-compras/contenedor.jpg" posicion="center 45%" />
+      <section className="relative isolate overflow-hidden bg-white pb-16 pt-8 lg:pb-24">
+        <OrnamentoGeometrico className="pointer-events-none absolute -right-24 top-1/2 z-0 hidden w-80 -translate-y-1/2 text-carbon opacity-[0.07] md:block" />
+        <Reveal className="relative z-10 mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_auto]">
           <div>
             <div className="flex items-center gap-4">
               <Hexagono icono={Megaphone} tam={64} />
@@ -44,7 +46,7 @@ export default function PeruComprasPage() {
             sizes="(min-width: 1024px) 380px, 80vw"
             className="mx-auto w-full max-w-xs lg:max-w-sm"
           />
-        </div>
+        </Reveal>
       </section>
 
       <section className="bg-boton py-10 text-white">
@@ -56,7 +58,7 @@ export default function PeruComprasPage() {
 
       <section className="bg-gris py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <Reveal><SeccionTitulo nivel="h2" claro="Cómo" rojo="trabajamos" subtitulo="Venta, postventa y soluciones tecnológicas para cada entidad." /></Reveal>
+          <Reveal><SeccionTitulo nivel="h2" eyebrow="Cómo trabajamos" claro="Venta, postventa y" rojo="soluciones" /></Reveal>
           <ul className="mt-8 grid gap-4 sm:grid-cols-2">
             {trabajo.map(([t, d], i) => (
               <Reveal as="li" key={t} retraso={(i % 2) * 90} className="rounded-2xl bg-white p-6">
@@ -71,7 +73,7 @@ export default function PeruComprasPage() {
       <section className="bg-white py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
-            <SeccionTitulo nivel="h2" claro="Nuestras" rojo="categorías" subtitulo="Bienes y servicios que atendemos para entidades del Estado y empresas privadas." />
+            <SeccionTitulo nivel="h2" eyebrow="Nuestras categorías" claro="Bienes y servicios" rojo="para el Estado" />
           </Reveal>
           <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {categorias.map((c, i) => (
@@ -87,7 +89,7 @@ export default function PeruComprasPage() {
       <section className="bg-gris py-16">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
-            <SeccionTitulo nivel="h2" claro="Marcas con las que" rojo="trabajamos" subtitulo="Socios estratégicos de las marcas más comerciales del mercado." />
+            <SeccionTitulo nivel="h2" eyebrow="Marcas con las que trabajamos" claro="Socios de las marcas" rojo="más comerciales" />
             <FranjaMarcas className="mt-6" />
           </Reveal>
         </div>

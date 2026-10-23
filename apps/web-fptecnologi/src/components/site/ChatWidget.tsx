@@ -162,6 +162,8 @@ function contenidoParaIA(m: ChatMsg): string {
 }
 
 const REMOTE_KEY = 'fp-chat-remote-v1';
+// Opción del aviso "estoy ocupado": reenvía la última pregunta del visitante.
+const REINTENTAR = 'Intentar de nuevo';
 
 function loadRemote(): Remote | null {
   try {
@@ -764,8 +766,19 @@ function ChatWidgetInner() {
           messages: history.filter((m) => m.from !== 'system').map((m) => ({ role: m.from === 'user' ? 'user' : 'assistant', content: contenidoParaIA(m).slice(0, 2000) })),
         }),
       });
+      const data = await res.json().catch(() => ({}));
+      if (res.status === 429 || (res.status === 503 && data?.error === 'ocupado')) {
+        // Cupo de la IA agotado por un momento (o tope por visitante): mensaje claro en vez del respaldo por palabras.
+        answer = {
+          text: res.status === 429 ? data.error || 'Enviaste muchos mensajes seguidos. Espera unos minutos o escríbenos por WhatsApp.' : 'Estoy atendiendo muchas consultas en este momento 🙏\nInténtalo de nuevo en unos segundos o escríbenos por WhatsApp y te atiende un asesor.',
+          actions: [resolveAction('whatsapp')].filter((a): a is ChatAction => a !== null),
+          options: res.status === 429 ? [] : [REINTENTAR],
+        };
+        setTyping(false);
+        setMessages((m) => [...m, { from: 'bot', ...answer, at: Date.now() }]);
+        return;
+      }
       if (!res.ok) throw new Error(String(res.status));
-      const data = await res.json();
       answer = { text: data.reply, actions: data.actions ?? [], options: data.options ?? [], productos: productosGuardados(data.productos), servicios: serviciosGuardados(data.servicios), datos: datosGuardados(data.datos), cotizacion: cotizacionGuardada(data.cotizacion) };
     } catch {
       answer = fallbackReply(text);
@@ -1056,7 +1069,7 @@ function ChatWidgetInner() {
                             <button
                               key={opt}
                               type="button"
-                              onClick={() => sendText(opt)}
+                              onClick={() => sendText(opt === REINTENTAR ? ([...messages].reverse().find((x) => x.from === 'user')?.text ?? opt) : opt)}
                               className={`rounded-xl rounded-br-sm border px-3 py-1.5 text-xs font-semibold transition-colors ${t.chip}`}
                             >
                               {opt}

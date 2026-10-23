@@ -12,7 +12,7 @@ export default function PeruCompras() {
       <div className="bg-white py-16 lg:py-24">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_auto]">
           <Reveal>
-            <SeccionTitulo nivel="h2" tam="lg" claro="Estamos en" rojo="Perú Compras" subtitulo="Atendemos al sector Estado en la plataforma de contratación pública." />
+            <SeccionTitulo nivel="h2" tam="lg" eyebrow="Estamos en Perú Compras" claro="Atendemos al" rojo="sector Estado" />
             <div className="mt-8 flex items-center gap-4">
               <Hexagono icono={Megaphone} tam={64} />
               <h3 className="titulo-menor text-3xl text-carbon">Sector Estatal</h3>

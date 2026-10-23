@@ -1,36 +1,32 @@
 /*
- * Base de conocimiento del asistente virtual (solo servidor). Reúne en un
- * texto lo mismo que muestran las páginas de la web (empresa, nosotros,
- * servicios con su detalle, tienda, marcas, partners, cotizador, blog y
- * textos legales) más lo que vive en la base de datos vía la API: productos
- * (precio, marca, categoría), servicios cargados en el dashboard y artículos
- * del blog. Se cachea 60 s para no pegarle a la API en cada mensaje.
+ * Base de conocimiento del asistente virtual (solo servidor). Reúne lo que muestran las páginas de la web y lo que
+ * vive en la base de datos vía la API (productos, servicios, blog, proyectos, envíos, contenido editable).
  *
- * Productos: no se manda todo el catálogo. Se puntúa cada producto contra la
- * pregunta (nombre, marca, SKU, categoría; sin tildes) y van con detalle los más
- * relevantes; el resto, resumido por categoría (cantidad y rango de precios).
+ * Búsqueda por pregunta (RAG liviano): Groq (plan gratis) corta a 8000 tokens por minuto sumando todo, así que NO se
+ * manda todo. Cada mensaje lleva un núcleo fijo corto (empresa, contacto, índice de servicios y mapa de la web) y solo
+ * las 3 secciones que más coinciden con la pregunta (palabras clave sin tildes, singular/plural), más hasta 8
+ * productos relevantes. Un saludo o una pregunta ajena viaja solo con el núcleo.
  *
- * Proyectos y clientes: solo los que NO estén marcados como ejemplo en el
- * dashboard; si no hay ninguno real, se le indica que no cite casos.
+ * Caché: 5 min, se sirve vencida mientras se renueva en segundo plano y nunca se arman dos a la vez (antes, con la
+ * caché vencida, cada mensaje simultáneo disparaba ~15 consultas a la API en paralelo).
+ *
+ * Proyectos y clientes: solo los que NO estén marcados como ejemplo en el dashboard.
  */
 import {
   BUSINESS_PATHS,
-  CONTACT_INFO,
   NOSOTROS_PILARES,
   PARTNER_BRANDS,
   PARTNER_STEPS,
   WHATSAPP_AREAS,
-  WHY_CHOOSE_US,
 } from './content';
 import { FAQ_COMUNES } from './serviciosDetalle';
 import { getCatalogo, categoriasDe } from './catalogo';
 import { getServicios, type ServicioPublico } from './servicios';
 import { getClientes, getProyectos } from './referencias';
 import { PERU_DEPARTMENTS } from './peruDepartments';
-import { montoSoles } from './projects';
 import { getCotizadorContenido } from './cotizadorContenido';
 import { getArticulos } from './blog';
-import { getLegalDocs, type LegalDoc } from './legal';
+import { getLegalDocs } from './legal';
 import { getSitio, type Sitio } from './sitio';
 import { getPagina } from './paginasContenido';
 import type { CatalogProduct } from './catalog';
@@ -38,53 +34,18 @@ import { COMPLIANCE } from './compliance';
 import { getHomeContenido } from './homeContenido';
 import { getProveedor } from './proveedorLibro';
 
-const CACHE_MS = 60_000;
-const MAX_PRODUCTOS = 30;
-const MAX_ARTICULOS = 8;
+const CACHE_MS = 5 * 60_000;
+const TIEMPO_MAX_MS = 8000;
+const MAX_PRODUCTOS = 8;
+const MAX_ARTICULOS = 6;
+const MAX_PROYECTOS = 10;
+const MAX_SECCIONES = 3;
+const MAX_CARACTERES_SECCIONES = 4000;
 
 const lista = (items: readonly string[]) => items.join('; ');
 
-function seccionEmpresa(sitio: Sitio, horario: string): string {
-  const CONTACT_INFO = sitio.contact;
-  return `EMPRESA Y CONTACTO
-FP Tecnologi & System (FPTecnologi): distribuidor autorizado de equipamiento TI y proveedor de servicios TI para empresas e instituciones del Perú.
-Dirección: ${CONTACT_INFO.address}. Teléfono ventas: ${CONTACT_INFO.phoneVentas}. Ventas web: ${CONTACT_INFO.phoneVentasWeb}. Correo: ${CONTACT_INFO.email}.
-Horario: ${horario}.
-WhatsApp de asesores (áreas: ${WHATSAPP_AREAS.map((a) => a.label).join(', ')}): +${sitio.whatsapp}.
-Redes: ${sitio.social.map((r) => r.label).join(', ')}.
-Líneas de negocio:
-${BUSINESS_PATHS.map((b) => `- ${b.title}: ${b.text}`).join('\n')}`;
-}
-
-function seccionNosotros(): string {
-  return `NOSOTROS (página /nosotros)
-Distribución autorizada de las principales marcas, stock local listo para despachar y un equipo técnico que arma cada propuesta a medida. Dos líneas: tienda B2B y servicios TI por proyecto (diseño, instalación y soporte con especialistas propios).
-${NOSOTROS_PILARES.map((p) => `- ${p.titulo}: ${p.texto}`).join('\n')}
-Por qué elegirnos:
-${WHY_CHOOSE_US.map((w) => `- ${w.title}: ${w.text}`).join('\n')}`;
-}
-
-function seccionServicios(servicios: ServicioPublico[]): string {
-  const comunes = new Set([FAQ_COMUNES.visita.p, FAQ_COMUNES.soporte.p]);
-  const detalle = servicios.map((s) => {
-    const d = s.detalle;
-    const propias = d?.faqs.filter((f) => !comunes.has(f.p)) ?? [];
-    return [
-      `- ${s.title} (página /servicios/${s.slug}): ${d?.intro ?? s.description}${s.precioDesde ? ` Desde USD ${s.precioDesde}.` : ''}`,
-      d && d.incluye.length > 0 && `  Incluye: ${lista(d.incluye)}.`,
-      d && `  Beneficios: ${lista(d.beneficios.map((b) => b.titulo))}. Sectores: ${lista(d.sectores)}.`,
-      ...propias.map((f) => `  P: ${f.p} R: ${f.r}`),
-    ]
-      .filter(Boolean)
-      .join('\n');
-  });
-  return `SERVICIOS TI (página /servicios; todos se cotizan por proyecto: botón Cotizar o cotizador)
-${detalle.join('\n')}
-Preguntas comunes de todos los servicios:
-P: ${FAQ_COMUNES.visita.p} R: ${FAQ_COMUNES.visita.r}
-P: ${FAQ_COMUNES.soporte.p} R: ${FAQ_COMUNES.soporte.r}
-Proceso: levantamiento de información, propuesta a medida, instalación y soporte técnico local.`;
-}
+/** Sección del conocimiento: se manda solo si sus palabras clave coinciden con la pregunta. */
+type Seccion = { id: string; claves: string[]; texto: string };
 
 const normalizar = (t: string) => t.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9ñ.#-]+/g, ' ').trim();
 const VACIAS = new Set(['de', 'la', 'el', 'los', 'las', 'un', 'una', 'para', 'con', 'que', 'por', 'en', 'y', 'o', 'me', 'mi', 'tienen', 'tienes', 'hay', 'quiero', 'precio', 'cuanto', 'cuesta', 'necesito', 'busco', 'del', 'al', 'su', 'sus', 'es']);
@@ -116,64 +77,149 @@ const filaProducto = (p: CatalogProduct) => {
   return `- ${p.name.slice(0, 90)} | ${p.brand} | SKU ${p.sku} | USD ${p.price}${antes}${mayor}${stock} | ${p.category}`;
 };
 
-/** Tienda: reglas fijas + los productos más relevantes para la pregunta + resumen del resto por categoría. */
-export function seccionTienda(products: readonly CatalogProduct[], pregunta = ''): string {
-  const categorias = categoriasDe([...products]);
-  const relevantes = productosRelevantes(pregunta, products);
-  const lista = (relevantes.length > 0 ? relevantes : products).slice(0, MAX_PRODUCTOS);
-  const resumen = categorias.map((c) => {
+/** Raíces de palabra para comparar sin tildes y sin importar singular/plural ("laptops" ~ "laptop", "envíos" ~ "envio"). */
+const raiz = (t: string) => (t.length > 4 ? t.replace(/(es|s)$/, '') : t);
+const terminosDe = (texto: string) => [...new Set(normalizar(texto).split(' ').filter((t) => t.length > 2 && !VACIAS.has(t)).map(raiz))];
+
+/** Puntaje de una sección: claves de una palabra por raíz/prefijo (4+ letras); las de varias palabras, como frase (valen 2). */
+function puntaje(seccion: Seccion, terminos: string[], frase: string): number {
+  let puntos = 0;
+  for (const c of seccion.claves) {
+    const k = normalizar(c);
+    if (k.includes(' ')) {
+      if (frase.includes(k)) puntos += 2;
+      continue;
+    }
+    const r = raiz(k);
+    if (terminos.some((t) => t === r || (t.length >= 4 && r.length >= 4 && (t.startsWith(r) || r.startsWith(t))))) puntos += 1;
+  }
+  return puntos;
+}
+
+const filaCategoria = (products: readonly CatalogProduct[]) =>
+  categoriasDe([...products]).map((c) => {
     const de = products.filter((p) => p.category === c.slug);
     const precios = de.map((p) => p.price);
-    const marcas = [...new Set(de.map((p) => p.brand))].join(', ');
-    return `- ${c.title} (/tienda/${c.slug}): ${de.length} productos, USD ${Math.min(...precios)}–${Math.max(...precios)}, marcas ${marcas}`;
+    return `${c.title} (tienda:${c.slug}, ${de.length} productos, USD ${Math.min(...precios)}–${Math.max(...precios)})`;
   });
-  const marcas = [...new Set(products.map((p) => p.brand))].sort().join(', ');
-  return `TIENDA B2B (páginas /tienda, /producto/<slug>, /marcas, /carrito, /finalizar-compra)
-Catálogo: ${products.length} productos. Marcas con productos hoy: ${marcas}.
-Por categoría:
-${resumen.join('\n')}
-Precios en USD sin IGV (se suma IGV 18 %); la web permite ver los precios en soles (PEN) con el interruptor de moneda.
-Cómo comprar: agregar al carrito → "Finalizar compra" con datos del comprador, comprobante (boleta con DNI o factura con RUC y razón social), entrega y forma de pago. Al terminar, el pedido se confirma por WhatsApp con un asesor y se puede seguir en Mi cuenta (/cuenta).
-Formas de pago: transferencia bancaria, Yape / Plin o efectivo en tienda (no hay pago con tarjeta en línea). El comprobante se emite al confirmar el pago.
-Compra mayorista: desde 6 unidades por producto se aplica el precio mayorista (si el producto lo tiene) y se pide un presupuesto formal (/presupuesto) con PDF; un asesor lo confirma.
-Cambios y devoluciones: ver /legal/devoluciones. La disponibilidad de cada producto figura en la lista (con stock / sin stock, a pedido); la cantidad exacta y el precio final los confirma un asesor.
-${relevantes.length > 0 ? `Productos que coinciden con la consulta (${relevantes.length}; se muestran ${lista.length}):` : `Algunos productos (no hubo coincidencia directa con la consulta; si buscan algo concreto que no está, ofrece cotizarlo):`}
-${lista.map(filaProducto).join('\n')}`;
+
+function nucleo(sitio: Sitio, horario: string, servicios: ServicioPublico[], products: readonly CatalogProduct[]): string {
+  const c = sitio.contact;
+  return `EMPRESA: FP Tecnologi & System (FPTecnologi), distribuidor autorizado de equipos TI y proveedor de servicios TI para empresas e instituciones del Perú. Líneas: ${BUSINESS_PATHS.map((b) => b.title).join(', ')}.
+CONTACTO: ${c.address}. Ventas ${c.phoneVentas}; ventas web ${c.phoneVentasWeb}; correo ${c.email}; WhatsApp +${sitio.whatsapp} (áreas: ${WHATSAPP_AREAS.map((a) => a.label).join(', ')}). Horario: ${horario}.
+SERVICIOS (se cotizan por proyecto): ${servicios.map((s) => `${s.title} (servicio:${s.slug})`).join('; ')}.
+TIENDA (precios USD sin IGV; +18 % IGV): ${filaCategoria(products).join('; ')}.
+PÁGINAS: tienda, servicios, cotizador, alquiler de equipos, FP Education, marcas, nosotros, proyectos, blog, catálogos PDF, tickets de soporte, Mi cuenta, socios/partners, compliance, contacto, devoluciones y libro de reclamaciones.`;
 }
 
-function seccionMarcasYPartners(): string {
-  return `MARCAS Y PARTNERS
-Marcas distribuidas (página /marcas): ${PARTNER_BRANDS.map((b) => b.name).join(', ')}.
-Programa de Partners (integradores y revendedores, con precios y beneficios especiales): ${PARTNER_STEPS.map((p) => `${p.title}: ${p.text}`).join(' ')}`;
+async function armarSecciones(sitio: Sitio, servicios: ServicioPublico[]): Promise<Seccion[]> {
+  const [home, prov, cotizador, alquiler, education, compliance, catalogos, envios, blog, referencias, legal] = await Promise.all([
+    getHomeContenido(),
+    getProveedor(),
+    getCotizadorContenido(),
+    getPagina('alquiler'),
+    getPagina('education'),
+    getPagina('compliance'),
+    getPagina('catalogos'),
+    seccionEnvios(),
+    seccionBlog(),
+    seccionReferencias(),
+    getLegalDocs(),
+  ]);
+  const items = (xs: { title: string; text: string }[]) => xs.map((x) => `${x.title}: ${x.text}`).join(' ');
+  const fiscal = [prov.razonSocial && `razón social ${prov.razonSocial}`, prov.ruc && `RUC ${prov.ruc}`, prov.direccion && `dirección fiscal ${prov.direccion}`].filter(Boolean).join(', ');
+  const seccionesCompliance = compliance.contenido.texto
+    ? compliance.contenido.texto.split(/^##\s+/m).slice(1).map((b) => b.split('\n')[0]!.trim()).filter(Boolean)
+    : COMPLIANCE.map((c) => c.titulo);
+  const devoluciones = legal.find((d) => d.slug === 'devoluciones');
+
+  const out: Seccion[] = [
+    {
+      id: 'nosotros',
+      claves: ['nosotros', 'empresa', 'quienes son', 'quienes somos', 'somos', 'mision', 'vision', 'valores', 'experiencia', 'años', 'confiable', 'elegir', 'diferencia', 'ruc', 'razon social', 'fiscal', 'factura'],
+      texto: `NOSOTROS (/nosotros): ${home.nosotros.descripcion}
+${NOSOTROS_PILARES.map((p) => `${p.titulo}: ${p.texto}`).join(' ')}
+Por qué elegirnos: ${home.porque.items.map((i) => i.title).join(', ')}.${sitio.stats.length ? ` Cifras: ${sitio.stats.map((x) => `${x.value}${x.suffix} ${x.label}`).join('; ')}.` : ''}
+Datos fiscales: ${fiscal || 'los confirma un asesor (no los inventes)'}.`,
+    },
+    ...servicios.map((x) => {
+      const d = x.detalle;
+      return {
+        id: `servicio:${x.slug}`,
+        claves: [...x.title.split(/\s+/), ...x.slug.split('-'), ...(d?.sectores ?? []).flatMap((t) => t.split(/\s+/)), 'servicio'],
+        texto: `SERVICIO ${x.title} (servicio:${x.slug}): ${(d?.intro ?? x.description).slice(0, 260)}${x.precioDesde ? ` Desde USD ${x.precioDesde}.` : ''}${d?.incluye.length ? ` Incluye: ${lista(d.incluye.slice(0, 5))}.` : ''}${d?.sectores.length ? ` Sectores: ${lista(d.sectores.slice(0, 5))}.` : ''}`,
+      };
+    }),
+    {
+      id: 'servicios',
+      claves: ['servicios', 'servicio', 'instalacion', 'implementacion', 'proyecto', 'visita', 'soporte tecnico', 'mantenimiento', 'garantia'],
+      texto: `SERVICIOS EN GENERAL: se cotizan por proyecto. Proceso: diagnóstico/visita, propuesta a medida, implementación con especialistas propios y soporte técnico local.
+P: ${FAQ_COMUNES.visita.p} R: ${FAQ_COMUNES.visita.r}
+P: ${FAQ_COMUNES.soporte.p} R: ${FAQ_COMUNES.soporte.r}`,
+    },
+    {
+      id: 'compra',
+      claves: ['comprar', 'compra', 'pago', 'pagar', 'yape', 'plin', 'transferencia', 'tarjeta', 'efectivo', 'boleta', 'factura', 'comprobante', 'carrito', 'pedido', 'igv', 'soles', 'dolares', 'moneda', 'stock', 'disponible', 'mayorista', 'presupuesto', 'por mayor', 'unidades', 'cantidad'],
+      texto: `COMPRA EN LA TIENDA: carrito → "Finalizar compra" (datos, boleta con DNI o factura con RUC, entrega y pago). Pagos: transferencia, Yape / Plin o efectivo en tienda (sin tarjeta en línea); el pedido se confirma por WhatsApp y se sigue en Mi cuenta. Precios en USD sin IGV; la web los muestra también en soles. Mayorista: desde 6 u. por producto aplica precio mayorista y se pide presupuesto formal con PDF (presupuesto). El stock exacto y el precio final los confirma un asesor.`,
+    },
+    { id: 'envios', claves: ['envio', 'envios', 'enviar', 'delivery', 'despacho', 'shalom', 'agencia', 'provincia', 'domicilio', 'recojo', 'recoger', 'llega', 'demora', 'tarifa', 'departamento', 'lima', 'arequipa', 'cusco', 'trujillo', 'piura'], texto: envios },
+    {
+      id: 'marcas',
+      claves: ['marcas', 'marca', 'partner', 'partners', 'socio', 'socios', 'distribuidor', 'revendedor', 'integrador', 'dell', 'hp', 'lenovo', 'lg', 'asus', 'samsung', 'epson', 'intranet'],
+      texto: `MARCAS distribuidas (marcas, marca:<nombre>): ${PARTNER_BRANDS.map((b) => b.name).join(', ')}.
+PARTNERS/SOCIOS (socios): ${PARTNER_STEPS.map((x) => `${x.title}: ${x.text}`).join(' ')} Al aprobarlos acceden a la intranet de socios con material, soporte y precios para socios.`,
+    },
+    {
+      id: 'cotizador',
+      claves: ['cotizar', 'cotizacion', 'cotizador', 'proforma', 'propuesta', 'precio', 'presupuesto'],
+      texto: `COTIZADOR (cotizar): ${cotizador.hero.descripcion} 3 pasos: ${cotizador.pasos.items.map((x) => x.title).join(' · ')}. Se puede cotizar: ${cotizador.intereses.items.map((x) => x.title).join(', ')}. ${cotizador.faq.items.slice(0, 3).map((f) => `P: ${f.title} R: ${f.text}`).join(' ')}`,
+    },
+    {
+      id: 'alquiler',
+      claves: ['alquiler', 'alquilar', 'renta', 'rentar', 'arrendar', 'temporal', 'evento', 'capacitacion', 'prestamo'],
+      texto: `ALQUILER DE EQUIPOS (alquiler): ${alquiler.hero.descripcion} Beneficios: ${alquiler.beneficios.items.map((x) => x.title).join(', ')}. Equipos: ${alquiler.equipos.items.map((x) => x.title).join(', ')}. Pasos: ${items(alquiler.pasos.items)} Sin tarifas publicadas: se cotiza por cantidad, modelo y tiempo.`,
+    },
+    {
+      id: 'educacion',
+      claves: ['educacion', 'education', 'colegio', 'escuela', 'universidad', 'aula', 'docente', 'institucion', 'alumno', 'pizarra'],
+      texto: `FP EDUCATION (educacion): ${education.hero.descripcion} ${education.tarjetas.items.map((x) => x.title).join('; ')}.`,
+    },
+    {
+      id: 'soporte',
+      claves: ['ticket', 'tickets', 'soporte', 'falla', 'problema', 'averia', 'garantia', 'reparar', 'reclamo', 'seguimiento', 'verificar', 'no funciona', 'malogrado', 'devolucion', 'devolver', 'cambio', 'reembolso', 'reclamaciones', 'indecopi', 'queja'],
+      texto: `SOPORTE (tickets; seguimiento con el número en seguimiento): para quien compró con nosotros: verificar un producto, reclamo (pedido, garantía o atención) o soporte técnico, con evidencias (fotos, comprobante); el área comercial da seguimiento.
+DEVOLUCIONES (devoluciones): ${(devoluciones?.resumen ?? '').slice(0, 200)} ${devoluciones ? devoluciones.secciones.map((x) => `${x.titulo}: ${x.parrafos.join(' ')}`).join(' ').slice(0, 500) : ''}
+LIBRO DE RECLAMACIONES (reclamaciones): Ley 29571, consulta por código y documento, respuesta en máximo 15 días hábiles; no impide acudir a Indecopi.`,
+    },
+    {
+      id: 'cuenta',
+      claves: ['cuenta', 'mi cuenta', 'mis pedidos', 'estado de mi pedido', 'codigo', 'login', 'ingresar', 'contraseña', 'rastrear', 'tracking'],
+      texto: 'MI CUENTA (cuenta): sin contraseña; con el correo usado al comprar o cotizar llega un código de 6 dígitos y ahí se ven pedidos, su estado, seguimiento del envío y cotizaciones.',
+    },
+    {
+      id: 'documentos',
+      claves: ['compliance', 'etica', 'anticorrupcion', 'conducta', 'cumplimiento', 'catalogo', 'catalogos', 'brochure', 'pdf', 'folleto', 'blog', 'articulo', 'noticias', 'privacidad', 'terminos', 'condiciones', 'datos personales'],
+      texto: `COMPLIANCE (compliance): ${compliance.hero.descripcion} Secciones: ${seccionesCompliance.join(', ')}. Documentos: ${compliance.documentos.items.map((d) => d.titulo).join('; ')}.
+CATÁLOGOS PDF (catalogos): ${catalogos.lista.items.map((c) => c.titulo).join(', ')}.
+${blog}
+LEGALES: ${legal.map((d) => `${d.titulo} ${d.destacado} (/legal/${d.slug})`).join('; ')}.`,
+    },
+    { id: 'proyectos', claves: ['proyectos', 'proyecto', 'clientes', 'cliente', 'referencias', 'casos', 'experiencia', 'trabajos', 'municipalidad', 'gobierno'], texto: referencias },
+  ];
+  return out;
 }
 
-async function seccionCotizador(): Promise<string> {
-  const c = await getCotizadorContenido();
-  return `COTIZADOR (página /cotizador)
-${c.hero.descripcion} Formulario en 3 pasos: ${c.pasos.items.map((p) => p.title).join(' · ')}.
-Se puede cotizar: ${c.intereses.items.map((i) => i.title).join(', ')}.
-Cómo funciona: ${c.proceso.items.map((p) => `${p.title}: ${p.text}`).join(' ')}
-Preguntas frecuentes: ${c.faq.items.map((f) => `P: ${f.title} R: ${f.text}`).join(' ')}`;
+/** Tienda: hasta 8 productos que coinciden con la pregunta (con precio, mayorista y stock). */
+export function seccionTienda(products: readonly CatalogProduct[], pregunta = ''): string {
+  const relevantes = productosRelevantes(pregunta, products).slice(0, MAX_PRODUCTOS);
+  if (relevantes.length === 0) return '';
+  return `PRODUCTOS QUE COINCIDEN (usa "producto:SKU"; si piden algo que no está, ofrece cotizarlo):
+${relevantes.map(filaProducto).join('\n')}`;
 }
 
 async function seccionBlog(): Promise<string> {
   const arts = (await getArticulos()).slice(0, MAX_ARTICULOS);
-  if (arts.length === 0) return 'BLOG (página /blog): sin artículos publicados por ahora.';
-  return `BLOG (página /blog, artículos recientes)
-${arts.map((a) => `- ${a.titulo} (/blog/${a.slug}) [${a.categoria}]: ${a.resumen}`).join('\n')}`;
-}
-
-function seccionLegal(legal: LegalDoc[]): string {
-  const docs = legal.map((d) => {
-    const cuerpo =
-      d.slug === 'devoluciones'
-        ? ` Contenido: ${d.secciones.map((s) => `${s.titulo}: ${s.parrafos.join(' ')}`).join(' ').slice(0, 1800)}`
-        : ` Secciones: ${d.secciones.map((s) => s.titulo).join(', ')}.`;
-    return `- ${d.titulo} ${d.destacado} (/legal/${d.slug}): ${d.resumen}${cuerpo}`;
-  });
-  return `TEXTOS LEGALES (informativos; para el detalle oficial, enviar a la página)
-${docs.join('\n')}
-- Libro de reclamaciones virtual (/libro-de-reclamaciones): formulario conforme a la Ley N.° 29571 y su reglamento, con consulta de estado por código y documento; responden en un máximo de 15 días hábiles (no calendario). Presentar un reclamo no impide acudir a Indecopi.`;
+  return arts.length ? `BLOG (blog): ${arts.map((a) => a.titulo).join('; ')}.` : 'BLOG (blog): sin artículos publicados por ahora.';
 }
 
 type Tarifa = { departamento: string; proveedor: string; costo: number; plazoDias: string | null };
@@ -190,107 +236,60 @@ async function seccionEnvios(): Promise<string> {
       tarifas = [];
     }
   }
-  const lista = tarifas.slice(0, 30).map((t) => `${t.departamento}: USD ${t.costo}${t.plazoDias ? `, llega en ${t.plazoDias}` : ''}`).join('; ');
-  return `ENTREGAS Y ENVÍOS
-- Recojo en tienda (oficina de Lima): gratis.
-- Envío por ${tarifas[0]?.proveedor === 'SHALOM' || !tarifas.length ? 'Shalom' : tarifas[0]!.proveedor} a provincias: se recoge en la agencia elegida en el checkout (se puede buscar la más cercana con la ubicación); el costo se suma al total y se envía código de seguimiento.${lista ? ` Tarifas por departamento (USD): ${lista}.` : ' Las tarifas por departamento se ven en el checkout.'}
-- Envío a domicilio: costo a coordinar por WhatsApp según el distrito.`;
+  const lista = tarifas.slice(0, 25).map((t) => `${t.departamento} USD ${t.costo}${t.plazoDias ? ` (${t.plazoDias})` : ''}`).join('; ');
+  return `ENVÍOS: recojo en tienda (Lima) gratis. Envío por Shalom: se recoge en la agencia elegida en el checkout, el costo se suma al total y llega código de seguimiento.${lista ? ` Tarifas: ${lista}.` : ' Tarifas por departamento en el checkout.'} Envío a domicilio: costo a coordinar por WhatsApp.`;
 }
-
-/** Textos del inicio editables en el dashboard (presentación y "por qué elegirnos") + datos fiscales. */
-async function seccionPresentacion(): Promise<string> {
-  const [home, prov] = await Promise.all([getHomeContenido(), getProveedor()]);
-  const fiscal = [prov.razonSocial && `Razón social: ${prov.razonSocial}`, prov.ruc && `RUC: ${prov.ruc}`, prov.direccion && `Dirección fiscal: ${prov.direccion}`].filter(Boolean).join('. ');
-  return `PRESENTACIÓN (página de inicio)
-${home.nosotros.descripcion}
-Por qué elegirnos: ${home.porque.items.map((i) => `${i.title}: ${i.text}`).join(' ')}
-${fiscal ? `Datos fiscales: ${fiscal}.` : 'Razón social y RUC: los confirma un asesor (no los inventes).'}`;
-}
-
-async function seccionesPaginasNuevas(sitio: Sitio): Promise<string> {
-  const [alquiler, education, compliance, catalogos] = await Promise.all([getPagina('alquiler'), getPagina('education'), getPagina('compliance'), getPagina('catalogos')]);
-  const items = (xs: { title: string; text: string }[]) => xs.map((x) => `${x.title}: ${x.text}`).join(' ');
-  const secciones = compliance.contenido.texto
-    ? compliance.contenido.texto.split(/^##\s+/m).slice(1).map((b) => b.split('\n')[0]!.trim()).filter(Boolean)
-    : COMPLIANCE.map((c) => c.titulo);
-  return `ALQUILER DE EQUIPOS (página /alquiler-equipos)
-${alquiler.hero.descripcion}
-Beneficios: ${items(alquiler.beneficios.items)}
-Equipos que se alquilan: ${items(alquiler.equipos.items)}
-Cómo funciona: ${items(alquiler.pasos.items)} El precio del alquiler se cotiza según cantidad, modelo y tiempo (no hay tarifas publicadas): ofrece el cotizador o WhatsApp.
-
-FP EDUCATION (página /educacion): ${education.hero.descripcion}
-${items(education.tarjetas.items)} ${education.accion.texto}
-
-COMPLIANCE (página /compliance): ${compliance.hero.descripcion} Secciones: ${secciones.join(', ')}. Documentos descargables: ${compliance.documentos.items.map((d) => d.titulo).join('; ')}.
-
-CATÁLOGOS EN PDF (página /catalogos): ${catalogos.lista.items.map((c) => c.titulo).join(', ')}. Se ven como folleto o se descargan.
-
-SOPORTE POR TICKETS (página /tickets; seguimiento en /tickets/seguimiento con el número de ticket)
-Para clientes que compraron con nosotros: verificar un producto, registrar un reclamo (pedido, garantía o atención) o pedir soporte técnico. Se dejan los datos, el pedido o producto, la descripción y evidencias (fotos, comprobante); el área comercial contacta para el seguimiento. Para un reclamo formal ante Indecopi existe además el libro de reclamaciones.
-
-MI CUENTA (página /cuenta): sin contraseña, con el correo usado al comprar o cotizar llega un código de 6 dígitos; ahí se ven los pedidos, su estado y las cotizaciones.
-
-SOCIOS / PARTNERS (registro en /socios/registro): empresas integradoras o revendedoras se registran; al aprobarlas acceden a la intranet de socios con material de marcas, soporte y precios para socios.
-${sitio.stats.length ? `\nCIFRAS DE LA EMPRESA: ${sitio.stats.map((s) => `${s.value}${s.suffix} ${s.label}`).join('; ')}.` : ''}`;
-}
-
-const MAPA_WEB = `MAPA DE LA WEB
-Inicio (/), Servicios (/servicios y /servicios/<servicio>), Tienda (/tienda, /tienda/<categoría>, /producto/<producto>), Marcas (/marcas), Nosotros (/nosotros), Proyectos (/proyectos), Blog (/blog), Cotizador (/cotizador), Contacto (/contacto), Alquiler de equipos (/alquiler-equipos), FP Education (/educacion), Compliance (/compliance), Catálogos PDF (/catalogos), Tickets de soporte (/tickets), Mi cuenta (/cuenta), Socios (/socios/registro), Carrito y compra (/carrito, /finalizar-compra), Presupuesto mayorista (/presupuesto), textos legales y libro de reclamaciones (/libro-de-reclamaciones).`;
-
 
 /** Solo proyectos y clientes reales (los marcados como ejemplo en el dashboard no se citan). */
 async function seccionReferencias(): Promise<string> {
   const [proyectos, sectores] = await Promise.all([getProyectos(), getClientes()]);
   const reales = proyectos.filter((p) => p.ejemplo === false);
   const clientes = sectores.flatMap((s) => s.clients.filter((c) => c.ejemplo === false).map((c) => c.name));
-  if (reales.length === 0 && clientes.length === 0) {
-    return 'PROYECTOS Y CLIENTES (páginas /proyectos y /nosotros)\nLa web aún no tiene casos de éxito ni clientes reales confirmados; no cites proyectos ni clientes concretos y, si piden referencias, deriva a un asesor.';
-  }
+  if (reales.length === 0 && clientes.length === 0) return 'PROYECTOS Y CLIENTES (proyectos): aún no hay casos ni clientes reales confirmados; no cites ninguno y deriva a un asesor.';
   const dept = (id: string) => PERU_DEPARTMENTS.find((d) => d.id === id)?.name ?? id;
-  return `PROYECTOS Y CLIENTES (página /proyectos)
-${reales.map((p) => `- ${p.title} — ${p.client}, ${dept(p.department)}${p.year ? `, ${p.year}` : ''}${p.monto ? `, monto bruto ${montoSoles(p.monto)}` : ''}: ${p.description} Alcance: ${lista(p.scope)}.`).join('\n')}${clientes.length ? `\nClientes: ${clientes.join(', ')}.` : ''}`;
+  return `PROYECTOS (proyectos): ${reales.length} en total, por ejemplo: ${reales.slice(0, MAX_PROYECTOS).map((p) => `${p.title.slice(0, 70)} — ${p.client}, ${dept(p.department)}${p.year ? ` ${p.year}` : ''}`).join('; ')}.${clientes.length ? ` Clientes: ${clientes.slice(0, 20).join(', ')}.` : ''}`;
 }
 
-type Base = { at: number; text: string; products: CatalogProduct[]; servicios: ServicioPublico[] };
+type Base = { at: number; nucleo: string; secciones: Seccion[]; products: CatalogProduct[]; servicios: ServicioPublico[] };
 let cache: Base | null = null;
+let armando: Promise<Base> | null = null;
 
+async function armar(): Promise<Base> {
+  const [{ products }, servicios, sitio, contactoPag] = await Promise.all([getCatalogo(), getServicios(), getSitio(), getPagina('contacto')]);
+  const secciones = await armarSecciones(sitio, servicios);
+  return { at: Date.now(), nucleo: nucleo(sitio, contactoPag.visita.horario, servicios, products), secciones, products, servicios };
+}
+
+/** Caché con renovación en segundo plano y una sola construcción a la vez. */
 async function base(): Promise<Base> {
   if (cache && Date.now() - cache.at < CACHE_MS) return cache;
-  const [{ products }, servicios, cotizador, blog, referencias, sitio, contactoPag, legal] = await Promise.all([
-    getCatalogo(),
-    getServicios(),
-    seccionCotizador(),
-    seccionBlog(),
-    seccionReferencias(),
-    getSitio(),
-    getPagina('contacto'),
-    getLegalDocs(),
-  ]);
-  const text = [
-    seccionEmpresa(sitio, contactoPag.visita.horario),
-    await seccionPresentacion(),
-    seccionNosotros(),
-    seccionServicios(servicios),
-    '{{TIENDA}}',
-    await seccionEnvios(),
-    seccionMarcasYPartners(),
-    cotizador,
-    await seccionesPaginasNuevas(sitio),
-    blog,
-    referencias,
-    seccionLegal(legal),
-    MAPA_WEB,
-  ].join('\n\n');
-  cache = { at: Date.now(), text, products, servicios };
-  return cache;
+  if (!armando) {
+    armando = Promise.race([armar(), new Promise<never>((_, rej) => setTimeout(() => rej(new Error('conocimiento: tiempo agotado')), TIEMPO_MAX_MS))])
+      .then((b) => (cache = b))
+      .finally(() => { armando = null; });
+  }
+  if (cache) {
+    armando.catch(() => undefined); // se sigue con la versión anterior mientras se renueva
+    return cache;
+  }
+  return armando;
 }
 
 /**
- * Conocimiento para una pregunta: el texto base (cacheado) con la sección de tienda armada para esa pregunta, más
- * los productos y servicios reales (para validar los enlaces `producto:<sku>`/`servicio:<slug>` y las cotizaciones).
+ * Conocimiento para una pregunta: núcleo + las secciones que coinciden + productos relevantes; y los productos y
+ * servicios reales (para validar `producto:<sku>`/`servicio:<slug>` y las cotizaciones).
  */
 export async function getConocimiento(pregunta = ''): Promise<{ text: string; products: CatalogProduct[]; servicios: ServicioPublico[] }> {
   const b = await base();
-  return { text: b.text.replace('{{TIENDA}}', () => seccionTienda(b.products, pregunta)), products: b.products, servicios: b.servicios };
+  const terminos = terminosDe(pregunta);
+  const frase = ` ${normalizar(pregunta)} `;
+  const elegidas: Seccion[] = [];
+  let largo = 0;
+  for (const { s } of b.secciones.map((s) => ({ s, p: puntaje(s, terminos, frase) })).filter((x) => x.p > 0).sort((x, y) => y.p - x.p)) {
+    if (elegidas.length >= MAX_SECCIONES || largo + s.texto.length > MAX_CARACTERES_SECCIONES) continue;
+    elegidas.push(s);
+    largo += s.texto.length;
+  }
+  const text = [b.nucleo, ...elegidas.map((s) => s.texto), seccionTienda(b.products, pregunta)].filter(Boolean).join('\n\n');
+  return { text, products: b.products, servicios: b.servicios };
 }

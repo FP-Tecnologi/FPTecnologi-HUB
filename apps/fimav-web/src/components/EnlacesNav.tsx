@@ -18,11 +18,11 @@ export default function EnlacesNav() {
   const ruta = usePathname();
   useEffect(() => {
     const h = document.documentElement;
-    const f = () => h.toggleAttribute('data-scrolled', window.scrollY > 8);
+    const f = () => h.toggleAttribute('data-scrolled', window.scrollY > 40);
     f();
     window.addEventListener('scroll', f, { passive: true });
     return () => window.removeEventListener('scroll', f);
-  }, []);
+  }, [ruta]);
   return (
     <>
       {enlaces.map((e) => {
@@ -32,7 +32,7 @@ export default function EnlacesNav() {
             key={e.href}
             href={e.href}
             aria-current={activo ? 'page' : undefined}
-            className={`relative flex min-h-11 items-center font-display text-lg font-bold uppercase tracking-widest after:absolute after:inset-x-0 after:bottom-1.5 after:h-0.5 after:origin-left after:rounded-full after:bg-rojo after:transition-transform after:duration-300 hover:text-rojo-hondo hover:after:scale-x-100 focus-visible:after:scale-x-100 ${activo ? 'text-rojo-hondo after:scale-x-100' : 'text-carbon after:scale-x-0'}`}
+            className={`cabecera-link relative flex min-h-11 items-center font-display text-lg font-bold uppercase tracking-widest after:absolute after:inset-x-0 after:bottom-1.5 after:h-0.5 after:origin-left after:rounded-full after:bg-rojo after:transition-transform after:duration-300 hover:text-rojo-hondo hover:after:scale-x-100 focus-visible:after:scale-x-100 ${activo ? 'text-rojo-hondo after:scale-x-100' : 'text-carbon after:scale-x-0'}`}
           >
             {e.texto}
           </Link>

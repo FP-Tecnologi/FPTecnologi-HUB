@@ -12,7 +12,7 @@
   --font-titulo: var(--font-source), 'Myriad Pro', system-ui, sans-serif;
 }
 
-html { background: #fff; color: var(--color-carbon); scroll-behavior: smooth; scroll-padding-top: 5rem; scroll-padding-bottom: 6rem; }
+html { --alto-cabecera: 57px; background: #fff; color: var(--color-carbon); scroll-behavior: smooth; scroll-padding-top: 6rem; scroll-padding-bottom: 6rem; }
 body { font-family: var(--font-sans); }
 @layer base { h1, h2, h3 { font-family: var(--font-titulo); } }
 @layer base { :focus-visible { outline: 2px solid var(--color-rojo); outline-offset: 3px; border-radius: 4px; } }
@@ -20,7 +20,9 @@ body { font-family: var(--font-sans); }
 h1, h2, h3 { text-wrap: balance; }
 p, li { text-wrap: pretty; }
 @keyframes giro { to { transform: rotate(360deg); } }
+@keyframes hero-emblema-giro { to { transform: rotate(360deg); } }
 @keyframes flotar { 50% { transform: translateY(-8px); } }
+@keyframes hero-respira { to { transform: scale(1.08); } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { animation: none !important; transition: none !important; } }
 
 /* ---- Movimiento. Solo transform/opacity. Todo en @layer para que las utilidades de Tailwind sigan mandando;
@@ -33,12 +35,6 @@ p, li { text-wrap: pretty; }
 @layer components {
   /* Título menor (tarjetas, formularios, columnas del pie): display en mayúscula. */
   .titulo-menor { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; line-height: 1.15; }
-
-  /* Cabecera fija: al hacer scroll (html[data-scrolled]) el logo se reduce con transform y aparece sombra; el alto no cambia. */
-  .cabecera { transition: box-shadow 0.3s; }
-  .cabecera-logo { transform-origin: left center; transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1); }
-  html[data-scrolled] .cabecera { box-shadow: 0 8px 24px -12px rgb(56 56 60 / 0.35); }
-  html[data-scrolled] .cabecera-logo { transform: scale(0.82); }
 
   /* Entrada solo con CSS (sin JS): el estado final es el normal, así el contenido nunca queda oculto.
      `backwards` (no `both`): al terminar no queda ninguna animación aplicada, así no persisten capas, contextos de apilamiento
@@ -87,15 +83,47 @@ p, li { text-wrap: pretty; }
   .inclinar[data-activo]::after { opacity: 1; }
   .inclinar[data-activo] { transition-duration: 0.12s; }
 }
+/* El encabezado flota sobre los banners y solo toma su forma hexagonal al compactarse. */
+.cabecera {
+  background: transparent;
+  border: 1px solid transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  transition: background-color 0.35s, border-color 0.35s, box-shadow 0.35s, filter 0.35s, clip-path 0.35s;
+}
+.cabecera-interior { transition: min-height 0.35s; }
+.cabecera-logo { transform-origin: left center; transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.cabecera-marca { clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%); }
+.cabecera-logo-fijo { display: none; }
+html[data-scrolled] .cabecera-logo-transparente { display: none; }
+html[data-scrolled] .cabecera-logo-fijo { display: block; }
+html:not([data-scrolled]) .cabecera-link,
+html:not([data-scrolled]) .cabecera-movil-toggle { color: white; }
+html[data-scrolled] .cabecera {
+  background: white;
+  border-color: rgb(56 56 60 / 0.08);
+  box-shadow: 0 8px 20px -12px rgb(17 17 17 / 0.3);
+  clip-path: polygon(28px 0, calc(100% - 28px) 0, 100% 50%, calc(100% - 28px) 100%, 28px 100%, 0 50%);
+  filter: drop-shadow(0 8px 14px rgb(17 17 17 / 0.2));
+  backdrop-filter: none;
+}
+html[data-scrolled] .cabecera-interior { min-height: 3.8rem; }
+html[data-scrolled] .cabecera-logo { transform: scale(0.82); }
+html[data-scrolled] .cabecera-link,
+html[data-scrolled] .cabecera-movil-toggle { color: var(--color-carbon); }
+.hero-fondo-imagen { filter: brightness(0.48) saturate(0.82); animation: hero-respira 24s ease-in-out infinite alternate; }
+.hero-emblema { animation: hero-emblema-giro 32s linear infinite; }
+@keyframes hero-texto-entrada { from { opacity: 0; transform: translateY(14px); } }
+.hero-titulo h2 > span { display: block; }
+.hero-etiqueta { clip-path: polygon(9px 0, calc(100% - 9px) 0, 100% 50%, calc(100% - 9px) 100%, 9px 100%, 0 50%); }
+.hero-carousel [role='group']:not([inert]) .hero-etiqueta { animation: hero-texto-entrada 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.hero-carousel [role='group']:not([inert]) .hero-titulo { animation: hero-texto-entrada 0.7s 0.08s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.hero-carousel [role='group']:not([inert]) .hero-widget { animation: hero-texto-entrada 0.6s 0.16s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
 @keyframes marquesina { to { transform: translateX(-50%); } }
 .marquesina { mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); }
 .marquesina-pista { animation: marquesina 40s linear infinite; }
 .marquesina:hover .marquesina-pista, .marquesina:focus-within .marquesina-pista { animation-play-state: paused; }
-/* La elección del usuario (botón) manda sobre hover y foco. */
-.marquesina[data-modo='pausa'] .marquesina-pista { animation-play-state: paused; }
-.marquesina[data-modo='play'] .marquesina-pista { animation-play-state: running; }
 @media (prefers-reduced-motion: reduce) {
-  .marquesina-ctl { display: none; }
   .marquesina { mask-image: none; -webkit-mask-image: none; }
   .marquesina-pista { width: 100%; flex-wrap: wrap; justify-content: center; }
   .marquesina-lista { flex-shrink: 1; flex-wrap: wrap; justify-content: center; row-gap: 1rem; padding-right: 0; }

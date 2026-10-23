@@ -1,87 +1,134 @@
 'use client';
 
-import { ArrowRight, FileText, Landmark, LayoutGrid } from 'lucide-react';
+import { ArrowRight, ChevronDown, FileText, Landmark, LayoutGrid } from 'lucide-react';
 import SeccionTitulo from '@/components/SeccionTitulo';
 import Espiral from '@/components/Espiral';
-import BotonHex from '@/components/hex/BotonHex';
 import HexImagen from '@/components/hex/HexImagen';
+import BotonHex from '@/components/hex/BotonHex';
 import Carrusel from '@/components/slider/Carrusel';
 
 // Solo lo que consta en el brochure.
 const diapositivas = [
   {
-    claro: 'Especialistas en', rojo: 'bienes y servicios',
+    claro: 'Tecnología para', rojo: 'cada organización',
+    subtitulo: 'Tecnología para cada espacio de trabajo',
     texto: 'Organización comercial especializada en el sector Corporativo y Gobierno, con el respaldo de las marcas más representativas del segmento tecnológico.',
-    fotos: [{ src: '/fotos/escritorios-2.jpg', alt: 'Notebook' }, { src: '/fotos/all-in-one-1.jpg', alt: 'Monitor' }],
+    imagenIzquierda: '/fotos/escritorios-1.jpg', imagenDerecha: '/fotos/all-in-one-1.jpg',
+    fondo: '/fotos/escritorios-2.jpg',
     botones: [{ href: '/cotizar', icono: FileText, texto: 'Solicitar cotización' }, { href: '/catalogo', icono: LayoutGrid, texto: 'Ver catálogo', contorno: true }],
   },
   {
-    claro: 'Tecnología para el Estado', rojo: 'y las empresas',
+    claro: 'Soluciones para', rojo: 'el Estado',
+    subtitulo: 'Infraestructura que conecta y sostiene tu operación',
     texto: 'Desarrollamos soluciones tecnológicas según la necesidad de cada entidad, con equipos de las marcas más comerciales del mercado.',
-    fotos: [{ src: '/fotos/servidores-1.jpg', alt: 'Servidores' }, { src: '/fotos/networking-1.jpg', alt: 'Cableado de red' }],
+    imagenIzquierda: '/fotos/networking-1.jpg', imagenDerecha: '/fotos/servidores-1.jpg',
+    fondo: '/fotos/servidores-1.jpg',
     botones: [{ href: '/catalogo', icono: LayoutGrid, texto: 'Ver catálogo' }],
   },
   {
-    claro: 'Estamos en', rojo: 'Perú Compras',
+    claro: 'Atención a', rojo: 'Perú Compras',
+    subtitulo: 'Soluciones para entidades del sector público',
     texto: 'Venta de bienes y servicios y postventa B2G, con presencia en Lima Metropolitana y los demás departamentos del país.',
-    fotos: [{ src: '/peru-compras/contenedor.jpg', alt: 'Contenedor de Perú Compras' }, { src: '/fotos/monitores-1.jpg', alt: 'Monitor' }],
+    imagenIzquierda: '/fotos/proyectores-1.jpg', imagenDerecha: '/fotos/impresoras-1.jpg',
+    fondo: '/peru-compras/contenedor.jpg',
     botones: [{ href: '/peru-compras', icono: Landmark, texto: 'Conoce más' }, { href: '/cotizar', icono: FileText, texto: 'Cotizar', contorno: true }],
   },
   {
-    claro: 'Impresión, redes', rojo: 'y más',
+    claro: 'Equipos para', rojo: 'tu empresa',
+    subtitulo: 'Equipamiento para las necesidades de tu organización',
     texto: 'Impresión, networking, aire acondicionado, baterías, consumibles, mobiliario y papel para tu organización.',
-    fotos: [{ src: '/fotos/impresoras-2.jpg', alt: 'Impresora multifuncional' }, { src: '/fotos/consumibles-1.jpg', alt: 'Tóner' }],
+    imagenIzquierda: '/fotos/impresoras-2.jpg', imagenDerecha: '/fotos/consumibles-1.jpg',
+    fondo: '/fotos/impresoras-2.jpg',
     botones: [{ href: '/catalogo', icono: ArrowRight, texto: 'Explorar categorías' }],
   },
 ];
 
-// Dos fotos flotantes a los lados de la espiral; cada diapositiva trae su par y se funden con ella.
-const POS = [
-  'left-[-3%] top-[2%] w-[34%] sm:w-[31%]',
-  'bottom-[0%] right-[-2%] w-[36%] sm:w-[33%]',
-];
+type Diapositiva = (typeof diapositivas)[number];
 
-const FUNDIDO = (activo: boolean) => `transition-opacity ease-out ${activo ? 'opacity-100 duration-500 delay-300' : 'opacity-0 duration-300'}`;
+function GaleriaDiapositiva({ diapositiva }: { diapositiva: Diapositiva }) {
+  return (
+    <div aria-hidden="true" className="hero-galeria relative flex h-24 w-full max-w-md items-center justify-center sm:h-32">
+      <HexImagen
+        src={diapositiva.imagenIzquierda}
+        alt=""
+        carga="eager"
+        sizes="(min-width: 640px) 150px, 100px"
+        className="z-0 -mr-5 w-24 -rotate-6 drop-shadow-[0_16px_28px_rgb(0_0_0/0.35)] sm:-mr-7 sm:w-36"
+      />
+      <div className="relative z-10 grid size-16 shrink-0 place-items-center rounded-full border border-white/25 bg-carbon/75 p-2 shadow-[0_0_32px_rgb(224_36_36/0.3)] backdrop-blur-md sm:size-24 sm:p-3">
+        <Espiral className="hero-emblema size-full" />
+      </div>
+      <HexImagen
+        src={diapositiva.imagenDerecha}
+        alt=""
+        carga="eager"
+        sizes="(min-width: 640px) 150px, 100px"
+        className="z-0 -ml-5 w-24 rotate-6 drop-shadow-[0_16px_28px_rgb(0_0_0/0.35)] sm:-ml-7 sm:w-36"
+      />
+    </div>
+  );
+}
+
+function WidgetDiapositiva({ diapositiva }: { diapositiva: Diapositiva }) {
+  return (
+    <div className="hero-widget mx-auto mt-3 w-full max-w-2xl rounded-xl border border-white/15 bg-black/25 px-4 py-3 text-center shadow-lg backdrop-blur-md sm:mt-4 sm:px-6">
+      <p className="font-display text-sm font-bold uppercase tracking-[0.12em] text-white/90 sm:text-base">{diapositiva.subtitulo}</p>
+      <p className="mt-1 text-xs leading-relaxed text-white/75 sm:text-sm">{diapositiva.texto}</p>
+    </div>
+  );
+}
 
 export default function HeroSlider() {
   return (
-    <section className="relative overflow-hidden bg-white">
-      <Espiral contorno className="pointer-events-none absolute -bottom-32 -left-28 w-56 opacity-40 sm:-bottom-24 sm:-left-24 sm:opacity-60" />
+    <section className="relative isolate min-h-svh overflow-hidden bg-[#111214]">
       <h1 className="sr-only">Fimav Perú — Especialistas en bienes y servicios</h1>
       <Carrusel
         etiqueta="Fimav Perú"
         auto={6000}
         fundido
-        className="relative mx-auto grid max-w-6xl items-center gap-3 px-4 pb-6 pt-4 sm:gap-6 sm:px-6 sm:pb-8 sm:pt-8 lg:min-h-[480px] lg:grid-cols-[1.05fr_1fr] lg:gap-4 lg:pb-10 lg:pt-14"
-        /* Visual único dentro del carrusel (hover/foco pausan): la espiral gira sin parar, nada la reinicia, y no lleva foto en el centro. */
+        controlesFundido
+        className="hero-carousel relative isolate mx-auto grid min-h-svh w-full max-w-none items-center px-4 pb-24 pt-28 sm:px-8 sm:pb-24 sm:pt-32 lg:px-16"
         visual={(activa) => (
-          <div className="relative mx-auto aspect-square w-full max-w-[220px] sm:max-w-[340px] lg:order-2 lg:max-w-[460px]">
-            <Espiral className="absolute inset-[6%] size-[88%] animate-[giro_60s_linear_infinite]" />
+          <div aria-hidden="true" className="pointer-events-none absolute inset-0 z-0 overflow-hidden bg-[#111214]">
             {diapositivas.map((d, i) => (
-              <div key={d.rojo} aria-hidden={i === activa ? undefined : true} className={`absolute inset-0 ${FUNDIDO(i === activa)}`}>
-                {d.fotos.map((f, j) => (
-                  <div key={f.src} className={`absolute ${POS[j]}`}>
-                    <div className={i === activa ? `drop-shadow-[0_14px_22px_rgb(56_56_60/0.22)] ${j ? 'animate-[flotar_8.5s_ease-in-out_infinite]' : 'animate-[flotar_7s_ease-in-out_infinite]'}` : ''}>
-                      <HexImagen src={f.src} alt={i === activa ? f.alt : ''} carga={i === 0 ? 'eager' : 'lazy'} prioridad={i === 0} sizes="180px" />
-                    </div>
-                  </div>
-                ))}
+              <div key={d.fondo} className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${i === activa ? 'opacity-100' : 'opacity-0'}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={d.fondo} alt="" width={1600} height={1000} loading={i === 0 ? 'eager' : 'lazy'} fetchPriority={i === 0 ? 'high' : 'low'} decoding="async" className="hero-fondo-imagen size-full object-cover" />
+                <div className="absolute inset-0 bg-[linear-gradient(90deg,rgb(17_18_20/0.94)_0%,rgb(17_18_20/0.82)_44%,rgb(17_18_20/0.48)_100%)]" />
+                <div className="absolute inset-0 bg-[linear-gradient(0deg,rgb(17_18_20/0.82),transparent_46%,rgb(17_18_20/0.2))]" />
               </div>
             ))}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_82%_42%,rgb(224_36_36/0.22),transparent_38%)]" />
           </div>
         )}
         diapositivas={diapositivas.map((d) => (
-          <div key={d.rojo} className="px-1 py-1">
-            <SeccionTitulo nivel="h2" tam="lg" claro={d.claro} rojo={d.rojo} className="max-w-xl" />
-            <p className="mt-3 max-w-md text-carbon/80 sm:mt-5 sm:text-lg">{d.texto}</p>
-            <div className="mt-4 flex flex-wrap gap-2 sm:mt-7 sm:gap-4">
+          <div key={d.rojo} className="hero-slide-content mx-auto flex w-full max-w-5xl flex-col items-center px-1 py-1 text-center">
+            <span className="hero-etiqueta mb-3 inline-flex items-center border border-white/30 bg-white/5 px-5 py-1.5 font-display text-xs font-bold tracking-[0.22em] text-white/90 backdrop-blur-sm sm:mb-4 sm:text-sm">
+              FIMAV PERÚ
+            </span>
+            <SeccionTitulo
+              nivel="h2"
+              tam="lg"
+              claroSobreOscuro
+              alineacion="centro"
+              claro={d.claro}
+              rojo={d.rojo}
+              className="hero-titulo w-full max-w-4xl [&_h2]:text-[clamp(2.25rem,6.5vw,5rem)] [&_h2]:tracking-[0.035em] [&_h2>span:first-child]:!text-white [&_h2>span:last-child]:!text-rojo"
+            />
+            <GaleriaDiapositiva diapositiva={d} />
+            <WidgetDiapositiva diapositiva={d} />
+            <div className="mt-4 flex w-full flex-wrap justify-center gap-3 sm:mt-5 sm:gap-4">
               {d.botones.map((b) => (
-                <BotonHex key={b.texto} href={b.href} size="sm" className="max-sm:flex-1 sm:!min-h-13 sm:!px-10 sm:!text-lg" icono={b.icono} variante={'contorno' in b ? 'contorno' : 'rojo'}>{b.texto}</BotonHex>
+                <BotonHex key={b.texto} href={b.href} size="md" className="max-sm:flex-1 sm:!min-h-14 sm:!px-10 sm:!text-lg" icono={b.icono} variante={'contorno' in b ? 'contorno' : 'rojo'}>{b.texto}</BotonHex>
               ))}
             </div>
           </div>
         ))}
       />
+      <a href="#sobre-nosotros" aria-label="Desplazarse a la siguiente sección" className="absolute bottom-4 left-1/2 z-20 grid size-11 -translate-x-1/2 place-items-center rounded-full text-white/75 transition duration-300 hover:translate-y-1 hover:text-white focus-visible:outline-white sm:bottom-5">
+        <ChevronDown aria-hidden="true" size={28} />
+        <span className="sr-only">Continuar a Sobre nosotros</span>
+      </a>
     </section>
   );
 }
