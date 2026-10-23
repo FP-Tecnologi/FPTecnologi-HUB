@@ -96,7 +96,7 @@ export const CMS_DEFAULTS = {
   },
   ajustes: {
     contacto: { direccion: contacto.direccion, telefono: contacto.telefono, whatsapp: contacto.whatsappVisible, ventas: contacto.ventas, comercial: contacto.comercial },
-    redes: { facebook: '', instagram: '' },
+    redes: { facebook: '', instagram: '', linkedin: '' },
     pie: { fraseCorta: contenido.fraseCorta },
     cta: { ...titulo('Cotiza con Fimav Perú', 'Te respondemos con', 'una propuesta'), boton: 'Cotizar ahora' },
   },

@@ -1185,3 +1185,4 @@ Plan: [`docs/superpowers/plans/2026-10-23-cms-fimav.md`](superpowers/plans/2026-
 
 - A pedido: el módulo **Asistente virtual** deja de aparecer dentro de cada marca (FPTecnologi, Fimav, Quamtu, Kelqa…) y queda solo en **Administración** (vista global del super administrador, sección GENERAL del menú). Como ahí no hay marca activa, la pantalla tiene un selector de marca; los botones «Ir a…» activan esa marca antes de abrir el módulo.
 - API: `POST /asistente/consultar` exige `SuperAdminGuard` además de `MarcaRolGuard` (verificado: 403 para un usuario de marca, el super administrador pasa; test del controlador).
+- **Fimav, pie de página (2026-10-23)**: «Síguenos» suma **LinkedIn** junto a Facebook e Instagram (mismo hexágono). Su URL se carga en Administrador → Web Fimav → Ajustes del sitio → Redes sociales; vacío = ícono sin enlace («próximamente»), como las otras dos.

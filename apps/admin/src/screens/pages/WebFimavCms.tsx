@@ -108,7 +108,7 @@ const AJUSTES = base('ajustes', 'Ajustes del sitio', '/contacto', [
     T('ventas', 'Correo de ventas'),
     T('comercial', 'Correo comercial'),
   ]),
-  sec('redes', 'Redes sociales (pie de página)', [T('facebook', 'Facebook', 'URL completa (https://…). Vacío = ícono sin enlace'), T('instagram', 'Instagram', 'URL completa (https://…). Vacío = ícono sin enlace')]),
+  sec('redes', 'Redes sociales (pie de página)', [T('facebook', 'Facebook', 'URL completa (https://…). Vacío = ícono sin enlace'), T('instagram', 'Instagram', 'URL completa (https://…). Vacío = ícono sin enlace'), T('linkedin', 'LinkedIn', 'URL completa (https://…). Vacío = ícono sin enlace')]),
   sec('pie', 'Pie de página', [TA('fraseCorta', 'Frase bajo el logo')]),
   sec('cta', 'Bloque «Cotiza con Fimav Perú» (sobre el pie)', [...TITULO, T('boton', 'Texto del botón')]),
 ]);

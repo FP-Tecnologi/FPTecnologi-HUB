@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Facebook, Instagram, Landmark, Mail, MapPin, Phone } from 'lucide-react';
+import { Facebook, Instagram, Landmark, Linkedin, Mail, MapPin, Phone } from 'lucide-react';
 import Logo from './Logo';
 import LibroBadge from './LibroBadge';
 import CorteHex from './hex/CorteHex';
@@ -18,6 +18,7 @@ const legales = [
 const SOCIALES = [
   { clave: 'facebook', Icono: Facebook, nombre: 'Facebook' },
   { clave: 'instagram', Icono: Instagram, nombre: 'Instagram' },
+  { clave: 'linkedin', Icono: Linkedin, nombre: 'LinkedIn' },
 ] as const;
 const HEX_SOC = rutaHexagono({ orientacion: 'punta-arriba', radio: 0.12 });
 const hexSocial = 'group/s relative grid h-12 w-11 place-items-center text-white';
