@@ -83,13 +83,23 @@ p, li { text-wrap: pretty; }
   .inclinar[data-activo]::after { opacity: 1; }
   .inclinar[data-activo] { transition-duration: 0.12s; }
 }
-/* El encabezado flota sobre los banners y solo toma su forma hexagonal al compactarse. */
+/* El encabezado flota sobre los banners y solo toma su forma hexagonal al compactarse. La forma (fondo blanco, borde y
+   recorte hexagonal) va en una capa de fondo (::before), NO en el encabezado: un clip-path en el encabezado recortaba
+   también el menú desplegable del celular, que quedaba invisible y sin poder tocarse. */
 .cabecera {
+  isolation: isolate;
+  border: 1px solid transparent;
+}
+.cabecera::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  pointer-events: none;
   background: transparent;
   border: 1px solid transparent;
-  box-shadow: none;
-  backdrop-filter: none;
-  transition: background-color 0.35s, border-color 0.35s, box-shadow 0.35s, filter 0.35s, clip-path 0.35s;
+  clip-path: polygon(0 0, 100% 0, 100% 50%, 100% 100%, 0 100%, 0 50%);
+  transition: background-color 0.35s, border-color 0.35s, clip-path 0.35s;
 }
 .cabecera-interior { transition: min-height 0.35s; }
 .cabecera-logo { transform-origin: left center; transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1); }
@@ -100,13 +110,10 @@ html[data-scrolled] .cabecera-logo-transparente { display: none; }
 html[data-scrolled] .cabecera-logo-fijo { display: block; }
 /* El botón "Menú" del celular tiene fondo blanco propio (CapasHex contorno): su texto sigue oscuro sobre el banner. */
 html:not([data-scrolled]) .cabecera-link { color: white; }
-html[data-scrolled] .cabecera {
+html[data-scrolled] .cabecera::before {
   background: white;
   border-color: rgb(56 56 60 / 0.08);
-  box-shadow: 0 8px 20px -12px rgb(17 17 17 / 0.3);
   clip-path: polygon(28px 0, calc(100% - 28px) 0, 100% 50%, calc(100% - 28px) 100%, 28px 100%, 0 50%);
-  filter: drop-shadow(0 8px 14px rgb(17 17 17 / 0.2));
-  backdrop-filter: none;
 }
 html[data-scrolled] .cabecera-interior { min-height: 3.8rem; }
 html[data-scrolled] .cabecera-logo { transform: scale(0.82); }
