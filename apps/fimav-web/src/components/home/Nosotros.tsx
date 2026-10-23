@@ -8,7 +8,7 @@ export default function Nosotros() {
     <section className="bg-gris py-16 lg:py-24">
       <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-2">
         <Reveal>
-          <SeccionTitulo nivel="h2" eyebrow="Sobre nosotros" claro="Más de 10 años" rojo="en el mercado" />
+          <SeccionTitulo nivel="h2" eyebrow="Sobre nosotros" claro="Conoce a" rojo="Fimav Perú" />
           <p className="mt-6 leading-relaxed text-carbon/80">{contenido.nosotros}</p>
         </Reveal>
         <Reveal retraso={120}>

@@ -14,7 +14,7 @@ export default function CatalogoPage() {
     <main>
       <BannerPagina eyebrow="Catálogo" titulo="Bienes y" resaltado="servicios" imagen="/fotos/networking-2.jpg" />
       {categorias.map((c, i) => (
-        <section key={c.slug} className={`py-12 ${i % 2 ? 'bg-white' : 'bg-gris'}`}>
+        <section key={c.slug} className={`py-12 ${i % 2 ? 'bg-gris' : 'bg-white'}`}>
           <div className="mx-auto grid max-w-6xl items-center gap-6 px-4 sm:px-6 lg:grid-cols-[1fr_auto]">
             <Reveal className="flex gap-5">
               <div className="shrink-0"><Hexagono icono={c.icono} tam={64} /></div>

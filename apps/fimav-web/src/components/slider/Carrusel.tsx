@@ -19,6 +19,8 @@ type Props = {
   /** Modo fundido: diapositivas apiladas que cambian con fundido (sin scroll), sin flechas ni puntos; solo queda el botón de pausa,
    *  visible únicamente con foco de teclado (WCAG 2.2.2). Avanza también con prefers-reduced-motion (cambio instantáneo). */
   fundido?: boolean;
+  /** Muestra navegación visible para el modo fundido. */
+  controlesFundido?: boolean;
   /** Modo fundido: elemento decorativo hermano de la pista que depende de la diapositiva activa (p. ej. fotos del hero).
    *  Queda dentro del carrusel, así hover/foco/toque sobre él también pausan el avance (WCAG 2.2.2). */
   visual?: (activa: number) => React.ReactNode;
@@ -30,7 +32,7 @@ const BTN = 'w-12 !px-0 sm:w-16';
 /** Carrusel sin librerías: scroll-snap nativo (swipe táctil), autoavance que se pausa con hover/foco de teclado/toque y se apaga
  *  con prefers-reduced-motion, flechas, puntos y teclado (←/→). Las no visibles quedan `inert`.
  *  El botón Pausar/Reanudar es autoritativo: manda sobre hover y foco (WCAG 2.2.2). */
-export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full', gap = 'gap-0', auto = 0, controles = '', fundido = false, visual, className = '' }: Props) {
+export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full', gap = 'gap-0', auto = 0, controles = '', fundido = false, controlesFundido = false, visual, className = '' }: Props) {
   const raiz = useRef<HTMLElement>(null);
   const pista = useRef<HTMLDivElement>(null);
   const [visibles, setVisibles] = useState<boolean[]>(() => diapositivas.map(() => true)); // SSR: todas visibles, sin JS no se oculta nada
@@ -137,7 +139,7 @@ export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full',
         e.preventDefault();
         // Cualquier uso del teclado deja el carrusel en pausa hasta que el usuario pulse Reproducir.
         if (auto > 0) setManual('pausa');
-        // La diapositiva enfocada pasará a `inert`: el foco se mueve antes al botón de pausa para no caer en <body>.
+        // La diapositiva enfocada pasará a `inert`: el foco se mueve antes a los controles del carrusel.
         if (fundido) controlFundido.current?.querySelector('button')?.focus();
         if (dir > 0) siguiente(); else anterior();
       }}
@@ -146,7 +148,7 @@ export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full',
       <div
         ref={pista}
         aria-live={reproduciendo ? 'off' : 'polite'}
-        className={fundido ? 'grid lg:order-1' : `-my-4 flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${gap}`}
+        className={fundido ? 'relative z-10 grid lg:order-1' : `-my-4 flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain py-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${gap}`}
       >
         {diapositivas.map((d, i) => (
           <div
@@ -166,11 +168,27 @@ export default function Carrusel({ etiqueta, diapositivas, ancho = 'basis-full',
       </div>
 
       {fundido && N > 1 && auto > 0 && (
-        // Invisible hasta recibir foco de teclado y fuera del flujo (absoluto): no desplaza el hero. Requiere `relative` en className.
-        <div ref={controlFundido} className="pointer-events-none absolute bottom-1 left-4 z-10 opacity-0 focus-within:pointer-events-auto focus-within:opacity-100">
+        <div ref={controlFundido} className={controlesFundido
+          ? 'absolute bottom-6 left-4 z-20 flex items-center gap-2 rounded-full border border-white/20 bg-black/30 p-1.5 shadow-lg backdrop-blur-md sm:bottom-10 sm:left-8'
+          : 'pointer-events-none absolute bottom-1 left-4 z-10 opacity-0 focus-within:pointer-events-auto focus-within:opacity-100'}>
+          {controlesFundido && (
+            <>
+              <BotonHex variante="contorno" size="sm" icono={ChevronLeft} onClick={anterior} className="h-11 w-11 !min-h-11 !px-0"><span className="sr-only">Diapositiva anterior</span></BotonHex>
+              <ul className="flex items-center gap-0.5">
+                {diapositivas.map((_, i) => (
+                  <li key={i}>
+                    <button type="button" aria-label={`Ir a la diapositiva ${i + 1}`} aria-current={i === activa ? 'true' : undefined} onClick={() => ir(i)} className="group/punto grid h-11 w-6 place-items-center">
+                      <span className={`block h-2 rounded-full transition-all ${i === activa ? 'w-5 bg-white' : 'w-2 bg-white/50 group-hover/punto:bg-white'}`} />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
           <BotonHex variante="contorno" size="sm" icono={reproduciendo ? Pause : Play} onClick={() => setManual(reproduciendo ? 'pausa' : 'play')}>
             <span className="sr-only">{reproduciendo ? 'Pausar avance automático' : 'Reproducir avance automático'}</span>
           </BotonHex>
+          {controlesFundido && <BotonHex variante="contorno" size="sm" icono={ChevronRight} onClick={() => siguiente()} className="h-11 w-11 !min-h-11 !px-0"><span className="sr-only">Siguiente diapositiva</span></BotonHex>}
         </div>
       )}
       {!fundido && N > 1 && (

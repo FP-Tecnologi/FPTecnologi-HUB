@@ -12,7 +12,7 @@
   --font-titulo: var(--font-source), 'Myriad Pro', system-ui, sans-serif;
 }
 
-html { --alto-cabecera: 57px; background: #fff; color: var(--color-carbon); scroll-behavior: smooth; scroll-padding-top: 5rem; scroll-padding-bottom: 6rem; }
+html { --alto-cabecera: 57px; background: #fff; color: var(--color-carbon); scroll-behavior: smooth; scroll-padding-top: 6rem; scroll-padding-bottom: 6rem; }
 body { font-family: var(--font-sans); }
 @layer base { h1, h2, h3 { font-family: var(--font-titulo); } }
 @layer base { :focus-visible { outline: 2px solid var(--color-rojo); outline-offset: 3px; border-radius: 4px; } }
@@ -21,6 +21,7 @@ h1, h2, h3 { text-wrap: balance; }
 p, li { text-wrap: pretty; }
 @keyframes giro { to { transform: rotate(360deg); } }
 @keyframes flotar { 50% { transform: translateY(-8px); } }
+@keyframes hero-respira { to { transform: scale(1.08); } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { animation: none !important; transition: none !important; } }
 
 /* ---- Movimiento. Solo transform/opacity. Todo en @layer para que las utilidades de Tailwind sigan mandando;
@@ -33,12 +34,6 @@ p, li { text-wrap: pretty; }
 @layer components {
   /* Título menor (tarjetas, formularios, columnas del pie): display en mayúscula. */
   .titulo-menor { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; line-height: 1.15; }
-
-  /* Cabecera fija: al hacer scroll (html[data-scrolled]) el logo se reduce con transform y aparece sombra; el alto no cambia. */
-  .cabecera { transition: box-shadow 0.3s; }
-  .cabecera-logo { transform-origin: left center; transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1); }
-  html[data-scrolled] .cabecera { box-shadow: 0 8px 24px -12px rgb(56 56 60 / 0.35); }
-  html[data-scrolled] .cabecera-logo { transform: scale(0.82); }
 
   /* Entrada solo con CSS (sin JS): el estado final es el normal, así el contenido nunca queda oculto.
      `backwards` (no `both`): al terminar no queda ninguna animación aplicada, así no persisten capas, contextos de apilamiento
@@ -87,6 +82,25 @@ p, li { text-wrap: pretty; }
   .inclinar[data-activo]::after { opacity: 1; }
   .inclinar[data-activo] { transition-duration: 0.12s; }
 }
+/* El encabezado flota sobre los banners y solo toma su forma hexagonal al compactarse. */
+.cabecera { background: transparent; transition: background-color 0.35s, filter 0.35s, clip-path 0.35s; }
+.cabecera-interior { transition: min-height 0.35s; }
+.cabecera-logo { transform-origin: left center; transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1); }
+.cabecera-marca { clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%); }
+html:not([data-scrolled]) .cabecera-link,
+html:not([data-scrolled]) .cabecera-movil-toggle { color: white; }
+html[data-scrolled] .cabecera {
+  background: white;
+  clip-path: polygon(28px 0, calc(100% - 28px) 0, 100% 50%, calc(100% - 28px) 100%, 28px 100%, 0 50%);
+  filter: drop-shadow(0 8px 14px rgb(17 17 17 / 0.2));
+}
+html[data-scrolled] .cabecera-interior { min-height: 3.8rem; }
+html[data-scrolled] .cabecera-logo { transform: scale(0.82); }
+html[data-scrolled] .cabecera-link,
+html[data-scrolled] .cabecera-movil-toggle { color: var(--color-carbon); }
+html:not([data-scrolled]) .cabecera-marca { background: white; }
+html:not([data-scrolled]) .cabecera-marca img { mix-blend-mode: multiply; }
+.hero-fondo-imagen { filter: brightness(0.48) saturate(0.82); animation: hero-respira 24s ease-in-out infinite alternate; }
 @keyframes marquesina { to { transform: translateX(-50%); } }
 .marquesina { mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); }
 .marquesina-pista { animation: marquesina 40s linear infinite; }

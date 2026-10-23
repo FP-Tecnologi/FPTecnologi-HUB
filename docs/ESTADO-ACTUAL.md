@@ -1119,3 +1119,10 @@ Las fuentes de Shalom traían símbolos rotos («N?533», una «Â» suelta, «V
   - El plazo de 15 días hábiles no excluye feriados.
   - Retención: el reglamento exige conservar las hojas al menos 2 años; nada las borra (FK `Marca` ON DELETE RESTRICT).
   - Checklist de puesta en marcha (la migración ya está aplicada; en futuras migraciones que agreguen columnas a `Marca`, aplicarlas ANTES de desplegar la API porque sus consultas seleccionan las columnas nuevas): cargar `razonSocial`/`ruc`/`direccionFiscal` y `contactoEmail` por marca; asignar un usuario admin/comercial a `fimavperu`; `HUB_MARCA_ID`/`HUB_API_URL` en fimav-web; `WEB_ORIGIN` en la API; comprobar que `x-forwarded-for` llega al servidor Next; probar de punta a punta una hoja real.
+
+### 2026-10-23 — Ajustes visuales de Fimav
+- La franja de marcas aliadas ya no muestra control de pausa/reanudación; al pasar el cursor se detiene y el logo señalado aumenta suavemente.
+- El hero de inicio pasó a un slider oscuro de pantalla amplia con fotografías de fondo, transición y controles visibles; se retiró el carrusel de datos de confianza y las afirmaciones de antigüedad/ranking del bloque «Sobre nosotros».
+- El encabezado ahora flota sobre los banners: transparente al inicio y compacto, blanco y con extremos hexagonales al desplazarse. Los banners internos reservan espacio para que el título no quede bajo el encabezado.
+- En Catálogo, las categorías alternan fondos empezando por blanco; Software muestra fotos de equipos y Baterías tiene tres ilustraciones propias.
+- Verificación: `npm run lint` y `npm run build` dentro de `apps/fimav-web`.

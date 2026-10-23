@@ -51,7 +51,7 @@ export default function BannerPagina({ eyebrow, titulo, resaltado, miga, migas =
         <svg viewBox="0 0 100 100" aria-hidden="true" className="pointer-events-none absolute right-[34%] top-2 hidden w-9 opacity-20 md:block">
           <path d="M50 4 94 27v46L50 96 6 73V27Z" fill="none" stroke="#e02424" strokeWidth="3" strokeLinejoin="round" />
         </svg>
-        <div className="entrada relative mx-auto max-w-6xl min-h-[12.5rem] px-4 pb-8 pt-14 sm:min-h-[18.5rem] sm:px-6 sm:pb-14 sm:pt-20">
+        <div className="entrada relative mx-auto max-w-6xl min-h-[15rem] px-4 pb-8 pt-24 sm:min-h-[21rem] sm:px-6 sm:pb-14 sm:pt-28">
           <nav aria-label="Ruta de navegación" className="mb-2 text-sm text-white/80 sm:mb-4">
             <ol className="flex flex-nowrap items-center gap-x-1.5">
               {[{ texto: 'Inicio', href: '/' }, ...migas].map((m) => (
