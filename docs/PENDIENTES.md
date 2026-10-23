@@ -97,8 +97,7 @@ solo a sedes Shalom o también domicilio?
   destacados en la API (si no hay ninguno marcado, los primeros del catálogo; sin API, los fijos) y el asistente
   virtual arma su conocimiento con `lib/chatConocimiento.ts` (ver ESTADO-ACTUAL). Falta **marcar destacados** en el
   dashboard (hoy solo se marcan al importar desde WooCommerce).
-- **Fotos de productos**: se sirven desde `fptecnologi.com/wp-content/uploads` (hotlink al WordPress viejo). Si
-  ese sitio se apaga se pierden. Subirlas a Storage (Supabase) y guardar la URL nueva.
+- **Fotos de productos / imágenes externas**: **resuelto en código 2026-10-23**: la API copia a su `UPLOADS_DIR/externas` toda imagen de otra web que se guarde (extensión `imagenes-externas` de Prisma) y `prisma/seeds/localizar-imagenes.ts` migra las que ya están en la base. **Falta correr el script en el servidor de la API** (`--aplicar`) mientras el WordPress viejo siga en línea.
 - ~~**Subida de imágenes** en el dashboard~~ **Hecho 2026-10-01**: botón "Subir desde el computador" en productos (galería), categorías, blog y landings (`POST /uploads`, carpeta `UPLOADS_DIR`). Falta: migrar las fotos del WordPress viejo a esa carpeta, redimensionar/optimizar al subir y limpiar archivos huérfanos.
 - ~~Gestión de categorías y marcas comerciales~~ **Hecho 2026-10-01**: Dashboard → Ecommerce → **Catálogo** (categorías: crear, editar, ordenar, ocultar, borrar si están vacías; marcas comerciales: ver, renombrar/fusionar, quitar). Falta: logo por marca comercial y descuentos/cupones.
 - **Dashboard → Ecommerce → Clientes** sigue siendo un placeholder (hay que decidir qué es "cliente": compradores

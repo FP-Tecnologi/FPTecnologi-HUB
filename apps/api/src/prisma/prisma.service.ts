@@ -1,6 +1,7 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '../generated/prisma/client.js';
 import { tenantGuardExtension } from './tenant-guard.extension.js';
+import { imagenesExternasExtension } from './imagenes-externas.extension.js';
 
 /**
  * Injectable Prisma client. Registered globally by PrismaModule so any
@@ -25,7 +26,8 @@ export interface PrismaService extends PrismaClient {}
 export class PrismaService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(PrismaService.name);
   private readonly raw = new PrismaClient();
-  private readonly extended = this.raw.$extends(tenantGuardExtension);
+  // tenant-guard + copia a nuestro servidor de las imágenes que apunten a otra web (imagenes-externas.extension.ts).
+  private readonly extended = this.raw.$extends(tenantGuardExtension).$extends(imagenesExternasExtension);
 
   constructor() {
     return new Proxy(this, {
