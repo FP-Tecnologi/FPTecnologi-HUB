@@ -44,9 +44,7 @@ export default function Footer() {
         <CtaCotizar />
         <div className="mx-auto grid max-w-6xl divide-y divide-white/15 px-4 sm:px-6 md:grid-cols-2 md:divide-y-0 lg:grid-cols-[1.25fr_1.25fr_1fr_1fr] lg:divide-x [&>*]:py-6 lg:[&>*]:px-6 lg:[&>*:first-child]:pl-0 lg:[&>*:last-child]:pr-0">
           <div>
-            <span className="inline-block rounded-xl bg-white p-2">
-              <Logo className="block h-14 w-auto object-contain" />
-            </span>
+            <Logo src="/brand/fimav-peru-blanco.svg" className="block h-14 w-auto object-contain" />
             <p className="mt-4 text-sm leading-relaxed text-white/90">{contenido.fraseCorta}</p>
             <p className="titulo-menor mt-5 text-sm tracking-widest text-white">Síguenos</p>
             <ul className="mt-2 flex gap-3">

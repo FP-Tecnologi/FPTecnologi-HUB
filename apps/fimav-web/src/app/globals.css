@@ -93,12 +93,13 @@ p, li { text-wrap: pretty; }
 }
 .cabecera-interior { transition: min-height 0.35s; }
 .cabecera-logo { transform-origin: left center; transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1); }
-.cabecera-marca { clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%); }
+/* Margen para que el recorte hexagonal (foco) no corte el logo vectorial, que llega justo a sus bordes. */
+.cabecera-marca { clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%); padding: 2px 14px; margin-inline: -14px; }
 .cabecera-logo-fijo { display: none; }
 html[data-scrolled] .cabecera-logo-transparente { display: none; }
 html[data-scrolled] .cabecera-logo-fijo { display: block; }
-html:not([data-scrolled]) .cabecera-link,
-html:not([data-scrolled]) .cabecera-movil-toggle { color: white; }
+/* El botón "Menú" del celular tiene fondo blanco propio (CapasHex contorno): su texto sigue oscuro sobre el banner. */
+html:not([data-scrolled]) .cabecera-link { color: white; }
 html[data-scrolled] .cabecera {
   background: white;
   border-color: rgb(56 56 60 / 0.08);
