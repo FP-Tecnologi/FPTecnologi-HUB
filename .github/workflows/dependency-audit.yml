@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        app: [api, web]
+        app: [api, admin, web-fptecnologi, fimav-web, quamtu-web]
     defaults:
       run:
         working-directory: apps/${{ matrix.app }}
@@ -30,7 +30,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: npm
           cache-dependency-path: apps/${{ matrix.app }}/package-lock.json
 

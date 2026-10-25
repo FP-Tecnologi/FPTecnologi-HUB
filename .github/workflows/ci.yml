@@ -15,12 +15,15 @@ permissions:
   contents: read
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '22'
 
 jobs:
   api:
     name: api (build · lint · test)
     runs-on: ubuntu-latest
+    env:
+      # prisma.config.ts exige DATABASE_URL al cargarse (generate, build y tests); no se conecta a ninguna BD real.
+      DATABASE_URL: postgresql://user:pass@localhost:5432/db
     defaults:
       run:
         working-directory: apps/api
@@ -40,10 +43,6 @@ jobs:
 
       - name: Generate Prisma client
         run: npx prisma generate
-        env:
-          # No se conecta a una BD real: prisma generate solo necesita el
-          # schema y una URL con formato válido.
-          DATABASE_URL: postgresql://user:pass@localhost:5432/db
 
       - name: Lint (oxlint)
         run: npm run lint
@@ -55,11 +54,16 @@ jobs:
         run: npm run test
 
   web:
-    name: web (build · lint)
+    name: ${{ matrix.app }} (tipos · build)
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Dashboard y webs públicas (Next 16). `lint` = tsc --noEmit: typescript-eslint aún no soporta TypeScript 7.
+        app: [admin, web-fptecnologi, fimav-web, quamtu-web]
     defaults:
       run:
-        working-directory: apps/admin
+        working-directory: apps/${{ matrix.app }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -69,13 +73,13 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: npm
-          cache-dependency-path: apps/admin/package-lock.json
+          cache-dependency-path: apps/${{ matrix.app }}/package-lock.json
 
       - name: Install dependencies
         run: npm ci --no-workspaces
 
-      - name: Lint (next lint)
+      - name: Tipos (tsc)
         run: npm run lint
 
       - name: Build
-        run: npm run build
+        run: npx next build --webpack

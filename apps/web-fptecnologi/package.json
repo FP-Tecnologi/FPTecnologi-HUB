@@ -9,7 +9,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "start:cpanel": "node server.cjs",
-    "lint": "next lint"
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@tailwindcss/typography": "^0.5.20",

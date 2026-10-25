@@ -34,6 +34,54 @@ updates:
       - 'dependencies'
       - 'api'
 
+  # Web pública FPTecnologi (apps/web-fptecnologi) — Next.js
+  - package-ecosystem: 'npm'
+    directory: '/apps/web-fptecnologi'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    open-pull-requests-limit: 5
+    groups:
+      minor-patch:
+        update-types: ['minor', 'patch']
+    commit-message:
+      prefix: 'chore(web-fptecnologi/deps)'
+    labels:
+      - 'dependencies'
+      - 'web'
+
+  # Web pública Fimav Perú (apps/fimav-web) — Next.js
+  - package-ecosystem: 'npm'
+    directory: '/apps/fimav-web'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    open-pull-requests-limit: 5
+    groups:
+      minor-patch:
+        update-types: ['minor', 'patch']
+    commit-message:
+      prefix: 'chore(fimav-web/deps)'
+    labels:
+      - 'dependencies'
+      - 'web'
+
+  # Web pública Quamtu (apps/quamtu-web) — Next.js
+  - package-ecosystem: 'npm'
+    directory: '/apps/quamtu-web'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    open-pull-requests-limit: 5
+    groups:
+      minor-patch:
+        update-types: ['minor', 'patch']
+    commit-message:
+      prefix: 'chore(quamtu-web/deps)'
+    labels:
+      - 'dependencies'
+      - 'web'
+
   # GitHub Actions usadas en los workflows del repo
   - package-ecosystem: 'github-actions'
     directory: '/'
