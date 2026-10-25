@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import WhatsAppFlotante from '@/components/WhatsAppFlotante';
 import CursorHex from '@/components/motion/CursorHex';
+import ContadorVisitas from '@/components/ContadorVisitas';
 import { ContactoProvider } from '@/components/ContactoContext';
 import { getContacto } from '@/lib/cms';
 
@@ -33,6 +34,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <Footer />
           <WhatsAppFlotante />
           <CursorHex />
+          <ContadorVisitas />
         </ContactoProvider>
       </body>
     </html>

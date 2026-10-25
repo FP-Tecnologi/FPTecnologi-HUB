@@ -6,11 +6,12 @@
  * módulos (ver useResumen). Si un endpoint no responde (rol sin acceso o
  * módulo vacío) su card muestra un estado vacío en vez de inventar datos.
  */
-import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ApexChart } from '../charts/ApexChart';
 import { Icon } from '../ui/Icon';
+import { Card, Kpi, Vacio, VIZ, num, viz } from './piezas';
+import { TraficoWeb } from './TraficoWeb';
 import { useAuth } from '../../context/AuthContext';
 import {
   contarPorEstado, contarPorMes, sumarPorMes, ultimosMeses, useResumen, variacion,
@@ -33,61 +34,9 @@ const ESTADOS_LEAD = ['NUEVO', 'CONTACTADO', 'COTIZADO', 'GANADO', 'PERDIDO'];
 const ESTADOS_COTIZ = ['PENDIENTE', 'EN_REVISION', 'ENVIADA', 'ACEPTADA', 'RECHAZADA'];
 const ESTADOS_CHAT = ['BOT', 'ASESOR', 'CERRADA'];
 const ESTADOS_CONTACTO = ['NUEVO', 'CONTACTADO', 'RESUELTO', 'DESCARTADO'];
-const VIZ = ['--ax-viz-amber', '--ax-viz-cyan', '--ax-viz-violet', '--ax-viz-emerald', '--ax-viz-pink'];
-const VIZ_FALLBACK = ['#FBBF24', '#38BDF8', '#A78BFA', '#34D399', '#F472B6'];
-
-/** --ax-viz-* a hex para ApexCharts (SSR-safe: el re-theme corrige tras hidratar). */
-function viz(n = VIZ.length): string[] {
-  if (typeof document === 'undefined') return VIZ_FALLBACK.slice(0, n);
-  const cs = getComputedStyle(document.documentElement);
-  return VIZ.slice(0, n).map((t, i) => cs.getPropertyValue(t).trim() || VIZ_FALLBACK[i]);
-}
 
 const etiqueta = (e: string) => e.charAt(0) + e.slice(1).toLowerCase().replace('_', ' ');
-const num = (n: number | null) => (n === null ? '—' : n.toLocaleString('es-PE'));
 const usd = (n: number) => `$${n.toLocaleString('es-PE', { maximumFractionDigits: 0 })}`;
-
-function Delta({ pct }: { pct: number | null }) {
-  if (pct === null) return null;
-  const sube = pct >= 0;
-  return (
-    <span className={`ax-statgroup__delta ax-statgroup__delta--${sube ? 'up' : 'down'}`}>
-      {sube ? '+' : '−'}{Math.abs(pct).toFixed(1)}%
-    </span>
-  );
-}
-
-function Kpi({ icon, tono, label, valor, pct }: { icon: string; tono: string; label: string; valor: string; pct?: number | null }) {
-  return (
-    <div className="ax-statgroup__cell">
-      <span className={`ax-statgroup__icon ax-statgroup__icon--${tono}`}><Icon name={icon} /></span>
-      <span className="ax-statgroup__text">
-        <span className="ax-statgroup__label">{label}</span>
-        <span className="ax-statgroup__value ax-num">{valor}</span>
-      </span>
-      {pct !== undefined && <Delta pct={pct} />}
-    </div>
-  );
-}
-
-function Card({ titulo, sub, cols, enlace, children }: { titulo: string; sub?: string; cols: 4 | 6 | 8 | 12; enlace?: { href: string; label: string }; children: ReactNode }) {
-  return (
-    <section className={`ax-card ax-col--${cols}`} role="region" aria-label={titulo}>
-      <div className="ax-card__header">
-        <div className="ax-card__titles">
-          <h2 className="ax-card__title">{titulo}</h2>
-          {sub && <p className="ax-card__subtitle">{sub}</p>}
-        </div>
-        {enlace && <Link className="ax-btn ax-btn--link" href={enlace.href}>{enlace.label}</Link>}
-      </div>
-      <div className="ax-card__body" style={{ paddingTop: 0 }}>{children}</div>
-    </section>
-  );
-}
-
-function Vacio({ texto = 'Sin datos para mostrar.' }: { texto?: string }) {
-  return <p style={{ margin: 0, padding: 'var(--ax-space-6) 0', textAlign: 'center', fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-subtle)' }}>{texto}</p>;
-}
 
 /** Barras horizontales (embudo / estados) con total numérico. */
 function BarrasEstado({ estados, valores, nombre }: { estados: string[]; valores: number[] | null; nombre: string }) {
@@ -204,6 +153,9 @@ export function ResumenMarca({
           </div>
         </div>
       </section>
+
+      {/* Visitas de la web (contador propio; se oculta si el rol no tiene acceso) */}
+      <TraficoWeb marcaIds={marcaIds ?? [marcaId]} />
 
       {/* Ingresos + pedidos por estado */}
       <Card titulo="Ingresos" sub="Ventas de los últimos 6 meses (sin pedidos cancelados, USD)" cols={8} enlace={{ href: '/ecommerce/pedidos', label: 'Ver pedidos' }}>

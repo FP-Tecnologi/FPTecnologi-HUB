@@ -61,6 +61,7 @@ const TENANT_MODELS = new Set([
   'TarjetaDigital',
   'Folleto',
   'Presupuesto',
+  'VisitaWeb',
 ]);
 
 /** Models whose where may be pinned by this key instead of marcaId (see above). */

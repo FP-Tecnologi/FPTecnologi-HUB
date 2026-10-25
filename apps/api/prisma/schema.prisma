@@ -70,6 +70,7 @@ model Marca {
   socios             Socio[]
   recursos           Recurso[]
   folletos           Folleto[]
+  visitasWeb         VisitaWeb[]
   soporteTickets     SoporteTicket[]
 }
 
@@ -1230,35 +1231,35 @@ model Folleto {
 
 // Tarjeta digital del equipo comercial (página pública /tarjeta/:slug con QR y vCard). Una por persona y marca.
 model TarjetaDigital {
-  id        String   @id @default(uuid())
-  marcaId   String
-  marca     Marca    @relation(fields: [marcaId], references: [id])
-  usuarioId String
-  slug      String // /tarjeta/<slug>, único por marca
-  etiqueta  String   @default("Principal") // nombre de la versión (Comercial, Soporte…): una persona puede tener varias tarjetas
-  nombre    String
-  cargo     String?
-  area      String?
-  bio       String?
-  fotoUrl   String?
+  id         String   @id @default(uuid())
+  marcaId    String
+  marca      Marca    @relation(fields: [marcaId], references: [id])
+  usuarioId  String
+  slug       String // /tarjeta/<slug>, único por marca
+  etiqueta   String   @default("Principal") // nombre de la versión (Comercial, Soporte…): una persona puede tener varias tarjetas
+  nombre     String
+  cargo      String?
+  area       String?
+  bio        String?
+  fotoUrl    String?
   portadaUrl String? // imagen de portada (encabezado de la página pública)
-  mostrar   Json     @default("{}") // qué datos se muestran: { cargo: false, email: false… }; lo que no aparece se muestra
-  qrColor   String? // color de los módulos del QR (#rrggbb); vacío = negro
-  qrFondo   String? // color de fondo del QR (#rrggbb); vacío = blanco
-  telefono  String?
-  whatsapp  String? // solo dígitos con código de país
-  email     String?
-  linkedin  String?
-  web       String?
-  agendaUrl String? // enlace para reservar una reunión (Calendly, Google Calendar…) — ya no se pide en el dashboard
+  mostrar    Json     @default("{}") // qué datos se muestran: { cargo: false, email: false… }; lo que no aparece se muestra
+  qrColor    String? // color de los módulos del QR (#rrggbb); vacío = negro
+  qrFondo    String? // color de fondo del QR (#rrggbb); vacío = blanco
+  telefono   String?
+  whatsapp   String? // solo dígitos con código de país
+  email      String?
+  linkedin   String?
+  web        String?
+  agendaUrl  String? // enlace para reservar una reunión (Calendly, Google Calendar…) — ya no se pide en el dashboard
   cotizarUrl String? // enlace propio del botón «Pide una cotización»; vacío = el cotizador de la web
-  enlaces   Json     @default("[]") // [{ titulo, url }]
-  vista     String   @default("perfil") // perfil (tarjeta completa) | linktree (lista de botones, como Linktree)
-  estilo    String   @default("clasico") // clasico | moderno | oscuro | minimal (página pública y tarjeta gráfica)
-  activo    Boolean  @default(true)
-  vistas    Int      @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  enlaces    Json     @default("[]") // [{ titulo, url }]
+  vista      String   @default("perfil") // perfil (tarjeta completa) | linktree (lista de botones, como Linktree)
+  estilo     String   @default("clasico") // clasico | moderno | oscuro | minimal (página pública y tarjeta gráfica)
+  activo     Boolean  @default(true)
+  vistas     Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   @@unique([marcaId, slug])
   @@index([marcaId, usuarioId])
@@ -1300,4 +1301,19 @@ model ActividadLog {
 
   @@index([createdAt])
   @@index([accion, createdAt])
+}
+
+// Contador propio de tráfico de las webs públicas (sin cookies ni datos personales): una fila por página vista.
+// `visitante` es un hash del día (IP + navegador + fecha + sal), así se cuentan visitantes por día sin guardar la IP.
+model VisitaWeb {
+  id          String   @id @default(uuid())
+  marcaId     String
+  marca       Marca    @relation(fields: [marcaId], references: [id], onDelete: Cascade)
+  ruta        String // solo el path, sin ?query
+  origen      String // google | facebook | instagram | whatsapp | linkedin | tiktok | youtube | otros | directo | interno | <utm_source>
+  dispositivo String // movil | tablet | escritorio
+  visitante   String
+  createdAt   DateTime @default(now())
+
+  @@index([marcaId, createdAt])
 }

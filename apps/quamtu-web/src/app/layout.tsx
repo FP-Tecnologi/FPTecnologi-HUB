@@ -4,6 +4,7 @@ import Footer from '@/components/Footer';
 import Header from '@/components/Header';
 import PieCondicional from '@/components/PieCondicional';
 import WhatsAppFlotante from '@/components/WhatsAppFlotante';
+import ContadorVisitas from '@/components/ContadorVisitas';
 import './globals.css';
 
 // Manual de identidad: Play (corporativa) y Calibri para web → Carlito (misma métrica).
@@ -41,6 +42,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Footer />
         </PieCondicional>
         <WhatsAppFlotante />
+        <ContadorVisitas />
       </body>
     </html>
   );

@@ -13,6 +13,7 @@ import type { ReportesService } from '../reportes/reportes.service.js';
 import type { ConocimientoService } from '../conocimiento/conocimiento.service.js';
 import { diaLima, resolverRango } from '../reportes/reportes.service.js';
 import { inicioDiaLima, sumarDiasHabiles } from '../libro-reclamaciones/dias-habiles.js';
+import { VisitasService } from '../visitas/visitas.service.js';
 
 export const MAX_FILAS = 25;
 
@@ -446,9 +447,36 @@ const buscarConocimiento: Herramienta = {
   },
 };
 
+const traficoWeb: Herramienta = {
+  nombre: 'trafico_web',
+  descripcion: 'Visitas de la web pública de la marca (contador propio): visitas, visitantes y páginas vistas de los últimos 7, 30 o 90 días, hoy, comparación con el periodo anterior, páginas y productos más vistos, de dónde llegan (Google, redes, WhatsApp, directo) y dispositivos.',
+  parametros: objeto({ dias: { type: 'integer', enum: [7, 30, 90] } }),
+  roles: ['marketing', 'comercial', 'ventas'],
+  async ejecutar({ prisma, marcaId }, args) {
+    const dias = [7, 30, 90].includes(Number(args.dias)) ? Number(args.dias) : 30;
+    const r = await new VisitasService(prisma).resumen(marcaId, dias);
+    const tabla: Tabla = {
+      titulo: `Páginas más vistas (últimos ${dias} días)`, modulo: 'panel.resumen',
+      columnas: ['Página', 'Vistas'],
+      filas: r.paginas.map((p) => [p.ruta, p.vistas]),
+    };
+    const metricas: Metrica[] = [
+      { etiqueta: `Visitas (${dias} días)`, valor: r.totales.visitas, formato: 'numero', modulo: 'panel.resumen', detalle: `Periodo anterior: ${r.anterior.visitas}` },
+      { etiqueta: `Visitantes (${dias} días)`, valor: r.totales.visitantes, formato: 'numero', modulo: 'panel.resumen' },
+      { etiqueta: 'Páginas vistas', valor: r.totales.vistas, formato: 'numero', modulo: 'panel.resumen', detalle: `Periodo anterior: ${r.anterior.vistas}` },
+      { etiqueta: 'Visitas hoy', valor: r.hoy.visitas, formato: 'numero', modulo: 'panel.resumen' },
+    ];
+    return {
+      paraIA: { dias, hoy: r.hoy, totales: r.totales, periodoAnterior: r.anterior, paginas: r.paginas, productos: r.productos, origenes: r.origenes, dispositivos: r.dispositivos },
+      tabla,
+      metricas,
+    };
+  },
+};
+
 export const HERRAMIENTAS: Herramienta[] = [
   resumenNegocio, reporteVentas, buscarProductos, buscarPedidos, buscarCotizaciones, buscarPresupuestos,
-  buscarLeads, buscarTickets, buscarReclamos, buscarContactos, buscarChats, buscarConocimiento,
+  buscarLeads, buscarTickets, buscarReclamos, buscarContactos, buscarChats, buscarConocimiento, traficoWeb,
 ];
 
 /**
