@@ -199,6 +199,8 @@ aplícala antes de reiniciar la API (§5).
 - No subas `.env` ni credenciales a git (el repositorio es público). Los `*.example` solo llevan valores de ejemplo.
 - Secretos JWT largos y distintos a los de desarrollo; contraseña de `SWAGGER_*` fuerte.
 - Elimina las cuentas de prueba (§7) y activa **Dependabot alerts**, **secret scanning** y la protección de la rama `main` en GitHub.
+- **Cabeceras de seguridad** (en `next.config.mjs` de cada app): el dashboard no se puede mostrar dentro de otra web (`X-Frame-Options: DENY`); cada web solo dentro de sí misma y del dashboard (`frame-ancestors`, tomado de `DASHBOARD_ORIGIN`; por defecto `https://admin.fptecnologi.com` y `http://localhost:3000`). Si el dashboard cambia de dirección, pon la nueva en `DASHBOARD_ORIGIN` de cada web (varias separadas por coma) o la vista previa del editor quedará en blanco.
+- Revisa dependencias con `npm audit` dentro de cada app antes de publicar; Next.js debe ser **16.4.1 o superior** (las 16.0.0–16.4.0 tienen una vulnerabilidad crítica de ejecución remota de código en la optimización de imágenes).
 - Haz copias de seguridad de la carpeta `UPLOADS_DIR` (las imágenes subidas no están en git ni en la base de datos).
 
 ## Nota Hostinger (App web de Node.js desde GitHub)

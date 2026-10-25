@@ -24,7 +24,22 @@ const REDIRECCIONES = [
   ['/education', '/educacion'],
 ].map(([source, destination]) => ({ source, destination, permanent: true }));
 
+// Cabeceras de seguridad en todas las páginas. Solo esta web y el dashboard (vista previa del editor) pueden mostrarla
+// dentro de un iframe (frame-ancestors); la ubicación solo la puede pedir la propia web.
+const DASHBOARD = (process.env.DASHBOARD_ORIGIN ?? 'https://admin.fptecnologi.com,http://localhost:3000').split(',').map((s) => s.trim()).filter(Boolean);
+const SEGURIDAD = [
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(self), usb=()' },
+  { key: 'Strict-Transport-Security', value: 'max-age=31536000' },
+  { key: 'Content-Security-Policy', value: `frame-ancestors 'self' ${DASHBOARD.join(' ')}` },
+];
+
 const nextConfig = {
+  poweredByHeader: false,
+  async headers() {
+    return [{ source: '/:path*', headers: SEGURIDAD }];
+  },
   // Menos RAM en el build: el contenedor de AI App Hosting mata el proceso ("Killed") si se pasa de memoria.
   experimental: { webpackMemoryOptimizations: true, cpus: 1 },
   async redirects() {

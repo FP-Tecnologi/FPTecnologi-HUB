@@ -31,7 +31,21 @@ const RUTAS_EN_ES = [
   ['/pages/privacy', '/pages/privacidad'],
 ].map(([source, destination]) => ({ source, destination, permanent: true }));
 
+// Cabeceras de seguridad: el dashboard nunca se muestra dentro de un iframe de otra web (clickjacking).
+const SEGURIDAD = [
+  { key: 'X-Frame-Options', value: 'DENY' },
+  { key: 'Content-Security-Policy', value: "frame-ancestors 'none'" },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=(), usb=()' },
+  { key: 'Strict-Transport-Security', value: 'max-age=31536000' },
+];
+
 const nextConfig = {
+  poweredByHeader: false,
+  async headers() {
+    return [{ source: '/:path*', headers: SEGURIDAD }];
+  },
   async redirects() {
     return RUTAS_EN_ES;
   },
