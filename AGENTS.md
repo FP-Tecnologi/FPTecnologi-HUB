@@ -102,7 +102,7 @@ vez del contenido hardcodeado que usa hoy).
 - **API**: NestJS 12 (ESM, `"type": "module"`), Prisma 6 + PostgreSQL
   (Supabase), `@nestjs/jwt` + `passport-jwt`, `bcrypt`, `class-validator`,
   Resend (correo transaccional), Swagger en `/docs`.
-- **Dashboard** (`apps/admin`): Next.js 15 (App Router) + React 19 +
+- **Dashboard** (`apps/admin`): Next.js 16.4.3 (App Router) + React 19 +
   Tailwind v4, plantilla comercial Vireo (Envato). Ver
   [`VIREO-REFERENCE.md`](VIREO-REFERENCE.md) antes de construir una pantalla
   nueva — probablemente Vireo ya trae un patrón parecido. **Auth ya está
@@ -131,8 +131,15 @@ vez del contenido hardcodeado que usa hoy).
 - **Testing**: Vitest (`*.spec.ts` junto al archivo que prueban).
 - **Package manager**: npm (no pnpm, no yarn) — instalar dentro de cada
   app (`cd apps/api && npm install`), no hay workspace raíz (ver arriba).
-- **Seguridad**: `helmet`, rate limiting (`@nestjs/throttler`, 5
-  intentos/min en login/OTP), validación de env al boot
+- **Versiones mínimas**: Next.js **16.4.1+** en las 4 apps Next (hoy 16.4.3; 16.0.0–16.4.0 tienen una RCE crítica),
+  Node 22 (CI y hosting). `npm audit` debe dar 0 vulnerabilidades en las 5 apps; los parches que no llegan por
+  `npm audit fix` se fuerzan con `overrides` en el `package.json` de cada app (API: multer, undici, fast-uri…; web:
+  postcss-selector-parser). ESLint está en pausa: `typescript-eslint` no soporta TypeScript 7, así que `npm run lint`
+  de las apps Next es `tsc --noEmit`.
+- **Seguridad**: `helmet`, rate limiting (guard propio `LimitePeticionesGuard`, por IP; `@Limite(n)` por ruta, 5
+  intentos/min en login/OTP), cabeceras de seguridad en `next.config.mjs` de las apps Next (nosniff, Referrer-Policy,
+  Permissions-Policy, HSTS, sin X-Powered-By; dashboard no incrustable, webs solo en sí mismas y en el dashboard vía
+  `frame-ancestors` + `DASHBOARD_ORIGIN`), subidas sin SVG (firma real del archivo), validación de env al boot
   (`assertRequiredEnv` en `main.ts` — la app no arranca si un secret
   crítico quedó vacío o con el valor de ejemplo), `/docs` (Swagger) detrás
   de Basic Auth cuando `NODE_ENV=production` (abierto en dev), y un
@@ -220,16 +227,16 @@ Backend (Fase 1 del plan) funcionalmente completo y con hardening básico
 conectado y migrado.
 
 CI/CD y seguridad del repo (ver `.github/`):
-- `workflows/ci.yml`: build + lint + test de `apps/api` y `apps/admin` en
-  cada push/PR a `main`.
+- `workflows/ci.yml`: API (lint oxlint + build + tests) y, en matriz, las 4 apps Next (`admin`,
+  `web-fptecnologi`, `fimav-web`, `quamtu-web`: tipos + build) con Node 22, en cada push/PR a `main`.
 - `workflows/codeql.yml`: análisis estático de seguridad (CodeQL) en
   push/PR a `main` y semanal.
-- `workflows/dependency-audit.yml`: `npm audit` informativo en
+- `workflows/dependency-audit.yml`: `npm audit` informativo de las 5 apps en
   push/PR y semanal (no bloquea el merge todavía).
 - `workflows/copilot-setup-steps.yml`: preinstala Node + deps + Prisma
   client para el entorno del Copilot coding agent (cloud).
-- `dependabot.yml`: actualizaciones semanales de npm (`apps/api`,
-  `apps/admin`) y de GitHub Actions.
+- `dependabot.yml`: actualizaciones semanales de npm de las 5 apps y de
+  GitHub Actions.
 - `SECURITY.md`: política de reporte de vulnerabilidades y checklist de
   configuración recomendada a nivel de repo (branch protection, secret
   scanning, etc. — requieren rol admin, no se pueden setear por código).
