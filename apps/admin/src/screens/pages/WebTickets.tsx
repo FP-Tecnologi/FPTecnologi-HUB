@@ -81,14 +81,18 @@ export function WebTickets() {
   const [interno, setInterno] = useState(false);
   const [estadoAlResponder, setEstadoAlResponder] = useState<'' | Estado>('');
   const [guardando, setGuardando] = useState(false);
+  const [sinAcceso, setSinAcceso] = useState(false);
 
   const cargar = useCallback(async () => {
     if (!activeMarcaId) return;
     try {
       setLista(await api.get<Ticket[]>('/tickets'));
       setError('');
+      setSinAcceso(false);
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : 'No se pudieron cargar los tickets.');
+      // 403: el rol no atiende tickets en esta marca (p. ej. en Quamtu y Kelqa solo admin).
+      if (e instanceof ApiError && e.statusCode === 403) setSinAcceso(true);
+      else setError(e instanceof ApiError ? e.message : 'No se pudieron cargar los tickets.');
     } finally {
       setCargando(false);
     }
@@ -193,6 +197,15 @@ export function WebTickets() {
       <dd style={{ margin: 0, wordBreak: 'break-word' }}>{v}</dd>
     </>
   );
+
+  if (sinAcceso) {
+    return (
+      <>
+        <PageHead title="Tickets de soporte" subtitle="Reclamos, verificaciones y soporte técnico." />
+        <div className="ax-card"><div className="ax-card__body"><p style={{ margin: 0 }}>Tu rol en esta marca no atiende tickets. Si necesitas acceso, pídeselo al administrador de la marca.</p></div></div>
+      </>
+    );
+  }
 
   return (
     <>

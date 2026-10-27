@@ -28,6 +28,7 @@ model Marca {
   colorSecundario  String?
   contactoEmail    String?
   contactoTelefono String?
+  correoTickets    String? // buzón que recibe los tickets de clientes de esta marca (si falta, contactoEmail)
   razonSocial      String?
   ruc              String?
   direccionFiscal  String?

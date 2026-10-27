@@ -4,11 +4,17 @@ import { MailService } from '../mail/mail.service.js';
 import { normalizarCelular } from '../cotizador/cotizador.service.js';
 import { normalizeEmail } from '../common/utils/normalize-email.js';
 import type { ActualizarTicketDto, CrearTicketDto, MensajeEquipoDto, ResponderTicketDto } from './tickets.dto.js';
+import { rolesTickets } from './tickets.roles.js';
 
-const ROLES_AVISO = ['admin', 'comercial'];
 const ETIQUETA = { RECLAMO: 'Reclamo', VERIFICACION: 'Verificación', SOPORTE: 'Soporte técnico' } as const;
 const ESTADO_TXT = { NUEVO: 'Nuevo', EN_REVISION: 'En revisión', ESPERANDO_CLIENTE: 'Esperando tu respuesta', RESUELTO: 'Resuelto', CERRADO: 'Cerrado' } as const;
-const web = () => process.env.WEB_PUBLICA_URL ?? 'https://fptecnologi.com';
+/** Web pública de las marcas sin dominio registrado en Sitios (FPTecnologi y el resto: WEB_PUBLICA_URL). */
+const WEB_CONOCIDA: Record<string, string> = { quamtu: 'https://quamtu.com', fimav: 'https://fimavperu.com' };
+
+/** Lo que cada correo necesita de la marca: su web (enlaces de seguimiento), nombre y color, y el buzón de tickets. */
+interface MarcaTickets { nombre: string; color: string | null; web: string; correo: string | null }
+
+const seguimientoUrl = (m: MarcaTickets, numero: string) => `${m.web}/tickets/seguimiento?n=${encodeURIComponent(numero)}`;
 
 @Injectable()
 export class TicketsService {
@@ -30,7 +36,7 @@ export class TicketsService {
   async crearPublico(marcaId: string, dto: CrearTicketDto) {
     // Honeypot: se responde "ok" sin guardar para no darle pistas al bot.
     if (dto.website) return { ok: true as const, numero: null as string | null };
-    const marca = await this.prisma.marca.findUnique({ where: { id: marcaId } });
+    const marca = await this.marcaTickets(marcaId);
     if (!marca) throw new BadRequestException('Marca inválida');
 
     const telefono = dto.celular?.trim();
@@ -59,13 +65,18 @@ export class TicketsService {
         mensajes: { create: { marcaId, autor: 'SISTEMA', texto: 'Ticket creado.' } },
       },
     });
-    this.avisarEquipo(marcaId, t.id, t.nombre, t.numero, `Nuevo ticket · ${ETIQUETA[t.tipo]}`, `${t.nombre} abrió el ticket ${t.numero}`).catch((e) => this.logger.error('No se pudo avisar al equipo del ticket nuevo', e as Error));
+    this.avisarEquipo(marcaId, marca, t, `Nuevo ticket · ${ETIQUETA[t.tipo]}`, `${t.nombre} abrió el ticket ${t.numero}`, [
+      `${t.nombre} (${t.email}${t.celular ? ` · ${t.celular}` : ''}) abrió el ticket ${t.numero} (${ETIQUETA[t.tipo]}).`,
+      ...(t.producto ? [`Producto: ${t.producto}`] : []),
+      t.descripcion,
+    ]).catch((e) => this.logger.error('No se pudo avisar al equipo del ticket nuevo', e as Error));
     this.mail
       .sendAviso(email, {
         asunto: `Recibimos tu ticket ${numero}`,
         titulo: 'Recibimos tu ticket',
         parrafos: [`Hola ${t.nombre}, registramos tu caso (${ETIQUETA[t.tipo]}) con el número ${numero}. Un asesor lo revisará y te responderá por este medio.`, 'Guarda este número: con él y tu correo puedes ver el estado y responder desde nuestra web.'],
-        boton: { texto: 'Ver seguimiento', url: `${web()}/tickets/seguimiento?n=${encodeURIComponent(numero)}` },
+        boton: { texto: 'Ver seguimiento', url: seguimientoUrl(marca, numero) },
+        marca: { nombre: marca.nombre, color: marca.color },
       })
       .catch(() => undefined);
     return { ok: true as const, numero: t.numero };
@@ -93,7 +104,8 @@ export class TicketsService {
       await this.prisma.ticket.update({ where: { id: t.id, marcaId }, data: { estado: 'EN_REVISION', resueltoAt: null } });
       await this.prisma.ticketMensaje.create({ data: { ticketId: t.id, marcaId, autor: 'SISTEMA', texto: 'El cliente respondió: el ticket vuelve a En revisión.' } });
     }
-    this.avisarEquipo(marcaId, t.id, t.nombre, t.numero, `Respuesta en ticket ${t.numero}`, `${t.nombre} respondió el ticket ${t.numero}`).catch(() => undefined);
+    const marca = await this.marcaTickets(marcaId);
+    if (marca) this.avisarEquipo(marcaId, marca, t, `Respuesta en ticket ${t.numero}`, `${t.nombre} respondió el ticket ${t.numero}`, [`${t.nombre} respondió el ticket ${t.numero}:`, dto.texto.trim()]).catch(() => undefined);
     return { ok: true as const };
   }
 
@@ -136,12 +148,14 @@ export class TicketsService {
     const actualizado = await this.prisma.ticket.update({ where: { id, marcaId }, data });
     for (const texto of eventos) await this.prisma.ticketMensaje.create({ data: { ticketId: id, marcaId, autor: 'SISTEMA', autorNombre: email, texto, interno: true } });
     if (dto.estado && dto.estado !== t.estado && (dto.estado === 'RESUELTO' || dto.estado === 'CERRADO')) {
-      this.mail
+      const marca = await this.marcaTickets(marcaId);
+      if (marca) this.mail
         .sendAviso(t.email, {
           asunto: `Tu ticket ${t.numero} está ${dto.estado === 'RESUELTO' ? 'resuelto' : 'cerrado'}`,
           titulo: `Ticket ${dto.estado === 'RESUELTO' ? 'resuelto' : 'cerrado'}`,
           parrafos: [`Hola ${t.nombre}, tu ticket ${t.numero} pasó a "${ESTADO_TXT[dto.estado]}". Si necesitas algo más, responde desde el seguimiento.`],
-          boton: { texto: 'Ver seguimiento', url: `${web()}/tickets/seguimiento?n=${encodeURIComponent(t.numero)}` },
+          boton: { texto: 'Ver seguimiento', url: seguimientoUrl(marca, t.numero) },
+          marca: { nombre: marca.nombre, color: marca.color },
         })
         .catch(() => undefined);
     }
@@ -160,12 +174,14 @@ export class TicketsService {
         await this.prisma.ticket.update({ where: { id, marcaId }, data: { estado, atendidoPor: email, resueltoAt: estado === 'RESUELTO' ? new Date() : null } });
         await this.prisma.ticketMensaje.create({ data: { ticketId: id, marcaId, autor: 'SISTEMA', autorNombre: email, texto: `Estado: ${ESTADO_TXT[t.estado]} → ${ESTADO_TXT[estado]}`, interno: true } });
       }
-      this.mail
+      const marca = await this.marcaTickets(marcaId);
+      if (marca) this.mail
         .sendAviso(t.email, {
           asunto: `Respuesta a tu ticket ${t.numero}`,
           titulo: 'Tenemos una respuesta para ti',
           parrafos: [dto.texto.trim()],
-          boton: { texto: 'Ver y responder', url: `${web()}/tickets/seguimiento?n=${encodeURIComponent(t.numero)}` },
+          boton: { texto: 'Ver y responder', url: seguimientoUrl(marca, t.numero) },
+          marca: { nombre: marca.nombre, color: marca.color },
         })
         .catch(() => undefined);
     }
@@ -188,17 +204,41 @@ export class TicketsService {
 
   // ------------------------------------------------------------------ interno
 
-  private async avisarEquipo(marcaId: string, id: string, nombre: string, numero: string, titulo: string, mensaje: string) {
+  /** Datos de la marca para los correos de tickets (null si no existe). */
+  async marcaTickets(marcaId: string): Promise<MarcaTickets | null> {
+    const m = await this.prisma.marca.findUnique({
+      where: { id: marcaId },
+      select: { nombre: true, colorPrimario: true, correoTickets: true, contactoEmail: true, sitios: { where: { marcaId }, select: { dominio: true }, orderBy: { createdAt: 'asc' }, take: 1 } },
+    });
+    if (!m) return null;
+    const n = m.nombre.toLowerCase();
+    const dominio = m.sitios[0]?.dominio;
+    const web = dominio
+      ? `https://${dominio.replace(/^https?:\/\//, '').replace(/\/$/, '')}`
+      : (Object.entries(WEB_CONOCIDA).find(([k]) => n.includes(k))?.[1] ?? process.env.WEB_PUBLICA_URL ?? 'https://fptecnologi.com');
+    return { nombre: m.nombre, color: m.colorPrimario, web, correo: m.correoTickets?.trim() || m.contactoEmail?.trim() || null };
+  }
+
+  /**
+   * Avisa al equipo: notificación + correo a cada usuario activo con un rol que atiende tickets en esta marca
+   * (tickets.roles.ts) y, con el detalle del caso, al buzón designado de la marca (Marca.correoTickets).
+   */
+  private async avisarEquipo(marcaId: string, marca: MarcaTickets, t: { id: string; nombre: string; numero: string }, titulo: string, mensaje: string, detalle: string[]) {
     const asignaciones = await this.prisma.usuarioMarcaRol.findMany({
-      where: { marcaId, rol: { nombre: { in: ROLES_AVISO } } },
+      where: { marcaId, rol: { nombre: { in: rolesTickets(marca.nombre) } } },
       include: { usuario: { select: { id: true, email: true, activo: true } } },
     });
     const usuarios = [...new Map(asignaciones.filter((a) => a.usuario.activo).map((a) => [a.usuario.id, a.usuario])).values()];
-    if (usuarios.length === 0) return;
-    const url = `${process.env.WEB_ORIGIN ?? 'http://localhost:3000'}/web/tickets?id=${id}`;
-    await this.prisma.notificacion.createMany({
-      data: usuarios.map((u) => ({ marcaId, usuarioId: u.id, tipo: 'SISTEMA' as const, titulo, mensaje: mensaje.slice(0, 140) })),
-    });
-    await Promise.all(usuarios.map((u) => this.mail.sendLeadNuevo(u.email, nombre, `Ticket ${numero} · ${titulo}`, url)));
+    const url = `${process.env.WEB_ORIGIN ?? 'http://localhost:3000'}/web/tickets?id=${t.id}`;
+    if (usuarios.length) {
+      await this.prisma.notificacion.createMany({
+        data: usuarios.map((u) => ({ marcaId, usuarioId: u.id, tipo: 'SISTEMA' as const, titulo, mensaje: mensaje.slice(0, 140) })),
+      });
+    }
+    const correos = new Set(usuarios.map((u) => u.email.toLowerCase()));
+    if (marca.correo) correos.add(marca.correo.toLowerCase());
+    const aviso = { asunto: `${titulo} · ${t.numero}`, titulo, parrafos: detalle, boton: { texto: 'Atender en el dashboard', url }, marca: { nombre: marca.nombre, color: marca.color } };
+    await Promise.all([...correos].map((e) => this.mail.sendAviso(e, aviso)));
   }
+
 }

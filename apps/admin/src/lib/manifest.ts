@@ -125,14 +125,32 @@ export function groupsInSection(section: string): NavNode[] {
  * FPTecnologi (y cualquier marca que no esté aquí) ve todos los módulos, menos los marcados `marcas` de otra marca.
  */
 export const MODULOS_POR_MARCA: Record<string, string[]> = {
-  quamtu: ['marca.cotizador', 'marca.libro', 'marca.equipo'],
+  quamtu: ['marca.cotizador', 'marca.herramientas', 'web.tickets', 'marca.libro', 'marca.equipo'],
+  kelqa: ['marca.herramientas', 'web.tickets', 'web.contactos', 'marca.libro', 'marca.equipo'],
   fimav: ['marca.webfimav', 'marca.cotizador', 'cotizador.leads', 'marca.herramientas', 'web.contactos', 'marca.libro', 'marca.equipo'],
 };
 
-/** ¿Este nodo del menú corresponde a la marca activa? (ver MODULOS_POR_MARCA y `marcas`). */
-export function visibleParaMarca(node: NavNode, marcaNombre: string | null | undefined): boolean {
+/**
+ * Roles que ven un módulo en una marca concreta, cuando no son los del manifiesto (`admin` siempre entra). Debe
+ * coincidir con la API (p. ej. `apps/api/src/tickets/tickets.roles.ts`).
+ */
+export const ROLES_POR_MARCA: Record<string, Record<string, string[]>> = {
+  quamtu: { 'web.tickets': ['admin'] },
+  kelqa: { 'web.tickets': ['admin'] },
+};
+
+/**
+ * ¿Este nodo del menú corresponde a la marca activa? (ver MODULOS_POR_MARCA y `marcas`). Con `rol`, aplica además
+ * ROLES_POR_MARCA.
+ */
+export function visibleParaMarca(node: NavNode, marcaNombre: string | null | undefined, rol?: string | null): boolean {
   const nombre = (marcaNombre ?? '').toLowerCase();
   if (node.marcas?.length && !node.marcas.some((m) => nombre.includes(m.toLowerCase()))) return false;
+  if (rol !== undefined) {
+    const reglas = Object.entries(ROLES_POR_MARCA).find(([k]) => nombre.includes(k))?.[1];
+    const permitidos = reglas?.[node.id];
+    if (permitidos && rol?.toLowerCase() !== 'admin' && !permitidos.includes((rol ?? '').toLowerCase())) return false;
+  }
   const clave = Object.keys(MODULOS_POR_MARCA).find((k) => nombre.includes(k));
   if (!clave) return true;
   const lista = MODULOS_POR_MARCA[clave]!;
@@ -160,7 +178,7 @@ export function visibleEnDashboard(node: NavNode, ctx: { roleName: string | null
   if (raiz.id === 'inicio.dashboards' && !ctx.adminMode) return false;
   if (raiz.section === 'MARCA' && ctx.adminMode) return false;
   if (ctx.adminMode && trail.some((n) => n.soloMarca)) return false;
-  return ctx.adminMode || trail.every((n) => visibleParaMarca(n, ctx.marcaNombre));
+  return ctx.adminMode || trail.every((n) => visibleParaMarca(n, ctx.marcaNombre, ctx.roleName));
 }
 
 export function visibleForRole(node: NavNode, roleName: string | null): boolean {

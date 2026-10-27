@@ -29,6 +29,7 @@ const COLUMNAS = [
       { href: '/#organizaciones', texto: 'Para empresas' },
       { href: '/#respaldo', texto: 'Respaldo y garantía' },
       { href: '/#contacto', texto: 'Contacto' },
+      { href: '/tickets', texto: 'Soporte (tickets)' },
       { href: '/libro-de-reclamaciones', texto: 'Libro de Reclamaciones' },
     ],
   },

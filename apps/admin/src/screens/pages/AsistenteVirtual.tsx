@@ -89,7 +89,7 @@ export function AsistenteVirtual() {
   /** Botón «Ir a…» solo para módulos que existen en el menú y que el rol ve. */
   const modulo = useMemo(() => (id: string) => {
     const nodo = manifest.byId.get(id);
-    return nodo && visibleForRole(nodo, rol) && visibleParaMarca(nodo, asignacion?.marca.nombre) ? { titulo: nodo.title, href: hrefForSlug(nodo.slug) } : null;
+    return nodo && visibleForRole(nodo, rol) && visibleParaMarca(nodo, asignacion?.marca.nombre, rol) ? { titulo: nodo.title, href: hrefForSlug(nodo.slug) } : null;
   }, [asignacion?.marca.nombre]);
 
   /** Los módulos son de una marca: al ir, se sale de Administración y se activa la marca consultada. */

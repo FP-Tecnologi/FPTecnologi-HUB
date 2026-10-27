@@ -13,14 +13,15 @@ import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
 
 interface Marca {
   id: string; nombre: string; logo: string | null; colorPrimario: string | null; colorSecundario: string | null;
-  contactoEmail: string | null; contactoTelefono: string | null;
+  contactoEmail: string | null; contactoTelefono: string | null; correoTickets: string | null;
   razonSocial: string | null; ruc: string | null; direccionFiscal: string | null;
   sitios: { id: string; dominio: string }[];
   _count: { usuarios: number; productos: number; soporteTickets: number };
 }
-type Form = { nombre: string; logo: string; colorPrimario: string; colorSecundario: string; contactoEmail: string; contactoTelefono: string; razonSocial: string; ruc: string; direccionFiscal: string };
-const VACIO: Form = { nombre: '', logo: '', colorPrimario: '', colorSecundario: '', contactoEmail: '', contactoTelefono: '', razonSocial: '', ruc: '', direccionFiscal: '' };
-const FISCALES = ['razonSocial', 'ruc', 'direccionFiscal'];
+type Form = { nombre: string; logo: string; colorPrimario: string; colorSecundario: string; contactoEmail: string; contactoTelefono: string; correoTickets: string; razonSocial: string; ruc: string; direccionFiscal: string };
+const VACIO: Form = { nombre: '', logo: '', colorPrimario: '', colorSecundario: '', contactoEmail: '', contactoTelefono: '', correoTickets: '', razonSocial: '', ruc: '', direccionFiscal: '' };
+// Se envían como null al vaciarlos (la API valida su formato cuando traen texto).
+const FISCALES = ['razonSocial', 'ruc', 'direccionFiscal', 'correoTickets'];
 const sinFiscales = (m: Marca) => !m.razonSocial || !m.ruc || !m.direccionFiscal;
 const msg = (e: unknown, d: string) => (e instanceof ApiError ? e.message : d);
 
@@ -53,7 +54,7 @@ export function MarcasAdmin() {
 
   function abrir(m: Marca | 'nueva') {
     setEditando(m); setModalErr('');
-    setForm(m === 'nueva' ? VACIO : { nombre: m.nombre, logo: m.logo ?? '', colorPrimario: m.colorPrimario ?? '', colorSecundario: m.colorSecundario ?? '', contactoEmail: m.contactoEmail ?? '', contactoTelefono: m.contactoTelefono ?? '', razonSocial: m.razonSocial ?? '', ruc: m.ruc ?? '', direccionFiscal: m.direccionFiscal ?? '' });
+    setForm(m === 'nueva' ? VACIO : { nombre: m.nombre, logo: m.logo ?? '', colorPrimario: m.colorPrimario ?? '', colorSecundario: m.colorSecundario ?? '', contactoEmail: m.contactoEmail ?? '', contactoTelefono: m.contactoTelefono ?? '', correoTickets: m.correoTickets ?? '', razonSocial: m.razonSocial ?? '', ruc: m.ruc ?? '', direccionFiscal: m.direccionFiscal ?? '' });
   }
 
   async function guardar(ev: React.FormEvent) {
@@ -167,6 +168,7 @@ export function MarcasAdmin() {
               </div>
               {campo('contactoEmail', 'Correo de contacto', { type: 'email' })}
               {campo('contactoTelefono', 'Teléfono de contacto', { maxLength: 30 })}
+              {campo('correoTickets', 'Correo para tickets de clientes', { type: 'email', maxLength: 120, placeholder: 'Vacío = correo de contacto' })}
               <fieldset style={{ border: 0, margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
                 <legend className="ax-label" style={{ marginBlockEnd: 'var(--ax-space-2)' }}>Datos fiscales (los exige el Libro de Reclamaciones)</legend>
                 {campo('razonSocial', 'Razón social', { maxLength: 150 })}

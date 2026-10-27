@@ -11,7 +11,12 @@ const MUTED_COLOR = '#5B6B7A';
 const CODE_BG = '#EBF6FA';
 const CODE_COLOR = '#006086';
 
-function layout(bodyHtml: string): string {
+/** Marca que firma el correo (nombre y color de la cabecera). Sin ella, FPTecnologi. */
+export interface MarcaCorreo { nombre: string; color?: string | null }
+
+function layout(bodyHtml: string, marca?: MarcaCorreo): string {
+  const color = marca?.color && /^#[0-9a-f]{3,8}$/i.test(marca.color) ? marca.color : BRAND_COLOR;
+  const nombre = escapeHtml(marca?.nombre || 'FPTecnologi');
   return `<!DOCTYPE html>
 <html lang="es">
 <body style="margin:0;padding:0;background:#F0F3F6;font-family:Arial,Helvetica,sans-serif;">
@@ -20,8 +25,8 @@ function layout(bodyHtml: string): string {
       <td align="center">
         <table role="presentation" width="480" cellpadding="0" cellspacing="0" style="width:480px;max-width:100%;background:#FFFFFF;border-radius:12px;overflow:hidden;">
           <tr>
-            <td style="background:${BRAND_COLOR};padding:20px 32px;">
-              <span style="color:#FFFFFF;font-size:18px;font-weight:700;letter-spacing:.02em;">FPTecnologi</span>
+            <td style="background:${color};padding:20px 32px;">
+              <span style="color:#FFFFFF;font-size:18px;font-weight:700;letter-spacing:.02em;">${nombre}</span>
             </td>
           </tr>
           <tr>
@@ -32,7 +37,7 @@ function layout(bodyHtml: string): string {
           <tr>
             <td style="padding:16px 32px;background:#F8FAFB;border-top:1px solid #E6EBEF;">
               <p style="margin:0;font-size:12px;color:${MUTED_COLOR};">
-                Mensaje automático de FPTecnologi. Si no reconoces esta actividad, ignora este correo.
+                Mensaje automático de ${nombre}. Si no reconoces esta actividad, ignora este correo.
               </p>
             </td>
           </tr>
@@ -251,14 +256,15 @@ export function codigoCuentaEmail(codigo: string, minutos: number): { subject: s
 }
 
 /** Aviso genérico (tickets, socios…): título, párrafos de texto y un botón opcional. Todo se escapa. */
-export function avisoEmail(d: { asunto: string; titulo: string; parrafos: string[]; boton?: { texto: string; url: string } }): { subject: string; html: string } {
+export function avisoEmail(d: { asunto: string; titulo: string; parrafos: string[]; boton?: { texto: string; url: string }; marca?: MarcaCorreo }): { subject: string; html: string } {
+  const color = d.marca?.color && /^#[0-9a-f]{3,8}$/i.test(d.marca.color) ? d.marca.color : BRAND_COLOR;
   return {
     subject: d.asunto,
     html: layout(`
       <h1 style="margin:0 0 12px;font-size:20px;">${escapeHtml(d.titulo)}</h1>
       ${d.parrafos.map((p) => `<p style="margin:0 0 12px;color:${MUTED_COLOR};white-space:pre-wrap;">${escapeHtml(p.slice(0, 2000))}</p>`).join('')}
-      ${d.boton ? `<a href="${escapeHtml(d.boton.url)}" style="display:inline-block;margin-top:8px;background:${BRAND_COLOR};color:#FFFFFF;text-decoration:none;font-weight:700;padding:12px 20px;border-radius:8px;">${escapeHtml(d.boton.texto)}</a>` : ''}
-    `),
+      ${d.boton ? `<a href="${escapeHtml(d.boton.url)}" style="display:inline-block;margin-top:8px;background:${color};color:#FFFFFF;text-decoration:none;font-weight:700;padding:12px 20px;border-radius:8px;">${escapeHtml(d.boton.texto)}</a>` : ''}
+    `, d.marca),
   };
 }
 

@@ -10,6 +10,7 @@ import { Roles } from '../common/decorators/roles.decorator.js';
 import { Limite } from '../common/guards/limite-peticiones.guard.js';
 import { Public } from '../common/decorators/public.decorator.js';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user.js';
+import { TicketsRolGuard } from './tickets-rol.guard.js';
 
 /** Web pública (/tickets): abrir un ticket, ver su seguimiento y responder. */
 @Public()
@@ -40,9 +41,8 @@ export class PublicTicketsController {
   }
 }
 
-/** Dashboard → Web → Tickets (admin y comercial de la marca). */
-@UseGuards(MarcaRolGuard)
-@Roles('admin', 'comercial')
+/** Dashboard → Herramientas web → Tickets: los roles de tickets.roles.ts, siempre dentro de la marca activa. */
+@UseGuards(MarcaRolGuard, TicketsRolGuard)
 @Controller('tickets')
 export class TicketsController {
   constructor(
