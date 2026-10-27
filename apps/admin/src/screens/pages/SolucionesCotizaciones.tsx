@@ -9,6 +9,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { VerEnCrm } from './crm/VerEnCrm';
 
 type Estado = 'PENDIENTE' | 'EN_REVISION' | 'ENVIADA' | 'ACEPTADA' | 'RECHAZADA';
 interface Envio { id: string; canal: 'EMAIL' | 'WHATSAPP'; destinatario: string; mensaje: string; enviadoPor: string; createdAt: string }
@@ -172,6 +173,7 @@ export function SolucionesCotizaciones() {
               <>
                 <div className="ax-card__header">
                   <div className="ax-card__titles"><h2 className="ax-card__title">{sel.numero ?? 'Cotización'} · {sel.servicio.nombre}</h2><p className="ax-card__subtitle">Solicitada el {fecha(sel.createdAt)}{sel.atendidoPor ? ` · última gestión: ${sel.atendidoPor}` : ''}</p></div>
+                  <VerEnCrm origen="COTIZACION" id={sel.id} />
                   <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setSelId(null)}>Cerrar</button>
                 </div>
                 <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>

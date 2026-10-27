@@ -1,6 +1,7 @@
 import { BadRequestException, HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { MailService } from '../mail/mail.service.js';
+import { CrmService } from '../crm/crm.service.js';
 import { EstadoCotizacion } from '../generated/prisma/enums.js';
 import { normalizarCelular } from '../cotizador/cotizador.service.js';
 import { CrearPresupuestoDto } from './dto/crear-presupuesto.dto.js';
@@ -27,6 +28,7 @@ export class PresupuestosService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
+    private readonly crm: CrmService,
   ) {}
 
   async crear(marcaId: string, dto: CrearPresupuestoDto, ip = '') {
@@ -90,6 +92,11 @@ export class PresupuestosService {
             validezHasta,
             items: { create: items },
           },
+        });
+        const ruc = p.clienteDocumento && /^\d{11}$/.test(p.clienteDocumento) ? p.clienteDocumento : null;
+        void this.crm.registrarSolicitud(marcaId, {
+          origen: 'PRESUPUESTO', origenId: p.id, nombre: p.clienteNombre, email: p.clienteEmail, celular: p.clienteTelefono, documento: p.clienteDocumento,
+          ruc, empresa: ruc ? p.clienteNombre : null, titulo: `Presupuesto mayorista ${p.numero}`, detalle: p.notas, monto: total, moneda: p.moneda,
         });
         // Avisos en segundo plano: un fallo de correo no debe impedir que el cliente vea su presupuesto.
         this.avisarEquipo(marcaId, p.id, p.clienteNombre, p.numero, total).catch((e) => this.logger.error('No se pudo avisar al equipo del presupuesto nuevo', e as Error));

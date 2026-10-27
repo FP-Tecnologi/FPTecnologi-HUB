@@ -1,6 +1,7 @@
 import { BadRequestException, HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { MailService } from '../mail/mail.service.js';
+import { CrmService } from '../crm/crm.service.js';
 import type { ActualizarLeadDto, CrearLeadDto } from './cotizador.dto.js';
 
 // Roles que reciben el aviso de lead nuevo.
@@ -25,6 +26,7 @@ export class CotizadorService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
+    private readonly crm: CrmService,
   ) {}
 
   // ------------------------------------------------------------------ público
@@ -66,6 +68,11 @@ export class CotizadorService {
         mensaje: dto.mensaje?.trim() || null,
         origen: dto.origen?.trim() || null,
       },
+    });
+    // CRM: abre o alimenta la oportunidad del contacto (nunca lanza).
+    void this.crm.registrarSolicitud(marcaId, {
+      origen: 'COTIZADOR', origenId: lead.id, nombre: `${lead.nombres} ${lead.apellidos}`, email: lead.email, celular: lead.celular,
+      documento: lead.nroDocumento, ruc: lead.tipoDocumento === 'RUC' ? lead.nroDocumento : null, empresa: lead.empresa, titulo: lead.interes, detalle: lead.mensaje,
     });
     // El aviso no debe tumbar el registro del lead.
     this.avisarEquipo(marcaId, lead.id, `${lead.nombres} ${lead.apellidos}`, lead.interes).catch((e) =>

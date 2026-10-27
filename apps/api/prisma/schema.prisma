@@ -72,6 +72,10 @@ model Marca {
   recursos           Recurso[]
   folletos           Folleto[]
   visitasWeb         VisitaWeb[]
+  crmEmpresas        CrmEmpresa[]
+  crmContactos       CrmContacto[]
+  crmOportunidades   CrmOportunidad[]
+  crmActividades     CrmActividad[]
   soporteTickets     SoporteTicket[]
 }
 
@@ -124,6 +128,7 @@ model Usuario {
   dispositivosConfiables DispositivoConfiable[]
   chatsAtendidos         ChatConversacion[]
   soporteTickets         SoporteTicket[]
+  oportunidadesCrm       CrmOportunidad[]       @relation("CrmAsignado")
 }
 
 // "Confiar en este dispositivo por 30 días": al confirmar el 2FA se guarda un
@@ -1317,4 +1322,134 @@ model VisitaWeb {
   createdAt   DateTime @default(now())
 
   @@index([marcaId, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// CRM comercial: empresas, contactos, oportunidades (embudo por etapas) y su historial de actividades.
+// Las solicitudes de la web (leads del cotizador, cotizaciones, contactos, presupuestos) NO se copian: abren o
+// alimentan una oportunidad enlazada por `origen` + `origenId` (ver CrmService.registrarSolicitud).
+// ---------------------------------------------------------------------------
+
+enum EtapaOportunidad {
+  NUEVO
+  CONTACTADO
+  PROPUESTA
+  NEGOCIACION
+  GANADO
+  PERDIDO
+}
+
+enum OrigenOportunidad {
+  MANUAL
+  COTIZADOR
+  COTIZACION
+  CONTACTO_WEB
+  PRESUPUESTO
+}
+
+enum TipoActividadCrm {
+  LLAMADA
+  REUNION
+  NOTA
+  CORREO
+  WHATSAPP
+  TAREA
+  ETAPA // cambio de etapa (automático)
+  SOLICITUD // nueva solicitud desde la web (automático)
+}
+
+model CrmEmpresa {
+  id            String           @id @default(uuid())
+  marcaId       String
+  marca         Marca            @relation(fields: [marcaId], references: [id], onDelete: Cascade)
+  razonSocial   String
+  ruc           String? // único por marca cuando existe
+  rubro         String?
+  web           String?
+  telefono      String?
+  direccion     String?
+  notas         String?
+  contactos     CrmContacto[]
+  oportunidades CrmOportunidad[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@unique([marcaId, ruc])
+  @@index([marcaId, razonSocial])
+}
+
+model CrmContacto {
+  id            String           @id @default(uuid())
+  marcaId       String
+  marca         Marca            @relation(fields: [marcaId], references: [id], onDelete: Cascade)
+  empresaId     String?
+  empresa       CrmEmpresa?      @relation(fields: [empresaId], references: [id], onDelete: SetNull)
+  nombre        String
+  cargo         String?
+  email         String? // único por marca cuando existe (en minúsculas)
+  celular       String?
+  documento     String? // DNI o RUC de la persona
+  notas         String?
+  oportunidades CrmOportunidad[]
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@unique([marcaId, email])
+  @@index([marcaId, nombre])
+}
+
+model CrmOportunidad {
+  id              String            @id @default(uuid())
+  marcaId         String
+  marca           Marca             @relation(fields: [marcaId], references: [id], onDelete: Cascade)
+  numero          String // OPP-AAAA-XXXXXX, único por marca
+  titulo          String
+  empresaId       String?
+  empresa         CrmEmpresa?       @relation(fields: [empresaId], references: [id], onDelete: SetNull)
+  contactoId      String?
+  contacto        CrmContacto?      @relation(fields: [contactoId], references: [id], onDelete: SetNull)
+  etapa           EtapaOportunidad  @default(NUEVO)
+  monto           Decimal?
+  moneda          String            @default("PEN")
+  probabilidad    Int? // 0-100; si falta se usa la de la etapa
+  cierreEstimado  DateTime?
+  asignadoId      String? // comercial responsable (usuario con rol en la marca)
+  asignado        Usuario?          @relation("CrmAsignado", fields: [asignadoId], references: [id], onDelete: SetNull)
+  origen          OrigenOportunidad @default(MANUAL)
+  origenId        String? // id del lead / cotización / contacto / presupuesto que la originó
+  proximaAccion   String?
+  proximaAccionAt DateTime?
+  motivoPerdida   String?
+  ganadoAt        DateTime?
+  cerradoAt       DateTime? // ganado o perdido
+  creadoPor       String? // email; null = automática desde la web
+  actividades     CrmActividad[]
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  @@unique([marcaId, numero])
+  @@index([marcaId, etapa, updatedAt])
+  @@index([marcaId, asignadoId])
+  @@index([marcaId, origen, origenId])
+  @@index([marcaId, contactoId])
+}
+
+model CrmActividad {
+  id            String             @id @default(uuid())
+  marcaId       String
+  marca         Marca              @relation(fields: [marcaId], references: [id], onDelete: Cascade)
+  oportunidadId String
+  oportunidad   CrmOportunidad     @relation(fields: [oportunidadId], references: [id], onDelete: Cascade)
+  tipo          TipoActividadCrm
+  texto         String
+  fecha         DateTime           @default(now()) // cuándo ocurrió (o vence, si es una tarea)
+  hecha         Boolean            @default(true) // tareas pendientes = false
+  autor         String? // email; null = sistema
+  origen        OrigenOportunidad? // en SOLICITUD: de qué registro vino (para «Ver en CRM» desde su bandeja)
+  origenId      String?
+  createdAt     DateTime           @default(now())
+
+  @@index([oportunidadId, fecha])
+  @@index([marcaId, origen, origenId])
+  @@index([marcaId, tipo, hecha, fecha])
 }

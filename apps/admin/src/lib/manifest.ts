@@ -125,9 +125,9 @@ export function groupsInSection(section: string): NavNode[] {
  * FPTecnologi (y cualquier marca que no esté aquí) ve todos los módulos, menos los marcados `marcas` de otra marca.
  */
 export const MODULOS_POR_MARCA: Record<string, string[]> = {
-  quamtu: ['marca.cotizador', 'marca.herramientas', 'web.tickets', 'marca.libro', 'marca.equipo'],
-  kelqa: ['marca.herramientas', 'web.tickets', 'web.contactos', 'marca.libro', 'marca.equipo'],
-  fimav: ['marca.webfimav', 'marca.cotizador', 'cotizador.leads', 'marca.herramientas', 'web.contactos', 'marca.libro', 'marca.equipo'],
+  quamtu: ['marca.crm', 'marca.cotizador', 'marca.herramientas', 'web.tickets', 'marca.libro', 'marca.equipo'],
+  kelqa: ['marca.crm', 'marca.herramientas', 'web.tickets', 'web.contactos', 'marca.libro', 'marca.equipo'],
+  fimav: ['marca.crm', 'marca.webfimav', 'marca.cotizador', 'cotizador.leads', 'marca.herramientas', 'web.contactos', 'marca.libro', 'marca.equipo'],
 };
 
 /**

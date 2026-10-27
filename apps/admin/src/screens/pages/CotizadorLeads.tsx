@@ -9,6 +9,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { VerEnCrm } from './crm/VerEnCrm';
 
 type Estado = 'NUEVO' | 'CONTACTADO' | 'COTIZADO' | 'GANADO' | 'PERDIDO';
 
@@ -201,6 +202,7 @@ export function CotizadorLeads() {
                 <h2 className="ax-card__title">{nombre(sel)}</h2>
                 <p className="ax-card__subtitle">{sel.tipoPersona === 'JURIDICA' ? 'Persona jurídica' : 'Persona natural'} · {sel.tipoDocumento} {sel.nroDocumento}</p>
               </div>
+              <VerEnCrm origen="COTIZADOR" id={sel.id} />
               <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setSelId(null)} aria-label="Cerrar detalle">Cerrar</button>
             </div>
             <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>

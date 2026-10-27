@@ -447,6 +447,38 @@ const buscarConocimiento: Herramienta = {
   },
 };
 
+const ETAPAS_OPP = ['NUEVO', 'CONTACTADO', 'PROPUESTA', 'NEGOCIACION', 'GANADO', 'PERDIDO'] as const;
+const buscarOportunidades: Herramienta = {
+  nombre: 'buscar_oportunidades',
+  descripcion: 'Lista oportunidades del CRM (prospectos y ventas en curso) por etapa (NUEVO, CONTACTADO, PROPUESTA, NEGOCIACION, GANADO, PERDIDO), solo abiertas, texto (cliente, empresa, título) y fechas de creación; con su monto, responsable y próxima acción.',
+  parametros: objeto({ etapa: { type: 'string', enum: [...ETAPAS_OPP] }, soloAbiertas: { type: 'boolean' }, texto: { type: 'string' }, ...P_RANGO }),
+  roles: R.comercial,
+  async ejecutar({ prisma, marcaId }, args) {
+    const rango = rangoDe(args);
+    const q = str(args.texto, 80);
+    const where = {
+      marcaId,
+      ...estado(args, ETAPAS_OPP),
+      ...(!args.etapa && args.soloAbiertas ? { etapa: { in: ['NUEVO', 'CONTACTADO', 'PROPUESTA', 'NEGOCIACION'] as ('NUEVO' | 'CONTACTADO' | 'PROPUESTA' | 'NEGOCIACION')[] } } : {}),
+      ...(rango ? { createdAt: rango } : {}),
+      ...(q ? { OR: [{ titulo: { contains: q, mode: 'insensitive' as const } }, { empresa: { razonSocial: { contains: q, mode: 'insensitive' as const } } }, { contacto: { nombre: { contains: q, mode: 'insensitive' as const } } }] } : {}),
+    };
+    const [filas, total] = await Promise.all([
+      prisma.crmOportunidad.findMany({
+        where, take: MAX_FILAS, orderBy: { updatedAt: 'desc' },
+        select: { numero: true, titulo: true, etapa: true, monto: true, moneda: true, proximaAccion: true, empresa: { select: { razonSocial: true } }, contacto: { select: { nombre: true } }, asignado: { select: { nombre: true, email: true } } },
+      }),
+      prisma.crmOportunidad.count({ where }),
+    ]);
+    const tabla: Tabla = {
+      titulo: 'Oportunidades del CRM', modulo: 'crm.oportunidades', total,
+      columnas: ['N.º', 'Oportunidad', 'Cliente', 'Etapa', 'Monto', 'Responsable', 'Próxima acción'],
+      filas: filas.map((o) => [o.numero, corto(o.titulo), o.empresa?.razonSocial ?? o.contacto?.nombre ?? null, o.etapa, o.monto === null ? null : `${o.moneda} ${n(o.monto)}`, o.asignado?.nombre ?? o.asignado?.email ?? 'Sin asignar', corto(o.proximaAccion)]),
+    };
+    return { paraIA: paraIA(tabla), tabla };
+  },
+};
+
 const traficoWeb: Herramienta = {
   nombre: 'trafico_web',
   descripcion: 'Visitas de la web pública de la marca (contador propio): visitas, visitantes y páginas vistas de los últimos 7, 30 o 90 días, hoy, comparación con el periodo anterior, páginas y productos más vistos, de dónde llegan (Google, redes, WhatsApp, directo) y dispositivos.',
@@ -476,7 +508,7 @@ const traficoWeb: Herramienta = {
 
 export const HERRAMIENTAS: Herramienta[] = [
   resumenNegocio, reporteVentas, buscarProductos, buscarPedidos, buscarCotizaciones, buscarPresupuestos,
-  buscarLeads, buscarTickets, buscarReclamos, buscarContactos, buscarChats, buscarConocimiento, traficoWeb,
+  buscarLeads, buscarTickets, buscarReclamos, buscarContactos, buscarChats, buscarConocimiento, traficoWeb, buscarOportunidades,
 ];
 
 /**
@@ -494,6 +526,9 @@ export const MODULOS: { id: string; titulo: string; roles: string[] | null }[] =
   { id: 'soluciones.cotizaciones', titulo: 'Cotizaciones de servicios', roles: R.comercialVentas },
   { id: 'soluciones.servicios', titulo: 'Servicios', roles: ['ventas', 'marketing'] },
   { id: 'cotizador.leads', titulo: 'Leads del cotizador', roles: R.comercial },
+  { id: 'crm.embudo', titulo: 'CRM: embudo comercial', roles: R.comercial },
+  { id: 'crm.oportunidades', titulo: 'CRM: oportunidades', roles: R.comercial },
+  { id: 'crm.reportes', titulo: 'CRM: reportes de ventas', roles: R.comercial },
   { id: 'web.tickets', titulo: 'Tickets', roles: R.comercial },
   { id: 'web.contactos', titulo: 'Contactos', roles: R.comercial },
   { id: 'libro.bandeja', titulo: 'Libro de reclamaciones', roles: R.comercial },

@@ -9,6 +9,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { VerEnCrm } from './crm/VerEnCrm';
 
 type Estado = 'NUEVO' | 'CONTACTADO' | 'RESUELTO' | 'DESCARTADO';
 type Tipo = 'CONTACTO' | 'RECLAMO';
@@ -214,6 +215,7 @@ export function ContactosWeb() {
                 <h2 className="ax-card__title">{sel.nombre}</h2>
                 <p className="ax-card__subtitle">{sel.tipo === 'RECLAMO' ? 'Libro de Reclamaciones' : 'Formulario de contacto'}</p>
               </div>
+              {sel.tipo === 'CONTACTO' && <VerEnCrm origen="CONTACTO_WEB" id={sel.id} />}
               <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setSelId(null)} aria-label="Cerrar detalle">Cerrar</button>
             </div>
             <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>

@@ -17,7 +17,7 @@ function setup() {
     usuarioMarcaRol: { findMany: vi.fn(async () => []) },
     notificacion: { createMany: vi.fn() },
   };
-  const service = new ContactoWebService(prisma as never, { sendContactoNuevo: vi.fn() } as never);
+  const service = new ContactoWebService(prisma as never, { sendContactoNuevo: vi.fn() } as never, { registrarSolicitud: vi.fn(async () => null) } as never);
   return { service, create };
 }
 

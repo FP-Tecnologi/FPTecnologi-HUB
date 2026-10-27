@@ -131,7 +131,7 @@ describe('permisos de herramientas', () => {
   it('admin puede todas; cada rol solo las de su módulo', () => {
     expect(HERRAMIENTAS.every((h) => puede(h.roles, 'admin'))).toBe(true);
     const de = (rol: string) => HERRAMIENTAS.filter((h) => puede(h.roles, rol)).map((h) => h.nombre).sort();
-    expect(de('comercial')).toEqual(['buscar_conocimiento', 'buscar_contactos', 'buscar_cotizaciones', 'buscar_leads', 'buscar_presupuestos', 'buscar_reclamos', 'buscar_tickets', 'resumen_negocio', 'trafico_web']);
+    expect(de('comercial')).toEqual(['buscar_conocimiento', 'buscar_contactos', 'buscar_cotizaciones', 'buscar_leads', 'buscar_oportunidades', 'buscar_presupuestos', 'buscar_reclamos', 'buscar_tickets', 'resumen_negocio', 'trafico_web']);
     expect(de('asesores')).toEqual(['buscar_chats', 'buscar_conocimiento', 'resumen_negocio']);
   });
 });

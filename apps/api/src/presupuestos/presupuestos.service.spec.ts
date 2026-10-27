@@ -17,7 +17,7 @@ function setup() {
     contenidoWeb: { findFirst: vi.fn(async () => null) },
   };
   const mail = { sendPresupuestoCliente: vi.fn(async () => {}), sendLeadNuevo: vi.fn(async () => {}) };
-  return { service: new PresupuestosService(prisma as never, mail as never), prisma, mail };
+  return { service: new PresupuestosService(prisma as never, mail as never, { registrarSolicitud: vi.fn(async () => null) } as never), prisma, mail };
 }
 
 const cliente = { clienteNombre: 'Acme SAC', clienteEmail: 'a@acme.com', clienteTelefono: '987654321' };

@@ -1,6 +1,7 @@
 import { BadRequestException, HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { MailService } from '../mail/mail.service.js';
+import { CrmService } from '../crm/crm.service.js';
 import { normalizarCelular } from '../cotizador/cotizador.service.js';
 import { CreateCotizacionDto } from './dto/create-cotizacion.dto.js';
 import { ActualizarCotizacionDto, EnviarCotizacionDto } from './dto/gestion-cotizacion.dto.js';
@@ -28,6 +29,7 @@ export class CotizacionesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
+    private readonly crm: CrmService,
   ) {}
 
   // ------------------------------------------------------------------ público
@@ -65,6 +67,10 @@ export class CotizacionesService {
             mensaje: dto.mensaje?.trim() || null,
             origen: dto.origen?.trim() || null,
           },
+        });
+        void this.crm.registrarSolicitud(marcaId, {
+          origen: 'COTIZACION', origenId: c.id, nombre: c.clienteNombre, email: c.clienteEmail, celular: c.clienteTelefono, empresa: c.clienteEmpresa,
+          titulo: `${servicio.nombre} (${numero})`, detalle: c.mensaje,
         });
         this.avisarEquipo(marcaId, c.id, c.clienteNombre, servicio.nombre).catch((e) =>
           this.logger.error('No se pudo avisar al equipo de la cotización nueva', e as Error),

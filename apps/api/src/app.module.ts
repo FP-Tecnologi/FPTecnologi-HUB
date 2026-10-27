@@ -41,6 +41,7 @@ import { PopupsModule } from './popups/popups.module.js';
 import { TarjetasModule } from './tarjetas/tarjetas.module.js';
 import { FolletosModule } from './folletos/folletos.module.js';
 import { VisitasModule } from './visitas/visitas.module.js';
+import { CrmModule } from './crm/crm.module.js';
 import { TicketsModule } from './tickets/tickets.module.js';
 import { SoporteModule } from './soporte/soporte.module.js';
 import { ActividadModule } from './actividad/actividad.module.js';
@@ -85,6 +86,7 @@ import { AsistenteModule } from './asistente/asistente.module.js';
     TarjetasModule,
     FolletosModule,
     VisitasModule,
+    CrmModule,
     TicketsModule,
     SoporteModule,
     ActividadModule,

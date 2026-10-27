@@ -62,6 +62,10 @@ const TENANT_MODELS = new Set([
   'Folleto',
   'Presupuesto',
   'VisitaWeb',
+  'CrmEmpresa',
+  'CrmContacto',
+  'CrmOportunidad',
+  'CrmActividad',
 ]);
 
 /** Models whose where may be pinned by this key instead of marcaId (see above). */

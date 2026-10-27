@@ -1,6 +1,7 @@
 import { BadRequestException, HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { MailService } from '../mail/mail.service.js';
+import { CrmService } from '../crm/crm.service.js';
 import { normalizarCelular } from '../cotizador/cotizador.service.js';
 import type { ActualizarContactoDto, CrearContactoDto } from './contacto-web.dto.js';
 
@@ -19,6 +20,7 @@ export class ContactoWebService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly mail: MailService,
+    private readonly crm: CrmService,
   ) {}
 
   // ------------------------------------------------------------------ público
@@ -52,6 +54,13 @@ Teléfono: ${telefono}` : dto.mensaje.trim();
         origen: dto.origen?.trim() || null,
       },
     });
+    // Las consultas van al CRM; los reclamos no (se atienden en Contactos / Libro de reclamaciones).
+    if (tipo === 'CONTACTO') {
+      void this.crm.registrarSolicitud(marcaId, {
+        origen: 'CONTACTO_WEB', origenId: contacto.id, nombre: contacto.nombre, email: contacto.email, celular: contacto.celular, empresa: contacto.empresa,
+        titulo: `Consulta web: ${contacto.mensaje.replace(/\s+/g, ' ').slice(0, 80)}`, detalle: contacto.mensaje,
+      });
+    }
     // El aviso no debe tumbar el registro.
     this.avisarEquipo(marcaId, contacto.id, contacto.nombre, tipo, contacto.mensaje).catch((e) =>
       this.logger.error('No se pudo avisar al equipo del contacto nuevo', e as Error),
