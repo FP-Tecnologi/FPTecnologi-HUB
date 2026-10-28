@@ -8,7 +8,7 @@ import { PageHead } from '../../../components/shell/PageHead';
 import { api } from '../../../lib/api';
 import { useAuth } from '../../../context/AuthContext';
 import {
-  Alerta, ETAPAS, NuevaOportunidad, ORIGENES, OportunidadPanel, dinero, etapa, fechaCorta, msg, nombreDe, useAsignables, vencida, type Etapa, type Oportunidad, type Origen,
+  Alerta, BotonIcono, ETAPAS, NuevaOportunidad, ORIGENES, OportunidadPanel, dinero, etapa, fechaCorta, msg, nombreDe, useAsignables, useConfirmar, vencida, type Etapa, type Oportunidad, type Origen,
 } from './comun';
 
 export function CrmOportunidades() {
@@ -28,10 +28,11 @@ export function CrmOportunidades() {
   useEffect(() => { const id = new URLSearchParams(window.location.search).get('id'); if (id) setAbierta(id); }, []);
   const [nueva, setNueva] = useState(false);
   const [ok, setOk] = useState('');
+  const { confirmar, dialogo } = useConfirmar();
 
   // Solo admin (la API también lo exige): para oportunidades mal registradas o duplicadas.
   async function eliminar(o: Oportunidad) {
-    if (!window.confirm(`¿Eliminar ${o.numero} «${o.titulo}»? Se borra también su historial. La empresa y el contacto se conservan.`)) return;
+    if (!(await confirmar('Eliminar oportunidad', `¿Eliminar ${o.numero} «${o.titulo}»? Se borra también su historial. La empresa y el contacto se conservan.`))) return;
     try { await api.delete(`/crm/oportunidades/${o.id}`); setOk(`${o.numero} eliminada.`); setError(''); cargar(); } catch (e) { setOk(''); setError(msg(e, 'No se pudo eliminar.')); }
   }
 
@@ -81,7 +82,7 @@ export function CrmOportunidades() {
                   <th className="ax-table__th" scope="col">Responsable</th>
                   <th className="ax-table__th" scope="col">Próxima acción</th>
                   <th className="ax-table__th" scope="col">Origen</th>
-                  <th className="ax-table__th" scope="col"><span className="sr-only">Acciones</span></th>
+                  <th className="ax-table__th" scope="col" style={{ textAlign: 'right' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -106,8 +107,8 @@ export function CrmOportunidades() {
                     <td className="ax-table__td" style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>{ORIGENES[o.origen]}</td>
                     <td className="ax-table__td" onClick={(e) => e.stopPropagation()}>
                       <div className="ax-cluster" style={{ gap: 'var(--ax-space-1)', flexWrap: 'nowrap', justifyContent: 'flex-end' }}>
-                        <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setAbierta(o.id)}>Editar</button>
-                        {esAdmin && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={() => eliminar(o)}>Eliminar</button>}
+                        <BotonIcono icono="edit" label={`Editar ${o.numero}`} onClick={() => setAbierta(o.id)} />
+                        {esAdmin && <BotonIcono icono="trash" label={`Eliminar ${o.numero}`} peligro onClick={() => eliminar(o)} />}
                       </div>
                     </td>
                   </tr>
@@ -119,6 +120,7 @@ export function CrmOportunidades() {
       </div>
 
       {abierta && <OportunidadPanel id={abierta} onClose={() => setAbierta(null)} onCambio={cargar} />}
+      {dialogo}
       {nueva && <NuevaOportunidad onClose={() => setNueva(false)} onCreada={(id) => { setNueva(false); cargar(); setAbierta(id); }} />}
     </>
   );

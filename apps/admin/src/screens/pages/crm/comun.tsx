@@ -10,6 +10,7 @@ import { api } from '../../../lib/api';
 import { ApiError } from '../../../context/AuthContext';
 import { useFocusTrap } from '../../../hooks/useFocusTrap';
 import { manifest, hrefForSlug } from '../../../lib/manifest';
+import { Icon } from '../../../components/ui/Icon';
 
 export type Etapa = 'NUEVO' | 'CONTACTADO' | 'PROPUESTA' | 'NEGOCIACION' | 'GANADO' | 'PERDIDO';
 export type Origen = 'MANUAL' | 'COTIZADOR' | 'COTIZACION' | 'CONTACTO_WEB' | 'PRESUPUESTO';
@@ -98,6 +99,44 @@ export function Modal({ titulo, onClose, lado = false, ancho = 520, children }: 
   );
 }
 
+/** Botón de solo ícono (acciones de tablas e historial); `label` va como aria-label y tooltip. */
+export function BotonIcono({ icono, label, peligro = false, disabled, onClick }: { icono: string; label: string; peligro?: boolean; disabled?: boolean; onClick: () => void }) {
+  return (
+    <button type="button" className="ax-btn ax-btn--ghost ax-btn--icon ax-btn--sm" aria-label={label} title={label} disabled={disabled} onClick={onClick}
+      style={peligro ? { color: 'var(--ax-danger-500)' } : undefined}>
+      <Icon name={icono} width={18} height={18} />
+    </button>
+  );
+}
+
+/**
+ * Confirmación con el modal del sistema (en vez de window.confirm). `confirmar(titulo, texto)` devuelve una promesa
+ * con true/false; `dialogo` se renderiza donde se use el hook. Escape cierra solo este modal, no el panel de atrás.
+ */
+export function useConfirmar() {
+  const [p, setP] = useState<{ titulo: string; texto: string; boton: string; resolver: (ok: boolean) => void } | null>(null);
+  const confirmar = useCallback((titulo: string, texto: string, boton = 'Eliminar') => new Promise<boolean>((resolver) => setP({ titulo, texto, boton, resolver })), []);
+  const cerrar = useCallback((ok: boolean) => { setP((x) => { x?.resolver(ok); return null; }); }, []);
+  useEffect(() => {
+    if (!p) return;
+    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.stopImmediatePropagation(); cerrar(false); } };
+    window.addEventListener('keydown', esc, true);
+    return () => window.removeEventListener('keydown', esc, true);
+  }, [p, cerrar]);
+  const dialogo = p && (
+    <Modal titulo={p.titulo} onClose={() => cerrar(false)} ancho={500}>
+      <div className="ax-card__body" style={{ paddingTop: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
+        <p style={{ margin: 0, color: 'var(--ax-text-muted)' }}>{p.texto}</p>
+        <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'flex-end' }}>
+          <button type="button" className="ax-btn ax-btn--ghost" onClick={() => cerrar(false)}>Cancelar</button>
+          <button type="button" className="ax-btn ax-btn--primary ax-btn--danger" onClick={() => cerrar(true)}><span className="ax-btn__label">{p.boton}</span></button>
+        </div>
+      </div>
+    </Modal>
+  );
+  return { confirmar, dialogo };
+}
+
 const fila = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 'var(--ax-space-3)' } as const;
 
 /** Pide el motivo al pasar a Perdido (la API lo exige). null = cancelado. */
@@ -109,6 +148,7 @@ export function pedirMotivo(): string | null {
 /** Ficha de una oportunidad en un panel lateral. `onCambio` refresca la lista de quien la abrió. */
 export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClose: () => void; onCambio: () => void }) {
   const asignables = useAsignables();
+  const { confirmar, dialogo } = useConfirmar();
   const [o, setO] = useState<Detalle | null>(null);
   const [error, setError] = useState('');
   const [ok, setOk] = useState('');
@@ -156,7 +196,9 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
       .then(() => setAct({ tipo: act.tipo, texto: '', fecha: '' }));
   };
   const marcar = (a: Actividad) => correr(() => api.patch<Detalle>(`/crm/actividades/${a.id}`, { hecha: !a.hecha }), a.hecha ? 'Tarea reabierta.' : 'Tarea hecha.');
-  const borrar = (a: Actividad) => window.confirm('¿Eliminar esta actividad?') && correr(() => api.delete<Detalle>(`/crm/actividades/${a.id}`), 'Actividad eliminada.');
+  const borrar = async (a: Actividad) => {
+    if (await confirmar('Eliminar actividad', `¿Eliminar esta ${TIPOS[a.tipo].toLowerCase()} del historial? No se puede deshacer.`)) correr(() => api.delete<Detalle>(`/crm/actividades/${a.id}`), 'Actividad eliminada.');
+  };
 
   const moduloSolicitud = o?.solicitud ? manifest.byId.get(o.solicitud.modulo) : null;
   const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({ ...form, [k]: e.target.value });
@@ -258,7 +300,7 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
                     {a.tipo !== 'ETAPA' && a.tipo !== 'SOLICITUD' && (
                       <span className="ax-list__trailing ax-cluster" style={{ gap: 'var(--ax-space-1)' }}>
                         {a.tipo === 'TAREA' && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" disabled={busy} onClick={() => marcar(a)}>{a.hecha ? 'Reabrir' : 'Hecha'}</button>}
-                        <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" disabled={busy} onClick={() => borrar(a)} aria-label="Eliminar actividad">Quitar</button>
+                        <BotonIcono icono="trash" label="Eliminar actividad" peligro disabled={busy} onClick={() => borrar(a)} />
                       </span>
                     )}
                   </li>
@@ -268,6 +310,7 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
           </>
         )}
       </div>
+      {dialogo}
     </Modal>
   );
 }

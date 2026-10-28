@@ -8,7 +8,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { PageHead } from '../../../components/shell/PageHead';
 import { api } from '../../../lib/api';
 import { useAuth } from '../../../context/AuthContext';
-import { Alerta, Modal, msg } from './comun';
+import { Alerta, BotonIcono, Modal, msg, useConfirmar } from './comun';
 
 interface Empresa { id: string; razonSocial: string; ruc: string | null; rubro: string | null; web: string | null; telefono: string | null; direccion: string | null; notas: string | null; _count: { contactos: number; oportunidades: number } }
 interface Contacto { id: string; nombre: string; cargo: string | null; email: string | null; celular: string | null; documento: string | null; notas: string | null; empresaId: string | null; empresa: { id: string; razonSocial: string } | null; _count: { oportunidades: number } }
@@ -21,6 +21,7 @@ const nulos = (o: Record<string, string>) => Object.fromEntries(Object.entries(o
 export function CrmEmpresas() {
   const { activeMarcaId, marcas } = useAuth();
   const esAdmin = marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre === 'admin';
+  const { confirmar, dialogo } = useConfirmar();
   const [tab, setTab] = useState<'empresas' | 'contactos'>('empresas');
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
   const [contactos, setContactos] = useState<Contacto[]>([]);
@@ -76,7 +77,7 @@ export function CrmEmpresas() {
     guardar(() => (editC === 'nuevo' ? api.post('/crm/contactos', body) : api.patch(`/crm/contactos/${(editC as Contacto).id}`, body)), editC === 'nuevo' ? 'Contacto creado.' : 'Contacto actualizado.', () => setEditC(null));
   };
   async function borrar(ruta: string, nombre: string) {
-    if (!window.confirm(`¿Eliminar «${nombre}»? Sus oportunidades se conservan.`)) return;
+    if (!(await confirmar('Eliminar', `¿Eliminar «${nombre}»? Sus oportunidades se conservan.`))) return;
     try { await api.delete(ruta); setOk('Eliminado.'); cargar(); } catch (e) { setError(msg(e, 'No se pudo eliminar.')); }
   }
 
@@ -106,7 +107,7 @@ export function CrmEmpresas() {
               <table className="ax-table ax-table--hover">
                 <thead className="ax-table__head"><tr>
                   <th className="ax-table__th" scope="col">Empresa</th><th className="ax-table__th" scope="col">Rubro</th><th className="ax-table__th" scope="col">Teléfono</th>
-                  <th className="ax-table__th" scope="col">Contactos</th><th className="ax-table__th" scope="col">Oportunidades</th><th className="ax-table__th" scope="col"><span className="sr-only">Acciones</span></th>
+                  <th className="ax-table__th" scope="col">Contactos</th><th className="ax-table__th" scope="col">Oportunidades</th><th className="ax-table__th" scope="col" style={{ textAlign: 'right' }}>Acciones</th>
                 </tr></thead>
                 <tbody>
                   {empresas.length === 0 ? <tr><td className="ax-table__td" colSpan={6} style={{ color: 'var(--ax-text-muted)' }}>Sin empresas.</td></tr> : empresas.map((e) => (
@@ -116,9 +117,9 @@ export function CrmEmpresas() {
                       <td className="ax-table__td">{e.telefono ?? '—'}</td>
                       <td className="ax-table__td ax-num">{e._count.contactos}</td>
                       <td className="ax-table__td ax-num">{e._count.oportunidades}</td>
-                      <td className="ax-table__td" style={{ whiteSpace: 'nowrap' }}>
-                        <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => abrirE(e)}>Editar</button>
-                        {esAdmin && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => borrar(`/crm/empresas/${e.id}`, e.razonSocial)}>Eliminar</button>}
+                      <td className="ax-table__td" style={{ whiteSpace: 'nowrap', textAlign: 'right' }}>
+                        <BotonIcono icono="edit" label={`Editar ${e.razonSocial}`} onClick={() => abrirE(e)} />
+                        {esAdmin && <BotonIcono icono="trash" label={`Eliminar ${e.razonSocial}`} peligro onClick={() => borrar(`/crm/empresas/${e.id}`, e.razonSocial)} />}
                       </td>
                     </tr>
                   ))}
@@ -128,7 +129,7 @@ export function CrmEmpresas() {
               <table className="ax-table ax-table--hover">
                 <thead className="ax-table__head"><tr>
                   <th className="ax-table__th" scope="col">Contacto</th><th className="ax-table__th" scope="col">Empresa</th><th className="ax-table__th" scope="col">Correo</th>
-                  <th className="ax-table__th" scope="col">Celular</th><th className="ax-table__th" scope="col">Oportunidades</th><th className="ax-table__th" scope="col"><span className="sr-only">Acciones</span></th>
+                  <th className="ax-table__th" scope="col">Celular</th><th className="ax-table__th" scope="col">Oportunidades</th><th className="ax-table__th" scope="col" style={{ textAlign: 'right' }}>Acciones</th>
                 </tr></thead>
                 <tbody>
                   {contactos.length === 0 ? <tr><td className="ax-table__td" colSpan={6} style={{ color: 'var(--ax-text-muted)' }}>Sin contactos.</td></tr> : contactos.map((c) => (
@@ -138,9 +139,9 @@ export function CrmEmpresas() {
                       <td className="ax-table__td">{c.email ? <a href={`mailto:${c.email}`}>{c.email}</a> : '—'}</td>
                       <td className="ax-table__td">{c.celular ? <a href={`https://wa.me/51${c.celular}`} target="_blank" rel="noreferrer">{c.celular}</a> : '—'}</td>
                       <td className="ax-table__td ax-num">{c._count.oportunidades}</td>
-                      <td className="ax-table__td" style={{ whiteSpace: 'nowrap' }}>
-                        <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => abrirC(c)}>Editar</button>
-                        {esAdmin && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => borrar(`/crm/contactos/${c.id}`, c.nombre)}>Eliminar</button>}
+                      <td className="ax-table__td" style={{ whiteSpace: 'nowrap', textAlign: 'right' }}>
+                        <BotonIcono icono="edit" label={`Editar ${c.nombre}`} onClick={() => abrirC(c)} />
+                        {esAdmin && <BotonIcono icono="trash" label={`Eliminar ${c.nombre}`} peligro onClick={() => borrar(`/crm/contactos/${c.id}`, c.nombre)} />}
                       </td>
                     </tr>
                   ))}
@@ -185,6 +186,7 @@ export function CrmEmpresas() {
           </form>
         </Modal>
       )}
+      {dialogo}
     </>
   );
 }
