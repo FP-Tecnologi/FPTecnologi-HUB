@@ -103,9 +103,8 @@ export default function Inicio() {
                 ['Misión', 'Brindar soluciones confiables y de alta calidad que impulsen proyectos en diversos sectores, con cobertura nacional y un servicio cercano.'],
                 ['Visión', 'Ser una marca reconocida por su excelencia, cercanía y compromiso, aliada de nuestros clientes en cada etapa de sus proyectos.'],
               ].map(([t, d]) => (
-                <div key={t} className="tarjeta group relative overflow-hidden rounded-2xl bg-niebla p-5 hover:bg-white">
-                  <span aria-hidden="true" className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-kelqa transition-transform duration-500 group-hover:scale-x-100" />
-                  <h3 className="text-base font-bold">{t}</h3>
+                <div key={t} className="group rounded-2xl bg-niebla p-5 ring-1 ring-transparent transition duration-500 ease-out hover:-translate-y-0.5 hover:bg-white hover:shadow-lg hover:shadow-kelqa-hondo/10 hover:ring-kelqa/15">
+                  <h3 className="text-base font-bold transition-colors duration-500 group-hover:text-kelqa-hondo">{t}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-carbon/85">{d}</p>
                 </div>
               ))}
