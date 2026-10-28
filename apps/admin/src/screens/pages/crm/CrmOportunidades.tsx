@@ -12,7 +12,8 @@ import {
 } from './comun';
 
 export function CrmOportunidades() {
-  const { activeMarcaId } = useAuth();
+  const { activeMarcaId, marcas } = useAuth();
+  const esAdmin = marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre === 'admin';
   const asignables = useAsignables();
   const [lista, setLista] = useState<Oportunidad[]>([]);
   const [cargando, setCargando] = useState(true);
@@ -26,6 +27,13 @@ export function CrmOportunidades() {
   // ?id=<oportunidad> abre su ficha (enlaces «Ver en CRM» y de la Agenda).
   useEffect(() => { const id = new URLSearchParams(window.location.search).get('id'); if (id) setAbierta(id); }, []);
   const [nueva, setNueva] = useState(false);
+  const [ok, setOk] = useState('');
+
+  // Solo admin (la API también lo exige): para oportunidades mal registradas o duplicadas.
+  async function eliminar(o: Oportunidad) {
+    if (!window.confirm(`¿Eliminar ${o.numero} «${o.titulo}»? Se borra también su historial. La empresa y el contacto se conservan.`)) return;
+    try { await api.delete(`/crm/oportunidades/${o.id}`); setOk(`${o.numero} eliminada.`); setError(''); cargar(); } catch (e) { setOk(''); setError(msg(e, 'No se pudo eliminar.')); }
+  }
 
   const cargar = useCallback(async () => {
     if (!activeMarcaId) return;
@@ -38,6 +46,7 @@ export function CrmOportunidades() {
     <>
       <PageHead title="Oportunidades" subtitle="Prospectos y ventas en curso de la marca, con su responsable, monto y próxima acción." actions={<button type="button" className="ax-btn ax-btn--primary" onClick={() => setNueva(true)}><span className="ax-btn__label">Nueva oportunidad</span></button>} />
       {error && <div style={{ marginBlockEnd: 'var(--ax-space-4)' }}><Alerta>{error}</Alerta></div>}
+      {ok && <div style={{ marginBlockEnd: 'var(--ax-space-4)' }}><Alerta tono="success">{ok}</Alerta></div>}
 
       <div>
         <section className="ax-card" aria-label="Oportunidades">
@@ -72,11 +81,12 @@ export function CrmOportunidades() {
                   <th className="ax-table__th" scope="col">Responsable</th>
                   <th className="ax-table__th" scope="col">Próxima acción</th>
                   <th className="ax-table__th" scope="col">Origen</th>
+                  <th className="ax-table__th" scope="col"><span className="sr-only">Acciones</span></th>
                 </tr>
               </thead>
               <tbody>
-                {cargando ? <tr><td className="ax-table__td" colSpan={7}>Cargando…</td></tr> : lista.length === 0 ? (
-                  <tr><td className="ax-table__td" colSpan={7} style={{ color: 'var(--ax-text-muted)' }}>No hay oportunidades con estos filtros. Las solicitudes de la web (cotizador, cotizaciones, contacto, presupuestos) aparecen aquí solas.</td></tr>
+                {cargando ? <tr><td className="ax-table__td" colSpan={8}>Cargando…</td></tr> : lista.length === 0 ? (
+                  <tr><td className="ax-table__td" colSpan={8} style={{ color: 'var(--ax-text-muted)' }}>No hay oportunidades con estos filtros. Las solicitudes de la web (cotizador, cotizaciones, contacto, presupuestos) aparecen aquí solas.</td></tr>
                 ) : lista.map((o) => (
                   <tr key={o.id} className="ax-table__row" onClick={() => setAbierta(o.id)} style={{ cursor: 'pointer' }}>
                     <td className="ax-table__td">
@@ -94,6 +104,12 @@ export function CrmOportunidades() {
                       {o.proximaAccion ? <>{o.proximaAccion}{o.proximaAccionAt ? <div style={{ fontSize: 'var(--ax-text-xs)' }}>{fechaCorta(o.proximaAccionAt)}{vencida(o.proximaAccionAt) ? ' · vencida' : ''}</div> : null}</> : '—'}
                     </td>
                     <td className="ax-table__td" style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>{ORIGENES[o.origen]}</td>
+                    <td className="ax-table__td" onClick={(e) => e.stopPropagation()}>
+                      <div className="ax-cluster" style={{ gap: 'var(--ax-space-1)', flexWrap: 'nowrap', justifyContent: 'flex-end' }}>
+                        <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setAbierta(o.id)}>Editar</button>
+                        {esAdmin && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={() => eliminar(o)}>Eliminar</button>}
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
