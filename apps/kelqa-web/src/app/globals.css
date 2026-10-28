@@ -1,0 +1,52 @@
+@import 'tailwindcss';
+
+/* Paleta tomada del logo y del brochure comercial: turquesa Kelqa, tinta casi negra con matiz verdoso y grises fríos. */
+@theme {
+  --color-kelqa: #1b898f;
+  --color-kelqa-hondo: #136a6f; /* texto turquesa sobre blanco (AA) */
+  --color-kelqa-claro: #7fd3d6; /* acento sobre fondos oscuros */
+  --color-tinta: #0e1c1e;
+  --color-carbon: #2b3537;
+  --color-niebla: #f1f6f6;
+  --font-sans: var(--font-dm), system-ui, sans-serif;
+  --font-titulo: var(--font-montserrat), system-ui, sans-serif;
+}
+
+html { --alto-cabecera: 72px; background: #fff; color: var(--color-carbon); scroll-behavior: smooth; scroll-padding-top: 5.5rem; }
+body { font-family: var(--font-sans); }
+@layer base {
+  h1, h2, h3 { font-family: var(--font-titulo); color: var(--color-tinta); text-wrap: balance; }
+  p, li { text-wrap: pretty; }
+  :focus-visible { outline: 2px solid var(--color-kelqa); outline-offset: 3px; border-radius: 6px; }
+}
+::selection { background: rgb(27 137 143 / 0.25); }
+
+/* Parte resaltada de los títulos: degradado turquesa con brillo que recorre el texto. */
+@keyframes brillo { to { background-position: -200% 0; } }
+.titulo-brillo {
+  background: linear-gradient(100deg, var(--color-kelqa-hondo) 20%, #2fb3ba 40%, var(--color-kelqa-hondo) 60%) 0 0 / 200% 100%;
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: brillo 6s linear infinite;
+}
+.titulo-brillo-claro { background-image: linear-gradient(100deg, var(--color-kelqa-claro) 20%, #fff 40%, var(--color-kelqa-claro) 60%); }
+
+/* Cabecera: transparente sobre el hero, blanca al bajar (EnlacesNav marca html[data-scrolled]). */
+.cabecera { transition: background-color 0.3s, box-shadow 0.3s; }
+.cabecera-logo-color { display: none; }
+html[data-scrolled] .cabecera { background: rgb(255 255 255 / 0.92); backdrop-filter: blur(10px); box-shadow: 0 8px 24px -16px rgb(14 28 30 / 0.35); }
+html[data-scrolled] .cabecera-logo-blanco { display: none; }
+html[data-scrolled] .cabecera-logo-color { display: block; }
+html:not([data-scrolled]) .cabecera-link { color: #fff; }
+
+@keyframes respira { to { transform: scale(1.07); } }
+.hero-foto { animation: respira 22s ease-in-out infinite alternate; }
+@keyframes flotar { 50% { transform: translateY(-10px); } }
+.flotar { animation: flotar 6s ease-in-out infinite; }
+
+/* Reveal: el estado oculto solo existe con JS y sin reduced-motion; sin JS el contenido se ve normal. */
+@media screen and (prefers-reduced-motion: no-preference) and (scripting: enabled) {
+  [data-reveal] { transition: opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1), transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1); transition-delay: var(--retraso, 0ms); }
+  [data-reveal]:not([data-dentro]) { opacity: 0; transform: translateY(28px); }
+  [data-reveal]:focus-within { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { animation: none !important; transition: none !important; } }

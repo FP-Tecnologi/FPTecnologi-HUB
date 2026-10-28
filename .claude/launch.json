@@ -66,6 +66,20 @@
       "port": 3005
     },
     {
+      "name": "kelqa-web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "apps/kelqa-web",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "3007"
+      ],
+      "port": 3007
+    },
+    {
       "name": "leads",
       "runtimeExecutable": "npm",
       "runtimeArgs": [

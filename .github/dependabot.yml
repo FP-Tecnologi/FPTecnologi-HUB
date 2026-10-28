@@ -93,3 +93,19 @@ updates:
     labels:
       - 'dependencies'
       - 'ci'
+
+  # Web pública Kelqa (apps/kelqa-web) — Next.js
+  - package-ecosystem: 'npm'
+    directory: '/apps/kelqa-web'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    open-pull-requests-limit: 5
+    groups:
+      minor-patch:
+        update-types: ['minor', 'patch']
+    commit-message:
+      prefix: 'chore(kelqa-web/deps)'
+    labels:
+      - 'dependencies'
+      - 'web'

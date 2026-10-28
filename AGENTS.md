@@ -75,6 +75,11 @@ apps/
                     Todo su contenido es editable desde el dashboard (marca
                     Fimav → *Web Fimav*): defaults en `src/lib/cms.ts`, mismo
                     `ContenidoWeb` que FPTecnologi con el marcaId de Fimav.
+  kelqa-web/        Next.js 16 — web pública de kelqa.com (marca `kelqa`,
+                    puerto 3007, solo modo claro). Por ahora solo el inicio,
+                    con contenido fijo en `src/lib/contenido.ts` (del brochure
+                    comercial) y fotos en `public/fotos`. Pendiente: CMS,
+                    contador de visitas, libro de reclamaciones y tickets.
 docs/     Documentación de negocio y planificación
 ```
 
@@ -131,8 +136,8 @@ vez del contenido hardcodeado que usa hoy).
 - **Testing**: Vitest (`*.spec.ts` junto al archivo que prueban).
 - **Package manager**: npm (no pnpm, no yarn) — instalar dentro de cada
   app (`cd apps/api && npm install`), no hay workspace raíz (ver arriba).
-- **Versiones mínimas**: Next.js **16.4.1+** en las 4 apps Next (hoy 16.4.3; 16.0.0–16.4.0 tienen una RCE crítica),
-  Node 22 (CI y hosting). `npm audit` debe dar 0 vulnerabilidades en las 5 apps; los parches que no llegan por
+- **Versiones mínimas**: Next.js **16.4.1+** en las 5 apps Next (hoy 16.4.3; 16.0.0–16.4.0 tienen una RCE crítica),
+  Node 22 (CI y hosting). `npm audit` debe dar 0 vulnerabilidades en las 6 apps; los parches que no llegan por
   `npm audit fix` se fuerzan con `overrides` en el `package.json` de cada app (API: multer, undici, fast-uri…; web:
   postcss-selector-parser). ESLint está en pausa: `typescript-eslint` no soporta TypeScript 7, así que `npm run lint`
   de las apps Next es `tsc --noEmit`.
@@ -229,15 +234,15 @@ Backend (Fase 1 del plan) funcionalmente completo y con hardening básico
 conectado y migrado.
 
 CI/CD y seguridad del repo (ver `.github/`):
-- `workflows/ci.yml`: API (lint oxlint + build + tests) y, en matriz, las 4 apps Next (`admin`,
-  `web-fptecnologi`, `fimav-web`, `quamtu-web`: tipos + build) con Node 22, en cada push/PR a `main`.
+- `workflows/ci.yml`: API (lint oxlint + build + tests) y, en matriz, las 5 apps Next (`admin`,
+  `web-fptecnologi`, `fimav-web`, `quamtu-web`, `kelqa-web`: tipos + build) con Node 22, en cada push/PR a `main`.
 - `workflows/codeql.yml`: análisis estático de seguridad (CodeQL) en
   push/PR a `main` y semanal.
-- `workflows/dependency-audit.yml`: `npm audit` informativo de las 5 apps en
+- `workflows/dependency-audit.yml`: `npm audit` informativo de las 6 apps en
   push/PR y semanal (no bloquea el merge todavía).
 - `workflows/copilot-setup-steps.yml`: preinstala Node + deps + Prisma
   client para el entorno del Copilot coding agent (cloud).
-- `dependabot.yml`: actualizaciones semanales de npm de las 5 apps y de
+- `dependabot.yml`: actualizaciones semanales de npm de las 6 apps y de
   GitHub Actions.
 - `SECURITY.md`: política de reporte de vulnerabilidades y checklist de
   configuración recomendada a nivel de repo (branch protection, secret

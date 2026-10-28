@@ -20,8 +20,9 @@ scripts **dentro de la app** (`cd apps/<app>`), siempre con npm (no pnpm/yarn).
 | `apps/admin` (dashboard, Next 15) | 3000 | `npm run dev` | `npm run build` | `npm run lint` |
 | `apps/web-fptecnologi` (web pública, Next 16) | 3002 | `npm run dev -- --port 3002` | `npm run build` | `npm run lint` |
 | `apps/fimav-web` (web pública Fimav Perú, Next 16) | 3005 | `npm run dev -- --port 3005` | `npm run build` | `npm run lint` |
+| `apps/kelqa-web` (web pública Kelqa, Next 16) | 3007 | `npm run dev -- --port 3007` | `npm run build` | `npm run lint` |
 
-`.claude/launch.json` define estos servidores (`api`, `admin`, `web-fptecnologi`, `fimav-web`, `leads` → repo aparte) para
+`.claude/launch.json` define estos servidores (`api`, `admin`, `web-fptecnologi`, `fimav-web`, `kelqa-web`, `leads` → repo aparte) para
 `preview_start`.
 
 Tests (solo `apps/api`, Vitest, `*.spec.ts` junto al archivo probado):
@@ -66,9 +67,9 @@ Prisma (en `apps/api`, requiere `.env` con `DATABASE_URL`; ver `.env.example`):
   push main; volver a develop). No preguntar antes. Si algo no está bien, no pasa a `main`.
 - **Repos espejo**: el HUB (este, `FP-Tecnologi/FPTecnologi-HUB`) tiene TODO (API, dashboard, webs). Cada web pública tiene además un
   repo espejo con **solo esa web en su raíz**: `apps/web-fptecnologi` → `fptecnologi-web`, `apps/fimav-web` → `fimav-peru` (privado),
-  `apps/quamtu-web` → `quamtu-web` (privado). Cada vez que un cambio toque una de esas apps, tras subir a `develop` y `main` del
+  `apps/quamtu-web` → `quamtu-web` (privado), `apps/kelqa-web` → `kelqa-web`. Cada vez que un cambio toque una de esas apps, tras subir a `develop` y `main` del
   HUB, publicar su espejo (main y develop del repo quedan iguales): `TMPDIR=/tmp bash scripts/publicar-snapshot.sh` (fptecnologi),
-  `... publicar-snapshot.sh fimav-web fimav-peru Fimav`, `... publicar-snapshot.sh quamtu-web quamtu-web Quamtu`. Nunca editar a mano
+  `... publicar-snapshot.sh fimav-web fimav-peru Fimav`, `... publicar-snapshot.sh quamtu-web quamtu-web Quamtu`, `... publicar-snapshot.sh kelqa-web kelqa-web Kelqa`. Nunca editar a mano
   esos repos. El script no crea repos: deben existir y la cuenta de git debe poder escribir en ellos.
 - Las ramas que ya no sirven (mergeadas o abandonadas) se eliminan; no dejar ramas viejas.
 - Antes de `git add`, revisa `git status` por archivos de otras sesiones; nunca subas

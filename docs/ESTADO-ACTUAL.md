@@ -1181,6 +1181,12 @@ Plan: [`docs/superpowers/plans/2026-10-23-cms-fimav.md`](superpowers/plans/2026-
 - Pendiente: definir `NEXT_PUBLIC_WEB_FIMAV_URL` en el dashboard y `DASHBOARD_ORIGIN` en la web de Fimav al desplegar (ver `DESPLIEGUE-CPANEL.md`).
 - **Ajuste (mismo día)**: en el dashboard real la vista previa de Fimav mostraba «localhost rechazó la conexión»: compilado sin `NEXT_PUBLIC_WEB_FIMAV_URL`, apuntaba a `http://localhost:3005`, y la web de Fimav (ya en **https://fimavperu.com**) solo dejaba leer a `http://localhost:3000` (sin `DASHBOARD_ORIGIN`). Ahora: `lib/webMarca.ts` decide la URL de cada web (variable → dominio principal de la marca, que `GET /usuarios/me/marcas` devuelve desde su primer `Sitio` → en el servidor el dominio público, en desarrollo el puerto local); la ruta `/api/cms/:pagina` de Fimav acepta por defecto `https://admin.fptecnologi.com` y `http://localhost:3000`; y si la web no responde, el editor explica qué falta y ofrece «Reintentar» en vez del iframe roto.
 
+### 2026-10-28 — Web pública de Kelqa: página de inicio (`apps/kelqa-web`)
+
+- Nueva app Next 16 (puerto 3007, misma base que Fimav: cabeceras de seguridad, `server.cjs` para cPanel). Marca tomada del logo SVG oficial (turquesa `#1B898F`, tinta casi negra) y del **brochure comercial V1**; títulos Montserrat, texto DM Sans; motivo de cuadrado redondeado del isotipo.
+- Inicio: hero «Hecha para avanzar contigo» con acceso a las tres líneas, Quiénes somos (misión, visión y valores), **Líneas** (Pinturas, Mobiliario, Construcción y Emergencia, con fotos de producto recortadas del brochure), Por qué Kelqa, venta directa / licitaciones / Perú Compras, testimonios de la web anterior y contacto (WhatsApp +51 933 098 493, ventas@kelqa.com). Contenido fijo en `src/lib/contenido.ts`.
+- Pendiente: más páginas (catálogo por línea, nosotros, contacto), CMS desde el dashboard, contador de visitas, libro de reclamaciones, tickets, legales, `HUB_MARCA_ID`, repo espejo `kelqa-web` y despliegue.
+
 ### 2026-10-27 (2) — CRM comercial
 
 - **Modelos** (migración `20261027130000_crm`, en el tenant-guard): `CrmEmpresa` (RUC único por marca), `CrmContacto` (correo único por marca), `CrmOportunidad` (`OPP-AAAA-XXXXXX`, etapa `NUEVO → CONTACTADO → PROPUESTA → NEGOCIACION → GANADO | PERDIDO`, monto y moneda, probabilidad, cierre estimado, responsable = usuario admin/comercial de la marca, origen + `origenId`, próxima acción, motivo de pérdida) y `CrmActividad` (llamada, reunión, nota, correo, WhatsApp, tarea con vencimiento; cambios de etapa y solicitudes web automáticos).
