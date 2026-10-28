@@ -26,7 +26,7 @@ export function CtaContacto({ id }: { id?: string }) {
     <section id={id} className="px-5 pb-24 sm:px-8">
       <Reveal efecto="zoom" className="relative isolate mx-auto max-w-7xl overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-kelqa to-kelqa-hondo px-8 py-14 text-center text-white sm:px-14">
         <img src="/fotos/obrero.webp" alt="" aria-hidden="true" className="pointer-events-none absolute bottom-0 right-8 -z-10 hidden h-[92%] lg:block" />
-        <img src="/fotos/trafico.webp" alt="" aria-hidden="true" className="flotar pointer-events-none absolute -bottom-12 -left-6 -z-10 hidden w-80 -rotate-12 lg:block" />
+        <img src="/fotos/trafico.webp" alt="" aria-hidden="true" className="flotar pointer-events-none absolute -left-6 top-1/2 -z-10 -mt-5 -translate-y-1/2 hidden w-80 -rotate-12 lg:block" />
         <h2 className="text-[clamp(2rem,5vw,3.25rem)] font-extrabold text-white">¡Estamos listos!</h2>
         <p className="mx-auto mt-4 max-w-xl text-lg text-white/90">Cuéntanos tu proyecto y te proponemos la solución precisa. Escríbenos y te atendemos de inmediato.</p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
