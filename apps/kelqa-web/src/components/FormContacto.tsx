@@ -1,17 +1,28 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { Loader2, Mail, MessageCircle, Send } from 'lucide-react';
+import { Building2, Hash, Loader2, Mail, MessageCircle, Send, Smartphone, User, UserRound } from 'lucide-react';
 import { contacto, waUrl } from '@/lib/contenido';
 
 const limpio = (t: string) => t.replace(/[<>]/g, '');
-const campo = 'mt-1.5 block min-h-12 w-full rounded-xl border border-carbon/20 bg-white px-4 py-3 text-base text-tinta transition duration-300 placeholder:text-carbon/40 hover:border-kelqa/40 focus:border-kelqa focus:shadow-[0_0_0_4px_rgb(27_137_143/0.12)] focus:outline-none';
+const campo = 'block min-h-12 w-full rounded-xl border border-carbon/20 bg-white px-4 py-3 text-base text-tinta transition duration-300 placeholder:text-carbon/40 hover:border-kelqa/40 focus:border-kelqa focus:shadow-[0_0_0_4px_rgb(27_137_143/0.12)] focus:outline-none';
 const MAX_MENSAJE = 3000;
-const VACIO = { nombre: '', email: '', celular: '', empresa: '', mensaje: '', acepto: false, website: '' };
-const ORDEN = ['nombre', 'email', 'celular', 'mensaje', 'acepto'];
+const VACIO = { nombre: '', email: '', celular: '', empresa: '', ruc: '', mensaje: '', acepto: false, website: '' };
+const ORDEN = ['empresa', 'ruc', 'nombre', 'email', 'celular', 'mensaje', 'acepto'];
+type Tipo = 'persona' | 'empresa';
+
+/** Campo con ícono a la izquierda como identificador. */
+const ConIcono = ({ icono: Icono, children }: { icono: typeof User; children: React.ReactNode }) => (
+  <div className="group/campo relative mt-1.5">
+    <Icono aria-hidden="true" size={18} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-carbon/40 transition group-focus-within/campo:text-kelqa" />
+    {children}
+  </div>
+);
 
 /** Formulario de contacto: envía a la API del HUB por /api/hub/contacto; si no responde, ofrece WhatsApp y correo. */
 export default function FormContacto() {
+  const [tipo, setTipo] = useState<Tipo>('persona');
   const [f, setF] = useState(VACIO);
+  const esEmpresa = tipo === 'empresa';
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [enviando, setEnviando] = useState(false);
   const [resultado, setResultado] = useState<null | 'ok' | 'fallo'>(null);
@@ -24,7 +35,9 @@ export default function FormContacto() {
   const validar = () => {
     const e: Record<string, string> = {};
     const celular = f.celular.replace(/[\s()-]/g, '').replace(/^\+?51(?=9\d{8}$)/, '');
-    if (limpio(f.nombre).trim().length < 2) e.nombre = 'Ingresa tus nombres (mínimo 2 letras).';
+    if (esEmpresa && limpio(f.empresa).trim().length < 2) e.empresa = 'Ingresa la razón social o el nombre de la entidad.';
+    if (esEmpresa && f.ruc.trim() && !/^(10|15|17|20)\d{9}$/.test(f.ruc.trim())) e.ruc = 'El RUC tiene 11 dígitos (ej. 20123456789), o déjalo en blanco.';
+    if (limpio(f.nombre).trim().length < 2) e.nombre = esEmpresa ? 'Ingresa el nombre de la persona de contacto.' : 'Ingresa tus nombres y apellidos.';
     if (!/^\S+@\S+\.\S+$/.test(f.email.trim())) e.email = 'Ingresa un correo válido.';
     if (celular && !/^9\d{8}$/.test(celular)) e.celular = 'Ingresa un celular de 9 dígitos que empiece con 9, o déjalo en blanco.';
     if (limpio(f.mensaje).trim().length < 2) e.mensaje = 'Escribe tu mensaje.';
@@ -42,7 +55,7 @@ export default function FormContacto() {
     setEnviando(true);
     const cuerpo = {
       nombre: limpio(f.nombre.trim()), email: f.email.trim(), celular: f.celular.trim() || undefined,
-      empresa: limpio(f.empresa.trim()) || undefined, mensaje: limpio(f.mensaje).trim().slice(0, MAX_MENSAJE), website: f.website,
+      empresa: esEmpresa ? `${limpio(f.empresa.trim())}${f.ruc.trim() ? ` (RUC ${f.ruc.trim()})` : ''}`.slice(0, 120) : undefined, mensaje: limpio(f.mensaje).trim().slice(0, MAX_MENSAJE), website: f.website,
     };
     try {
       const res = await fetch('/api/hub/contacto', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) });
@@ -88,28 +101,49 @@ export default function FormContacto() {
 
   return (
     <form id="contacto-form" onSubmit={enviar} noValidate className="grid gap-5 rounded-[1.75rem] bg-niebla p-6 sm:grid-cols-2 sm:p-8">
+      <fieldset className="sm:col-span-2">
+        <legend className="text-sm font-semibold text-tinta">¿Quién nos escribe?</legend>
+        <div className="mt-2 grid grid-cols-2 gap-1 rounded-xl bg-white p-1 shadow-sm shadow-kelqa-hondo/5 ring-1 ring-carbon/10 sm:inline-grid">
+          {([['persona', 'Persona natural', User], ['empresa', 'Empresa o entidad', Building2]] as const).map(([valor, texto, Icono]) => (
+            <label key={valor} className="relative flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold text-carbon transition duration-300 hover:text-kelqa-hondo has-[:checked]:bg-kelqa has-[:checked]:text-white has-[:checked]:shadow-md has-[:checked]:shadow-kelqa-hondo/25 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-kelqa has-[:focus-visible]:ring-offset-2">
+              <input type="radio" name="tipo" value={valor} checked={tipo === valor} onChange={() => { setTipo(valor); setErrores({}); }} className="sr-only" />
+              <Icono aria-hidden="true" size={17} />{texto}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      {esEmpresa && (
+        <>
+          <div>
+            <label htmlFor="empresa" className="text-sm font-semibold text-tinta">Razón social o entidad <span aria-hidden="true" className="text-kelqa">*</span></label>
+            <ConIcono icono={Building2}><input id="empresa" value={f.empresa} onChange={(e) => set('empresa', e.target.value)} autoComplete="organization" maxLength={100} placeholder="Ej. Constructora Andina S.A.C." className={`${campo} pl-11`} aria-required="true" {...aria('empresa')} /></ConIcono>
+            {err('empresa')}
+          </div>
+          <div>
+            <label htmlFor="ruc" className="text-sm font-semibold text-tinta">RUC <span className="font-normal text-carbon/60">(opcional)</span></label>
+            <ConIcono icono={Hash}><input id="ruc" value={f.ruc} onChange={(e) => set('ruc', e.target.value.replace(/\D/g, ''))} inputMode="numeric" maxLength={11} placeholder="Ej. 20123456789" className={`${campo} pl-11`} {...aria('ruc')} /></ConIcono>
+            {err('ruc')}
+          </div>
+        </>
+      )}
       <div>
-        <label htmlFor="nombre" className="text-sm font-semibold text-tinta">Nombres <span aria-hidden="true" className="text-kelqa">*</span></label>
-        <input id="nombre" value={f.nombre} onChange={(e) => set('nombre', e.target.value)} autoComplete="name" maxLength={120} className={campo} aria-required="true" {...aria('nombre')} />
+        <label htmlFor="nombre" className="text-sm font-semibold text-tinta">{esEmpresa ? 'Persona de contacto' : 'Nombres y apellidos'} <span aria-hidden="true" className="text-kelqa">*</span></label>
+        <ConIcono icono={esEmpresa ? UserRound : User}><input id="nombre" value={f.nombre} onChange={(e) => set('nombre', e.target.value)} autoComplete="name" maxLength={120} placeholder={esEmpresa ? 'Ej. Ana Torres Ramos' : 'Ej. Juan Pérez Quispe'} className={`${campo} pl-11`} aria-required="true" {...aria('nombre')} /></ConIcono>
         {err('nombre')}
       </div>
       <div>
-        <label htmlFor="email" className="text-sm font-semibold text-tinta">Correo electrónico <span aria-hidden="true" className="text-kelqa">*</span></label>
-        <input id="email" type="email" value={f.email} onChange={(e) => set('email', e.target.value)} autoComplete="email" maxLength={120} className={campo} aria-required="true" {...aria('email')} />
+        <label htmlFor="email" className="text-sm font-semibold text-tinta">{esEmpresa ? 'Correo corporativo' : 'Correo electrónico'} <span aria-hidden="true" className="text-kelqa">*</span></label>
+        <ConIcono icono={Mail}><input id="email" type="email" value={f.email} onChange={(e) => set('email', e.target.value)} autoComplete="email" maxLength={120} placeholder={esEmpresa ? 'Ej. compras@empresa.com.pe' : 'Ej. juan.perez@gmail.com'} className={`${campo} pl-11`} aria-required="true" {...aria('email')} /></ConIcono>
         {err('email')}
       </div>
-      <div>
+      <div className={esEmpresa ? 'sm:col-span-2' : ''}>
         <label htmlFor="celular" className="text-sm font-semibold text-tinta">Celular <span className="font-normal text-carbon/60">(opcional)</span></label>
-        <input id="celular" type="tel" value={f.celular} onChange={(e) => set('celular', e.target.value)} autoComplete="tel" maxLength={20} placeholder="9XXXXXXXX" className={campo} {...aria('celular')} />
+        <ConIcono icono={Smartphone}><input id="celular" type="tel" value={f.celular} onChange={(e) => set('celular', e.target.value)} autoComplete="tel" maxLength={20} placeholder="Ej. 987 654 321" className={`${campo} pl-11`} {...aria('celular')} /></ConIcono>
         {err('celular')}
-      </div>
-      <div>
-        <label htmlFor="empresa" className="text-sm font-semibold text-tinta">Empresa o entidad <span className="font-normal text-carbon/60">(opcional)</span></label>
-        <input id="empresa" value={f.empresa} onChange={(e) => set('empresa', e.target.value)} autoComplete="organization" maxLength={120} className={campo} />
       </div>
       <div className="sm:col-span-2">
         <label htmlFor="mensaje" className="text-sm font-semibold text-tinta">Mensaje <span aria-hidden="true" className="text-kelqa">*</span></label>
-        <textarea id="mensaje" value={f.mensaje} onChange={(e) => set('mensaje', e.target.value)} rows={5} maxLength={MAX_MENSAJE} placeholder="Cuéntanos qué productos necesitas y para qué proyecto" className={campo} aria-required="true" {...aria('mensaje')} />
+        <textarea id="mensaje" value={f.mensaje} onChange={(e) => set('mensaje', e.target.value)} rows={5} maxLength={MAX_MENSAJE} placeholder={esEmpresa ? 'Ej. Necesitamos 40 galones de pintura de tráfico para señalizar 2 km de vía en Arequipa.' : 'Ej. Quisiera cotizar 2 galones de látex mate color blanco para mi casa.'} className={`${campo} mt-1.5`} aria-required="true" {...aria('mensaje')} />
         <p className="mt-1 text-right text-xs text-carbon/60">{f.mensaje.length}/{MAX_MENSAJE}</p>
         {err('mensaje')}
       </div>
