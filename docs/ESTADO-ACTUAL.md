@@ -1190,7 +1190,7 @@ Plan: [`docs/superpowers/plans/2026-10-23-cms-fimav.md`](superpowers/plans/2026-
 - **Páginas**: `/nosotros` (quiénes somos, misión, visión, valores con su definición, propuesta y clientes), `/lineas/[pinturas|mobiliario|construccion]` (fichas con la descripción completa del brochure, galería, otras líneas; Pinturas suma Súper Látex Mate) y `/contacto` (canales, formulario y las 5 preguntas frecuentes de la web anterior). La web anterior solo tenía Inicio y Contacto propios; el resto (tienda, blog, portafolio, about-us) era contenido demo del tema. Cabecera con submenú de líneas; pie con enlaces a todas las páginas.
 - **Widget de WhatsApp** como el de Fimav: panel con 6 motivos y mensaje ya escrito, logo de WhatsApp, saludo automático una vez por visita y se oculta sobre el pie y el formulario.
 - **Formulario de contacto**: `/api/hub/contacto` reenvía a `POST /public/contacto` con `HUB_MARCA_ID` (origen `kelqa-web/contacto`); sin esa variable responde 503 y el formulario ofrece WhatsApp y correo.
-- **Dato a confirmar**: el teléfono del brochure (+51 933 098 493, el que usa la web) no coincide con el del pie de la web anterior (+51 933 819 389).
+- **Teléfono confirmado**: +51 933 098 493 (el del brochure). El +51 933 819 389 del pie de la web anterior queda descartado.
 - Pendiente: CMS desde el dashboard, contador de visitas, libro de reclamaciones, tickets, legales, `HUB_MARCA_ID`, repo espejo `kelqa-web` y despliegue.
 
 ### 2026-10-27 (2) — CRM comercial
