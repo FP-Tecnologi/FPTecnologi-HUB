@@ -1,18 +1,24 @@
 'use client';
 import { useEffect, useRef } from 'react';
 
+// Un solo observador: marca data-dentro al entrar y lo quita al salir, así la entrada y la salida son suaves.
 let io: IntersectionObserver | undefined;
 const observador = () =>
-  (io ??= new IntersectionObserver(
-    (es) => es.forEach((e) => e.isIntersecting && (e.target.setAttribute('data-dentro', ''), io!.unobserve(e.target))),
-    { rootMargin: '0px 0px -8% 0px' },
-  ));
+  (io ??= new IntersectionObserver((es) => es.forEach((e) => e.target.toggleAttribute('data-dentro', e.isIntersecting)), {
+    rootMargin: '0px 0px -8% 0px',
+  }));
 
-type Props = { children: React.ReactNode; retraso?: number; className?: string };
+type Props = {
+  children: React.ReactNode;
+  retraso?: number;
+  efecto?: 'subir' | 'izquierda' | 'derecha' | 'zoom';
+  as?: 'div' | 'li';
+  className?: string;
+};
 
-/** Entrada suave al aparecer en pantalla (una sola vez). Sin JS o con reduced-motion se ve normal (ver globals.css). */
-export default function Reveal({ children, retraso = 0, className = '' }: Props) {
-  const ref = useRef<HTMLDivElement>(null);
+/** Entrada y salida suaves al aparecer/desaparecer de la pantalla. Sin JS o con reduced-motion se ve normal (ver globals.css). */
+export default function Reveal({ children, retraso = 0, efecto = 'subir', as: Tag = 'div', className = '' }: Props) {
+  const ref = useRef<HTMLElement>(null);
   useEffect(() => {
     const el = ref.current;
     if (!el || !('IntersectionObserver' in window)) return el?.setAttribute('data-dentro', '');
@@ -20,8 +26,8 @@ export default function Reveal({ children, retraso = 0, className = '' }: Props)
     return () => observador().unobserve(el);
   }, []);
   return (
-    <div ref={ref} data-reveal="" className={className} style={retraso ? ({ '--retraso': `${retraso}ms` } as React.CSSProperties) : undefined}>
+    <Tag ref={ref as React.Ref<never>} data-reveal={efecto} className={className} style={retraso ? ({ '--retraso': `${retraso}ms` } as React.CSSProperties) : undefined}>
       {children}
-    </div>
+    </Tag>
   );
 }

@@ -28,9 +28,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           target="_blank"
           rel="noopener noreferrer"
           aria-label="Escribir por WhatsApp (se abre en otra pestaña)"
-          className="fixed bottom-5 right-5 z-50 grid size-14 place-items-center rounded-2xl bg-kelqa text-white shadow-xl shadow-kelqa-hondo/40 transition hover:-translate-y-1 hover:bg-kelqa-hondo"
+          className="anillo fixed bottom-5 right-5 z-50 grid size-14 place-items-center rounded-2xl text-white"
         >
-          <MessageCircle aria-hidden="true" size={26} />
+          <span className="boton grid size-full place-items-center rounded-2xl bg-kelqa shadow-xl shadow-kelqa-hondo/40 hover:bg-kelqa-hondo">
+            <MessageCircle aria-hidden="true" size={26} className="icono-sacude" />
+          </span>
         </a>
       </body>
     </html>

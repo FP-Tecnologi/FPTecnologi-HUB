@@ -36,17 +36,17 @@ export default function Header() {
               {e.texto}
             </a>
           ))}
-          <a href={cotizar} target="_blank" rel="noopener noreferrer" className="inline-flex h-11 items-center gap-2 rounded-xl bg-kelqa px-5 text-[15px] font-semibold text-white shadow-lg shadow-kelqa-hondo/30 transition hover:-translate-y-0.5 hover:bg-kelqa-hondo">
-            <MessageCircle aria-hidden="true" size={18} />Cotizar
+          <a href={cotizar} target="_blank" rel="noopener noreferrer" className="boton inline-flex h-11 items-center gap-2 rounded-xl bg-kelqa px-5 text-[15px] font-semibold text-white shadow-lg shadow-kelqa-hondo/30 hover:bg-kelqa-hondo">
+            <MessageCircle aria-hidden="true" size={18} className="icono-sacude" />Cotizar
           </a>
         </nav>
         <details ref={menu} className="group relative lg:hidden">
-          <summary className="grid size-11 cursor-pointer list-none place-items-center rounded-xl bg-kelqa text-white [&::-webkit-details-marker]:hidden">
+          <summary className="boton grid size-11 cursor-pointer list-none place-items-center rounded-xl bg-kelqa text-white [&::-webkit-details-marker]:hidden [&_svg]:transition-transform group-open:[&_svg]:rotate-90">
             <Menu aria-hidden="true" className="group-open:hidden" />
             <X aria-hidden="true" className="hidden group-open:block" />
             <span className="sr-only">Abrir menú</span>
           </summary>
-          <nav aria-label="Principal" className="absolute right-0 top-full mt-3 flex w-64 flex-col gap-1 rounded-2xl bg-white p-3 shadow-xl shadow-tinta/20">
+          <nav aria-label="Principal" className="absolute right-0 top-full mt-3 flex w-64 origin-top-right flex-col gap-1 rounded-2xl bg-white p-3 shadow-xl shadow-tinta/20 motion-safe:animate-[entrada_0.35s_var(--suave)]">
             {enlaces.map((e) => (
               <a key={e.href} href={e.href} onClick={cerrar} className="flex min-h-12 items-center rounded-lg px-3 font-semibold text-carbon hover:bg-niebla hover:text-kelqa-hondo">{e.texto}</a>
             ))}

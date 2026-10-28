@@ -12,14 +12,14 @@ export default function Footer() {
         <div>
           <h2 className="text-sm font-bold uppercase tracking-[0.16em] text-white">Líneas</h2>
           <ul className="mt-4 space-y-2 text-sm">
-            {lineas.map((l) => <li key={l.id}><a href={`#${l.id}`} className="hover:text-kelqa-claro">{l.nombre}</a></li>)}
+            {lineas.map((l) => <li key={l.id}><a href={`#${l.id}`} className="inline-block transition duration-300 hover:translate-x-1 hover:text-kelqa-claro">{l.nombre}</a></li>)}
           </ul>
         </div>
         <div>
           <h2 className="text-sm font-bold uppercase tracking-[0.16em] text-white">Contacto</h2>
           <ul className="mt-4 space-y-2 text-sm">
-            <li><a href={contacto.telefonoHref} className="inline-flex items-center gap-2 hover:text-kelqa-claro"><Phone aria-hidden="true" size={16} />{contacto.telefono}</a></li>
-            <li><a href={`mailto:${contacto.correo}`} className="inline-flex items-center gap-2 hover:text-kelqa-claro"><Mail aria-hidden="true" size={16} />{contacto.correo}</a></li>
+            <li><a href={contacto.telefonoHref} className="inline-flex items-center gap-2 transition duration-300 hover:translate-x-1 hover:text-kelqa-claro"><Phone aria-hidden="true" size={16} />{contacto.telefono}</a></li>
+            <li><a href={`mailto:${contacto.correo}`} className="inline-flex items-center gap-2 transition duration-300 hover:translate-x-1 hover:text-kelqa-claro"><Mail aria-hidden="true" size={16} />{contacto.correo}</a></li>
             <li className="inline-flex items-center gap-2"><AtSign aria-hidden="true" size={16} />{contacto.redes} en redes</li>
           </ul>
         </div>
