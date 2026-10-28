@@ -1,13 +1,13 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { Building2, Hash, Loader2, Mail, MessageCircle, Send, Smartphone, User, UserRound } from 'lucide-react';
+import { Building2, Hash, IdCard, Loader2, Mail, MessageCircle, Send, Smartphone, User } from 'lucide-react';
 import { contacto, waUrl } from '@/lib/contenido';
 
 const limpio = (t: string) => t.replace(/[<>]/g, '');
 const campo = 'block min-h-12 w-full rounded-xl border border-carbon/20 bg-white px-4 py-3 text-base text-tinta transition duration-300 placeholder:text-carbon/40 hover:border-kelqa/40 focus:border-kelqa focus:shadow-[0_0_0_4px_rgb(27_137_143/0.12)] focus:outline-none';
 const MAX_MENSAJE = 3000;
-const VACIO = { nombre: '', email: '', celular: '', empresa: '', ruc: '', mensaje: '', acepto: false, website: '' };
-const ORDEN = ['empresa', 'ruc', 'nombre', 'email', 'celular', 'mensaje', 'acepto'];
+const VACIO = { nombre: '', email: '', celular: '', empresa: '', ruc: '', dni: '', mensaje: '', acepto: false, website: '' };
+const ORDEN = ['empresa', 'ruc', 'nombre', 'dni', 'email', 'celular', 'mensaje', 'acepto'];
 type Tipo = 'persona' | 'empresa';
 
 /** Campo con ícono a la izquierda como identificador. */
@@ -37,7 +37,8 @@ export default function FormContacto() {
     const celular = f.celular.replace(/[\s()-]/g, '').replace(/^\+?51(?=9\d{8}$)/, '');
     if (esEmpresa && limpio(f.empresa).trim().length < 2) e.empresa = 'Ingresa la razón social o el nombre de la entidad.';
     if (esEmpresa && f.ruc.trim() && !/^(10|15|17|20)\d{9}$/.test(f.ruc.trim())) e.ruc = 'El RUC tiene 11 dígitos (ej. 20123456789), o déjalo en blanco.';
-    if (limpio(f.nombre).trim().length < 2) e.nombre = esEmpresa ? 'Ingresa el nombre de la persona de contacto.' : 'Ingresa tus nombres y apellidos.';
+    if (!esEmpresa && limpio(f.nombre).trim().length < 2) e.nombre = 'Ingresa tus nombres y apellidos.';
+    if (!esEmpresa && f.dni.trim() && !/^\d{8}$/.test(f.dni.trim())) e.dni = 'El DNI tiene 8 dígitos (ej. 45678912), o déjalo en blanco.';
     if (!/^\S+@\S+\.\S+$/.test(f.email.trim())) e.email = 'Ingresa un correo válido.';
     if (celular && !/^9\d{8}$/.test(celular)) e.celular = 'Ingresa un celular de 9 dígitos que empiece con 9, o déjalo en blanco.';
     if (limpio(f.mensaje).trim().length < 2) e.mensaje = 'Escribe tu mensaje.';
@@ -53,9 +54,11 @@ export default function FormContacto() {
     setErrorApi('');
     if (!validar()) return;
     setEnviando(true);
+    // La API solo tiene nombre y empresa: el DNI viaja junto al nombre y el RUC junto a la razón social.
+    const razon = `${limpio(f.empresa.trim())}${f.ruc.trim() ? ` (RUC ${f.ruc.trim()})` : ''}`.slice(0, 120);
     const cuerpo = {
-      nombre: limpio(f.nombre.trim()), email: f.email.trim(), celular: f.celular.trim() || undefined,
-      empresa: esEmpresa ? `${limpio(f.empresa.trim())}${f.ruc.trim() ? ` (RUC ${f.ruc.trim()})` : ''}`.slice(0, 120) : undefined, mensaje: limpio(f.mensaje).trim().slice(0, MAX_MENSAJE), website: f.website,
+      nombre: esEmpresa ? limpio(f.empresa.trim()) : `${limpio(f.nombre.trim())}${f.dni.trim() ? ` (DNI ${f.dni.trim()})` : ''}`.slice(0, 120), email: f.email.trim(), celular: f.celular.trim() || undefined,
+      empresa: esEmpresa ? razon : undefined, mensaje: limpio(f.mensaje).trim().slice(0, MAX_MENSAJE), website: f.website,
     };
     try {
       const res = await fetch('/api/hub/contacto', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) });
@@ -90,7 +93,7 @@ export default function FormContacto() {
             <h3 className="text-2xl font-extrabold">No pudimos enviarlo</h3>
             <p className="mt-3 leading-relaxed">Tu mensaje no se registró. Escríbenos por WhatsApp o a {contacto.correo}.</p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <a href={waUrl(`Hola Kelqa, soy ${limpio(f.nombre) || 'un cliente'}. ${limpio(f.mensaje)}`.slice(0, 1500))} target="_blank" rel="noopener noreferrer" className={`${boton} bg-kelqa text-white hover:bg-kelqa-hondo`}><MessageCircle aria-hidden="true" size={18} />WhatsApp</a>
+              <a href={waUrl(`Hola Kelqa, soy ${limpio(esEmpresa ? f.empresa : f.nombre) || 'un cliente'}. ${limpio(f.mensaje)}`.slice(0, 1500))} target="_blank" rel="noopener noreferrer" className={`${boton} bg-kelqa text-white hover:bg-kelqa-hondo`}><MessageCircle aria-hidden="true" size={18} />WhatsApp</a>
               <a href={`mailto:${contacto.correo}`} className={`${boton} bg-kelqa/10 text-kelqa-hondo hover:bg-kelqa/20`}><Mail aria-hidden="true" size={18} />Correo</a>
               <button type="button" onClick={() => setResultado(null)} className={`${boton} text-carbon hover:bg-white`}>Volver</button>
             </div>
@@ -112,7 +115,7 @@ export default function FormContacto() {
           ))}
         </div>
       </fieldset>
-      {esEmpresa && (
+      {esEmpresa ? (
         <>
           <div>
             <label htmlFor="empresa" className="text-sm font-semibold text-tinta">Razón social o entidad <span aria-hidden="true" className="text-kelqa">*</span></label>
@@ -125,18 +128,26 @@ export default function FormContacto() {
             {err('ruc')}
           </div>
         </>
+      ) : (
+        <>
+          <div>
+            <label htmlFor="nombre" className="text-sm font-semibold text-tinta">Nombres y apellidos <span aria-hidden="true" className="text-kelqa">*</span></label>
+            <ConIcono icono={User}><input id="nombre" value={f.nombre} onChange={(e) => set('nombre', e.target.value)} autoComplete="name" maxLength={100} placeholder="Ej. Juan Pérez Quispe" className={`${campo} pl-11`} aria-required="true" {...aria('nombre')} /></ConIcono>
+            {err('nombre')}
+          </div>
+          <div>
+            <label htmlFor="dni" className="text-sm font-semibold text-tinta">DNI <span className="font-normal text-carbon/60">(opcional)</span></label>
+            <ConIcono icono={IdCard}><input id="dni" value={f.dni} onChange={(e) => set('dni', e.target.value.replace(/\D/g, ''))} inputMode="numeric" maxLength={8} placeholder="Ej. 45678912" className={`${campo} pl-11`} {...aria('dni')} /></ConIcono>
+            {err('dni')}
+          </div>
+        </>
       )}
-      <div>
-        <label htmlFor="nombre" className="text-sm font-semibold text-tinta">{esEmpresa ? 'Persona de contacto' : 'Nombres y apellidos'} <span aria-hidden="true" className="text-kelqa">*</span></label>
-        <ConIcono icono={esEmpresa ? UserRound : User}><input id="nombre" value={f.nombre} onChange={(e) => set('nombre', e.target.value)} autoComplete="name" maxLength={120} placeholder={esEmpresa ? 'Ej. Ana Torres Ramos' : 'Ej. Juan Pérez Quispe'} className={`${campo} pl-11`} aria-required="true" {...aria('nombre')} /></ConIcono>
-        {err('nombre')}
-      </div>
       <div>
         <label htmlFor="email" className="text-sm font-semibold text-tinta">{esEmpresa ? 'Correo corporativo' : 'Correo electrónico'} <span aria-hidden="true" className="text-kelqa">*</span></label>
         <ConIcono icono={Mail}><input id="email" type="email" value={f.email} onChange={(e) => set('email', e.target.value)} autoComplete="email" maxLength={120} placeholder={esEmpresa ? 'Ej. compras@empresa.com.pe' : 'Ej. juan.perez@gmail.com'} className={`${campo} pl-11`} aria-required="true" {...aria('email')} /></ConIcono>
         {err('email')}
       </div>
-      <div className={esEmpresa ? 'sm:col-span-2' : ''}>
+      <div>
         <label htmlFor="celular" className="text-sm font-semibold text-tinta">Celular <span className="font-normal text-carbon/60">(opcional)</span></label>
         <ConIcono icono={Smartphone}><input id="celular" type="tel" value={f.celular} onChange={(e) => set('celular', e.target.value)} autoComplete="tel" maxLength={20} placeholder="Ej. 987 654 321" className={`${campo} pl-11`} {...aria('celular')} /></ConIcono>
         {err('celular')}
