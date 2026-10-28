@@ -8,6 +8,7 @@
  */
 import { CONTACT_INFO, SOCIAL_LINKS, STATS } from './content';
 import { COMPLIANCE_DOCS, COMPLIANCE_MD } from './compliance';
+import { AREAS_CONTACTO } from './areasContacto';
 
 type Enc = { badge: string; titulo: string; destacado: string; descripcion: string };
 const enc = (o: Partial<Enc>): Enc => ({ badge: '', titulo: '', destacado: '', descripcion: '', ...o });
@@ -90,7 +91,10 @@ export const PAGINAS_DEFAULTS = {
       destacado: 'tu próximo proyecto',
       descripcion: 'Escríbenos, llámanos o visítanos en Breña. Un asesor te responde en horario de oficina.',
     }),
-    asesores: enc({ badge: 'Asesores', titulo: 'Habla directo con', destacado: 'el área que necesitas' }),
+    asesores: {
+      ...enc({ badge: 'Contacto por área', titulo: 'Habla con el área', destacado: 'que necesitas', descripcion: 'Cada equipo tiene su propia línea y correo para atenderte más rápido.' }),
+      items: AREAS_CONTACTO,
+    },
     visita: { ...enc({ badge: 'Visítanos', titulo: 'Nuestra', destacado: 'oficina' }), horario: 'Lunes a viernes, 9:00 a 18:00' },
   },
   alquiler: {

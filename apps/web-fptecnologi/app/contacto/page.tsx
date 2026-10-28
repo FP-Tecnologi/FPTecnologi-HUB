@@ -40,7 +40,7 @@ export default async function ContactoPage() {
       </PageHero>
 
       <main>
-        <AreasContacto />
+        <AreasContacto {...c.asesores} />
 
         {/* Formulario principal (sin tarjetas de datos: ya están en «Contacto por área»). */}
         <Contact completo />

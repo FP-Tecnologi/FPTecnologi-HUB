@@ -92,7 +92,27 @@ const PROYECTOS = base('proyectos', 'Proyectos', '/proyectos', [HERO()]);
 
 const CONTACTO = base('contacto', 'Contacto', '/contacto', [
   HERO(),
-  { key: 'asesores', nombre: 'Asesores por área', ancla: '', campos: [BADGE, TITULO, DESTACADO] },
+  {
+    key: 'asesores',
+    nombre: 'Asesores por área',
+    ancla: '',
+    campos: [
+      ...ENCABEZADO,
+      {
+        key: 'items',
+        label: 'Tarjetas por área',
+        tipo: 'lista-objetos',
+        itemLabel: 'Área',
+        tituloDe: 'area',
+        campos: [
+          { key: 'area', label: 'Área', tipo: 'text' },
+          { key: 'descripcion', label: 'Descripción', tipo: 'textarea' },
+          { key: 'telefono', label: 'Teléfono', tipo: 'text', ayuda: 'Ej. +51 970 614 881. Vacío = no se muestra' },
+          { key: 'email', label: 'Correo', tipo: 'text', ayuda: 'Vacío = no se muestra' },
+        ],
+      },
+    ],
+  },
   {
     key: 'visita',
     nombre: 'Visítanos (oficina y horario)',
