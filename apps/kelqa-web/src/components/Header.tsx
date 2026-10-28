@@ -1,41 +1,70 @@
 'use client';
 import { useEffect, useRef } from 'react';
-import { Menu, MessageCircle, X } from 'lucide-react';
-import { waUrl } from '@/lib/contenido';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { ChevronDown, Menu, MessageCircle, X } from 'lucide-react';
+import { lineas, waUrl } from '@/lib/contenido';
 
 const enlaces = [
-  { href: '#lineas', texto: 'Líneas' },
-  { href: '#nosotros', texto: 'Nosotros' },
-  { href: '#clientes', texto: 'Clientes' },
-  { href: '#contacto', texto: 'Contacto' },
+  { href: '/', texto: 'Inicio' },
+  { href: '/nosotros', texto: 'Nosotros' },
+  { href: '/contacto', texto: 'Contacto' },
 ];
 const cotizar = waUrl('Hola Kelqa, quisiera cotizar productos para mi proyecto.');
+const activo = (ruta: string, href: string) => (href === '/' ? ruta === '/' : ruta.startsWith(href));
+const link = 'cabecera-link relative flex min-h-11 items-center gap-1 text-[15px] font-semibold text-carbon after:absolute after:inset-x-0 after:bottom-1.5 after:h-0.5 after:origin-left after:rounded-full after:bg-kelqa after:transition-transform after:duration-300 hover:after:scale-x-100';
 
-/** Cabecera fija: transparente sobre el hero y blanca al bajar (marca html[data-scrolled]). */
+/** Cabecera fija: transparente sobre el banner y blanca al bajar (marca html[data-scrolled]). Líneas abre un submenú. */
 export default function Header() {
+  const ruta = usePathname();
   const menu = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
     const h = document.documentElement;
     const f = () => h.toggleAttribute('data-scrolled', window.scrollY > 40);
     f();
     window.addEventListener('scroll', f, { passive: true });
+    menu.current?.removeAttribute('open');
     return () => window.removeEventListener('scroll', f);
-  }, []);
-  const cerrar = () => menu.current?.removeAttribute('open');
+  }, [ruta]);
+
+  const Item = ({ href, texto }: { href: string; texto: string }) => (
+    <Link href={href} aria-current={activo(ruta, href) ? 'page' : undefined} className={`${link} ${activo(ruta, href) ? 'after:scale-x-100' : 'after:scale-x-0'}`}>{texto}</Link>
+  );
 
   return (
     <header className="cabecera fixed inset-x-0 top-0 z-50">
       <div className="mx-auto flex h-[var(--alto-cabecera)] max-w-7xl items-center justify-between gap-6 px-5 sm:px-8">
-        <a href="#inicio" aria-label="Kelqa, inicio" className="shrink-0">
+        <Link href="/" aria-label="Kelqa, inicio" className="shrink-0 transition-transform duration-300 hover:scale-[1.03]">
           <img src="/brand/kelqa-blanco.svg" alt="" className="cabecera-logo-blanco h-9 w-auto" />
           <img src="/brand/kelqa.svg" alt="" className="cabecera-logo-color h-9 w-auto" />
-        </a>
+        </Link>
         <nav aria-label="Principal" className="hidden items-center gap-8 lg:flex">
-          {enlaces.map((e) => (
-            <a key={e.href} href={e.href} className="cabecera-link relative py-2 text-[15px] font-semibold text-carbon after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:origin-left after:scale-x-0 after:rounded-full after:bg-kelqa after:transition-transform hover:after:scale-x-100">
-              {e.texto}
-            </a>
-          ))}
+          <Item {...enlaces[0]} />
+          {/* Submenú de líneas: se abre al pasar el mouse o con el foco del teclado. */}
+          <div className="group/sub relative">
+            <Link href="/#lineas" className={`${link} ${ruta.startsWith('/lineas') ? 'after:scale-x-100' : 'after:scale-x-0'}`}>
+              Líneas <ChevronDown aria-hidden="true" size={16} className="transition-transform duration-300 group-hover/sub:rotate-180" />
+            </Link>
+            <div className="invisible absolute left-1/2 top-full w-80 -translate-x-1/2 translate-y-2 pt-3 opacity-0 transition duration-300 group-focus-within/sub:visible group-focus-within/sub:translate-y-0 group-focus-within/sub:opacity-100 group-hover/sub:visible group-hover/sub:translate-y-0 group-hover/sub:opacity-100">
+              <ul className="rounded-2xl bg-white p-2 shadow-2xl shadow-tinta/20 ring-1 ring-kelqa/10">
+                {lineas.map((l) => (
+                  <li key={l.id}>
+                    <Link href={`/lineas/${l.id}`} className="group flex items-center gap-3 rounded-xl p-2.5 transition duration-300 hover:bg-niebla">
+                      <span className="icono-caja grid size-12 shrink-0 place-items-center rounded-xl bg-niebla group-hover:bg-white">
+                        <img src={l.productos[0].img} alt="" className="max-h-10 max-w-10 object-contain" />
+                      </span>
+                      <span>
+                        <b className="block text-sm text-tinta group-hover:text-kelqa-hondo">{l.nombre}</b>
+                        <span className="block text-xs leading-snug text-carbon/70">{l.productos.length} productos</span>
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          <Item {...enlaces[1]} />
+          <Item {...enlaces[2]} />
           <a href={cotizar} target="_blank" rel="noopener noreferrer" className="boton inline-flex h-11 items-center gap-2 rounded-xl bg-kelqa px-5 text-[15px] font-semibold text-white shadow-lg shadow-kelqa-hondo/30 hover:bg-kelqa-hondo">
             <MessageCircle aria-hidden="true" size={18} className="icono-sacude" />Cotizar
           </a>
@@ -46,9 +75,11 @@ export default function Header() {
             <X aria-hidden="true" className="hidden group-open:block" />
             <span className="sr-only">Abrir menú</span>
           </summary>
-          <nav aria-label="Principal" className="absolute right-0 top-full mt-3 flex w-64 origin-top-right flex-col gap-1 rounded-2xl bg-white p-3 shadow-xl shadow-tinta/20 motion-safe:animate-[entrada_0.35s_var(--suave)]">
-            {enlaces.map((e) => (
-              <a key={e.href} href={e.href} onClick={cerrar} className="flex min-h-12 items-center rounded-lg px-3 font-semibold text-carbon hover:bg-niebla hover:text-kelqa-hondo">{e.texto}</a>
+          <nav aria-label="Principal" className="absolute right-0 top-full mt-3 flex w-72 origin-top-right flex-col gap-1 rounded-2xl bg-white p-3 shadow-xl shadow-tinta/20 motion-safe:animate-[entrada_0.35s_var(--suave)]">
+            {[enlaces[0], ...lineas.map((l) => ({ href: `/lineas/${l.id}`, texto: l.nombre })), enlaces[1], enlaces[2]].map((e) => (
+              <Link key={e.href} href={e.href} aria-current={activo(ruta, e.href) ? 'page' : undefined} className={`flex min-h-12 items-center rounded-lg border-l-4 px-3 font-semibold hover:bg-niebla hover:text-kelqa-hondo ${activo(ruta, e.href) ? 'border-kelqa text-kelqa-hondo' : 'border-transparent text-carbon'} ${e.href.startsWith('/lineas') ? 'pl-6 text-sm' : ''}`}>
+                {e.texto}
+              </Link>
             ))}
             <a href={cotizar} target="_blank" rel="noopener noreferrer" className="mt-1 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-kelqa font-semibold text-white">
               <MessageCircle aria-hidden="true" size={18} />Cotizar por WhatsApp

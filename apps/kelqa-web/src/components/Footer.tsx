@@ -1,30 +1,42 @@
+import Link from 'next/link';
 import { AtSign, Mail, Phone } from 'lucide-react';
 import { contacto, lineas } from '@/lib/contenido';
 
+const enlace = 'inline-flex items-center gap-2 transition duration-300 hover:translate-x-1 hover:text-kelqa-claro';
+const Titulo = ({ children }: { children: string }) => <h2 className="text-sm font-bold uppercase tracking-[0.16em] text-white">{children}</h2>;
+
 export default function Footer() {
   return (
-    <footer className="bg-tinta text-white/80">
-      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-8 md:grid-cols-[1.4fr_1fr_1fr]">
+    <footer id="pie" className="bg-tinta text-white/80">
+      <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-8 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <img src="/brand/kelqa-blanco.svg" alt="Kelqa" className="h-10 w-auto" />
-          <p className="mt-5 max-w-sm text-sm leading-relaxed">Soluciones confiables para los sectores industrial y construcción, con distribución a nivel nacional.</p>
+          <p className="mt-5 max-w-sm text-sm leading-relaxed">Soluciones confiables para los sectores industrial, construcción, vial y ayuda humanitaria, con distribución a nivel nacional.</p>
         </div>
         <div>
-          <h2 className="text-sm font-bold uppercase tracking-[0.16em] text-white">Líneas</h2>
+          <Titulo>Empresa</Titulo>
           <ul className="mt-4 space-y-2 text-sm">
-            {lineas.map((l) => <li key={l.id}><a href={`#${l.id}`} className="inline-block transition duration-300 hover:translate-x-1 hover:text-kelqa-claro">{l.nombre}</a></li>)}
+            <li><Link href="/" className={enlace}>Inicio</Link></li>
+            <li><Link href="/nosotros" className={enlace}>Nosotros</Link></li>
+            <li><Link href="/contacto" className={enlace}>Contacto</Link></li>
           </ul>
         </div>
         <div>
-          <h2 className="text-sm font-bold uppercase tracking-[0.16em] text-white">Contacto</h2>
+          <Titulo>Líneas</Titulo>
           <ul className="mt-4 space-y-2 text-sm">
-            <li><a href={contacto.telefonoHref} className="inline-flex items-center gap-2 transition duration-300 hover:translate-x-1 hover:text-kelqa-claro"><Phone aria-hidden="true" size={16} />{contacto.telefono}</a></li>
-            <li><a href={`mailto:${contacto.correo}`} className="inline-flex items-center gap-2 transition duration-300 hover:translate-x-1 hover:text-kelqa-claro"><Mail aria-hidden="true" size={16} />{contacto.correo}</a></li>
+            {lineas.map((l) => <li key={l.id}><Link href={`/lineas/${l.id}`} className={enlace}>{l.nombre}</Link></li>)}
+          </ul>
+        </div>
+        <div>
+          <Titulo>Contacto</Titulo>
+          <ul className="mt-4 space-y-2 text-sm">
+            <li><a href={contacto.telefonoHref} className={enlace}><Phone aria-hidden="true" size={16} />{contacto.telefono}</a></li>
+            <li><a href={`mailto:${contacto.correo}`} className={enlace}><Mail aria-hidden="true" size={16} />{contacto.correo}</a></li>
             <li className="inline-flex items-center gap-2"><AtSign aria-hidden="true" size={16} />{contacto.redes} en redes</li>
           </ul>
         </div>
       </div>
-      <p className="border-t border-white/10 px-5 py-5 text-center text-xs text-white/60">© {new Date().getFullYear()} Kelqa. Todos los derechos reservados. Algunas imágenes son referenciales.</p>
+      <p className="border-t border-white/10 px-5 pb-24 pt-5 text-center text-xs text-white/60 md:pb-5">© {new Date().getFullYear()} Kelqa. Todos los derechos reservados. Algunas imágenes son referenciales.</p>
     </footer>
   );
 }

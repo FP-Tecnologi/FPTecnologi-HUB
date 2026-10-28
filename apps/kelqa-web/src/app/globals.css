@@ -89,6 +89,9 @@ html:not([data-scrolled]) .cabecera-link { color: #fff; }
 .foto-zoom { transition: transform 1.2s var(--suave); }
 .group:hover .foto-zoom { transform: scale(1.06); }
 
+/* Panel del widget de WhatsApp: crece desde el botón. */
+@keyframes panel-wa { from { opacity: 0; transform: translateY(14px) scale(0.92); } }
+
 /* Detalles en reposo: el punto de las etiquetas late y el botón de WhatsApp emite un anillo. */
 @keyframes latir { 50% { transform: scale(1.5); opacity: 0.55; } }
 .latir { animation: latir 2.2s ease-in-out infinite; }

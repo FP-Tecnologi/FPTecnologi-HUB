@@ -1,7 +1,9 @@
-import { ArrowRight, BadgePercent, Headset, Mail, MessageCircle, Phone, Quote, ShieldCheck, Truck } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight, BadgePercent, Headset, MessageCircle, Quote, ShieldCheck, Truck } from 'lucide-react';
 import Reveal from '@/components/Reveal';
 import Titulo from '@/components/Titulo';
-import { clientes, contacto, lineas, razones, testimonios, valores, waUrl } from '@/lib/contenido';
+import { Clientes, CtaContacto } from '@/components/Bloques';
+import { lineas, razones, testimonios, valores, waUrl } from '@/lib/contenido';
 
 const ICONOS_RAZON = [ShieldCheck, BadgePercent, Truck, Headset];
 const contenedor = 'mx-auto max-w-7xl px-5 sm:px-8';
@@ -51,19 +53,19 @@ export default function Inicio() {
             <ul className="grid gap-2">
               {lineas.map((l, i) => (
                 <li key={l.id} className="entrada" style={retraso(560 + i * 110)}>
-                  <a href={`#${l.id}`} className="group flex items-center gap-4 rounded-2xl bg-white/[0.06] p-3 transition duration-300 hover:translate-x-1 hover:bg-white hover:text-tinta">
+                  <Link href={`/lineas/${l.id}`} className="group flex items-center gap-4 rounded-2xl bg-white/[0.06] p-3 transition duration-300 hover:translate-x-1 hover:bg-white hover:text-tinta">
                     <span className="icono-caja grid size-20 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-white to-niebla">
                       <img src={l.productos[0].img} alt="" className="h-16 w-16 object-contain transition-transform duration-500 group-hover:scale-110" />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="text-xs font-bold text-kelqa-claro group-hover:text-kelqa-hondo">0{i + 1}</span>
                       <b className="block font-titulo text-lg leading-tight">{l.nombre}</b>
-                      <span className="block truncate text-sm text-white/70 group-hover:text-carbon">{l.productos.map((p) => p.nombre.replace('Línea ', '')).join(' · ')}</span>
+                      <span className="block truncate text-sm text-white/70 group-hover:text-carbon">{l.productos.map((p) => p.nombre.replace(/^(Línea|Pintura) /, '')).join(' · ')}</span>
                     </span>
                     <span className="mr-1 grid size-9 shrink-0 place-items-center rounded-full border border-white/20 transition duration-300 group-hover:border-kelqa group-hover:bg-kelqa group-hover:text-white">
                       <ArrowRight aria-hidden="true" size={18} className="transition-transform duration-300 group-hover:translate-x-0.5" />
                     </span>
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -109,6 +111,9 @@ export default function Inicio() {
                 </div>
               ))}
             </div>
+            <Link href="/nosotros" className="boton mt-8 inline-flex h-11 items-center gap-2 rounded-xl bg-kelqa/10 px-5 font-semibold text-kelqa-hondo hover:bg-kelqa/20">
+              Conoce más de Kelqa <ArrowRight aria-hidden="true" size={18} className="icono-avanza" />
+            </Link>
           </Reveal>
         </div>
       </section>
@@ -133,7 +138,7 @@ export default function Inicio() {
                   <div className="p-6 sm:p-10">
                     <p className="leading-relaxed text-carbon/90">{l.texto}</p>
                     <ul className="mt-7 grid gap-4 sm:grid-cols-2">
-                      {l.productos.map((p, j) => (
+                      {l.productos.slice(0, 4).map((p, j) => (
                         <Reveal as="li" efecto="zoom" key={p.nombre} retraso={150 + j * 90} className="group sm:[&:last-child:nth-child(odd)]:col-span-2">
                           <div className="tarjeta flex h-full items-center gap-4 rounded-2xl bg-niebla p-3 hover:bg-white">
                             <span className="icono-caja grid size-24 shrink-0 place-items-center rounded-xl bg-white">
@@ -147,9 +152,14 @@ export default function Inicio() {
                         </Reveal>
                       ))}
                     </ul>
-                    <a href={waUrl(`Hola Kelqa, quisiera cotizar productos de la ${l.nombre}.`)} target="_blank" rel="noopener noreferrer" className="boton mt-7 inline-flex h-11 items-center gap-2 rounded-xl bg-kelqa/10 px-5 font-semibold text-kelqa-hondo hover:bg-kelqa hover:text-white">
-                      Cotizar esta línea <ArrowRight aria-hidden="true" size={18} className="icono-avanza" />
-                    </a>
+                    <div className="mt-7 flex flex-wrap gap-3">
+                      <Link href={`/lineas/${l.id}`} className="boton inline-flex h-11 items-center gap-2 rounded-xl bg-kelqa px-5 font-semibold text-white shadow-md shadow-kelqa-hondo/25 hover:bg-kelqa-hondo">
+                        Ver línea completa <ArrowRight aria-hidden="true" size={18} className="icono-avanza" />
+                      </Link>
+                      <a href={waUrl(`Hola Kelqa, quisiera cotizar productos de la ${l.nombre}.`)} target="_blank" rel="noopener noreferrer" className="boton inline-flex h-11 items-center gap-2 rounded-xl bg-kelqa/10 px-5 font-semibold text-kelqa-hondo hover:bg-kelqa/20">
+                        <MessageCircle aria-hidden="true" size={18} className="icono-sacude" />Cotizar
+                      </a>
+                    </div>
                   </div>
                 </article>
               </Reveal>
@@ -211,16 +221,7 @@ export default function Inicio() {
       <section id="clientes" className="py-24 sm:py-28">
         <div className={contenedor}>
           <Reveal><Titulo centro etiqueta="Clientes" solido="Nuestra experiencia" acento="habla por nosotros" /></Reveal>
-          <p className="mt-12 text-center text-sm font-semibold text-carbon/70">Empresas que confían en Kelqa</p>
-          <ul className="mt-6 grid grid-cols-2 items-center gap-4 sm:grid-cols-4">
-            {clientes.map((c, i) => (
-              <Reveal as="li" efecto="zoom" key={c.nombre} retraso={i * 90}>
-                <div className="tarjeta group grid h-24 place-items-center rounded-2xl border border-kelqa/10 bg-white px-6 shadow-md shadow-kelqa-hondo/5">
-                  <img src={c.logo} alt={c.nombre} loading="lazy" className="max-h-14 w-auto max-w-full object-contain opacity-70 grayscale transition duration-500 group-hover:scale-105 group-hover:opacity-100 group-hover:grayscale-0" />
-                </div>
-              </Reveal>
-            ))}
-          </ul>
+          <Clientes className="mt-12" />
           <ul className="mt-12 grid gap-6 md:grid-cols-3">
             {testimonios.map((t, i) => (
               <Reveal as="li" key={t.empresa} retraso={i * 110}>
@@ -237,26 +238,7 @@ export default function Inicio() {
         </div>
       </section>
 
-      {/* CONTACTO */}
-      <section id="contacto" className="px-5 pb-24 sm:px-8">
-        <Reveal efecto="zoom" className="relative isolate mx-auto max-w-7xl overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-kelqa to-kelqa-hondo px-8 py-14 text-center text-white sm:px-14">
-          <img src="/fotos/obrero.webp" alt="" aria-hidden="true" className="pointer-events-none absolute bottom-0 right-8 -z-10 hidden h-[92%] lg:block" />
-          <img src="/fotos/trafico.webp" alt="" aria-hidden="true" className="flotar pointer-events-none absolute -left-6 bottom-6 -z-10 hidden w-44 -rotate-12 lg:block" />
-          <h2 className="text-[clamp(2rem,5vw,3.25rem)] font-extrabold text-white">¡Estamos listos!</h2>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-white/90">Cuéntanos tu proyecto y te proponemos la solución precisa. Escríbenos y te atendemos de inmediato.</p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <a href={waUrl('Hola Kelqa, quisiera más información.')} target="_blank" rel="noopener noreferrer" className="boton inline-flex h-13 items-center gap-2 rounded-xl bg-white px-6 font-semibold text-kelqa-hondo shadow-lg shadow-tinta/25 hover:shadow-xl hover:shadow-tinta/35">
-              <MessageCircle aria-hidden="true" size={20} className="icono-sacude" />WhatsApp
-            </a>
-            <a href={contacto.telefonoHref} className="boton inline-flex h-13 items-center gap-2 rounded-xl border border-white/40 px-6 font-semibold hover:bg-white/10">
-              <Phone aria-hidden="true" size={18} className="icono-sacude" />{contacto.telefono}
-            </a>
-            <a href={`mailto:${contacto.correo}`} className="boton inline-flex h-13 items-center gap-2 rounded-xl border border-white/40 px-6 font-semibold hover:bg-white/10">
-              <Mail aria-hidden="true" size={18} className="icono-sacude" />{contacto.correo}
-            </a>
-          </div>
-        </Reveal>
-      </section>
+      <CtaContacto id="contacto" />
     </main>
   );
 }

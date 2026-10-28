@@ -1,0 +1,133 @@
+'use client';
+import { useEffect, useRef, useState } from 'react';
+import { Loader2, Mail, MessageCircle, Send } from 'lucide-react';
+import { contacto, waUrl } from '@/lib/contenido';
+
+const limpio = (t: string) => t.replace(/[<>]/g, '');
+const campo = 'mt-1.5 block min-h-12 w-full rounded-xl border border-carbon/20 bg-white px-4 py-3 text-base text-tinta transition duration-300 placeholder:text-carbon/40 hover:border-kelqa/40 focus:border-kelqa focus:shadow-[0_0_0_4px_rgb(27_137_143/0.12)] focus:outline-none';
+const MAX_MENSAJE = 3000;
+const VACIO = { nombre: '', email: '', celular: '', empresa: '', mensaje: '', acepto: false, website: '' };
+const ORDEN = ['nombre', 'email', 'celular', 'mensaje', 'acepto'];
+
+/** Formulario de contacto: envía a la API del HUB por /api/hub/contacto; si no responde, ofrece WhatsApp y correo. */
+export default function FormContacto() {
+  const [f, setF] = useState(VACIO);
+  const [errores, setErrores] = useState<Record<string, string>>({});
+  const [enviando, setEnviando] = useState(false);
+  const [resultado, setResultado] = useState<null | 'ok' | 'fallo'>(null);
+  const [errorApi, setErrorApi] = useState('');
+  const resultadoRef = useRef<HTMLDivElement>(null);
+  useEffect(() => { if (resultado) resultadoRef.current?.focus(); }, [resultado]);
+
+  const set = (k: keyof typeof f, v: string | boolean) => setF((x) => ({ ...x, [k]: v }));
+
+  const validar = () => {
+    const e: Record<string, string> = {};
+    const celular = f.celular.replace(/[\s()-]/g, '').replace(/^\+?51(?=9\d{8}$)/, '');
+    if (limpio(f.nombre).trim().length < 2) e.nombre = 'Ingresa tus nombres (mínimo 2 letras).';
+    if (!/^\S+@\S+\.\S+$/.test(f.email.trim())) e.email = 'Ingresa un correo válido.';
+    if (celular && !/^9\d{8}$/.test(celular)) e.celular = 'Ingresa un celular de 9 dígitos que empiece con 9, o déjalo en blanco.';
+    if (limpio(f.mensaje).trim().length < 2) e.mensaje = 'Escribe tu mensaje.';
+    if (!f.acepto) e.acepto = 'Debes aceptar el uso de tus datos para responderte.';
+    setErrores(e);
+    const primero = ORDEN.find((k) => e[k]);
+    if (primero) document.getElementById(primero)?.focus();
+    return !primero;
+  };
+
+  const enviar = async (ev: React.FormEvent) => {
+    ev.preventDefault();
+    setErrorApi('');
+    if (!validar()) return;
+    setEnviando(true);
+    const cuerpo = {
+      nombre: limpio(f.nombre.trim()), email: f.email.trim(), celular: f.celular.trim() || undefined,
+      empresa: limpio(f.empresa.trim()) || undefined, mensaje: limpio(f.mensaje).trim().slice(0, MAX_MENSAJE), website: f.website,
+    };
+    try {
+      const res = await fetch('/api/hub/contacto', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) });
+      if (res.ok) { setResultado('ok'); setF(VACIO); setErrores({}); }
+      else if (res.status >= 500) setResultado('fallo');
+      else {
+        const j = await res.json().catch(() => ({}));
+        setErrorApi(Array.isArray(j.message) ? j.message.join(' ') : j.message ?? 'No pudimos enviar el mensaje.');
+      }
+    } catch {
+      setResultado('fallo');
+    } finally {
+      setEnviando(false);
+    }
+  };
+
+  const err = (k: string) => (errores[k] ? <p id={`e-${k}`} role="alert" className="mt-1 text-sm text-red-700">{errores[k]}</p> : null);
+  const aria = (k: string) => ({ 'aria-invalid': errores[k] ? true : undefined, 'aria-describedby': errores[k] ? `e-${k}` : undefined });
+  const boton = 'boton inline-flex h-12 items-center justify-center gap-2 rounded-xl px-6 font-semibold';
+
+  if (resultado)
+    return (
+      <div ref={resultadoRef} tabIndex={-1} role="status" className="entrada rounded-[1.75rem] bg-niebla p-8 outline-none">
+        {resultado === 'ok' ? (
+          <>
+            <h3 className="text-2xl font-extrabold">¡Mensaje enviado!</h3>
+            <p className="mt-3 leading-relaxed">Recibimos tu mensaje. Un asesor de Kelqa te responderá pronto.</p>
+            <button type="button" onClick={() => setResultado(null)} className={`${boton} mt-6 bg-kelqa/10 text-kelqa-hondo hover:bg-kelqa/20`}>Enviar otro mensaje</button>
+          </>
+        ) : (
+          <>
+            <h3 className="text-2xl font-extrabold">No pudimos enviarlo</h3>
+            <p className="mt-3 leading-relaxed">Tu mensaje no se registró. Escríbenos por WhatsApp o a {contacto.correo}.</p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <a href={waUrl(`Hola Kelqa, soy ${limpio(f.nombre) || 'un cliente'}. ${limpio(f.mensaje)}`.slice(0, 1500))} target="_blank" rel="noopener noreferrer" className={`${boton} bg-kelqa text-white hover:bg-kelqa-hondo`}><MessageCircle aria-hidden="true" size={18} />WhatsApp</a>
+              <a href={`mailto:${contacto.correo}`} className={`${boton} bg-kelqa/10 text-kelqa-hondo hover:bg-kelqa/20`}><Mail aria-hidden="true" size={18} />Correo</a>
+              <button type="button" onClick={() => setResultado(null)} className={`${boton} text-carbon hover:bg-white`}>Volver</button>
+            </div>
+          </>
+        )}
+      </div>
+    );
+
+  return (
+    <form id="contacto-form" onSubmit={enviar} noValidate className="grid gap-5 rounded-[1.75rem] bg-niebla p-6 sm:grid-cols-2 sm:p-8">
+      <div>
+        <label htmlFor="nombre" className="text-sm font-semibold text-tinta">Nombres <span aria-hidden="true" className="text-kelqa">*</span></label>
+        <input id="nombre" value={f.nombre} onChange={(e) => set('nombre', e.target.value)} autoComplete="name" maxLength={120} className={campo} aria-required="true" {...aria('nombre')} />
+        {err('nombre')}
+      </div>
+      <div>
+        <label htmlFor="email" className="text-sm font-semibold text-tinta">Correo electrónico <span aria-hidden="true" className="text-kelqa">*</span></label>
+        <input id="email" type="email" value={f.email} onChange={(e) => set('email', e.target.value)} autoComplete="email" maxLength={120} className={campo} aria-required="true" {...aria('email')} />
+        {err('email')}
+      </div>
+      <div>
+        <label htmlFor="celular" className="text-sm font-semibold text-tinta">Celular <span className="font-normal text-carbon/60">(opcional)</span></label>
+        <input id="celular" type="tel" value={f.celular} onChange={(e) => set('celular', e.target.value)} autoComplete="tel" maxLength={20} placeholder="9XXXXXXXX" className={campo} {...aria('celular')} />
+        {err('celular')}
+      </div>
+      <div>
+        <label htmlFor="empresa" className="text-sm font-semibold text-tinta">Empresa o entidad <span className="font-normal text-carbon/60">(opcional)</span></label>
+        <input id="empresa" value={f.empresa} onChange={(e) => set('empresa', e.target.value)} autoComplete="organization" maxLength={120} className={campo} />
+      </div>
+      <div className="sm:col-span-2">
+        <label htmlFor="mensaje" className="text-sm font-semibold text-tinta">Mensaje <span aria-hidden="true" className="text-kelqa">*</span></label>
+        <textarea id="mensaje" value={f.mensaje} onChange={(e) => set('mensaje', e.target.value)} rows={5} maxLength={MAX_MENSAJE} placeholder="Cuéntanos qué productos necesitas y para qué proyecto" className={campo} aria-required="true" {...aria('mensaje')} />
+        <p className="mt-1 text-right text-xs text-carbon/60">{f.mensaje.length}/{MAX_MENSAJE}</p>
+        {err('mensaje')}
+      </div>
+      <input name="website" value={f.website} onChange={(e) => set('website', e.target.value)} className="hidden" tabIndex={-1} autoComplete="off" aria-hidden="true" />
+      <div className="sm:col-span-2">
+        <label htmlFor="acepto" className="flex min-h-11 cursor-pointer items-start gap-3 text-sm text-carbon">
+          <input id="acepto" type="checkbox" checked={f.acepto} onChange={(e) => set('acepto', e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-kelqa" aria-required="true" {...aria('acepto')} />
+          Acepto que Kelqa use mis datos para responder esta consulta. <span aria-hidden="true" className="text-kelqa">*</span>
+        </label>
+        {err('acepto')}
+      </div>
+      <div className="sm:col-span-2">
+        {errorApi && <p role="alert" className="mb-3 text-sm text-red-700">{errorApi}</p>}
+        <button type="submit" disabled={enviando} className={`${boton} w-full bg-kelqa text-white shadow-lg shadow-kelqa-hondo/30 hover:bg-kelqa-hondo disabled:opacity-70 sm:w-auto`}>
+          {enviando ? <Loader2 aria-hidden="true" size={18} className="animate-spin" /> : <Send aria-hidden="true" size={18} className="icono-avanza" />}
+          {enviando ? 'Enviando…' : 'Enviar mensaje'}
+        </button>
+      </div>
+    </form>
+  );
+}
