@@ -43,7 +43,7 @@ export class PublicPresupuestosController {
 
 /** Dashboard → Ecommerce → Presupuestos: solicitudes mayoristas, estado y reenvío al cliente. */
 @UseGuards(JwtAuthGuard, MarcaRolGuard)
-@Roles('admin', 'comercial', 'ventas')
+@Roles('admin', 'comercial', 'ventas', 'finanzas')
 @Controller('presupuestos')
 export class PresupuestosController {
   constructor(private readonly presupuestos: PresupuestosService) {}
@@ -58,11 +58,13 @@ export class PresupuestosController {
     return this.presupuestos.findOne(marcaId, id);
   }
 
+  @Roles('admin', 'comercial', 'ventas') // finanzas solo consulta
   @Patch(':id')
   cambiarEstado(@MarcaActual() marcaId: string, @Param('id') id: string, @Body() dto: CambiarEstadoPresupuestoDto) {
     return this.presupuestos.cambiarEstado(marcaId, id, dto.estado);
   }
 
+  @Roles('admin', 'comercial', 'ventas')
   @Post(':id/enviar')
   reenviar(@MarcaActual() marcaId: string, @Param('id') id: string) {
     return this.presupuestos.reenviar(marcaId, id);

@@ -6,7 +6,7 @@ import { MarcaActual } from '../common/decorators/marca-actual.decorator.js';
 
 /** Dashboard → Reportes. */
 @UseGuards(MarcaRolGuard)
-@Roles('admin', 'ventas')
+@Roles('admin', 'ventas', 'finanzas', 'direccion')
 @Controller('reportes')
 export class ReportesController {
   constructor(private readonly reportes: ReportesService) {}

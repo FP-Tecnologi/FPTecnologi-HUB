@@ -9,6 +9,8 @@ import { Roles } from '../common/decorators/roles.decorator.js';
 import { MarcaActual } from '../common/decorators/marca-actual.decorator.js';
 import { Public } from '../common/decorators/public.decorator.js';
 
+// Solo el equipo que trabaja pedidos: sin esto, cualquier rol de la marca (incluso `cliente`) listaba todos.
+@Roles('admin', 'ventas', 'logistica', 'finanzas')
 @UseGuards(JwtAuthGuard, MarcaRolGuard)
 @Controller('pedidos')
 export class PedidosController {
@@ -29,7 +31,7 @@ export class PedidosController {
     return this.pedidosService.findOne(marcaId, id);
   }
 
-  @Roles('admin', 'ventas')
+  @Roles('admin', 'ventas', 'logistica')
   @Patch(':id/estado')
   updateEstado(
     @MarcaActual() marcaId: string,

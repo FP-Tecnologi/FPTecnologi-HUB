@@ -9,7 +9,7 @@ import { Public } from '../common/decorators/public.decorator.js';
 
 /** Dashboard → Ecommerce → Envíos: tarifario por departamento. */
 @UseGuards(MarcaRolGuard)
-@Roles('admin', 'ventas')
+@Roles('admin', 'ventas', 'logistica')
 @Controller('envios/tarifas')
 export class EnviosController {
   constructor(private readonly envios: EnviosService) {}

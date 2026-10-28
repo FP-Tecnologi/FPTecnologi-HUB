@@ -19,7 +19,7 @@ for (const line of readFileSync('./.env', 'utf8').split('\n')) {
   if (m && process.env[m[1]] === undefined) process.env[m[1]] = m[2].replace(/^["']|["']$/g, '');
 }
 
-const ROLES = ['admin', 'ventas', 'comercial', 'marketing', 'asesores', 'soporte', 'logistica', 'finanzas', 'direccion'];
+const ROLES = ['admin', 'ventas', 'comercial', 'marketing', 'asesores', 'soporte', 'logistica', 'finanzas', 'direccion', 'cliente'];
 const MARCA = 'FPTecnologi';
 const DOC = '../../docs/credenciales-prueba.md';
 const INICIO = '<!-- usuarios-prueba:inicio -->';
@@ -72,8 +72,8 @@ async function main() {
       create: { usuarioId: u.id, marcaId: marca.id, rolId: rol.id },
       update: {},
     });
-    // Un solo rol por usuario de prueba: quita cualquier otro que tuviera en esta marca.
-    await prisma.usuarioMarcaRol.deleteMany({ where: { usuarioId: u.id, marcaId: marca.id, rolId: { not: rol.id } } });
+    // Un solo rol por usuario de prueba: quita cualquier otro que tuviera, en esta u otra marca.
+    await prisma.usuarioMarcaRol.deleteMany({ where: { usuarioId: u.id, NOT: { marcaId: marca.id, rolId: rol.id } } });
     filas.push(`| ${rolNombre} | \`${email}\` | ${password ? `\`${password}\`` : '(ya existía; usa --reset para generar otra)'} |`);
     console.log(`  ${password ? 'creado ' : 'existe '} ${email}`);
   }

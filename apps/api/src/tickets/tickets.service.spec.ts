@@ -22,7 +22,7 @@ describe('tickets por marca', () => {
   it('roles: Quamtu y Kelqa solo admin; el resto admin y comercial', () => {
     expect(rolesTickets('Quamtu')).toEqual(['admin']);
     expect(rolesTickets('KELQA')).toEqual(['admin']);
-    expect(rolesTickets('FPTecnologi')).toEqual(['admin', 'comercial']);
+    expect(rolesTickets('FPTecnologi')).toEqual(['admin', 'comercial', 'soporte']);
   });
 
   it('ticket nuevo: avisa al buzón designado y solo a los roles de esa marca; el cliente recibe la web y el nombre de su marca', async () => {

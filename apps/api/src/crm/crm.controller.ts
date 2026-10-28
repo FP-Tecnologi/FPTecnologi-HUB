@@ -22,11 +22,13 @@ class PorOrigenDto {
 export class CrmController {
   constructor(private readonly crm: CrmService) {}
 
+  @Roles('admin', 'comercial', 'direccion') // dirección: solo lectura (embudo y reportes)
   @Get('asignables')
   asignables(@MarcaActual() marcaId: string) {
     return this.crm.asignables(marcaId);
   }
 
+  @Roles('admin', 'comercial', 'direccion') // dirección: solo lectura (embudo y reportes)
   @Get('oportunidades')
   listar(@MarcaActual() marcaId: string, @Query() f: FiltrosOportunidades, @CurrentUser() u: AuthenticatedUser) {
     return this.crm.listar(marcaId, f, u.sub);
@@ -40,6 +42,7 @@ export class CrmController {
     return o;
   }
 
+  @Roles('admin', 'comercial', 'direccion') // dirección: solo lectura (embudo y reportes)
   @Get('oportunidades/:id')
   obtener(@MarcaActual() marcaId: string, @Param('id') id: string) {
     return this.crm.obtener(marcaId, id);
@@ -86,6 +89,7 @@ export class CrmController {
     return this.crm.agenda(marcaId, u.sub, mias === '1');
   }
 
+  @Roles('admin', 'comercial', 'direccion') // dirección: solo lectura (embudo y reportes)
   @Get('reportes')
   reportes(@MarcaActual() marcaId: string, @Query('meses') meses?: string) {
     const m = Number(meses);
