@@ -1,9 +1,9 @@
 // Contenido de la web, tomado del brochure comercial Kelqa (V1) y de la web anterior (kelqa.com). Sin CMS todavía.
 
 export const contacto = {
-  telefono: '+51 933 098 493',
-  telefonoHref: 'tel:+51933098493',
-  whatsapp: '51933098493',
+  telefono: '+51 933 819 389',
+  telefonoHref: 'tel:+51933819389',
+  whatsapp: '51933819389',
   correo: 'ventas@kelqa.com',
   redes: '@Kelqa',
 };
