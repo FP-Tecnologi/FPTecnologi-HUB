@@ -1185,6 +1185,7 @@ Plan: [`docs/superpowers/plans/2026-10-23-cms-fimav.md`](superpowers/plans/2026-
 
 - Nueva app Next 16 (puerto 3007, misma base que Fimav: cabeceras de seguridad, `server.cjs` para cPanel). Marca tomada del logo SVG oficial (turquesa `#1B898F`, tinta casi negra) y del **brochure comercial V1**; títulos Montserrat, texto DM Sans; motivo de cuadrado redondeado del isotipo.
 - Inicio: hero «Hecha para avanzar contigo» con acceso a las tres líneas, Quiénes somos (misión, visión y valores), **Líneas** (Pinturas, Mobiliario, Construcción y Emergencia, con fotos de producto recortadas del brochure), Por qué Kelqa, venta directa / licitaciones / Perú Compras, testimonios de la web anterior y contacto (WhatsApp +51 933 098 493, ventas@kelqa.com). Contenido fijo en `src/lib/contenido.ts`.
+- **Web anterior (WordPress, se eliminará)**: se descargaron sus imágenes propias (fotos IMAGEN-2/3/4/6, logos Kelqa y de clientes) a `apps/kelqa-web/recursos/web-anterior/` (originales, fuera de `public`); el resto de su biblioteca eran demos del tema WoodMart. En uso: oficina (línea Mobiliario), obrero con casco (Por qué Kelqa) y almacén (venta directa). **Franja de clientes** en la sección Clientes: FP Tecnologi, Fimav Perú, Corporación JAE y PRO INVERSIÓN (`public/clientes/`).
 - Pendiente: más páginas (catálogo por línea, nosotros, contacto), CMS desde el dashboard, contador de visitas, libro de reclamaciones, tickets, legales, `HUB_MARCA_ID`, repo espejo `kelqa-web` y despliegue.
 
 ### 2026-10-27 (2) — CRM comercial

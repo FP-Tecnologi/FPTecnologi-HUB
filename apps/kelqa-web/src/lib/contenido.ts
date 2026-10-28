@@ -38,7 +38,7 @@ export const lineas: Linea[] = [
     nombre: 'Línea de Mobiliario',
     lema: 'Diseño, confort y funcionalidad para cada espacio de trabajo.',
     texto: 'Sillas ergonómicas y mobiliario corporativo para oficinas, auditorios y áreas de atención que buscan productividad e imagen profesional.',
-    foto: '/fotos/cuero-ambiente.webp',
+    foto: '/fotos/oficina.webp',
     productos: [
       { nombre: 'Línea Presidencial', img: '/fotos/silla-presidencial.webp', detalle: 'Confort y presencia para espacios ejecutivos.' },
       { nombre: 'Línea Gerencial', img: '/fotos/silla-gerencial.webp', detalle: 'Ergonomía y estilo para la oficina diaria.' },
@@ -68,6 +68,13 @@ export const razones = [
 ];
 
 export const valores = ['Innovación', 'Confianza', 'Calidad', 'Distinción'];
+
+export const clientes = [
+  { nombre: 'FP Tecnologi & System', logo: '/clientes/fp-tecnologi.svg' },
+  { nombre: 'Fimav Perú', logo: '/clientes/fimav-peru.svg' },
+  { nombre: 'Corporación JAE', logo: '/clientes/jae.webp' },
+  { nombre: 'Pro Inversión', logo: '/clientes/pro-inversion.svg' },
+];
 
 export const testimonios = [
   {

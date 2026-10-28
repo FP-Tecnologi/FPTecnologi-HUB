@@ -1,7 +1,7 @@
 import { ArrowRight, BadgePercent, Headset, Mail, MessageCircle, Phone, Quote, ShieldCheck, Truck } from 'lucide-react';
 import Reveal from '@/components/Reveal';
 import Titulo from '@/components/Titulo';
-import { contacto, lineas, razones, testimonios, valores, waUrl } from '@/lib/contenido';
+import { clientes, contacto, lineas, razones, testimonios, valores, waUrl } from '@/lib/contenido';
 
 const ICONOS_RAZON = [ShieldCheck, BadgePercent, Truck, Headset];
 const contenedor = 'mx-auto max-w-7xl px-5 sm:px-8';
@@ -158,7 +158,7 @@ export default function Inicio() {
             <p className="mt-6 text-lg leading-relaxed">
               Buen servicio es acompañarte de cerca, entender los desafíos de tu proyecto y proponer alternativas eficientes, oportunas y alineadas a tus objetivos.
             </p>
-            <img src="/fotos/vial-obra.webp" alt="Cuadrilla pintando señalización vial con pintura Kelqa" loading="lazy" className="mt-8 hidden aspect-[16/9] w-full rounded-[2rem] rounded-bl-[5rem] object-cover shadow-xl shadow-kelqa-hondo/20 lg:block" />
+            <img src="/fotos/obrero-casco.webp" alt="Trabajador de obra con su casco de seguridad" loading="lazy" className="mt-8 hidden aspect-[16/9] w-full rounded-[2rem] rounded-bl-[5rem] object-cover shadow-xl shadow-kelqa-hondo/20 lg:block" />
           </Reveal>
           <ul className="grid gap-5 sm:grid-cols-2">
             {razones.map((r, i) => {
@@ -190,7 +190,7 @@ export default function Inicio() {
               <MessageCircle aria-hidden="true" size={20} />Consultar disponibilidad
             </a>
           </div>
-          <img src="/fotos/obra.webp" alt="Obra en construcción abastecida con productos Kelqa" loading="lazy" className="h-full min-h-72 w-full object-cover" />
+          <img src="/fotos/almacen.webp" alt="Almacén con productos listos para despacho" loading="lazy" className="h-full min-h-72 w-full object-cover" />
         </Reveal>
       </section>
 
@@ -198,7 +198,17 @@ export default function Inicio() {
       <section id="clientes" className="py-24 sm:py-28">
         <div className={contenedor}>
           <Reveal><Titulo centro etiqueta="Clientes" solido="Nuestra experiencia" acento="habla por nosotros" /></Reveal>
-          <ul className="mt-14 grid gap-6 md:grid-cols-3">
+          <Reveal className="mt-12">
+            <p className="text-center text-sm font-semibold text-carbon/70">Empresas que confían en Kelqa</p>
+            <ul className="mt-6 grid grid-cols-2 items-center gap-4 sm:grid-cols-4">
+              {clientes.map((c) => (
+                <li key={c.nombre} className="grid h-24 place-items-center rounded-2xl border border-kelqa/10 bg-white px-6 shadow-md shadow-kelqa-hondo/5">
+                  <img src={c.logo} alt={c.nombre} loading="lazy" className="max-h-14 w-auto max-w-full object-contain opacity-70 grayscale transition hover:opacity-100 hover:grayscale-0" />
+                </li>
+              ))}
+            </ul>
+          </Reveal>
+          <ul className="mt-12 grid gap-6 md:grid-cols-3">
             {testimonios.map((t, i) => (
               <li key={t.empresa}>
                 <Reveal retraso={i * 100} className="flex h-full flex-col rounded-[1.75rem] bg-niebla p-8">
