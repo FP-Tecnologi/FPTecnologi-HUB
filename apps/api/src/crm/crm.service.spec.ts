@@ -105,3 +105,18 @@ describe('CrmService.cambiarEtapa', () => {
     expect(prisma.db.acts[0]).toMatchObject({ tipo: 'ETAPA', texto: 'Negociación → Ganado', autor: 'a@b' });
   });
 });
+
+describe('CrmService.crear', () => {
+  it('RUC y correo ya registrados: reutiliza el cliente y le abre otra oportunidad', async () => {
+    const prisma = prismaFalso();
+    prisma.db.empresas.push({ id: 'e1', marcaId: 'm1', ruc: '20123456789', razonSocial: 'Acme SAC' });
+    prisma.db.contactos.push({ id: 'c1', marcaId: 'm1', email: 'ana@acme.pe', nombre: 'Ana' });
+    prisma.db.opps.push({ id: 'o0', marcaId: 'm1', empresaId: 'e1', contactoId: 'c1', etapa: 'PROPUESTA' });
+    const crm = new CrmService(prisma as never);
+    vi.spyOn(crm, 'obtener').mockResolvedValue({} as never);
+    await crm.crear('m1', { titulo: 'Proyectores', empresaNueva: { ruc: '20123456789' }, contactoNuevo: { nombre: 'Ana', email: 'ANA@acme.pe' } } as never, 'a@b');
+    expect(prisma.db.empresas).toHaveLength(1);
+    expect(prisma.db.contactos).toHaveLength(1);
+    expect(prisma.db.opps.at(-1)).toMatchObject({ empresaId: 'e1', contactoId: 'c1', titulo: 'Proyectores' });
+  });
+});

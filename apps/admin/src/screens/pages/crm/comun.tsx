@@ -272,9 +272,35 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
   );
 }
 
+type EmpresaSel = { id: string; razonSocial: string; ruc?: string | null };
+type ContactoSel = { id: string; nombre: string; email: string | null; celular: string | null; empresa?: EmpresaSel | null };
+
 /** Alta manual: título, empresa y contacto (existentes o nuevos), etapa, monto, responsable y próxima acción. */
 export function NuevaOportunidad({ onClose, onCreada }: { onClose: () => void; onCreada: (id: string) => void }) {
   const asignables = useAsignables();
+  // Cliente existente: se busca por RUC, empresa, nombre, correo o celular y se elige en vez de volver a escribirlo.
+  const [buscar, setBuscar] = useState('');
+  const [sug, setSug] = useState<{ empresas: EmpresaSel[]; contactos: ContactoSel[] }>({ empresas: [], contactos: [] });
+  const [empresaSel, setEmpresaSel] = useState<EmpresaSel | null>(null);
+  const [contactoSel, setContactoSel] = useState<ContactoSel | null>(null);
+  const [deEmpresa, setDeEmpresa] = useState<ContactoSel[]>([]);
+  useEffect(() => {
+    const q = buscar.trim();
+    if (q.length < 2) { setSug({ empresas: [], contactos: [] }); return; }
+    const t = setTimeout(() => {
+      const qs = `?q=${encodeURIComponent(q)}`;
+      Promise.all([api.get<EmpresaSel[]>(`/crm/empresas${qs}`), api.get<ContactoSel[]>(`/crm/contactos${qs}`)])
+        .then(([empresas, contactos]) => setSug({ empresas: empresas.slice(0, 5), contactos: contactos.slice(0, 5) }))
+        .catch(() => setSug({ empresas: [], contactos: [] }));
+    }, 250);
+    return () => clearTimeout(t);
+  }, [buscar]);
+  useEffect(() => {
+    if (!empresaSel) { setDeEmpresa([]); return; }
+    api.get<ContactoSel[]>(`/crm/contactos?empresaId=${empresaSel.id}`).then(setDeEmpresa).catch(() => setDeEmpresa([]));
+  }, [empresaSel]);
+  const elegirEmpresa = (e: EmpresaSel) => { setEmpresaSel(e); setContactoSel(null); setBuscar(''); };
+  const elegirContacto = (c: ContactoSel) => { setContactoSel(c); setEmpresaSel(c.empresa ?? null); setBuscar(''); };
   const [f, setF] = useState({ titulo: '', empresa: '', ruc: '', contacto: '', email: '', celular: '', etapa: 'NUEVO' as Etapa, monto: '', moneda: 'PEN', asignadoId: '', proximaAccion: '', proximaAccionAt: '' });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -283,14 +309,16 @@ export function NuevaOportunidad({ onClose, onCreada }: { onClose: () => void; o
   async function crear(e: React.FormEvent) {
     e.preventDefault();
     if (f.titulo.trim().length < 3) return setError('Escribe un título (qué quiere comprar o contratar).');
-    if (f.ruc && !/^(10|15|16|17|20)\d{9}$/.test(f.ruc)) return setError('El RUC debe tener 11 dígitos.');
-    if (!f.contacto.trim() && (f.email || f.celular)) return setError('Escribe el nombre del contacto.');
+    if (!empresaSel && f.ruc && !/^(10|15|16|17|20)\d{9}$/.test(f.ruc)) return setError('El RUC debe tener 11 dígitos.');
+    if (!contactoSel && !f.contacto.trim() && (f.email || f.celular)) return setError('Escribe el nombre del contacto.');
     setBusy(true); setError('');
     try {
       const o = await api.post<Detalle>('/crm/oportunidades', {
         titulo: f.titulo.trim(), etapa: f.etapa, moneda: f.moneda, monto: f.monto ? Number(f.monto) : undefined,
-        empresaNueva: f.empresa.trim() || f.ruc ? { razonSocial: f.empresa.trim() || undefined, ruc: f.ruc || undefined } : undefined,
-        contactoNuevo: f.contacto.trim() ? { nombre: f.contacto.trim(), email: f.email.trim() || undefined, celular: f.celular.trim() || undefined } : undefined,
+        empresaId: empresaSel?.id,
+        contactoId: contactoSel?.id,
+        empresaNueva: !empresaSel && (f.empresa.trim() || f.ruc) ? { razonSocial: f.empresa.trim() || undefined, ruc: f.ruc || undefined } : undefined,
+        contactoNuevo: !contactoSel && f.contacto.trim() ? { nombre: f.contacto.trim(), email: f.email.trim() || undefined, celular: f.celular.trim() || undefined } : undefined,
         asignadoId: f.asignadoId || undefined, proximaAccion: f.proximaAccion.trim() || undefined, proximaAccionAt: deLocal(f.proximaAccionAt) ?? undefined,
       });
       onCreada(o.id);
@@ -302,16 +330,59 @@ export function NuevaOportunidad({ onClose, onCreada }: { onClose: () => void; o
       <form className="ax-card__body" style={{ paddingTop: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }} onSubmit={crear}>
         {error && <Alerta>{error}</Alerta>}
         <div className="ax-field"><label className="ax-label" htmlFor="no-tit">Título *</label><input id="no-tit" className="ax-input" maxLength={160} value={f.titulo} onChange={set('titulo')} placeholder="Ej. 20 laptops para el área de ventas" /></div>
-        <div style={fila}>
-          <div className="ax-field"><label className="ax-label" htmlFor="no-emp">Empresa</label><input id="no-emp" className="ax-input" maxLength={160} value={f.empresa} onChange={set('empresa')} /></div>
-          <div className="ax-field"><label className="ax-label" htmlFor="no-ruc">RUC</label><input id="no-ruc" className="ax-input" inputMode="numeric" maxLength={11} value={f.ruc} onChange={(e) => setF({ ...f, ruc: e.target.value.replace(/\D/g, '') })} /></div>
-        </div>
-        <div style={fila}>
-          <div className="ax-field"><label className="ax-label" htmlFor="no-con">Contacto</label><input id="no-con" className="ax-input" maxLength={160} value={f.contacto} onChange={set('contacto')} /></div>
-          <div className="ax-field"><label className="ax-label" htmlFor="no-mail">Correo</label><input id="no-mail" type="email" className="ax-input" maxLength={120} value={f.email} onChange={set('email')} /></div>
-          <div className="ax-field"><label className="ax-label" htmlFor="no-cel">Celular</label><input id="no-cel" className="ax-input" maxLength={30} value={f.celular} onChange={set('celular')} /></div>
-        </div>
-        <p style={{ margin: 0, fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Si el correo o el RUC ya existen en el CRM, usa «Empresas y contactos» para no duplicarlos.</p>
+        {!empresaSel && !contactoSel && (
+          <div className="ax-field" style={{ position: 'relative' }}>
+            <label className="ax-label" htmlFor="no-bus">¿Cliente existente?</label>
+            <input id="no-bus" className="ax-input" autoComplete="off" value={buscar} onChange={(e) => setBuscar(e.target.value)} placeholder="Busca por RUC, empresa, nombre, correo o celular" />
+            {(sug.empresas.length > 0 || sug.contactos.length > 0) && (
+              <ul aria-label="Clientes encontrados" className="ax-card" style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 10, margin: '4px 0 0', padding: 'var(--ax-space-1)', listStyle: 'none', maxHeight: 280, overflowY: 'auto' }}>
+                {sug.empresas.map((e) => (
+                  <li key={`e${e.id}`}><button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ width: '100%', justifyContent: 'flex-start' }} onClick={() => elegirEmpresa(e)}>
+                    <span className="ax-badge ax-badge--soft ax-badge--sm">Empresa</span> {e.razonSocial}{e.ruc ? ` · RUC ${e.ruc}` : ''}</button></li>
+                ))}
+                {sug.contactos.map((c) => (
+                  <li key={`c${c.id}`}><button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ width: '100%', justifyContent: 'flex-start' }} onClick={() => elegirContacto(c)}>
+                    <span className="ax-badge ax-badge--soft ax-badge--sm">Contacto</span> {c.nombre}{c.email ? ` · ${c.email}` : ''}{c.empresa ? ` · ${c.empresa.razonSocial}` : ''}</button></li>
+                ))}
+              </ul>
+            )}
+            <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Elige uno para no volver a escribir sus datos. Si es nuevo, llena los campos de abajo.</span>
+          </div>
+        )}
+        {empresaSel ? (
+          <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
+            <span className="ax-label" style={{ margin: 0 }}>Empresa:</span>
+            <b>{empresaSel.razonSocial}</b>{empresaSel.ruc && <span style={{ color: 'var(--ax-text-subtle)' }}>RUC {empresaSel.ruc}</span>}
+            <button type="button" className="ax-btn ax-btn--link ax-btn--sm" onClick={() => { setEmpresaSel(null); setContactoSel(null); }}>Cambiar</button>
+          </div>
+        ) : (
+          <div style={fila}>
+            <div className="ax-field"><label className="ax-label" htmlFor="no-emp">Empresa</label><input id="no-emp" className="ax-input" maxLength={160} value={f.empresa} onChange={set('empresa')} /></div>
+            <div className="ax-field"><label className="ax-label" htmlFor="no-ruc">RUC</label><input id="no-ruc" className="ax-input" inputMode="numeric" maxLength={11} value={f.ruc} onChange={(e) => setF({ ...f, ruc: e.target.value.replace(/\D/g, '') })} /></div>
+          </div>
+        )}
+        {contactoSel ? (
+          <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
+            <span className="ax-label" style={{ margin: 0 }}>Contacto:</span>
+            <b>{contactoSel.nombre}</b>{(contactoSel.email || contactoSel.celular) && <span style={{ color: 'var(--ax-text-subtle)' }}>{[contactoSel.email, contactoSel.celular].filter(Boolean).join(' · ')}</span>}
+            <button type="button" className="ax-btn ax-btn--link ax-btn--sm" onClick={() => setContactoSel(null)}>Cambiar</button>
+          </div>
+        ) : (
+          <>
+            {empresaSel && deEmpresa.length > 0 && (
+              <div className="ax-field"><label className="ax-label" htmlFor="no-cex">Contacto de la empresa</label>
+                <select id="no-cex" className="ax-select" value="" onChange={(e) => { const c = deEmpresa.find((x) => x.id === e.target.value); if (c) setContactoSel({ ...c, empresa: empresaSel }); }}>
+                  <option value="">Nuevo contacto (llenar abajo)</option>
+                  {deEmpresa.map((c) => <option key={c.id} value={c.id}>{c.nombre}{c.email ? ` · ${c.email}` : ''}</option>)}
+                </select></div>
+            )}
+            <div style={fila}>
+              <div className="ax-field"><label className="ax-label" htmlFor="no-con">Contacto</label><input id="no-con" className="ax-input" maxLength={160} value={f.contacto} onChange={set('contacto')} /></div>
+              <div className="ax-field"><label className="ax-label" htmlFor="no-mail">Correo</label><input id="no-mail" type="email" className="ax-input" maxLength={120} value={f.email} onChange={set('email')} /></div>
+              <div className="ax-field"><label className="ax-label" htmlFor="no-cel">Celular</label><input id="no-cel" className="ax-input" maxLength={30} value={f.celular} onChange={set('celular')} /></div>
+            </div>
+          </>
+        )}
         <div style={fila}>
           <div className="ax-field"><label className="ax-label" htmlFor="no-et">Etapa</label>
             <select id="no-et" className="ax-select" value={f.etapa} onChange={set('etapa')}>{ETAPAS.filter((e) => e.v !== 'PERDIDO').map((e) => <option key={e.v} value={e.v}>{e.label}</option>)}</select></div>

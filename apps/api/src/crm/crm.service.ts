@@ -225,11 +225,16 @@ export class CrmService {
   async crear(marcaId: string, dto: CrearOportunidadDto, email: string) {
     await this.validarAsignado(marcaId, dto.asignadoId);
     await this.validarRelaciones(marcaId, dto.empresaId, dto.contactoId);
+    // Un RUC o correo que ya está en el CRM reutiliza ese cliente: un mismo cliente puede tener varias oportunidades.
     let empresaId = dto.empresaId ?? null;
+    const ruc = rucValido(dto.empresaNueva?.ruc);
+    if (!empresaId && ruc) empresaId = (await this.prisma.crmEmpresa.findFirst({ where: { marcaId, ruc }, select: { id: true } }))?.id ?? null;
     if (!empresaId && (dto.empresaNueva?.razonSocial || dto.empresaNueva?.ruc)) {
       empresaId = (await this.crearEmpresa(marcaId, { razonSocial: dto.empresaNueva.razonSocial ?? dto.empresaNueva.ruc!, ruc: dto.empresaNueva.ruc })).id;
     }
     let contactoId = dto.contactoId ?? null;
+    const correo = limpio(dto.contactoNuevo?.email)?.toLowerCase();
+    if (!contactoId && correo) contactoId = (await this.prisma.crmContacto.findFirst({ where: { marcaId, email: correo }, select: { id: true } }))?.id ?? null;
     if (!contactoId && dto.contactoNuevo?.nombre) contactoId = (await this.crearContacto(marcaId, { ...dto.contactoNuevo, empresaId })).id;
     const etapa = dto.etapa ?? 'NUEVO';
     const o = await this.crearConNumero(marcaId, {
