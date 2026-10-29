@@ -7,6 +7,7 @@ import { useCurrency } from '@/context/CurrencyContext';
 import { useSitio } from '@/context/SitioContext';
 import { ShalomAgencias, type TarifaEnvio } from './ShalomAgencias';
 import { guardarResumenPedido } from '@/lib/pedidoWhatsapp';
+import { BannerBbva } from '@/components/site/BannerBbva';
 
 type Comprobante = 'BOLETA' | 'FACTURA';
 type Entrega = 'RECOJO' | 'ENVIO' | 'SHALOM';
@@ -350,6 +351,7 @@ export function CheckoutForm() {
             <Lock className="mt-0.5 h-4 w-4 shrink-0 text-brand-700" strokeWidth={2} />
             No se cobra nada en línea: un asesor te escribirá por WhatsApp para confirmar el pago y la entrega.
           </p>
+          <BannerBbva />
           <Campo id="co-notas" label="Notas del pedido">
             <textarea id="co-notas" rows={3} maxLength={300} value={v.notas} onChange={(e) => set('notas', e.target.value)} className="mt-1.5 w-full resize-none rounded-xl border border-ink/15 bg-white px-4 py-3 text-base text-ink outline-none transition-all placeholder:text-ink/65 focus:border-brand-dark focus:ring-4 focus:ring-brand-dark/10" placeholder="Horario de contacto, indicaciones…" />
           </Campo>

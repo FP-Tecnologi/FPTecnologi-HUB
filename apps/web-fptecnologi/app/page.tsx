@@ -14,6 +14,7 @@ import { getHomeContenido } from '@/lib/homeContenido';
 import { getDestacados } from '@/lib/catalogo';
 import { getProyectos } from '@/lib/referencias';
 import { metaSeo } from '@/lib/seo';
+import { BannerBbva } from '@/components/site/BannerBbva';
 
 export const generateMetadata = () => metaSeo('home');
 
@@ -63,6 +64,7 @@ export default async function HomePage() {
         {c.categorias.visible && <ProductCategories c={c.categorias} />}
         {c.productos.visible && <FeaturedProducts c={c.productos} products={destacados} />}
         {c.proyectos.visible && <NuestrosProyectos c={c.proyectos} projects={proyectos} />}
+        <BannerBbva variante="hero" />
         {c.partners.visible && <PartnerCta c={c.partners} />}
         {c.contacto.visible && <Contact c={c.contacto} />}
         {c.marcas.visible && <BrandMarquee showLabel={false} />}

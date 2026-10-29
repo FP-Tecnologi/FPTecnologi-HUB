@@ -33,6 +33,7 @@ import { ConocimientoModule } from './conocimiento/conocimiento.module.js';
 import { UploadsModule } from './uploads/uploads.module.js';
 import { EnviosModule } from './envios/envios.module.js';
 import { ContactoWebModule } from './contacto-web/contacto-web.module.js';
+import { BbvaModule } from './bbva/bbva.module.js';
 import { ContenidoModule } from './contenido/contenido.module.js';
 import { BlogModule } from './blog/blog.module.js';
 import { ProyectosModule } from './proyectos/proyectos.module.js';
@@ -69,6 +70,7 @@ import { AsistenteModule } from './asistente/asistente.module.js';
     CotizadorModule,
     LibroReclamacionesModule,
     ContactoWebModule,
+    BbvaModule,
     EnviosModule,
     UploadsModule,
     ConocimientoModule,

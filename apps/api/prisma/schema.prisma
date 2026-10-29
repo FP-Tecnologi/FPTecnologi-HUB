@@ -764,6 +764,7 @@ model SuscriptorBoletin {
 enum TipoContacto {
   CONTACTO
   RECLAMO
+  TARJETA_BBVA // consulta de tarjetas BBVA desde la web
 }
 
 enum EstadoContacto {

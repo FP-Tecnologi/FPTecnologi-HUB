@@ -15,6 +15,7 @@ import { CompareDock, useCompare } from '@/components/home/CompareDock';
 import { ProductGalleryModal } from '@/components/home/ProductGalleryModal';
 import { SectionBadge } from '@/components/home/SectionBadge';
 import { WhatsAppIcon } from '@/components/site/icons';
+import { BannerBbva } from '@/components/site/BannerBbva';
 
 /*
  * Ficha de producto: galería (miniaturas + flechas + zoom), marca, nombre,
@@ -102,6 +103,7 @@ export function ProductDetail({ product, relacionados }: { product: CatalogProdu
               {discount > 0 && <span className="mb-1.5 rounded-md bg-red-500/10 px-2 py-0.5 text-xs font-bold text-red-700">Ahorras {discount}%</span>}
             </div>
             <p className="mt-1 text-xs text-ink/65">Precio en {currency === 'PEN' ? 'soles' : 'dólares'} sin IGV. El IGV (18%) se suma en el carrito.</p>
+            <BannerBbva className="mt-4 max-w-md" />
 
             <span className="mt-5 inline-flex h-9 items-center gap-2 rounded-lg bg-whatsapp/10 px-3 text-sm font-semibold text-whatsapp-dark">
               <span className="h-2 w-2 rounded-full bg-emerald-500" /> En stock

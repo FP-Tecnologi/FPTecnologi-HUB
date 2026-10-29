@@ -12,7 +12,7 @@ import { api } from '../../lib/api';
 import { VerEnCrm } from './crm/VerEnCrm';
 
 type Estado = 'NUEVO' | 'CONTACTADO' | 'RESUELTO' | 'DESCARTADO';
-type Tipo = 'CONTACTO' | 'RECLAMO';
+type Tipo = 'CONTACTO' | 'RECLAMO' | 'TARJETA_BBVA';
 
 interface Contacto {
   id: string;
@@ -39,6 +39,7 @@ const TIPOS: { v: '' | Tipo; label: string }[] = [
   { v: '', label: 'Todos' },
   { v: 'CONTACTO', label: 'Contacto' },
   { v: 'RECLAMO', label: 'Reclamos' },
+  { v: 'TARJETA_BBVA', label: 'Tarjetas BBVA' },
 ];
 const meta = (e: Estado) => ESTADOS.find((x) => x.v === e)!;
 
@@ -194,6 +195,7 @@ export function ContactosWeb() {
                         <div style={{ fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-strong)' }}>
                           {c.nombre}{' '}
                           {c.tipo === 'RECLAMO' && <span className="ax-badge ax-badge--soft ax-badge--sm ax-badge--danger">Reclamo</span>}
+                          {c.tipo === 'TARJETA_BBVA' && <span className="ax-badge ax-badge--soft ax-badge--sm ax-badge--info">BBVA</span>}
                         </div>
                         <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{c.empresa || c.email}</div>
                       </td>
@@ -213,7 +215,7 @@ export function ContactosWeb() {
             <div className="ax-card__header">
               <div className="ax-card__titles">
                 <h2 className="ax-card__title">{sel.nombre}</h2>
-                <p className="ax-card__subtitle">{sel.tipo === 'RECLAMO' ? 'Libro de Reclamaciones' : 'Formulario de contacto'}</p>
+                <p className="ax-card__subtitle">{sel.tipo === 'RECLAMO' ? 'Libro de Reclamaciones' : sel.tipo === 'TARJETA_BBVA' ? 'Consulta de tarjetas BBVA' : 'Formulario de contacto'}</p>
               </div>
               {sel.tipo === 'CONTACTO' && <VerEnCrm origen="CONTACTO_WEB" id={sel.id} />}
               <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setSelId(null)} aria-label="Cerrar detalle">Cerrar</button>

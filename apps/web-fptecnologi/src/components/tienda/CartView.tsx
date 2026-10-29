@@ -6,6 +6,7 @@ import { useCurrency } from '@/context/CurrencyContext';
 import { MoreInfoButton } from '@/components/home/MoreInfoButton';
 import { ScrollReveal } from '@/components/home/ScrollReveal';
 import { PasosCompra } from './PasosCompra';
+import { BannerBbva } from '@/components/site/BannerBbva';
 
 const GARANTIAS = [
   { Icon: ShieldCheck, titulo: 'Garantía oficial', texto: 'Equipos nuevos con garantía del fabricante.' },
@@ -177,6 +178,8 @@ export function CartView() {
               <span className="inline-flex items-center gap-1"><Banknote className="h-4 w-4" strokeWidth={1.8} /> Efectivo</span>
             </p>
           </div>
+
+          {!mayorista && <BannerBbva />}
 
           {!mayorista && (
             <button type="button" onClick={() => setPerfil('mayorista')} className="block w-full rounded-2xl border border-brand-dark/20 bg-brand-primary/5 p-4 text-center text-sm font-semibold text-brand-700 transition-colors hover:bg-brand-primary hover:text-white">

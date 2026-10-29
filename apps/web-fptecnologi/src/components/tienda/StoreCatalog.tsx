@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Home, Search, SlidersHorizontal, X } from 'lucide-react';
 import { discountOf, type CatalogProduct } from '@/lib/catalog';
 import type { Categoria } from '@/lib/catalogo';
@@ -10,6 +10,7 @@ import { CompareDock, useCompare } from '@/components/home/CompareDock';
 import { StickyNav } from '@/components/home/StickyNav';
 import { Navbar9 } from '@/components/home/Navbar9';
 import { ParticlesBackground } from '@/components/home/ParticlesBackground';
+import { BannerBbva } from '@/components/site/BannerBbva';
 
 type Sort = 'relevancia' | 'precio-asc' | 'precio-desc' | 'descuento' | 'nombre';
 
@@ -333,8 +334,12 @@ export function StoreCatalog({
 
           {results.length > 0 ? (
             <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-              {results.map((p) => (
-                <ProductCardFinal key={p.sku} product={p} compared={compare.skus.includes(p.sku)} onToggleCompare={compare.toggle} />
+              {results.map((p, i) => (
+                <Fragment key={p.sku}>
+                  <ProductCardFinal product={p} compared={compare.skus.includes(p.sku)} onToggleCompare={compare.toggle} />
+                  {/* Llamada a tarjetas BBVA tras la segunda fila (o al final si hay pocos productos). */}
+                  {(i === 5 || (results.length < 6 && i === results.length - 1)) && <BannerBbva variante="tarjeta" className="col-span-full" />}
+                </Fragment>
               ))}
             </div>
           ) : (
