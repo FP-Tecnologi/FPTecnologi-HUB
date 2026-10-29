@@ -4,7 +4,7 @@ import { StickyNav } from '@/components/home/StickyNav';
 import { Navbar9 } from '@/components/home/Navbar9';
 import { Footer } from '@/components/home/Footer';
 import { ScrollReveal } from '@/components/home/ScrollReveal';
-import { TarjetaBbva } from '@/components/site/BannerBbva';
+import { LogoBbva, TarjetasAbanico } from '@/components/site/BannerBbva';
 import { TarjetasBbvaForm } from '@/components/site/TarjetasBbvaForm';
 
 export const metadata: Metadata = {
@@ -33,20 +33,19 @@ export default function TarjetasBbvaPage() {
           </div>
           <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-6 pb-12 pt-4 lg:grid-cols-[1fr_1.05fr] lg:pb-16">
             <div className="text-white">
-              <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#85C8FF] backdrop-blur">
-                FP Tecnologi · Aliado BBVA
-              </span>
+              <div className="flex items-center gap-3">
+                <LogoBbva blanco className="h-6" />
+                <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#85C8FF] backdrop-blur">
+                  FP Tecnologi · Aliado BBVA
+                </span>
+              </div>
               <h1 className="mt-5 font-display text-4xl font-bold leading-tight sm:text-5xl">
                 Descubre qué tarjeta BBVA <span className="text-[#85C8FF]">tienes preaprobada</span>
               </h1>
               <p className="mt-5 max-w-xl text-lg text-white/85">
                 Consulta con tu DNI en menos de un minuto y mira las tarjetas de crédito que BBVA tiene para ti, con su línea de crédito y tasa.
               </p>
-              <div className="relative mx-auto mt-10 hidden h-60 max-w-sm sm:block">
-                <TarjetaBbva tono="celeste" className="absolute left-0 top-0 w-[62%] -rotate-12" />
-                <TarjetaBbva tono="marino" className="absolute right-0 top-6 w-[62%] rotate-6 ring-1 ring-white/20" />
-                <TarjetaBbva className="absolute bottom-0 left-[19%] w-[62%] -rotate-2" />
-              </div>
+              <TarjetasAbanico ancho="w-36 lg:w-40" className="group mt-10 hidden sm:flex" />
             </div>
             <div id="consulta">
               <TarjetasBbvaForm />

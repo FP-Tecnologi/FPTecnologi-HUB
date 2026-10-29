@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { ArrowRight, Calendar, CreditCard, IdCard, Loader2, Lock, Mail, RotateCcw, Signal, Smartphone } from 'lucide-react';
-import { TarjetaBbva } from './BannerBbva';
+import { TarjetaBbva, TarjetasAbanico } from './BannerBbva';
 
 type Oferta = { id: number; tarjeta: string; codigo: string; linea: number; moneda: string; tea: number; imagen: string | null };
 type Resultado = { consultaId: string | null; nombre: string | null; ofertas: Oferta[]; enlace: string };
@@ -105,9 +105,9 @@ export function TarjetasBbvaForm() {
                 <article key={o.id} className="flex flex-col rounded-2xl border border-[#001391]/10 bg-gradient-to-b from-[#eef2ff] to-white p-5 shadow-md shadow-brand-dark/10 transition-transform hover:-translate-y-1">
                   {o.imagen ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={o.imagen} alt={o.tarjeta} className="mx-auto aspect-[1.586] w-full max-w-xs rounded-xl object-cover shadow-xl shadow-[#001391]/25" />
+                    <img src={o.imagen} alt={o.tarjeta} className="mx-auto aspect-[188/304] w-32 object-contain drop-shadow-[0_18px_30px_rgba(0,19,145,0.35)]" />
                   ) : (
-                    <TarjetaBbva className="mx-auto w-full max-w-xs" />
+                    <TarjetaBbva className="mx-auto w-32" />
                   )}
                   <h3 className="mt-5 font-display text-xl font-bold text-ink">{o.tarjeta}</h3>
                   <dl className="mt-3 grid grid-cols-[repeat(auto-fit,minmax(7.5rem,1fr))] gap-3 text-sm">
@@ -136,7 +136,7 @@ export function TarjetasBbvaForm() {
           </>
         ) : (
           <div className="text-center">
-            <TarjetaBbva tono="celeste" className="mx-auto w-48" />
+            <TarjetasAbanico ancho="w-24" />
             <h2 className="mt-6 font-display text-2xl font-bold text-ink">Por ahora no tienes ofertas preaprobadas</h2>
             <p className="mx-auto mt-2 max-w-md text-sm text-ink/65">Tu perfil puede cambiar con el tiempo: vuelve a consultar más adelante o revisa todas las tarjetas en la web de BBVA.</p>
             <a href={res.enlace} className="mt-6 inline-flex h-12 items-center gap-2 rounded-xl bg-[#001391] px-6 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-[#070E46]">
