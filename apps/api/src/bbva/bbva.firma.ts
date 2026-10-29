@@ -6,10 +6,17 @@ export function digest(body: string): string {
   return `SHA-512=${createHash('sha512').update(body).digest('base64')}`;
 }
 
-/** La clave llega como el archivo base64 que manda BBVA (PKCS#8 en PEM codificado) o como PEM directo. */
+/**
+ * La clave llega en cualquiera de los formatos que entrega BBVA: PEM directo (PKCS#1 o PKCS#8), PEM codificado en
+ * base64, o el PKCS#8 en base64 «pelado» (DER, sin encabezado -----BEGIN, como el Clave.p8 del sandbox).
+ */
 export function clavePem(valor: string): string {
   const v = valor.trim().replace(/\\n/g, '\n');
-  return v.startsWith('-----BEGIN') ? v : Buffer.from(v, 'base64').toString('utf8').trim();
+  if (v.startsWith('-----BEGIN')) return v;
+  const b64 = v.replace(/\s+/g, '');
+  const decodificado = Buffer.from(b64, 'base64').toString('utf8').trim();
+  if (decodificado.startsWith('-----BEGIN')) return decodificado;
+  return `-----BEGIN PRIVATE KEY-----\n${b64.match(/.{1,64}/g)!.join('\n')}\n-----END PRIVATE KEY-----`;
 }
 
 /** Cabeceras Digest, Signature y Date para una llamada firmada. */

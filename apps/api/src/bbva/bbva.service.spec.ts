@@ -16,6 +16,9 @@ describe('firma BBVA API Connect', () => {
   it('acepta la clave en base64 (como la manda BBVA) o en PEM', () => {
     expect(clavePem(Buffer.from(pem).toString('base64'))).toBe(pem.trim());
     expect(clavePem(pem)).toBe(pem.trim());
+    // PKCS#8 en base64 sin encabezado (DER), como el Clave.p8 del sandbox: debe poder firmar.
+    const der = privateKey.export({ type: 'pkcs8', format: 'der' }).toString('base64');
+    expect(() => cabecerasFirmadas({ metodo: 'post', path: '/x', host: 'h', body: '', clave: der })).not.toThrow();
   });
 
   it('firma la cadena (request-target) host date digest y se verifica con la pública', () => {
