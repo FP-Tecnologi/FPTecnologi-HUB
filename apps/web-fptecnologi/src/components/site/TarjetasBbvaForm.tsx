@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent, type ReactNode } from 'react';
 import { ArrowRight, Calendar, CreditCard, IdCard, Loader2, Lock, Mail, RotateCcw, Signal, Smartphone } from 'lucide-react';
-import { TarjetaBbva, TarjetasAbanico } from './BannerBbva';
+import { AbanicoBbva, TarjetaBbva } from './BannerBbva';
 
 type Oferta = { id: number; tarjeta: string; codigo: string; linea: number; moneda: string; tea: number; imagen: string | null };
 type Resultado = { consultaId: string | null; nombre: string | null; ofertas: Oferta[]; enlace: string };
@@ -136,7 +136,7 @@ export function TarjetasBbvaForm() {
           </>
         ) : (
           <div className="text-center">
-            <TarjetasAbanico ancho="w-24" />
+            <AbanicoBbva className="mx-auto w-56" />
             <h2 className="mt-6 font-display text-2xl font-bold text-ink">Por ahora no tienes ofertas preaprobadas</h2>
             <p className="mx-auto mt-2 max-w-md text-sm text-ink/65">Tu perfil puede cambiar con el tiempo: vuelve a consultar más adelante o revisa todas las tarjetas en la web de BBVA.</p>
             <a href={res.enlace} className="mt-6 inline-flex h-12 items-center gap-2 rounded-xl bg-[#001391] px-6 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-[#070E46]">

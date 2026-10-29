@@ -4,7 +4,8 @@ import { StickyNav } from '@/components/home/StickyNav';
 import { Navbar9 } from '@/components/home/Navbar9';
 import { Footer } from '@/components/home/Footer';
 import { ScrollReveal } from '@/components/home/ScrollReveal';
-import { LogoBbva, TarjetasAbanico } from '@/components/site/BannerBbva';
+import { AbanicoBbva, LogoBbva } from '@/components/site/BannerBbva';
+import { TarjetasBbvaVitrina } from '@/components/site/TarjetasBbvaVitrina';
 import { TarjetasBbvaForm } from '@/components/site/TarjetasBbvaForm';
 
 export const metadata: Metadata = {
@@ -45,16 +46,18 @@ export default function TarjetasBbvaPage() {
               <p className="mt-5 max-w-xl text-lg text-white/85">
                 Consulta con tu DNI en menos de un minuto y mira las tarjetas de crédito que BBVA tiene para ti, con su línea de crédito y tasa.
               </p>
-              <TarjetasAbanico ancho="w-36 lg:w-40" className="group mt-10 hidden sm:flex" />
+              <AbanicoBbva className="mt-4 hidden w-full max-w-sm sm:block" />
             </div>
-            <div id="consulta">
+            <div id="consulta" className="scroll-mt-28">
               <TarjetasBbvaForm />
             </div>
           </div>
         </section>
       </div>
 
-      <main className="bg-white py-20">
+      <TarjetasBbvaVitrina />
+
+      <main id="como-funciona" className="bg-white py-20">
         <div className="mx-auto max-w-7xl px-6">
           <h2 className="text-center font-display text-3xl font-bold leading-tight sm:text-4xl">
             <span className="text-ink">¿Cómo</span> <span className="title-shimmer-light">funciona?</span>
