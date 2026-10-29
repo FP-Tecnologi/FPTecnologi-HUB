@@ -128,6 +128,9 @@ export class BbvaService {
       throw new ServiceUnavailableException('El servicio de BBVA no responde. Intenta en unos minutos.');
     }
 
+    // Sin ofertas: se registra solo la forma de la respuesta (campos y tipos, ningún valor) por si BBVA cambia el formato.
+    if (!json.data?.offers?.length) this.logger.log(`BBVA ofertas 200 sin ofertas, forma: ${JSON.stringify(forma(json))}`);
+
     const ofertas: Oferta[] = (json.data?.offers ?? []).map((o) => ({
       id: o.id,
       tarjeta: o.product?.title?.name ?? 'Tarjeta de crédito BBVA',
@@ -188,6 +191,13 @@ export class BbvaService {
     this.intentos.set(ip, recientes);
     if (this.intentos.size > 5000) for (const [k, v] of this.intentos) if (!v.some((t) => ahora - t < VENTANA_MS)) this.intentos.delete(k);
   }
+}
+
+/** Estructura de un JSON sin sus valores: { data: { offers: [ { id: 'number' } ] } }. */
+function forma(v: unknown): unknown {
+  if (Array.isArray(v)) return v.length ? [forma(v[0]), `×${v.length}`] : [];
+  if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, forma(x)]));
+  return typeof v;
 }
 
 /** «AMPARO» → «Amparo». */
