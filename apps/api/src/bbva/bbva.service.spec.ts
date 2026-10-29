@@ -70,6 +70,7 @@ describe('BbvaService', () => {
     expect(headers.Authorization).toBe('Bearer t1');
     expect(headers.Digest).toBe(digest(init.body as string));
     expect(JSON.parse(init.body as string).participant.contactDetails[1].contact.address).toBe('ana@correo.com');
+    expect(JSON.parse(init.body as string).product).toBe('TC');
     const data = create.mock.calls[0][0].data;
     expect(data).toMatchObject({ marcaId: 'm1', tipo: 'TARJETA_BBVA', nombre: 'Amparo', celular: '969505789' });
     expect(data.mensaje).toContain('Visa Cero BBVA');

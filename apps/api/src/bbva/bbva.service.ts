@@ -111,13 +111,16 @@ export class BbvaService {
           { contact: { contactType: 'EMAIL', address: dto.email.trim().toLowerCase() } },
         ],
       },
-      product: { productClassification: { id: 'TC' } },
+      // El plan de pruebas vigente (y producción) espera el texto "TC", no el objeto que describe el PDF.
+      product: 'TC',
       terms: [{ id: 'DATA_PROTECTION_LAW', status: { id: 'ACCEPTED' } }],
     });
 
     const { status, json } = await this.llamarOfertas(body);
     if (status === 400) {
       const msg = json.messages?.[0]?.message ?? '';
+      // Solo código y texto de BBVA (sin datos del visitante), para diagnosticar rechazos.
+      this.logger.warn(`BBVA ofertas 400: ${JSON.stringify(json.messages?.map((m) => ({ code: m.code, message: m.message })) ?? json)}`);
       throw new BadRequestException(ERRORES[msg] ?? 'Revisa los datos ingresados.');
     }
     if (status !== 200) {
