@@ -1242,7 +1242,7 @@ Plan: [`docs/superpowers/plans/2026-10-23-cms-fimav.md`](superpowers/plans/2026-
 
 ### 2026-10-30 — Revisión de diseño y SEO/GEO de las cuatro webs públicas
 
-- **Skills del proyecto**: se suman `find-skills`, `vercel-react-best-practices`, `web-design-guidelines` e `impeccable` (en `.agents/skills/`, enlazadas desde `.claude/skills/`; ver `skills-lock.json`) junto a `frontend-design`, `accessibility` y `seo`.
+- **Skills del proyecto**: se suman `find-skills`, `vercel-react-best-practices`, `web-design-guidelines`, `impeccable`, `ai-seo`, `seo-audit` y `schema` (en `.agents/skills/`, enlazadas desde `.claude/skills/`; ver `skills-lock.json`) junto a `frontend-design`, `accessibility` y `seo`.
 - **Kelqa**: nueva página `/libro-de-reclamaciones` (registro + consulta de estado, proxy a la API del HUB como en Fimav/Quamtu; el redirect `/legal/reclamaciones` ya no daba 404) con enlace en el pie. Pendiente: cargar razón social, RUC y dirección de Kelqa en Admin → Marcas y poner `HUB_MARCA_ID` / `HUB_API_URL` en el servidor.
 - **SEO/GEO en las cuatro webs**: metadatos por página con canonical y Open Graph/Twitter, `sitemap.xml`, `robots.txt` (rastreo permitido a buscadores y bots de IA), `llms.txt`, JSON-LD (Organization + WebSite en todas; migas, listas de productos y FAQ donde aplica), `lang="es-PE"` y enlace «Saltar al contenido». Quamtu no publica `offers` porque sus precios son referenciales.
 - **Kelqa, rendimiento y movimiento**: foto del hero con prioridad alta, `decoding="async"`, 3 fotos recomprimidas (970 → 467 KB), sin animaciones infinitas (brillo de títulos, hero que respira, flotado, latido, anillo de WhatsApp) ni blur en revelados; `Reveal` entra una sola vez; menú móvil cierra con Escape/clic fuera.
