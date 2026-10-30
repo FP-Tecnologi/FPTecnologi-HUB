@@ -79,10 +79,10 @@ export function TarjetasBbvaVitrina() {
 
         <div className="mt-10 grid gap-6 lg:grid-cols-[1.15fr_1fr] lg:gap-8">
           {/* Escenario: la tarjeta elegida, grande. */}
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-[#070E46] via-[#001391] to-[#004481] p-6 text-white shadow-2xl shadow-[#001391]/25 sm:p-10">
+          <div className="relative flex items-center overflow-hidden rounded-3xl bg-gradient-to-br from-[#070E46] via-[#001391] to-[#004481] p-6 text-white shadow-2xl shadow-[#001391]/25 sm:p-10">
             <div aria-hidden className="pointer-events-none absolute -right-20 -top-24 h-80 w-80 rounded-full bg-[#85C8FF]/25 blur-3xl" />
             <div aria-hidden className="pointer-events-none absolute -bottom-28 -left-16 h-72 w-72 rounded-full bg-[#1973e8]/35 blur-3xl" />
-            <div className="relative grid items-center gap-8 sm:grid-cols-[auto_1fr]">
+            <div className="relative grid w-full items-center gap-8 sm:grid-cols-[auto_1fr]">
               <div className="mx-auto [perspective:900px]">
                 <div onPointerMove={inclinar} onPointerLeave={soltar} className="transition-transform duration-200 ease-out">
                   <TarjetaBbva key={sel.id} id={sel.id} eager className="w-32 animate-[fade-up_0.5s_ease-out_both] sm:w-44 lg:w-48" />

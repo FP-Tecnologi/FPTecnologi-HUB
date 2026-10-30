@@ -63,13 +63,20 @@ export default function TarjetasBbvaPage() {
           <ol className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {PASOS.map((p, i) => (
               <ScrollReveal key={p.titulo} delayMs={i * 110}>
-                <li className="h-full rounded-2xl bg-white p-6 shadow-md shadow-brand-dark/10">
-                  <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#001391] text-white">
-                    <p.icon className="h-5 w-5" strokeWidth={2} />
+                <li className="group relative h-full overflow-hidden rounded-2xl bg-white p-6 shadow-md shadow-brand-dark/10 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#001391]/20">
+                  {/* Número grande del paso, de fondo; se enciende al pasar el cursor. */}
+                  <span aria-hidden className="pointer-events-none absolute -right-1 -top-3 font-display text-7xl font-extrabold leading-none text-[#001391]/[0.07] transition-colors duration-300 group-hover:text-[#001391]/15">
+                    {String(i + 1).padStart(2, '0')}
                   </span>
-                  <p className="mt-4 text-xs font-semibold text-[#001391]">Paso {i + 1}</p>
-                  <h3 className="mt-1 font-display text-lg font-bold text-ink">{p.titulo}</h3>
-                  <p className="mt-2 text-sm text-ink/65">{p.texto}</p>
+                  <div className="relative flex items-center gap-3">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#001391] text-white transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
+                      <p.icon className="h-5 w-5" strokeWidth={2} />
+                    </span>
+                    <span className="rounded-full bg-[#85C8FF]/25 px-3 py-1 text-sm font-bold text-[#001391]">Paso {i + 1}</span>
+                  </div>
+                  <h3 className="relative mt-5 font-display text-lg font-bold text-ink">{p.titulo}</h3>
+                  <p className="relative mt-2 text-sm text-ink/65">{p.texto}</p>
+                  <span aria-hidden className="absolute inset-x-6 bottom-0 h-1 origin-left scale-x-0 rounded-full bg-[#001391] transition-transform duration-300 group-hover:scale-x-100" />
                 </li>
               </ScrollReveal>
             ))}
