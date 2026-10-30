@@ -8,7 +8,7 @@ import Reveal from '@/components/motion/Reveal';
 import { getContacto, getPagina, waUrlDe } from '@/lib/cms';
 import { meta } from '@/lib/seo';
 
-export const metadata = meta('Contacto', 'Escríbenos o llámanos: atendemos a empresas y entidades del Estado en todo el Perú. WhatsApp, teléfono, correo y formulario de contacto.', '/contacto');
+export const metadata = meta('Contacto: atención a empresas y al Estado', 'Escríbenos o llámanos: atendemos a empresas y entidades del Estado en todo el Perú. WhatsApp, teléfono, correo y formulario de contacto.', '/contacto');
 
 
 const enlace = 'inline-flex min-h-11 items-center gap-2 font-medium text-carbon underline decoration-rojo decoration-2 underline-offset-4 hover:text-rojo-hondo break-words';

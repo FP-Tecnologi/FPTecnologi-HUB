@@ -17,7 +17,7 @@ export const generateStaticParams = () => categorias.map((c) => ({ categoria: c.
 
 export async function generateMetadata({ params }: { params: Promise<{ categoria: string }> }) {
   const c = await categoriaPorSlug((await params).categoria);
-  return c ? meta(c.nombre, `${c.resumen}${c.marcas.length ? ` Marcas: ${c.marcas.join(', ')}.` : ''} Cotiza con Fimav Perú.`, `/catalogo/${c.slug}`) : { title: 'Catálogo' };
+  return c ? meta(`${c.nombre}: catálogo y cotización`, `${c.resumen}${c.marcas.length ? ` Marcas: ${c.marcas.join(', ')}.` : ''} Cotiza con Fimav Perú.`, `/catalogo/${c.slug}`) : { title: 'Catálogo' };
 }
 
 export default async function CategoriaPage({ params }: { params: Promise<{ categoria: string }> }) {

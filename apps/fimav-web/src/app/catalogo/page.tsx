@@ -9,7 +9,7 @@ import OrnamentoGeometrico from '@/components/OrnamentoGeometrico';
 import { getCategorias, getPagina } from '@/lib/cms';
 import { meta } from '@/lib/seo';
 
-export const metadata = meta('Catálogo', 'Catálogo de Fimav Perú: desktops, notebooks, impresoras, servidores, networking, aire acondicionado, consumibles, software y más para tu organización.', '/catalogo');
+export const metadata = meta('Catálogo de equipos y soluciones TI', 'Catálogo de Fimav Perú: desktops, notebooks, impresoras, servidores, networking, aire acondicionado, consumibles, software y más para tu organización.', '/catalogo');
 
 export default async function CatalogoPage() {
   const [{ banner: b }, categorias] = await Promise.all([getPagina('catalogo'), getCategorias()]);

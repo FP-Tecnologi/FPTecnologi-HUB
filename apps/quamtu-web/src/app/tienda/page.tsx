@@ -5,7 +5,7 @@ import { waUrl } from '@/lib/contacto';
 import { CATS, OPCIONES, type Cat } from '@/lib/piezas';
 import { meta } from '@/lib/seo';
 
-export const metadata = meta('Tienda de componentes — Quamtu', 'Gabinetes, procesadores, placas, memoria RAM, tarjetas de video, SSD, coolers y fuentes para armar tu equipo. Cotiza por WhatsApp.', '/tienda');
+export const metadata = meta('Tienda de componentes para PC — Quamtu', 'Gabinetes, procesadores, placas, memoria RAM, tarjetas de video, SSD, coolers y fuentes para armar tu equipo. Cotiza por WhatsApp.', '/tienda');
 
 const ICONOS: Record<Cat, typeof Cpu> = { gabinete: Box, cpu: Cpu, placa: CircuitBoard, ram: MemoryStick, gpu: Zap, ssd: HardDrive, cooler: Fan, fuente: PlugZap };
 const ORDENES = [

@@ -10,7 +10,7 @@ import { getCategorias, getPagina } from '@/lib/cms';
 import { meta } from '@/lib/seo';
 
 const descripcion = 'Fimav Perú atiende al sector Estado en Perú Compras: venta de bienes y servicios, postventa y soluciones tecnológicas según la necesidad de cada entidad.';
-export const metadata = meta('Perú Compras', descripcion, '/peru-compras');
+export const metadata = meta('Perú Compras: atención al sector Estado', descripcion, '/peru-compras');
 
 
 export default async function PeruComprasPage() {

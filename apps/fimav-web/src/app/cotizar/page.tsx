@@ -6,7 +6,7 @@ import Reveal from '@/components/motion/Reveal';
 import { getCategorias, getContacto, getPagina, waUrlDe } from '@/lib/cms';
 import { meta } from '@/lib/seo';
 
-export const metadata = meta('Cotizar', 'Solicita una cotización de equipos y servicios tecnológicos para tu empresa o entidad. Respondemos a la brevedad.', '/cotizar');
+export const metadata = meta('Cotizar equipos y servicios tecnológicos', 'Solicita una cotización de equipos y servicios tecnológicos para tu empresa o entidad. Respondemos a la brevedad.', '/cotizar');
 
 export default async function CotizarPage() {
   const [c, contacto, categorias] = await Promise.all([getPagina('cotizar'), getContacto(), getCategorias()]);

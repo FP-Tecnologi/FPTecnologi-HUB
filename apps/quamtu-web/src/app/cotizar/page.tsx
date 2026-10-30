@@ -2,7 +2,7 @@ import Cotizador from '@/components/Cotizador';
 import { BUILDS, porId } from '@/lib/piezas';
 import { meta } from '@/lib/seo';
 
-export const metadata = meta('Cotizador — Quamtu', 'Arma tu cotización con equipos y componentes y recíbela de nuestros especialistas.', '/cotizar');
+export const metadata = meta('Cotizador de equipos y componentes — Quamtu', 'Arma tu cotización con equipos y componentes y recíbela de nuestros especialistas.', '/cotizar');
 
 export default async function Cotizar({ searchParams }: { searchParams: Promise<{ pieza?: string; build?: string }> }) {
   const { pieza, build } = await searchParams;
