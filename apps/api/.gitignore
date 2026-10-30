@@ -12,3 +12,6 @@ coverage
 prisma/seed-manual.sql
 # Export de WooCommerce (datos reales del cat·logo, archivo grande)
 prisma/seeds/woocommerce*.csv
+
+# Variables para copiar a producci√≥n (contienen secretos)
+subir-a-hostinger/
