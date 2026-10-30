@@ -55,9 +55,7 @@ export default function TarjetasBbvaPage() {
         </section>
       </div>
 
-      <TarjetasBbvaVitrina />
-
-      <main id="como-funciona" className="bg-white py-20">
+      <main id="como-funciona" className="bg-white py-16 sm:py-20">
         <div className="mx-auto max-w-7xl px-6">
           <h2 className="text-center font-display text-3xl font-bold leading-tight sm:text-4xl">
             <span className="text-ink">¿Cómo</span> <span className="title-shimmer-light">funciona?</span>
@@ -76,11 +74,15 @@ export default function TarjetasBbvaPage() {
               </ScrollReveal>
             ))}
           </ol>
-          <p className="mx-auto mt-12 max-w-3xl text-center text-xs text-ink/60">
-            Las ofertas, líneas de crédito y tasas las define BBVA Perú según tu evaluación crediticia y están sujetas a su aprobación final. FP Tecnologi solo facilita la consulta; la contratación se realiza directamente con BBVA.
-          </p>
         </div>
       </main>
+
+      <TarjetasBbvaVitrina />
+      <p className="bg-paper px-6 pb-16 text-center text-xs text-ink/60">
+        <span className="mx-auto block max-w-3xl">
+          Las ofertas, líneas de crédito y tasas las define BBVA Perú según tu evaluación crediticia y están sujetas a su aprobación final. FP Tecnologi solo facilita la consulta; la contratación se realiza directamente con BBVA.
+        </span>
+      </p>
       <Footer />
     </>
   );
