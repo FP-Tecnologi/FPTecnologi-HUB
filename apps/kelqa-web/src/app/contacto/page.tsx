@@ -5,7 +5,7 @@ import FormContacto from '@/components/FormContacto';
 import Reveal from '@/components/Reveal';
 import Titulo from '@/components/Titulo';
 import { IconoWhatsApp } from '@/components/WhatsApp';
-import { contacto, preguntas, waUrl } from '@/lib/contenido';
+import { getContacto, getPagina, waUrlDe } from '@/lib/cms';
 
 export const metadata: Metadata = {
   title: 'Contacto',
@@ -14,22 +14,27 @@ export const metadata: Metadata = {
 
 const contenedor = 'mx-auto max-w-7xl px-5 sm:px-8';
 
-const CANALES = [
+const canales = (contacto: Awaited<ReturnType<typeof getContacto>>) => {
+  const waUrl = (t: string) => waUrlDe(contacto.whatsapp, t);
+  return [
   { titulo: 'WhatsApp', valor: contacto.telefono, href: waUrl('Hola Kelqa, quisiera más información.'), externo: true, Icono: null },
   { titulo: 'Teléfono', valor: contacto.telefono, href: contacto.telefonoHref, Icono: Phone },
   { titulo: 'Correo', valor: contacto.correo, href: `mailto:${contacto.correo}`, Icono: Mail },
   { titulo: 'Redes sociales', valor: `${contacto.redes} en redes sociales`, Icono: AtSign },
-];
+  ];
+};
 
-export default function Contacto() {
+export default async function Contacto() {
+  const [contacto, { banner, canales: textos, formulario, preguntas }] = await Promise.all([getContacto(), getPagina('contacto')]);
+  const CANALES = canales(contacto);
   return (
     <main>
-      <Banner miga="Contacto" titulo="Contáctanos para" acento="cualquier duda" texto="Elige el canal que prefieras: te atendemos de inmediato y te ayudamos a encontrar la solución precisa para tu proyecto." foto="/fotos/obrero-casco.webp" />
+      <Banner miga={banner.miga} titulo={banner.titulo} acento={banner.acento} texto={banner.texto} foto={banner.foto} />
 
       <section className="py-20 sm:py-24">
         <div className={`${contenedor} grid gap-12 lg:grid-cols-[0.85fr_1.15fr]`}>
           <Reveal efecto="izquierda">
-            <Titulo etiqueta="Canales" solido="Hablemos de" acento="tu proyecto" />
+            <Titulo etiqueta={textos.etiqueta} solido={textos.claro} acento={textos.acento} />
             <ul className="mt-8 grid gap-3">
               {CANALES.map(({ titulo, valor, href, externo, Icono }) => {
                 const interior = (
@@ -58,14 +63,14 @@ export default function Contacto() {
             <div className="mt-6 flex items-start gap-4 rounded-2xl bg-tinta p-5 text-white">
               <Landmark aria-hidden="true" size={24} className="mt-0.5 shrink-0 text-kelqa-claro" />
               <p className="text-sm leading-relaxed text-white/85">
-                <b className="text-white">Ventas directas y licitaciones públicas y privadas.</b> Encuentra todas nuestras fichas en Perú Compras.
+                <b className="text-white">{textos.aviso}</b> {textos.avisoTexto}
               </p>
             </div>
           </Reveal>
           <Reveal efecto="derecha" retraso={120}>
-            <h2 className="text-2xl font-extrabold">Déjanos tu mensaje</h2>
+            <h2 className="text-2xl font-extrabold">{formulario.titulo}</h2>
             <p className="mb-6 mt-2 text-carbon/80">Los campos con <span className="text-kelqa">*</span> son obligatorios.</p>
-            <FormContacto />
+            <FormContacto contacto={contacto} />
           </Reveal>
         </div>
       </section>
@@ -73,9 +78,9 @@ export default function Contacto() {
       {/* Preguntas frecuentes (web anterior) */}
       <section className="bg-niebla py-20 sm:py-24">
         <div className="mx-auto max-w-3xl px-5 sm:px-8">
-          <Reveal><Titulo centro etiqueta="Preguntas frecuentes" solido="Razones para" acento="confiar en Kelqa" /></Reveal>
+          <Reveal><Titulo centro etiqueta={preguntas.etiqueta} solido={preguntas.claro} acento={preguntas.acento} /></Reveal>
           <div className="mt-12 grid gap-3">
-            {preguntas.map((q, i) => (
+            {preguntas.items.map((q, i) => (
               <Reveal key={q.p} retraso={i * 70}>
                 <details className="group rounded-2xl bg-white shadow-md shadow-kelqa-hondo/5 ring-1 ring-kelqa/10 transition duration-300 open:shadow-lg open:shadow-kelqa-hondo/10 open:ring-kelqa/25" open={i === 0}>
                   <summary className="flex cursor-pointer list-none items-center gap-4 p-5 font-titulo font-bold text-tinta transition-colors hover:text-kelqa-hondo [&::-webkit-details-marker]:hidden">

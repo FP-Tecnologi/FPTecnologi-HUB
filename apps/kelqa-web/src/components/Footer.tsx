@@ -1,17 +1,18 @@
 import Link from 'next/link';
 import { AtSign, Mail, Phone } from 'lucide-react';
-import { contacto, lineas } from '@/lib/contenido';
+import type { Linea } from '@/lib/contenido';
+import type { ContactoWeb } from '@/lib/cms';
 
 const enlace = 'inline-flex items-center gap-2 transition duration-300 hover:translate-x-1 hover:text-kelqa-claro';
 const Titulo = ({ children }: { children: string }) => <h2 className="text-sm font-bold uppercase tracking-[0.16em] text-white">{children}</h2>;
 
-export default function Footer() {
+export default function Footer({ lineas, contacto }: { lineas: Linea[]; contacto: ContactoWeb }) {
   return (
     <footer id="pie" className="bg-tinta text-white/80">
       <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-8 md:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <img src="/brand/kelqa-blanco.svg" alt="Kelqa" className="h-10 w-auto" />
-          <p className="mt-5 max-w-sm text-sm leading-relaxed">Soluciones confiables para los sectores industrial, construcción, vial y ayuda humanitaria, con distribución a nivel nacional.</p>
+          <p className="mt-5 max-w-sm text-sm leading-relaxed">{contacto.frasePie}</p>
         </div>
         <div>
           <Titulo>Empresa</Titulo>

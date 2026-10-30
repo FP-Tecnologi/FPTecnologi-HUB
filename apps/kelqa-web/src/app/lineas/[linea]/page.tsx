@@ -6,16 +6,17 @@ import Banner from '@/components/Banner';
 import Reveal from '@/components/Reveal';
 import Titulo from '@/components/Titulo';
 import { CtaContacto } from '@/components/Bloques';
-import { lineas, waUrl } from '@/lib/contenido';
+import { getContacto, getLineas, waUrlDe } from '@/lib/cms';
+import { lineas as ids } from '@/lib/contenido';
 
 type Params = { params: Promise<{ linea: string }> };
 
 export const dynamicParams = false;
-export const generateStaticParams = () => lineas.map((l) => ({ linea: l.id }));
+export const generateStaticParams = () => ids.map((l) => ({ linea: l.id }));
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { linea } = await params;
-  const l = lineas.find((x) => x.id === linea);
+  const l = (await getLineas()).find((x) => x.id === linea);
   return l ? { title: l.nombre, description: `${l.lema} ${l.texto}` } : {};
 }
 
@@ -23,6 +24,8 @@ const contenedor = 'mx-auto max-w-7xl px-5 sm:px-8';
 
 export default async function PaginaLinea({ params }: Params) {
   const { linea } = await params;
+  const [lineas, c] = await Promise.all([getLineas(), getContacto()]);
+  const waUrl = (texto: string) => waUrlDe(c.whatsapp, texto);
   const l = lineas.find((x) => x.id === linea);
   if (!l) notFound();
   const otras = lineas.filter((x) => x.id !== l.id);

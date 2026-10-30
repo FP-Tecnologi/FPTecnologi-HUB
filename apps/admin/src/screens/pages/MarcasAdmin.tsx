@@ -108,6 +108,10 @@ export function MarcasAdmin() {
                   <div key={l}><div style={{ fontSize: 'var(--ax-text-xl)', fontWeight: 600, color: 'var(--ax-text-strong)' }}>{n}</div><div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-muted)' }}>{l}</div></div>
                 ))}
               </div>
+              <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-muted)', display: 'flex', alignItems: 'center', gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
+                <span>ID de la marca: <code style={{ userSelect: 'all' }}>{m.id}</code></span>
+                <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => void navigator.clipboard?.writeText(m.id).then(() => setOk('ID copiado.'))}>Copiar</button>
+              </div>
               <div style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>
                 {m.contactoEmail || 'Sin correo de contacto'}{m.contactoTelefono ? ` · ${m.contactoTelefono}` : ''}
               </div>

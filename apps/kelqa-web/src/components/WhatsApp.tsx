@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Armchair, ChevronRight, FileText, HardHat, HelpCircle, Landmark, PaintBucket, X, type LucideIcon } from 'lucide-react';
-import { contacto, waUrl } from '@/lib/contenido';
+import { waUrlDe, type ContactoWeb } from '@/lib/cms';
 
 /** Logo de WhatsApp (glifo oficial, un solo color). */
 export function IconoWhatsApp({ className = 'size-6' }: { className?: string }) {
@@ -26,7 +26,7 @@ const MOTIVOS: { titulo: string; detalle: string; Icono: LucideIcon; mensaje: st
 // Zonas donde el botón estorba (pie y formulario): se oculta mientras se solapan, salvo con el panel abierto.
 const ZONAS = ['pie', 'contacto-form'];
 
-export default function WhatsApp() {
+export default function WhatsApp({ contacto }: { contacto: ContactoWeb }) {
   const ruta = usePathname();
   const [abierto, setAbierto] = useState(false);
   const [sobreZona, setSobreZona] = useState(false);
@@ -103,7 +103,7 @@ export default function WhatsApp() {
             {MOTIVOS.map(({ titulo, detalle, Icono, mensaje }, i) => (
               <li key={titulo} className="entrada" style={{ '--retraso': `${60 + i * 45}ms` } as React.CSSProperties}>
                 <a
-                  href={waUrl(mensaje)}
+                  href={waUrlDe(contacto.whatsapp, mensaje)}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setAbierto(false)}

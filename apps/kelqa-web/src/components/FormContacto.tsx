@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { Building2, Hash, IdCard, Loader2, Mail, MessageCircle, Send, Smartphone, User } from 'lucide-react';
-import { contacto, waUrl } from '@/lib/contenido';
+import { waUrlDe } from '@/lib/cms';
 
 const API = (process.env.NEXT_PUBLIC_HUB_API_URL ?? '').replace(/\/$/, '');
 const MARCA_ID = process.env.NEXT_PUBLIC_HUB_MARCA_ID ?? '';
@@ -21,7 +21,8 @@ const ConIcono = ({ icono: Icono, children }: { icono: typeof User; children: Re
 );
 
 /** Formulario de contacto: envía a la API del HUB por /api/hub/contacto; si no responde, ofrece WhatsApp y correo. */
-export default function FormContacto() {
+export default function FormContacto({ contacto }: { contacto: { correo: string; whatsapp: string } }) {
+  const waUrl = (texto: string) => waUrlDe(contacto.whatsapp, texto);
   const [tipo, setTipo] = useState<Tipo>('persona');
   const [f, setF] = useState(VACIO);
   const esEmpresa = tipo === 'empresa';
