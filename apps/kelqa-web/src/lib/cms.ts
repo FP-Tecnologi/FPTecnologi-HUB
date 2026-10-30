@@ -81,6 +81,20 @@ export const CMS_DEFAULTS = {
     contacto: { telefono: contacto.telefono, whatsapp: contacto.whatsapp, correo: contacto.correo, redes: contacto.redes },
     pie: { frase: 'Soluciones confiables para los sectores industrial, construcción, vial y ayuda humanitaria, con distribución a nivel nacional.' },
     clientes: { titulo: 'Empresas que confían en Kelqa' },
+    widget: {
+      visible: true,
+      titulo: 'Kelqa · Atención comercial', estado: 'En línea · te respondemos de inmediato',
+      saludo: '¡Hola! ¿En qué te ayudamos? Elige un tema y seguimos por WhatsApp.',
+      aviso: '¿Necesitas una cotización? Escríbenos',
+      motivos: [
+        { titulo: 'Cotizar productos', detalle: 'Pide una propuesta para tu proyecto', mensaje: 'Hola Kelqa, quisiera cotizar productos para mi proyecto.' },
+        { titulo: 'Línea de pinturas', detalle: 'Vial, gloss, arquitectónica, látex y base', mensaje: 'Hola Kelqa, quisiera información sobre la línea de pinturas.' },
+        { titulo: 'Mobiliario corporativo', detalle: 'Sillas presidenciales, gerenciales y butacas', mensaje: 'Hola Kelqa, quisiera información sobre el mobiliario corporativo.' },
+        { titulo: 'Construcción y emergencia', detalle: 'Calaminas, carpas y herramientas', mensaje: 'Hola Kelqa, quisiera información sobre calaminas, carpas o herramientas.' },
+        { titulo: 'Licitaciones y Perú Compras', detalle: 'Entidades públicas y privadas', mensaje: 'Hola Kelqa, represento a una entidad y quisiera información sobre licitaciones o Perú Compras.' },
+        { titulo: 'Otra consulta', detalle: 'Cualquier otro tema', mensaje: 'Hola Kelqa, quisiera más información.' },
+      ],
+    },
   },
 };
 
@@ -98,6 +112,7 @@ function mezclar<T extends Record<string, unknown>>(base: T, guardado: unknown):
     const g = guardado[k];
     if (typeof v === 'string' && typeof g === 'string') out[k] = g;
     else if (Array.isArray(v) && Array.isArray(g)) out[k] = g;
+    else if (typeof v === 'boolean' && typeof g === 'boolean') out[k] = g;
   }
   return out as T;
 }
@@ -137,6 +152,16 @@ export const getContacto = cache(async (): Promise<ContactoWeb> => {
     frasePie: pie.frase,
   };
 });
+
+/** Widget flotante de WhatsApp (Ajustes → Widget): visibilidad, textos y motivos editables. */
+export const getWidget = cache(async () => {
+  const { widget: w } = await getPagina('ajustes');
+  const motivos = w.motivos.filter((m) => esObjeto(m) && typeof m.titulo === 'string' && m.titulo.trim()).map((m) => ({
+    titulo: m.titulo, detalle: typeof m.detalle === 'string' ? m.detalle : '', mensaje: txt(m.mensaje, 'Hola Kelqa, quisiera más información.'),
+  }));
+  return { ...w, motivos };
+});
+export type WidgetWeb = Awaited<ReturnType<typeof getWidget>>;
 
 export const waUrlDe = (numero: string, texto: string) => `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
 

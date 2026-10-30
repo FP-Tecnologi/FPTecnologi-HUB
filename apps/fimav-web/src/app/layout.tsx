@@ -7,7 +7,7 @@ import WhatsAppFlotante from '@/components/WhatsAppFlotante';
 import CursorHex from '@/components/motion/CursorHex';
 import ContadorVisitas from '@/components/ContadorVisitas';
 import { ContactoProvider } from '@/components/ContactoContext';
-import { getContacto } from '@/lib/cms';
+import { getContacto, getWidget } from '@/lib/cms';
 
 const poppins = Poppins({ subsets: ['latin'], variable: '--font-poppins', weight: ['400', '500', '600'] });
 // Humanista tipo Myriad (la del brochure) para títulos; fuente variable, cubre 400–600.
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const contacto = await getContacto();
+  const [contacto, widget] = await Promise.all([getContacto(), getWidget()]);
   return (
     <html lang="es" className={`${poppins.variable} ${titulo.variable} ${display.variable}`}>
       <body>
@@ -32,7 +32,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <Header />
           {children}
           <Footer />
-          <WhatsAppFlotante />
+          {widget.visible && <WhatsAppFlotante widget={widget} />}
           <CursorHex />
           <ContadorVisitas />
         </ContactoProvider>

@@ -126,6 +126,16 @@ const AJUSTES = base('ajustes', 'Ajustes del sitio', '/contacto', [
   ]),
   sec('pie', 'Pie de página', [TA('frase', 'Frase bajo el logo')]),
   sec('clientes', 'Clientes', [T('titulo', 'Texto sobre los logos de clientes')]),
+  sec('widget', 'Widget de WhatsApp (botón flotante)', [
+    { key: 'visible', label: 'Mostrar el widget en la web', tipo: 'bool', ayuda: 'Apagado: el botón flotante de WhatsApp no aparece en ninguna página.' },
+    T('titulo', 'Título del panel'), T('estado', 'Línea de estado', 'Ej.: En línea · te respondemos de inmediato'), TA('saludo', 'Mensaje de bienvenida'),
+    T('aviso', 'Burbuja de aviso (aparece a los pocos segundos)'),
+    {
+      key: 'motivos', label: 'Motivos de consulta', tipo: 'lista-objetos', itemLabel: 'Motivo', tituloDe: 'titulo',
+      ayuda: 'Cada motivo abre WhatsApp con el mensaje ya escrito. Los íconos son fijos y siguen el orden de la lista.',
+      campos: [{ key: 'titulo', label: 'Título', tipo: 'text' }, { key: 'detalle', label: 'Detalle', tipo: 'text' }, { key: 'mensaje', label: 'Mensaje de WhatsApp', tipo: 'textarea' }],
+    },
+  ]),
 ]);
 
 /** El editor solo con la marca Kelqa activa: así nada se guarda por error en otra marca. */

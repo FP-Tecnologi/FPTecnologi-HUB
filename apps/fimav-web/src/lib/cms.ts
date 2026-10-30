@@ -99,6 +99,18 @@ export const CMS_DEFAULTS = {
     redes: { facebook: '', instagram: '', linkedin: '' },
     pie: { fraseCorta: contenido.fraseCorta },
     cta: { ...titulo('Cotiza con Fimav Perú', 'Te respondemos con', 'una propuesta'), boton: 'Cotizar ahora' },
+    widget: {
+      visible: true,
+      titulo: '¿En qué te ayudamos?', subtitulo: 'Elige un tema y seguimos por WhatsApp',
+      motivos: [
+        { titulo: 'Cotizar equipos', detalle: 'Pide una propuesta para tu organización', mensaje: 'Hola Fimav Perú, quisiera cotizar equipos para mi organización.' },
+        { titulo: 'Consulta de un producto', detalle: 'Características, stock o disponibilidad', mensaje: 'Hola Fimav Perú, tengo una consulta sobre un producto.' },
+        { titulo: 'Entidades del Estado y Perú Compras', detalle: 'Compras públicas y convenio marco', mensaje: 'Hola Fimav Perú, represento a una entidad del Estado y quisiera información sobre Perú Compras.' },
+        { titulo: 'Soporte técnico y garantía', detalle: 'Ayuda con un equipo o su garantía', mensaje: 'Hola Fimav Perú, necesito soporte técnico o consultar la garantía de un equipo. Mi equipo/modelo es: ' },
+        { titulo: 'Postventa o reclamo', detalle: 'Seguimiento de una compra o un reclamo', mensaje: 'Hola Fimav Perú, tengo una consulta de postventa o un reclamo. Mi pedido/comprobante es: ' },
+        { titulo: 'Otra consulta', detalle: 'Cualquier otro tema', mensaje: 'Hola Fimav Perú, quisiera más información.' },
+      ],
+    },
   },
   legal: {
     privacidad: legalMd('privacidad'),
@@ -123,6 +135,7 @@ function mezclar<T extends Record<string, unknown>>(base: T, guardado: unknown):
     const g = guardado[k];
     if (typeof v === 'string' && typeof g === 'string') out[k] = g;
     else if (Array.isArray(v) && Array.isArray(g)) out[k] = g;
+    else if (typeof v === 'boolean' && typeof g === 'boolean') out[k] = g;
   }
   return out as T;
 }
@@ -166,6 +179,16 @@ export const getContacto = cache(async (): Promise<Contacto> => {
     comercial: c.comercial,
   };
 });
+
+/** Widget flotante de WhatsApp (Ajustes → Widget): visibilidad, textos y motivos editables. */
+export const getWidget = cache(async () => {
+  const { widget: w } = await getPagina('ajustes');
+  const motivos = w.motivos
+    .filter((m) => typeof m === 'object' && m !== null && typeof m.titulo === 'string' && m.titulo.trim())
+    .map((m) => ({ titulo: m.titulo, detalle: typeof m.detalle === 'string' ? m.detalle : '', mensaje: typeof m.mensaje === 'string' && m.mensaje.trim() ? m.mensaje : 'Hola Fimav Perú, quisiera más información.' }));
+  return { ...w, motivos };
+});
+export type WidgetWeb = Awaited<ReturnType<typeof getWidget>>;
 
 export const waUrlDe = (numero: string, texto: string) => `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
 

@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Armchair, ChevronRight, FileText, HardHat, HelpCircle, Landmark, PaintBucket, X, type LucideIcon } from 'lucide-react';
-import { waUrlDe, type ContactoWeb } from '@/lib/cms';
+import { waUrlDe, type ContactoWeb, type WidgetWeb } from '@/lib/cms';
 
 /** Logo de WhatsApp (glifo oficial, un solo color). */
 export function IconoWhatsApp({ className = 'size-6' }: { className?: string }) {
@@ -13,20 +13,13 @@ export function IconoWhatsApp({ className = 'size-6' }: { className?: string }) 
   );
 }
 
-// Cada motivo abre WhatsApp con un mensaje ya escrito, así el equipo sabe de qué se trata.
-const MOTIVOS: { titulo: string; detalle: string; Icono: LucideIcon; mensaje: string }[] = [
-  { titulo: 'Cotizar productos', detalle: 'Pide una propuesta para tu proyecto', Icono: FileText, mensaje: 'Hola Kelqa, quisiera cotizar productos para mi proyecto.' },
-  { titulo: 'Línea de pinturas', detalle: 'Vial, gloss, arquitectónica, látex y base', Icono: PaintBucket, mensaje: 'Hola Kelqa, quisiera información sobre la línea de pinturas.' },
-  { titulo: 'Mobiliario corporativo', detalle: 'Sillas presidenciales, gerenciales y butacas', Icono: Armchair, mensaje: 'Hola Kelqa, quisiera información sobre el mobiliario corporativo.' },
-  { titulo: 'Construcción y emergencia', detalle: 'Calaminas, carpas y herramientas', Icono: HardHat, mensaje: 'Hola Kelqa, quisiera información sobre calaminas, carpas o herramientas.' },
-  { titulo: 'Licitaciones y Perú Compras', detalle: 'Entidades públicas y privadas', Icono: Landmark, mensaje: 'Hola Kelqa, represento a una entidad y quisiera información sobre licitaciones o Perú Compras.' },
-  { titulo: 'Otra consulta', detalle: 'Cualquier otro tema', Icono: HelpCircle, mensaje: 'Hola Kelqa, quisiera más información.' },
-];
+// Íconos de los motivos del panel, en orden (los textos y mensajes se editan en el dashboard).
+const ICONOS: LucideIcon[] = [FileText, PaintBucket, Armchair, HardHat, Landmark, HelpCircle];
 
 // Zonas donde el botón estorba (pie y formulario): se oculta mientras se solapan, salvo con el panel abierto.
 const ZONAS = ['pie', 'contacto-form'];
 
-export default function WhatsApp({ contacto }: { contacto: ContactoWeb }) {
+export default function WhatsApp({ contacto, widget }: { contacto: ContactoWeb; widget: WidgetWeb }) {
   const ruta = usePathname();
   const [abierto, setAbierto] = useState(false);
   const [sobreZona, setSobreZona] = useState(false);
@@ -91,16 +84,18 @@ export default function WhatsApp({ contacto }: { contacto: ContactoWeb }) {
                 <span aria-hidden="true" className="absolute -bottom-0.5 -right-0.5 size-3.5 rounded-full border-2 border-white bg-[#25d366]" />
               </span>
               <div>
-                <p className="font-titulo font-bold leading-tight">Kelqa · Atención comercial</p>
-                <p className="text-xs text-white/75">En línea · te respondemos de inmediato</p>
+                <p className="font-titulo font-bold leading-tight">{widget.titulo}</p>
+                <p className="text-xs text-white/75">{widget.estado}</p>
               </div>
             </div>
             <p className="relative mt-4 w-fit max-w-[85%] rounded-2xl rounded-tl-md bg-white/12 px-4 py-2.5 text-sm leading-snug backdrop-blur">
-              ¡Hola! ¿En qué te ayudamos? Elige un tema y seguimos por WhatsApp.
+              {widget.saludo}
             </p>
           </div>
           <ul className="max-h-[calc(100svh-17rem)] overflow-y-auto p-2">
-            {MOTIVOS.map(({ titulo, detalle, Icono, mensaje }, i) => (
+            {widget.motivos.map(({ titulo, detalle, mensaje }, i) => {
+              const Icono = ICONOS[i % ICONOS.length]!;
+              return (
               <li key={titulo} className="entrada" style={{ '--retraso': `${60 + i * 45}ms` } as React.CSSProperties}>
                 <a
                   href={waUrlDe(contacto.whatsapp, mensaje)}
@@ -119,7 +114,8 @@ export default function WhatsApp({ contacto }: { contacto: ContactoWeb }) {
                   <ChevronRight aria-hidden="true" size={18} className="shrink-0 text-carbon/50 transition duration-300 group-hover:translate-x-1 group-hover:text-kelqa" />
                 </a>
               </li>
-            ))}
+              );
+            })}
           </ul>
           <a href={contacto.telefonoHref} className="flex items-center justify-center gap-2 border-t border-kelqa/10 bg-niebla px-4 py-3 text-xs font-semibold text-carbon/80 transition hover:text-kelqa-hondo">
             <IconoWhatsApp className="size-4 text-[#1faa53]" />{contacto.telefono}
@@ -133,7 +129,7 @@ export default function WhatsApp({ contacto }: { contacto: ContactoWeb }) {
           onClick={() => setAbierto(true)}
           className="absolute bottom-3 right-[4.75rem] w-max max-w-56 rounded-2xl rounded-br-md bg-white px-4 py-2.5 text-left text-sm font-semibold text-tinta shadow-xl shadow-tinta/15 ring-1 ring-kelqa/10 motion-safe:animate-[entrada_0.5s_var(--suave)]"
         >
-          ¿Necesitas una cotización? <span className="text-kelqa-hondo">Escríbenos</span>
+          {widget.aviso}
         </button>
       )}
 

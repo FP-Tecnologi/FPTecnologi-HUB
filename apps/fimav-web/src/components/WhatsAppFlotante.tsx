@@ -7,6 +7,7 @@ import Espiral from './Espiral';
 import Hexagono from './Hexagono';
 import { rutaHexagono } from './hex/rutaHexagono';
 import { useContacto, waUrl as waUrlDe } from './ContactoContext';
+import type { WidgetWeb } from '@/lib/cms';
 
 const HEX = rutaHexagono({ orientacion: 'punta-arriba', radio: 0.12 });
 const capa = (cls: string) => (
@@ -15,20 +16,13 @@ const capa = (cls: string) => (
   </span>
 );
 
-// Cada motivo abre WhatsApp con un mensaje ya escrito para que el equipo sepa de qué se trata.
-const MOTIVOS: { titulo: string; detalle: string; Icono: LucideIcon; mensaje: string }[] = [
-  { titulo: 'Cotizar equipos', detalle: 'Pide una propuesta para tu organización', Icono: FileText, mensaje: 'Hola Fimav Perú, quisiera cotizar equipos para mi organización.' },
-  { titulo: 'Consulta de un producto', detalle: 'Características, stock o disponibilidad', Icono: PackageSearch, mensaje: 'Hola Fimav Perú, tengo una consulta sobre un producto.' },
-  { titulo: 'Entidades del Estado y Perú Compras', detalle: 'Compras públicas y convenio marco', Icono: Landmark, mensaje: 'Hola Fimav Perú, represento a una entidad del Estado y quisiera información sobre Perú Compras.' },
-  { titulo: 'Soporte técnico y garantía', detalle: 'Ayuda con un equipo o su garantía', Icono: Headset, mensaje: 'Hola Fimav Perú, necesito soporte técnico o consultar la garantía de un equipo. Mi equipo/modelo es: ' },
-  { titulo: 'Postventa o reclamo', detalle: 'Seguimiento de una compra o un reclamo', Icono: TriangleAlert, mensaje: 'Hola Fimav Perú, tengo una consulta de postventa o un reclamo. Mi pedido/comprobante es: ' },
-  { titulo: 'Otra consulta', detalle: 'Cualquier otro tema', Icono: HelpCircle, mensaje: 'Hola Fimav Perú, quisiera más información.' },
-];
+// Íconos de los motivos del panel, en orden (los textos y mensajes se editan en el dashboard).
+const ICONOS: LucideIcon[] = [FileText, PackageSearch, Landmark, Headset, TriangleAlert, HelpCircle];
 
 // Zonas donde el botón estorba (pie y formularios): se oculta mientras se solapan, salvo que el panel esté abierto.
 const ZONAS = ['pie', 'contacto-form', 'cotizar-form'];
 
-export default function WhatsAppFlotante() {
+export default function WhatsAppFlotante({ widget }: { widget: WidgetWeb }) {
   const { whatsapp } = useContacto();
   const waUrl = (t: string) => waUrlDe(whatsapp, t);
   const ruta = usePathname();
@@ -76,11 +70,13 @@ export default function WhatsAppFlotante() {
         >
           <div className="relative overflow-hidden bg-carbon px-5 py-4 text-white">
             <Espiral contorno className="pointer-events-none absolute -right-8 -top-10 w-32 opacity-30" />
-            <p className="relative font-display text-lg font-bold uppercase leading-tight tracking-wide">¿En qué te ayudamos?</p>
-            <p className="relative mt-0.5 text-sm text-white/90">Elige un tema y seguimos por WhatsApp</p>
+            <p className="relative font-display text-lg font-bold uppercase leading-tight tracking-wide">{widget.titulo}</p>
+            <p className="relative mt-0.5 text-sm text-white/90">{widget.subtitulo}</p>
           </div>
           <ul className="max-h-[calc(100svh-15rem)] divide-y divide-carbon/10 overflow-y-auto px-2 py-1">
-            {MOTIVOS.map(({ titulo, detalle, Icono, mensaje }) => (
+            {widget.motivos.map(({ titulo, detalle, mensaje }, i) => {
+              const Icono = ICONOS[i % ICONOS.length]!;
+              return (
               <li key={titulo}>
                 <a
                   href={waUrl(mensaje)}
@@ -97,7 +93,8 @@ export default function WhatsAppFlotante() {
                   <ChevronRight aria-hidden="true" size={18} className="shrink-0 text-carbon transition-transform motion-safe:group-hover/tarjeta:translate-x-0.5" />
                 </a>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </div>
       )}

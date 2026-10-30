@@ -111,6 +111,15 @@ const AJUSTES = base('ajustes', 'Ajustes del sitio', '/contacto', [
   sec('redes', 'Redes sociales (pie de página)', [T('facebook', 'Facebook', 'URL completa (https://…). Vacío = ícono sin enlace'), T('instagram', 'Instagram', 'URL completa (https://…). Vacío = ícono sin enlace'), T('linkedin', 'LinkedIn', 'URL completa (https://…). Vacío = ícono sin enlace')]),
   sec('pie', 'Pie de página', [TA('fraseCorta', 'Frase bajo el logo')]),
   sec('cta', 'Bloque «Cotiza con Fimav Perú» (sobre el pie)', [...TITULO, T('boton', 'Texto del botón')]),
+  sec('widget', 'Widget de WhatsApp (botón flotante)', [
+    { key: 'visible', label: 'Mostrar el widget en la web', tipo: 'bool', ayuda: 'Apagado: el botón flotante de WhatsApp no aparece en ninguna página.' },
+    T('titulo', 'Título del panel'), T('subtitulo', 'Subtítulo del panel'),
+    {
+      key: 'motivos', label: 'Motivos de consulta', tipo: 'lista-objetos', itemLabel: 'Motivo', tituloDe: 'titulo',
+      ayuda: 'Cada motivo abre WhatsApp con el mensaje ya escrito. Los íconos son fijos y siguen el orden de la lista.',
+      campos: [{ key: 'titulo', label: 'Título', tipo: 'text' }, { key: 'detalle', label: 'Detalle', tipo: 'text' }, { key: 'mensaje', label: 'Mensaje de WhatsApp', tipo: 'textarea' }],
+    },
+  ]),
 ]);
 
 const LEGAL_CAMPOS = [T('titulo', 'Título'), TA('texto', 'Texto completo', 'Cada subtítulo empieza con «## »; los párrafos se separan con una línea en blanco.')];
