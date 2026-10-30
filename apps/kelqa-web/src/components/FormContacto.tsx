@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from 'react';
 import { Building2, Hash, IdCard, Loader2, Mail, MessageCircle, Send, Smartphone, User } from 'lucide-react';
 import { contacto, waUrl } from '@/lib/contenido';
 
+const API = (process.env.NEXT_PUBLIC_HUB_API_URL ?? '').replace(/\/$/, '');
+const MARCA_ID = process.env.NEXT_PUBLIC_HUB_MARCA_ID ?? '';
 const limpio = (t: string) => t.replace(/[<>]/g, '');
 const campo = 'block min-h-12 w-full rounded-xl border border-carbon/20 bg-white px-4 py-3 text-base text-tinta transition duration-300 placeholder:text-carbon/40 hover:border-kelqa/40 focus:border-kelqa focus:shadow-[0_0_0_4px_rgb(27_137_143/0.12)] focus:outline-none';
 const MAX_MENSAJE = 3000;
@@ -61,7 +63,10 @@ export default function FormContacto() {
       empresa: esEmpresa ? razon : undefined, mensaje: limpio(f.mensaje).trim().slice(0, MAX_MENSAJE), website: f.website,
     };
     try {
-      const res = await fetch('/api/hub/contacto', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) });
+      // Web estática: sin servidor propio, envía directo a la API (variables fijadas al compilar). Con servidor, usa el proxy.
+      const res = API && MARCA_ID
+        ? await fetch(`${API}/public/contacto?marcaId=${encodeURIComponent(MARCA_ID)}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...cuerpo, tipo: 'CONTACTO', origen: 'kelqa-web/contacto', website: cuerpo.website || undefined }) })
+        : await fetch('/api/hub/contacto', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) });
       if (res.ok) { setResultado('ok'); setF(VACIO); setErrores({}); }
       else if (res.status >= 500) setResultado('fallo');
       else {

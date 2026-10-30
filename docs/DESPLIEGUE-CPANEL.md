@@ -232,6 +232,6 @@ fimavperu.com hoy es WordPress: publica primero en un subdominio (p. ej. `nuevo.
 ## Kelqa (`apps/kelqa-web`)
 
 - **Variables de la web** (solo si se despliega con servidor Node, `node server.cjs`): `HUB_API_URL` (URL pública de la API) y `HUB_MARCA_ID` (id de la marca Kelqa). Sin `HUB_MARCA_ID` el formulario de contacto responde 503 y ofrece WhatsApp y correo. `DASHBOARD_ORIGIN` es opcional.
-- **Exportada como archivo estático** (zip con `out/`): no usa variables y el formulario de contacto no llega a la API, solo WhatsApp y correo.
+- **Exportada como archivo estático** (zip con `out/`): `NEXT_PUBLIC_HUB_API_URL=<api> NEXT_PUBLIC_HUB_MARCA_ID=<id de Kelqa> bash apps/kelqa-web/scripts/exportar-estatico.sh` deja `apps/kelqa-web/kelqa-web-estatico.zip`. El formulario envía directo a `POST /public/contacto` y los mensajes llegan al dashboard (Contactos). La API debe tener `CORS_PUBLIC_ORIGINS` con `https://kelqa.com` (solo rutas `/public/*`, sin credenciales). Sin las dos variables solo ofrece WhatsApp y correo.
 - **Dashboard**: `NEXT_PUBLIC_WEB_KELQA_URL` es opcional; por defecto usa el dominio principal de la marca o `https://kelqa.com`.
 - **Datos en la API** (Administración → Marcas): la marca `kelqa` debe tener un Sitio con su dominio (`kelqa.com`); de ahí sale el `marcaId` que va en `HUB_MARCA_ID`.

@@ -35,7 +35,15 @@ async function bootstrap() {
   });
   // Origen explícito (no '*') + credentials:true — necesario para la cookie
   // httpOnly de "dispositivo confiable" (fetch cross-origin del dashboard).
-  app.enableCors({ origin: process.env.WEB_ORIGIN ?? 'http://localhost:3000', credentials: true });
+  // Webs estáticas (p. ej. kelqa.com exportada como HTML) envían sus formularios directo a /public/*: esos orígenes
+  // (CORS_PUBLIC_ORIGINS, separados por coma) solo se aceptan en rutas públicas y sin credenciales.
+  const origenesPublicos = (process.env.CORS_PUBLIC_ORIGINS ?? '').split(',').map((o) => o.trim()).filter(Boolean);
+  const origenDashboard = process.env.WEB_ORIGIN ?? 'http://localhost:3000';
+  app.enableCors((req: { url?: string; headers: { origin?: string } }, cb: (err: Error | null, opts: object) => void) => {
+    const origen = req.headers.origin;
+    if (origen && origenesPublicos.includes(origen) && req.url?.startsWith('/public/')) cb(null, { origin: origen });
+    else cb(null, { origin: origenDashboard, credentials: true });
+  });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
