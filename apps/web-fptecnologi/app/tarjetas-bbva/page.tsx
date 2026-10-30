@@ -35,7 +35,7 @@ export default function TarjetasBbvaPage() {
           <div className="relative flex w-full flex-1 items-center pb-10 pt-12 sm:py-12 lg:py-16">
           <div className="mx-auto grid w-full max-w-7xl items-center gap-6 px-4 sm:gap-8 sm:px-6 lg:grid-cols-[1fr_1.05fr] lg:gap-14 lg:px-10">
             <div className="text-center text-white lg:text-left">
-              <div className="flex flex-wrap items-center justify-center gap-3 lg:justify-start">
+              <div className="flex flex-col items-center gap-2.5 sm:flex-row sm:flex-wrap sm:justify-center sm:gap-3 lg:justify-start">
                 <LogoBbva blanco className="h-4 sm:h-6" />
                 <span className="rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[#85C8FF] backdrop-blur sm:px-3 sm:text-xs sm:tracking-[0.16em]">
                   FP Tecnologi · Aliado BBVA
