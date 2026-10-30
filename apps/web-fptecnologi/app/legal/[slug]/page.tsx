@@ -35,7 +35,7 @@ export default async function LegalPage({ params }: { params: Promise<{ slug: st
         descripcion={d.resumen}
         imagen="/images/modelo9/hero-office.jpg"
       />
-      <main>
+      <main id="contenido">
         <LegalLayout actual={href} indice={d.secciones} actualizado={d.actualizado}>
           <div className="space-y-10">
             {d.secciones.map((s, i) => (

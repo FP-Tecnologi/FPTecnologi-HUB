@@ -14,7 +14,7 @@ export default async function GraciasPage({ searchParams }: { searchParams: Prom
   return (
     <>
       <TiendaBar crumbs={[{ label: 'Tienda', href: '/tienda' }, { label: 'Pedido recibido' }]} titulo="Pedido recibido" />
-      <main className="bg-paper pb-20 pt-10">
+      <main id="contenido" className="bg-paper pb-20 pt-10">
         <div className="mx-auto max-w-7xl px-6">
           <PedidoGracias numero={pedido} total={Number.isFinite(monto) && monto > 0 ? monto : 0} />
         </div>

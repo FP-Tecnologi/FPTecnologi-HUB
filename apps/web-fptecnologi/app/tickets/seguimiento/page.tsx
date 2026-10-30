@@ -10,7 +10,7 @@ export default async function SeguimientoPage({ searchParams }: { searchParams: 
   return (
     <>
       <TiendaBar crumbs={[{ label: 'Tickets', href: '/tickets' }, { label: 'Seguimiento' }]} titulo="Seguimiento de tu ticket" />
-      <main className="min-h-[60vh] bg-paper pb-20 pt-10">
+      <main id="contenido" className="min-h-[60vh] bg-paper pb-20 pt-10">
         <div className="mx-auto max-w-7xl px-6">
           <SeguimientoTicket numeroInicial={(n ?? '').slice(0, 30).toUpperCase()} />
         </div>

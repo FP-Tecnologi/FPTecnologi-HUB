@@ -37,7 +37,7 @@ export default async function ServiciosPage() {
         <WhatsAppCta label="Contactar especialista" texto="Hola, quiero información sobre sus servicios TI" />
       </PageHero>
 
-      <main>
+      <main id="contenido">
         <section className="mx-auto max-w-7xl px-6 py-20">
           <ScrollReveal direction="up" className="mx-auto mb-12 flex max-w-2xl flex-col items-center text-center">
             <SectionBadge>{c.listado.badge}</SectionBadge>

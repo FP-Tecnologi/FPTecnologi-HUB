@@ -270,7 +270,7 @@ export function StoreCatalog({
       <div aria-hidden className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle,color-mix(in_srgb,var(--color-brand-600)_16%,transparent)_1px,transparent_1px)] bg-[size:22px_22px]" />
       <div aria-hidden className="pointer-events-none absolute -right-24 top-10 h-80 w-80 rounded-full bg-brand-500/10 blur-3xl" />
       <div aria-hidden className="pointer-events-none absolute -left-24 top-1/2 h-80 w-80 rounded-full bg-brand-300/20 blur-3xl" />
-      <main className="relative mx-auto grid max-w-7xl gap-8 px-6 py-12 lg:grid-cols-[260px_1fr]">
+      <main id="contenido" className="relative mx-auto grid max-w-7xl gap-8 px-6 py-12 lg:grid-cols-[260px_1fr]">
         {/* Filtros (desktop) */}
         <aside className="hidden lg:block">
           <div className="sticky top-28 rounded-2xl bg-brand-100 p-5">

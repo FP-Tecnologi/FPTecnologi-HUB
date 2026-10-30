@@ -23,7 +23,7 @@ export default async function CatalogosPage() {
         descripcion={c.hero.descripcion}
         imagen="/images/modelo9/hero-office.jpg"
       />
-      <main>
+      <main id="contenido">
         <CatalogosVisor catalogos={catalogos} />
       </main>
       <Footer />

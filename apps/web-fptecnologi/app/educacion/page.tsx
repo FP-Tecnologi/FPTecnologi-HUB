@@ -31,7 +31,7 @@ export default async function EducationPage() {
         <WhatsAppCta label="Coordinar una visita" texto="Hola, quiero coordinar una visita a mi institución (FP Education)" />
         <MoreInfoButton tone="dark" href="/servicios/escuelas-y-universidades" label="Soluciones para escuelas" />
       </PageHero>
-      <main>
+      <main id="contenido">
         <TarjetasInfo {...c.tarjetas} tarjetas={c.tarjetas.items.map((it, i) => ({ icono: ICONOS[i % ICONOS.length], titulo: it.title, texto: it.text }))} />
         <section className="py-16">
           <div className="mx-auto flex max-w-3xl flex-col items-center gap-5 px-6 text-center">

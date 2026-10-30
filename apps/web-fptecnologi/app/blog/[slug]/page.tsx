@@ -85,7 +85,7 @@ export default async function ArticuloPage({ params }: { params: Promise<{ slug:
         imagen={a.portadaUrl || PORTADA_DEFECTO}
       />
 
-      <main>
+      <main id="contenido">
         <section className="mx-auto grid max-w-7xl gap-8 px-6 py-16 lg:grid-cols-[minmax(0,1fr)_340px]">
           <div className="min-w-0 space-y-8">
             <article id="articulo" className="rounded-2xl bg-white p-7 shadow-lg shadow-brand-dark/10 sm:p-10">

@@ -56,7 +56,7 @@ export default async function PresupuestoDocumentoPage({ params }: { params: Pro
       <div className="print:hidden">
         <TiendaBar crumbs={[{ label: 'Tienda', href: '/tienda' }, { label: 'Presupuesto' }]} titulo={`Presupuesto ${p.numero}`} />
       </div>
-      <main className="bg-paper pb-20 pt-10 print:bg-white print:p-0">
+      <main id="contenido" className="bg-paper pb-20 pt-10 print:bg-white print:p-0">
         <div className="mx-auto max-w-4xl px-6 print:max-w-none print:px-0">
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3 print:hidden">
             <p className="text-sm text-ink/65">Guardamos este presupuesto con el número <strong className="text-ink">{p.numero}</strong>. Un asesor se comunicará contigo.</p>

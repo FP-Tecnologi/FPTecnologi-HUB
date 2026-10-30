@@ -46,7 +46,7 @@ export default async function ServicioDetailPage({ params, searchParams }: { par
         <WhatsAppCta label={c['det-hero'].botonContactar} texto={`Hola, quiero información sobre ${s.title}`} />
       </PageHero>
 
-      <main>
+      <main id="contenido">
         <section id="incluye" className="scroll-mt-28 bg-white py-20">
           <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2">
             <ScrollReveal direction="left">

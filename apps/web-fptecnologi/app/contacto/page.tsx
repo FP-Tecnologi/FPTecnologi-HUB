@@ -39,7 +39,7 @@ export default async function ContactoPage() {
         <MoreInfoButton tone="dark" href="/cotizador" label="Cotizar" />
       </PageHero>
 
-      <main>
+      <main id="contenido">
         <AreasContacto {...c.asesores} />
 
         {/* Formulario principal (sin tarjetas de datos: ya están en «Contacto por área»). */}

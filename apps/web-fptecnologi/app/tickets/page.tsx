@@ -32,7 +32,7 @@ export default function TicketsPage() {
         <MoreInfoButton tone="dark" href="/libro-de-reclamaciones" label="Libro reclamos" />
       </PageHero>
 
-      <main>
+      <main id="contenido">
         <SoporteTickets />
 
         <section className="bg-white py-20">

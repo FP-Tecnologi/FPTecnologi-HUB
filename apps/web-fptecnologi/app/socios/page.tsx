@@ -25,7 +25,7 @@ export default async function SociosPage() {
   return (
     <>
       <TiendaBar crumbs={[{ label: 'Socios' }]} titulo="Intranet de socios" />
-      <main className="min-h-[60vh] bg-paper pb-20 pt-10">
+      <main id="contenido" className="min-h-[60vh] bg-paper pb-20 pt-10">
         <div className="mx-auto max-w-7xl px-6">
           {r.estado === 'ok' ? (
             <SociosPortal portal={r} />

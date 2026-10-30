@@ -55,7 +55,7 @@ export default async function HomePage() {
   ]);
   return (
     <>
-      <main>
+      <main id="contenido">
         {c.hero.visible && <Hero slides={c.hero.slides} />}
         <PartnerLevels />
         {c.nosotros.visible && <Nosotros c={c.nosotros} />}

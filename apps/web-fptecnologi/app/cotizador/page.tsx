@@ -52,7 +52,7 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
         descripcion={c.hero.descripcion}
       />
 
-      <main>
+      <main id="contenido">
         {/* Formulario + panel informativo (alineados bajo el hero) */}
         <section className="pb-20 pt-10 lg:pt-14">
           <div className="mx-auto grid max-w-7xl gap-8 px-6 lg:grid-cols-[22rem_1fr] lg:items-center xl:grid-cols-[24rem_1fr]">

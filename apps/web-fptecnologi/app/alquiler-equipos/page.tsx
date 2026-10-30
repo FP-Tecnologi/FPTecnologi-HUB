@@ -37,7 +37,7 @@ export default async function AlquilerEquiposPage() {
         <MoreInfoButton tone="dark" href="/cotizador" label="¡Quiero una cotización!" />
         <WhatsAppCta label="Hablar con un asesor" texto="Hola, quiero cotizar el alquiler de equipos" />
       </PageHero>
-      <main>
+      <main id="contenido">
         <TarjetasInfo {...c.beneficios} tarjetas={tarjetas(c.beneficios.items, ICONOS_BENEFICIOS)} />
         <TarjetasInfo {...c.equipos} tarjetas={tarjetas(c.equipos.items, ICONOS_EQUIPOS)} fondo="bg-paper" />
         <TarjetasInfo {...c.pasos} tarjetas={tarjetas(c.pasos.items, ICONOS_PASOS)} />

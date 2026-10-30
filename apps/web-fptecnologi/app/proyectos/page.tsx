@@ -34,7 +34,7 @@ export default async function ProyectosPage() {
         <MoreInfoButton tone="dark" href="/cotizador" label="Cotizar proyecto" />
         <WhatsAppCta label="Contactar especialista" texto="Hola, quiero información sobre un proyecto" />
       </PageHero>
-      <main>
+      <main id="contenido">
         <ProyectosListado projects={proyectos} />
         <NuestrosProyectos
           c={{ ...HOME_DEFAULTS.proyectos, badge: 'Mapa de proyectos', titulo: 'Presencia en', destacado: 'todo el país' }}

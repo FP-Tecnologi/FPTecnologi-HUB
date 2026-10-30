@@ -131,7 +131,7 @@ export function TarjetaVista({ t }: { t: DatosTarjeta }) {
     return (
       <div className={`relative isolate min-h-screen overflow-hidden ${e.fondo}`} style={varsMarca}>
       <Decor estilo={t.estilo} />
-        <main className="mx-auto flex w-full max-w-md flex-col items-center px-5 pb-10 pt-10 text-center">
+        <main id="contenido" className="mx-auto flex w-full max-w-md flex-col items-center px-5 pb-10 pt-10 text-center">
           <div aria-hidden className={`relative -mb-14 flex h-32 w-full items-center justify-center overflow-hidden rounded-2xl ${t.portadaUrl ? 'bg-brand-50' : e.portada}`} style={estiloPortada}>
             {!t.portadaUrl && decorPortada}
             {!t.portadaUrl && logoMarca('h-9')}
@@ -197,7 +197,7 @@ export function TarjetaVista({ t }: { t: DatosTarjeta }) {
         <span className={`text-xs font-semibold uppercase tracking-[0.18em] ${e.suave}`}>Tarjeta digital</span>
       </header>
 
-      <main className="mx-auto grid max-w-5xl gap-6 px-4 py-6 sm:py-10 lg:grid-cols-[22rem_1fr] lg:items-start lg:gap-8">
+      <main id="contenido" className="mx-auto grid max-w-5xl gap-6 px-4 py-6 sm:py-10 lg:grid-cols-[22rem_1fr] lg:items-start lg:gap-8">
         {/* Perfil */}
         <section className={`overflow-hidden rounded-[2rem] lg:sticky lg:top-6 ${e.panel}`}>
           <div className={`relative flex items-center justify-center overflow-hidden ${conAvatar ? 'h-36' : 'h-72'} ${e.portada}`} style={estiloPortada}>

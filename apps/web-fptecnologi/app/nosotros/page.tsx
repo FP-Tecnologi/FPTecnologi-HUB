@@ -49,7 +49,7 @@ export default async function NosotrosPage() {
         <WhatsAppCta label="Contactar asesor" tone="dark" />
       </PageHero>
 
-      <main>
+      <main id="contenido">
         {/* Quiénes somos */}
         <section className="bg-white py-20">
           <div className="mx-auto grid max-w-7xl items-center gap-12 px-6 lg:grid-cols-2">

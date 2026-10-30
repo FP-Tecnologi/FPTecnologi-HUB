@@ -24,7 +24,7 @@ export default async function BlogPage({ searchParams }: { searchParams: Promise
         descripcion="Consejos prácticos sobre equipamiento, seguridad, datos y trabajo híbrido, escritos por nuestro equipo."
         imagen="/images/modelo9/hero-office.jpg"
       />
-      <main>
+      <main id="contenido">
         <BlogListado articulos={articulos} inicial={{ categoria, etiqueta, q }} />
         <Contact />
       </main>

@@ -27,7 +27,7 @@ export default async function LibroReclamacionesPage() {
         descripcion="Registra un reclamo o una queja conforme a la Ley 29571, Código de Protección y Defensa del Consumidor."
         imagen="/images/modelo9/hero-office.jpg"
       />
-      <main>
+      <main id="contenido">
         <LegalLayout actual="/libro-de-reclamaciones">
           <p className="leading-relaxed text-ink/80">
             Conforme a la Ley 29571, Código de Protección y Defensa del Consumidor, y su reglamento, puedes registrar aquí un reclamo o una queja.

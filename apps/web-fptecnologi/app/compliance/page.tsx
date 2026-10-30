@@ -30,7 +30,7 @@ export default async function CompliancePage() {
         descripcion={c.hero.descripcion}
         imagen="/images/modelo9/hero-office.jpg"
       />
-      <main>
+      <main id="contenido">
         <LegalLayout actual="/compliance" indice={indice}>
           <div className="space-y-10">
             {secciones.map((s, i) => (

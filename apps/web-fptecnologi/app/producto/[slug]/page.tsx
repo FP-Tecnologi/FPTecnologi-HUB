@@ -79,7 +79,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
           </div>
         </section>
       </div>
-      <main>
+      <main id="contenido">
         <ProductDetail product={product} relacionados={relacionados} />
       </main>
       <Footer />

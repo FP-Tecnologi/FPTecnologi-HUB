@@ -15,7 +15,7 @@ export default async function CuentaPage() {
   return (
     <>
       <TiendaBar crumbs={[{ label: 'Mi cuenta' }]} titulo={cuenta ? 'Mi cuenta' : 'Ingresa a tu cuenta'} />
-      <main className="min-h-[60vh] bg-paper pb-20 pt-10">
+      <main id="contenido" className="min-h-[60vh] bg-paper pb-20 pt-10">
         <div className="mx-auto max-w-7xl px-6">{cuenta ? <MiCuentaView cuenta={cuenta} /> : <LoginCuenta />}</div>
       </main>
       <Footer />
