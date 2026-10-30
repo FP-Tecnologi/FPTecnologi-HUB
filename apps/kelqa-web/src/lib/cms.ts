@@ -120,6 +120,8 @@ function mezclar<T extends Record<string, unknown>>(base: T, guardado: unknown):
 /** Defaults + lo guardado en el dashboard para una página (cada sección por separado). */
 export const getPagina = cache(async <K extends PaginaCms>(pagina: K): Promise<CmsContenido[K]> => {
   // Siempre en cada visita (nunca prerenderizado en el build): lo guardado en el dashboard se ve al instante.
+  // Exportación estática (scripts/exportar-estatico.sh): no hay servidor que consulte la API, sale con los defaults.
+  if (process.env.EXPORTAR_ESTATICO) return CMS_DEFAULTS[pagina];
   await connection();
   const defaults = CMS_DEFAULTS[pagina];
   const marca = process.env.HUB_MARCA_ID;

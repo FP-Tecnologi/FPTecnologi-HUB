@@ -5,6 +5,17 @@ import { waUrlDe } from '@/lib/cms';
 
 const API = (process.env.NEXT_PUBLIC_HUB_API_URL ?? '').replace(/\/$/, '');
 const MARCA_ID = process.env.NEXT_PUBLIC_HUB_MARCA_ID ?? '';
+/** Id de la marca Kelqa: el fijado al compilar o, si falta, el que la API publica en /public/marcas (por nombre). */
+let marcaCache = MARCA_ID;
+async function resolverMarca() {
+  if (marcaCache) return marcaCache;
+  try {
+    const res = await fetch(`${API}/public/marcas`);
+    const lista = ((await res.json())?.data ?? []) as { id: string; nombre: string }[];
+    marcaCache = lista.find((m) => /kelqa/i.test(m.nombre))?.id ?? '';
+  } catch { /* sin conexión: el formulario ofrece WhatsApp y correo */ }
+  return marcaCache;
+}
 const limpio = (t: string) => t.replace(/[<>]/g, '');
 const campo = 'block min-h-12 w-full rounded-xl border border-carbon/20 bg-white px-4 py-3 text-base text-tinta transition duration-300 placeholder:text-carbon/40 hover:border-kelqa/40 focus:border-kelqa focus:shadow-[0_0_0_4px_rgb(27_137_143/0.12)] focus:outline-none';
 const MAX_MENSAJE = 3000;
@@ -65,8 +76,9 @@ export default function FormContacto({ contacto }: { contacto: { correo: string;
     };
     try {
       // Web estática: sin servidor propio, envía directo a la API (variables fijadas al compilar). Con servidor, usa el proxy.
-      const res = API && MARCA_ID
-        ? await fetch(`${API}/public/contacto?marcaId=${encodeURIComponent(MARCA_ID)}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...cuerpo, tipo: 'CONTACTO', origen: 'kelqa-web/contacto', website: cuerpo.website || undefined }) })
+      const marcaId = API ? await resolverMarca() : '';
+      const res = API && marcaId
+        ? await fetch(`${API}/public/contacto?marcaId=${encodeURIComponent(marcaId)}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...cuerpo, tipo: 'CONTACTO', origen: 'kelqa-web/contacto', website: cuerpo.website || undefined }) })
         : await fetch('/api/hub/contacto', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) });
       if (res.ok) { setResultado('ok'); setF(VACIO); setErrores({}); }
       else if (res.status >= 500) setResultado('fallo');
