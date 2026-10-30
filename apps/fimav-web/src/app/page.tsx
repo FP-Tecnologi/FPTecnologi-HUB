@@ -9,7 +9,7 @@ import { getCategorias, getPagina } from '@/lib/cms';
 export default async function Home() {
   const [c, categorias] = await Promise.all([getPagina('inicio'), getCategorias()]);
   return (
-    <main>
+    <main id="contenido">
       <HeroSlider slides={c.hero.slides} />
       <Nosotros datos={c.nosotros} /><Categorias titulo={c.categorias} categorias={categorias} /><PeruCompras datos={c.perucompras} /><PorQue datos={c.porque} /><Marcas titulo={c.marcas} />
     </main>

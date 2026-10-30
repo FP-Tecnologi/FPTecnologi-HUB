@@ -7,13 +7,14 @@ import BotonHex from '@/components/hex/BotonHex';
 import HexImagen from '@/components/hex/HexImagen';
 import OrnamentoGeometrico from '@/components/OrnamentoGeometrico';
 import { getCategorias, getPagina } from '@/lib/cms';
+import { meta } from '@/lib/seo';
 
-export const metadata = { title: 'Catálogo' };
+export const metadata = meta('Catálogo', 'Catálogo de Fimav Perú: desktops, notebooks, impresoras, servidores, networking, aire acondicionado, consumibles, software y más para tu organización.', '/catalogo');
 
 export default async function CatalogoPage() {
   const [{ banner: b }, categorias] = await Promise.all([getPagina('catalogo'), getCategorias()]);
   return (
-    <main>
+    <main id="contenido">
       <BannerPagina eyebrow={b.eyebrow} titulo={b.titulo} resaltado={b.resaltado} imagen={b.imagen} />
       {categorias.map((c, i) => (
         <section key={c.slug} className={`relative isolate overflow-hidden py-12 ${i % 2 ? 'bg-gris' : 'bg-white'}`}>

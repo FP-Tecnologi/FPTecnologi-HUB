@@ -5,8 +5,9 @@ import Hexagono from '@/components/Hexagono';
 import BannerPagina from '@/components/BannerPagina';
 import SeccionTitulo from '@/components/SeccionTitulo';
 import { getPagina } from '@/lib/cms';
+import { meta } from '@/lib/seo';
 
-export const metadata = { title: 'Nosotros' };
+export const metadata = meta('Nosotros', 'Fimav Perú es una organización en constante transformación, enfocada en la calidad de sus soluciones y en un ecosistema empresarial sostenible. Conoce nuestra misión y visión.', '/nosotros');
 
 const HEX = 'M50 4 94 27v46L50 96 6 73V27Z';
 const pilares = [Lightbulb, Medal, ShieldCheck, RefreshCw];
@@ -30,7 +31,7 @@ function Tarjeta({ icono, eyebrow, claro, rojo, texto, retraso }: { icono: typeo
 export default async function NosotrosPage() {
   const c = await getPagina('nosotros');
   return (
-    <main>
+    <main id="contenido">
       <BannerPagina eyebrow={c.banner.eyebrow} titulo={c.banner.titulo} resaltado={c.banner.resaltado} imagen={c.banner.imagen} posicion="center 35%" />
       <section className="relative overflow-hidden bg-white py-16 lg:py-20">
         <Espiral contorno className="aparecer pointer-events-none absolute -right-24 -top-24 w-80 opacity-20" />

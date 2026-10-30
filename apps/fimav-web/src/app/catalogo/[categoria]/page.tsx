@@ -7,6 +7,8 @@ import HexImagen from '@/components/hex/HexImagen';
 import Reveal from '@/components/motion/Reveal';
 import { categorias } from '@/lib/categorias';
 import { getCategorias } from '@/lib/cms';
+import JsonLd from '@/components/JsonLd';
+import { jsonCategoria, meta, migas } from '@/lib/seo';
 
 const categoriaPorSlug = async (slug: string) => (await getCategorias()).find((c) => c.slug === slug);
 
@@ -15,14 +17,15 @@ export const generateStaticParams = () => categorias.map((c) => ({ categoria: c.
 
 export async function generateMetadata({ params }: { params: Promise<{ categoria: string }> }) {
   const c = await categoriaPorSlug((await params).categoria);
-  return { title: c?.nombre ?? 'Catálogo' };
+  return c ? meta(c.nombre, `${c.resumen}${c.marcas.length ? ` Marcas: ${c.marcas.join(', ')}.` : ''} Cotiza con Fimav Perú.`, `/catalogo/${c.slug}`) : { title: 'Catálogo' };
 }
 
 export default async function CategoriaPage({ params }: { params: Promise<{ categoria: string }> }) {
   const c = await categoriaPorSlug((await params).categoria);
   if (!c) notFound();
   return (
-    <main>
+    <main id="contenido">
+      <JsonLd datos={[migas([{ nombre: 'Catálogo', ruta: '/catalogo' }, { nombre: c.nombre, ruta: `/catalogo/${c.slug}` }]), jsonCategoria(c)]} />
       <BannerPagina eyebrow="Categoría" titulo={c.nombre} imagen={c.fotos[0]} producto={c.fotos.length > 0 && c.slug !== 'networking'} migas={[{ texto: 'Catálogo', href: '/catalogo' }]} />
       <Reveal className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6">
         <Hexagono icono={c.icono} tam={72} />

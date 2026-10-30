@@ -3,13 +3,14 @@ import ConsultaReclamo from '@/components/ConsultaReclamo';
 import BannerPagina from '@/components/BannerPagina';
 import Reveal from '@/components/motion/Reveal';
 import { getProveedor } from '@/lib/proveedor';
+import { meta } from '@/lib/seo';
 
-export const metadata = { title: 'Libro de Reclamaciones' };
+export const metadata = meta('Libro de Reclamaciones', 'Registra un reclamo o una queja a Fimav Perú conforme a la Ley 29571. Respondemos en un plazo máximo de 15 días hábiles.', '/libro-de-reclamaciones');
 
 export default async function LibroReclamacionesPage() {
   const proveedor = await getProveedor();
   return (
-    <main className="bg-white">
+    <main id="contenido" className="bg-white">
       <div className="print:hidden"><BannerPagina eyebrow="Libro de reclamaciones" titulo="Registra tu" resaltado="reclamo o queja" imagen="/fotos/escogernos.jpg" posicion="center 100%" /></div>
       <Reveal className="mx-auto max-w-4xl px-4 pb-16 pt-8 sm:px-6 lg:pb-24">
         <div className="print:hidden">

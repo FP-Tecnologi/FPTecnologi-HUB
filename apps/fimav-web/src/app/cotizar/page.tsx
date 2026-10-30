@@ -4,14 +4,15 @@ import FormCotizar from '@/components/FormCotizar';
 import BannerPagina from '@/components/BannerPagina';
 import Reveal from '@/components/motion/Reveal';
 import { getCategorias, getContacto, getPagina, waUrlDe } from '@/lib/cms';
+import { meta } from '@/lib/seo';
 
-export const metadata = { title: 'Cotizar' };
+export const metadata = meta('Cotizar', 'Solicita una cotización de equipos y servicios tecnológicos para tu empresa o entidad. Respondemos a la brevedad.', '/cotizar');
 
 export default async function CotizarPage() {
   const [c, contacto, categorias] = await Promise.all([getPagina('cotizar'), getContacto(), getCategorias()]);
   const waUrl = (t: string) => waUrlDe(contacto.whatsapp, t);
   return (
-    <main>
+    <main id="contenido">
       <BannerPagina eyebrow={c.banner.eyebrow} titulo={c.banner.titulo} resaltado={c.banner.resaltado} imagen={c.banner.imagen} posicion="center 30%" />
       <Reveal className="mx-auto max-w-6xl px-4 pb-16 pt-8 sm:px-6 lg:pb-24">
         <div className="grid items-start gap-8 lg:grid-cols-[1fr_320px]">

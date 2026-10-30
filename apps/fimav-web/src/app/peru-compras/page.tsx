@@ -7,19 +7,16 @@ import { FranjaMarcas } from '@/components/home/Marcas';
 import OrnamentoGeometrico from '@/components/OrnamentoGeometrico';
 import HexImagen from '@/components/hex/HexImagen';
 import { getCategorias, getPagina } from '@/lib/cms';
+import { meta } from '@/lib/seo';
 
 const descripcion = 'Fimav Perú atiende al sector Estado en Perú Compras: venta de bienes y servicios, postventa y soluciones tecnológicas según la necesidad de cada entidad.';
-export const metadata = {
-  title: 'Perú Compras',
-  description: descripcion,
-  openGraph: { title: 'Estamos en Perú Compras | Fimav Perú', description: descripcion, images: ['/brand/og.jpg'] },
-};
+export const metadata = meta('Perú Compras', descripcion, '/peru-compras');
 
 
 export default async function PeruComprasPage() {
   const [c, categorias] = await Promise.all([getPagina('peru-compras'), getCategorias()]);
   return (
-    <main>
+    <main id="contenido">
       <BannerPagina eyebrow={c.banner.eyebrow} titulo={c.banner.titulo} resaltado={c.banner.resaltado} imagen={c.banner.imagen} posicion="center 45%" />
       <section className="relative isolate overflow-hidden bg-white pb-16 pt-8 lg:pb-24">
         <OrnamentoGeometrico className="pointer-events-none absolute -right-24 top-1/2 z-0 hidden w-80 -translate-y-1/2 text-carbon opacity-[0.07] md:block" />
