@@ -7,6 +7,11 @@ import type { ActualizarContactoDto, CrearContactoDto } from './contacto-web.dto
 
 // Roles que reciben el aviso de contacto nuevo.
 const ROLES_AVISO = ['admin', 'comercial'];
+const ETIQUETAS: Record<string, string> = {
+  RECLAMO: 'Nuevo reclamo',
+  TARJETA_BBVA: 'Nueva consulta de tarjetas BBVA',
+  TARJETA_BBVA_SOLICITUD: 'Solicitud de tarjeta BBVA',
+};
 
 // Tope por IP+marca (endpoint público, throttler global deshabilitado).
 const VENTANA_MS = 10 * 60_000;
@@ -107,7 +112,8 @@ Teléfono: ${telefono}` : dto.mensaje.trim();
 
   // ------------------------------------------------------------------ interno
 
-  private async avisarEquipo(marcaId: string, id: string, nombre: string, tipo: string, mensaje: string) {
+  /** Campana del dashboard + correo a admin y comercial de la marca. También lo usa el módulo bbva. */
+  async avisarEquipo(marcaId: string, id: string, nombre: string, tipo: string, mensaje: string) {
     const asignaciones = await this.prisma.usuarioMarcaRol.findMany({
       where: { marcaId, rol: { nombre: { in: ROLES_AVISO } } },
       include: { usuario: { select: { id: true, email: true, activo: true } } },
@@ -116,7 +122,7 @@ Teléfono: ${telefono}` : dto.mensaje.trim();
       ...new Map(asignaciones.filter((a) => a.usuario.activo).map((a) => [a.usuario.id, a.usuario])).values(),
     ];
     if (usuarios.length === 0) return;
-    const etiqueta = tipo === 'RECLAMO' ? 'Nuevo reclamo' : 'Nuevo contacto de la web';
+    const etiqueta = ETIQUETAS[tipo] ?? 'Nuevo contacto de la web';
     const url = `${process.env.WEB_ORIGIN ?? 'http://localhost:3000'}/web/contactos?id=${id}`;
     await this.prisma.notificacion.createMany({
       data: usuarios.map((u) => ({

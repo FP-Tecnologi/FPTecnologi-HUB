@@ -1,5 +1,6 @@
 import { BadRequestException, HttpException, HttpStatus, Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { ContactoWebService } from '../contacto-web/contacto-web.service.js';
 import { cabecerasFirmadas } from './bbva.firma.js';
 import type { ConsultarOfertasDto, SolicitarTarjetaDto } from './bbva.dto.js';
 
@@ -46,7 +47,10 @@ export class BbvaService {
   // ponytail: ofertas de cada consulta en memoria 1 h (se pierden al reiniciar → «solicitar» cae al enlace público); a la base si hace falta.
   private readonly consultas = new Map<string, { ofertas: Oferta[]; enlace: string; vence: number }>();
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly contactos: ContactoWebService,
+  ) {}
 
   private get host() {
     return `${process.env.BBVA_ENTORNO === 'live' ? 'apis' : 'sbx'}.pe.bbvaapimarket.com`;
@@ -171,20 +175,28 @@ export class BbvaService {
       },
     });
     this.guardarConsulta(contacto.id, ofertas, enlace);
+    // El aviso (campana + correo) no lleva el DNI y no debe tumbar la consulta.
+    this.avisar(marcaId, contacto.id, contacto.nombre, 'TARJETA_BBVA', ofertas.length ? `Ofertas:\n${resumen}` : 'Consultó sin ofertas disponibles.');
     return { consultaId: contacto.id, nombre: nombre ? titulo(nombre) : null, ofertas, enlace };
   }
 
   async solicitar(marcaId: string, dto: SolicitarTarjetaDto) {
     const c = this.consultas.get(dto.consultaId);
     const oferta = c?.ofertas.find((o) => o.id === dto.ofertaId);
-    const contacto = await this.prisma.contactoWeb.findFirst({ where: { id: dto.consultaId, marcaId, tipo: 'TARJETA_BBVA' }, select: { mensaje: true } });
+    const contacto = await this.prisma.contactoWeb.findFirst({ where: { id: dto.consultaId, marcaId, tipo: 'TARJETA_BBVA' }, select: { mensaje: true, nombre: true } });
     if (contacto) {
+      this.avisar(marcaId, dto.consultaId, contacto.nombre, 'TARJETA_BBVA_SOLICITUD', `Eligió ${oferta?.tarjeta ?? `la oferta ${dto.ofertaId}`} y pasó a completar la solicitud en BBVA.`);
       await this.prisma.contactoWeb.update({
         where: { id: dto.consultaId, marcaId },
         data: { mensaje: `${contacto.mensaje}\n\nSolicitó: ${oferta?.tarjeta ?? `oferta ${dto.ofertaId}`}`, estado: 'NUEVO' },
       });
     }
     return { enlace: c?.enlace ?? ENLACE_PUBLICO };
+  }
+
+  private avisar(marcaId: string, id: string, nombre: string, tipo: string, texto: string) {
+    // Sin nombre de BBVA el contacto se llama «DNI 12345678»: en el aviso solo van los 4 últimos dígitos.
+    this.contactos.avisarEquipo(marcaId, id, nombre.replace(/\d{8}/, (d) => `****${d.slice(-4)}`), tipo, texto).catch((e) => this.logger.error('No se pudo avisar al equipo de la consulta BBVA', e as Error));
   }
 
   private guardarConsulta(id: string, ofertas: Oferta[], enlace: string) {

@@ -43,8 +43,9 @@ function setup(respuestas: Array<{ status: number; json: unknown }>) {
   vi.stubGlobal('fetch', fetchMock);
   const create = vi.fn(async ({ data }) => ({ id: '11111111-1111-4111-8111-111111111111', ...data }));
   const update = vi.fn();
-  const prisma = { contactoWeb: { create, update, findFirst: vi.fn(async () => ({ mensaje: 'Consulta' })) } };
-  return { service: new BbvaService(prisma as never), fetchMock, create, update };
+  const prisma = { contactoWeb: { create, update, findFirst: vi.fn(async () => ({ mensaje: 'Consulta', nombre: 'Amparo' })) } };
+  const avisarEquipo = vi.fn(async () => undefined);
+  return { service: new BbvaService(prisma as never, { avisarEquipo } as never), fetchMock, create, update, avisarEquipo };
 }
 
 describe('BbvaService', () => {
@@ -80,6 +81,13 @@ describe('BbvaService', () => {
     expect(data.mensaje).not.toContain('2001-12-08');
   });
 
+  it('sin ofertas avisa sin exponer el DNI completo', async () => {
+    const { service, avisarEquipo } = setup([{ status: 200, json: { data: { offers: [], link: { href: 'https://x' } } } }]);
+    await service.consultar('m1', dto, '1.1.1.5');
+    expect(avisarEquipo.mock.calls[0][2]).toBe('DNI ****1016');
+    expect(JSON.stringify(avisarEquipo.mock.calls)).not.toContain(dto.dni);
+  });
+
   it('traduce el error funcional de BBVA', async () => {
     const { service } = setup([{ status: 400, json: { messages: [{ code: 'functionalError', message: 'INVALID CELL PHONE NUMBER' }] } }]);
     await expect(service.consultar('m1', dto, '1.1.1.2')).rejects.toThrow('Revisa tu número de celular.');
@@ -92,11 +100,14 @@ describe('BbvaService', () => {
   });
 
   it('solicitar anota la tarjeta elegida y devuelve el enlace de BBVA', async () => {
-    const { service, update } = setup([{ status: 200, json: ok }]);
+    const { service, update, avisarEquipo } = setup([{ status: 200, json: ok }]);
     const { consultaId } = await service.consultar('m1', dto, '1.1.1.4');
     const r = await service.solicitar('m1', { consultaId: consultaId!, ofertaId: 2282 });
     expect(r.enlace).toBe('https://tarjetas.bbva.pe/');
     expect(update.mock.calls[0][0].data.mensaje).toContain('Solicitó: Visa Cero BBVA');
+    // Avisa al equipo en la consulta y en la solicitud, sin el DNI.
+    expect(avisarEquipo.mock.calls.map((c) => c[3])).toEqual(['TARJETA_BBVA', 'TARJETA_BBVA_SOLICITUD']);
+    expect(JSON.stringify(avisarEquipo.mock.calls)).not.toContain(dto.dni);
   });
 
   it('limita las consultas por IP', async () => {

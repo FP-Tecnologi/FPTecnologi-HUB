@@ -8,5 +8,6 @@ import { CrmModule } from '../crm/crm.module.js';
   imports: [MailModule, CrmModule],
   controllers: [ContactoWebController, PublicContactoWebController],
   providers: [ContactoWebService],
+  exports: [ContactoWebService],
 })
 export class ContactoWebModule {}
