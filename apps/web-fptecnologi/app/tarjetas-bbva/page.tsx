@@ -14,10 +14,10 @@ export const metadata: Metadata = {
 };
 
 const PASOS = [
-  { icon: IdCard, titulo: 'Ingresa tus datos', texto: 'DNI, fecha de nacimiento, celular y correo.' },
-  { icon: BadgeCheck, titulo: 'BBVA evalúa tu perfil', texto: 'Te muestra al instante las tarjetas que tienes disponibles.' },
-  { icon: MousePointerClick, titulo: 'Elige tu tarjeta', texto: 'Compara línea de crédito y tasa, y elige la que prefieras.' },
-  { icon: CreditCard, titulo: 'Solicítala con BBVA', texto: 'Terminas la solicitud en la web o la app de BBVA.' },
+  { icon: IdCard, etiqueta: 'Menos de 1 minuto', titulo: 'Ingresa tus datos', texto: 'DNI, fecha de nacimiento, celular y correo.' },
+  { icon: BadgeCheck, etiqueta: 'Al instante', titulo: 'BBVA evalúa tu perfil', texto: 'Te muestra las tarjetas que tienes disponibles.' },
+  { icon: MousePointerClick, etiqueta: 'Tú decides', titulo: 'Elige tu tarjeta', texto: 'Compara línea de crédito y tasa, y elige la que prefieras.' },
+  { icon: CreditCard, etiqueta: 'Web o app de BBVA', titulo: 'Solicítala con BBVA', texto: 'Terminas la solicitud directamente con el banco.' },
 ];
 
 /* Tarjetas BBVA -- hero con el formulario de consulta (API Cards offer de BBVA) y cómo funciona. */
@@ -57,30 +57,40 @@ export default function TarjetasBbvaPage() {
 
       <main id="como-funciona" className="bg-paper py-16 sm:py-20">
         <div className="mx-auto max-w-7xl px-6">
-          <h2 className="text-center font-display text-3xl font-bold leading-tight sm:text-4xl">
-            <span className="text-ink">¿Cómo</span> <span className="title-shimmer-light">funciona?</span>
-          </h2>
-          <ol className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {PASOS.map((p, i) => (
-              <ScrollReveal key={p.titulo} delayMs={i * 110}>
-                <li className="group relative h-full overflow-hidden rounded-2xl bg-white p-6 shadow-md shadow-brand-dark/10 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-[#001391]/20">
-                  {/* Número grande del paso, de fondo; se enciende al pasar el cursor. */}
-                  <span aria-hidden className="pointer-events-none absolute -right-1 -top-3 font-display text-7xl font-extrabold leading-none text-[#001391]/[0.07] transition-colors duration-300 group-hover:text-[#001391]/15">
-                    {String(i + 1).padStart(2, '0')}
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="font-display text-3xl font-bold leading-tight sm:text-4xl">
+              <span className="text-ink">¿Cómo</span> <span className="title-shimmer-light">funciona?</span>
+            </h2>
+            <p className="mt-3 text-ink/65">Cuatro pasos, sin papeleo ni costo: consultas aquí en un minuto y terminas tu solicitud directamente con BBVA.</p>
+          </div>
+
+          {/* Línea de tiempo: el número va una sola vez, en el marcador sobre la línea que une los pasos. */}
+          <div className="relative mt-12">
+            <div aria-hidden className="absolute left-[12.5%] right-[12.5%] top-6 hidden h-0.5 bg-gradient-to-r from-[#85C8FF] via-[#001391]/40 to-[#85C8FF] lg:block" />
+            <div aria-hidden className="absolute bottom-6 left-6 top-6 w-0.5 bg-gradient-to-b from-[#85C8FF] via-[#001391]/40 to-[#85C8FF] lg:hidden" />
+            <ol className="relative grid gap-6 lg:grid-cols-4">
+              {PASOS.map((p, i) => (
+                <li key={p.titulo} className="group flex gap-4 lg:flex-col lg:items-center lg:gap-5">
+                  <span className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border-2 border-[#001391] bg-white font-display text-lg font-extrabold text-[#001391] shadow-md shadow-[#001391]/15 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:bg-[#001391] group-hover:text-white">
+                    {i + 1}
                   </span>
-                  <div className="relative flex items-center gap-3">
-                    <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#001391] text-white transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110">
-                      <p.icon className="h-5 w-5" strokeWidth={2} />
-                    </span>
-                    <span className="rounded-full bg-[#85C8FF]/25 px-3 py-1 text-sm font-bold text-[#001391]">Paso {i + 1}</span>
-                  </div>
-                  <h3 className="relative mt-5 font-display text-lg font-bold text-ink">{p.titulo}</h3>
-                  <p className="relative mt-2 text-sm text-ink/65">{p.texto}</p>
-                  <span aria-hidden className="absolute inset-x-6 bottom-0 h-1 origin-left scale-x-0 rounded-full bg-[#001391] transition-transform duration-300 group-hover:scale-x-100" />
+                  <ScrollReveal delayMs={i * 110} className="w-full flex-1">
+                    <div className="relative h-full overflow-hidden rounded-2xl bg-white p-6 shadow-md shadow-brand-dark/10 transition-all duration-300 group-hover:-translate-y-1.5 group-hover:shadow-xl group-hover:shadow-[#001391]/20 lg:text-center">
+                      <div className="flex items-center justify-between gap-3 lg:flex-col">
+                        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-[#85C8FF]/25 text-[#001391] transition-transform duration-300 group-hover:scale-110">
+                          <p.icon className="h-5 w-5" strokeWidth={2} />
+                        </span>
+                        <span className="rounded-full bg-paper px-3 py-1 text-xs font-semibold text-[#004481]">{p.etiqueta}</span>
+                      </div>
+                      <h3 className="mt-4 font-display text-lg font-bold text-ink">{p.titulo}</h3>
+                      <p className="mt-2 text-sm text-ink/65">{p.texto}</p>
+                      <span aria-hidden className="absolute inset-x-6 bottom-0 h-1 origin-left scale-x-0 rounded-full bg-[#001391] transition-transform duration-300 group-hover:scale-x-100 lg:origin-center" />
+                    </div>
+                  </ScrollReveal>
                 </li>
-              </ScrollReveal>
-            ))}
-          </ol>
+              ))}
+            </ol>
+          </div>
         </div>
       </main>
 
