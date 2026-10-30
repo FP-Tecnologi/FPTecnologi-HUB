@@ -103,7 +103,7 @@ export function TarjetasBbvaVitrina() {
           </div>
 
           {/* Lista para elegir: en celular, carrusel horizontal; en escritorio, columna. */}
-          <ol key={red} className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] lg:mx-0 lg:flex-col lg:overflow-visible lg:px-0 lg:pb-0">
+          <ol key={red} className="-mx-4 flex snap-x gap-3 overflow-x-auto px-4 pb-2 [scrollbar-width:none] lg:mx-0 lg:flex-col lg:justify-center lg:overflow-visible lg:px-0 lg:pb-0">
             {lista.map((t, i) => {
               const activa = t.id === sel.id;
               return (
