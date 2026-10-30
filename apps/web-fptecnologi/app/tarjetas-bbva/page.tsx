@@ -32,18 +32,18 @@ export default function TarjetasBbvaPage() {
           <div className="invisible w-full" aria-hidden>
             <Navbar9 />
           </div>
-          <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-6 pb-12 pt-4 lg:grid-cols-[1fr_1.05fr] lg:pb-16">
+          <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 pb-10 pt-10 sm:px-6 sm:pt-14 lg:grid-cols-[1fr_1.05fr] lg:gap-14 lg:pb-16 lg:pt-20">
             <div className="text-white">
-              <div className="flex items-center gap-3">
-                <LogoBbva blanco className="h-6" />
-                <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-[#85C8FF] backdrop-blur">
+              <div className="flex flex-wrap items-center gap-3">
+                <LogoBbva blanco className="h-5 sm:h-6" />
+                <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#85C8FF] backdrop-blur sm:text-xs">
                   FP Tecnologi · Aliado BBVA
                 </span>
               </div>
-              <h1 className="mt-5 font-display text-4xl font-bold leading-tight sm:text-5xl">
+              <h1 className="mt-5 font-display text-[2rem] font-bold leading-[1.15] sm:text-5xl sm:leading-tight">
                 Descubre qué tarjeta BBVA <span className="text-[#85C8FF]">tienes preaprobada</span>
               </h1>
-              <p className="mt-5 max-w-xl text-lg text-white/85">
+              <p className="mt-4 max-w-xl text-base text-white/85 sm:mt-5 sm:text-lg">
                 Consulta con tu DNI en menos de un minuto y mira las tarjetas de crédito que BBVA tiene para ti, con su línea de crédito y tasa.
               </p>
               <AbanicoBbva className="mt-4 hidden w-full max-w-sm sm:block" />

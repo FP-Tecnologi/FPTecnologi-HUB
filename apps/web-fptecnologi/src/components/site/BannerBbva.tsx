@@ -14,16 +14,19 @@ import { ArrowRight, ShieldCheck, Sparkles, Timer } from 'lucide-react';
  */
 export const HREF_BBVA = '/tarjetas-bbva';
 
-/** Catálogo de tarjetas de crédito BBVA, de menor a mayor gama por red. */
+/** Nombre de cada nivel de gama (1 = entrada … 5 = exclusiva). */
+export const GAMAS = ['', 'Gama de entrada', 'Gama media', 'Gama alta', 'Gama premium', 'Gama exclusiva'] as const;
+
+/** Catálogo de tarjetas de crédito BBVA, de menor a mayor gama por red (gama 1–5, común a ambas redes). */
 export const TARJETAS = [
-  { id: 'visa-cero', nombre: 'Visa Cero', red: 'visa' },
-  { id: 'visa-bfree', nombre: 'Visa Bfree', red: 'visa' },
-  { id: 'visa-platinum', nombre: 'Visa Platinum', red: 'visa' },
-  { id: 'visa-signature', nombre: 'Visa Signature', red: 'visa' },
-  { id: 'visa-infinite', nombre: 'Visa Infinite', red: 'visa' },
-  { id: 'mastercard-bfree', nombre: 'Mastercard Bfree', red: 'mastercard' },
-  { id: 'mastercard-platinum', nombre: 'Mastercard Platinum', red: 'mastercard' },
-  { id: 'mastercard-black', nombre: 'Mastercard Black', red: 'mastercard' },
+  { id: 'visa-cero', nombre: 'Visa Cero', red: 'visa', gama: 1 },
+  { id: 'visa-bfree', nombre: 'Visa Bfree', red: 'visa', gama: 2 },
+  { id: 'visa-platinum', nombre: 'Visa Platinum', red: 'visa', gama: 3 },
+  { id: 'visa-signature', nombre: 'Visa Signature', red: 'visa', gama: 4 },
+  { id: 'visa-infinite', nombre: 'Visa Infinite', red: 'visa', gama: 5 },
+  { id: 'mastercard-bfree', nombre: 'Mastercard Bfree', red: 'mastercard', gama: 2 },
+  { id: 'mastercard-platinum', nombre: 'Mastercard Platinum', red: 'mastercard', gama: 3 },
+  { id: 'mastercard-black', nombre: 'Mastercard Black', red: 'mastercard', gama: 5 },
 ] as const;
 export type IdTarjeta = (typeof TARJETAS)[number]['id'];
 const nombre = (id: IdTarjeta) => TARJETAS.find((t) => t.id === id)!.nombre;
