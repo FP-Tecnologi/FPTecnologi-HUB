@@ -19,7 +19,7 @@ export default function Carrito() {
   const cantidad = (i: number, d: number) =>
     cambiar((items ?? []).map((it, j) => (j === i ? { ...it, cantidad: Math.max(1, (it.cantidad ?? 1) + d) } : it)));
 
-  if (!items) return <main className="min-h-screen pt-28" />;
+  if (!items) return <main id="contenido" className="min-h-screen pt-28" />;
 
   return (
     <main className="mx-auto max-w-6xl px-5 pb-24 pt-28">

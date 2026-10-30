@@ -49,7 +49,7 @@ const CALIDAD = [
 export default function Home() {
   const hero = seleccionDe(BUILDS[2].ids);
   return (
-    <main>
+    <main id="contenido">
       {/* HERO */}
       <section className="zona-oscura relative isolate flex min-h-screen items-center overflow-hidden pt-16">
         <div className="absolute inset-0 -z-20 bg-cover bg-center opacity-60" style={{ backgroundImage: 'url(/brand/fondo-red.jpg)' }} />

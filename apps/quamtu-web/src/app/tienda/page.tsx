@@ -3,8 +3,9 @@ import { ArrowRight, Box, CircuitBoard, Cpu, Fan, HardDrive, MemoryStick, Messag
 import TarjetaProducto from '@/components/TarjetaProducto';
 import { waUrl } from '@/lib/contacto';
 import { CATS, OPCIONES, type Cat } from '@/lib/piezas';
+import { meta } from '@/lib/seo';
 
-export const metadata = { title: 'Tienda de componentes — Quamtu' };
+export const metadata = meta('Tienda de componentes — Quamtu', 'Gabinetes, procesadores, placas, memoria RAM, tarjetas de video, SSD, coolers y fuentes para armar tu equipo. Cotiza por WhatsApp.', '/tienda');
 
 const ICONOS: Record<Cat, typeof Cpu> = { gabinete: Box, cpu: Cpu, placa: CircuitBoard, ram: MemoryStick, gpu: Zap, ssd: HardDrive, cooler: Fan, fuente: PlugZap };
 const ORDENES = [
@@ -25,7 +26,7 @@ export default async function Tienda({ searchParams }: { searchParams: Promise<{
   const href = (c?: string) => (c ? `/tienda?cat=${c}${q ? `&q=${encodeURIComponent(q)}` : ''}${orden !== 'relevancia' ? `&orden=${orden}` : ''}` : '/tienda');
 
   return (
-    <main>
+    <main id="contenido">
       {/* Banner */}
       <section className="zona-oscura relative isolate overflow-hidden pb-14 pt-28">
         <div className="absolute inset-0 -z-20 bg-cover bg-center opacity-50" style={{ backgroundImage: 'url(/brand/fondo-red.jpg)' }} />

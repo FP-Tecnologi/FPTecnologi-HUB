@@ -20,7 +20,7 @@ export default function PropuestaB() {
   const b = BUILDS[2];
   const s = seleccionDe(b.ids);
   return (
-    <main>
+    <main id="contenido">
       <section className="zona-oscura relative isolate overflow-hidden pt-28 pb-20">
         <div className="absolute inset-0 -z-10 bg-cover bg-center opacity-30" style={{ backgroundImage: 'url(/brand/fondo-red.jpg)' }} />
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-bg/40 via-bg/70 to-bg" />

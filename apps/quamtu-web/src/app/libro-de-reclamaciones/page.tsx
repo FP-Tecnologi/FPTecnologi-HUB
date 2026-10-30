@@ -14,7 +14,7 @@ export const metadata = {
 export default async function LibroReclamacionesPage() {
   const proveedor = await getProveedor();
   return (
-    <main className="mx-auto max-w-4xl px-4 pb-24 pt-24 sm:px-5 sm:pt-28">
+    <main id="contenido" className="mx-auto max-w-4xl px-4 pb-24 pt-24 sm:px-5 sm:pt-28">
       <div className="print:hidden">
         <h1 className="font-display text-3xl font-bold sm:text-4xl md:text-5xl">Libro de <span className="titulo-neon">Reclamaciones</span></h1>
         <p className="mt-4 flex max-w-2xl items-start gap-3 text-slate-300">

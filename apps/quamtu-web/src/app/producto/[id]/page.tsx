@@ -4,12 +4,14 @@ import { Box, ChevronRight, ClipboardList } from 'lucide-react';
 import AgregarPieza from '@/components/AgregarPieza';
 import ImgPieza from '@/components/ImgPieza';
 import { CATS, OPCIONES, porId } from '@/lib/piezas';
+import JsonLd from '@/components/JsonLd';
+import { jsonProducto, meta, migas } from '@/lib/seo';
 
 const soles = (n: number) => `S/ ${n.toLocaleString('es-PE')}`;
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const o = porId((await params).id);
-  return { title: o ? `${o.nombre} — Quamtu` : 'Producto — Quamtu' };
+  return o ? meta(`${o.nombre} — Quamtu`, `${o.nombre}: ${o.spec}. Consulta disponibilidad y cotiza con Quamtu.`, `/producto/${o.id}`) : { title: 'Producto — Quamtu' };
 }
 
 export default async function Producto({ params }: { params: Promise<{ id: string }> }) {
@@ -25,7 +27,8 @@ export default async function Producto({ params }: { params: Promise<{ id: strin
   ];
 
   return (
-    <main className="mx-auto max-w-7xl px-5 pb-24 pt-28">
+    <main id="contenido" className="mx-auto max-w-7xl px-5 pb-24 pt-28">
+      <JsonLd datos={[migas([{ nombre: 'Tienda', ruta: '/tienda' }, { nombre: o.nombre, ruta: `/producto/${o.id}` }]), jsonProducto(o)]} />
       <nav className="flex items-center gap-1 text-sm text-slate-400">
         <Link href="/tienda" className="hover:text-claro">Tienda</Link><ChevronRight size={14} />
         <Link href={`/tienda?cat=${o.cat}`} className="hover:text-claro">{cat.titulo}</Link><ChevronRight size={14} />
