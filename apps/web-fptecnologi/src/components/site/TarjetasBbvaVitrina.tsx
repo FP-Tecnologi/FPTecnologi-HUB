@@ -113,9 +113,9 @@ export function TarjetasBbvaVitrina() {
                     onClick={() => elegir(t)}
                     onMouseEnter={() => elegir(t)}
                     aria-pressed={activa}
-                    className={`flex w-full items-center gap-4 rounded-2xl border p-3 text-left transition-all duration-300 ${activa ? 'border-[#001391]/30 bg-white shadow-lg shadow-[#001391]/15 lg:translate-x-1' : 'border-transparent bg-paper hover:border-[#001391]/15 hover:bg-white'}`}
+                    className={`flex w-full items-center gap-4 rounded-2xl border p-3 text-left transition-all duration-300 ${activa ? 'border-[#001391]/30 bg-white shadow-lg shadow-[#001391]/15' : 'border-transparent bg-paper hover:border-[#001391]/15 hover:bg-white'}`}
                   >
-                    <TarjetaBbva id={t.id} className={`w-10 shrink-0 transition-transform duration-300 ${activa ? '-rotate-6 scale-110' : ''}`} />
+                    <TarjetaBbva id={t.id} className={`w-10 shrink-0 transition-transform duration-300 ${activa ? 'scale-110' : ''}`} />
                     <span className="min-w-0 flex-1">
                       <span className="block font-display text-sm font-bold text-ink">{t.nombre}</span>
                       <span className="mt-0.5 block text-xs text-ink/60">{GAMAS[t.gama]}</span>
@@ -123,7 +123,7 @@ export function TarjetasBbvaVitrina() {
                         <BarraGama gama={t.gama} />
                       </span>
                     </span>
-                    <ArrowRight className={`h-4 w-4 shrink-0 transition-all ${activa ? 'text-[#001391]' : 'text-ink/25'}`} strokeWidth={2.2} />
+                    <ArrowRight className={`h-4 w-4 shrink-0 transition-all duration-300 ${activa ? 'translate-x-0.5 text-[#001391]' : 'text-ink/25'}`} strokeWidth={2.2} />
                   </button>
                 </li>
               );
