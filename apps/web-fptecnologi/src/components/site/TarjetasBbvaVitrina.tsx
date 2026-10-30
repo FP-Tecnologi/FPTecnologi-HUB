@@ -52,7 +52,7 @@ export function TarjetasBbvaVitrina() {
   };
 
   return (
-    <section id="tarjetas" className="scroll-mt-28 bg-paper py-16 sm:py-20">
+    <section id="tarjetas" className="scroll-mt-28 bg-white py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
           <div>
@@ -61,7 +61,7 @@ export function TarjetasBbvaVitrina() {
             </h2>
             <p className="mt-3 max-w-2xl text-ink/65">De la que te ayuda a empezar a la más exclusiva. BBVA te dirá cuáles tienes preaprobadas según tu perfil.</p>
           </div>
-          <div role="tablist" aria-label="Red de la tarjeta" className="inline-flex self-start rounded-xl bg-white p-1 shadow-md shadow-brand-dark/10 lg:self-auto">
+          <div role="tablist" aria-label="Red de la tarjeta" className="inline-flex self-start rounded-xl bg-paper p-1 shadow-inner shadow-brand-dark/5 lg:self-auto">
             {(['visa', 'mastercard'] as const).map((r) => (
               <button
                 key={r}
@@ -113,7 +113,7 @@ export function TarjetasBbvaVitrina() {
                     onClick={() => elegir(t)}
                     onMouseEnter={() => elegir(t)}
                     aria-pressed={activa}
-                    className={`flex w-full items-center gap-4 rounded-2xl border p-3 text-left transition-all duration-300 ${activa ? 'border-[#001391]/30 bg-white shadow-lg shadow-[#001391]/15 lg:translate-x-1' : 'border-transparent bg-white/60 hover:bg-white'}`}
+                    className={`flex w-full items-center gap-4 rounded-2xl border p-3 text-left transition-all duration-300 ${activa ? 'border-[#001391]/30 bg-white shadow-lg shadow-[#001391]/15 lg:translate-x-1' : 'border-transparent bg-paper hover:border-[#001391]/15 hover:bg-white'}`}
                   >
                     <TarjetaBbva id={t.id} className={`w-10 shrink-0 transition-transform duration-300 ${activa ? '-rotate-6 scale-110' : ''}`} />
                     <span className="min-w-0 flex-1">
