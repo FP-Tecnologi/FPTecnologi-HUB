@@ -291,7 +291,7 @@ function Etiqueta({ o, p, q, lado, activa, setHover }: { o: Opcion; p: V3; q: V3
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={`/productos/${o.id}.jpg`} alt="" onError={(e) => { e.currentTarget.style.display = 'none'; }} className="h-12 w-12 shrink-0 rounded bg-bg/70 object-contain" />
             <span className="min-w-0">
-              <span className="block font-display text-[9px] tracking-[0.2em] text-claro">{o.cat.toUpperCase()}</span>
+              <span className="block font-display text-xs tracking-[0.2em] text-claro">{o.cat.toUpperCase()}</span>
               <span className="block font-display text-[13px] font-bold leading-tight">{o.nombre}</span>
             </span>
           </span>

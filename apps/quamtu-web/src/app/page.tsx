@@ -87,8 +87,8 @@ export default function Home() {
                   <s.i size={18} />
                 </span>
                 <span className="min-w-0">
-                  <span className="block font-display text-[11px] font-bold uppercase leading-tight tracking-wide text-white">{s.t}</span>
-                  <span className="block text-[11px] leading-snug text-slate-300">{s.d}</span>
+                  <span className="block font-display text-xs font-bold uppercase leading-tight tracking-wide text-white">{s.t}</span>
+                  <span className="block text-xs leading-snug text-slate-300">{s.d}</span>
                 </span>
               </div>
             ))}

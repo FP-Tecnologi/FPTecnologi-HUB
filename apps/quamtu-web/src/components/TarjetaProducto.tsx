@@ -29,7 +29,7 @@ export default function TarjetaProducto({ o }: { o: Opcion }) {
 
       <div className="flex flex-1 flex-col p-5">
         <h2 className="font-display text-base font-bold normal-case leading-snug text-white">
-          <Link href={`/producto/${o.id}`} className="hover:text-claro">{o.nombre}</Link>
+          <Link href={`/producto/${o.id}`} className="inline-block py-2 hover:text-claro">{o.nombre}</Link>
         </h2>
         <div className="mt-3 flex flex-wrap gap-1.5">
           {datos.map((d) => (

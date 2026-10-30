@@ -117,7 +117,7 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
                       aria-label={c.titulo}
                       aria-current={actual ? 'step' : undefined}
                       title={c.titulo}
-                      className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border text-[10px] sm:h-8 sm:w-8 sm:text-[11px] font-bold transition ${
+                      className={`relative after:absolute after:-inset-1.5 after:content-[''] grid h-7 w-7 shrink-0 place-items-center rounded-full border text-xs sm:h-8 sm:w-8 sm:text-xs font-bold transition ${
                         actual ? 'scale-110 border-claro bg-boton text-white shadow-[0_0_16px_rgba(35,141,193,.7)]'
                         : hecho ? 'border-cyan bg-cyan/20 text-claro' : 'border-line text-slate-400 hover:border-slate-500'
                       }`}
@@ -133,7 +133,7 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
                   onClick={() => ir(FIN)}
                   aria-label="Presupuesto"
                   title="Presupuesto"
-                  className={`grid h-7 w-7 place-items-center rounded-full border transition sm:h-8 sm:w-8 ${
+                  className={`relative after:absolute after:-inset-1.5 after:content-[''] grid h-7 w-7 place-items-center rounded-full border transition sm:h-8 sm:w-8 ${
                     enResumen ? 'scale-110 border-claro bg-boton text-white shadow-[0_0_16px_rgba(35,141,193,.7)]' : 'border-line text-slate-400 hover:border-slate-500'
                   }`}
                 >
@@ -185,7 +185,7 @@ export default function Builder({ inicial = [] }: { inicial?: string[] }) {
                             rel="noreferrer"
                             onClick={(e) => e.stopPropagation()}
                             aria-label={`Ver detalles de ${o.nombre}`}
-                            className="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-full bg-bg/70 text-slate-300 opacity-0 backdrop-blur transition hover:text-claro group-hover:opacity-100 focus:opacity-100"
+                            className="absolute right-2.5 top-2.5 grid h-8 w-8 place-items-center rounded-full after:absolute after:-inset-1.5 after:content-[''] bg-bg/70 text-slate-300 opacity-0 backdrop-blur transition hover:text-claro group-hover:opacity-100 focus:opacity-100"
                           >
                             <ExternalLink size={14} />
                           </a>

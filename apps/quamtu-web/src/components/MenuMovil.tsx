@@ -9,7 +9,7 @@ export default function MenuMovil({ enlaces }: { enlaces: { href: string; texto:
   const [abierto, setAbierto] = useState(false);
   return (
     <div className="lg:hidden">
-      <button onClick={() => setAbierto(!abierto)} aria-label={abierto ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={abierto} className="grid h-9 w-9 place-items-center">
+      <button onClick={() => setAbierto(!abierto)} aria-label={abierto ? 'Cerrar menú' : 'Abrir menú'} aria-expanded={abierto} className="grid h-11 w-11 place-items-center">
         {abierto ? <X size={22} /> : <Menu size={22} />}
       </button>
       {abierto && (

@@ -197,7 +197,7 @@ export default function AbrirTicket() {
                   {evidencias.map((x) => (
                     <div key={x.id} className="relative h-20 w-20 overflow-hidden rounded-xl border border-[color:var(--c-borde)]">
                       {x.pdf ? (
-                        <span title={x.nombre} className="flex h-full w-full flex-col items-center justify-center gap-1 px-1 text-center text-[10px] font-semibold text-slate-200"><FileText aria-hidden="true" size={22} /><span className="line-clamp-2 break-all">{x.nombre}</span></span>
+                        <span title={x.nombre} className="flex h-full w-full flex-col items-center justify-center gap-1 px-1 text-center text-xs font-semibold text-slate-200"><FileText aria-hidden="true" size={22} /><span className="line-clamp-2 break-all">{x.nombre}</span></span>
                       ) : (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={x.preview} alt={x.nombre} className="h-full w-full object-cover" />

@@ -126,7 +126,7 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
 
   const set = (k: keyof typeof f, v: string | boolean) => setF((x) => ({ ...x, [k]: v }));
   const err = (k: string) => (errores[k] ? <p className="mt-1 text-xs text-red-400">{errores[k]}</p> : null);
-  const chip = (activo: boolean) => `shrink-0 rounded-full border px-4 py-2 font-display text-xs transition ${activo ? 'border-cyan bg-cyan/15 text-claro' : 'border-line text-slate-400 hover:border-slate-500'}`;
+  const chip = (activo: boolean) => `min-h-11 shrink-0 rounded-full border px-4 py-2 font-display text-xs transition ${activo ? 'border-cyan bg-cyan/15 text-claro' : 'border-line text-slate-400 hover:border-slate-500'}`;
 
   if (resultado)
     return (
@@ -191,7 +191,7 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
                         {n ? (
                           <Paso n={n} onMenos={() => cambiar(l.clave, -1)} onMas={() => cambiar(l.clave, 1)} />
                         ) : (
-                          <button type="button" onClick={() => poner(l)} className="btn-neon rounded-full px-4 py-2 font-display text-xs">AGREGAR</button>
+                          <button type="button" onClick={() => poner(l)} className="btn-neon min-h-11 rounded-full px-4 py-2 font-display text-xs">AGREGAR</button>
                         )}
                       </div>
                     </div>

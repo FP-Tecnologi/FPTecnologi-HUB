@@ -88,10 +88,10 @@ export default function Footer() {
         {COLUMNAS.map((c) => (
           <nav key={c.titulo} aria-label={c.titulo}>
             <h3 className="font-display text-sm font-bold tracking-[0.2em] text-white">{c.titulo}</h3>
-            <ul className="mt-5 space-y-3">
+            <ul className="mt-3 space-y-0">
               {c.enlaces.map((e) => (
                 <li key={e.href}>
-                  <Link href={e.href} className="text-slate-400 transition hover:text-claro">{e.texto}</Link>
+                  <Link href={e.href} className="inline-flex min-h-11 items-center text-slate-400 transition hover:text-claro">{e.texto}</Link>
                 </li>
               ))}
             </ul>

@@ -39,9 +39,9 @@ export default function CarritoMini() {
   const n = unidades(items);
   return (
     <>
-      <button onClick={() => setAbierto(true)} className="relative" aria-label={`Abrir carrito (${n})`}>
+      <button onClick={() => setAbierto(true)} className="relative -mx-2 grid size-11 place-items-center" aria-label={`Abrir carrito (${n})`}>
         <ShoppingBag size={21} />
-        {n > 0 && <b className="absolute -right-2 -top-2 grid h-5 min-w-5 place-items-center rounded-full bg-boton px-1 text-xs font-bold text-white">{n}</b>}
+        {n > 0 && <b className="absolute right-0 top-0 grid h-5 min-w-5 place-items-center rounded-full bg-boton px-1 text-xs font-bold text-white">{n}</b>}
       </button>
 
       {montado && createPortal(<>
@@ -55,7 +55,7 @@ export default function CarritoMini() {
       >
         <div className="flex items-center justify-between border-b border-line px-6 py-5">
           <h2 className="font-display text-lg font-bold">Tu carrito <span className="text-slate-400">({n})</span></h2>
-          <button onClick={() => setAbierto(false)} aria-label="Cerrar"><X size={20} /></button>
+          <button onClick={() => setAbierto(false)} aria-label="Cerrar" className="grid size-11 place-items-center"><X size={20} /></button>
         </div>
 
         <div className="flex-1 space-y-3 overflow-y-auto p-6">

@@ -54,7 +54,7 @@ export default function Header() {
         <div className="flex items-center gap-3 sm:gap-4">
           <ConmutadorTema className="hidden lg:flex" />
           <CarritoMini />
-          <Link href="/cotizar" className="btn-neon inline-flex items-center gap-1.5 rounded-full px-4 py-2 font-display text-xs sm:px-5 sm:text-xs">
+          <Link href="/cotizar" className="btn-neon inline-flex min-h-11 items-center gap-1.5 rounded-full px-4 py-2 font-display text-xs sm:px-5 sm:text-xs">
             <ClipboardList size={15} /> COTIZAR
           </Link>
           <MenuMovil enlaces={[...VERSIONES_HOME.map((v) => ({ href: v.href, texto: `Home · ${v.texto}` })), ...ENLACES]} />

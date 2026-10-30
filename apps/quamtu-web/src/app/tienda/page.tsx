@@ -84,7 +84,7 @@ export default async function Tienda({ searchParams }: { searchParams: Promise<{
         <form className="flex flex-wrap items-center gap-3">
           <div className="relative min-w-60 flex-1 sm:max-w-md">
             <Search size={17} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-            <input name="q" defaultValue={q} placeholder="Buscar componente…" className="glass w-full rounded-full py-2.5 pl-11 pr-5 text-base outline-none focus:border-cyan" />
+            <input name="q" defaultValue={q} aria-label="Buscar componente" placeholder="Buscar componente…" className="glass w-full rounded-full py-2.5 pl-11 pr-5 text-base outline-none focus:border-cyan" />
           </div>
           {cat && <input type="hidden" name="cat" value={cat} />}
           <label className="flex items-center gap-2 text-sm text-slate-400">
@@ -93,7 +93,7 @@ export default async function Tienda({ searchParams }: { searchParams: Promise<{
               {ORDENES.map(([v, t]) => <option key={v} value={v}>{t}</option>)}
             </select>
           </label>
-          <button className="btn-neon rounded-full px-6 py-2.5 font-display text-xs">APLICAR</button>
+          <button className="btn-neon min-h-11 rounded-full px-6 py-2.5 font-display text-xs">APLICAR</button>
         </form>
 
         <div className="mt-6 flex flex-wrap items-center gap-3 text-sm text-slate-400">
