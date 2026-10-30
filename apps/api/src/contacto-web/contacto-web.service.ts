@@ -123,7 +123,8 @@ Teléfono: ${telefono}` : dto.mensaje.trim();
     ];
     if (usuarios.length === 0) return;
     const etiqueta = ETIQUETAS[tipo] ?? 'Nuevo contacto de la web';
-    const url = `${process.env.WEB_ORIGIN ?? 'http://localhost:3000'}/web/contactos?id=${id}`;
+    const pantalla = tipo.startsWith('TARJETA_BBVA') ? 'web/bbva' : 'web/contactos';
+    const url = `${process.env.WEB_ORIGIN ?? 'http://localhost:3000'}/${pantalla}?id=${id}`;
     await this.prisma.notificacion.createMany({
       data: usuarios.map((u) => ({
         marcaId,
