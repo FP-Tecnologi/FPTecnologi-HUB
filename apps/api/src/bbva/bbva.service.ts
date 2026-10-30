@@ -77,7 +77,19 @@ export class BbvaService {
     return j.access_token;
   }
 
+  private firmar(body: string) {
+    const { clave } = this.credenciales();
+    try {
+      return cabecerasFirmadas({ metodo: 'post', path: PATH_OFERTAS, host: this.host, body, clave });
+    } catch (e) {
+      // Clave mal cargada (cortada o con otro formato): al log solo el largo, nunca el valor; al visitante, mensaje normal.
+      this.logger.error(`BBVA_PRIVATE_KEY no se pudo usar (largo ${clave.length}): ${(e as Error).message}`);
+      throw new ServiceUnavailableException('El servicio de BBVA no responde. Intenta en unos minutos.');
+    }
+  }
+
   private async llamarOfertas(body: string, reintento = true): Promise<{ status: number; json: RespuestaBbva }> {
+    const firma = this.firmar(body);
     const token = await this.obtenerToken();
     const r = await fetch(`https://${this.host}${PATH_OFERTAS}`, {
       method: 'POST',
@@ -85,7 +97,7 @@ export class BbvaService {
         Authorization: `Bearer ${token}`,
         Host: this.host,
         'Content-Type': 'application/json',
-        ...cabecerasFirmadas({ metodo: 'post', path: PATH_OFERTAS, host: this.host, body, clave: this.credenciales().clave }),
+        ...firma,
       },
       body,
       signal: AbortSignal.timeout(20_000),
