@@ -1,10 +1,10 @@
 'use client';
 import { useEffect, useRef } from 'react';
 
-// Un solo observador: marca data-dentro al entrar y lo quita al salir, así la entrada y la salida son suaves.
+// Un solo observador: marca data-dentro la primera vez que el elemento entra en pantalla y deja de observarlo (no se reanima al volver a pasar).
 let io: IntersectionObserver | undefined;
 const observador = () =>
-  (io ??= new IntersectionObserver((es) => es.forEach((e) => e.target.toggleAttribute('data-dentro', e.isIntersecting)), {
+  (io ??= new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.setAttribute('data-dentro', ''); io?.unobserve(e.target); } }), {
     rootMargin: '0px 0px -8% 0px',
   }));
 
@@ -16,7 +16,7 @@ type Props = {
   className?: string;
 };
 
-/** Entrada y salida suaves al aparecer/desaparecer de la pantalla. Sin JS o con reduced-motion se ve normal (ver globals.css). */
+/** Entrada suave al aparecer en pantalla. Sin JS o con reduced-motion se ve normal (ver globals.css). */
 export default function Reveal({ children, retraso = 0, efecto = 'subir', as: Tag = 'div', className = '' }: Props) {
   const ref = useRef<HTMLElement>(null);
   useEffect(() => {

@@ -24,7 +24,16 @@ export default function Header() {
     f();
     window.addEventListener('scroll', f, { passive: true });
     menu.current?.removeAttribute('open');
-    return () => window.removeEventListener('scroll', f);
+    const cerrar = (e: Event) => {
+      const m = menu.current;
+      if (!m?.open) return;
+      if (e instanceof KeyboardEvent) { if (e.key !== 'Escape') return; m.querySelector('summary')?.focus(); }
+      else if (m.contains(e.target as Node)) return;
+      m.removeAttribute('open');
+    };
+    document.addEventListener('mousedown', cerrar);
+    document.addEventListener('keydown', cerrar);
+    return () => { window.removeEventListener('scroll', f); document.removeEventListener('mousedown', cerrar); document.removeEventListener('keydown', cerrar); };
   }, [ruta]);
 
   const Item = ({ href, texto }: { href: string; texto: string }) => (
@@ -35,8 +44,8 @@ export default function Header() {
     <header className="cabecera fixed inset-x-0 top-0 z-50">
       <div className="mx-auto flex h-[var(--alto-cabecera)] max-w-7xl items-center justify-between gap-6 px-5 sm:px-8">
         <Link href="/" aria-label="Kelqa, inicio" className="shrink-0 transition-transform duration-300 hover:scale-[1.03]">
-          <img src="/brand/kelqa-blanco.svg" alt="" className="cabecera-logo-blanco h-9 w-auto" />
-          <img src="/brand/kelqa.svg" alt="" className="cabecera-logo-color h-9 w-auto" />
+          <img src="/brand/kelqa-blanco.svg" alt="" width="136" height="36" fetchPriority="high" className="cabecera-logo-blanco h-9 w-auto" />
+          <img src="/brand/kelqa.svg" alt="" width="136" height="36" className="cabecera-logo-color h-9 w-auto" />
         </Link>
         <nav aria-label="Principal" className="hidden items-center gap-8 lg:flex">
           <Item {...enlaces[0]} />

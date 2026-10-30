@@ -6,7 +6,9 @@ import Banner from '@/components/Banner';
 import Reveal from '@/components/Reveal';
 import Titulo from '@/components/Titulo';
 import { CtaContacto } from '@/components/Bloques';
+import JsonLd from '@/components/JsonLd';
 import { lineas, waUrl } from '@/lib/contenido';
+import { jsonLinea, meta, migas } from '@/lib/seo';
 
 type Params = { params: Promise<{ linea: string }> };
 
@@ -16,7 +18,7 @@ export const generateStaticParams = () => lineas.map((l) => ({ linea: l.id }));
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { linea } = await params;
   const l = lineas.find((x) => x.id === linea);
-  return l ? { title: l.nombre, description: `${l.lema} ${l.texto}` } : {};
+  return l ? meta(l.nombre, `${l.lema} ${l.texto}`, `/lineas/${l.id}`) : {};
 }
 
 const contenedor = 'mx-auto max-w-7xl px-5 sm:px-8';
@@ -30,7 +32,8 @@ export default async function PaginaLinea({ params }: Params) {
   const [solido, acento] = l.nombre.includes(' de ') ? [l.nombre.split(' de ')[0] + ' de', l.nombre.split(' de ')[1]] : [l.nombre.split(' y ')[0] + ' y', l.nombre.split(' y ')[1]];
 
   return (
-    <main>
+    <main id="contenido">
+      <JsonLd datos={[migas([{ nombre: l.corto, ruta: `/lineas/${l.id}` }]), jsonLinea(l.id)]} />
       <Banner miga={l.corto} titulo={solido} acento={acento} texto={l.lema} foto={l.foto} />
 
       {/* Intro */}
@@ -53,7 +56,7 @@ export default async function PaginaLinea({ params }: Params) {
           <Reveal efecto="derecha" className="group grid grid-cols-2 gap-4">
             {l.galeria.slice(0, 2).map((g, i) => (
               <div key={g.src} className={`overflow-hidden rounded-[1.75rem] shadow-xl shadow-kelqa-hondo/15 ${i ? 'mt-10 rounded-tr-[4rem]' : 'rounded-bl-[4rem]'}`}>
-                <img src={g.src} alt={g.alt} className="foto-zoom aspect-[3/4] w-full object-cover" />
+                <img loading="lazy" decoding="async" src={g.src} alt={g.alt} className="foto-zoom aspect-[3/4] w-full object-cover" />
               </div>
             ))}
           </Reveal>
@@ -69,8 +72,8 @@ export default async function PaginaLinea({ params }: Params) {
               <Reveal key={p.nombre} efecto={i % 2 ? 'derecha' : 'izquierda'}>
                 <article className="group grid items-center gap-8 overflow-hidden rounded-[2rem] bg-white p-6 shadow-xl shadow-kelqa-hondo/10 transition-shadow duration-500 hover:shadow-2xl hover:shadow-kelqa-hondo/20 sm:p-8 md:grid-cols-[0.8fr_1.2fr]">
                   <div className={`relative grid aspect-[4/3] place-items-center overflow-hidden rounded-[1.5rem] bg-gradient-to-br from-niebla to-kelqa/15 ${i % 2 ? 'md:order-2' : ''}`}>
-                    <img src="/icon.svg" alt="" aria-hidden="true" className="absolute -bottom-10 -right-10 w-48 opacity-[0.07] transition duration-1000 group-hover:rotate-12" />
-                    <img src={p.img} alt={p.nombre} loading="lazy" className="relative max-h-[85%] max-w-[85%] rounded-xl object-contain drop-shadow-2xl transition-transform duration-700 group-hover:-translate-y-2 group-hover:scale-105" />
+                    <img loading="lazy" decoding="async" src="/icon.svg" alt="" aria-hidden="true" className="absolute -bottom-10 -right-10 w-48 opacity-[0.07] transition duration-1000 group-hover:rotate-12" />
+                    <img decoding="async" src={p.img} alt="" loading="lazy" className="relative max-h-[85%] max-w-[85%] rounded-xl object-contain drop-shadow-2xl transition-transform duration-700 group-hover:-translate-y-2 group-hover:scale-105" />
                   </div>
                   <div>
                     <span className="font-titulo text-sm font-bold text-kelqa">{String(i + 1).padStart(2, '0')}</span>
@@ -95,7 +98,7 @@ export default async function PaginaLinea({ params }: Params) {
           <div className="mt-10 grid gap-4 sm:grid-cols-3">
             {l.galeria.map((g, i) => (
               <Reveal key={g.src} efecto="zoom" retraso={i * 100} className="group overflow-hidden rounded-[1.75rem] shadow-lg shadow-kelqa-hondo/10">
-                <img src={g.src} alt={g.alt} loading="lazy" className="foto-zoom aspect-[4/3] w-full object-cover" />
+                <img decoding="async" src={g.src} alt={g.alt} loading="lazy" className="foto-zoom aspect-[4/3] w-full object-cover" />
               </Reveal>
             ))}
           </div>
@@ -104,7 +107,7 @@ export default async function PaginaLinea({ params }: Params) {
           <div className="mt-6 grid gap-4 sm:grid-cols-2">
             {otras.map((o) => (
               <Link key={o.id} href={`/lineas/${o.id}`} className="tarjeta group relative isolate flex min-h-40 items-end overflow-hidden rounded-[1.75rem] p-6 text-white">
-                <img src={o.foto} alt="" className="foto-zoom absolute inset-0 -z-20 size-full object-cover" />
+                <img loading="lazy" decoding="async" src={o.foto} alt="" className="foto-zoom absolute inset-0 -z-20 size-full object-cover" />
                 <span aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-tinta via-tinta/60 to-tinta/10" />
                 <span className="flex-1">
                   <b className="block font-titulo text-xl">{o.nombre}</b>

@@ -1,9 +1,11 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { DM_Sans, Montserrat } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import WhatsApp from '@/components/WhatsApp';
+import JsonLd from '@/components/JsonLd';
+import { IMAGEN_SOCIAL, organizacion, sitioWeb } from '@/lib/seo';
 
 const montserrat = Montserrat({ subsets: ['latin'], variable: '--font-montserrat', weight: ['600', '700', '800'] });
 const dm = DM_Sans({ subsets: ['latin'], variable: '--font-dm' });
@@ -12,13 +14,21 @@ export const metadata: Metadata = {
   metadataBase: new URL('https://kelqa.com'),
   title: { default: 'Kelqa — Hecha para avanzar contigo', template: '%s | Kelqa' },
   description: 'Pinturas, mobiliario corporativo y soluciones para construcción y emergencia. Venta directa, licitaciones y Perú Compras con cobertura nacional.',
-  openGraph: { images: ['/fotos/cumbre.webp'], locale: 'es_PE', type: 'website' },
+  applicationName: 'Kelqa',
+  alternates: { canonical: '/', languages: { 'es-PE': '/' } },
+  openGraph: { title: 'Kelqa — Hecha para avanzar contigo', description: 'Pinturas, mobiliario corporativo y soluciones para construcción y emergencia, con cobertura nacional.', url: '/', siteName: 'Kelqa', images: [IMAGEN_SOCIAL], locale: 'es_PE', type: 'website' },
+  twitter: { card: 'summary_large_image', title: 'Kelqa — Hecha para avanzar contigo', description: 'Pinturas, mobiliario corporativo y soluciones para construcción y emergencia.', images: [IMAGEN_SOCIAL.url] },
+  robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 } },
 };
+
+export const viewport: Viewport = { themeColor: '#1b898f', width: 'device-width', initialScale: 1 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${montserrat.variable} ${dm.variable}`}>
+    <html lang="es-PE" className={`${montserrat.variable} ${dm.variable}`}>
       <body>
+        <a href="#contenido" className="sr-only z-[60] rounded-xl bg-white px-4 py-3 font-semibold text-kelqa-hondo shadow-xl focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Saltar al contenido</a>
+        <JsonLd datos={[organizacion, sitioWeb]} />
         <Header />
         {children}
         <Footer />

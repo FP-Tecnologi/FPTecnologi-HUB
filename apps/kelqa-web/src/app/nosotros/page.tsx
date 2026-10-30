@@ -4,19 +4,19 @@ import Banner from '@/components/Banner';
 import Reveal from '@/components/Reveal';
 import Titulo from '@/components/Titulo';
 import { Clientes, CtaContacto } from '@/components/Bloques';
+import JsonLd from '@/components/JsonLd';
+import { meta, migas } from '@/lib/seo';
 import { mision, propuesta, valoresDetalle, vision } from '@/lib/contenido';
 
-export const metadata: Metadata = {
-  title: 'Nosotros',
-  description: 'Kelqa desarrolla soluciones confiables, eficientes y de alto valor para los sectores industrial y construcción. Conoce nuestra misión, visión y valores.',
-};
+export const metadata: Metadata = meta('Nosotros', 'Kelqa desarrolla soluciones confiables, eficientes y de alto valor para los sectores industrial y construcción. Conoce nuestra misión, visión y valores.', '/nosotros');
 
 const contenedor = 'mx-auto max-w-7xl px-5 sm:px-8';
 const ICONOS_VALOR = [Lightbulb, Handshake, ShieldCheck, Gem];
 
 export default function Nosotros() {
   return (
-    <main>
+    <main id="contenido">
+      <JsonLd datos={migas([{ nombre: 'Nosotros', ruta: '/nosotros' }])} />
       <Banner miga="Nosotros" titulo="Una marca integral" acento="de confianza" texto="Más que proveer productos, buscamos ser un aliado estratégico que acompañe cada etapa de tu proyecto." foto="/fotos/equipo.webp" />
 
       {/* Quiénes somos */}
@@ -36,7 +36,7 @@ export default function Nosotros() {
           </Reveal>
           <Reveal efecto="derecha" className="group relative">
             <div className="overflow-hidden rounded-[2rem] rounded-tl-[6rem] shadow-2xl shadow-kelqa-hondo/25">
-              <img src="/fotos/obra.webp" alt="Obra en construcción" className="foto-zoom aspect-[4/3.6] w-full object-cover" />
+              <img loading="lazy" decoding="async" src="/fotos/obra.webp" alt="Obra en construcción" className="foto-zoom aspect-[4/3.6] w-full object-cover" />
             </div>
             <div className="flotar absolute -bottom-8 -left-2 max-w-xs rounded-2xl bg-tinta p-5 text-white shadow-xl shadow-tinta/30 sm:-left-8">
               <p className="font-titulo text-lg font-bold leading-snug">Venta directa y licitaciones públicas y privadas</p>
@@ -89,7 +89,7 @@ export default function Nosotros() {
       {/* Propuesta */}
       <section className="px-5 sm:px-8">
         <Reveal efecto="zoom" className="relative isolate mx-auto max-w-7xl overflow-hidden rounded-[2.5rem] rounded-tr-[7rem] bg-tinta p-8 text-white sm:p-14">
-          <img src="/icon.svg" alt="" aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 -z-10 w-80 opacity-10" />
+          <img loading="lazy" decoding="async" src="/icon.svg" alt="" aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 -z-10 w-80 opacity-10" />
           <Titulo oscuro etiqueta="¿Por qué escoger Kelqa?" solido="Innovación que" acento="te acompaña" />
           <ol className="mt-10 grid gap-8 md:grid-cols-3">
             {propuesta.map((t, i) => (

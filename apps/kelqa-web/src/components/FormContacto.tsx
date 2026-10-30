@@ -4,7 +4,7 @@ import { Building2, Hash, IdCard, Loader2, Mail, MessageCircle, Send, Smartphone
 import { contacto, waUrl } from '@/lib/contenido';
 
 const limpio = (t: string) => t.replace(/[<>]/g, '');
-const campo = 'block min-h-12 w-full rounded-xl border border-carbon/20 bg-white px-4 py-3 text-base text-tinta transition duration-300 placeholder:text-carbon/40 hover:border-kelqa/40 focus:border-kelqa focus:shadow-[0_0_0_4px_rgb(27_137_143/0.12)] focus:outline-none';
+const campo = 'block min-h-12 w-full rounded-xl border border-carbon/20 bg-white px-4 py-3 text-base text-tinta transition duration-300 placeholder:text-carbon/70 hover:border-kelqa/40 focus:border-kelqa focus:shadow-[0_0_0_4px_rgb(27_137_143/0.12)] focus:outline-none';
 const MAX_MENSAJE = 3000;
 const VACIO = { nombre: '', email: '', celular: '', empresa: '', ruc: '', dni: '', mensaje: '', acepto: false, website: '' };
 const ORDEN = ['empresa', 'ruc', 'nombre', 'dni', 'email', 'celular', 'mensaje', 'acepto'];
@@ -119,12 +119,12 @@ export default function FormContacto() {
         <>
           <div>
             <label htmlFor="empresa" className="text-sm font-semibold text-tinta">Razón social o entidad <span aria-hidden="true" className="text-kelqa">*</span></label>
-            <ConIcono icono={Building2}><input id="empresa" value={f.empresa} onChange={(e) => set('empresa', e.target.value)} autoComplete="organization" maxLength={100} placeholder="Ej. Constructora Andina S.A.C." className={`${campo} pl-11`} aria-required="true" {...aria('empresa')} /></ConIcono>
+            <ConIcono icono={Building2}><input id="empresa" name="empresa" value={f.empresa} onChange={(e) => set('empresa', e.target.value)} autoComplete="organization" maxLength={100} placeholder="Ej. Constructora Andina S.A.C." className={`${campo} pl-11`} aria-required="true" {...aria('empresa')} /></ConIcono>
             {err('empresa')}
           </div>
           <div>
-            <label htmlFor="ruc" className="text-sm font-semibold text-tinta">RUC <span className="font-normal text-carbon/60">(opcional)</span></label>
-            <ConIcono icono={Hash}><input id="ruc" value={f.ruc} onChange={(e) => set('ruc', e.target.value.replace(/\D/g, ''))} inputMode="numeric" maxLength={11} placeholder="Ej. 20123456789" className={`${campo} pl-11`} {...aria('ruc')} /></ConIcono>
+            <label htmlFor="ruc" className="text-sm font-semibold text-tinta">RUC <span className="font-normal text-carbon/70">(opcional)</span></label>
+            <ConIcono icono={Hash}><input id="ruc" name="ruc" value={f.ruc} onChange={(e) => set('ruc', e.target.value.replace(/\D/g, ''))} inputMode="numeric" maxLength={11} placeholder="Ej. 20123456789" className={`${campo} pl-11`} {...aria('ruc')} /></ConIcono>
             {err('ruc')}
           </div>
         </>
@@ -132,36 +132,36 @@ export default function FormContacto() {
         <>
           <div>
             <label htmlFor="nombre" className="text-sm font-semibold text-tinta">Nombres y apellidos <span aria-hidden="true" className="text-kelqa">*</span></label>
-            <ConIcono icono={User}><input id="nombre" value={f.nombre} onChange={(e) => set('nombre', e.target.value)} autoComplete="name" maxLength={100} placeholder="Ej. Juan Pérez Quispe" className={`${campo} pl-11`} aria-required="true" {...aria('nombre')} /></ConIcono>
+            <ConIcono icono={User}><input id="nombre" name="nombre" value={f.nombre} onChange={(e) => set('nombre', e.target.value)} autoComplete="name" maxLength={100} placeholder="Ej. Juan Pérez Quispe" className={`${campo} pl-11`} aria-required="true" {...aria('nombre')} /></ConIcono>
             {err('nombre')}
           </div>
           <div>
-            <label htmlFor="dni" className="text-sm font-semibold text-tinta">DNI <span className="font-normal text-carbon/60">(opcional)</span></label>
-            <ConIcono icono={IdCard}><input id="dni" value={f.dni} onChange={(e) => set('dni', e.target.value.replace(/\D/g, ''))} inputMode="numeric" maxLength={8} placeholder="Ej. 45678912" className={`${campo} pl-11`} {...aria('dni')} /></ConIcono>
+            <label htmlFor="dni" className="text-sm font-semibold text-tinta">DNI <span className="font-normal text-carbon/70">(opcional)</span></label>
+            <ConIcono icono={IdCard}><input id="dni" name="dni" value={f.dni} onChange={(e) => set('dni', e.target.value.replace(/\D/g, ''))} inputMode="numeric" maxLength={8} placeholder="Ej. 45678912" className={`${campo} pl-11`} {...aria('dni')} /></ConIcono>
             {err('dni')}
           </div>
         </>
       )}
       <div>
         <label htmlFor="email" className="text-sm font-semibold text-tinta">{esEmpresa ? 'Correo corporativo' : 'Correo electrónico'} <span aria-hidden="true" className="text-kelqa">*</span></label>
-        <ConIcono icono={Mail}><input id="email" type="email" value={f.email} onChange={(e) => set('email', e.target.value)} autoComplete="email" maxLength={120} placeholder={esEmpresa ? 'Ej. compras@empresa.com.pe' : 'Ej. juan.perez@gmail.com'} className={`${campo} pl-11`} aria-required="true" {...aria('email')} /></ConIcono>
+        <ConIcono icono={Mail}><input id="email" name="email" type="email" value={f.email} onChange={(e) => set('email', e.target.value)} autoComplete="email" maxLength={120} placeholder={esEmpresa ? 'Ej. compras@empresa.com.pe' : 'Ej. juan.perez@gmail.com'} className={`${campo} pl-11`} aria-required="true" {...aria('email')} /></ConIcono>
         {err('email')}
       </div>
       <div>
-        <label htmlFor="celular" className="text-sm font-semibold text-tinta">Celular <span className="font-normal text-carbon/60">(opcional)</span></label>
-        <ConIcono icono={Smartphone}><input id="celular" type="tel" value={f.celular} onChange={(e) => set('celular', e.target.value)} autoComplete="tel" maxLength={20} placeholder="Ej. 987 654 321" className={`${campo} pl-11`} {...aria('celular')} /></ConIcono>
+        <label htmlFor="celular" className="text-sm font-semibold text-tinta">Celular <span className="font-normal text-carbon/70">(opcional)</span></label>
+        <ConIcono icono={Smartphone}><input id="celular" name="celular" type="tel" value={f.celular} onChange={(e) => set('celular', e.target.value)} autoComplete="tel" maxLength={20} placeholder="Ej. 987 654 321" className={`${campo} pl-11`} {...aria('celular')} /></ConIcono>
         {err('celular')}
       </div>
       <div className="sm:col-span-2">
         <label htmlFor="mensaje" className="text-sm font-semibold text-tinta">Mensaje <span aria-hidden="true" className="text-kelqa">*</span></label>
-        <textarea id="mensaje" value={f.mensaje} onChange={(e) => set('mensaje', e.target.value)} rows={5} maxLength={MAX_MENSAJE} placeholder={esEmpresa ? 'Ej. Necesitamos 40 galones de pintura de tráfico para señalizar 2 km de vía en Arequipa.' : 'Ej. Quisiera cotizar 2 galones de látex mate color blanco para mi casa.'} className={`${campo} mt-1.5`} aria-required="true" {...aria('mensaje')} />
-        <p className="mt-1 text-right text-xs text-carbon/60">{f.mensaje.length}/{MAX_MENSAJE}</p>
+        <textarea id="mensaje" name="mensaje" value={f.mensaje} onChange={(e) => set('mensaje', e.target.value)} rows={5} maxLength={MAX_MENSAJE} placeholder={esEmpresa ? 'Ej. Necesitamos 40 galones de pintura de tráfico para señalizar 2 km de vía en Arequipa.' : 'Ej. Quisiera cotizar 2 galones de látex mate color blanco para mi casa.'} className={`${campo} mt-1.5`} aria-required="true" aria-describedby={errores.mensaje ? 'e-mensaje' : 'cont-mensaje'} aria-invalid={errores.mensaje ? true : undefined} />
+        <p id="cont-mensaje" className="mt-1 text-right text-xs text-carbon/70">{f.mensaje.length}/{MAX_MENSAJE}</p>
         {err('mensaje')}
       </div>
       <input name="website" value={f.website} onChange={(e) => set('website', e.target.value)} className="hidden" tabIndex={-1} autoComplete="off" aria-hidden="true" />
       <div className="sm:col-span-2">
         <label htmlFor="acepto" className="flex min-h-11 cursor-pointer items-start gap-3 text-sm text-carbon">
-          <input id="acepto" type="checkbox" checked={f.acepto} onChange={(e) => set('acepto', e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-kelqa" aria-required="true" {...aria('acepto')} />
+          <input id="acepto" name="acepto" type="checkbox" checked={f.acepto} onChange={(e) => set('acepto', e.target.checked)} className="mt-0.5 size-5 shrink-0 accent-kelqa" aria-required="true" {...aria('acepto')} />
           Acepto que Kelqa use mis datos para responder esta consulta. <span aria-hidden="true" className="text-kelqa">*</span>
         </label>
         {err('acepto')}

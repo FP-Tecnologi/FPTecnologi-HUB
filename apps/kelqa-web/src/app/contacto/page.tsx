@@ -5,12 +5,11 @@ import FormContacto from '@/components/FormContacto';
 import Reveal from '@/components/Reveal';
 import Titulo from '@/components/Titulo';
 import { IconoWhatsApp } from '@/components/WhatsApp';
+import JsonLd from '@/components/JsonLd';
+import { jsonPreguntas, meta, migas } from '@/lib/seo';
 import { contacto, preguntas, waUrl } from '@/lib/contenido';
 
-export const metadata: Metadata = {
-  title: 'Contacto',
-  description: 'Escríbenos por WhatsApp, llámanos o déjanos tu mensaje. Atendemos venta directa y licitaciones públicas y privadas en todo el Perú.',
-};
+export const metadata: Metadata = meta('Contacto', 'Escríbenos por WhatsApp, llámanos o déjanos tu mensaje. Atendemos venta directa y licitaciones públicas y privadas en todo el Perú.', '/contacto');
 
 const contenedor = 'mx-auto max-w-7xl px-5 sm:px-8';
 
@@ -23,7 +22,8 @@ const CANALES = [
 
 export default function Contacto() {
   return (
-    <main>
+    <main id="contenido">
+      <JsonLd datos={[migas([{ nombre: 'Contacto', ruta: '/contacto' }]), jsonPreguntas]} />
       <Banner miga="Contacto" titulo="Contáctanos para" acento="cualquier duda" texto="Elige el canal que prefieras: te atendemos de inmediato y te ayudamos a encontrar la solución precisa para tu proyecto." foto="/fotos/obrero-casco.webp" />
 
       <section className="py-20 sm:py-24">

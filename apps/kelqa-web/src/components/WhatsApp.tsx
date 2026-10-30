@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Armchair, ChevronRight, FileText, HardHat, HelpCircle, Landmark, PaintBucket, X, type LucideIcon } from 'lucide-react';
+import { Armchair, ChevronRight, FileText, HardHat, HelpCircle, Landmark, PaintBucket, Phone, X, type LucideIcon } from 'lucide-react';
 import { contacto, waUrl } from '@/lib/contenido';
 
 /** Logo de WhatsApp (glifo oficial, un solo color). */
@@ -54,8 +54,8 @@ export default function WhatsApp() {
     let visto = false;
     try { visto = sessionStorage.getItem('kelqa-saludo') === '1'; } catch {}
     if (visto) return;
-    const t = setTimeout(() => setAviso(true), 4000);
-    const fin = setTimeout(() => setAviso(false), 14000);
+    const t = setTimeout(() => { setAviso(true); try { sessionStorage.setItem('kelqa-saludo', '1'); } catch {} }, 12000);
+    const fin = setTimeout(() => setAviso(false), 22000);
     return () => { clearTimeout(t); clearTimeout(fin); };
   }, []);
 
@@ -84,10 +84,10 @@ export default function WhatsApp() {
           className="absolute bottom-[5rem] right-0 w-[calc(100vw-2.5rem)] max-w-sm origin-bottom-right overflow-hidden rounded-3xl bg-white shadow-[0_30px_60px_-20px_rgb(14_28_30/0.45),0_0_0_1px_rgb(27_137_143/0.12)] motion-safe:animate-[panel-wa_0.35s_var(--suave)]"
         >
           <div className="relative overflow-hidden bg-gradient-to-br from-tinta via-carbon to-kelqa-hondo px-5 pb-5 pt-4 text-white">
-            <img src="/icon.svg" alt="" aria-hidden="true" className="pointer-events-none absolute -right-8 -top-8 w-32 opacity-15 brightness-[3] grayscale" />
+            <img loading="lazy" decoding="async" src="/icon.svg" alt="" aria-hidden="true" className="pointer-events-none absolute -right-8 -top-8 w-32 opacity-15 brightness-[3] grayscale" />
             <div className="relative flex items-center gap-3">
               <span className="relative grid size-11 place-items-center rounded-2xl bg-white">
-                <img src="/icon.svg" alt="" className="size-7" />
+                <img loading="lazy" decoding="async" src="/icon.svg" alt="" className="size-7" />
                 <span aria-hidden="true" className="absolute -bottom-0.5 -right-0.5 size-3.5 rounded-full border-2 border-white bg-[#25d366]" />
               </span>
               <div>
@@ -122,7 +122,7 @@ export default function WhatsApp() {
             ))}
           </ul>
           <a href={contacto.telefonoHref} className="flex items-center justify-center gap-2 border-t border-kelqa/10 bg-niebla px-4 py-3 text-xs font-semibold text-carbon/80 transition hover:text-kelqa-hondo">
-            <IconoWhatsApp className="size-4 text-[#1faa53]" />{contacto.telefono}
+            <Phone aria-hidden="true" size={16} className="text-kelqa-hondo" />Llamar al {contacto.telefono}
           </a>
         </div>
       )}
@@ -145,7 +145,7 @@ export default function WhatsApp() {
         aria-expanded={abierto}
         aria-controls="panel-whatsapp"
         aria-haspopup="dialog"
-        className={`${abierto ? '' : 'anillo'} relative grid size-16 place-items-center rounded-2xl text-white`}
+        className={`relative grid size-16 place-items-center rounded-2xl text-white`}
       >
         <span className="boton grid size-full place-items-center rounded-2xl bg-gradient-to-br from-kelqa to-kelqa-hondo shadow-xl shadow-kelqa-hondo/40">
           {abierto ? <X size={28} aria-hidden="true" /> : <IconoWhatsApp className="icono-sacude size-8" />}

@@ -1,9 +1,16 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, BadgePercent, Headset, MessageCircle, Quote, ShieldCheck, Truck } from 'lucide-react';
 import Reveal from '@/components/Reveal';
 import Titulo from '@/components/Titulo';
 import { Clientes, CtaContacto } from '@/components/Bloques';
 import { lineas, razones, testimonios, valores, waUrl } from '@/lib/contenido';
+
+export const metadata: Metadata = {
+  title: { absolute: 'Kelqa — Pinturas, mobiliario corporativo y soluciones para construcción' },
+  description: 'Kelqa ofrece pinturas, mobiliario corporativo y productos para construcción y emergencia en todo el Perú. Venta directa, licitaciones y fichas en Perú Compras.',
+  alternates: { canonical: '/', languages: { 'es-PE': '/' } },
+};
 
 const ICONOS_RAZON = [ShieldCheck, BadgePercent, Truck, Headset];
 const contenedor = 'mx-auto max-w-7xl px-5 sm:px-8';
@@ -12,19 +19,19 @@ const retraso = (ms: number) => ({ '--retraso': `${ms}ms` }) as React.CSSPropert
 
 export default function Inicio() {
   return (
-    <main>
+    <main id="contenido">
       {/* HERO */}
       <section id="inicio" className="relative isolate overflow-hidden bg-tinta text-white">
-        <img src="/fotos/cumbre.webp" alt="" className="hero-foto absolute inset-0 -z-20 size-full -scale-x-100 object-cover object-[35%_center]" />
+        <img fetchPriority="high" decoding="async" src="/fotos/cumbre.webp" alt="" className="absolute inset-0 -z-20 size-full -scale-x-100 object-cover object-[35%_center]" />
         <div aria-hidden="true" className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,var(--color-tinta)_10%,rgb(14_28_30/0.82)_45%,rgb(19_106_111/0.25)_100%)]" />
         <div aria-hidden="true" className="absolute inset-x-0 bottom-0 -z-10 h-40 bg-gradient-to-t from-tinta to-transparent" />
         {/* Marca de agua: el ícono del logo, como en la portada del brochure. */}
-        <img src="/icon.svg" alt="" aria-hidden="true" className="flotar pointer-events-none absolute -bottom-24 -left-24 -z-10 w-[26rem] opacity-[0.07] grayscale brightness-[3]" />
+        <img loading="lazy" decoding="async" src="/icon.svg" alt="" aria-hidden="true" className="pointer-events-none absolute -bottom-24 -left-24 -z-10 w-[26rem] opacity-[0.07] grayscale brightness-[3]" />
 
         <div className={`${contenedor} grid min-h-[100svh] grid-cols-1 items-center gap-12 pb-20 pt-32 lg:grid-cols-[1.15fr_0.85fr]`}>
           <div>
             <p className="entrada inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-kelqa-claro backdrop-blur">
-              <span aria-hidden="true" className="latir size-2 rounded-[3px] bg-current" />Industria · Construcción · Corporativo
+              <span aria-hidden="true" className="size-2 rounded-[3px] bg-current" />Industria · Construcción · Corporativo
             </p>
             <h1 className="entrada mt-6 text-[clamp(2.6rem,7vw,5rem)] font-extrabold leading-[1.02] tracking-tight text-white" style={retraso(120)}>
               Hecha para <span className="titulo-brillo titulo-brillo-claro">avanzar contigo</span>
@@ -55,7 +62,7 @@ export default function Inicio() {
                 <li key={l.id} className="entrada" style={retraso(560 + i * 110)}>
                   <Link href={`/lineas/${l.id}`} className="group flex items-center gap-4 rounded-2xl bg-white/[0.06] p-3 transition duration-300 hover:translate-x-1 hover:bg-white hover:text-tinta">
                     <span className="icono-caja grid size-20 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-white to-niebla">
-                      <img src={l.productos[0].img} alt="" className="h-16 w-16 object-contain transition-transform duration-500 group-hover:scale-110" />
+                      <img loading="lazy" decoding="async" src={l.productos[0].img} alt="" className="h-16 w-16 object-contain transition-transform duration-500 group-hover:scale-110" />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="text-xs font-bold text-kelqa-claro group-hover:text-kelqa-hondo">0{i + 1}</span>
@@ -78,9 +85,9 @@ export default function Inicio() {
         <div className={`${contenedor} grid items-center gap-14 lg:grid-cols-2`}>
           <Reveal efecto="izquierda" className="group relative">
             <div className="overflow-hidden rounded-[2rem] rounded-tr-[6rem] shadow-2xl shadow-kelqa-hondo/25">
-              <img src="/fotos/equipo.webp" alt="Equipo de obra revisando planos de un proyecto" className="foto-zoom aspect-[4/3.4] w-full object-cover" />
+              <img loading="lazy" decoding="async" src="/fotos/equipo.webp" alt="Equipo de obra revisando planos de un proyecto" className="foto-zoom aspect-[4/3.4] w-full object-cover" />
             </div>
-            <div className="flotar absolute -bottom-8 left-6 right-6 rounded-2xl bg-tinta p-5 text-white shadow-xl shadow-tinta/30 sm:left-auto sm:w-72">
+            <div className="absolute -bottom-8 left-6 right-6 rounded-2xl bg-tinta p-5 text-white shadow-xl shadow-tinta/30 sm:left-auto sm:w-72">
               <p className="font-titulo text-lg font-bold leading-snug">Aliado estratégico en cada etapa de tu proyecto</p>
               <span aria-hidden="true" className="mt-3 block h-1 w-12 rounded-full bg-kelqa transition-all duration-500 group-hover:w-24" />
             </div>
@@ -129,7 +136,7 @@ export default function Inicio() {
               <Reveal key={l.id} efecto={i % 2 ? 'derecha' : 'izquierda'}>
                 <article id={l.id} className={`grid overflow-hidden rounded-[2rem] bg-white shadow-xl shadow-kelqa-hondo/10 transition-shadow duration-500 hover:shadow-2xl hover:shadow-kelqa-hondo/25 ${i % 2 ? 'lg:grid-cols-[1.25fr_0.75fr]' : 'lg:grid-cols-[0.75fr_1.25fr]'}`}>
                   <div className={`group relative isolate flex min-h-80 flex-col justify-end overflow-hidden p-8 text-white ${i % 2 ? 'lg:order-2' : ''}`}>
-                    <img src={l.foto} alt="" className="foto-zoom absolute inset-0 -z-20 size-full object-cover" />
+                    <img loading="lazy" decoding="async" src={l.foto} alt="" className="foto-zoom absolute inset-0 -z-20 size-full object-cover" />
                     <div aria-hidden="true" className="absolute inset-0 -z-10 bg-gradient-to-t from-tinta via-tinta/55 to-tinta/0" />
                     <span className="font-titulo text-6xl font-extrabold text-white/25 transition duration-500 group-hover:-translate-y-1 group-hover:text-kelqa-claro/60">0{i + 1}</span>
                     <h3 className="mt-1 text-3xl font-extrabold text-white">{l.nombre}</h3>
@@ -142,7 +149,7 @@ export default function Inicio() {
                         <Reveal as="li" efecto="zoom" key={p.nombre} retraso={150 + j * 90} className="group sm:[&:last-child:nth-child(odd)]:col-span-2">
                           <div className="tarjeta flex h-full items-center gap-4 rounded-2xl bg-niebla p-3 hover:bg-white">
                             <span className="icono-caja grid size-24 shrink-0 place-items-center rounded-xl bg-white">
-                              <img src={p.img} alt={p.nombre} loading="lazy" className="max-h-20 max-w-20 object-contain drop-shadow-lg transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-110" />
+                              <img decoding="async" src={p.img} alt="" loading="lazy" className="max-h-20 max-w-20 object-contain drop-shadow-lg transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-110" />
                             </span>
                             <span>
                               <h4 className="font-titulo font-bold leading-tight text-tinta transition-colors group-hover:text-kelqa-hondo">{p.nombre}</h4>
@@ -177,7 +184,7 @@ export default function Inicio() {
               Buen servicio es acompañarte de cerca, entender los desafíos de tu proyecto y proponer alternativas eficientes, oportunas y alineadas a tus objetivos.
             </p>
             <div className="mt-8 hidden overflow-hidden rounded-[2rem] rounded-bl-[5rem] shadow-xl shadow-kelqa-hondo/20 lg:block">
-              <img src="/fotos/obrero-casco.webp" alt="Trabajador de obra con su casco de seguridad" loading="lazy" className="foto-zoom aspect-[16/9] w-full object-cover" />
+              <img decoding="async" src="/fotos/obrero-casco.webp" alt="Trabajador de obra con su casco de seguridad" loading="lazy" className="foto-zoom aspect-[16/9] w-full object-cover" />
             </div>
           </Reveal>
           <ul className="grid gap-5 sm:grid-cols-2">
@@ -201,7 +208,7 @@ export default function Inicio() {
       {/* CANALES DE VENTA */}
       <section className="px-5 sm:px-8">
         <Reveal efecto="zoom" className="group relative isolate mx-auto grid max-w-7xl items-center overflow-hidden rounded-[2.5rem] rounded-tr-[7rem] bg-tinta text-white lg:grid-cols-2">
-          <img src="/icon.svg" alt="" aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 -z-10 w-80 opacity-10 transition duration-1000 group-hover:rotate-12" />
+          <img loading="lazy" decoding="async" src="/icon.svg" alt="" aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 -z-10 w-80 opacity-10 transition duration-1000 group-hover:rotate-12" />
           <div className="p-8 sm:p-14">
             <Titulo oscuro etiqueta="Sector público y privado" solido="Venta directa y" acento="licitaciones" />
             <p className="mt-6 text-lg leading-relaxed text-white/80">
@@ -212,7 +219,7 @@ export default function Inicio() {
             </a>
           </div>
           <div className="h-full min-h-72 overflow-hidden">
-            <img src="/fotos/almacen.webp" alt="Almacén con productos listos para despacho" loading="lazy" className="foto-zoom size-full object-cover" />
+            <img decoding="async" src="/fotos/almacen.webp" alt="Almacén con productos listos para despacho" loading="lazy" className="foto-zoom size-full object-cover" />
           </div>
         </Reveal>
       </section>
