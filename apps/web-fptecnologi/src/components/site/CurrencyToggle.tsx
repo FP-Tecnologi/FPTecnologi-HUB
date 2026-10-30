@@ -24,7 +24,7 @@ export function CurrencyToggle({ tone: _tone = 'light' }: { tone?: 'light' | 'da
         isUsd ? 'bg-brand-primary shadow-brand-primary/30' : 'bg-amber-500 shadow-amber-500/30'
       }`}
     >
-      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-white/25 text-[10px] leading-none">
+      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-white/25 text-xs leading-none">
         {isUsd ? '$' : 'S/'}
       </span>
       {currency}

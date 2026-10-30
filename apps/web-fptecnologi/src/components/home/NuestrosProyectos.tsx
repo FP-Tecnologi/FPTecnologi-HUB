@@ -19,7 +19,7 @@ const [, , VB_W, VB_H] = PERU_VIEWBOX.split(' ').map(Number);
  * foto desenfocada, cliente, año, descripción y alcance centrados.
  */
 const GLASS_TAG =
-  'pointer-events-none absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-lg border border-white/30 bg-white/10 px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/30 backdrop-blur-md transition-all duration-300 group-hover:border-white/50 group-hover:bg-white/20 sm:text-xs [@media(hover:hover)]:-translate-y-1 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-focus-visible:opacity-100';
+  'pointer-events-none absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-lg border border-white/30 bg-white/10 px-2.5 py-1.5 text-xs font-semibold uppercase tracking-wide text-white shadow-lg shadow-brand-dark/30 backdrop-blur-md transition-all duration-300 group-hover:border-white/50 group-hover:bg-white/20 sm:text-xs [@media(hover:hover)]:-translate-y-1 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:translate-y-0 [@media(hover:hover)]:group-hover:opacity-100 [@media(hover:hover)]:group-focus-visible:opacity-100';
 
 function ProjectCard({
   project: p,
@@ -67,7 +67,7 @@ function ProjectCard({
             Click para ver detalles
           </span>
           <div className="absolute inset-x-4 bottom-4">
-            <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-brand-200">
+            <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-brand-200">
               <Building2 className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
               <span className="truncate">{[p.client, datoCorto(p)].filter(Boolean).join(' · ')}</span>
             </p>
@@ -88,7 +88,7 @@ function ProjectCard({
             Volver
           </span>
           <div className="relative flex h-full flex-col items-center justify-center overflow-y-auto px-6 pb-4 pt-12 text-center [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <p className="inline-flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-brand-200">
+            <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.15em] text-brand-200">
               <Building2 className="h-3.5 w-3.5" strokeWidth={2} />
               {[p.client, datoCorto(p)].filter(Boolean).join(' · ')}
             </p>
@@ -97,7 +97,7 @@ function ProjectCard({
             <p className="mt-3 max-w-md text-xs leading-relaxed text-white/75 sm:text-sm">{p.description}</p>
             <div className="mt-4 flex flex-wrap justify-center gap-1.5">
               {p.scope.map((s) => (
-                <span key={s} className="rounded-md border border-white/20 bg-white/10 px-2 py-0.5 text-[11px] font-medium text-white backdrop-blur-sm">
+                <span key={s} className="rounded-md border border-white/20 bg-white/10 px-2 py-0.5 text-xs font-medium text-white backdrop-blur-sm">
                   {s}
                 </span>
               ))}
@@ -170,7 +170,7 @@ export function NuestrosProyectos({ c = HOME_DEFAULTS.proyectos, projects: lista
                     <MapPin className="h-5 w-5" strokeWidth={2} />
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-200">Proyectos en</p>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand-200">Proyectos en</p>
                     <p className="truncate font-display text-lg font-bold uppercase leading-tight text-white">{current?.name}</p>
                   </div>
                   <span className="shrink-0 rounded-lg border border-white/25 bg-white/10 px-3 py-1.5 text-xs font-semibold text-white backdrop-blur-md">

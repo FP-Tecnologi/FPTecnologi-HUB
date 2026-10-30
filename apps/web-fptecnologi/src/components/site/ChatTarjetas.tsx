@@ -92,13 +92,13 @@ export function ChatServicios({ servicios }: { servicios: ServicioChat[] }) {
               )}
               <span className="absolute inset-0 bg-gradient-to-t from-brand-950/75 via-brand-950/20 to-transparent" />
               {s.etiqueta && (
-                <span className="absolute left-2.5 top-2.5 rounded-md bg-white/90 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-brand-700">{s.etiqueta}</span>
+                <span className="absolute left-2.5 top-2.5 rounded-md bg-white/90 px-2 py-0.5 text-xs font-bold uppercase tracking-wide text-brand-700">{s.etiqueta}</span>
               )}
               <span className="absolute bottom-2 left-3 right-3 line-clamp-2 font-display text-sm font-bold leading-tight text-white">{s.titulo}</span>
             </span>
             <span className="flex flex-1 flex-col p-3">
               <span className="mb-2.5 line-clamp-3 text-xs leading-relaxed text-ink/70">{s.descripcion}</span>
-              <span className="mt-auto flex items-center justify-between gap-2 border-t border-brand-50 pt-2 text-[11px]">
+              <span className="mt-auto flex items-center justify-between gap-2 border-t border-brand-50 pt-2 text-xs">
                 <span className="truncate font-semibold text-ink/80">{s.precioDesde ? `Desde ${format(s.precioDesde)}` : 'Se cotiza por proyecto'}</span>
                 <span className="inline-flex shrink-0 items-center gap-0.5 whitespace-nowrap font-semibold text-brand-700">
                   Ver más <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" strokeWidth={2.2} />
@@ -150,7 +150,7 @@ export function ChatEnlaces({ acciones }: { acciones: ChatAction[] }) {
             </span>
             <span className="min-w-0 flex-1">
               <span className="block truncate text-sm font-semibold text-ink group-hover:text-brand-700">{a.label}</span>
-              {a.desc && <span className="block truncate text-[11px] text-ink/60">{a.desc}</span>}
+              {a.desc && <span className="block truncate text-xs text-ink/60">{a.desc}</span>}
             </span>
             <ChevronRight className="h-4 w-4 shrink-0 text-ink/35 transition-transform group-hover:translate-x-0.5 group-hover:text-brand-700" strokeWidth={2} />
           </a>

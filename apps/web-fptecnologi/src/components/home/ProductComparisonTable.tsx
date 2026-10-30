@@ -48,13 +48,13 @@ export function ProductComparisonTable({
                     </button>
                   )}
                 </div>
-                <p className="text-[10px] font-semibold uppercase text-brand-700">{p.brand}</p>
+                <p className="text-xs font-semibold uppercase text-brand-700">{p.brand}</p>
                 <p className="mx-auto mt-0.5 line-clamp-2 max-w-[11rem] text-xs font-medium text-ink">{p.name}</p>
               </th>
             ))}
             {Array.from({ length: empty }).map((_, i) => (
               <th key={`empty-${i}`} className="p-3 text-center">
-                <div className="mx-auto mb-2 flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-brand-primary/30 text-[11px] font-medium text-brand-700/50">
+                <div className="mx-auto mb-2 flex h-16 w-16 items-center justify-center rounded-lg border border-dashed border-brand-primary/30 text-xs font-medium text-brand-700/50">
                   Libre
                 </div>
                 <p className="text-xs text-ink/65">Elige otro producto</p>

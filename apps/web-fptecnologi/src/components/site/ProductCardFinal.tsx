@@ -37,7 +37,7 @@ export function ProductCardFinal({
     <>
       <div className="group overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm transition-shadow duration-300 hover:shadow-xl">
         <div className="relative aspect-square overflow-hidden bg-producto">
-          <span className="absolute left-2 top-2 z-10 rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-bold text-white">-{discount}%</span>
+          <span className="absolute left-2 top-2 z-10 rounded-full bg-red-500 px-2 py-0.5 text-xs font-bold text-white">-{discount}%</span>
 
           <button
             type="button"
@@ -59,14 +59,14 @@ export function ProductCardFinal({
         </div>
 
         <div className="flex flex-col gap-1.5 p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-brand-700">{product.brand}</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">{product.brand}</p>
           <h3 className="line-clamp-2 min-h-[2.2rem] text-sm font-semibold text-ink">{product.name}</h3>
           <div className="mt-0.5 flex items-baseline gap-2 font-mono">
             <span className="text-base font-bold text-ink">{format(product.price)}</span>
             <span className="text-xs text-ink/65 line-through">{format(product.priceBefore)}</span>
           </div>
           <div className="mt-2 flex items-center justify-between">
-            <span className="rounded-full bg-whatsapp/10 px-2.5 py-1 text-[10px] font-semibold text-whatsapp-dark">En stock</span>
+            <span className="rounded-full bg-whatsapp/10 px-2.5 py-1 text-xs font-semibold text-whatsapp-dark">En stock</span>
             <button
               type="button"
               onClick={() => addItem({ sku: product.sku, name: product.name, price: product.price, image: product.image })}

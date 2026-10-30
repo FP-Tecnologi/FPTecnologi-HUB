@@ -26,7 +26,7 @@ export function ArticuloCard({ a }: { a: ArticuloResumen }) {
         {a.etiquetas.length > 0 && (
           <p className="mt-2 flex flex-wrap gap-1.5">
             {a.etiquetas.slice(0, 3).map((t) => (
-              <span key={t} className="rounded-md bg-brand-primary/10 px-2 py-0.5 text-[11px] font-semibold text-brand-700">#{t}</span>
+              <span key={t} className="rounded-md bg-brand-primary/10 px-2 py-0.5 text-xs font-semibold text-brand-700">#{t}</span>
             ))}
           </p>
         )}

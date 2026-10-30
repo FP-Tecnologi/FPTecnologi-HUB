@@ -67,7 +67,7 @@ export function ProyectosListado({ projects: todos = PROJECTS }: { projects?: Pr
                 )}
               </div>
               <div className="flex flex-1 flex-col p-6">
-                <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-brand-700">
+                <p className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.12em] text-brand-700">
                   <Building2 className="h-3.5 w-3.5 shrink-0" strokeWidth={2} />
                   <span className="truncate">{p.client}</span>
                 </p>
@@ -75,7 +75,7 @@ export function ProyectosListado({ projects: todos = PROJECTS }: { projects?: Pr
                 <p className="mt-2 text-sm leading-relaxed text-ink/60">{p.description}</p>
                 <div className="mt-auto flex flex-wrap gap-1.5 pt-5">
                   {p.scope.map((s) => (
-                    <span key={s} className="rounded-md bg-brand-primary/10 px-2 py-0.5 text-[11px] font-semibold text-brand-700">
+                    <span key={s} className="rounded-md bg-brand-primary/10 px-2 py-0.5 text-xs font-semibold text-brand-700">
                       {s}
                     </span>
                   ))}

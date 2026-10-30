@@ -51,7 +51,7 @@ export function ProductCardFinal({
   );
 
   const iconBtn = (active: boolean) =>
-    `flex h-8 w-8 items-center justify-center rounded-lg shadow-sm shadow-brand-dark/15 transition-colors ${
+    `relative flex h-8 w-8 items-center justify-center rounded-lg after:absolute after:-inset-1.5 after:content-[''] shadow-sm shadow-brand-dark/15 transition-colors ${
       active ? 'bg-brand-primary text-white' : 'bg-white text-brand-dark hover:bg-brand-dark hover:text-white'
     }`;
 
@@ -62,7 +62,7 @@ export function ProductCardFinal({
             con mix-blend-multiply. */}
         <div className="relative aspect-square overflow-hidden bg-producto">
           {discount > 0 && (
-            <span className="absolute left-3 top-3 z-10 rounded-md bg-red-600 px-2 py-0.5 text-[11px] font-bold text-white">-{discount}%</span>
+            <span className="absolute left-3 top-3 z-10 rounded-md bg-red-600 px-2 py-0.5 text-xs font-bold text-white">-{discount}%</span>
           )}
 
           {/* Comparar + favorito, apilados en la esquina superior derecha. */}
@@ -91,6 +91,8 @@ export function ProductCardFinal({
             <img
               src={images[active]}
               alt={product.name}
+              loading="lazy"
+              decoding="async"
               className="h-full w-full object-contain p-8 mix-blend-multiply transition-transform duration-500 group-hover:scale-110"
             />
           </button>
@@ -102,7 +104,7 @@ export function ProductCardFinal({
                 type="button"
                 onClick={() => go(-1)}
                 aria-label="Foto anterior"
-                className="absolute left-3 top-[68%] z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg bg-white/90 text-brand-dark opacity-0 pointer-events-none group-hover:pointer-events-auto shadow-sm shadow-brand-dark/15 transition-opacity hover:bg-white group-hover:opacity-100"
+                className="absolute left-3 top-[68%] z-10 flex h-8 w-8 after:absolute after:-inset-1.5 after:content-[''] -translate-y-1/2 items-center justify-center rounded-lg bg-white/90 text-brand-dark opacity-0 pointer-events-none group-hover:pointer-events-auto shadow-sm shadow-brand-dark/15 transition-opacity hover:bg-white group-hover:opacity-100"
               >
                 <ChevronLeft className="h-4 w-4" strokeWidth={2.2} />
               </button>
@@ -110,7 +112,7 @@ export function ProductCardFinal({
                 type="button"
                 onClick={() => go(1)}
                 aria-label="Foto siguiente"
-                className="absolute right-3 top-[68%] z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg bg-white/90 text-brand-dark opacity-0 pointer-events-none group-hover:pointer-events-auto shadow-sm shadow-brand-dark/15 transition-opacity hover:bg-white group-hover:opacity-100"
+                className="absolute right-3 top-[68%] z-10 flex h-8 w-8 after:absolute after:-inset-1.5 after:content-[''] -translate-y-1/2 items-center justify-center rounded-lg bg-white/90 text-brand-dark opacity-0 pointer-events-none group-hover:pointer-events-auto shadow-sm shadow-brand-dark/15 transition-opacity hover:bg-white group-hover:opacity-100"
               >
                 <ChevronRight className="h-4 w-4" strokeWidth={2.2} />
               </button>
@@ -122,7 +124,7 @@ export function ProductCardFinal({
           <a
             href={`/marcas/${brandSlug(product.brand)}`}
             aria-label={`Ver productos ${product.brand}`}
-            className="absolute bottom-3 left-3 z-10 rounded-md border border-white/60 bg-white/40 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-brand-dark shadow-sm shadow-brand-dark/10 backdrop-blur-md transition-colors hover:bg-brand-dark hover:text-white"
+            className="absolute bottom-3 left-3 z-10 rounded-md border border-white/60 bg-white/40 px-2.5 py-1 text-xs font-bold uppercase tracking-wide text-brand-dark shadow-sm shadow-brand-dark/10 backdrop-blur-md transition-colors hover:bg-brand-dark hover:text-white"
           >
             {product.brand}
           </a>
@@ -141,7 +143,7 @@ export function ProductCardFinal({
                 active === i ? 'border-brand-primary' : 'border-transparent hover:border-brand-primary/40'
               }`}
             >
-              <img src={img} alt="" className="h-full w-full object-contain p-1 mix-blend-multiply" />
+              <img src={img} alt="" loading="lazy" decoding="async" className="h-full w-full object-contain p-1 mix-blend-multiply" />
             </button>
           ))}
         </div>

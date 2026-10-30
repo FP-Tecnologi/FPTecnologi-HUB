@@ -370,7 +370,7 @@ function AdvisorAvatar({ name, photo, size = 'h-8 w-8' }: { name?: string; photo
   return photo ? (
     <img src={photo} alt={name ?? 'Asesor'} className={`${size} shrink-0 rounded-xl rounded-bl-sm object-cover shadow-md shadow-brand-dark/25 ring-2 ring-brand-teal-light/70`} />
   ) : (
-    <span className={`${size} flex shrink-0 items-center justify-center rounded-xl rounded-bl-sm bg-gradient-to-br from-brand-teal to-brand-petrol text-[11px] font-bold text-white shadow-md shadow-brand-dark/25`}>
+    <span className={`${size} flex shrink-0 items-center justify-center rounded-xl rounded-bl-sm bg-gradient-to-br from-brand-teal to-brand-petrol text-xs font-bold text-white shadow-md shadow-brand-dark/25`}>
       {ini}
     </span>
   );
@@ -465,7 +465,7 @@ function TextoBot({ text }: { text: string }) {
           <ol key={i} className="space-y-1">
             {b.items.map((it, k) => (
               <li key={k} className="flex gap-2">
-                <span aria-hidden className="mt-px flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-brand-primary text-[10px] font-bold text-white">{k + 1}</span>
+                <span aria-hidden className="mt-px flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-brand-primary text-xs font-bold text-white">{k + 1}</span>
                 <span><Inline text={it} /></span>
               </li>
             ))}
@@ -853,7 +853,7 @@ function ChatWidgetInner() {
               </span>
               <div className="min-w-0">
                 <p className={variant.labelClass}>{view === 'choose' ? '¿Cómo te ayudamos?' : view === 'whatsapp' ? 'Habla con un asesor' : view === 'sessions' ? 'Conversaciones' : agent.estado === 'ASESOR' ? (agent.asesor?.nombre ?? 'Asesor') : 'Asistente virtual'}</p>
-                <p className="flex items-center gap-1.5 whitespace-nowrap text-[11px] text-white/90">
+                <p className="flex items-center gap-1.5 whitespace-nowrap text-xs text-white/90">
                   <span className="online-dot h-1.5 w-1.5 rounded-full bg-whatsapp" />
                   {view === 'choose' ? 'Elige cómo quieres hablar' : view === 'whatsapp' ? 'Lun a vie, 9:00 a 18:00' : view === 'sessions' ? 'Guardadas en este navegador' : agent.estado === 'ASESOR' ? 'Asesor conectado' : agent.estado === 'CERRADA' ? 'Conversación finalizada' : 'En línea'}
                 </p>
@@ -952,7 +952,7 @@ function ChatWidgetInner() {
                     <span className="min-w-0 flex-1">
                       <span className="flex items-center gap-2">
                         <span className={`text-sm font-semibold ${t.title}`}>{area.contact}</span>
-                        <span className="inline-flex items-center gap-1 rounded-md bg-whatsapp/15 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-whatsapp">
+                        <span className="inline-flex items-center gap-1 rounded-md bg-whatsapp/15 px-1.5 py-0.5 text-xs font-bold uppercase tracking-wide text-whatsapp">
                           <AreaIcon className="h-3 w-3" strokeWidth={2.2} />
                           {area.label}
                         </span>
@@ -977,7 +977,7 @@ function ChatWidgetInner() {
                     </span>
                     <span className="min-w-0">
                       <span className={`block truncate text-sm font-semibold ${t.title}`}>{x.title}</span>
-                      <span className={`text-[11px] ${t.muted}`}>
+                      <span className={`text-xs ${t.muted}`}>
                         {dateFmt(x.at)} · {x.messages.length} mensajes{x.id === sessionId ? ' · actual' : ''}
                       </span>
                     </span>
@@ -996,7 +996,7 @@ function ChatWidgetInner() {
           ) : (
             <>
               <div ref={listRef} className="flex h-96 flex-col gap-3 overflow-y-auto p-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                <p className={`text-center text-[10px] ${t.time}`}>Un asesor puede revisar esta conversación para ayudarte mejor.</p>
+                <p className={`text-center text-xs ${t.time}`}>Un asesor puede revisar esta conversación para ayudarte mejor.</p>
                 {messages.map((m, i) => {
                   if (m.from === 'system') {
                     const join = m.text.includes('se unió');
@@ -1004,7 +1004,7 @@ function ChatWidgetInner() {
                       <div key={i} className="animate-pop-in my-1 flex items-center gap-2">
                         <span className={`h-px flex-1 ${t.divider}`} />
                         {/* Etiqueta sólida celeste. */}
-                        <span className="inline-flex max-w-[85%] items-center gap-1.5 rounded-lg border border-brand-100 bg-brand-50 px-2.5 py-1 text-[11px] font-semibold text-brand-700">
+                        <span className="inline-flex max-w-[85%] items-center gap-1.5 rounded-lg border border-brand-100 bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700">
                           <span className={`h-1.5 w-1.5 shrink-0 rounded-full ${join ? 'bg-whatsapp' : 'bg-brand-primary/40'}`} />
                           <span className="truncate">{m.text}</span>
                           {m.at ? <span className="shrink-0 font-normal text-brand-700/70">· {timeFmt(m.at)}</span> : null}
@@ -1039,7 +1039,7 @@ function ChatWidgetInner() {
                             )}
                           </div>
                           {/* Remitente + hora debajo de la burbuja. */}
-                          <span className={`mt-1 whitespace-nowrap px-1 text-[10px] ${t.time}`}>
+                          <span className={`mt-1 whitespace-nowrap px-1 text-xs ${t.time}`}>
                             {m.from === 'bot' ? 'Asistente FP' : m.from === 'asesor' ? (m.name ?? 'Asesor') : 'Tú'}
                             {m.at ? ` · ${timeFmt(m.at)}` : ''}
                           </span>

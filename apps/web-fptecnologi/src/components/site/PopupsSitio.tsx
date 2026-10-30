@@ -124,7 +124,7 @@ export function PopupsSitio() {
         <img src={imagen} alt="" className={`w-full object-cover ${p.producto ? 'h-48 bg-white object-contain p-4' : 'h-44'}`} />
       )}
       <div className={barra ? 'flex flex-wrap items-center gap-x-4 gap-y-1 pe-10' : 'flex flex-col items-start gap-3 p-6'}>
-        {c.etiqueta && <span className="rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider" style={{ background: col.suave }}>{c.etiqueta}</span>}
+        {c.etiqueta && <span className="rounded-full px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider" style={{ background: col.suave }}>{c.etiqueta}</span>}
         {c.descuento && !barra && <span className="text-5xl font-extrabold leading-none">{c.descuento}</span>}
         <h2 id="popup-titulo" className={barra ? 'text-sm font-bold' : 'text-2xl font-extrabold leading-tight'}>{titulo}</h2>
         {c.texto && !barra && <p className="text-sm leading-relaxed opacity-90">{c.texto}</p>}

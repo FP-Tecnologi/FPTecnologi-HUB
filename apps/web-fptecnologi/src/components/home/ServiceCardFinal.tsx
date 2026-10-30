@@ -41,7 +41,7 @@ export function ServiceCardFinal({ item }: { item: ServicioTarjeta }) {
 
       <div className="relative flex h-full flex-col justify-end p-6">
         {/* Badge de vidrio (mismo estilo que el badge del Hero). */}
-        <span className="w-fit rounded-lg border border-white/25 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-white backdrop-blur-md">
+        <span className="w-fit rounded-lg border border-white/25 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white backdrop-blur-md">
           Soluciones
         </span>
         <h3 className="mt-3 text-lg font-semibold leading-snug">{item.title}</h3>

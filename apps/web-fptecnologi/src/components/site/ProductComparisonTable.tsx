@@ -24,7 +24,7 @@ export function ProductComparisonTable({ products }: { products: (typeof FEATURE
                 <div className="mx-auto mb-2 h-16 w-16 overflow-hidden rounded-lg bg-producto">
                   <img src={p.image} alt={p.name} className="h-full w-full object-contain p-2" />
                 </div>
-                <p className="text-[10px] font-semibold uppercase text-brand-700">{p.brand}</p>
+                <p className="text-xs font-semibold uppercase text-brand-700">{p.brand}</p>
               </th>
             ))}
           </tr>

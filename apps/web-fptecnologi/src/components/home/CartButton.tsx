@@ -48,7 +48,7 @@ export function CartButton({ tone = 'light', compact = false }: { tone?: Tone; c
       >
         <ShoppingCart className={`h-4.5 w-4.5 ${tone === 'dark' ? 'text-white' : ''}`} strokeWidth={tone === 'dark' ? 2.2 : 1.8} />
         {count > 0 && (
-          <span className={`absolute -right-1.5 -top-1.5 flex h-4.5 min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-bold transition-transform ${tone === 'dark' ? 'bg-white text-brand-700 shadow-sm shadow-black/25' : 'bg-brand-primary text-white'} ${bump ? 'scale-125' : 'scale-100'}`}>
+          <span className={`absolute -right-1.5 -top-1.5 flex h-4.5 min-w-[18px] items-center justify-center rounded-full px-1 text-xs font-bold transition-transform ${tone === 'dark' ? 'bg-white text-brand-700 shadow-sm shadow-black/25' : 'bg-brand-primary text-white'} ${bump ? 'scale-125' : 'scale-100'}`}>
             {count}
           </span>
         )}

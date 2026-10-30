@@ -36,10 +36,10 @@ export function ChatProductos({ productos }: { productos: ProductoChat[] }) {
                 <span className="line-clamp-2 text-xs font-semibold leading-snug text-ink group-hover:text-brand-700">{p.nombre}</span>
                 <span className="mt-0.5 flex flex-wrap items-baseline gap-x-1.5 text-xs">
                   <span className="font-bold text-ink">{format(p.precio)}</span>
-                  {p.precioAntes && p.precioAntes > p.precio && <span className="text-[11px] text-ink/50 line-through">{format(p.precioAntes)}</span>}
-                  <span className="text-[10px] text-ink/55">+ IGV</span>
+                  {p.precioAntes && p.precioAntes > p.precio && <span className="text-xs text-ink/50 line-through">{format(p.precioAntes)}</span>}
+                  <span className="text-xs text-ink/55">+ IGV</span>
                 </span>
-                <span className={`mt-0.5 flex items-center gap-1 text-[11px] font-medium ${s.tono}`}>
+                <span className={`mt-0.5 flex items-center gap-1 text-xs font-medium ${s.tono}`}>
                   <span className={`h-1.5 w-1.5 rounded-full ${s.punto}`} />
                   {s.texto} · {p.marca}
                 </span>

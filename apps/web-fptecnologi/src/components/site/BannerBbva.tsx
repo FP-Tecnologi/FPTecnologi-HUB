@@ -84,7 +84,7 @@ export function BannerBbva({ variante = 'franja', tarjeta = 'visa-cero', classNa
         <span className="bbva-giro block w-11 shrink-0">
           <div className="relative aspect-[63/100]">
             <TarjetaBbva id={tarjeta} className="absolute inset-0 h-full w-full" />
-            <span className="absolute inset-0 flex flex-col items-center justify-center rounded-md bg-gradient-to-b from-[#004481] to-[#001391] text-center text-[9px] font-bold leading-tight text-white">
+            <span className="absolute inset-0 flex flex-col items-center justify-center rounded-md bg-gradient-to-b from-[#004481] to-[#001391] text-center text-xs font-bold leading-tight text-white">
               <Timer className="mb-0.5 h-3.5 w-3.5 text-[#85C8FF]" strokeWidth={2.2} />1 min
             </span>
           </div>

@@ -36,7 +36,7 @@ export default function TarjetasBbvaPage() {
             <div className="text-white">
               <div className="flex flex-wrap items-center gap-3">
                 <LogoBbva blanco className="h-5 sm:h-6" />
-                <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-[#85C8FF] backdrop-blur sm:text-xs">
+                <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#85C8FF] backdrop-blur sm:text-xs">
                   FP Tecnologi · Aliado BBVA
                 </span>
               </div>

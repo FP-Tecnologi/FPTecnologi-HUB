@@ -106,7 +106,7 @@ export function FormularioLanding({ slug, formulario, contenido, vistaPrevia = f
               <div className="h-1.5 overflow-hidden rounded-full bg-ink/10">
                 <div className={`h-full rounded-full bg-brand-primary transition-all duration-500 ${i <= paso ? 'w-full' : 'w-0'}`} />
               </div>
-              <span className={`mt-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide ${i <= paso ? 'text-brand-700' : 'text-ink/65'}`}>
+              <span className={`mt-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide ${i <= paso ? 'text-brand-700' : 'text-ink/65'}`}>
                 {i < paso ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : <span>{i + 1}</span>}
                 <span className="truncate">{p}</span>
               </span>

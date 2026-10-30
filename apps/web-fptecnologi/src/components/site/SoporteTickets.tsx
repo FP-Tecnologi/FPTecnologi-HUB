@@ -283,7 +283,7 @@ export function SoporteTickets() {
                       {evidencias.map((x) => (
                         <div key={x.id} className="relative h-20 w-20 overflow-hidden rounded-xl border border-brand-200">
                           {x.pdf ? (
-                            <a href={x.preview} target="_blank" rel="noreferrer" title={x.nombre} className="flex h-full w-full flex-col items-center justify-center gap-1 bg-brand-50 px-1 text-center text-[10px] font-semibold leading-tight text-brand-700">
+                            <a href={x.preview} target="_blank" rel="noreferrer" title={x.nombre} className="flex h-full w-full flex-col items-center justify-center gap-1 bg-brand-50 px-1 text-center text-xs font-semibold leading-tight text-brand-700">
                               <FileText className="h-6 w-6" strokeWidth={1.8} />
                               <span className="line-clamp-2 break-all">{x.nombre}</span>
                             </a>

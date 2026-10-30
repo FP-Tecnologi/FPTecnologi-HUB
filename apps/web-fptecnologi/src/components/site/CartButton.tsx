@@ -55,7 +55,7 @@ export function CartButton({ tone = 'light' }: { tone?: Tone }) {
           />
         </svg>
         {count > 0 && (
-          <span className={`absolute -right-1.5 -top-1.5 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-brand-primary px-1 text-[10px] font-bold text-white transition-transform ${bump ? 'scale-125' : 'scale-100'}`}>
+          <span className={`absolute -right-1.5 -top-1.5 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-brand-primary px-1 text-xs font-bold text-white transition-transform ${bump ? 'scale-125' : 'scale-100'}`}>
             {count}
           </span>
         )}

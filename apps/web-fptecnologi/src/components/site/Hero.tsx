@@ -146,7 +146,7 @@ export function Hero() {
               style={{ animationDelay: '580ms' }}
             >
               <p className="text-lg font-bold leading-none">+13</p>
-              <p className="text-[11px] text-ink/60">marcas aliadas</p>
+              <p className="text-xs text-ink/60">marcas aliadas</p>
             </div>
           </div>
         </div>

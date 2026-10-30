@@ -41,7 +41,7 @@ export function PartnerLevels({ conTitulo = false }: { conTitulo?: boolean }) {
               <div className="relative h-20 w-full">
                 <Image src={p.logo} alt={`${p.name}${p.level ? ` — ${p.level} Partner` : ''}`} fill sizes="208px" className="object-contain mix-blend-multiply" />
               </div>
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-ink/70">{p.name}</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink/70">{p.name}</p>
               {/* Separador: línea fina con un rombo al centro entre el nombre y el nivel. */}
               <span aria-hidden className="flex w-24 items-center gap-1.5">
                 <span className="h-px flex-1 bg-gradient-to-r from-transparent to-brand-primary/50" />

@@ -34,7 +34,7 @@ function Linea({ estado }: { estado: PedidoCuenta['estado'] }) {
         <li key={e.v} className={`flex items-center ${i < ETAPAS.length - 1 ? 'flex-1' : ''}`} aria-current={i === actual ? 'step' : undefined}>
           <span className="flex flex-col items-center gap-1.5">
             <span className={`flex h-9 w-9 items-center justify-center rounded-xl border-2 ${i <= actual ? 'border-brand-dark bg-brand-primary text-white' : 'border-ink/10 bg-white text-ink/65'}`}><e.Icon className="h-4 w-4" strokeWidth={2} /></span>
-            <span className={`text-[11px] font-semibold ${i <= actual ? 'text-brand-700' : 'text-ink/65'}`}>{e.label}</span>
+            <span className={`text-xs font-semibold ${i <= actual ? 'text-brand-700' : 'text-ink/65'}`}>{e.label}</span>
           </span>
           {i < ETAPAS.length - 1 && <span aria-hidden className={`mx-2 mb-5 h-0.5 flex-1 rounded-full ${i < actual ? 'bg-brand-primary' : 'bg-ink/10'}`} />}
         </li>
@@ -172,7 +172,7 @@ export function MiCuentaView({ cuenta }: { cuenta: ResumenCuenta }) {
           </ul>
           <div className="relative mt-5 grid grid-cols-3 gap-2 text-center">
             {[[cuenta.pedidos.length, 'Pedidos'], [activos, 'En curso'], [cuenta.cotizaciones.length, 'Cotiz.']].map(([n, l]) => (
-              <div key={l as string} className="rounded-xl bg-white/10 px-2 py-2.5"><p className="font-display text-xl font-bold">{n}</p><p className="text-[11px] text-white/80">{l}</p></div>
+              <div key={l as string} className="rounded-xl bg-white/10 px-2 py-2.5"><p className="font-display text-xl font-bold">{n}</p><p className="text-xs text-white/80">{l}</p></div>
             ))}
           </div>
         </div>

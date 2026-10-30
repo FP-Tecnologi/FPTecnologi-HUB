@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
+import { Montserrat } from 'next/font/google';
 import { CartProvider } from '@/context/CartContext';
 import { CurrencyProvider } from '@/context/CurrencyContext';
 import { ChatWidgetProvider } from '@/context/ChatWidgetContext';
@@ -18,6 +19,8 @@ import { organizacionJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/site/JsonLd';
 import { api } from '@/lib/catalogo';
 import './globals.css';
+
+const montserrat = Montserrat({ subsets: ['latin'], variable: '--font-montserrat', weight: ['400', '500', '600', '700', '800'], display: 'swap' });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.SITE_URL ?? 'https://fptecnologi.com'),
@@ -51,15 +54,7 @@ export const viewport: Viewport = {
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const [servicios, sitio, categorias] = await Promise.all([getServicios(), getSitio(), api<{ nombre: string; slug: string | null }[]>('/categorias')]);
   return (
-    <html lang="es-PE">
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap"
-          rel="stylesheet"
-        />
-      </head>
+    <html lang="es-PE" className={montserrat.variable}>
       <body>
         <a href="#contenido" className="sr-only z-[100] rounded-lg bg-white px-4 py-3 font-semibold text-[#2898ee] shadow-xl focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Saltar al contenido</a>
         <JsonLd datos={organizacionJsonLd(sitio)} />

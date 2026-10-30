@@ -95,7 +95,7 @@ export default async function CotizadorPage({ searchParams }: { searchParams: Pr
                           </span>
                           <span className="min-w-0">
                             <span className="block text-sm font-bold">{a.area}</span>
-                            <span className="block text-[11px] leading-snug opacity-70">{a.descripcion}</span>
+                            <span className="block text-xs leading-snug opacity-70">{a.descripcion}</span>
                           </span>
                         </div>
                         <a href={`tel:${a.telefono.replace(/\s/g, '')}`} className="mt-2 flex items-center gap-2 text-[13px] font-semibold">

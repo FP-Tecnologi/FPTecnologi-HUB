@@ -38,8 +38,8 @@
 
   /* Montserrat como fuente única del sitio: títulos (font-display) y texto
      (font-sans) iguales en todas las secciones. */
-  --font-display: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
-  --font-sans: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-montserrat), 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-montserrat), 'Montserrat', ui-sans-serif, system-ui, sans-serif;
 }
 
 /*

@@ -73,7 +73,7 @@ export function FavoritesWidget() {
                       <img src={p.image} alt={p.name} className="h-full w-full object-contain p-1.5 mix-blend-multiply" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-brand-700">{p.brand}</p>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-brand-700">{p.brand}</p>
                       <h5 className="truncate text-sm font-semibold text-ink">{p.name}</h5>
                       <span className="font-mono text-sm font-bold text-ink">{format(p.price)}</span>
                     </div>

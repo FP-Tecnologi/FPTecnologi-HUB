@@ -54,6 +54,8 @@ export function BrandMarquee({ showLabel = true }: { showLabel?: boolean }) {
               key={`${brand.name}-${i}`}
               href={`/marcas/${brandSlug(brand.name)}`}
               aria-label={`Ver productos ${brand.name}`}
+              // Solo la primera tanda es navegable: las copias existen para el bucle visual.
+              {...(i >= PARTNER_BRANDS.length ? { 'aria-hidden': true, tabIndex: -1 } : {})}
               // La caja (h-32 w-32) ya NO se agranda -- solo el logo de
               // adentro (ver <Image>). `overflow-hidden` acá para que el
               // zoom del logo quede contenido dentro del cuadrado, no

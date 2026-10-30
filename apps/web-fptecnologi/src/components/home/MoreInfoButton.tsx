@@ -3,7 +3,7 @@
 import { ClickConfirmButton } from './ClickConfirmButton';
 import { ArrowUpRightIcon } from '@/components/site/icons';
 
-const SIZE = 'h-9 rounded-xl pl-1.5 pr-4 text-xs font-semibold uppercase tracking-wide md:h-10 md:pr-5 md:text-[13px] 2xl:h-11 2xl:text-sm';
+const SIZE = 'h-11 rounded-xl pl-1.5 pr-4 text-xs font-semibold uppercase tracking-wide md:h-10 md:pr-5 md:text-[13px] 2xl:h-11 2xl:text-sm';
 
 // light: para fondos claros (azul oscuro -> azul principal). dark: para
 // secciones de fondo oscuro (blanco -> azul principal).

@@ -36,7 +36,7 @@ export function ImageHoverCard({
         }`}
       >
         {titulo && (
-          <p className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest text-brand-700">
+          <p className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-brand-700">
             <span className="h-0.5 w-6 bg-brand-primary" aria-hidden />
             {titulo}
           </p>
@@ -46,7 +46,7 @@ export function ImageHoverCard({
             <div key={d.label} className={`px-2 text-center ${i > 0 ? 'border-l border-brand-100' : ''}`}>
               <p className={`font-display text-2xl font-bold text-brand-primary transition-transform duration-500 ease-out sm:text-3xl ${siempre ? 'group-hover:scale-105' : ''}`}>{d.value}</p>
               {siempre && <span aria-hidden className="mx-auto mt-0.5 block h-0.5 w-0 rounded-full bg-brand-primary transition-all duration-500 ease-out group-hover:w-8" />}
-              <p className="mt-0.5 text-[11px] font-medium leading-tight text-ink/70 sm:text-xs">{d.label}</p>
+              <p className="mt-0.5 text-xs font-medium leading-tight text-ink/70 sm:text-xs">{d.label}</p>
             </div>
           ))}
         </div>
