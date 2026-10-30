@@ -228,3 +228,10 @@ Sin `HUB_MARCA_ID` el sitio funciona con los textos por defecto, pero cotizador,
 
 **CMS**: todo el contenido se edita en el dashboard → marca **Fimav Perú** → *Web Fimav* (Inicio, Nosotros, Catálogo, Perú Compras, Contacto, Cotizar, Ajustes del sitio, Textos legales). La web pública es **https://fimavperu.com** y el dashboard **https://admin.fptecnologi.com**: son los valores por defecto, así que el editor funciona sin variables. `NEXT_PUBLIC_WEB_FIMAV_URL` (dashboard, al compilar) y `DASHBOARD_ORIGIN` (web, varios separados por coma) solo hacen falta si alguno cambia de dirección. Si el editor dice que no puede leer la web, revisa que el servidor de Fimav tenga la última versión (ruta `/api/cms/inicio`).
 fimavperu.com hoy es WordPress: publica primero en un subdominio (p. ej. `nuevo.fimavperu.com`) y cambia al dominio principal al validar.
+
+## Kelqa (`apps/kelqa-web`)
+
+- **Variables de la web** (solo si se despliega con servidor Node, `node server.cjs`): `HUB_API_URL` (URL pública de la API) y `HUB_MARCA_ID` (id de la marca Kelqa). Sin `HUB_MARCA_ID` el formulario de contacto responde 503 y ofrece WhatsApp y correo. `DASHBOARD_ORIGIN` es opcional.
+- **Exportada como archivo estático** (zip con `out/`): no usa variables y el formulario de contacto no llega a la API, solo WhatsApp y correo.
+- **Dashboard**: `NEXT_PUBLIC_WEB_KELQA_URL` es opcional; por defecto usa el dominio principal de la marca o `https://kelqa.com`.
+- **Datos en la API** (Administración → Marcas): la marca `kelqa` debe tener un Sitio con su dominio (`kelqa.com`); de ahí sale el `marcaId` que va en `HUB_MARCA_ID`.
