@@ -26,15 +26,16 @@ export default function TarjetasBbvaPage() {
     <>
       <StickyNav />
       <div className="bg-paper p-3 md:p-5">
-        <section className="relative overflow-hidden rounded-[1.25rem] bg-gradient-to-br from-[#070E46] via-[#001391] to-[#0a2bd6] md:rounded-[2.25rem]">
+        <section className="relative flex min-h-[calc(100svh-1.5rem)] flex-col overflow-hidden rounded-[1.25rem] bg-gradient-to-br from-[#070E46] via-[#001391] to-[#0a2bd6] md:rounded-[2.25rem] md:min-h-[calc(100svh-2.5rem)]">
           <div aria-hidden className="pointer-events-none absolute -right-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-[#85C8FF]/20 blur-3xl" />
           <div aria-hidden className="pointer-events-none absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-[#1973e8]/30 blur-3xl" />
-          <div className="invisible w-full" aria-hidden>
+          <div className="invisible w-full shrink-0" aria-hidden>
             <Navbar9 />
           </div>
-          <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 pb-10 pt-10 sm:px-6 sm:pt-14 lg:grid-cols-[1fr_1.05fr] lg:gap-14 lg:pb-16 lg:pt-20">
-            <div className="text-white">
-              <div className="flex flex-wrap items-center gap-3">
+          <div className="relative flex w-full flex-1 items-center pb-10 pt-12 sm:py-12 lg:py-16">
+          <div className="mx-auto grid w-full max-w-7xl items-center gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_1.05fr] lg:gap-14 lg:px-10">
+            <div className="text-center text-white lg:text-left">
+              <div className="flex flex-wrap items-center justify-center gap-3 lg:justify-start">
                 <LogoBbva blanco className="h-5 sm:h-6" />
                 <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#85C8FF] backdrop-blur sm:text-xs">
                   FP Tecnologi · Aliado BBVA
@@ -43,14 +44,15 @@ export default function TarjetasBbvaPage() {
               <h1 className="mt-5 font-display text-[2rem] font-bold leading-[1.15] sm:text-5xl sm:leading-tight">
                 Descubre qué tarjeta BBVA <span className="text-[#85C8FF]">tienes preaprobada</span>
               </h1>
-              <p className="mt-4 max-w-xl text-base text-white/85 sm:mt-5 sm:text-lg">
+              <p className="mx-auto mt-4 max-w-xl text-base text-white/85 sm:mt-5 sm:text-lg lg:mx-0">
                 Consulta con tu DNI en menos de un minuto y mira las tarjetas de crédito que BBVA tiene para ti, con su línea de crédito y tasa.
               </p>
-              <AbanicoBbva className="mt-4 hidden w-full max-w-sm sm:block" />
+              <AbanicoBbva className="mx-auto mt-4 hidden w-full max-w-sm sm:[@media(min-height:820px)]:block lg:mx-0" />
             </div>
-            <div id="consulta" className="scroll-mt-28">
+            <div id="consulta" className="mx-auto w-full max-w-xl scroll-mt-28 lg:max-w-none">
               <TarjetasBbvaForm />
             </div>
+          </div>
           </div>
         </section>
       </div>
