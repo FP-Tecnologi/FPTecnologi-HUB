@@ -152,11 +152,11 @@ export function TarjetasBbvaForm() {
   }
 
   return (
-    <form onSubmit={consultar} noValidate className="relative rounded-3xl bg-white p-6 shadow-xl shadow-brand-dark/10 md:p-8">
+    <form onSubmit={consultar} noValidate className="relative rounded-3xl bg-white p-5 shadow-xl shadow-brand-dark/10 sm:p-6 md:p-8">
       <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" value={trampa} onChange={(e) => setTrampa(e.target.value)} className="absolute -left-[9999px] h-0 w-0 opacity-0" />
       <h2 className="font-display text-xl font-bold text-ink">Consulta tus tarjetas disponibles</h2>
       <p className="mt-1 text-sm text-ink/65">BBVA evalúa tu perfil y te muestra las tarjetas que puedes solicitar.</p>
-      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+      <div className="mt-5 grid gap-3.5 sm:mt-6 sm:grid-cols-2 sm:gap-4">
         <Campo id="bb-dni" label="DNI" icon={IdCard}>
           <input id="bb-dni" inputMode="numeric" autoComplete="off" maxLength={8} value={v.dni} onChange={(e) => set('dni', e.target.value.replace(/\D/g, ''))} className={input} placeholder="12345678" />
         </Campo>

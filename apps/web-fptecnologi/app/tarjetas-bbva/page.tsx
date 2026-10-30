@@ -33,21 +33,21 @@ export default function TarjetasBbvaPage() {
             <Navbar9 />
           </div>
           <div className="relative flex w-full flex-1 items-center pb-10 pt-12 sm:py-12 lg:py-16">
-          <div className="mx-auto grid w-full max-w-7xl items-center gap-8 px-4 sm:px-6 lg:grid-cols-[1fr_1.05fr] lg:gap-14 lg:px-10">
+          <div className="mx-auto grid w-full max-w-7xl items-center gap-6 px-4 sm:gap-8 sm:px-6 lg:grid-cols-[1fr_1.05fr] lg:gap-14 lg:px-10">
             <div className="text-center text-white lg:text-left">
               <div className="flex flex-wrap items-center justify-center gap-3 lg:justify-start">
-                <LogoBbva blanco className="h-5 sm:h-6" />
-                <span className="rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-[#85C8FF] backdrop-blur sm:text-xs">
+                <LogoBbva blanco className="h-4 sm:h-6" />
+                <span className="rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-[#85C8FF] backdrop-blur sm:px-3 sm:text-xs sm:tracking-[0.16em]">
                   FP Tecnologi · Aliado BBVA
                 </span>
               </div>
-              <h1 className="mt-5 font-display text-[2rem] font-bold leading-[1.15] sm:text-5xl sm:leading-tight">
+              <h1 className="mt-4 font-display text-[1.75rem] font-bold leading-[1.15] sm:mt-5 sm:text-[2.5rem] sm:leading-tight lg:text-5xl">
                 Descubre qué tarjeta BBVA <span className="text-[#85C8FF]">tienes preaprobada</span>
               </h1>
-              <p className="mx-auto mt-4 max-w-xl text-base text-white/85 sm:mt-5 sm:text-lg lg:mx-0">
+              <p className="mx-auto mt-3 max-w-xl text-[0.95rem] leading-relaxed text-white/85 sm:mt-5 sm:text-lg lg:mx-0">
                 Consulta con tu DNI en menos de un minuto y mira las tarjetas de crédito que BBVA tiene para ti, con su línea de crédito y tasa.
               </p>
-              <AbanicoBbva className="mx-auto mt-4 hidden w-full max-w-sm sm:[@media(min-height:820px)]:block lg:mx-0" />
+              <AbanicoBbva className="mx-auto mt-2 hidden w-full max-w-[15rem] sm:[@media(min-height:820px)]:block lg:mt-4 lg:max-w-sm lg:mx-0" />
             </div>
             <div id="consulta" className="mx-auto w-full max-w-xl scroll-mt-28 lg:max-w-none">
               <TarjetasBbvaForm />
@@ -57,8 +57,8 @@ export default function TarjetasBbvaPage() {
         </section>
       </div>
 
-      <main id="como-funciona" className="bg-paper py-16 sm:py-20">
-        <div className="mx-auto max-w-7xl px-6">
+      <main id="como-funciona" className="bg-paper py-12 sm:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="font-display text-3xl font-bold leading-tight sm:text-4xl">
               <span className="text-ink">¿Cómo</span> <span className="title-shimmer-light">funciona?</span>
@@ -67,10 +67,10 @@ export default function TarjetasBbvaPage() {
           </div>
 
           {/* Línea de tiempo: el número va una sola vez, en el marcador sobre la línea que une los pasos. */}
-          <div className="relative mt-12">
+          <div className="relative mt-8 sm:mt-12">
             <div aria-hidden className="absolute left-[12.5%] right-[12.5%] top-6 hidden h-0.5 bg-gradient-to-r from-[#85C8FF] via-[#001391]/40 to-[#85C8FF] lg:block" />
-            <div aria-hidden className="absolute bottom-6 left-6 top-6 w-0.5 bg-gradient-to-b from-[#85C8FF] via-[#001391]/40 to-[#85C8FF] lg:hidden" />
-            <ol className="relative grid gap-6 lg:grid-cols-4">
+            <div aria-hidden className="absolute bottom-6 left-6 top-6 w-0.5 bg-gradient-to-b from-[#85C8FF] via-[#001391]/40 to-[#85C8FF] sm:hidden" />
+            <ol className="relative grid gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
               {PASOS.map((p, i) => (
                 <li key={p.titulo} className="group flex gap-4 lg:flex-col lg:items-center lg:gap-5">
                   <span className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border-2 border-[#001391] bg-white font-display text-lg font-extrabold text-[#001391] shadow-md shadow-[#001391]/15 transition-all duration-300 group-hover:-translate-y-0.5 group-hover:bg-[#001391] group-hover:text-white">
