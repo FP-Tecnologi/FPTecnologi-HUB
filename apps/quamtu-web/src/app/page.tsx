@@ -7,7 +7,8 @@ import Faq from '@/components/Faq';
 import ImgPieza from '@/components/ImgPieza';
 import SelectorUso from '@/components/SelectorUso';
 import { waUrl } from '@/lib/contacto';
-import { CASOS, PARA_ORGANIZACIONES } from '@/lib/contenido';
+import { CASOS } from '@/lib/contenido';
+import { getPagina } from '@/lib/cms';
 import { BUILDS, porId, seleccionDe } from '@/lib/piezas';
 
 const SELLOS = [
@@ -46,7 +47,8 @@ const CALIDAD = [
   { t: 'Mantenimiento simplificado', d: 'Los gabinetes permiten una limpieza ágil para sostener un entorno impecable.' },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const { hero: textos, organizaciones } = await getPagina('inicio');
   const hero = seleccionDe(BUILDS[2].ids);
   return (
     <main id="contenido">
@@ -57,13 +59,13 @@ export default function Home() {
         <div className="mx-auto grid w-full max-w-7xl items-center gap-4 px-5 lg:grid-cols-2">
           <div>
             <p style={{ ["--i" as string]: 0 }} className="entra mb-5 inline-block border border-claro/40 px-4 py-1 font-display text-xs tracking-[0.3em] text-claro">
-              CONFIGURACIÓN DE PRECISIÓN
+              {textos.etiqueta}
             </p>
             <h1 style={{ ["--i" as string]: 1 }} className="entra font-display text-5xl font-bold leading-[1.05] text-white md:text-7xl">
-              Equipos <span className="titulo-neon whitespace-nowrap">a la medida</span> de tu trabajo.
+              {textos.titulo} <span className="titulo-neon whitespace-nowrap">{textos.acento}</span> {textos.cierre}
             </h1>
             <p style={{ ["--i" as string]: 2 }} className="entra mt-6 max-w-lg text-xl text-slate-300">
-              No construimos hardware convencional: diseñamos herramientas de ingeniería a la medida. Arma tu equipo en 3D o cotiza para tu organización.
+              {textos.texto}
             </p>
             <div style={{ ["--i" as string]: 3 }} className="entra mt-9 flex flex-wrap gap-4">
               <Link href="/armar" className="btn-neon inline-flex items-center gap-2 rounded-full px-8 py-4 font-display text-sm">
@@ -114,13 +116,13 @@ export default function Home() {
         <Reveal className="mx-auto grid max-w-7xl items-center gap-14 px-5 lg:grid-cols-[1.1fr_1fr] lg:gap-20">
           <div>
             <h2 data-r className="font-display text-3xl font-bold md:text-5xl">
-              Para empresas e <span className="titulo-neon">instituciones</span>
+              {organizaciones.titulo} <span className="titulo-neon">{organizaciones.acento}</span>
             </h2>
             <p data-r className="mt-5 max-w-xl text-lg text-slate-300">
-              Quien decide por TI no busca solo un precio: busca continuidad y rendimiento. Cada componente se selecciona para cumplir una función específica, sin la incertidumbre del hardware genérico.
+              {organizaciones.texto}
             </p>
             <dl className="mt-8 divide-y divide-line border-y border-line">
-              {PARA_ORGANIZACIONES.map((p) => (
+              {organizaciones.items.map((p) => (
                 <div key={p.t} data-r className="grid gap-1 py-4 sm:grid-cols-[13rem_1fr] sm:gap-6">
                   <dt className="font-display text-base font-bold text-white">{p.t}</dt>
                   <dd className="text-slate-300">{p.d}</dd>

@@ -1259,3 +1259,10 @@ Plan: [`docs/superpowers/plans/2026-10-23-cms-fimav.md`](superpowers/plans/2026-
 - Web (`apps/kelqa-web/src/lib/cms.ts`, mismo modelo que Fimav): Inicio (portada, quiénes somos con misión y visión, por qué Kelqa, venta directa y licitaciones, clientes y testimonios) y Contacto (banner y preguntas frecuentes) se leen del CMS con los textos anteriores como defaults; `GET /api/cms/:pagina` (CORS solo `DASHBOARD_ORIGIN`). Páginas dinámicas (se leen en cada visita).
 - Dashboard: grupo **Web Kelqa** (rol marketing, solo con la marca Kelqa activa) con Inicio y Contacto sobre `CmsEditor`; `NEXT_PUBLIC_WEB_KELQA_URL` opcional (por defecto `localhost:3007` en local y `kelqa.com` en servidor). Kelqa suma `marca.webkelqa` a sus módulos. API: kelqa.com en enlaces de tickets y dominios propios de imágenes.
 - Fuera del CMS por ahora: fotos, líneas de producto, página Nosotros, y teléfono/WhatsApp/correo (siguen en `contenido.ts`).
+
+### 2026-11-01 (3) — CMS de la web de Quamtu en el dashboard
+
+- Web (`apps/quamtu-web/src/lib/cms.ts`, mismo modelo que Fimav y Kelqa): de Inicio se editan la portada, «Para empresas e instituciones» (con sus ventajas) y las preguntas frecuentes (el JSON-LD de FAQ sale de las mismas). Defaults = textos anteriores; `GET /api/cms/:pagina` para el dashboard. Las preguntas viven ahora en `lib/contenido.ts` (`PREGUNTAS`) y `Faq` es un componente de servidor asíncrono. Las propuestas `/propuestas/b|c` siguen con textos fijos de ventajas.
+- Dashboard: grupo **Web Quamtu** → Inicio (rol marketing, solo con Quamtu activa); `quamtu` suma `marca.webquamtu` en `MODULOS_POR_MARCA`.
+- Fuera del CMS: piezas, precios, casos de éxito y WhatsApp. Quamtu no tiene formulario de contacto propio: el cotizador (→ Leads → CRM), los tickets y el libro cubren la entrada de solicitudes.
+- Nota local: `apps/quamtu-web/node_modules` tenía Next 16.4.0 (vulnerable) y el build fallaba con `SecurityFatalError`; `npm install` lo llevó a 16.4.3.
