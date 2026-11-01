@@ -1266,3 +1266,8 @@ Plan: [`docs/superpowers/plans/2026-10-23-cms-fimav.md`](superpowers/plans/2026-
 - Dashboard: grupo **Web Quamtu** → Inicio (rol marketing, solo con Quamtu activa); `quamtu` suma `marca.webquamtu` en `MODULOS_POR_MARCA`.
 - Fuera del CMS: piezas, precios, casos de éxito y WhatsApp. Quamtu no tiene formulario de contacto propio: el cotizador (→ Leads → CRM), los tickets y el libro cubren la entrada de solicitudes.
 - Nota local: `apps/quamtu-web/node_modules` tenía Next 16.4.0 (vulnerable) y el build fallaba con `SecurityFatalError`; `npm install` lo llevó a 16.4.3.
+
+### 2026-11-01 (4) — Leads del cotizador: editar y eliminar desde la tabla
+
+- La tabla de Cotizador → Leads suma la columna **Acciones** (Editar / Eliminar por fila) y el detalle permite **editar los datos de contacto** (nombres, apellidos, empresa, correo, celular, interés, mensaje; el tipo y número de documento no cambian). API: `PATCH /cotizador/leads/:id` acepta esos campos (celular y correo normalizados; una jurídica no puede quedar sin empresa); `DELETE` ya existía. 2 tests nuevos (8 del módulo).
+- Contador de visitas: ya cuenta las 4 webs (FPTecnologi, Fimav, Quamtu y Kelqa); necesita `HUB_MARCA_ID` en cada web desplegada.

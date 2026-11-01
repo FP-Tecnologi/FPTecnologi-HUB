@@ -105,11 +105,24 @@ export class CotizadorService {
   }
 
   async actualizar(marcaId: string, id: string, dto: ActualizarLeadDto, email: string) {
-    await this.get(marcaId, id);
-    return this.prisma.leadCotizador.update({
-      where: { id, marcaId },
-      data: { ...dto, atendidoPor: email },
-    });
+    const actual = await this.get(marcaId, id);
+    const { celular, email: correo, empresa, mensaje, nombres, apellidos, interes, ...resto } = dto;
+    const data: Record<string, unknown> = { ...resto, atendidoPor: email };
+    if (celular !== undefined) {
+      const c = normalizarCelular(celular);
+      if (!c) throw new BadRequestException('Ingresa un celular válido de 9 dígitos');
+      data.celular = c;
+    }
+    if (correo !== undefined) data.email = correo.trim().toLowerCase();
+    if (nombres !== undefined) data.nombres = nombres.trim();
+    if (apellidos !== undefined) data.apellidos = apellidos.trim();
+    if (interes !== undefined) data.interes = interes.trim();
+    if (empresa !== undefined) {
+      if (actual.tipoPersona === 'JURIDICA' && !empresa.trim()) throw new BadRequestException('Indica el nombre de la empresa');
+      data.empresa = empresa.trim() || null;
+    }
+    if (mensaje !== undefined) data.mensaje = mensaje.trim() || null;
+    return this.prisma.leadCotizador.update({ where: { id, marcaId }, data });
   }
 
   async eliminar(marcaId: string, id: string) {

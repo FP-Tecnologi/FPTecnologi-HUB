@@ -67,6 +67,8 @@ export function CotizadorLeads() {
   const [selId, setSelId] = useState<string | null>(null);
   const [notas, setNotas] = useState('');
   const [guardando, setGuardando] = useState(false);
+  const [editando, setEditando] = useState(false);
+  const [form, setForm] = useState({ nombres: '', apellidos: '', empresa: '', email: '', celular: '', interes: '', mensaje: '' });
 
   const cargar = useCallback(async () => {
     if (!activeMarcaId) return;
@@ -94,6 +96,15 @@ export function CotizadorLeads() {
   useEffect(() => {
     setNotas(sel?.notas ?? '');
   }, [sel?.id, sel?.notas]);
+  useEffect(() => {
+    setEditando(false);
+  }, [sel?.id]);
+
+  function editar(l: Lead) {
+    setSelId(l.id);
+    setForm({ nombres: l.nombres, apellidos: l.apellidos, empresa: l.empresa ?? '', email: l.email, celular: l.celular, interes: l.interes, mensaje: l.mensaje ?? '' });
+    setEditando(true);
+  }
 
   const visibles = useMemo(() => {
     const t = q.trim().toLowerCase();
@@ -102,14 +113,16 @@ export function CotizadorLeads() {
 
   const cuenta = (e: '' | Estado) => lista.filter((l) => !e || l.estado === e).length;
 
-  async function actualizar(l: Lead, cambios: { estado?: Estado; notas?: string }) {
+  async function actualizar(l: Lead, cambios: Partial<Pick<Lead, 'nombres' | 'apellidos' | 'empresa' | 'email' | 'celular' | 'interes' | 'mensaje' | 'estado' | 'notas'>>) {
     setGuardando(true);
     try {
       const nuevo = await api.patch<Lead>(`/cotizador/leads/${l.id}`, cambios);
       setLista((ls) => ls.map((x) => (x.id === l.id ? nuevo : x)));
       setError('');
+      return true;
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'No se pudo guardar.');
+      return false;
     } finally {
       setGuardando(false);
     }
@@ -168,13 +181,14 @@ export function CotizadorLeads() {
                   <th className="ax-table__th" scope="col">Interés</th>
                   <th className="ax-table__th" scope="col">Estado</th>
                   <th className="ax-table__th" scope="col">Recibido</th>
+                  <th className="ax-table__th" scope="col">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {cargando ? (
-                  <tr><td className="ax-table__td" colSpan={4}>Cargando…</td></tr>
+                  <tr><td className="ax-table__td" colSpan={5}>Cargando…</td></tr>
                 ) : visibles.length === 0 ? (
-                  <tr><td className="ax-table__td" colSpan={4} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay leads. Aparecerán cuando alguien llene el cotizador.' : 'Ningún lead coincide con el filtro.'}</td></tr>
+                  <tr><td className="ax-table__td" colSpan={5} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay leads. Aparecerán cuando alguien llene el cotizador.' : 'Ningún lead coincide con el filtro.'}</td></tr>
                 ) : (
                   visibles.map((l) => (
                     <tr key={l.id} className="ax-table__row" onClick={() => setSelId(l.id)} style={{ cursor: 'pointer', background: l.id === selId ? 'var(--ax-surface-subtle)' : undefined }}>
@@ -187,6 +201,12 @@ export function CotizadorLeads() {
                       <td className="ax-table__td">{l.interes}</td>
                       <td className="ax-table__td"><span className={`ax-badge ax-badge--soft ax-badge--sm ${meta(l.estado).badge}`}>{meta(l.estado).label}</span></td>
                       <td className="ax-table__td" style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>{fecha(l.createdAt)}</td>
+                      <td className="ax-table__td" onClick={(e) => e.stopPropagation()}>
+                        <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
+                          <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => editar(l)} aria-label={`Editar el lead de ${nombre(l)}`}>Editar</button>
+                          <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => eliminar(l)} aria-label={`Eliminar el lead de ${nombre(l)}`} style={{ color: 'var(--ax-danger-500)' }}>Eliminar</button>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -206,6 +226,31 @@ export function CotizadorLeads() {
               <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setSelId(null)} aria-label="Cerrar detalle">Cerrar</button>
             </div>
             <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
+              {editando ? (
+                <form
+                  style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (await actualizar(sel, form)) setEditando(false);
+                  }}
+                >
+                  {([['nombres', 'Nombres'], ['apellidos', 'Apellidos'], ['empresa', 'Empresa'], ['email', 'Correo'], ['celular', 'Celular'], ['interes', 'Interés']] as const).map(([k, label]) => (
+                    <div className="ax-field" key={k}>
+                      <label className="ax-label" htmlFor={`lead-${k}`}>{label}</label>
+                      <input id={`lead-${k}`} className="ax-input" value={form[k]} onChange={(e) => setForm({ ...form, [k]: e.target.value })} maxLength={120} required={k !== 'empresa'} type={k === 'email' ? 'email' : 'text'} />
+                    </div>
+                  ))}
+                  <div className="ax-field">
+                    <label className="ax-label" htmlFor="lead-mensaje">Mensaje del cliente</label>
+                    <textarea id="lead-mensaje" className="ax-textarea" rows={3} maxLength={1000} value={form.mensaje} onChange={(e) => setForm({ ...form, mensaje: e.target.value })} />
+                  </div>
+                  <p style={{ margin: 0, fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>El tipo y número de documento no se pueden cambiar.</p>
+                  <div className="ax-cluster" style={{ justifyContent: 'flex-end' }}>
+                    <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setEditando(false)}>Cancelar</button>
+                    <button type="submit" className="ax-btn ax-btn--primary ax-btn--sm" disabled={guardando}><span className="ax-btn__label">Guardar cambios</span></button>
+                  </div>
+                </form>
+              ) : (<>
               <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 'var(--ax-space-2) var(--ax-space-4)', fontSize: 'var(--ax-text-sm)', margin: 0 }}>
                 {sel.empresa && (<><dt style={{ color: 'var(--ax-text-muted)' }}>Empresa</dt><dd style={{ margin: 0 }}>{sel.empresa}</dd></>)}
                 <dt style={{ color: 'var(--ax-text-muted)' }}>Correo</dt>
@@ -227,6 +272,7 @@ export function CotizadorLeads() {
                   <p style={{ margin: 0, whiteSpace: 'pre-wrap', fontSize: 'var(--ax-text-sm)' }}>{sel.mensaje}</p>
                 </div>
               )}
+              </>)}
 
               <div className="ax-field">
                 <label className="ax-label" htmlFor="lead-estado">Estado</label>
@@ -245,7 +291,10 @@ export function CotizadorLeads() {
                 </div>
               </div>
 
-              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ alignSelf: 'flex-start' }} onClick={() => eliminar(sel)}>Eliminar lead</button>
+              <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
+                {!editando && <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => editar(sel)}>Editar datos</button>}
+                <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={() => eliminar(sel)}>Eliminar lead</button>
+              </div>
             </div>
           </section>
         )}

@@ -66,3 +66,22 @@ describe('CotizadorService.crearPublico', () => {
     await expect(service.crearPublico('m1', base, '9.9.9.9')).rejects.toMatchObject({ status: 429 });
   });
 });
+
+describe('CotizadorService.actualizar', () => {
+  function conLead(tipoPersona: 'NATURAL' | 'JURIDICA') {
+    const update = vi.fn(async ({ data }) => ({ id: 'l1', ...data }));
+    const prisma = { leadCotizador: { findFirst: vi.fn(async () => ({ id: 'l1', tipoPersona })), update } };
+    return { service: new CotizadorService(prisma as never, {} as never, {} as never), update };
+  }
+
+  it('corrige el contacto normalizado y anota quién lo hizo', async () => {
+    const { service, update } = conLead('NATURAL');
+    await service.actualizar('m1', 'l1', { email: ' Nuevo@Correo.com ', celular: '+51 912 345 678', nombres: ' Ana ' }, 'ventas@fp.com');
+    expect(update.mock.calls[0][0].data).toMatchObject({ email: 'nuevo@correo.com', celular: '912345678', nombres: 'Ana', atendidoPor: 'ventas@fp.com' });
+  });
+
+  it('rechaza un celular inválido y vaciar la empresa de una jurídica', async () => {
+    await expect(conLead('NATURAL').service.actualizar('m1', 'l1', { celular: '123' }, 'a@b.c')).rejects.toBeInstanceOf(BadRequestException);
+    await expect(conLead('JURIDICA').service.actualizar('m1', 'l1', { empresa: ' ' }, 'a@b.c')).rejects.toBeInstanceOf(BadRequestException);
+  });
+});

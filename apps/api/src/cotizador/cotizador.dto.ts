@@ -50,4 +50,26 @@ export class ActualizarLeadDto {
 
   @IsOptional() @IsString() @MaxLength(2000)
   notas?: string;
+
+  // Corrección de los datos de contacto desde el dashboard (el tipo y el número de documento no se cambian).
+  @IsOptional() @IsString() @MinLength(2) @MaxLength(80) @Matches(TEXTO)
+  nombres?: string;
+
+  @IsOptional() @IsString() @MinLength(2) @MaxLength(80) @Matches(TEXTO)
+  apellidos?: string;
+
+  @IsOptional() @IsString() @MaxLength(120) @Matches(TEXTO)
+  empresa?: string;
+
+  @IsOptional() @IsEmail() @MaxLength(120)
+  email?: string;
+
+  @IsOptional() @IsString() @MaxLength(20)
+  celular?: string;
+
+  @IsOptional() @IsString() @MinLength(2) @MaxLength(120) @Matches(TEXTO)
+  interes?: string;
+
+  @IsOptional() @IsString() @MaxLength(1000) @Matches(TEXTO)
+  mensaje?: string;
 }
