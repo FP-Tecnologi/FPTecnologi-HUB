@@ -57,7 +57,7 @@ describe('directorio de agencias Shalom', () => {
     const r = agenciasCercanas(-12.0464, -77.0428, 5);
     expect(r).toHaveLength(5);
     expect(r[0].departamento).toBe('Lima');
-    expect(r.map((a) => a.distanciaKm)).toEqual([...r.map((a) => a.distanciaKm)].sort((a, b) => a - b));
+    expect(r.map((a) => a.distanciaKm)).toEqual(r.map((a) => a.distanciaKm).sort((a, b) => a - b));
     expect(r[0].distanciaKm).toBeLessThan(10);
   });
 

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Logger, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { Limite } from '../common/guards/limite-peticiones.guard.js';
 import { ConfigService } from '@nestjs/config';
 import type { Request, Response } from 'express';
