@@ -44,7 +44,7 @@ function setup(respuestas: Array<{ status: number; json: unknown }>) {
   const create = vi.fn(async ({ data }) => ({ id: '11111111-1111-4111-8111-111111111111', ...data }));
   const update = vi.fn();
   const prisma = { contactoWeb: { create, update, findFirst: vi.fn(async () => ({ mensaje: 'Consulta', nombre: 'Amparo' })) } };
-  const avisarEquipo = vi.fn(async () => undefined);
+  const avisarEquipo = vi.fn(async (..._args: unknown[]) => undefined);
   return { service: new BbvaService(prisma as never, { avisarEquipo } as never), fetchMock, create, update, avisarEquipo };
 }
 
