@@ -6,8 +6,9 @@ import Reveal from '@/components/Reveal';
 import Titulo from '@/components/Titulo';
 import { IconoWhatsApp } from '@/components/WhatsApp';
 import JsonLd from '@/components/JsonLd';
-import { jsonPreguntas, meta, migas } from '@/lib/seo';
-import { contacto, preguntas, waUrl } from '@/lib/contenido';
+import { meta, migas } from '@/lib/seo';
+import { getPagina } from '@/lib/cms';
+import { contacto, waUrl } from '@/lib/contenido';
 
 export const metadata: Metadata = meta('Contacto', 'Escríbenos por WhatsApp, llámanos o déjanos tu mensaje. Atendemos venta directa y licitaciones públicas y privadas en todo el Perú.', '/contacto');
 
@@ -20,11 +21,13 @@ const CANALES = [
   { titulo: 'Redes sociales', valor: `${contacto.redes} en redes sociales`, Icono: AtSign },
 ];
 
-export default function Contacto() {
+export default async function Contacto() {
+  const { banner, preguntas } = await getPagina('contacto');
+  const jsonPreguntas = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: preguntas.items.map((q) => ({ '@type': 'Question', name: q.p, acceptedAnswer: { '@type': 'Answer', text: q.r } })) };
   return (
     <main id="contenido">
       <JsonLd datos={[migas([{ nombre: 'Contacto', ruta: '/contacto' }]), jsonPreguntas]} />
-      <Banner miga="Contacto" titulo="Contáctanos para" acento="cualquier duda" texto="Elige el canal que prefieras: te atendemos de inmediato y te ayudamos a encontrar la solución precisa para tu proyecto." foto="/fotos/obrero-casco.webp" />
+      <Banner miga="Contacto" titulo={banner.titulo} acento={banner.acento} texto={banner.texto} foto="/fotos/obrero-casco.webp" />
 
       <section className="py-20 sm:py-24">
         <div className={`${contenedor} grid gap-12 lg:grid-cols-[0.85fr_1.15fr]`}>
@@ -73,9 +76,9 @@ export default function Contacto() {
       {/* Preguntas frecuentes (web anterior) */}
       <section className="bg-niebla py-20 sm:py-24">
         <div className="mx-auto max-w-3xl px-5 sm:px-8">
-          <Reveal><Titulo centro etiqueta="Preguntas frecuentes" solido="Razones para" acento="confiar en Kelqa" /></Reveal>
+          <Reveal><Titulo centro etiqueta={preguntas.etiqueta} solido={preguntas.titulo} acento={preguntas.acento} /></Reveal>
           <div className="mt-12 grid gap-3">
-            {preguntas.map((q, i) => (
+            {preguntas.items.map((q, i) => (
               <Reveal key={q.p} retraso={i * 70}>
                 <details className="group rounded-2xl bg-white shadow-md shadow-kelqa-hondo/5 ring-1 ring-kelqa/10 transition duration-300 open:shadow-lg open:shadow-kelqa-hondo/10 open:ring-kelqa/25" open={i === 0}>
                   <summary className="flex cursor-pointer list-none items-center gap-4 p-5 font-titulo font-bold text-tinta transition-colors hover:text-kelqa-hondo [&::-webkit-details-marker]:hidden">

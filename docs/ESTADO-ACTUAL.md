@@ -1253,3 +1253,9 @@ Plan: [`docs/superpowers/plans/2026-10-23-cms-fimav.md`](superpowers/plans/2026-
 
 - `/tickets` y `/tickets/seguimiento` (flujo de Quamtu adaptado al estilo claro de Kelqa; proxies `/api/hub/tickets`, `/api/hub/tickets/[accion]`, `/api/hub/evidencia`), enlace en el pie y en el sitemap. Contador de visitas propio (`ContadorVisitas` + `/api/hub/visita`) en el layout. El libro de reclamaciones ya existía (2026-10-30). `lint` y `build` OK.
 - Pendiente de Kelqa: CMS desde el dashboard (grupo Web Kelqa), `HUB_MARCA_ID`/`HUB_API_URL` en el hosting, razón social/RUC/correo de tickets en Admin → Marcas, dominio en Sitios, repo espejo y despliegue.
+
+### 2026-11-01 (2) — CMS de la web de Kelqa en el dashboard
+
+- Web (`apps/kelqa-web/src/lib/cms.ts`, mismo modelo que Fimav): Inicio (portada, quiénes somos con misión y visión, por qué Kelqa, venta directa y licitaciones, clientes y testimonios) y Contacto (banner y preguntas frecuentes) se leen del CMS con los textos anteriores como defaults; `GET /api/cms/:pagina` (CORS solo `DASHBOARD_ORIGIN`). Páginas dinámicas (se leen en cada visita).
+- Dashboard: grupo **Web Kelqa** (rol marketing, solo con la marca Kelqa activa) con Inicio y Contacto sobre `CmsEditor`; `NEXT_PUBLIC_WEB_KELQA_URL` opcional (por defecto `localhost:3007` en local y `kelqa.com` en servidor). Kelqa suma `marca.webkelqa` a sus módulos. API: kelqa.com en enlaces de tickets y dominios propios de imágenes.
+- Fuera del CMS por ahora: fotos, líneas de producto, página Nosotros, y teléfono/WhatsApp/correo (siguen en `contenido.ts`).

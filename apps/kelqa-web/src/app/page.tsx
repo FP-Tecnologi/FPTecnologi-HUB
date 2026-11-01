@@ -4,7 +4,8 @@ import { ArrowRight, BadgePercent, Headset, MessageCircle, Quote, ShieldCheck, T
 import Reveal from '@/components/Reveal';
 import Titulo from '@/components/Titulo';
 import { Clientes, CtaContacto } from '@/components/Bloques';
-import { lineas, razones, testimonios, valores, waUrl } from '@/lib/contenido';
+import { lineas, razones, valores, waUrl } from '@/lib/contenido';
+import { getPagina } from '@/lib/cms';
 
 export const metadata: Metadata = {
   title: { absolute: 'Kelqa — Pinturas, mobiliario corporativo y soluciones para construcción' },
@@ -17,7 +18,8 @@ const contenedor = 'mx-auto max-w-7xl px-5 sm:px-8';
 const botonPrimario = 'boton inline-flex h-13 items-center gap-2 rounded-xl bg-kelqa px-6 font-semibold text-white shadow-lg shadow-kelqa-hondo/35 hover:bg-kelqa-hondo hover:shadow-xl hover:shadow-kelqa-hondo/45';
 const retraso = (ms: number) => ({ '--retraso': `${ms}ms` }) as React.CSSProperties;
 
-export default function Inicio() {
+export default async function Inicio() {
+  const { hero, quienes, porque, canales, clientes } = await getPagina('inicio');
   return (
     <main id="contenido">
       {/* HERO */}
@@ -31,13 +33,13 @@ export default function Inicio() {
         <div className={`${contenedor} grid min-h-[100svh] grid-cols-1 items-center gap-12 pb-20 pt-32 lg:grid-cols-[1.15fr_0.85fr]`}>
           <div>
             <p className="entrada inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-[0.18em] text-kelqa-claro backdrop-blur">
-              <span aria-hidden="true" className="size-2 rounded-[3px] bg-current" />Industria · Construcción · Corporativo
+              <span aria-hidden="true" className="size-2 rounded-[3px] bg-current" />{hero.etiqueta}
             </p>
             <h1 className="entrada mt-6 text-[clamp(2.6rem,7vw,5rem)] font-extrabold leading-[1.02] tracking-tight text-white" style={retraso(120)}>
-              Hecha para <span className="titulo-brillo titulo-brillo-claro">avanzar contigo</span>
+              {hero.titulo} <span className="titulo-brillo titulo-brillo-claro">{hero.acento}</span>
             </h1>
             <p className="entrada mt-6 max-w-xl text-lg leading-relaxed text-white/85" style={retraso(240)}>
-              Soluciones confiables y de alto valor para tus proyectos: pinturas, mobiliario corporativo y productos para construcción y emergencia, con cobertura a nivel nacional.
+              {hero.texto}
             </p>
             <div className="entrada mt-9 flex flex-wrap gap-3" style={retraso(360)}>
               <a href={waUrl('Hola Kelqa, quisiera cotizar productos para mi proyecto.')} target="_blank" rel="noopener noreferrer" className={botonPrimario}>
@@ -93,12 +95,12 @@ export default function Inicio() {
             </div>
           </Reveal>
           <Reveal efecto="derecha" retraso={120} className="pt-6 lg:pt-0">
-            <Titulo etiqueta="Quiénes somos" solido="Más que productos," acento="soluciones que generan impacto" />
+            <Titulo etiqueta={quienes.etiqueta} solido={quienes.titulo} acento={quienes.acento} />
             <p className="mt-6 text-lg leading-relaxed">
-              Desarrollamos y ofrecemos soluciones confiables, eficientes y de alto valor para los sectores industrial y construcción, con productos que integran calidad, rendimiento, durabilidad y precios competitivos.
+              {quienes.texto}
             </p>
             <p className="mt-4 leading-relaxed text-carbon/85">
-              Creemos en el trabajo bien hecho y en relaciones comerciales basadas en la confianza, la responsabilidad, la transparencia y un servicio oportuno.
+              {quienes.texto2}
             </p>
             <ul className="mt-7 flex flex-wrap gap-2">
               {valores.map((v, i) => (
@@ -109,8 +111,8 @@ export default function Inicio() {
             </ul>
             <div className="mt-8 grid gap-4 sm:grid-cols-2">
               {[
-                ['Misión', 'Brindar soluciones confiables y de alta calidad que impulsen proyectos en diversos sectores, con cobertura nacional y un servicio cercano.'],
-                ['Visión', 'Ser una marca reconocida por su excelencia, cercanía y compromiso, aliada de nuestros clientes en cada etapa de sus proyectos.'],
+                ['Misión', quienes.mision],
+                ['Visión', quienes.vision],
               ].map(([t, d]) => (
                 <div key={t} className="group rounded-2xl bg-niebla p-5 ring-1 ring-transparent transition duration-500 ease-out hover:-translate-y-0.5 hover:bg-white hover:shadow-lg hover:shadow-kelqa-hondo/10 hover:ring-kelqa/15">
                   <h3 className="text-base font-bold transition-colors duration-500 group-hover:text-kelqa-hondo">{t}</h3>
@@ -179,9 +181,9 @@ export default function Inicio() {
       <section className="py-24 sm:py-28">
         <div className={`${contenedor} grid items-center gap-14 lg:grid-cols-[0.9fr_1.1fr]`}>
           <Reveal efecto="izquierda" className="group">
-            <Titulo etiqueta="¿Por qué Kelqa?" solido="Construimos" acento="relaciones que duran" />
+            <Titulo etiqueta={porque.etiqueta} solido={porque.titulo} acento={porque.acento} />
             <p className="mt-6 text-lg leading-relaxed">
-              Buen servicio es acompañarte de cerca, entender los desafíos de tu proyecto y proponer alternativas eficientes, oportunas y alineadas a tus objetivos.
+              {porque.texto}
             </p>
             <div className="mt-8 hidden overflow-hidden rounded-[2rem] rounded-bl-[5rem] shadow-xl shadow-kelqa-hondo/20 lg:block">
               <img decoding="async" src="/fotos/obrero-casco.webp" alt="Trabajador de obra con su casco de seguridad" loading="lazy" className="foto-zoom aspect-[16/9] w-full object-cover" />
@@ -210,12 +212,12 @@ export default function Inicio() {
         <Reveal efecto="zoom" className="group relative isolate mx-auto grid max-w-7xl items-center overflow-hidden rounded-[2.5rem] rounded-tr-[7rem] bg-tinta text-white lg:grid-cols-2">
           <img loading="lazy" decoding="async" src="/icon.svg" alt="" aria-hidden="true" className="pointer-events-none absolute -right-16 -top-16 -z-10 w-80 opacity-10 transition duration-1000 group-hover:rotate-12" />
           <div className="p-8 sm:p-14">
-            <Titulo oscuro etiqueta="Sector público y privado" solido="Venta directa y" acento="licitaciones" />
+            <Titulo oscuro etiqueta={canales.etiqueta} solido={canales.titulo} acento={canales.acento} />
             <p className="mt-6 text-lg leading-relaxed text-white/80">
-              Atendemos ventas directas y licitaciones públicas y privadas. Encuentra todas nuestras fichas en <b className="text-white">Perú Compras</b>.
+              {canales.texto}
             </p>
             <a href={waUrl('Hola Kelqa, represento a una entidad y quisiera información sobre licitaciones o Perú Compras.')} target="_blank" rel="noopener noreferrer" className={`${botonPrimario} mt-8`}>
-              <MessageCircle aria-hidden="true" size={20} className="icono-sacude" />Consultar disponibilidad
+              <MessageCircle aria-hidden="true" size={20} className="icono-sacude" />{canales.boton}
             </a>
           </div>
           <div className="h-full min-h-72 overflow-hidden">
@@ -227,10 +229,10 @@ export default function Inicio() {
       {/* TESTIMONIOS */}
       <section id="clientes" className="py-24 sm:py-28">
         <div className={contenedor}>
-          <Reveal><Titulo centro etiqueta="Clientes" solido="Nuestra experiencia" acento="habla por nosotros" /></Reveal>
+          <Reveal><Titulo centro etiqueta={clientes.etiqueta} solido={clientes.titulo} acento={clientes.acento} /></Reveal>
           <Clientes className="mt-12" />
           <ul className="mt-12 grid gap-6 md:grid-cols-3">
-            {testimonios.map((t, i) => (
+            {clientes.testimonios.map((t, i) => (
               <Reveal as="li" key={t.empresa} retraso={i * 110}>
                 <div className="tarjeta group flex h-full flex-col rounded-[1.75rem] bg-niebla p-8 hover:bg-white">
                   <span className="icono-caja grid size-12 place-items-center rounded-xl bg-kelqa/10 text-kelqa group-hover:bg-kelqa group-hover:text-white">

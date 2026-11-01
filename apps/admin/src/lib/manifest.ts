@@ -126,7 +126,7 @@ export function groupsInSection(section: string): NavNode[] {
  */
 export const MODULOS_POR_MARCA: Record<string, string[]> = {
   quamtu: ['marca.crm', 'marca.cotizador', 'marca.herramientas', 'web.tickets', 'marca.libro', 'marca.equipo'],
-  kelqa: ['marca.crm', 'marca.herramientas', 'web.tickets', 'web.contactos', 'marca.libro', 'marca.equipo'],
+  kelqa: ['marca.crm', 'marca.webkelqa', 'marca.herramientas', 'web.tickets', 'web.contactos', 'marca.libro', 'marca.equipo'],
   fimav: ['marca.crm', 'marca.webfimav', 'marca.cotizador', 'cotizador.leads', 'marca.herramientas', 'web.contactos', 'marca.libro', 'marca.equipo'],
 };
 
