@@ -55,3 +55,24 @@ describe('ContactoWebService.crearPublico', () => {
     await expect(service.crearPublico('m1', base, '4.4.4.4')).rejects.toMatchObject({ status: 429 });
   });
 });
+
+describe('ContactoWebService.actualizar', () => {
+  function conContacto() {
+    const update = vi.fn(async ({ data }) => ({ id: 'c1', ...data }));
+    const prisma = { contactoWeb: { findFirst: vi.fn(async () => ({ id: 'c1' })), update } };
+    return { service: new ContactoWebService(prisma as never, {} as never, {} as never), update };
+  }
+
+  it('corrige el contacto normalizado y anota quién lo hizo', async () => {
+    const { service, update } = conContacto();
+    await service.actualizar('m1', 'c1', { email: ' Nuevo@Correo.com ', celular: '+51 912 345 678', empresa: ' ', nombre: ' Ana ' }, 'ventas@fp.com');
+    expect(update.mock.calls[0][0].data).toMatchObject({ email: 'nuevo@correo.com', celular: '912345678', empresa: null, nombre: 'Ana', atendidoPor: 'ventas@fp.com' });
+  });
+
+  it('rechaza un celular inválido; vacío lo borra', async () => {
+    await expect(conContacto().service.actualizar('m1', 'c1', { celular: '123' }, 'a@b.c')).rejects.toThrow('celular');
+    const { service, update } = conContacto();
+    await service.actualizar('m1', 'c1', { celular: '' }, 'a@b.c');
+    expect(update.mock.calls[0][0].data.celular).toBeNull();
+  });
+});

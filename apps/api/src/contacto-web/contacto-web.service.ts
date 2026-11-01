@@ -98,10 +98,18 @@ Teléfono: ${telefono}` : dto.mensaje.trim();
 
   async actualizar(marcaId: string, id: string, dto: ActualizarContactoDto, email: string) {
     await this.get(marcaId, id);
-    return this.prisma.contactoWeb.update({
-      where: { id, marcaId },
-      data: { ...dto, atendidoPor: email },
-    });
+    const { celular, email: correo, empresa, nombre, mensaje, ...resto } = dto;
+    const data: Record<string, unknown> = { ...resto, atendidoPor: email };
+    if (celular !== undefined) {
+      const c = celular.trim() ? normalizarCelular(celular) : null;
+      if (celular.trim() && !c) throw new BadRequestException('Ingresa un celular válido de 9 dígitos');
+      data.celular = c;
+    }
+    if (correo !== undefined) data.email = correo.trim().toLowerCase();
+    if (nombre !== undefined) data.nombre = nombre.trim();
+    if (empresa !== undefined) data.empresa = empresa.trim() || null;
+    if (mensaje !== undefined) data.mensaje = mensaje.trim();
+    return this.prisma.contactoWeb.update({ where: { id, marcaId }, data });
   }
 
   async eliminar(marcaId: string, id: string) {

@@ -36,7 +36,8 @@ const fecha = (iso: string) => new Date(iso).toLocaleDateString('es-PE', { day: 
 const errMsg = (e: unknown, fb: string) => (e instanceof ApiError ? e.message : fb);
 
 export function SolucionesCotizaciones() {
-  const { activeMarcaId } = useAuth();
+  const { activeMarcaId, marcas } = useAuth();
+  const esAdmin = marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre.toLowerCase() === 'admin';
   const [lista, setLista] = useState<Cotizacion[]>([]);
   const [filtro, setFiltro] = useState<Estado | 'TODAS'>('TODAS');
   const [q, setQ] = useState('');
@@ -113,9 +114,9 @@ export function SolucionesCotizaciones() {
     finally { setBusy(false); }
   }
 
-  async function eliminar() {
-    if (!sel || !window.confirm(`¿Eliminar la cotización ${sel.numero ?? ''}? No se puede deshacer.`)) return;
-    try { await api.delete(`/cotizaciones/${sel.id}`); setSelId(null); await cargar(); setAviso({ ok: true, texto: 'Cotización eliminada.' }); }
+  async function eliminar(c: { id: string; numero?: string | null } | null = sel) {
+    if (!c || !window.confirm(`¿Eliminar la cotización ${c.numero ?? ''}? No se puede deshacer.`)) return;
+    try { await api.delete(`/cotizaciones/${c.id}`); if (selId === c.id) setSelId(null); await cargar(); setAviso({ ok: true, texto: 'Cotización eliminada.' }); }
     catch (e) { setAviso({ ok: false, texto: errMsg(e, 'No se pudo eliminar.') }); }
   }
 
@@ -148,7 +149,7 @@ export function SolucionesCotizaciones() {
             <div className="ax-table-wrap">
               <table className="ax-table ax-table--hover">
                 <thead className="ax-table__head"><tr>
-                  <th className="ax-table__th" scope="col">N.º</th><th className="ax-table__th" scope="col">Cliente</th><th className="ax-table__th" scope="col">Servicio</th><th className="ax-table__th" scope="col">Estado</th><th className="ax-table__th" scope="col">Envíos</th><th className="ax-table__th" scope="col">Fecha</th>
+                  <th className="ax-table__th" scope="col">N.º</th><th className="ax-table__th" scope="col">Cliente</th><th className="ax-table__th" scope="col">Servicio</th><th className="ax-table__th" scope="col">Estado</th><th className="ax-table__th" scope="col">Envíos</th><th className="ax-table__th" scope="col">Fecha</th><th className="ax-table__th" scope="col">Acciones</th>
                 </tr></thead>
                 <tbody>
                   {visibles.map((c) => (
@@ -159,6 +160,12 @@ export function SolucionesCotizaciones() {
                       <td className="ax-table__td"><span className={`ax-badge ax-badge--soft ax-badge--pill ${est(c.estado).badge}`}>{est(c.estado).label}</span></td>
                       <td className="ax-table__td">{c._count?.envios || '—'}</td>
                       <td className="ax-table__td" style={{ color: 'var(--ax-text-muted)' }}>{fecha(c.createdAt)}</td>
+                      <td className="ax-table__td" onClick={(e) => e.stopPropagation()}>
+                        <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
+                          <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => setSelId(c.id)}>Gestionar</button>
+                          {esAdmin && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => eliminar(c)} aria-label="Eliminar" style={{ color: 'var(--ax-danger-500)' }}>Eliminar</button>}
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -207,7 +214,7 @@ export function SolucionesCotizaciones() {
                     <button type="button" className="ax-btn ax-btn--secondary" disabled={busy} onClick={() => guardar()}>Guardar</button>
                     <button type="button" className="ax-btn ax-btn--primary" disabled={busy} onClick={() => enviar('EMAIL')}>Enviar por correo</button>
                     <button type="button" className="ax-btn ax-btn--primary" disabled={busy || !sel.clienteTelefono} title={sel.clienteTelefono ? '' : 'El cliente no dejó celular'} onClick={() => enviar('WHATSAPP')}>Enviar por WhatsApp</button>
-                    <button type="button" className="ax-btn ax-btn--ghost" style={{ color: 'var(--ax-danger-500)', marginInlineStart: 'auto' }} onClick={eliminar}>Eliminar</button>
+                    <button type="button" className="ax-btn ax-btn--ghost" style={{ color: 'var(--ax-danger-500)', marginInlineStart: 'auto' }} onClick={() => eliminar()}>Eliminar</button>
                   </div>
 
                   <div>

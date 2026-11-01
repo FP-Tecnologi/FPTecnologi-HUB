@@ -67,6 +67,8 @@ export function ContactosWeb() {
   const [selId, setSelId] = useState<string | null>(null);
   const [notas, setNotas] = useState('');
   const [guardando, setGuardando] = useState(false);
+  const [editando, setEditando] = useState(false);
+  const [form, setForm] = useState({ nombre: '', email: '', celular: '', empresa: '', mensaje: '' });
 
   const cargar = useCallback(async () => {
     if (!activeMarcaId) return;
@@ -94,6 +96,15 @@ export function ContactosWeb() {
   useEffect(() => {
     setNotas(sel?.notas ?? '');
   }, [sel?.id, sel?.notas]);
+  useEffect(() => {
+    setEditando(false);
+  }, [sel?.id]);
+
+  function editar(c: Contacto) {
+    setSelId(c.id);
+    setForm({ nombre: c.nombre, email: c.email, celular: c.celular ?? '', empresa: c.empresa ?? '', mensaje: c.mensaje });
+    setEditando(true);
+  }
 
   const visibles = useMemo(() => {
     const t = q.trim().toLowerCase();
@@ -107,14 +118,16 @@ export function ContactosWeb() {
 
   const cuenta = (e: '' | Estado) => lista.filter((c) => !e || c.estado === e).length;
 
-  async function actualizar(c: Contacto, cambios: { estado?: Estado; notas?: string }) {
+  async function actualizar(c: Contacto, cambios: Partial<Pick<Contacto, 'estado' | 'notas' | 'nombre' | 'email' | 'celular' | 'empresa' | 'mensaje'>>) {
     setGuardando(true);
     try {
       const nuevo = await api.patch<Contacto>(`/contacto-web/${c.id}`, cambios);
       setLista((ls) => ls.map((x) => (x.id === c.id ? nuevo : x)));
       setError('');
+      return true;
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'No se pudo guardar.');
+      return false;
     } finally {
       setGuardando(false);
     }
@@ -180,13 +193,14 @@ export function ContactosWeb() {
                   <th className="ax-table__th" scope="col">Mensaje</th>
                   <th className="ax-table__th" scope="col">Estado</th>
                   <th className="ax-table__th" scope="col">Recibido</th>
+                  <th className="ax-table__th" scope="col">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {cargando ? (
-                  <tr><td className="ax-table__td" colSpan={4}>Cargando…</td></tr>
+                  <tr><td className="ax-table__td" colSpan={5}>Cargando…</td></tr>
                 ) : visibles.length === 0 ? (
-                  <tr><td className="ax-table__td" colSpan={4} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay contactos. Aparecerán cuando alguien use el formulario de la web.' : 'Ningún contacto coincide con el filtro.'}</td></tr>
+                  <tr><td className="ax-table__td" colSpan={5} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay contactos. Aparecerán cuando alguien use el formulario de la web.' : 'Ningún contacto coincide con el filtro.'}</td></tr>
                 ) : (
                   visibles.map((c) => (
                     <tr key={c.id} className="ax-table__row" onClick={() => setSelId(c.id)} style={{ cursor: 'pointer', background: c.id === selId ? 'var(--ax-surface-subtle)' : undefined }}>
@@ -200,6 +214,12 @@ export function ContactosWeb() {
                       <td className="ax-table__td" style={{ maxWidth: 320, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.mensaje}</td>
                       <td className="ax-table__td"><span className={`ax-badge ax-badge--soft ax-badge--sm ${meta(c.estado).badge}`}>{meta(c.estado).label}</span></td>
                       <td className="ax-table__td" style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>{fecha(c.createdAt)}</td>
+                      <td className="ax-table__td" onClick={(e) => e.stopPropagation()}>
+                        <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
+                          {c.tipo === 'CONTACTO' && <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => editar(c)} aria-label={`Editar el contacto de ${c.nombre}`}>Editar</button>}
+                          <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => eliminar(c)} aria-label={`Eliminar el contacto de ${c.nombre}`} style={{ color: 'var(--ax-danger-500)' }}>Eliminar</button>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -219,6 +239,30 @@ export function ContactosWeb() {
               <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setSelId(null)} aria-label="Cerrar detalle">Cerrar</button>
             </div>
             <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
+              {editando ? (
+                <form
+                  style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    if (await actualizar(sel, form)) setEditando(false);
+                  }}
+                >
+                  {([['nombre', 'Nombre'], ['email', 'Correo'], ['celular', 'Celular'], ['empresa', 'Empresa']] as const).map(([k, label]) => (
+                    <div className="ax-field" key={k}>
+                      <label className="ax-label" htmlFor={`contacto-${k}`}>{label}</label>
+                      <input id={`contacto-${k}`} className="ax-input" value={form[k]} onChange={(e) => setForm({ ...form, [k]: e.target.value })} maxLength={120} required={k === 'nombre' || k === 'email'} type={k === 'email' ? 'email' : 'text'} />
+                    </div>
+                  ))}
+                  <div className="ax-field">
+                    <label className="ax-label" htmlFor="contacto-mensaje">Mensaje</label>
+                    <textarea id="contacto-mensaje" className="ax-textarea" rows={4} maxLength={3000} required value={form.mensaje} onChange={(e) => setForm({ ...form, mensaje: e.target.value })} />
+                  </div>
+                  <div className="ax-cluster" style={{ justifyContent: 'flex-end' }}>
+                    <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setEditando(false)}>Cancelar</button>
+                    <button type="submit" className="ax-btn ax-btn--primary ax-btn--sm" disabled={guardando}><span className="ax-btn__label">Guardar cambios</span></button>
+                  </div>
+                </form>
+              ) : (<>
               <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 'var(--ax-space-2) var(--ax-space-4)', fontSize: 'var(--ax-text-sm)', margin: 0 }}>
                 {sel.empresa && (<><dt style={{ color: 'var(--ax-text-muted)' }}>Empresa</dt><dd style={{ margin: 0 }}>{sel.empresa}</dd></>)}
                 <dt style={{ color: 'var(--ax-text-muted)' }}>Correo</dt>
@@ -234,6 +278,7 @@ export function ContactosWeb() {
                 <span className="ax-label">Mensaje</span>
                 <p style={{ margin: 0, whiteSpace: 'pre-wrap', fontSize: 'var(--ax-text-sm)' }}>{sel.mensaje}</p>
               </div>
+              </>)}
 
               <div className="ax-field">
                 <label className="ax-label" htmlFor="contacto-estado">Estado</label>
@@ -252,7 +297,10 @@ export function ContactosWeb() {
                 </div>
               </div>
 
-              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ alignSelf: 'flex-start' }} onClick={() => eliminar(sel)}>Eliminar contacto</button>
+              <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
+                {!editando && sel.tipo === 'CONTACTO' && <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => editar(sel)}>Editar datos</button>}
+                <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={() => eliminar(sel)}>Eliminar contacto</button>
+              </div>
             </div>
           </section>
         )}

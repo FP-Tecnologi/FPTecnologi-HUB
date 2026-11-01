@@ -35,4 +35,20 @@ export class ActualizarContactoDto {
 
   @IsOptional() @IsString() @MaxLength(2000)
   notas?: string;
+
+  // Corrección de los datos de contacto desde el dashboard.
+  @IsOptional() @IsString() @MinLength(2) @MaxLength(120) @Matches(TEXTO)
+  nombre?: string;
+
+  @IsOptional() @IsEmail() @MaxLength(120)
+  email?: string;
+
+  @IsOptional() @IsString() @MaxLength(20)
+  celular?: string;
+
+  @IsOptional() @IsString() @MaxLength(120) @Matches(TEXTO)
+  empresa?: string;
+
+  @IsOptional() @IsString() @MinLength(2) @MaxLength(3000) @Matches(TEXTO)
+  mensaje?: string;
 }

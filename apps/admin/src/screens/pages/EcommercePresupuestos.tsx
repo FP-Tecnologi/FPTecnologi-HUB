@@ -34,7 +34,8 @@ const usd = (n: string | number) => `US$ ${Number(n).toLocaleString('en-US', { m
 const errMsg = (e: unknown, fb: string) => (e instanceof ApiError ? e.message : fb);
 
 export function EcommercePresupuestos() {
-  const { activeMarcaId } = useAuth();
+  const { activeMarcaId, marcas } = useAuth();
+  const esAdmin = marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre.toLowerCase() === 'admin';
   const [lista, setLista] = useState<Presupuesto[]>([]);
   const [filtro, setFiltro] = useState<Estado | 'TODAS'>('TODAS');
   const [q, setQ] = useState('');
@@ -86,9 +87,9 @@ export function EcommercePresupuestos() {
     finally { setBusy(false); }
   }
 
-  async function eliminar() {
-    if (!sel || !window.confirm(`¿Eliminar el presupuesto ${sel.numero}? No se puede deshacer.`)) return;
-    try { await api.delete(`/presupuestos/${sel.id}`); setSelId(null); await cargar(); setAviso({ ok: true, texto: 'Presupuesto eliminado.' }); }
+  async function eliminar(p: { id: string; numero: string } | null = sel) {
+    if (!p || !window.confirm(`¿Eliminar el presupuesto ${p.numero}? No se puede deshacer.`)) return;
+    try { await api.delete(`/presupuestos/${p.id}`); if (selId === p.id) setSelId(null); await cargar(); setAviso({ ok: true, texto: 'Presupuesto eliminado.' }); }
     catch (e) { setAviso({ ok: false, texto: errMsg(e, 'No se pudo eliminar.') }); }
   }
 
@@ -121,7 +122,7 @@ export function EcommercePresupuestos() {
             <div className="ax-table-wrap">
               <table className="ax-table ax-table--hover">
                 <thead className="ax-table__head"><tr>
-                  <th className="ax-table__th" scope="col">N.º</th><th className="ax-table__th" scope="col">Cliente</th><th className="ax-table__th" scope="col">Total</th><th className="ax-table__th" scope="col">Estado</th><th className="ax-table__th" scope="col">Fecha</th>
+                  <th className="ax-table__th" scope="col">N.º</th><th className="ax-table__th" scope="col">Cliente</th><th className="ax-table__th" scope="col">Total</th><th className="ax-table__th" scope="col">Estado</th><th className="ax-table__th" scope="col">Fecha</th><th className="ax-table__th" scope="col">Acciones</th>
                 </tr></thead>
                 <tbody>
                   {visibles.map((p) => (
@@ -131,6 +132,12 @@ export function EcommercePresupuestos() {
                       <td className="ax-table__td" style={{ fontFamily: 'var(--ax-font-mono)' }}>{usd(p.total)}</td>
                       <td className="ax-table__td"><span className={`ax-badge ax-badge--soft ax-badge--pill ${est(p.estado).badge}`}>{est(p.estado).label}</span></td>
                       <td className="ax-table__td" style={{ color: 'var(--ax-text-muted)' }}>{fecha(p.createdAt)}</td>
+                      <td className="ax-table__td" onClick={(e) => e.stopPropagation()}>
+                        <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
+                          <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => setSelId(p.id)}>Gestionar</button>
+                          {esAdmin && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => eliminar(p)} aria-label="Eliminar" style={{ color: 'var(--ax-danger-500)' }}>Eliminar</button>}
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -190,7 +197,7 @@ export function EcommercePresupuestos() {
 
                   <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
                     <button type="button" className="ax-btn ax-btn--primary" disabled={busy} onClick={reenviar}>Enviar por correo</button>
-                    <button type="button" className="ax-btn ax-btn--ghost" style={{ color: 'var(--ax-danger-500)', marginInlineStart: 'auto' }} onClick={eliminar}>Eliminar</button>
+                    <button type="button" className="ax-btn ax-btn--ghost" style={{ color: 'var(--ax-danger-500)', marginInlineStart: 'auto' }} onClick={() => eliminar()}>Eliminar</button>
                   </div>
                 </div>
               </>

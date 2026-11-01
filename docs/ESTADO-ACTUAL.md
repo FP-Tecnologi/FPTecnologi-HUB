@@ -1271,3 +1271,8 @@ Plan: [`docs/superpowers/plans/2026-10-23-cms-fimav.md`](superpowers/plans/2026-
 
 - La tabla de Cotizador → Leads suma la columna **Acciones** (Editar / Eliminar por fila) y el detalle permite **editar los datos de contacto** (nombres, apellidos, empresa, correo, celular, interés, mensaje; el tipo y número de documento no cambian). API: `PATCH /cotizador/leads/:id` acepta esos campos (celular y correo normalizados; una jurídica no puede quedar sin empresa); `DELETE` ya existía. 2 tests nuevos (8 del módulo).
 - Contador de visitas: ya cuenta las 4 webs (FPTecnologi, Fimav, Quamtu y Kelqa); necesita `HUB_MARCA_ID` en cada web desplegada.
+
+### 2026-11-01 (5) — Acciones por fila en Contactos, Cotizaciones y Presupuestos
+
+- **Contactos web**: columna Acciones (Editar / Eliminar) y edición de nombre, correo, celular, empresa y mensaje en el detalle (`PATCH /contacto-web/:id`; correo y celular normalizados; los reclamos no se editan, solo se eliminan). 2 tests nuevos.
+- **Cotizaciones y Presupuestos**: columna Acciones con **Gestionar** (abre el detalle, donde se edita la propuesta o el estado) y **Eliminar** (solo se muestra al admin de la marca, como la API). Los datos del cliente de estos documentos formales no se editan.
