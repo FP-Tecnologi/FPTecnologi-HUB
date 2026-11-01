@@ -113,12 +113,12 @@ export function WebProyectos() {
     }
   }
 
-  async function borrar() {
-    if (!edit?.id || !window.confirm('¿Eliminar este proyecto?')) return;
+  async function borrar(id = edit?.id) {
+    if (!id || !window.confirm('¿Eliminar este proyecto?')) return;
     try {
-      await api.delete(`/proyectos/${edit.id}`);
+      await api.delete(`/proyectos/${id}`);
       setOk('Proyecto eliminado.');
-      setEdit(null);
+      if (edit?.id === id) setEdit(null);
       await cargar();
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'No se pudo eliminar.');
@@ -157,13 +157,14 @@ export function WebProyectos() {
                   <th className="ax-table__th" scope="col">Región</th>
                   <th className="ax-table__th" scope="col" style={{ textAlign: 'right' }}>Año</th>
                   <th className="ax-table__th" scope="col">Estado</th>
+                  <th className="ax-table__th" scope="col" style={{ textAlign: 'right' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {cargando ? (
-                  <tr><td className="ax-table__td" colSpan={4}>Cargando…</td></tr>
+                  <tr><td className="ax-table__td" colSpan={5}>Cargando…</td></tr>
                 ) : visibles.length === 0 ? (
-                  <tr><td className="ax-table__td" colSpan={4} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay proyectos.' : 'Ningún proyecto coincide.'}</td></tr>
+                  <tr><td className="ax-table__td" colSpan={5} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay proyectos.' : 'Ningún proyecto coincide.'}</td></tr>
                 ) : (
                   visibles.map((p) => (
                     <tr key={p.id} className="ax-table__row" onClick={() => { setOk(''); setError(''); setEdit({ id: p.id, form: desde(p) }); }} style={{ cursor: 'pointer', background: edit?.id === p.id ? 'var(--ax-surface-subtle)' : undefined }}>
@@ -184,6 +185,12 @@ export function WebProyectos() {
                         <button type="button" className={`ax-badge ax-badge--soft ax-badge--sm ${p.activo ? 'ax-badge--success' : 'ax-badge--neutral'}`} style={{ cursor: 'pointer', border: 0 }} onClick={(e) => { e.stopPropagation(); void alternarActivo(p); }}>
                           {p.activo ? 'Visible' : 'Oculto'}
                         </button>
+                      </td>
+                      <td className="ax-table__td" style={{ textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
+                        <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap', justifyContent: 'flex-end' }}>
+                          <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => { setOk(''); setError(''); setEdit({ id: p.id, form: desde(p) }); }}>Editar</button>
+                          {<button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => void borrar(p.id)} aria-label="Eliminar" style={{ color: 'var(--ax-danger-500)' }}>Eliminar</button>}
+                        </div>
                       </td>
                     </tr>
                   ))

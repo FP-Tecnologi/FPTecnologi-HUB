@@ -153,13 +153,13 @@ export function WebServicios() {
     }
   }
 
-  async function borrar() {
-    if (!edit?.id) return;
+  async function borrar(id = edit?.id) {
+    if (!id) return;
     if (!window.confirm('¿Eliminar este servicio? Si ya tiene cotizaciones no se podrá; en ese caso desactívalo.')) return;
     try {
-      await api.delete(`/servicios/${edit.id}`);
+      await api.delete(`/servicios/${id}`);
       setOk('Servicio eliminado.');
-      setEdit(null);
+      if (edit?.id === id) setEdit(null);
       await cargar();
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'No se pudo eliminar. Si tiene cotizaciones, desactívalo.');
@@ -197,13 +197,14 @@ export function WebServicios() {
                   <th className="ax-table__th" scope="col">Servicio</th>
                   <th className="ax-table__th" scope="col" style={{ textAlign: 'right' }}>Orden</th>
                   <th className="ax-table__th" scope="col">Estado</th>
+                  <th className="ax-table__th" scope="col" style={{ textAlign: 'right' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {cargando ? (
-                  <tr><td className="ax-table__td" colSpan={3}>Cargando…</td></tr>
+                  <tr><td className="ax-table__td" colSpan={4}>Cargando…</td></tr>
                 ) : visibles.length === 0 ? (
-                  <tr><td className="ax-table__td" colSpan={3} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay servicios. Crea el primero o carga el seed inicial.' : 'Ningún servicio coincide.'}</td></tr>
+                  <tr><td className="ax-table__td" colSpan={4} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay servicios. Crea el primero o carga el seed inicial.' : 'Ningún servicio coincide.'}</td></tr>
                 ) : (
                   visibles.map((s) => (
                     <tr key={s.id} className="ax-table__row" onClick={() => { setOk(''); setError(''); setEdit({ id: s.id, form: desde(s) }); }} style={{ cursor: 'pointer', background: edit?.id === s.id ? 'var(--ax-surface-subtle)' : undefined }}>
@@ -223,6 +224,12 @@ export function WebServicios() {
                         <button type="button" className={`ax-badge ax-badge--soft ax-badge--sm ${s.activo ? 'ax-badge--success' : 'ax-badge--neutral'}`} style={{ cursor: 'pointer', border: 0 }} title={s.activo ? 'Desactivar (se oculta de la web)' : 'Activar (se muestra en la web)'} onClick={(e) => { e.stopPropagation(); void alternarActivo(s); }}>
                           {s.activo ? 'Activo' : 'Inactivo'}
                         </button>
+                      </td>
+                      <td className="ax-table__td" style={{ textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
+                        <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap', justifyContent: 'flex-end' }}>
+                          <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => { setOk(''); setError(''); setEdit({ id: s.id, form: desde(s) }); }}>Editar</button>
+                          {esAdmin && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => void borrar(s.id)} aria-label="Eliminar" style={{ color: 'var(--ax-danger-500)' }}>Eliminar</button>}
+                        </div>
                       </td>
                     </tr>
                   ))

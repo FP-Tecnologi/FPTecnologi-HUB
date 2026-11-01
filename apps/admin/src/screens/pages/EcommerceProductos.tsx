@@ -61,7 +61,8 @@ const desde = (p: Producto): Form => ({
 const src = (u: string | undefined) => (u ? (u.startsWith('/') ? `${WEB}${u}` : u) : null);
 
 export function EcommerceProductos() {
-  const { activeMarcaId } = useAuth();
+  const { activeMarcaId, marcas } = useAuth();
+  const esAdmin = marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre.toLowerCase() === 'admin';
   const [lista, setLista] = useState<Producto[]>([]);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
   const [cargando, setCargando] = useState(true);
@@ -150,6 +151,18 @@ export function EcommerceProductos() {
     }
   }
 
+  async function borrar(id: string) {
+    if (!window.confirm('¿Eliminar este producto? No se puede deshacer.')) return;
+    try {
+      await api.delete(`/productos/${id}`);
+      setOk('Producto eliminado.');
+      if (edit?.id === id) setEdit(null);
+      await cargar();
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'No se pudo eliminar el producto.');
+    }
+  }
+
   async function alternarActivo(p: Producto) {
     try {
       await api.patch(`/productos/${p.id}`, { activo: !p.activo });
@@ -208,13 +221,14 @@ export function EcommerceProductos() {
                   <th className="ax-table__th" scope="col" style={{ textAlign: 'right' }}>Precio</th>
                   <th className="ax-table__th" scope="col" style={{ textAlign: 'right' }}>Stock</th>
                   <th className="ax-table__th" scope="col">Estado</th>
+                  <th className="ax-table__th" scope="col" style={{ textAlign: 'right' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {cargando ? (
-                  <tr><td className="ax-table__td" colSpan={5}>Cargando…</td></tr>
+                  <tr><td className="ax-table__td" colSpan={6}>Cargando…</td></tr>
                 ) : visibles.length === 0 ? (
-                  <tr><td className="ax-table__td" colSpan={5} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay productos. Importa el catálogo o crea el primero.' : 'Ningún producto coincide con el filtro.'}</td></tr>
+                  <tr><td className="ax-table__td" colSpan={6} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay productos. Importa el catálogo o crea el primero.' : 'Ningún producto coincide con el filtro.'}</td></tr>
                 ) : (
                   visibles.map((p) => (
                     <tr key={p.id} className="ax-table__row" onClick={() => { setOk(''); setError(''); setEdit({ id: p.id, form: desde(p) }); }} style={{ cursor: 'pointer', background: edit?.id === p.id ? 'var(--ax-surface-subtle)' : undefined }}>
@@ -241,6 +255,12 @@ export function EcommerceProductos() {
                         <button type="button" className={`ax-badge ax-badge--soft ax-badge--sm ${p.activo ? 'ax-badge--success' : 'ax-badge--neutral'}`} style={{ cursor: 'pointer', border: 0 }} title={p.activo ? 'Desactivar (se oculta de la tienda)' : 'Activar (se muestra en la tienda)'} onClick={(e) => { e.stopPropagation(); alternarActivo(p); }}>
                           {p.activo ? 'Activo' : 'Inactivo'}
                         </button>
+                      </td>
+                      <td className="ax-table__td" style={{ textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
+                        <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap', justifyContent: 'flex-end' }}>
+                          <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => { setOk(''); setError(''); setEdit({ id: p.id, form: desde(p) }); }}>Editar</button>
+                          {esAdmin && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => void borrar(p.id)} aria-label="Eliminar" style={{ color: 'var(--ax-danger-500)' }}>Eliminar</button>}
+                        </div>
                       </td>
                     </tr>
                   ))

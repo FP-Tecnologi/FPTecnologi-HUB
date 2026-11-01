@@ -1276,3 +1276,8 @@ Plan: [`docs/superpowers/plans/2026-10-23-cms-fimav.md`](superpowers/plans/2026-
 
 - **Contactos web**: columna Acciones (Editar / Eliminar) y edición de nombre, correo, celular, empresa y mensaje en el detalle (`PATCH /contacto-web/:id`; correo y celular normalizados; los reclamos no se editan, solo se eliminan). 2 tests nuevos.
 - **Cotizaciones y Presupuestos**: columna Acciones con **Gestionar** (abre el detalle, donde se edita la propuesta o el estado) y **Eliminar** (solo se muestra al admin de la marca, como la API). Los datos del cliente de estos documentos formales no se editan.
+
+### 2026-11-01 (6) — Acciones por fila en Clientes, Proyectos, Servicios y Productos
+
+- **Web → Clientes, Proyectos, Servicios y Ecommerce → Productos**: columna Acciones con Editar y Eliminar en la tabla (antes solo se podía desde el panel al hacer clic en la fila). Eliminar de Servicios y Productos solo se muestra al admin, como la API. Las tablas hacen scroll horizontal en móvil (`.ax-table-wrap`).
+- Sin acciones a propósito: Libro de reclamaciones (registro legal), Pedidos (se gestionan por estado) y Clientes de ecommerce (agregado de pedidos).
