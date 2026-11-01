@@ -87,3 +87,9 @@ html:not([data-scrolled]) .cabecera-link { color: #fff; }
 @keyframes panel-wa { from { opacity: 0; transform: translateY(14px) scale(0.92); } }
 
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { animation: none !important; transition: none !important; } }
+
+/* Botones de los formularios de tickets (rellena y contorno). */
+.btn-neon { background: var(--color-kelqa-hondo); color: #fff; font-weight: 700; transition: transform 0.35s var(--rebote), background-color 0.3s; }
+.btn-neon:hover { background: var(--color-tinta); transform: translateY(-2px); }
+.btn-borde { border: 2px solid var(--color-kelqa-hondo); color: var(--color-kelqa-hondo); font-weight: 700; transition: background-color 0.3s; }
+.btn-borde:hover { background: var(--color-niebla); }

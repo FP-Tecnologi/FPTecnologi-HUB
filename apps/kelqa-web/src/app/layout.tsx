@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import WhatsApp from '@/components/WhatsApp';
 import JsonLd from '@/components/JsonLd';
+import ContadorVisitas from '@/components/ContadorVisitas';
 import { IMAGEN_SOCIAL, organizacion, sitioWeb } from '@/lib/seo';
 
 const montserrat = Montserrat({ subsets: ['latin'], variable: '--font-montserrat', weight: ['600', '700', '800'] });
@@ -33,6 +34,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <Footer />
         <WhatsApp />
+        <ContadorVisitas />
       </body>
     </html>
   );

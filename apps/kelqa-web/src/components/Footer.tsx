@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { AtSign, BookOpen, Mail, Phone } from 'lucide-react';
+import { AtSign, BookOpen, Headset, Mail, Phone } from 'lucide-react';
 import { contacto, lineas } from '@/lib/contenido';
 
 const enlace = 'inline-flex items-center gap-2 transition duration-300 hover:translate-x-1 hover:text-kelqa-claro';
@@ -20,6 +20,7 @@ export default function Footer() {
             <li><Link href="/nosotros" className={enlace}>Nosotros</Link></li>
             <li><Link href="/contacto" className={enlace}>Contacto</Link></li>
             <li><Link href="/libro-de-reclamaciones" className={enlace}><BookOpen aria-hidden="true" size={16} />Libro de Reclamaciones</Link></li>
+            <li><Link href="/tickets" className={enlace}><Headset aria-hidden="true" size={16} />Soporte (tickets)</Link></li>
           </ul>
         </div>
         <div>
