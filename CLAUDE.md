@@ -71,6 +71,7 @@ Prisma (en `apps/api`, requiere `.env` con `DATABASE_URL`; ver `.env.example`):
   HUB, publicar su espejo (main y develop del repo quedan iguales): `TMPDIR=/tmp bash scripts/publicar-snapshot.sh` (fptecnologi),
   `... publicar-snapshot.sh fimav-web fimav-peru Fimav`, `... publicar-snapshot.sh quamtu-web quamtu-web Quamtu`, `... publicar-snapshot.sh kelqa-web kelqa-web Kelqa`. Nunca editar a mano
   esos repos. El script no crea repos: deben existir y la cuenta de git debe poder escribir en ellos.
+- Multimedia sin uso (imágenes, video, audio) no se deja en `main`: se mueve a la rama de archivo `archivo-multimedia` (misma ruta) y se borra de `main`. Recuperar con `git checkout archivo-multimedia -- <ruta>`. Esa rama no se elimina ni se mezcla.
 - Las ramas que ya no sirven (mergeadas o abandonadas) se eliminan; no dejar ramas viejas.
 - Antes de `git add`, revisa `git status` por archivos de otras sesiones; nunca subas
   `envs/.env` ni `envs/.env.local`.
