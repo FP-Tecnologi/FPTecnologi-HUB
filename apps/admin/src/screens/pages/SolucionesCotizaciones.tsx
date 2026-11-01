@@ -10,6 +10,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { VerEnCrm } from './crm/VerEnCrm';
+import { teclaFila } from '../../lib/teclado';
 
 type Estado = 'PENDIENTE' | 'EN_REVISION' | 'ENVIADA' | 'ACEPTADA' | 'RECHAZADA';
 interface Envio { id: string; canal: 'EMAIL' | 'WHATSAPP'; destinatario: string; mensaje: string; enviadoPor: string; createdAt: string }
@@ -153,7 +154,7 @@ export function SolucionesCotizaciones() {
                 </tr></thead>
                 <tbody>
                   {visibles.map((c) => (
-                    <tr key={c.id} className={`ax-table__row${selId === c.id ? ' is-selected' : ''}`} onClick={() => setSelId(c.id)} style={{ cursor: 'pointer' }}>
+                    <tr key={c.id} className={`ax-table__row${selId === c.id ? ' is-selected' : ''}`} onClick={() => setSelId(c.id)} tabIndex={0} onKeyDown={teclaFila(() => setSelId(c.id))} style={{ cursor: 'pointer' }}>
                       <td className="ax-table__td" style={{ fontFamily: 'var(--ax-font-mono)', fontSize: 'var(--ax-text-xs)' }}>{c.numero ?? '—'}</td>
                       <td className="ax-table__td"><div style={{ fontWeight: 'var(--ax-weight-medium)', color: 'var(--ax-text-strong)' }}>{c.clienteNombre}</div><div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{c.clienteEmpresa ?? c.clienteEmail}</div></td>
                       <td className="ax-table__td">{c.servicio.nombre}</td>
@@ -235,7 +236,7 @@ export function SolucionesCotizaciones() {
                       <h3 style={{ fontSize: 'var(--ax-text-sm)', margin: '0 0 var(--ax-space-2)' }}>Otras cotizaciones de este cliente ({delCliente.length})</h3>
                       <ul className="ax-list">
                         {delCliente.map((c) => (
-                          <li key={c.id} className="ax-list__row" style={{ paddingInline: 0, cursor: 'pointer' }} onClick={() => setSelId(c.id)}>
+                          <li key={c.id} className="ax-list__row" style={{ paddingInline: 0, cursor: 'pointer' }} onClick={() => setSelId(c.id)} tabIndex={0} onKeyDown={teclaFila(() => setSelId(c.id))}>
                             <span className="ax-list__content"><span className="ax-list__title">{c.servicio.nombre}</span><span className="ax-list__meta">{c.numero} · {fecha(c.createdAt)}</span></span>
                             <span className="ax-list__trailing"><span className={`ax-badge ax-badge--soft ax-badge--pill ${est(c.estado).badge}`}>{est(c.estado).label}</span></span>
                           </li>

@@ -11,6 +11,7 @@ import { Icon } from '../../components/ui/Icon';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { teclaFila } from '../../lib/teclado';
 
 type Estado = 'RECIBIDO' | 'EN_PROCESO' | 'RESPONDIDO';
 
@@ -331,7 +332,7 @@ export function LibroReclamaciones() {
                   lista.map((h) => {
                     const p = plazo(h);
                     return (
-                      <tr key={h.id} className="ax-table__row" onClick={() => abrir(h)} style={{ cursor: 'pointer' }}>
+                      <tr key={h.id} className="ax-table__row" onClick={() => abrir(h)} tabIndex={0} onKeyDown={teclaFila(() => abrir(h))} style={{ cursor: 'pointer' }}>
                         <td className="ax-table__td">
                           <button type="button" className="ax-btn ax-btn--link" onClick={(ev) => { ev.stopPropagation(); abrir(h); }} aria-label={`Abrir hoja ${h.codigo}`}>{h.codigo}</button>
                         </td>

@@ -10,6 +10,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { teclaFila } from '../../lib/teclado';
 
 type Estado = 'NUEVO' | 'CONTACTADO' | 'RESUELTO' | 'DESCARTADO';
 type Vista = '' | 'solicito' | 'ofertas' | 'sin-ofertas';
@@ -223,7 +224,7 @@ export function TarjetasBbva() {
                   <tr><td className="ax-table__td" colSpan={5} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay consultas. Aparecerán cuando alguien use la landing de tarjetas BBVA.' : 'Ninguna consulta coincide con el filtro.'}</td></tr>
                 ) : (
                   visibles.map((c) => (
-                    <tr key={c.id} className="ax-table__row" onClick={() => setSelId(c.id)} style={{ cursor: 'pointer', background: c.id === selId ? 'var(--ax-surface-subtle)' : undefined }}>
+                    <tr key={c.id} className="ax-table__row" onClick={() => setSelId(c.id)} tabIndex={0} onKeyDown={teclaFila(() => setSelId(c.id))} style={{ cursor: 'pointer', background: c.id === selId ? 'var(--ax-surface-subtle)' : undefined }}>
                       <td className="ax-table__td">
                         <div style={{ fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-strong)' }}>{c.nombre}</div>
                         <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{c.dni ? `DNI ${c.dni} · ` : ''}{c.celular || c.email}</div>

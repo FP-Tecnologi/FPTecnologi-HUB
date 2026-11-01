@@ -12,6 +12,7 @@ import { useAuth } from '../../../context/AuthContext';
 import {
   Alerta, ETAPAS, NuevaOportunidad, OportunidadPanel, dinero, etapa, msg, montos, nombreDe, pedirMotivo, vencida, fechaCorta, type Etapa, type Oportunidad,
 } from './comun';
+import { teclaFila } from '../../../lib/teclado';
 
 type Vista = 'tablero' | 'lista';
 const CLAVE_VISTA = 'crm:vista-embudo';
@@ -118,7 +119,7 @@ export function CrmEmbudo() {
                       </tr></thead>
                       <tbody>
                         {items.map((o) => (
-                          <tr key={o.id} className="ax-table__row" onClick={() => setAbierta(o.id)} style={{ cursor: 'pointer' }}>
+                          <tr key={o.id} className="ax-table__row" onClick={() => setAbierta(o.id)} tabIndex={0} onKeyDown={teclaFila(() => setAbierta(o.id))} style={{ cursor: 'pointer' }}>
                             <td className="ax-table__td"><div style={{ fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-strong)' }}>{o.titulo}</div><div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{o.numero}</div></td>
                             <td className="ax-table__td">{o.empresa?.razonSocial ?? o.contacto?.nombre ?? '—'}</td>
                             <td className="ax-table__td ax-num">{dinero(o.monto, o.moneda)}</td>

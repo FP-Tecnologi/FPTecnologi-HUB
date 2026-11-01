@@ -11,6 +11,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { teclaFila } from '../../lib/teclado';
 
 type Estado = 'BORRADOR' | 'ACTIVO' | 'PAUSADO';
 type Situacion = 'borrador' | 'pausado' | 'programado' | 'en_curso' | 'finalizado';
@@ -141,7 +142,7 @@ export function WebPopups() {
                 const s = SITUACION[p.situacion ?? 'borrador'];
                 const paginas = p.paginas.includes('todas') ? 'Todas las páginas' : p.paginas.map((k) => opciones?.paginas.find(([c]) => c === k)?.[1] ?? k).join(', ') || 'Sin página';
                 return (
-                  <tr key={p.id} className="ax-table__row" onClick={() => setSelId(p.id)} style={{ cursor: 'pointer' }}>
+                  <tr key={p.id} className="ax-table__row" onClick={() => setSelId(p.id)} tabIndex={0} onKeyDown={teclaFila(() => setSelId(p.id))} style={{ cursor: 'pointer' }}>
                     <td className="ax-table__td">
                       <div style={{ fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-strong)' }}>{p.nombre}</div>
                       <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{opciones?.plantillas.find((x) => x.id === p.plantilla)?.nombre ?? p.plantilla} · {FORMATO[p.formato] ?? p.formato}</div>

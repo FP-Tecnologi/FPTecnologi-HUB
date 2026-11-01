@@ -10,6 +10,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { teclaFila } from '../../lib/teclado';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
@@ -207,7 +208,7 @@ export function WebServicios() {
                   <tr><td className="ax-table__td" colSpan={4} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay servicios. Crea el primero o carga el seed inicial.' : 'Ningún servicio coincide.'}</td></tr>
                 ) : (
                   visibles.map((s) => (
-                    <tr key={s.id} className="ax-table__row" onClick={() => { setOk(''); setError(''); setEdit({ id: s.id, form: desde(s) }); }} style={{ cursor: 'pointer', background: edit?.id === s.id ? 'var(--ax-surface-subtle)' : undefined }}>
+                    <tr key={s.id} className="ax-table__row" onClick={() => { setOk(''); setError(''); setEdit({ id: s.id, form: desde(s) }); }} tabIndex={0} onKeyDown={teclaFila(() => { setOk(''); setError(''); setEdit({ id: s.id, form: desde(s) }); })} style={{ cursor: 'pointer', background: edit?.id === s.id ? 'var(--ax-surface-subtle)' : undefined }}>
                       <td className="ax-table__td">
                         <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'nowrap' }}>
                           <span style={{ width: 52, height: 40, flexShrink: 0, borderRadius: 8, overflow: 'hidden', background: 'var(--ax-surface-subtle)' }}>

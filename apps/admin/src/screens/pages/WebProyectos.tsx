@@ -10,6 +10,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { DEPARTAMENTOS } from '../../lib/departamentos';
+import { teclaFila } from '../../lib/teclado';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
@@ -167,7 +168,7 @@ export function WebProyectos() {
                   <tr><td className="ax-table__td" colSpan={5} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay proyectos.' : 'Ningún proyecto coincide.'}</td></tr>
                 ) : (
                   visibles.map((p) => (
-                    <tr key={p.id} className="ax-table__row" onClick={() => { setOk(''); setError(''); setEdit({ id: p.id, form: desde(p) }); }} style={{ cursor: 'pointer', background: edit?.id === p.id ? 'var(--ax-surface-subtle)' : undefined }}>
+                    <tr key={p.id} className="ax-table__row" onClick={() => { setOk(''); setError(''); setEdit({ id: p.id, form: desde(p) }); }} tabIndex={0} onKeyDown={teclaFila(() => { setOk(''); setError(''); setEdit({ id: p.id, form: desde(p) }); })} style={{ cursor: 'pointer', background: edit?.id === p.id ? 'var(--ax-surface-subtle)' : undefined }}>
                       <td className="ax-table__td">
                         <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'nowrap' }}>
                           <span style={{ width: 52, height: 40, flexShrink: 0, borderRadius: 8, overflow: 'hidden', background: 'var(--ax-surface-subtle)' }}>

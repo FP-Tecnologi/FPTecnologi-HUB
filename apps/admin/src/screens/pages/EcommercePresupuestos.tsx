@@ -10,6 +10,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { VerEnCrm } from './crm/VerEnCrm';
+import { teclaFila } from '../../lib/teclado';
 
 type Estado = 'PENDIENTE' | 'EN_REVISION' | 'ENVIADA' | 'ACEPTADA' | 'RECHAZADA';
 interface Item { id: string; sku: string; nombre: string; cantidad: number; precioLista: string; precioUnitario: string; mayorista: boolean; subtotal: string }
@@ -126,7 +127,7 @@ export function EcommercePresupuestos() {
                 </tr></thead>
                 <tbody>
                   {visibles.map((p) => (
-                    <tr key={p.id} className={`ax-table__row${selId === p.id ? ' is-selected' : ''}`} onClick={() => setSelId(p.id)} style={{ cursor: 'pointer' }}>
+                    <tr key={p.id} className={`ax-table__row${selId === p.id ? ' is-selected' : ''}`} onClick={() => setSelId(p.id)} tabIndex={0} onKeyDown={teclaFila(() => setSelId(p.id))} style={{ cursor: 'pointer' }}>
                       <td className="ax-table__td" style={{ fontFamily: 'var(--ax-font-mono)', fontSize: 'var(--ax-text-xs)' }}>{p.numero}</td>
                       <td className="ax-table__td"><div style={{ fontWeight: 'var(--ax-weight-medium)', color: 'var(--ax-text-strong)' }}>{p.clienteNombre}</div><div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{p._count?.items ?? 0} productos</div></td>
                       <td className="ax-table__td" style={{ fontFamily: 'var(--ax-font-mono)' }}>{usd(p.total)}</td>

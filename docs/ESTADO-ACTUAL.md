@@ -1281,3 +1281,8 @@ Plan: [`docs/superpowers/plans/2026-10-23-cms-fimav.md`](superpowers/plans/2026-
 
 - **Web → Clientes, Proyectos, Servicios y Ecommerce → Productos**: columna Acciones con Editar y Eliminar en la tabla (antes solo se podía desde el panel al hacer clic en la fila). Eliminar de Servicios y Productos solo se muestra al admin, como la API. Las tablas hacen scroll horizontal en móvil (`.ax-table-wrap`).
 - Sin acciones a propósito: Libro de reclamaciones (registro legal), Pedidos (se gestionan por estado) y Clientes de ecommerce (agregado de pedidos).
+
+### 2026-11-01 (7) — Teclado en filas clicables del dashboard
+
+- 19 filas de tabla/lista que abrían un detalle solo con el ratón (Leads, Contactos, Cotizaciones, Presupuestos, Pedidos, Productos, Clientes, Proyectos, Servicios, Tickets, CRM, etc.) ahora se enfocan con Tab y se abren con Enter o Espacio (`teclaFila` en `apps/admin/src/lib/teclado.ts`). El resalte de foco ya existía (`.ax-table__row:focus-visible`).
+- Revisado: los `outline: none` del CSS están dentro de reglas `:focus-visible`/contenedores con su propio indicador; los fondos de modales cerrables con clic son comodidad de ratón (Esc/botón Cerrar cubren el teclado).

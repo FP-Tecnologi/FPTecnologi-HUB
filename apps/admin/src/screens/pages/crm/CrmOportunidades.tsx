@@ -10,6 +10,7 @@ import { useAuth } from '../../../context/AuthContext';
 import {
   Alerta, BotonIcono, ETAPAS, NuevaOportunidad, ORIGENES, OportunidadPanel, dinero, etapa, fechaCorta, msg, nombreDe, useAsignables, useConfirmar, vencida, type Etapa, type Oportunidad, type Origen,
 } from './comun';
+import { teclaFila } from '../../../lib/teclado';
 
 export function CrmOportunidades() {
   const { activeMarcaId, marcas } = useAuth();
@@ -89,7 +90,7 @@ export function CrmOportunidades() {
                 {cargando ? <tr><td className="ax-table__td" colSpan={8}>Cargando…</td></tr> : lista.length === 0 ? (
                   <tr><td className="ax-table__td" colSpan={8} style={{ color: 'var(--ax-text-muted)' }}>No hay oportunidades con estos filtros. Las solicitudes de la web (cotizador, cotizaciones, contacto, presupuestos) aparecen aquí solas.</td></tr>
                 ) : lista.map((o) => (
-                  <tr key={o.id} className="ax-table__row" onClick={() => setAbierta(o.id)} style={{ cursor: 'pointer' }}>
+                  <tr key={o.id} className="ax-table__row" onClick={() => setAbierta(o.id)} tabIndex={0} onKeyDown={teclaFila(() => setAbierta(o.id))} style={{ cursor: 'pointer' }}>
                     <td className="ax-table__td">
                       <div style={{ fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-strong)' }}>{o.titulo}</div>
                       <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{o.numero} · {fechaCorta(o.createdAt)}</div>

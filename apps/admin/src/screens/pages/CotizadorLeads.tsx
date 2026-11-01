@@ -10,6 +10,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { VerEnCrm } from './crm/VerEnCrm';
+import { teclaFila } from '../../lib/teclado';
 
 type Estado = 'NUEVO' | 'CONTACTADO' | 'COTIZADO' | 'GANADO' | 'PERDIDO';
 
@@ -191,7 +192,7 @@ export function CotizadorLeads() {
                   <tr><td className="ax-table__td" colSpan={5} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay leads. Aparecerán cuando alguien llene el cotizador.' : 'Ningún lead coincide con el filtro.'}</td></tr>
                 ) : (
                   visibles.map((l) => (
-                    <tr key={l.id} className="ax-table__row" onClick={() => setSelId(l.id)} style={{ cursor: 'pointer', background: l.id === selId ? 'var(--ax-surface-subtle)' : undefined }}>
+                    <tr key={l.id} className="ax-table__row" onClick={() => setSelId(l.id)} tabIndex={0} onKeyDown={teclaFila(() => setSelId(l.id))} style={{ cursor: 'pointer', background: l.id === selId ? 'var(--ax-surface-subtle)' : undefined }}>
                       <td className="ax-table__td">
                         <div style={{ fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-strong)' }}>{nombre(l)}</div>
                         <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>

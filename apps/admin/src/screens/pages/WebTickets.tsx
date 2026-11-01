@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { abrirArchivoPrivado, api } from '../../lib/api';
+import { teclaFila } from '../../lib/teclado';
 
 type Estado = 'NUEVO' | 'EN_REVISION' | 'ESPERANDO_CLIENTE' | 'RESUELTO' | 'CERRADO';
 type Tipo = 'RECLAMO' | 'VERIFICACION' | 'SOPORTE';
@@ -255,7 +256,7 @@ export function WebTickets() {
                   <tr><td className="ax-table__td" colSpan={5} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay tickets. Aparecerán cuando un cliente use /tickets en la web.' : 'Ningún ticket coincide con el filtro.'}</td></tr>
                 ) : (
                   visibles.map((t) => (
-                    <tr key={t.id} className="ax-table__row" onClick={() => setSelId(t.id)} style={{ cursor: 'pointer', background: t.id === selId ? 'var(--ax-surface-subtle)' : undefined }}>
+                    <tr key={t.id} className="ax-table__row" onClick={() => setSelId(t.id)} tabIndex={0} onKeyDown={teclaFila(() => setSelId(t.id))} style={{ cursor: 'pointer', background: t.id === selId ? 'var(--ax-surface-subtle)' : undefined }}>
                       <td className="ax-table__td">
                         <div style={{ fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-strong)' }}>{t.numero}</div>
                         <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{TIPOS[t.tipo]}{t.producto ? ` · ${t.producto}` : ''}</div>

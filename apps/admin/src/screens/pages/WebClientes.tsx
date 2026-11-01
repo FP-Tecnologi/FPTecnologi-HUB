@@ -9,6 +9,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { teclaFila } from '../../lib/teclado';
 
 const SECTORES = [['gobierno', 'Sector gobierno'], ['educacion', 'Educación'], ['privado', 'Sector privado']] as const;
 const etiquetaSector = (k: string) => SECTORES.find(([v]) => v === k)?.[1] ?? k;
@@ -157,7 +158,7 @@ export function WebClientes() {
                   <tr><td className="ax-table__td" colSpan={4} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay clientes.' : 'Ningún cliente coincide.'}</td></tr>
                 ) : (
                   visibles.map((c) => (
-                    <tr key={c.id} className="ax-table__row" onClick={() => { setOk(''); setError(''); setEdit({ id: c.id, form: desde(c) }); }} style={{ cursor: 'pointer', background: edit?.id === c.id ? 'var(--ax-surface-subtle)' : undefined }}>
+                    <tr key={c.id} className="ax-table__row" onClick={() => { setOk(''); setError(''); setEdit({ id: c.id, form: desde(c) }); }} tabIndex={0} onKeyDown={teclaFila(() => { setOk(''); setError(''); setEdit({ id: c.id, form: desde(c) }); })} style={{ cursor: 'pointer', background: edit?.id === c.id ? 'var(--ax-surface-subtle)' : undefined }}>
                       <td className="ax-table__td">
                         <div style={{ fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-strong)' }}>{c.nombre}</div>
                         <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{c.sigla}{c.esEjemplo ? ' · dato de muestra' : ''}</div>

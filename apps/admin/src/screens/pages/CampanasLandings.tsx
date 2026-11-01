@@ -10,6 +10,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { teclaFila } from '../../lib/teclado';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
@@ -79,7 +80,7 @@ export function CampanasLandings() {
                 </tr></thead>
                 <tbody>
                   {lista.map((l) => (
-                    <tr key={l.id} className="ax-table__row" style={{ cursor: 'pointer' }} onClick={() => setSelId(l.id)}>
+                    <tr key={l.id} className="ax-table__row" style={{ cursor: 'pointer' }} onClick={() => setSelId(l.id)} tabIndex={0} onKeyDown={teclaFila(() => setSelId(l.id))}>
                       <td className="ax-table__td"><div style={{ fontWeight: 'var(--ax-weight-medium)', color: 'var(--ax-text-strong)' }}>{l.nombre}</div><div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>/l/{l.slug}</div></td>
                       <td className="ax-table__td">{plantillas?.plantillas.find((p) => p.id === l.plantilla)?.nombre ?? l.plantilla}</td>
                       <td className="ax-table__td"><span className={`ax-badge ax-badge--soft ax-badge--pill ${l.estado === 'PUBLICADA' ? 'ax-badge--success' : 'ax-badge--neutral'}`}>{l.estado === 'PUBLICADA' ? 'Publicada' : 'Borrador'}</span></td>

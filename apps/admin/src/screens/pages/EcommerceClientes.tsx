@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { teclaFila } from '../../lib/teclado';
 
 interface Cliente { email: string; nombre: string; celular: string; documento: string | null; pedidos: number; gastado: number; ultimoPedido: string; cotizaciones: number }
 interface Detalle {
@@ -81,7 +82,7 @@ export function EcommerceClientes() {
                 </tr></thead>
                 <tbody>
                   {filtrados.map((c) => (
-                    <tr key={c.email} className={`ax-table__row${sel?.email === c.email ? ' is-selected' : ''}`} onClick={() => setSel(c)} style={{ cursor: 'pointer' }}>
+                    <tr key={c.email} className={`ax-table__row${sel?.email === c.email ? ' is-selected' : ''}`} onClick={() => setSel(c)} tabIndex={0} onKeyDown={teclaFila(() => setSel(c))} style={{ cursor: 'pointer' }}>
                       <td className="ax-table__td"><div style={{ fontWeight: 'var(--ax-weight-medium)', color: 'var(--ax-text-strong)' }}>{c.nombre}</div><div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{c.email}</div></td>
                       <td className="ax-table__td">{c.pedidos}</td>
                       <td className="ax-table__td" style={{ fontVariantNumeric: 'tabular-nums' }}>{usd(c.gastado)}</td>

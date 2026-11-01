@@ -12,6 +12,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { teclaFila } from '../../lib/teclado';
 
 type Estado = 'BOT' | 'ASESOR' | 'CERRADA';
 type Autor = 'CLIENTE' | 'BOT' | 'ASESOR' | 'SISTEMA';
@@ -225,7 +226,7 @@ export function ChatInbox() {
                   <li
                     key={c.id}
                     className="ax-list__row"
-                    onClick={() => setSelId(c.id)}
+                    onClick={() => setSelId(c.id)} tabIndex={0} onKeyDown={teclaFila(() => setSelId(c.id))}
                     style={{
                       cursor: 'pointer',
                       flexShrink: 0, // en la lista flex-column las filas no deben comprimirse

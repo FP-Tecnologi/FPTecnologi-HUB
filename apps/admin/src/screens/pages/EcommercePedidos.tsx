@@ -9,6 +9,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { teclaFila } from '../../lib/teclado';
 
 type Estado = 'PENDIENTE' | 'PAGADO' | 'ENVIADO' | 'ENTREGADO' | 'CANCELADO';
 type Pago = 'PENDIENTE' | 'POR_CONFIRMAR' | 'PAGADO';
@@ -179,7 +180,7 @@ export function EcommercePedidos() {
                   <tr><td className="ax-table__td" colSpan={4} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay pedidos.' : 'Ningún pedido coincide con el filtro.'}</td></tr>
                 ) : (
                   visibles.map((p) => (
-                    <tr key={p.id} className="ax-table__row" onClick={() => setSelId(p.id)} style={{ cursor: 'pointer', background: p.id === selId ? 'var(--ax-surface-subtle)' : undefined }}>
+                    <tr key={p.id} className="ax-table__row" onClick={() => setSelId(p.id)} tabIndex={0} onKeyDown={teclaFila(() => setSelId(p.id))} style={{ cursor: 'pointer', background: p.id === selId ? 'var(--ax-surface-subtle)' : undefined }}>
                       <td className="ax-table__td">
                         <div style={{ fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-strong)' }}>{numero(p)}</div>
                         <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{fecha(p.createdAt)}</div>
