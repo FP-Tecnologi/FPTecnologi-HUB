@@ -35,7 +35,9 @@ async function bootstrap() {
   });
   // Origen explícito (no '*') + credentials:true — necesario para la cookie
   // httpOnly de "dispositivo confiable" (fetch cross-origin del dashboard).
-  app.enableCors({ origin: process.env.WEB_ORIGIN ?? 'http://localhost:3000', credentials: true });
+  // WEB_ORIGIN = dashboard. PUBLIC_WEB_ORIGINS (coma) = webs públicas estáticas que envían formularios directo a /public/*.
+  const origenes = [process.env.WEB_ORIGIN ?? 'http://localhost:3000', ...(process.env.PUBLIC_WEB_ORIGINS ?? '').split(',').map((o) => o.trim()).filter(Boolean)];
+  app.enableCors({ origin: origenes, credentials: true });
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

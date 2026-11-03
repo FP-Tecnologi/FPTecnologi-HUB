@@ -6,6 +6,7 @@
  */
 import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
+import { hubFetch } from '@/lib/hub';
 
 export default function ContadorVisitas() {
   const pathname = usePathname();
@@ -21,11 +22,7 @@ export default function ContadorVisitas() {
     const referrer = anterior.current ?? document.referrer;
     anterior.current = window.location.href;
     contada.current = pathname;
-    const cuerpo = JSON.stringify({ ruta: pathname, referrer, utm: params.get('utm_source') ?? undefined });
-    try {
-      if (navigator.sendBeacon?.('/api/hub/visita', new Blob([cuerpo], { type: 'application/json' }))) return;
-    } catch { /* sigue con fetch */ }
-    fetch('/api/hub/visita', { method: 'POST', body: cuerpo, headers: { 'Content-Type': 'application/json' }, keepalive: true }).catch(() => undefined);
+    hubFetch('visitas', { method: 'POST', body: JSON.stringify({ ruta: pathname, referrer: referrer.slice(0, 1000), utm: params.get('utm_source')?.slice(0, 100), host: window.location.host }), headers: { 'Content-Type': 'application/json' }, keepalive: true }).catch(() => undefined);
   }, [pathname]);
 
   return null;

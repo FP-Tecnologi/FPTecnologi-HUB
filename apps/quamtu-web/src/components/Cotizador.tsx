@@ -5,6 +5,7 @@ import ImgPieza from './ImgPieza';
 import { leerCarrito } from '@/lib/carrito';
 import { waUrl } from '@/lib/contacto';
 import { BUILDS, CATS, OPCIONES, porId, seleccionDe, total, type Cat } from '@/lib/piezas';
+import { hubJson } from '@/lib/hub';
 
 const soles = (n: number) => `S/ ${n.toLocaleString('es-PE')}`;
 
@@ -110,7 +111,7 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
       website: f.website,
     };
     try {
-      const res = await fetch('/api/hub/cotizador', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) });
+      const res = await hubJson('cotizador/leads', cuerpo);
       if (res.ok) setResultado({ guardado: true, texto: 'Recibimos tu solicitud. Un especialista te contactará pronto.' });
       else if (res.status === 503 || res.status >= 500) setResultado({ guardado: false, texto: 'Tu cotización está lista. Envíala por WhatsApp para que un especialista te atienda ahora mismo.' });
       else {

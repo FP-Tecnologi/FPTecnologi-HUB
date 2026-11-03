@@ -6,7 +6,6 @@
  * No se editan desde aquí: el catálogo de piezas, los precios, los casos de éxito ni el número de WhatsApp.
  */
 import { cache } from 'react';
-import { connection } from 'next/server';
 import { PARA_ORGANIZACIONES, PREGUNTAS } from './contenido';
 
 export const CMS_DEFAULTS = {
@@ -51,8 +50,7 @@ function mezclar<T extends Record<string, unknown>>(base: T, guardado: unknown):
 
 /** Defaults + lo guardado en el dashboard para una página (cada sección por separado). */
 export const getPagina = cache(async <K extends PaginaCms>(pagina: K): Promise<CmsContenido[K]> => {
-  // En cada visita (nunca prerenderizado): lo guardado se ve al instante y no depende de HUB_MARCA_ID al compilar.
-  await connection();
+  // Web estática: se lee al compilar. Para ver un cambio del dashboard hay que volver a compilar y subir.
   const defaults = CMS_DEFAULTS[pagina];
   const marca = process.env.HUB_MARCA_ID;
   if (!marca) return defaults;

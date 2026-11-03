@@ -6,6 +6,7 @@
  */
 import { useRef, useState } from 'react';
 import { Building2, FileText, FileWarning, ImagePlus, Loader2, PackageSearch, Send, User, Wrench, X, type LucideIcon } from 'lucide-react';
+import { hubFetch, hubJson, hubMensaje } from '@/lib/hub';
 
 type Caso = { id: 'RECLAMO' | 'VERIFICACION' | 'SOPORTE'; titulo: string; texto: string; pruebas: string; icono: LucideIcon };
 const CASOS: Caso[] = [
@@ -67,10 +68,11 @@ export default function AbrirTicket() {
         if (f.size > MAX_MB * 1024 * 1024) { setError(`"${f.name}" pesa más de ${MAX_MB} MB.`); continue; }
         const fd = new FormData();
         fd.append('archivo', f);
-        const res = await fetch('/api/hub/evidencia', { method: 'POST', body: fd });
+        const res = await hubFetch('uploads/evidencia', { method: 'POST', body: fd });
         const data = await res.json().catch(() => ({}));
-        if (res.ok && data.clave) setEvidencias((p) => [...p, { id: `${Date.now()}-${f.name}`, nombre: f.name, clave: data.clave, preview: URL.createObjectURL(f), pdf }]);
-        else setError(data.error || `No pudimos subir "${f.name}".`);
+        const clave = data.data?.clave;
+        if (res.ok && clave) setEvidencias((p) => [...p, { id: `${Date.now()}-${f.name}`, nombre: f.name, clave, preview: URL.createObjectURL(f), pdf }]);
+        else setError(hubMensaje(data, `No pudimos subir "${f.name}".`));
       }
     } finally {
       setSubiendo(false);
@@ -86,18 +88,14 @@ export default function AbrirTicket() {
     if (detalle.trim().length < 5) return setError('Describe brevemente tu caso.');
     setEnviando(true);
     try {
-      const res = await fetch('/api/hub/tickets', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const res = await hubJson('tickets', {
           tipo: caso, esEmpresa: empresa, documento, nombre: nombre.trim(), email: email.trim(), celular: celularLimpio(telefono),
           numeroCompra: numeroCompra.trim(), fechaCompra: fechaCompra || undefined, producto: producto.trim(), comprobante: comprobante.trim() || undefined,
           descripcion: detalle.trim(), evidencias: evidencias.map((x) => x.clave), origen: '/tickets', website: website || undefined,
-        }),
       });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data.success) return setError(data.error || 'No pudimos registrar tu ticket. Inténtalo nuevamente.');
-      setNumeroTicket(data.numero ?? '');
+      if (!res.ok) return setError(hubMensaje(data, 'No pudimos registrar tu ticket. Inténtalo nuevamente.'));
+      setNumeroTicket(data.data?.numero ?? '');
       setPaso(1);
       setDocumento(''); setNombre(''); setEmail(''); setTelefono(''); setNumeroCompra(''); setFechaCompra('');
       setProducto(''); setComprobante(''); setDetalle(''); setEvidencias([]);

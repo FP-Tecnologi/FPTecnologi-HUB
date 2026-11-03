@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { Loader2, Search } from 'lucide-react';
+import { hubJson } from '@/lib/hub';
 
 const campo = 'mt-1 block min-h-11 w-full rounded-lg border border-[color:var(--c-borde)] bg-bg/60 px-4 py-2.5 text-base text-white transition focus:border-claro aria-invalid:border-[color:var(--c-error)]';
 const fecha = (d: string) => new Date(d).toLocaleDateString('es-PE', { timeZone: 'America/Lima', day: 'numeric', month: 'long', year: 'numeric' });
@@ -23,7 +24,7 @@ export default function ConsultaReclamo() {
     if (!codigo.trim() || !documento.trim()) { setVacio(true); setError('Ingresa el código y el documento.'); return; }
     setCargando(true);
     try {
-      const res = await fetch('/api/hub/libro-reclamaciones/consulta', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ codigo: codigo.trim(), documento: documento.trim() }) });
+      const res = await hubJson('libro-reclamaciones/consulta', { codigo: codigo.trim(), documento: documento.trim() });
       const j = await res.json().catch(() => ({}));
       if (res.ok) setHoja(j.data ?? j);
       else if (res.status === 404) setError('No encontramos una hoja con esos datos.');

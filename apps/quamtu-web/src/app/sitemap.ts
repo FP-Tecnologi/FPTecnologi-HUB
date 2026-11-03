@@ -2,6 +2,8 @@ import type { MetadataRoute } from 'next';
 import { OPCIONES } from '@/lib/piezas';
 import { SITIO } from '@/lib/seo';
 
+export const dynamic = 'force-static';
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const fijas = ['/', '/tienda', '/armar', '/cotizar', '/tickets', '/libro-de-reclamaciones'];
   const rutas = [...fijas, ...OPCIONES.map((o) => `/producto/${o.id}`)];

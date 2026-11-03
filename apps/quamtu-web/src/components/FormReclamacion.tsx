@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Loader2, Mail, MessageCircle, Printer, RotateCcw, Send } from 'lucide-react';
 import { waUrl } from '@/lib/contacto';
 import type { Proveedor } from '@/lib/proveedor';
+import { hubJson } from '@/lib/hub';
 
 type TipoDoc = 'DNI' | 'CE' | 'PASAPORTE' | 'RUC';
 const limpio = (t: string) => t.replace(/[<>]/g, '');
@@ -100,7 +101,7 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
       aceptaVeracidad: f.acepta, origen: 'quamtu-web/libro-de-reclamaciones', website: f.website,
     };
     try {
-      const res = await fetch('/api/hub/libro-reclamaciones', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) });
+      const res = await hubJson('libro-reclamaciones', cuerpo);
       const j = await res.json().catch(() => ({}));
       if (res.ok) {
         const d = j.data ?? j;

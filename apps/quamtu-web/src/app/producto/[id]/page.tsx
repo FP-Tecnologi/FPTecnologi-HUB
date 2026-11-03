@@ -9,6 +9,9 @@ import { jsonProducto, meta, migas } from '@/lib/seo';
 
 const soles = (n: number) => `S/ ${n.toLocaleString('es-PE')}`;
 
+export const dynamicParams = false;
+export const generateStaticParams = () => OPCIONES.map((o) => ({ id: o.id }));
+
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const o = porId((await params).id);
   return o ? meta(`${o.nombre} — Quamtu`, `${o.nombre}: ${o.spec}. Consulta disponibilidad y cotiza con Quamtu.`, `/producto/${o.id}`) : { title: 'Producto — Quamtu' };

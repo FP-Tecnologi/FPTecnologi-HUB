@@ -3,6 +3,7 @@
    notas internas) y respuesta del cliente. Va a /api/hub/tickets/{seguimiento|responder}. */
 import { useState } from 'react';
 import { CheckCircle2, Clock, Loader2, MessageSquareText, Search, Send } from 'lucide-react';
+import { hubJson, hubMensaje } from '@/lib/hub';
 
 type Estado = 'NUEVO' | 'EN_REVISION' | 'ESPERANDO_CLIENTE' | 'RESUELTO' | 'CERRADO';
 type Seguimiento = {
@@ -33,9 +34,9 @@ export default function SeguimientoTicket({ numeroInicial = '' }: { numeroInicia
     setBusy(true);
     setError('');
     try {
-      const res = await fetch(`/api/hub/tickets/${accion}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      const res = await hubJson(`tickets/${accion}`, body);
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) { setError(data.error || 'No pudimos completar la solicitud.'); return null; }
+      if (!res.ok) { setError(hubMensaje(data, 'No pudimos completar la solicitud.')); return null; }
       return (data.data ?? {}) as T;
     } catch {
       setError('Error de conexión. Inténtalo más tarde.');
