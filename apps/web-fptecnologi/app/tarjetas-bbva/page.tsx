@@ -25,7 +25,7 @@ export default function TarjetasBbvaPage() {
   return (
     <>
       <StickyNav />
-      <div className="bg-paper p-3 md:p-5">
+      <div id="consulta" className="bg-paper p-3 md:p-5">
         <section className="relative flex min-h-[calc(100svh-1.5rem)] flex-col overflow-hidden rounded-[1.25rem] bg-gradient-to-br from-[#070E46] via-[#001391] to-[#0a2bd6] md:rounded-[2.25rem] md:min-h-[calc(100svh-2.5rem)]">
           <div aria-hidden className="pointer-events-none absolute -right-32 -top-32 h-[28rem] w-[28rem] rounded-full bg-[#85C8FF]/20 blur-3xl" />
           <div aria-hidden className="pointer-events-none absolute -bottom-40 -left-24 h-96 w-96 rounded-full bg-[#1973e8]/30 blur-3xl" />
@@ -49,7 +49,7 @@ export default function TarjetasBbvaPage() {
               </p>
               <AbanicoBbva className="mx-auto mt-2 hidden w-full max-w-[15rem] sm:[@media(min-height:820px)]:block lg:mt-4 lg:max-w-sm lg:mx-0" />
             </div>
-            <div id="consulta" className="mx-auto w-full max-w-xl scroll-mt-28 lg:max-w-none">
+            <div className="mx-auto w-full max-w-xl lg:max-w-none">
               <TarjetasBbvaForm />
             </div>
           </div>

@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, type FormEvent, type ReactNode } from 'react';
-import { ArrowRight, Calendar, CreditCard, IdCard, Loader2, Lock, Mail, RotateCcw, Signal, Smartphone } from 'lucide-react';
+import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { ArrowLeft, ArrowRight, Calendar, CreditCard, Download, IdCard, Loader2, Lock, Mail, RotateCcw, Signal, Smartphone } from 'lucide-react';
 import { AbanicoBbva, TarjetaBbva } from './BannerBbva';
 
 type Oferta = { id: number; tarjeta: string; codigo: string; linea: number; moneda: string; tea: number; imagen: string | null };
@@ -32,9 +32,43 @@ function Campo({ id, label, icon: Icon, children }: { id: string; label: string;
 
 const dinero = (n: number, moneda: string) => new Intl.NumberFormat('es-PE', { style: 'currency', currency: moneda, maximumFractionDigits: 0 }).format(n);
 
+const VACIO = { dni: '', nacimiento: '', celular: '', operador: '', email: '', aceptaDatos: false };
+
+/** CSV (con BOM para que Excel lea las tildes) con lo que llenó el visitante y las ofertas recibidas. */
+function descargarDatos(v: typeof VACIO, res: Resultado) {
+  const celda = (s: string | number) => `"${String(s).replace(/"/g, '""')}"`;
+  const filas = [
+    ['Dato', 'Valor'],
+    ['DNI', v.dni],
+    ['Fecha de nacimiento', v.nacimiento],
+    ['Celular', v.celular],
+    ['Operador', OPERADORES.find((o) => o.v === v.operador)?.label ?? v.operador],
+    ['Correo electrónico', v.email],
+    ['Fecha de consulta', new Date().toLocaleString('es-PE')],
+    ...(res.ofertas.length
+      ? res.ofertas.map((o) => [`Oferta: ${o.tarjeta}`, `Línea ${dinero(o.linea, o.moneda)} · TEA ${o.tea}%`])
+      : [['Ofertas', 'Sin ofertas disponibles']]),
+  ];
+  const blob = new Blob(['﻿' + filas.map((f) => f.map(celda).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = Object.assign(document.createElement('a'), { href: url, download: 'consulta-tarjetas-bbva.csv' });
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 /* Formulario de consulta (campos que pide BBVA Cards offer) y lista de tarjetas disponibles. */
 export function TarjetasBbvaForm() {
-  const [v, setV] = useState({ dni: '', nacimiento: '', celular: '', operador: '', email: '', aceptaDatos: false });
+  const [v, setV] = useState(VACIO);
+  // Página desde la que llegó el visitante (solo del mismo sitio); si no hay, el inicio.
+  const [volver, setVolver] = useState('/');
+  useEffect(() => {
+    try {
+      const u = new URL(document.referrer);
+      if (u.origin === location.origin && u.pathname !== location.pathname) setVolver(u.pathname + u.search);
+    } catch {
+      /* sin referrer */
+    }
+  }, []);
   const [trampa, setTrampa] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState('');
@@ -69,6 +103,13 @@ export function TarjetasBbvaForm() {
     } finally {
       setEnviando(false);
     }
+  }
+
+  function nuevaConsulta() {
+    setV(VACIO);
+    setTrampa('');
+    setError('');
+    setRes(null);
   }
 
   async function solicitar(o: Oferta) {
@@ -138,15 +179,27 @@ export function TarjetasBbvaForm() {
           <div className="text-center">
             <AbanicoBbva className="mx-auto w-56" />
             <h2 className="mt-6 font-display text-2xl font-bold text-ink">Por ahora no tienes ofertas preaprobadas</h2>
-            <p className="mx-auto mt-2 max-w-md text-sm text-ink/65">Tu perfil puede cambiar con el tiempo: vuelve a consultar más adelante o revisa todas las tarjetas en la web de BBVA.</p>
-            <a href={res.enlace} className="mt-6 inline-flex h-12 items-center gap-2 rounded-xl bg-[#001391] px-6 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-[#070E46]">
-              Ver tarjetas BBVA <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
-            </a>
+            <p className="mx-auto mt-2 max-w-md text-sm text-ink/65">Tu perfil puede cambiar con el tiempo. Puedes consultar con otros datos o volver a la página donde estabas.</p>
+            <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <button type="button" onClick={nuevaConsulta} className="inline-flex h-12 items-center gap-2 rounded-xl bg-[#001391] px-6 text-sm font-semibold uppercase tracking-wide text-white transition-colors hover:bg-[#070E46]">
+                <RotateCcw className="h-4 w-4" strokeWidth={2} /> Consultar con otros datos
+              </button>
+              <a href={volver} className="inline-flex h-12 items-center gap-2 rounded-xl border border-[#001391]/25 px-6 text-sm font-semibold uppercase tracking-wide text-[#001391] transition-colors hover:bg-[#001391]/5">
+                <ArrowLeft className="h-4 w-4" strokeWidth={2} /> Volver
+              </a>
+            </div>
           </div>
         )}
-        <button type="button" onClick={() => setRes(null)} className="mx-auto mt-8 flex items-center gap-2 text-sm font-semibold text-ink/65 transition-colors hover:text-[#001391]">
-          <RotateCcw className="h-4 w-4" strokeWidth={2} /> Hacer otra consulta
-        </button>
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+          <button type="button" onClick={() => descargarDatos(v, res)} className="flex items-center gap-2 text-sm font-semibold text-ink/65 transition-colors hover:text-[#001391]">
+            <Download className="h-4 w-4" strokeWidth={2} /> Descargar mis datos (CSV)
+          </button>
+          {res.ofertas.length > 0 && (
+            <button type="button" onClick={nuevaConsulta} className="flex items-center gap-2 text-sm font-semibold text-ink/65 transition-colors hover:text-[#001391]">
+              <RotateCcw className="h-4 w-4" strokeWidth={2} /> Hacer otra consulta
+            </button>
+          )}
+        </div>
       </div>
     );
   }
