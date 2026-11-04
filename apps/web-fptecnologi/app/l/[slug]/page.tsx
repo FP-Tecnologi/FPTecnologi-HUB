@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { LandingView } from '@/components/landing/LandingView';
 import { getLanding, imagenLanding } from '@/lib/landings';
+import { OG_BASE, OG_LOGO } from '@/lib/seo';
 
 // Lo que se publica o edita en el dashboard se ve al instante.
 export const dynamic = 'force-dynamic';
@@ -18,7 +19,7 @@ export async function generateMetadata({ params, searchParams }: Props) {
     description: c.descripcion || undefined,
     // Los borradores (vista previa) nunca se indexan.
     robots: l.estado === 'PUBLICADA' ? undefined : { index: false, follow: false },
-    openGraph: { title: titulo || l.nombre, description: c.descripcion || undefined, images: c.imagenUrl ? [imagenLanding(c.imagenUrl)] : undefined },
+    openGraph: { ...OG_BASE, title: titulo || l.nombre, description: c.descripcion || undefined, images: c.imagenUrl ? [imagenLanding(c.imagenUrl)] : [OG_LOGO] },
   };
 }
 

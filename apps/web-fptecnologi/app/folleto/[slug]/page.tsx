@@ -21,7 +21,7 @@ async function cargar(slug: string): Promise<{ titulo: string; archivo: string }
 // El folleto es para compartir por enlace, no para aparecer en Google.
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const f = await cargar((await params).slug);
-  return { title: f ? f.titulo : 'Folleto', robots: { index: false, follow: false } };
+  return { title: f ? f.titulo : 'Folleto', description: 'Hojea el folleto de FPTecnologi & System.', robots: { index: false, follow: false } };
 }
 
 export default async function FolletoPage({ params }: { params: Promise<{ slug: string }> }) {

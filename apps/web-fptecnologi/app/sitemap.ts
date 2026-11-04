@@ -6,7 +6,7 @@ import { getCatalogo } from '@/lib/catalogo';
 export const dynamic = 'force-dynamic';
 
 const SITE = process.env.SITE_URL ?? 'https://fptecnologi.com';
-const FIJAS = ['', '/nosotros', '/servicios', '/proyectos', '/tienda', '/marcas', '/blog', '/cotizador', '/contacto', '/libro-de-reclamaciones'];
+const FIJAS = ['', '/nosotros', '/servicios', '/proyectos', '/tienda', '/marcas', '/blog', '/cotizador', '/contacto', '/libro-de-reclamaciones', '/catalogos', '/tarjetas-bbva', '/alquiler-equipos', '/educacion', '/compliance'];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [articulos, servicios, catalogo] = await Promise.all([getArticulos(), getServicios(), getCatalogo()]);

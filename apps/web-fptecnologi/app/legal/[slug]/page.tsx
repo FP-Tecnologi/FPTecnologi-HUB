@@ -11,7 +11,9 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const d = (await getLegalDocs()).find((x) => x.slug === slug);
-  return { title: d ? `${d.titulo} ${d.destacado}` : 'Legal' };
+  return d
+    ? { title: `${d.titulo} ${d.destacado}`, description: `${d.titulo} ${d.destacado} de FPTecnologi & System: condiciones y tratamiento de tus datos como cliente.` }
+    : { title: 'Legal' };
 }
 
 export default async function LegalPage({ params }: { params: Promise<{ slug: string }> }) {

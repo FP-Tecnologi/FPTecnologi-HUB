@@ -17,7 +17,7 @@ import { getPagina } from '@/lib/paginasContenido';
 import { getClientes } from '@/lib/referencias';
 import { metaSeo } from '@/lib/seo';
 
-export const generateMetadata = () => metaSeo('nosotros', { title: 'Nosotros' });
+export const generateMetadata = () => metaSeo('nosotros', { title: 'Nosotros', description: 'Conoce a FPTecnologi & System: distribuidor autorizado de equipamiento TI y soluciones tecnológicas para empresas en Perú.' });
 
 /*
  * Nosotros -- mismo lenguaje que la home (DESIGN.md): hero interno, secciones

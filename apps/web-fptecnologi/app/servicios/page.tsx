@@ -13,7 +13,7 @@ import { Contact } from '@/components/home/Contact';
 import { Footer } from '@/components/home/Footer';
 import { metaSeo } from '@/lib/seo';
 
-export const generateMetadata = () => metaSeo('servicios', { title: 'Servicios' });
+export const generateMetadata = () => metaSeo('servicios', { title: 'Servicios', description: 'Servicios TI para empresas: seguridad, videoconferencia, servidores, data centers y soluciones cloud, con soporte a medida.' });
 
 /* Servicios -- listado completo con las mismas tarjetas de la home, el
    proceso de trabajo, proyectos y cierre con Contacto (DESIGN.md). */

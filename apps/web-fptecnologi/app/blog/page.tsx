@@ -5,7 +5,7 @@ import { Footer } from '@/components/home/Footer';
 import { getArticulos } from '@/lib/blog';
 import { metaSeo } from '@/lib/seo';
 
-export const generateMetadata = () => metaSeo('blog', { title: 'Blog' });
+export const generateMetadata = () => metaSeo('blog', { title: 'Blog', description: 'Artículos y guías de tecnología para empresas: seguridad, videoconferencia, infraestructura TI y novedades de FPTecnologi & System.' });
 // Lo que se publica en el dashboard aparece al instante.
 export const dynamic = 'force-dynamic';
 

@@ -20,7 +20,8 @@ async function cargar(slug: string): Promise<DatosTarjeta | null> {
 // La tarjeta es para compartir por QR o enlace, no para aparecer en Google.
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const t = await cargar((await params).slug);
-  return { title: t ? t.nombre : 'Tarjeta digital', robots: { index: false, follow: false } };
+  const descripcion = t ? [t.cargo, 'FPTecnologi & System'].filter(Boolean).join(' · ') : 'Tarjeta digital de FPTecnologi & System.';
+  return { title: t ? t.nombre : 'Tarjeta digital', description: descripcion, robots: { index: false, follow: false } };
 }
 
 export default async function TarjetaPage({ params }: { params: Promise<{ slug: string }> }) {

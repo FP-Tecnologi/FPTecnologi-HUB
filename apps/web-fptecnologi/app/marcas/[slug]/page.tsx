@@ -8,6 +8,7 @@ import { Footer } from '@/components/home/Footer';
 import { ProductGrid } from '@/components/tienda/ProductGrid';
 import { PARTNER_BRANDS, brandSlug } from '@/lib/content';
 import { getCatalogo } from '@/lib/catalogo';
+import { OG_BASE, OG_LOGO } from '@/lib/seo';
 
 async function datosMarca(slug: string) {
   const { products } = await getCatalogo();
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { nombre, productos } = await datosMarca(slug);
   if (!nombre) return { title: 'Marca' };
   const descripcion = `${nombre}: ${productos.length > 0 ? `${productos.length} producto${productos.length === 1 ? '' : 's'} con garantía oficial` : 'consulta disponibilidad'} en FPTecnologi & System.`;
-  return { title: nombre, description: descripcion, openGraph: { title: `${nombre} · FPTecnologi`, description: descripcion } };
+  return { title: nombre, description: descripcion, openGraph: { ...OG_BASE, title: `${nombre} · FPTecnologi`, description: descripcion, images: [OG_LOGO] } };
 }
 
 // Productos de una marca: catálogo real (API central) filtrado por marca.

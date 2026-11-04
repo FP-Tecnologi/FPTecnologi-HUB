@@ -14,6 +14,11 @@ export async function metaSeo(pagina: keyof PaginasContenido['seo'], base: Metad
 
 const SITE = process.env.SITE_URL ?? 'https://fptecnologi.com';
 
+/** Imagen al compartir enlaces (WhatsApp, redes): el logo en PNG 1200×630, porque WhatsApp y Facebook no leen SVG. */
+export const OG_LOGO = { url: '/og-fptecnologi.png', width: 1200, height: 630, alt: 'FPTecnologi & System' };
+/** Una página que define su propio openGraph reemplaza al del layout completo: estos campos se repiten ahí. */
+export const OG_BASE = { siteName: 'FPTecnologi & System', locale: 'es_PE' };
+
 /** Organización (GEO y SEO local): quién es FPTecnologi, qué ofrece, dónde está y sus redes. Usa los datos vigentes del dashboard. */
 export function organizacionJsonLd(sitio: Sitio) {
   return [

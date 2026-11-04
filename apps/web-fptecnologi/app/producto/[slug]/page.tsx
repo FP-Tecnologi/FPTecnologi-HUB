@@ -5,19 +5,21 @@ import { StickyNav } from '@/components/home/StickyNav';
 import { Navbar9 } from '@/components/home/Navbar9';
 import { ProductDetail } from '@/components/tienda/ProductDetail';
 import { Footer } from '@/components/home/Footer';
+import { OG_BASE, OG_LOGO } from '@/lib/seo';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const p = await getProducto(slug);
   if (!p) return { title: 'Producto' };
   const titulo = p.name.split(',')[0];
-  const descripcion = (p.description || p.name).slice(0, 160);
+  // Las descripciones importadas arrancan con «DESCRIPCION»: no aporta nada en el resultado de búsqueda ni al compartir.
+  const descripcion = (p.description || p.name).replace(/^\s*DESCRIPCI[ÓO]N:?\s*/i, '').slice(0, 155).trim();
   const imagen = p.images[0];
   return {
     title: titulo,
     description: descripcion,
-    openGraph: { title: titulo, description: descripcion, type: 'website', images: imagen ? [{ url: imagen }] : undefined },
-    twitter: { card: 'summary_large_image', title: titulo, description: descripcion, images: imagen ? [imagen] : undefined },
+    openGraph: { ...OG_BASE, title: titulo, description: descripcion, type: 'website', images: imagen ? [{ url: imagen }] : [OG_LOGO] },
+    twitter: { card: 'summary_large_image', title: titulo, description: descripcion, images: [imagen || OG_LOGO.url] },
   };
 }
 

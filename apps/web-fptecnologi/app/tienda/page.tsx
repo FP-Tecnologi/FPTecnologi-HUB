@@ -3,7 +3,7 @@ import { Footer } from '@/components/home/Footer';
 import { categoriasDe, getCatalogo } from '@/lib/catalogo';
 import { metaSeo } from '@/lib/seo';
 
-export const generateMetadata = () => metaSeo('tienda', { title: 'Tienda' });
+export const generateMetadata = () => metaSeo('tienda', { title: 'Tienda', description: 'Tienda B2B de equipamiento tecnológico: laptops, monitores, servidores, seguridad y más de las principales marcas, con garantía oficial.' });
 
 // Catálogo desde la API central (se refresca cada 60 s); sin API usa el local.
 export default async function TiendaPage() {

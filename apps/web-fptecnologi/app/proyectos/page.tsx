@@ -11,7 +11,7 @@ import { getPagina } from '@/lib/paginasContenido';
 import { getClientes, getProyectos } from '@/lib/referencias';
 import { metaSeo } from '@/lib/seo';
 
-export const generateMetadata = () => metaSeo('proyectos', { title: 'Proyectos' });
+export const generateMetadata = () => metaSeo('proyectos', { title: 'Proyectos', description: 'Proyectos y casos de éxito de FPTecnologi & System: soluciones TI implementadas para empresas e instituciones en Perú.' });
 
 /* Proyectos -- listado filtrable por región, mapa del Perú (sección de la
    home) y clientes; cierre con Contacto (DESIGN.md). Datos de ejemplo en

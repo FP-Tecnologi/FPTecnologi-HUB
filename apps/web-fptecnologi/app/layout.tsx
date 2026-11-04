@@ -15,7 +15,7 @@ import { TransicionPagina } from '@/components/site/TransicionPagina';
 import { SitioProvider } from '@/context/SitioContext';
 import { getServicios } from '@/lib/servicios';
 import { getSitio } from '@/lib/sitio';
-import { organizacionJsonLd } from '@/lib/seo';
+import { OG_BASE, OG_LOGO, organizacionJsonLd } from '@/lib/seo';
 import JsonLd from '@/components/site/JsonLd';
 import { api } from '@/lib/catalogo';
 import './globals.css';
@@ -27,8 +27,8 @@ export const metadata: Metadata = {
   applicationName: 'FPTecnologi & System',
   // canonical relativo a cada ruta (se resuelve contra metadataBase); sin query ni parámetros de seguimiento.
   alternates: { canonical: './', languages: { 'es-PE': './' } },
-  openGraph: { siteName: 'FPTecnologi & System', locale: 'es_PE', type: 'website', images: [{ url: '/herobanner/Servicios.webp', alt: 'FPTecnologi & System: tecnología para tu negocio' }] },
-  twitter: { card: 'summary_large_image' },
+  openGraph: { ...OG_BASE, type: 'website', images: [OG_LOGO] },
+  twitter: { card: 'summary_large_image', images: [OG_LOGO.url] },
   ...(process.env.NOINDEX === '1'
     ? { robots: { index: false, follow: false } }
     : { robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large' as const, 'max-snippet': -1 } } }),

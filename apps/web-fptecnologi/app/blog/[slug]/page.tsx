@@ -12,6 +12,7 @@ import { Contact } from '@/components/home/Contact';
 import { Footer } from '@/components/home/Footer';
 import { fechaLarga, getArticulo, getArticulos, PORTADA_DEFECTO } from '@/lib/blog';
 import { indiceArticulo, markdownToHtml, minutosLectura } from '@/lib/markdown';
+import { OG_BASE, OG_LOGO } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 
@@ -22,13 +23,14 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const a = await getArticulo(slug);
   if (!a) return { title: 'Blog' };
   const url = `${SITE}/blog/${a.slug}`;
-  const imagen = a.portadaUrl || PORTADA_DEFECTO;
+  // Sin portada propia se comparte el logo, no la foto genérica de la cabecera.
+  const imagen = a.portadaUrl || OG_LOGO.url;
   return {
     title: a.titulo,
     description: a.resumen,
     keywords: a.etiquetas,
     alternates: { canonical: url },
-    openGraph: { type: 'article', title: a.titulo, description: a.resumen, url, images: [imagen], publishedTime: a.publicadoEn ?? undefined, tags: a.etiquetas },
+    openGraph: { ...OG_BASE, type: 'article', title: a.titulo, description: a.resumen, url, images: [imagen], publishedTime: a.publicadoEn ?? undefined, tags: a.etiquetas },
     twitter: { card: 'summary_large_image', title: a.titulo, description: a.resumen, images: [imagen] },
   };
 }

@@ -15,7 +15,7 @@ import { Footer } from '@/components/home/Footer';
 import { getPagina } from '@/lib/paginasContenido';
 import { metaSeo } from '@/lib/seo';
 
-export const generateMetadata = () => metaSeo('contacto', { title: 'Contacto' });
+export const generateMetadata = () => metaSeo('contacto', { title: 'Contacto', description: 'Contáctanos para cotizar equipamiento y servicios TI. Atención de ventas y soporte de FPTecnologi & System.' });
 
 
 /* Contacto -- contacto por área, formulario con motivo, mapa y horario, y al cierre
