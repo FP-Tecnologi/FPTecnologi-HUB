@@ -60,7 +60,7 @@ export function Hero({ slides }: { slides?: HeroSlide[] }) {
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
           aria-hidden
           className="absolute inset-0 z-0 h-full w-full bg-ink object-cover"
         >

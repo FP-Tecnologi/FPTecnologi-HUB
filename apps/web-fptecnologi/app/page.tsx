@@ -43,9 +43,8 @@ export const generateMetadata = () => metaSeo('home');
  * proyectos y Nuestros clientes son secciones nuevas sin contenido real
  * todavía, marcadas TODO en sus propios archivos.
  */
-// Contenido editable desde el dashboard (CMS) -- se lee en cada visita para
-// que lo guardado se vea al instante (y en la vista previa del dashboard).
-export const dynamic = 'force-dynamic';
+// Contenido editable desde el dashboard (CMS): la página se regenera cada 30 s (ISR), no en cada visita.
+export const revalidate = 30;
 
 export default async function HomePage() {
   const [c, { products: destacados }, proyectos] = await Promise.all([

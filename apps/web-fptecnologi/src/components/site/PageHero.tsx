@@ -39,7 +39,7 @@ export function PageHero({
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={imagen} alt="" aria-hidden className="absolute inset-0 z-0 h-full w-full object-cover" />
           {video && (
-            <video autoPlay muted loop playsInline preload="auto" poster={imagen} aria-hidden className="absolute inset-0 z-0 h-full w-full object-cover">
+            <video autoPlay muted loop playsInline preload="metadata" poster={imagen} aria-hidden className="absolute inset-0 z-0 h-full w-full object-cover">
               <source src={video} type="video/mp4" />
             </video>
           )}

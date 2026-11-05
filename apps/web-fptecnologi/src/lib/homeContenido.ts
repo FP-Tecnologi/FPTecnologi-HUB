@@ -125,10 +125,11 @@ const API_URL = process.env.HUB_API_URL ?? 'http://localhost:3001';
 const MARCA_ID = process.env.HUB_MARCA_ID ?? '';
 
 /** Defaults + lo guardado en el dashboard (se mezcla campo por campo, por sección). */
-export async function getHomeContenido(): Promise<HomeContenido> {
+export async function getHomeContenido(fresco = false): Promise<HomeContenido> {
   if (!MARCA_ID) return HOME_DEFAULTS;
   try {
-    const res = await fetch(`${API_URL}/public/contenido/home?marcaId=${MARCA_ID}`, { cache: 'no-store' });
+    // Con caché de 30 s la home deja de renderizarse en cada visita; el editor del dashboard pide `fresco`.
+    const res = await fetch(`${API_URL}/public/contenido/home?marcaId=${MARCA_ID}`, fresco ? { cache: 'no-store' } : { next: { revalidate: 30 } });
     if (!res.ok) return HOME_DEFAULTS;
     const saved = ((await res.json())?.data ?? {}) as Record<string, Record<string, unknown>>;
     const out = { ...HOME_DEFAULTS } as Record<string, unknown>;

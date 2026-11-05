@@ -38,7 +38,12 @@ const SEGURIDAD = [
 const nextConfig = {
   poweredByHeader: false,
   async headers() {
-    return [{ source: '/:path*', headers: SEGURIDAD }];
+    // Archivos de public/ que casi nunca cambian: sin esto Next los sirve con max-age=0 y el navegador los revalida siempre.
+    const larga = [{ key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=86400' }];
+    return [
+      { source: '/:path*', headers: SEGURIDAD },
+      ...['fonts', 'images', 'wp-content', 'herobanner', 'pdfjs'].map((d) => ({ source: `/${d}/:path*`, headers: larga })),
+    ];
   },
   // Menos RAM en el build: el contenedor de AI App Hosting mata el proceso ("Killed") si se pasa de memoria.
   experimental: { webpackMemoryOptimizations: true, cpus: 1 },

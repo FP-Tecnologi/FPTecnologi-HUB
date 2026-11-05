@@ -8,7 +8,7 @@ import { getHomeContenido } from '@/lib/homeContenido';
 const DASHBOARD_ORIGIN = process.env.DASHBOARD_ORIGIN ?? 'http://localhost:3000';
 
 export async function GET() {
-  return Response.json(await getHomeContenido(), {
+  return Response.json(await getHomeContenido(true), {
     headers: { 'Access-Control-Allow-Origin': DASHBOARD_ORIGIN, 'Cache-Control': 'no-store' },
   });
 }

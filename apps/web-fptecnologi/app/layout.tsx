@@ -4,12 +4,9 @@ import { Montserrat } from 'next/font/google';
 import { CartProvider } from '@/context/CartContext';
 import { CurrencyProvider } from '@/context/CurrencyContext';
 import { ChatWidgetProvider } from '@/context/ChatWidgetContext';
-import { ChatWidget } from '@/components/site/ChatWidget';
-import { PopupsSitio } from '@/components/site/PopupsSitio';
-import { PopupBbva } from '@/components/site/TarjetasBbvaVitrina';
+import { WidgetsDiferidos } from '@/components/site/WidgetsDiferidos';
 import ContadorVisitas from '@/components/site/ContadorVisitas';
 import { FavoritesProvider } from '@/context/FavoritesContext';
-import { FavoritesWidget } from '@/components/site/FavoritesWidget';
 import { ServiciosProvider } from '@/context/ServiciosContext';
 import { TransicionPagina } from '@/components/site/TransicionPagina';
 import { SitioProvider } from '@/context/SitioContext';
@@ -65,11 +62,8 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             <FavoritesProvider>
               <ChatWidgetProvider>
                 {children}
-                <ChatWidget />
-                <PopupsSitio />
-                <PopupBbva />
+                <WidgetsDiferidos />
                 <ContadorVisitas />
-                <FavoritesWidget />
                 <TransicionPagina />
               </ChatWidgetProvider>
             </FavoritesProvider>

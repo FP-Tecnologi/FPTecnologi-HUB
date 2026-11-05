@@ -13,7 +13,12 @@ const SEGURIDAD = [
 const nextConfig = {
   poweredByHeader: false,
   async headers() {
-    return [{ source: '/:path*', headers: SEGURIDAD }];
+    // Sin esto Next sirve public/ con max-age=0 y el navegador revalida cada imagen en cada visita.
+    const larga = [{ key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=86400' }];
+    return [
+      { source: '/:path*', headers: SEGURIDAD },
+      ...['brand', 'fondos', 'fotos', 'marcas', 'peru-compras'].map((d) => ({ source: `/${d}/:path*`, headers: larga })),
+    ];
   },
   async redirects() {
     return [{ source: '/legal/reclamaciones', destination: '/libro-de-reclamaciones', permanent: true }];
