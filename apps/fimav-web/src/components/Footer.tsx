@@ -5,6 +5,7 @@ import LibroBadge from './LibroBadge';
 import CorteHex from './hex/CorteHex';
 import { rutaHexagono } from './hex/rutaHexagono';
 import CtaCotizar from './home/CtaCotizar';
+import BannerBbva from './bbva/BannerBbva';
 import { contacto as datosFijos } from '@/lib/contacto';
 import { getContacto, getPagina } from '@/lib/cms';
 
@@ -41,6 +42,8 @@ export default async function Footer() {
   const [contacto, ajustes] = await Promise.all([getContacto(), getPagina('ajustes')]);
   const redes = ajustes.redes;
   return (
+    <>
+    <BannerBbva />
     <footer id="pie" className="print:hidden mt-8 text-white">
       <CorteHex lado="arriba" color="var(--color-carbon)" />
       <div className="bg-carbon pt-4">
@@ -93,5 +96,6 @@ export default async function Footer() {
         <p className="mt-6 border-t border-white/15 px-4 pb-24 pt-5 text-center text-sm text-white/90 md:pb-5">© {new Date().getFullYear()} {datosFijos.razonSocial}. Todos los derechos reservados.</p>
       </div>
     </footer>
+    </>
   );
 }
