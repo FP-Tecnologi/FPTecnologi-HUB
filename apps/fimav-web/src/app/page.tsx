@@ -12,7 +12,7 @@ export default async function Home() {
   return (
     <main id="contenido">
       <HeroSlider slides={c.hero.slides} />
-      <Nosotros datos={c.nosotros} /><Categorias titulo={c.categorias} categorias={categorias} /><PeruCompras datos={c.perucompras} /><TarjetasBbva /><PorQue datos={c.porque} /><Marcas titulo={c.marcas} />
+      <Nosotros datos={c.nosotros} /><Categorias titulo={c.categorias} categorias={categorias} /><PeruCompras datos={c.perucompras} /><PorQue datos={c.porque} /><Marcas titulo={c.marcas} /><TarjetasBbva />
     </main>
   );
 }

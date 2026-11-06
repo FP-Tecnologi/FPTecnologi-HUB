@@ -157,3 +157,11 @@ html[data-scrolled] .cabecera-link { color: var(--color-carbon); }
 @media (prefers-reduced-motion: reduce) {
   .bbva-abanico > * { animation: none !important; transform: translateX(calc(-50% + var(--x, 0%))) translateY(var(--y, 0%)) rotate(var(--r, 0deg)); }
 }
+
+/* Banner/bloque BBVA justo encima del pie (franja en las páginas internas; bloque final del inicio): el pie pierde su margen
+   y lleva el mismo azul detrás de la muesca, así no queda hueco blanco y el límite es el carbón del pie. */
+.banner-bbva + #pie,
+main:has(> .banner-bbva:last-child) + #pie {
+  margin-top: 0;
+  background-image: linear-gradient(to right, #070e46, #001391, #004481);
+}
