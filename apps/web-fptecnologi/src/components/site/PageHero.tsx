@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { StickyNav } from '@/components/home/StickyNav';
 import { Navbar9 } from '@/components/home/Navbar9';
-import { ParticlesBackground } from '@/components/home/ParticlesBackground';
+import { ParticlesBackground } from '@/components/home/ParticlesDiferido';
 import { Home } from 'lucide-react';
 
 /*

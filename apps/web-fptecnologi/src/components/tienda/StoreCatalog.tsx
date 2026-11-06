@@ -9,7 +9,7 @@ import { ProductCardFinal } from '@/components/home/ProductCardFinal';
 import { CompareDock, useCompare } from '@/components/home/CompareDock';
 import { StickyNav } from '@/components/home/StickyNav';
 import { Navbar9 } from '@/components/home/Navbar9';
-import { ParticlesBackground } from '@/components/home/ParticlesBackground';
+import { ParticlesBackground } from '@/components/home/ParticlesDiferido';
 import { BannerBbva } from '@/components/site/BannerBbva';
 
 type Sort = 'relevancia' | 'precio-asc' | 'precio-desc' | 'descuento' | 'nombre';

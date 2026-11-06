@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { HERO_SLIDES } from '@/lib/content';
-import { ParticlesBackground } from './ParticlesBackground';
+import { ParticlesBackground } from '@/components/home/ParticlesDiferido';
 
 export function Hero() {
   const [active, setActive] = useState(0);

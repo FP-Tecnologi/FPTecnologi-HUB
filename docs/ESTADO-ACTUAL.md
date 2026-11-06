@@ -1286,3 +1286,7 @@ Plan: [`docs/superpowers/plans/2026-10-23-cms-fimav.md`](superpowers/plans/2026-
 
 - 19 filas de tabla/lista que abrían un detalle solo con el ratón (Leads, Contactos, Cotizaciones, Presupuestos, Pedidos, Productos, Clientes, Proyectos, Servicios, Tickets, CRM, etc.) ahora se enfocan con Tab y se abren con Enter o Espacio (`teclaFila` en `apps/admin/src/lib/teclado.ts`). El resalte de foco ya existía (`.ax-table__row:focus-visible`).
 - Revisado: los `outline: none` del CSS están dentro de reglas `:focus-visible`/contenedores con su propio indicador; los fondos de modales cerrables con clic son comodidad de ratón (Esc/botón Cerrar cubren el teclado).
+
+### 2026-11-05 — Rendimiento de las webs públicas
+
+- Caché larga de `public/` (fptecnologi, fimav, kelqa), home de fptecnologi con ISR de 30 s, widgets y partículas diferidos, `preload="metadata"` en videos de hero y logo ViewSonic de 1.2 MB (SVG) a WebP de ~80 KB sin pérdida visible. Detalle, riesgos y pendientes (Cloudflare, dependencias sin uso) en [`optimizacion-rendimiento-web.md`](optimizacion-rendimiento-web.md).

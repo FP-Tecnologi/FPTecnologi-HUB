@@ -161,7 +161,7 @@ export const PARTNER_BRANDS: { name: string; logo: string; solido?: boolean }[] 
   { name: 'IBM', logo: '/images/marcas/ibm-partner.svg', solido: true },
   { name: 'Epson', logo: '/images/marcas/epson.svg' },
   { name: 'Xerox', logo: '/images/marcas/xerox.svg' },
-  { name: 'ViewSonic', logo: '/images/marcas/viewsonic.svg' },
+  { name: 'ViewSonic', logo: '/images/marcas/viewsonic.webp' },
   { name: 'Optoma', logo: '/images/marcas/optoma.svg' },
   { name: 'Nureva', logo: '/images/marcas/nureva.svg' },
   { name: 'Logitech', logo: '/images/marcas/logitech.svg' },

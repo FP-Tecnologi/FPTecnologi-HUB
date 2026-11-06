@@ -6,7 +6,7 @@ import { Navbar9 } from './Navbar9';
 import { HERO_SLIDES } from '@/lib/content';
 import { SparkleIcon, ArrowUpRightIcon } from '@/components/site/icons';
 import { useChatWidget } from '@/context/ChatWidgetContext';
-import { ParticlesBackground } from './ParticlesBackground';
+import { ParticlesBackground } from './ParticlesDiferido';
 import { StickyNav } from './StickyNav';
 import { ClickConfirmButton } from './ClickConfirmButton';
 
