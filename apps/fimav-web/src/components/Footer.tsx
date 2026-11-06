@@ -44,7 +44,8 @@ export default async function Footer() {
   return (
     <>
     <BannerBbva />
-    <footer id="pie" className="print:hidden mt-8 text-white">
+    {/* Con el banner BBVA justo encima: sin hueco blanco y con su mismo degradado detrás de la muesca, así el límite es el carbón del pie. */}
+    <footer id="pie" className="print:hidden mt-8 text-white [.banner-bbva+&]:mt-0 [.banner-bbva+&]:bg-gradient-to-r [.banner-bbva+&]:from-[#070E46] [.banner-bbva+&]:via-[#001391] [.banner-bbva+&]:to-[#004481]">
       <CorteHex lado="arriba" color="var(--color-carbon)" />
       <div className="bg-carbon pt-4">
         <CtaCotizar datos={ajustes.cta} />

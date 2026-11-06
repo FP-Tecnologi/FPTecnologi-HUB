@@ -12,7 +12,7 @@ const oculto = (ruta: string) => SIN_BANNER.some((p) => (p === '/' ? ruta === '/
 export default function BannerBbva() {
   if (oculto(usePathname())) return null;
   return (
-    <aside aria-label="Tarjetas de crédito BBVA" className="print:hidden relative mt-8 overflow-hidden bg-gradient-to-r from-[#070E46] via-[#001391] to-[#004481] text-white">
+    <aside aria-label="Tarjetas de crédito BBVA" className="banner-bbva print:hidden relative overflow-hidden bg-gradient-to-r from-[#070E46] via-[#001391] to-[#004481] text-white">
       <div aria-hidden="true" className="pointer-events-none absolute -left-16 -top-24 size-64 rounded-full bg-[#85C8FF]/20 blur-3xl" />
       <div className="relative mx-auto flex max-w-6xl flex-col items-center gap-4 px-4 py-5 text-center sm:px-6 md:flex-row md:justify-between md:text-left">
         <div className="flex flex-col items-center gap-4 md:flex-row md:gap-6">
