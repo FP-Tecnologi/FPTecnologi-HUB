@@ -23,6 +23,8 @@ export const organizacion = {
   '@type': 'Organization',
   '@id': `${SITIO}/#organizacion`,
   name: 'Imaninki',
+  legalName: 'CORPORACION JAE SOLUTIONS E.I.R.L.',
+  taxID: '20606010886',
   url: SITIO,
   logo: abs('/brand/logo.png'),
   image: abs(IMAGEN_SOCIAL.url),

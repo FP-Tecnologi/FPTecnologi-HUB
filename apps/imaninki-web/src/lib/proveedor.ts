@@ -2,8 +2,8 @@ import { contacto } from './contenido';
 
 export type Proveedor = { razonSocial: string; ruc: string; nombreComercial: string; direccion: string; email: string };
 
-// Respaldo si la API no responde. La razón social, el RUC y la dirección reales se cargan en Admin → Marcas (Imaninki).
-const respaldo: Proveedor = { razonSocial: 'Imaninki', ruc: '', nombreComercial: 'Imaninki', direccion: '', email: contacto.correo };
+// Respaldo si la API no responde. La razón social y el RUC ya son los reales; la dirección y cualquier cambio se cargan en Admin → Marcas (Imaninki).
+const respaldo: Proveedor = { razonSocial: 'CORPORACION JAE SOLUTIONS E.I.R.L.', ruc: '20606010886', nombreComercial: 'Imaninki', direccion: '', email: contacto.correo };
 
 /** Datos del proveedor para la hoja de reclamación: de la API del HUB, con respaldo local si falla. */
 export async function getProveedor(): Promise<Proveedor> {
