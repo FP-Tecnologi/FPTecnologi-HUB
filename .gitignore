@@ -21,3 +21,7 @@ apps/api/uploads-privado/
 
 # Paquetes para subir al hosting (se generan con git archive)
 *.zip
+
+# Archify: skill local (se reinstala desde skills-lock.json) y carpeta de trabajo de sus diagramas
+.claude/skills/archify/
+.archify/
