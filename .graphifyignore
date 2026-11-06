@@ -1,0 +1,18 @@
+# Qué NO entra al mapa de graphify (sintaxis de .gitignore). El mapa debe describir el código del proyecto, no sus dependencias ni archivos generados.
+
+# Skills, herramientas y archivos generados
+.claude/
+.agents/
+.archify/
+graphify-out/
+temporal/
+docs/arquitectura/*.html
+
+# Recursos estáticos y librerías incluidas en las webs (pdf.js, imágenes, catálogos, fuentes)
+**/public/
+**/videos-originales/
+
+# Lockfiles y datos masivos
+**/package-lock.json
+**/*.sql
+**/prisma/migrations/

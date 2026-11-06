@@ -7,3 +7,6 @@ cache/
 .graphify_python
 .graphify_root
 .graphify_labels.json
+.graphify_build_state.json
+.graphify_labels.json.sig
+.graphify_labels.pending.json

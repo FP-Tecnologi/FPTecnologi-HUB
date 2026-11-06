@@ -30,10 +30,12 @@ correo y archivos) y [`docs/arquitectura/flujo-contenido.html`](docs/arquitectur
 admin a la web, hasta 30 s). Cada componente cita archivo y líneas del commit en que se basó; pueden quedar desactualizados si el
 código cambia, y se regeneran desde sus `.fuente.json` (ver [`docs/arquitectura/README.md`](docs/arquitectura/README.md)).
 
-Mapa del código por comunidades (opcional): [`graphify-out/GRAPH_REPORT.md`](graphify-out/GRAPH_REPORT.md), generado con
-`graphify`. **Está desactualizado**: es del 11-sep-2026, cubre solo `apps/api` + los docs y no incluye las webs públicas, el catálogo
-editable ni el CMS de Kelqa/Imaninki. La skill `graphify` no está instalada en todos los equipos; para regenerarlo hay que
-instalarla y correr `/graphify --update`. Ante la duda, prefiere los diagramas de arriba y `docs/ESTADO-ACTUAL.md`.
+Mapa del código (graphify, actualizado 2026-11-06 sobre las 6 apps + docs; ~7.700 nodos): [`graphify-out/GRAPH_REPORT.md`](graphify-out/GRAPH_REPORT.md)
+(comunidades y nodos más conectados). **No lo leas entero** (57 KB): consulta el grafo con `graphify query "<pregunta>"`, `graphify explain "<nodo>"` o
+`graphify path "A" "B"` — cuestan una fracción de los tokens que abrir archivos. El grafo (`graph.json`, 15 MB) no se sube a git: se regenera con
+`graphify update .` (código, sin costo de modelo; Python 3.10+ y `uv tool install graphifyy`). `.graphifyignore` excluye skills, `public/`, lockfiles y archivos
+generados. Tras cambios grandes: `graphify update .` y commit de `GRAPH_REPORT.md`. Los docs/imágenes que cambien se reprocesan con `/graphify --update`
+(requiere la skill registrada con `graphify install` y un modelo).
 
 ## Principio de arquitectura (no romper esto)
 
