@@ -8,7 +8,7 @@ import { lineas, razones, waUrl } from '@/lib/contenido';
 import { getPagina } from '@/lib/cms';
 
 export const metadata: Metadata = {
-  title: { absolute: 'Imaninki — Soluciones en construcción e industria: pinturas, mobiliario y más' },
+  title: { absolute: 'Imaninki — Pinturas, mobiliario y construcción en Perú' },
   description: 'Imaninki ofrece pinturas, mobiliario corporativo y productos para construcción y emergencia en todo el Perú. Venta directa, licitaciones y fichas en Perú Compras.',
   alternates: { canonical: '/', languages: { 'es-PE': '/' } },
 };
