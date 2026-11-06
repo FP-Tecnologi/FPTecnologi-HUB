@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, CreditCard, Download, Loader2, Lock, RotateCcw, Search } from 'lucide-react';
+import { ArrowLeft, CreditCard, Loader2, Lock, RotateCcw, Search } from 'lucide-react';
 import BotonHex from '@/components/hex/BotonHex';
 import { AbanicoBbva, TarjetaBbva } from './Tarjetas';
 
@@ -20,26 +20,6 @@ const VACIO = { dni: '', nacimiento: '', celular: '', operador: '', email: '', a
 const ORDEN = ['dni', 'nacimiento', 'celular', 'operador', 'email', 'aceptaDatos'];
 
 const dinero = (n: number, moneda: string) => new Intl.NumberFormat('es-PE', { style: 'currency', currency: moneda, maximumFractionDigits: 0 }).format(n);
-
-/** CSV (con BOM para que Excel lea las tildes) con lo que llenó el visitante y las ofertas recibidas. */
-function descargarDatos(v: typeof VACIO, res: Resultado) {
-  const celda = (s: string | number) => `"${String(s).replace(/"/g, '""')}"`;
-  const filas = [
-    ['Dato', 'Valor'],
-    ['DNI', v.dni],
-    ['Fecha de nacimiento', v.nacimiento],
-    ['Celular', v.celular],
-    ['Operador', OPERADORES.find((o) => o.v === v.operador)?.label ?? v.operador],
-    ['Correo electrónico', v.email],
-    ['Fecha de consulta', new Date().toLocaleString('es-PE')],
-    ...(res.ofertas.length ? res.ofertas.map((o) => [`Oferta: ${o.tarjeta}`, `Línea ${dinero(o.linea, o.moneda)} · TEA ${o.tea}%`]) : [['Ofertas', 'Sin ofertas disponibles']]),
-  ];
-  const blob = new Blob(['﻿' + filas.map((f) => f.map(celda).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = Object.assign(document.createElement('a'), { href: url, download: 'consulta-tarjetas-bbva.csv' });
-  a.click();
-  URL.revokeObjectURL(url);
-}
 
 /* Formulario de consulta (campos que pide BBVA Cards offer) y lista de tarjetas disponibles. */
 export default function FormBbva() {
@@ -175,9 +155,6 @@ export default function FormBbva() {
           </div>
         )}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-          <button type="button" onClick={() => descargarDatos(v, res)} className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-carbon underline-offset-2 hover:text-rojo-hondo hover:underline">
-            <Download aria-hidden="true" size={16} /> Descargar mis datos (CSV)
-          </button>
           {res.ofertas.length > 0 && (
             <button type="button" onClick={nuevaConsulta} className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-carbon underline-offset-2 hover:text-rojo-hondo hover:underline">
               <RotateCcw aria-hidden="true" size={16} /> Hacer otra consulta

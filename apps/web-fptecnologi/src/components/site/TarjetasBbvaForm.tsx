@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
-import { ArrowLeft, ArrowRight, Calendar, CreditCard, Download, IdCard, Loader2, Lock, Mail, RotateCcw, Signal, Smartphone } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Calendar, CreditCard, IdCard, Loader2, Lock, Mail, RotateCcw, Signal, Smartphone } from 'lucide-react';
 import { AbanicoBbva, TarjetaBbva } from './BannerBbva';
 
 type Oferta = { id: number; tarjeta: string; codigo: string; linea: number; moneda: string; tea: number; imagen: string | null };
@@ -33,28 +33,6 @@ function Campo({ id, label, icon: Icon, children }: { id: string; label: string;
 const dinero = (n: number, moneda: string) => new Intl.NumberFormat('es-PE', { style: 'currency', currency: moneda, maximumFractionDigits: 0 }).format(n);
 
 const VACIO = { dni: '', nacimiento: '', celular: '', operador: '', email: '', aceptaDatos: false };
-
-/** CSV (con BOM para que Excel lea las tildes) con lo que llenó el visitante y las ofertas recibidas. */
-function descargarDatos(v: typeof VACIO, res: Resultado) {
-  const celda = (s: string | number) => `"${String(s).replace(/"/g, '""')}"`;
-  const filas = [
-    ['Dato', 'Valor'],
-    ['DNI', v.dni],
-    ['Fecha de nacimiento', v.nacimiento],
-    ['Celular', v.celular],
-    ['Operador', OPERADORES.find((o) => o.v === v.operador)?.label ?? v.operador],
-    ['Correo electrónico', v.email],
-    ['Fecha de consulta', new Date().toLocaleString('es-PE')],
-    ...(res.ofertas.length
-      ? res.ofertas.map((o) => [`Oferta: ${o.tarjeta}`, `Línea ${dinero(o.linea, o.moneda)} · TEA ${o.tea}%`])
-      : [['Ofertas', 'Sin ofertas disponibles']]),
-  ];
-  const blob = new Blob(['﻿' + filas.map((f) => f.map(celda).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = Object.assign(document.createElement('a'), { href: url, download: 'consulta-tarjetas-bbva.csv' });
-  a.click();
-  URL.revokeObjectURL(url);
-}
 
 /* Formulario de consulta (campos que pide BBVA Cards offer) y lista de tarjetas disponibles. */
 export function TarjetasBbvaForm() {
@@ -191,9 +169,6 @@ export function TarjetasBbvaForm() {
           </div>
         )}
         <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
-          <button type="button" onClick={() => descargarDatos(v, res)} className="flex items-center gap-2 text-sm font-semibold text-ink/65 transition-colors hover:text-[#001391]">
-            <Download className="h-4 w-4" strokeWidth={2} /> Descargar mis datos (CSV)
-          </button>
           {res.ofertas.length > 0 && (
             <button type="button" onClick={nuevaConsulta} className="flex items-center gap-2 text-sm font-semibold text-ink/65 transition-colors hover:text-[#001391]">
               <RotateCcw className="h-4 w-4" strokeWidth={2} /> Hacer otra consulta
