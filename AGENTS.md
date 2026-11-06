@@ -24,12 +24,16 @@ Documentación de negocio completa (alcance, fases, roles, costos) en:
   respecto al plan original (agregado/quitado/distinto). Léelo para saber
   dónde está el proyecto hoy sin reconstruirlo desde el git log.
 
-Mapa navegable del código + docs (comunidades, nodos más conectados,
-conexiones no obvias entre la documentación y la implementación real) en
-[`graphify-out/GRAPH_REPORT.md`](graphify-out/GRAPH_REPORT.md) — generado con
-`graphify` (ver `~/.claude/skills/graphify`), cubre hoy `apps/api` + los docs
-de contexto (no incluye `apps/admin`, que es boilerplate de Vireo). Regenerar
-con `/graphify --update` cuando el código avance bastante.
+Diagramas de arquitectura (abrir en el navegador), hechos con Archify a partir del código:
+[`docs/arquitectura/arquitectura-hub.html`](docs/arquitectura/arquitectura-hub.html) (5 webs públicas, dashboard, API, Supabase,
+correo y archivos) y [`docs/arquitectura/flujo-contenido.html`](docs/arquitectura/flujo-contenido.html) (cómo llega un cambio del
+admin a la web, hasta 30 s). Cada componente cita archivo y líneas del commit en que se basó; pueden quedar desactualizados si el
+código cambia, y se regeneran desde sus `.fuente.json` (ver [`docs/arquitectura/README.md`](docs/arquitectura/README.md)).
+
+Mapa del código por comunidades (opcional): [`graphify-out/GRAPH_REPORT.md`](graphify-out/GRAPH_REPORT.md), generado con
+`graphify`. **Está desactualizado**: es del 11-sep-2026, cubre solo `apps/api` + los docs y no incluye las webs públicas, el catálogo
+editable ni el CMS de Kelqa/Imaninki. La skill `graphify` no está instalada en todos los equipos; para regenerarlo hay que
+instalarla y correr `/graphify --update`. Ante la duda, prefiere los diagramas de arriba y `docs/ESTADO-ACTUAL.md`.
 
 ## Principio de arquitectura (no romper esto)
 
