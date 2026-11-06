@@ -47,3 +47,15 @@ Primera vez `cf-cache-status: MISS`, la segunda `HIT`. Para páginas HTML debe s
 ## Pendiente de confirmar con el hosting
 - Región del servidor (decide si conviene mover Supabase de `us-west-2`).
 - Que el correo (MX/SPF/DKIM) quede en gris tras importar los DNS.
+
+---
+
+## Alternativa elegida: CDN solo para archivos (sin cambiar nameservers ni tocar el correo)
+
+Se crea un subdominio por web (`cdn.fptecnologi.com`, `cdn.fimavperu.com`, …) con un solo registro **CNAME** hacia un CDN de tipo *pull* (p. ej. bunny.net: *Pull Zone* con origen = la propia web). Los DNS, el MX y el correo no se tocan.
+
+1. En el CDN crea una *Pull Zone* por dominio con origen `https://<dominio>` y *hostname* `cdn.<dominio>`; activa SSL gratuito y CORS (`Access-Control-Allow-Origin: *`, necesario para fuentes).
+2. En el DNS del dominio añade `cdn` → CNAME al *hostname* que dé el CDN.
+3. En el hosting define la variable `CDN_URL=https://cdn.<dominio>` y vuelve a compilar (`npm run build`): el JS/CSS de `/_next/static` se pedirá al CDN. Sin la variable todo queda igual (`assetPrefix` en `next.config.mjs` de fptecnologi, fimav, imaninki y kelqa).
+4. Imágenes y PDF de `public/`: siguen saliendo del hosting con caché de 30 días; pasarlas al CDN requiere prefijar sus rutas en el código (pendiente, hacerlo cuando el CDN esté activo).
+5. Si algo falla, quitar `CDN_URL` y recompilar revierte todo.

@@ -12,6 +12,8 @@ const SEGURIDAD = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
+  // CDN solo para archivos: con CDN_URL (p. ej. https://cdn.midominio.com) el JS/CSS de /_next/static se pide a ese subdominio. Sin la variable no cambia nada.
+  assetPrefix: process.env.CDN_URL || undefined,
   async headers() {
     // Sin esto Next sirve public/ con max-age=0 y el navegador revalida cada imagen en cada visita.
     const larga = [{ key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=86400' }];

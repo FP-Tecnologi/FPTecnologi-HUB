@@ -37,6 +37,8 @@ const SEGURIDAD = [
 
 const nextConfig = {
   poweredByHeader: false,
+  // CDN solo para archivos: con CDN_URL (p. ej. https://cdn.midominio.com) el JS/CSS de /_next/static se pide a ese subdominio. Sin la variable no cambia nada.
+  assetPrefix: process.env.CDN_URL || undefined,
   async headers() {
     // Archivos de public/ que casi nunca cambian: sin esto Next los sirve con max-age=0 y el navegador los revalida siempre.
     const larga = [{ key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=86400' }];
