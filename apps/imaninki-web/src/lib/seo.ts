@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
-import { contacto, lineas, preguntas } from './contenido';
+import { contacto, lineas } from './contenido';
 
 export const SITIO = 'https://imaninki.com';
-export const IMAGEN_SOCIAL = { url: '/fotos/cumbre.webp', width: 1672, height: 941, alt: 'Imaninki: soluciones en construcción e industria' };
+export const IMAGEN_SOCIAL = { url: '/fotos/cumbre.webp', width: 1900, height: 1267, alt: 'Imaninki: soluciones en construcción e industria' };
 
 /** Metadatos de una página: canonical, Open Graph y Twitter con el mismo título y descripción. */
 export function meta(titulo: string, descripcion: string, ruta: string): Metadata {
@@ -24,12 +24,13 @@ export const organizacion = {
   '@id': `${SITIO}/#organizacion`,
   name: 'Imaninki',
   url: SITIO,
-  logo: abs('/brand/imaninki.svg'),
+  logo: abs('/brand/logo.png'),
   image: abs(IMAGEN_SOCIAL.url),
   slogan: 'Soluciones en construcción e industria',
   description: 'Imaninki ofrece pinturas, mobiliario corporativo y soluciones para construcción y emergencia, con venta directa, licitaciones públicas y privadas y fichas en Perú Compras.',
   email: contacto.correo,
   telephone: contacto.telefono,
+  address: { '@type': 'PostalAddress', addressCountry: 'PE' },
   areaServed: { '@type': 'Country', name: 'Perú' },
   knowsLanguage: 'es-PE',
   contactPoint: [{ '@type': 'ContactPoint', contactType: 'ventas', telephone: contacto.telefono, email: contacto.correo, areaServed: 'PE', availableLanguage: 'es' }],
@@ -65,10 +66,4 @@ export const jsonLinea = (id: string) => {
       })),
     },
   };
-};
-
-export const jsonPreguntas = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: preguntas.map((q) => ({ '@type': 'Question', name: q.p, acceptedAnswer: { '@type': 'Answer', text: q.r } })),
 };

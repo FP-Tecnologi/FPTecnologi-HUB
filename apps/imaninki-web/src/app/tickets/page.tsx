@@ -2,13 +2,10 @@ import Link from 'next/link';
 import { Headset } from 'lucide-react';
 import AbrirTicket from '@/components/AbrirTicket';
 import Banner from '@/components/Banner';
+import { meta } from '@/lib/seo';
 
 const descripcion = 'Soporte técnico, garantías y reclamos de Imaninki: abre un ticket y sigue su estado en línea.';
-export const metadata = {
-  title: 'Tickets de soporte',
-  description: descripcion,
-  alternates: { canonical: '/tickets' },
-};
+export const metadata = meta('Tickets de soporte', descripcion, '/tickets');
 
 export default function TicketsPage() {
   return (

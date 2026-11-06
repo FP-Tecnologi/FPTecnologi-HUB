@@ -3,15 +3,11 @@ import Banner from '@/components/Banner';
 import ConsultaReclamo from '@/components/ConsultaReclamo';
 import FormReclamacion from '@/components/FormReclamacion';
 import Titulo from '@/components/Titulo';
+import { meta } from '@/lib/seo';
 import { getProveedor } from '@/lib/proveedor';
 
 const descripcion = 'Registra un reclamo o una queja a Imaninki conforme a la Ley 29571. Respondemos en un plazo máximo de 15 días hábiles.';
-export const metadata: Metadata = {
-  title: 'Libro de Reclamaciones',
-  description: descripcion,
-  alternates: { canonical: '/libro-de-reclamaciones' },
-  openGraph: { title: 'Libro de Reclamaciones | Imaninki', description: descripcion, url: '/libro-de-reclamaciones' },
-};
+export const metadata: Metadata = meta('Libro de Reclamaciones', descripcion, '/libro-de-reclamaciones');
 
 export default async function LibroReclamaciones() {
   const proveedor = await getProveedor();
