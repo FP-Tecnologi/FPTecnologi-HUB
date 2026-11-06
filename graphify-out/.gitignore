@@ -10,3 +10,4 @@ cache/
 .graphify_build_state.json
 .graphify_labels.json.sig
 .graphify_labels.pending.json
+GRAPH_TREE.html
