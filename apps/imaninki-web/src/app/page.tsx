@@ -27,12 +27,12 @@ export default async function Inicio() {
       {/* PORTADA */}
       <section id="inicio" className="fondo-negro relative isolate overflow-hidden text-white">
         <img loading="lazy" decoding="async" src="/icon.svg" alt="" aria-hidden="true" className="pointer-events-none absolute -left-24 top-32 -z-10 w-[30rem] opacity-[0.06]" />
-        <div className={`${contenedor} pt-28 text-center sm:pt-32`}>
-          <img fetchPriority="high" decoding="async" src="/icon.svg" alt="" aria-hidden="true" className="entrada flotar mx-auto w-24 drop-shadow-[0_0_38px_rgb(225_29_46/0.6)] sm:w-32" />
-          <img decoding="async" src="/brand/marca.svg" alt="Imaninki" width="400" height="100" className="entrada mx-auto mt-6 h-12 w-auto sm:h-16" style={retraso(100)} />
-          <p className="entrada mt-10 text-xl font-bold uppercase tracking-[0.12em] sm:text-3xl" style={retraso(200)}>{hero.titulo}</p>
-          <h1 className="entrada mt-1 text-[clamp(2.4rem,9.5vw,6.5rem)] font-black uppercase leading-[0.98] tracking-tight !text-white" style={retraso(280)}>{a1}</h1>
-          {a2 && <p className="entrada text-[clamp(2.2rem,8.5vw,5.8rem)] font-black uppercase leading-[0.98] tracking-tight text-rojo-claro [text-shadow:0_4px_30px_rgb(225_29_46/0.35)]" style={retraso(360)}>{a2}</p>}
+        <div className={`${contenedor} pt-28 text-center sm:pt-28`}>
+          <img fetchPriority="high" decoding="async" src="/icon.svg" alt="" aria-hidden="true" className="entrada flotar mx-auto w-20 drop-shadow-[0_0_38px_rgb(225_29_46/0.6)] sm:w-24" />
+          <img decoding="async" src="/brand/marca.svg" alt="Imaninki" width="400" height="100" className="entrada mx-auto mt-5 h-10 w-auto sm:h-12" style={retraso(100)} />
+          <p className="entrada mt-8 text-lg font-bold uppercase tracking-[0.12em] sm:text-2xl" style={retraso(200)}>{hero.titulo}</p>
+          <h1 className="entrada mt-1 text-[clamp(2.2rem,7.5vw,4.5rem)] font-black uppercase leading-[0.98] tracking-tight !text-white" style={retraso(280)}>{a1}</h1>
+          {a2 && <p className="entrada text-[clamp(2rem,6.6vw,4rem)] font-black uppercase leading-[0.98] tracking-tight text-rojo-claro [text-shadow:0_4px_30px_rgb(225_29_46/0.35)]" style={retraso(360)}>{a2}</p>}
           <p className="entrada mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-white/85" style={retraso(440)}>{hero.texto}</p>
           <p className="entrada mt-4 text-sm font-bold uppercase tracking-[0.2em] text-rojo-claro" style={retraso(480)}>Hecho en Perú, hecho para durar</p>
           <div className="entrada mt-9 flex flex-wrap justify-center gap-3" style={retraso(520)}>
