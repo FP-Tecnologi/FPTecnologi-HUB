@@ -56,6 +56,13 @@ const CATALOGOS = base('catalogos', 'Catálogos', '/catalogos', [
   sec('lista', 'Catálogos en PDF', [{ key: 'items', label: 'Catálogos', tipo: 'lista-pdf', itemLabel: 'Catálogo', ayuda: 'Sube el PDF de cada catálogo; en la web se muestra como una tarjeta para ver o descargar. Cuando hay al menos uno, aparece el enlace «Catálogos (PDF)» en el pie de página.' }]),
 ]);
 
+const LEGALES = base('legal', 'Textos legales', '/legal/privacidad', [
+  sec('estado', 'Publicación', [{ key: 'publicado', label: 'Publicar textos legales', tipo: 'bool', ayuda: 'Los textos son un BORRADOR basado en los de Fimav: revísalos (idealmente con tu asesor legal) antes de activar. Mientras esté apagado, las páginas no existen en la web ni aparecen en el pie.' }]),
+  sec('privacidad', 'Política de privacidad', [T('titulo', 'Título'), { ...TA('texto', 'Texto'), ayuda: 'Párrafos separados por una línea en blanco. «## Título» = subtítulo. Marcadores: {{titular}} (razón social, RUC y domicilio de Admin → Marcas), {{correo}} y {{telefono}}.' } as CampoDe]),
+  sec('terminos', 'Términos y condiciones', [T('titulo', 'Título'), TA('texto', 'Texto')]),
+  sec('devoluciones', 'Devoluciones y cambios', [T('titulo', 'Título'), TA('texto', 'Texto')]),
+]);
+
 const CONTACTO = base('contacto', 'Contacto', '/contacto', [
   sec('banner', 'Banner de la página', [T('titulo', 'Título — parte blanca'), T('acento', 'Título — parte con brillo'), TA('texto', 'Texto')]),
   sec('preguntas', 'Preguntas frecuentes', [...TITULO, {
@@ -82,4 +89,5 @@ function SoloKelqa({ config }: { config: CmsConfig }) {
 export const KelqaInicioCms = () => <SoloKelqa config={INICIO} />;
 export const KelqaNosotrosCms = () => <SoloKelqa config={NOSOTROS} />;
 export const KelqaCatalogosCms = () => <SoloKelqa config={CATALOGOS} />;
+export const KelqaLegalesCms = () => <SoloKelqa config={LEGALES} />;
 export const KelqaContactoCms = () => <SoloKelqa config={CONTACTO} />;

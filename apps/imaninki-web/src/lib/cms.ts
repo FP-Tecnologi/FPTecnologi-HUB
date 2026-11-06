@@ -6,6 +6,7 @@
  * No se editan desde aquí: las líneas de producto, los datos de contacto (teléfono, WhatsApp, correo) ni las fotos.
  */
 import { cache } from 'react';
+import { LEGAL_DEFAULTS } from './legal';
 import { mision, preguntas, propuesta, valoresDetalle, vision } from './contenido';
 
 export const CMS_DEFAULTS = {
@@ -58,6 +59,13 @@ export const CMS_DEFAULTS = {
       texto3: propuesta[2],
     },
   },
+  // Los textos legales son un borrador: no se muestran en la web hasta que se active «publicado» (Web Imaninki → Textos legales).
+  legal: {
+    estado: { publicado: false },
+    privacidad: LEGAL_DEFAULTS.privacidad,
+    terminos: LEGAL_DEFAULTS.terminos,
+    devoluciones: LEGAL_DEFAULTS.devoluciones,
+  },
   catalogos: {
     banner: {
       titulo: 'Nuestros',
@@ -100,6 +108,7 @@ function mezclar<T extends Record<string, unknown>>(base: T, guardado: unknown):
     const g = guardado[k];
     if (typeof v === 'string' && typeof g === 'string') out[k] = g;
     else if (Array.isArray(v) && Array.isArray(g)) out[k] = g;
+    else if (typeof v === 'boolean' && typeof g === 'boolean') out[k] = g;
   }
   return out as T;
 }

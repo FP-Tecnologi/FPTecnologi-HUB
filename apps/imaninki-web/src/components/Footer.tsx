@@ -7,7 +7,7 @@ const enlace = 'inline-flex items-center gap-2 transition duration-300 hover:tra
 const Titulo = ({ children }: { children: string }) => <h2 className="text-sm font-bold uppercase tracking-[0.16em] text-white">{children}</h2>;
 
 export default async function Footer({ lineas }: { lineas: Linea[] }) {
-  const { lista } = await getPagina('catalogos');
+  const [{ lista }, legal] = await Promise.all([getPagina('catalogos'), getPagina('legal')]);
   const conCatalogos = lista.items.some((x) => x.titulo && x.archivo);
   return (
     <footer id="pie" className="bg-tinta text-white/80">
@@ -23,6 +23,7 @@ export default async function Footer({ lineas }: { lineas: Linea[] }) {
             <li><Link href="/" className={enlace}>Inicio</Link></li>
             <li><Link href="/nosotros" className={enlace}>Nosotros</Link></li>
             <li><Link href="/contacto" className={enlace}>Contacto</Link></li>
+            {legal.estado.publicado && (['privacidad', 'terminos', 'devoluciones'] as const).map((s) => <li key={s}><Link href={`/legal/${s}`} className={enlace}>{legal[s].titulo}</Link></li>)}
             <li><Link href="/libro-de-reclamaciones" className={enlace}><BookOpen aria-hidden="true" size={16} />Libro de Reclamaciones</Link></li>
             <li><Link href="/tickets" className={enlace}><Headset aria-hidden="true" size={16} />Soporte (tickets)</Link></li>
           </ul>
