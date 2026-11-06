@@ -58,6 +58,15 @@ export const CMS_DEFAULTS = {
       texto3: propuesta[2],
     },
   },
+  catalogos: {
+    banner: {
+      titulo: 'Nuestros',
+      acento: 'catálogos',
+      texto: 'Descarga en PDF nuestras líneas y productos.',
+    },
+    // archivo: PDF subido desde el dashboard (/uploads/...).
+    lista: { items: [] as { titulo: string; archivo: string }[] },
+  },
   contacto: {
     banner: {
       titulo: 'Contáctanos para',
@@ -76,6 +85,9 @@ export const CMS_DEFAULTS = {
 export type CmsContenido = typeof CMS_DEFAULTS;
 export type PaginaCms = keyof CmsContenido;
 export const PAGINAS_CMS = Object.keys(CMS_DEFAULTS) as PaginaCms[];
+
+/** Ruta pública de un PDF guardado: los subidos al dashboard (/uploads/...) pasan por el proxy de la web (sin CORS). */
+export const urlArchivo = (a: string) => (a.startsWith('/uploads/') ? `/api/archivos${a.slice('/uploads'.length)}` : a);
 
 const API_URL = process.env.HUB_API_URL ?? 'http://localhost:3001';
 const esObjeto = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);

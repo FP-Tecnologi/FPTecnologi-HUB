@@ -47,6 +47,11 @@ const NOSOTROS = base('nosotros', 'Nosotros', '/nosotros', [
   sec('listos', '¡Estamos listos! (cierre negro)', [TA('texto', 'Mensaje principal'), TA('texto2', 'Franja inferior — primera parte'), TA('texto3', 'Franja inferior — segunda parte')]),
 ]);
 
+const CATALOGOS = base('catalogos', 'Catálogos', '/catalogos', [
+  sec('banner', 'Banner de la página', [T('titulo', 'Título — parte blanca'), T('acento', 'Título — parte con brillo'), TA('texto', 'Texto')]),
+  sec('lista', 'Catálogos en PDF', [{ key: 'items', label: 'Catálogos', tipo: 'lista-pdf', itemLabel: 'Catálogo', ayuda: 'Sube el PDF de cada catálogo; en la web se muestra como una tarjeta para ver o descargar. Cuando hay al menos uno, aparece el enlace «Catálogos (PDF)» en el pie de página.' }]),
+]);
+
 const CONTACTO = base('contacto', 'Contacto', '/contacto', [
   sec('banner', 'Banner de la página', [T('titulo', 'Título — parte blanca'), T('acento', 'Título — parte con brillo'), TA('texto', 'Texto')]),
   sec('preguntas', 'Preguntas frecuentes', [...TITULO, {
@@ -72,4 +77,5 @@ function SoloImaninki({ config }: { config: CmsConfig }) {
 
 export const ImaninkiInicioCms = () => <SoloImaninki config={INICIO} />;
 export const ImaninkiNosotrosCms = () => <SoloImaninki config={NOSOTROS} />;
+export const ImaninkiCatalogosCms = () => <SoloImaninki config={CATALOGOS} />;
 export const ImaninkiContactoCms = () => <SoloImaninki config={CONTACTO} />;

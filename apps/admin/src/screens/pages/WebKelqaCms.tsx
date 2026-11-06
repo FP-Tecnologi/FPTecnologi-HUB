@@ -51,6 +51,11 @@ const NOSOTROS = base('nosotros', 'Nosotros', '/nosotros', [
   }]),
 ]);
 
+const CATALOGOS = base('catalogos', 'Catálogos', '/catalogos', [
+  sec('banner', 'Banner de la página', [T('titulo', 'Título — parte blanca'), T('acento', 'Título — parte con brillo'), TA('texto', 'Texto')]),
+  sec('lista', 'Catálogos en PDF', [{ key: 'items', label: 'Catálogos', tipo: 'lista-pdf', itemLabel: 'Catálogo', ayuda: 'Sube el PDF de cada catálogo; en la web se muestra como una tarjeta para ver o descargar. Cuando hay al menos uno, aparece el enlace «Catálogos (PDF)» en el pie de página.' }]),
+]);
+
 const CONTACTO = base('contacto', 'Contacto', '/contacto', [
   sec('banner', 'Banner de la página', [T('titulo', 'Título — parte blanca'), T('acento', 'Título — parte con brillo'), TA('texto', 'Texto')]),
   sec('preguntas', 'Preguntas frecuentes', [...TITULO, {
@@ -76,4 +81,5 @@ function SoloKelqa({ config }: { config: CmsConfig }) {
 
 export const KelqaInicioCms = () => <SoloKelqa config={INICIO} />;
 export const KelqaNosotrosCms = () => <SoloKelqa config={NOSOTROS} />;
+export const KelqaCatalogosCms = () => <SoloKelqa config={CATALOGOS} />;
 export const KelqaContactoCms = () => <SoloKelqa config={CONTACTO} />;

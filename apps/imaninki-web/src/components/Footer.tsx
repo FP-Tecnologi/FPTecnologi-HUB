@@ -1,11 +1,14 @@
 import Link from 'next/link';
 import { AtSign, BookOpen, Headset, Mail, Phone } from 'lucide-react';
 import { contacto, type Linea } from '@/lib/contenido';
+import { getPagina } from '@/lib/cms';
 
 const enlace = 'inline-flex items-center gap-2 transition duration-300 hover:translate-x-1 hover:text-rojo-claro';
 const Titulo = ({ children }: { children: string }) => <h2 className="text-sm font-bold uppercase tracking-[0.16em] text-white">{children}</h2>;
 
-export default function Footer({ lineas }: { lineas: Linea[] }) {
+export default async function Footer({ lineas }: { lineas: Linea[] }) {
+  const { lista } = await getPagina('catalogos');
+  const conCatalogos = lista.items.some((x) => x.titulo && x.archivo);
   return (
     <footer id="pie" className="bg-tinta text-white/80">
       <div aria-hidden="true" className="filete" />
@@ -28,6 +31,7 @@ export default function Footer({ lineas }: { lineas: Linea[] }) {
           <Titulo>Líneas</Titulo>
           <ul className="mt-4 space-y-2 text-sm">
             {lineas.map((l) => <li key={l.id}><Link href={`/lineas/${l.id}`} className={enlace}>{l.nombre}</Link></li>)}
+            {conCatalogos && <li><Link href="/catalogos" className={enlace}>Catálogos (PDF)</Link></li>}
           </ul>
         </div>
         <div>
