@@ -1,0 +1,14 @@
+node_modules
+.next
+out
+dist
+*.tsbuildinfo
+*.local
+.DS_Store
+next-env.d.ts
+.vercel
+
+# Variables de entorno con credenciales (el espejo tiene esta carpeta como raiz; usar .env.example de plantilla)
+.env
+.env.*
+!.env.example

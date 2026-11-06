@@ -21,8 +21,9 @@ scripts **dentro de la app** (`cd apps/<app>`), siempre con npm (no pnpm/yarn).
 | `apps/web-fptecnologi` (web pública, Next 16) | 3002 | `npm run dev -- --port 3002` | `npm run build` | `npm run lint` |
 | `apps/fimav-web` (web pública Fimav Perú, Next 16) | 3005 | `npm run dev -- --port 3005` | `npm run build` | `npm run lint` |
 | `apps/kelqa-web` (web pública Kelqa, Next 16) | 3007 | `npm run dev -- --port 3007` | `npm run build` | `npm run lint` |
+| `apps/imaninki-web` (web pública Imaninki, Next 16; negro/rojo/plata) | 3008 | `npm run dev -- --port 3008` | `npm run build` | `npm run lint` |
 
-`.claude/launch.json` define estos servidores (`api`, `admin`, `web-fptecnologi`, `fimav-web`, `kelqa-web`, `leads` → repo aparte) para
+`.claude/launch.json` define estos servidores (`api`, `admin`, `web-fptecnologi`, `fimav-web`, `kelqa-web`, `imaninki-web`, `leads` → repo aparte) para
 `preview_start`.
 
 Tests (solo `apps/api`, Vitest, `*.spec.ts` junto al archivo probado):

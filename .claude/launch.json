@@ -89,6 +89,20 @@
         "dev"
       ],
       "port": 3003
+    },
+    {
+      "name": "imaninki-web",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "apps/imaninki-web",
+        "run",
+        "dev",
+        "--",
+        "--port",
+        "3008"
+      ],
+      "port": 3008
     }
   ]
 }

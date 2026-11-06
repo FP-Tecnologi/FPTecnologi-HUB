@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        app: [api, admin, web-fptecnologi, fimav-web, quamtu-web, kelqa-web]
+        app: [api, admin, web-fptecnologi, fimav-web, quamtu-web, kelqa-web, imaninki-web]
     defaults:
       run:
         working-directory: apps/${{ matrix.app }}

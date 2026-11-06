@@ -60,7 +60,7 @@ jobs:
       fail-fast: false
       matrix:
         # Dashboard y webs públicas (Next 16). `lint` = tsc --noEmit: typescript-eslint aún no soporta TypeScript 7.
-        app: [admin, web-fptecnologi, fimav-web, quamtu-web, kelqa-web]
+        app: [admin, web-fptecnologi, fimav-web, quamtu-web, kelqa-web, imaninki-web]
     defaults:
       run:
         working-directory: apps/${{ matrix.app }}

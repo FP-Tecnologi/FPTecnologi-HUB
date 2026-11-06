@@ -80,6 +80,11 @@ apps/
                     con contenido fijo en `src/lib/contenido.ts` (del brochure
                     comercial) y fotos en `public/fotos`. Pendiente: CMS,
                     contador de visitas, libro de reclamaciones y tickets.
+  imaninki-web/     Next.js 16 — web pública de imaninki.com (marca `imaninki`,
+                    puerto 3008). Base de kelqa-web con identidad del brochure:
+                    negro, rojo `#d4182a` y plata (tokens en `globals.css`), logo
+                    en `public/brand`. Contenido en `src/lib/contenido.ts` y CMS
+                    (`src/lib/cms.ts`). Pendiente: HUB_MARCA_ID, repo espejo.
 docs/     Documentación de negocio y planificación
 ```
 
@@ -236,7 +241,7 @@ conectado y migrado.
 
 CI/CD y seguridad del repo (ver `.github/`):
 - `workflows/ci.yml`: API (lint oxlint + build + tests) y, en matriz, las 5 apps Next (`admin`,
-  `web-fptecnologi`, `fimav-web`, `quamtu-web`, `kelqa-web`: tipos + build) con Node 22, en cada push/PR a `main`.
+  `web-fptecnologi`, `fimav-web`, `quamtu-web`, `kelqa-web`, `imaninki-web`: tipos + build) con Node 22, en cada push/PR a `main`.
 - `workflows/codeql.yml`: análisis estático de seguridad (CodeQL) en
   push/PR a `main` y semanal.
 - `workflows/dependency-audit.yml`: `npm audit` informativo de las 6 apps en
