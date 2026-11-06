@@ -16,7 +16,7 @@ const activo = (ruta: string, href: string) => (href === '/' ? ruta === '/' : ru
 const link = 'cabecera-link relative flex min-h-11 items-center gap-1 text-[13px] font-bold uppercase tracking-[0.12em] text-white after:absolute after:inset-x-0 after:bottom-1.5 after:h-0.5 after:origin-left after:rounded-full after:bg-rojo after:transition-transform after:duration-300 hover:after:scale-x-100';
 
 /** Cabecera fija: transparente sobre el banner y blanca al bajar (marca html[data-scrolled]). Líneas abre un submenú. */
-export default function Header({ lineas }: { lineas: Linea[] }) {
+export default function Header({ lineas, conCatalogos = false }: { lineas: Linea[]; conCatalogos?: boolean }) {
   const ruta = usePathname();
   const menu = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
@@ -73,6 +73,7 @@ export default function Header({ lineas }: { lineas: Linea[] }) {
             </div>
           </div>
           <Item {...enlaces[1]} />
+          {conCatalogos && <Item href="/catalogos" texto="Catálogos" />}
           <Item {...enlaces[2]} />
           <a href={cotizar} target="_blank" rel="noopener noreferrer" className="boton inline-flex h-11 items-center gap-2 rounded-md bg-rojo px-5 text-[13px] font-bold uppercase tracking-[0.12em] text-white shadow-lg shadow-black/30 hover:bg-rojo-hondo">
             <IconoWhatsApp className="icono-sacude size-[18px]"/>Cotizar
@@ -85,7 +86,7 @@ export default function Header({ lineas }: { lineas: Linea[] }) {
             <span className="sr-only">Abrir menú</span>
           </summary>
           <nav aria-label="Principal" className="absolute right-0 top-full mt-3 flex w-72 origin-top-right flex-col gap-1 rounded-md bg-white p-3 shadow-xl shadow-tinta/20 motion-safe:animate-[entrada_0.35s_var(--suave)]">
-            {[enlaces[0], ...lineas.map((l) => ({ href: `/lineas/${l.id}`, texto: l.nombre })), enlaces[1], enlaces[2]].map((e) => (
+            {[enlaces[0], ...lineas.map((l) => ({ href: `/lineas/${l.id}`, texto: l.nombre })), enlaces[1], ...(conCatalogos ? [{ href: '/catalogos', texto: 'Catálogos' }] : []), enlaces[2]].map((e) => (
               <Link key={e.href} href={e.href} aria-current={activo(ruta, e.href) ? 'page' : undefined} className={`flex min-h-12 items-center rounded-lg border-l-4 px-3 font-semibold hover:bg-niebla hover:text-rojo-hondo ${activo(ruta, e.href) ? 'border-rojo text-rojo-hondo' : 'border-transparent text-carbon'} ${e.href.startsWith('/lineas') ? 'pl-6 text-sm' : ''}`}>
                 {e.texto}
               </Link>

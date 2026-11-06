@@ -8,6 +8,7 @@ import JsonLd from '@/components/JsonLd';
 import ContadorVisitas from '@/components/ContadorVisitas';
 import { IMAGEN_SOCIAL, organizacion, sitioWeb } from '@/lib/seo';
 import { getLineas } from '@/lib/lineas';
+import { getPagina } from '@/lib/cms';
 
 const montserrat = Montserrat({ subsets: ['latin'], variable: '--font-montserrat', weight: ['400', '500', '600', '700', '800', '900'] });
 
@@ -29,12 +30,13 @@ export const viewport: Viewport = { themeColor: '#0d0d0e', width: 'device-width'
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const lineas = await getLineas();
+  const conCatalogos = (await getPagina('catalogos')).lista.items.some((x) => x.titulo && x.archivo);
   return (
     <html lang="es-PE" className={montserrat.variable}>
       <body>
         <a href="#contenido" className="sr-only z-[60] rounded-md bg-white px-4 py-3 font-semibold text-rojo-hondo shadow-xl focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Saltar al contenido</a>
         <JsonLd datos={[organizacion(lineas), sitioWeb]} />
-        <Header lineas={lineas} />
+        <Header lineas={lineas} conCatalogos={conCatalogos} />
         {children}
         <Footer lineas={lineas} />
         <WhatsApp />

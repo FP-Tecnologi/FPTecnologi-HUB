@@ -33,7 +33,7 @@ async function mantenimientoActivo(): Promise<boolean> {
   }
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname, searchParams } = request.nextUrl;
 
   // El equipo (o el editor del dashboard) entra a la web real aunque esté en mantenimiento.

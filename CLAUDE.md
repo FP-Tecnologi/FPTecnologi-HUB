@@ -56,8 +56,11 @@ Prisma (en `apps/api`, requiere `.env` con `DATABASE_URL`; ver `.env.example`):
 - `apps/admin` parte de la plantilla Vireo: antes de una pantalla nueva revisa
   [`VIREO-REFERENCE.md`](VIREO-REFERENCE.md). Solo `SignInBasic`, `TwoStepBasic` y `TwoStepTotp`
   hablan con la API real; el resto de `src/screens/auth/` es demo.
-- `apps/web-fptecnologi` aún usa contenido hardcodeado en `src/lib/content.ts` (y defaults del CMS
-  en `src/lib/homeContenido.ts`) en vez de consumir `GET /public/*`.
+- Las webs públicas leen su contenido de la API (`GET /public/contenido/:pagina`, `/public/categorias`, `/public/productos`) con caché de
+  30 s (ISR); los textos de `src/lib/*` (`content.ts`, `homeContenido.ts`, `contenido.ts`, `cms.ts`) son solo el respaldo si la API no responde.
+  En Fimav, Kelqa e Imaninki las categorías/líneas de producto son filas de `Categoria` y `Producto` (se gestionan en Ecommerce → Catálogo y
+  Productos del dashboard); Nosotros, Catálogos PDF y Textos legales de Kelqa/Imaninki son páginas de CMS (Web <marca> en el dashboard).
+  `apps/quamtu-web` es una exportación estática: sus textos del CMS se aplican al recompilar.
 - El sistema de leads vive solo en el repo `centralizacion-leads` (otra base Supabase); aquí no hay copia.
 
 ## Flujo de trabajo
