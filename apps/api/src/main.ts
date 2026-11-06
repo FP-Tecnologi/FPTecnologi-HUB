@@ -17,6 +17,12 @@ async function bootstrap() {
   app.set('trust proxy', Number(process.env.TRUST_PROXY ?? 1));
   app.use(helmet());
   app.use(cookieParser());
+  // Contenido público igual para todos (CMS y blog): un CDN/proxy puede guardarlo 30 s y no llegar a la base en cada visita.
+  // Solo estas rutas GET; el resto de /public lleva datos del visitante y no se cachea.
+  app.use((req: { method: string; path: string }, res: { setHeader(k: string, v: string): void }, next: () => void) => {
+    if (req.method === 'GET' && /^\/public\/(contenido|blog)(\/|$)/.test(req.path)) res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=30, stale-while-revalidate=60');
+    next();
+  });
   app.use(swaggerBasicAuth);
   // Imágenes subidas desde el dashboard. helmet pone CORP same-origin; las fotos las pintan la web pública y el
   // dashboard (otro origen), así que aquí se permite explícitamente. nosniff evita que se interpreten como otra cosa.
