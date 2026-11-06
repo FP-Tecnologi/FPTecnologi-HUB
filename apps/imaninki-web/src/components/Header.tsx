@@ -2,8 +2,9 @@
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronDown, Menu, MessageCircle, X } from 'lucide-react';
+import { ChevronDown, Menu, X } from 'lucide-react';
 import { lineas, waUrl } from '@/lib/contenido';
+import { IconoWhatsApp } from './WhatsApp';
 
 const enlaces = [
   { href: '/', texto: 'Inicio' },
@@ -74,7 +75,7 @@ export default function Header() {
           <Item {...enlaces[1]} />
           <Item {...enlaces[2]} />
           <a href={cotizar} target="_blank" rel="noopener noreferrer" className="boton inline-flex h-11 items-center gap-2 rounded-md bg-rojo px-5 text-[13px] font-bold uppercase tracking-[0.12em] text-white shadow-lg shadow-black/30 hover:bg-rojo-hondo">
-            <MessageCircle aria-hidden="true" size={18} className="icono-sacude" />Cotizar
+            <IconoWhatsApp className="icono-sacude size-[18px]"/>Cotizar
           </a>
         </nav>
         <details ref={menu} className="group relative lg:hidden">
@@ -90,7 +91,7 @@ export default function Header() {
               </Link>
             ))}
             <a href={cotizar} target="_blank" rel="noopener noreferrer" className="mt-1 flex min-h-12 items-center justify-center gap-2 rounded-md bg-rojo font-semibold text-white">
-              <MessageCircle aria-hidden="true" size={18} />Cotizar por WhatsApp
+              <IconoWhatsApp className="size-[18px]"/>Cotizar por WhatsApp
             </a>
           </nav>
         </details>

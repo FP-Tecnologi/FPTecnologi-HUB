@@ -1,13 +1,14 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowRight, MessageCircle } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import Banner from '@/components/Banner';
 import Reveal from '@/components/Reveal';
 import { BandaProducto, CtaContacto } from '@/components/Bloques';
 import JsonLd from '@/components/JsonLd';
 import { lineas, waUrl } from '@/lib/contenido';
 import { jsonLinea, meta, migas } from '@/lib/seo';
+import { IconoWhatsApp } from '@/components/WhatsApp';
 
 type Params = { params: Promise<{ linea: string }> };
 
@@ -46,7 +47,7 @@ export default async function PaginaLinea({ params }: Params) {
           </div>
           <div className="mt-10 flex flex-wrap gap-3">
             <a href={waUrl(`Hola Imaninki, quisiera cotizar productos de la ${l.nombre}.`)} target="_blank" rel="noopener noreferrer" className="boton inline-flex h-13 items-center gap-2 rounded-md bg-rojo px-7 font-bold uppercase tracking-wide text-white shadow-lg shadow-rojo/30 hover:bg-rojo-hondo">
-              <MessageCircle aria-hidden="true" size={20} className="icono-sacude" />Cotizar esta línea
+              <IconoWhatsApp className="icono-sacude size-5"/>Cotizar esta línea
             </a>
           </div>
         </div>

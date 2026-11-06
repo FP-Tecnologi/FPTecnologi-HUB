@@ -1,11 +1,12 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { ArrowRight, BadgePercent, Headset, MessageCircle, ShieldCheck, Truck } from 'lucide-react';
+import { ArrowRight, BadgePercent, Headset, ShieldCheck, Truck } from 'lucide-react';
 import Reveal from '@/components/Reveal';
 import Titulo from '@/components/Titulo';
 import { CtaContacto, Listos, Quienes } from '@/components/Bloques';
 import { lineas, razones, waUrl } from '@/lib/contenido';
 import { getPagina } from '@/lib/cms';
+import { IconoWhatsApp } from '@/components/WhatsApp';
 
 export const metadata: Metadata = {
   title: { absolute: 'Imaninki — Pinturas, mobiliario y construcción en Perú' },
@@ -36,7 +37,7 @@ export default async function Inicio() {
           <p className="entrada mt-4 text-sm font-bold uppercase tracking-[0.2em] text-rojo-claro" style={retraso(480)}>Hecho en Perú, hecho para durar</p>
           <div className="entrada mt-9 flex flex-wrap justify-center gap-3" style={retraso(520)}>
             <a href={waUrl('Hola Imaninki, quisiera cotizar productos para mi proyecto.')} target="_blank" rel="noopener noreferrer" className="boton inline-flex h-13 items-center gap-2 rounded-md bg-rojo px-7 font-bold uppercase tracking-wide text-white shadow-lg shadow-rojo/30 hover:bg-rojo-hondo">
-              <MessageCircle aria-hidden="true" size={20} className="icono-sacude" />Cotizar ahora
+              <IconoWhatsApp className="icono-sacude size-5"/>Cotizar ahora
             </a>
             <a href="#lineas" className="boton inline-flex h-13 items-center gap-2 rounded-md border border-white/35 px-7 font-bold uppercase tracking-wide text-white hover:bg-white hover:text-tinta">
               Ver líneas <ArrowRight aria-hidden="true" size={18} className="icono-avanza" />
@@ -128,7 +129,7 @@ export default async function Inicio() {
           </Reveal>
           <Reveal efecto="derecha" className="md:justify-self-end">
             <a href={waUrl('Hola Imaninki, represento a una entidad y quisiera información sobre licitaciones o Perú Compras.')} target="_blank" rel="noopener noreferrer" className="boton inline-flex h-13 items-center gap-2 rounded-md bg-white px-7 font-bold uppercase tracking-wide text-rojo-hondo shadow-xl shadow-black/30">
-              <MessageCircle aria-hidden="true" size={20} className="icono-sacude" />{canales.boton}
+              <IconoWhatsApp className="icono-sacude size-5"/>{canales.boton}
             </a>
           </Reveal>
         </div>

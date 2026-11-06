@@ -1,7 +1,8 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { Building2, Hash, IdCard, Loader2, Mail, MessageCircle, Send, Smartphone, User } from 'lucide-react';
+import { Building2, Hash, IdCard, Loader2, Mail, Send, Smartphone, User } from 'lucide-react';
 import { contacto, waUrl } from '@/lib/contenido';
+import { IconoWhatsApp } from '@/components/WhatsApp';
 
 const limpio = (t: string) => t.replace(/[<>]/g, '');
 const campo = 'block min-h-12 w-full rounded-md border border-carbon/20 bg-white px-4 py-3 text-base text-tinta transition duration-300 placeholder:text-carbon/70 hover:border-rojo/40 focus:border-rojo focus:shadow-[0_0_0_4px_rgb(212_24_42/0.12)] focus:outline-none';
@@ -93,7 +94,7 @@ export default function FormContacto() {
             <h3 className="text-2xl font-extrabold">No pudimos enviarlo</h3>
             <p className="mt-3 leading-relaxed">Tu mensaje no se registró. Escríbenos por WhatsApp o a {contacto.correo}.</p>
             <div className="mt-6 flex flex-wrap gap-3">
-              <a href={waUrl(`Hola Imaninki, soy ${limpio(esEmpresa ? f.empresa : f.nombre) || 'un cliente'}. ${limpio(f.mensaje)}`.slice(0, 1500))} target="_blank" rel="noopener noreferrer" className={`${boton} bg-rojo text-white hover:bg-rojo-hondo`}><MessageCircle aria-hidden="true" size={18} />WhatsApp</a>
+              <a href={waUrl(`Hola Imaninki, soy ${limpio(esEmpresa ? f.empresa : f.nombre) || 'un cliente'}. ${limpio(f.mensaje)}`.slice(0, 1500))} target="_blank" rel="noopener noreferrer" className={`${boton} bg-rojo text-white hover:bg-rojo-hondo`}><IconoWhatsApp className="size-[18px]"/>WhatsApp</a>
               <a href={`mailto:${contacto.correo}`} className={`${boton} bg-rojo/10 text-rojo-hondo hover:bg-rojo/20`}><Mail aria-hidden="true" size={18} />Correo</a>
               <button type="button" onClick={() => setResultado(null)} className={`${boton} text-carbon hover:bg-white`}>Volver</button>
             </div>

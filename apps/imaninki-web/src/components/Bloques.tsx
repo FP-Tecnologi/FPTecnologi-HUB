@@ -1,6 +1,7 @@
-import { Mail, MessageCircle, Phone } from 'lucide-react';
+import { Mail, Phone } from 'lucide-react';
 import Reveal from './Reveal';
 import { contacto, mision, propuesta, vision, waUrl, type Producto } from '@/lib/contenido';
+import { IconoWhatsApp } from './WhatsApp';
 
 const contenedor = 'mx-auto max-w-7xl px-5 sm:px-8';
 
@@ -103,7 +104,7 @@ export function CtaContacto({ id }: { id?: string }) {
           <h2 className="text-[clamp(1.8rem,4.5vw,3rem)] font-extrabold !text-white">Atención <span className="text-rojo-claro">comercial</span></h2>
           <p className="mt-3 max-w-xl text-white/85">Cuéntanos tu proyecto y te proponemos la solución precisa. Escríbenos y te atendemos de inmediato.</p>
           <div className="mt-7 flex flex-wrap gap-3">
-            <a href={waUrl('Hola Imaninki, quisiera más información.')} target="_blank" rel="noopener noreferrer" className={`${item} border-rojo bg-rojo`}><MessageCircle aria-hidden="true" size={20} />WhatsApp</a>
+            <a href={waUrl('Hola Imaninki, quisiera más información.')} target="_blank" rel="noopener noreferrer" className={`${item} border-rojo bg-rojo`}><IconoWhatsApp className="size-5"/>WhatsApp</a>
             <a href={contacto.telefonoHref} className={item}><Phone aria-hidden="true" size={18} />{contacto.telefono}</a>
             <a href={`mailto:${contacto.correo}`} className={item}><Mail aria-hidden="true" size={18} />{contacto.correo}</a>
           </div>
