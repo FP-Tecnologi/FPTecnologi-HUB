@@ -111,7 +111,7 @@ export const lineas: Linea[] = [
     nombre: 'Construcción y Emergencia',
     corto: 'Construcción y Emergencia',
     lema: 'Productos robustos para construcción y respuesta inmediata ante emergencias.',
-    texto: 'Cubiertas, refugios y herramientas pensados para uso intensivo, instalación práctica y buen desempeño frente al clima.',
+    texto: 'Cubiertas, refugios y herramientas pensados para uso intensivo, instalación práctica y buen desempeño frente al clima. También ofrecemos carretillas y camas plegables para obra y ayuda humanitaria.',
     foto: '/fotos/calaminas.webp',
     galeria: [
       { src: '/fotos/construccion-escena.webp', alt: 'Carpa, calaminas y herramientas Imaninki' },
@@ -171,7 +171,7 @@ export const propuesta = [
 ];
 
 export const preguntas = [
-  { p: '¿Qué productos ofrece Imaninki?', r: 'Tres líneas: pinturas (vial Tráfico, Gloss, arquitectónica, base y súper látex mate), mobiliario corporativo (sillas presidenciales, gerenciales, de cuero y butacas) y productos para construcción y emergencia (calaminas, carpas de ayuda humanitaria y herramientas).' },
+  { p: '¿Qué productos ofrece Imaninki?', r: 'Tres líneas: pinturas (vial Tráfico, Gloss, arquitectónica, base y súper látex mate), mobiliario corporativo (sillas presidenciales, gerenciales, de cuero y butacas) y productos para construcción y emergencia (calaminas, carpas de ayuda humanitaria, camas plegables, carretillas y herramientas).' },
   { p: '¿Cómo puedo cotizar?', r: 'Escríbenos por WhatsApp al +51 933 098 493 o al correo ventas@imaninki.com contándonos tu proyecto. Los productos se venden por cotización y te respondemos con la alternativa que mejor se ajuste.' },
   { p: '¿Atienden licitaciones públicas y privadas?', r: 'Sí. Contamos con disponibilidad mediante ventas directas y licitaciones públicas y privadas, y nuestras fichas están publicadas en Perú Compras.' },
   { p: '¿Hacen envíos a todo el país?', r: 'Contamos con una sólida cobertura de distribución a nivel nacional. Indícanos tu ciudad al cotizar y coordinamos la entrega.' },
