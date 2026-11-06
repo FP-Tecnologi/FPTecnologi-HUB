@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { contacto, lineas, preguntas } from './contenido';
+import { contacto, preguntas, type Linea } from './contenido';
 
 export const SITIO = 'https://kelqa.com';
 export const IMAGEN_SOCIAL = { url: '/fotos/cumbre.webp', width: 1672, height: 941, alt: 'Kelqa: pinturas, mobiliario y soluciones para construcción' };
@@ -18,7 +18,7 @@ export function meta(titulo: string, descripcion: string, ruta: string): Metadat
 const abs = (ruta: string) => `${SITIO}${ruta}`;
 
 /** Organización (E-E-A-T y GEO): quién es Kelqa, qué vende, a quién y dónde. Se emite en todas las páginas. */
-export const organizacion = {
+export const organizacion = (lineas: Linea[]) => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
   '@id': `${SITIO}/#organizacion`,
@@ -34,7 +34,7 @@ export const organizacion = {
   knowsLanguage: 'es-PE',
   contactPoint: [{ '@type': 'ContactPoint', contactType: 'ventas', telephone: contacto.telefono, email: contacto.correo, areaServed: 'PE', availableLanguage: 'es' }],
   makesOffer: lineas.map((l) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name: l.nombre, url: abs(`/lineas/${l.id}`) } })),
-};
+});
 
 export const sitioWeb = { '@context': 'https://schema.org', '@type': 'WebSite', '@id': `${SITIO}/#sitio`, url: SITIO, name: 'Kelqa', inLanguage: 'es-PE', publisher: { '@id': `${SITIO}/#organizacion` } };
 
@@ -46,8 +46,7 @@ export const migas = (items: { nombre: string; ruta: string }[]) => ({
 });
 
 /** Línea de producto: lista de productos con su descripción (sin precios: la venta es por cotización). */
-export const jsonLinea = (id: string) => {
-  const l = lineas.find((x) => x.id === id)!;
+export const jsonLinea = (l: Linea) => {
   return {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',

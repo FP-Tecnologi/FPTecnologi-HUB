@@ -1,11 +1,11 @@
 import Link from 'next/link';
 import { AtSign, BookOpen, Headset, Mail, Phone } from 'lucide-react';
-import { contacto, lineas } from '@/lib/contenido';
+import { contacto, type Linea } from '@/lib/contenido';
 
 const enlace = 'inline-flex items-center gap-2 transition duration-300 hover:translate-x-1 hover:text-kelqa-claro';
 const Titulo = ({ children }: { children: string }) => <h2 className="text-sm font-bold uppercase tracking-[0.16em] text-white">{children}</h2>;
 
-export default function Footer() {
+export default function Footer({ lineas }: { lineas: Linea[] }) {
   return (
     <footer id="pie" className="bg-tinta text-white/80">
       <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-8 md:grid-cols-[1.4fr_1fr_1fr_1fr]">

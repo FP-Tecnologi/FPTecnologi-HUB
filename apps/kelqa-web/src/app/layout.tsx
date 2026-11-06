@@ -7,6 +7,7 @@ import WhatsApp from '@/components/WhatsApp';
 import JsonLd from '@/components/JsonLd';
 import ContadorVisitas from '@/components/ContadorVisitas';
 import { IMAGEN_SOCIAL, organizacion, sitioWeb } from '@/lib/seo';
+import { getLineas } from '@/lib/lineas';
 
 const montserrat = Montserrat({ subsets: ['latin'], variable: '--font-montserrat', weight: ['600', '700', '800'] });
 const dm = DM_Sans({ subsets: ['latin'], variable: '--font-dm' });
@@ -27,15 +28,16 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = { themeColor: '#1b898f', width: 'device-width', initialScale: 1 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const lineas = await getLineas();
   return (
     <html lang="es-PE" className={`${montserrat.variable} ${dm.variable}`}>
       <body>
         <a href="#contenido" className="sr-only z-[60] rounded-xl bg-white px-4 py-3 font-semibold text-kelqa-hondo shadow-xl focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Saltar al contenido</a>
-        <JsonLd datos={[organizacion, sitioWeb]} />
-        <Header />
+        <JsonLd datos={[organizacion(lineas), sitioWeb]} />
+        <Header lineas={lineas} />
         {children}
-        <Footer />
+        <Footer lineas={lineas} />
         <WhatsApp />
         <ContadorVisitas />
       </body>

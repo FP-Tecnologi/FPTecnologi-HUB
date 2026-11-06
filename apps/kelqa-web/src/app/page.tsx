@@ -4,7 +4,8 @@ import { ArrowRight, BadgePercent, Headset, MessageCircle, Quote, ShieldCheck, T
 import Reveal from '@/components/Reveal';
 import Titulo from '@/components/Titulo';
 import { Clientes, CtaContacto } from '@/components/Bloques';
-import { lineas, razones, valores, waUrl } from '@/lib/contenido';
+import { razones, valores, waUrl } from '@/lib/contenido';
+import { getLineas } from '@/lib/lineas';
 import { getPagina } from '@/lib/cms';
 
 export const metadata: Metadata = {
@@ -19,6 +20,7 @@ const botonPrimario = 'boton inline-flex h-13 items-center gap-2 rounded-xl bg-k
 const retraso = (ms: number) => ({ '--retraso': `${ms}ms` }) as React.CSSProperties;
 
 export default async function Inicio() {
+  const lineas = await getLineas();
   const { hero, quienes, porque, canales, clientes } = await getPagina('inicio');
   return (
     <main id="contenido">

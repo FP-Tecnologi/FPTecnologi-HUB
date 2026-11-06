@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { contacto, lineas } from './contenido';
+import { contacto, type Linea } from './contenido';
 
 export const SITIO = 'https://imaninki.com';
 export const IMAGEN_SOCIAL = { url: '/fotos/cumbre.webp', width: 1900, height: 1267, alt: 'Imaninki: soluciones en construcción e industria' };
@@ -18,7 +18,7 @@ export function meta(titulo: string, descripcion: string, ruta: string): Metadat
 const abs = (ruta: string) => `${SITIO}${ruta}`;
 
 /** Organización (E-E-A-T y GEO): quién es Imaninki, qué vende, a quién y dónde. Se emite en todas las páginas. */
-export const organizacion = {
+export const organizacion = (lineas: Linea[]) => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
   '@id': `${SITIO}/#organizacion`,
@@ -37,7 +37,7 @@ export const organizacion = {
   knowsLanguage: 'es-PE',
   contactPoint: [{ '@type': 'ContactPoint', contactType: 'ventas', telephone: contacto.telefono, email: contacto.correo, areaServed: 'PE', availableLanguage: 'es' }],
   makesOffer: lineas.map((l) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name: l.nombre, url: abs(`/lineas/${l.id}`) } })),
-};
+});
 
 export const sitioWeb = { '@context': 'https://schema.org', '@type': 'WebSite', '@id': `${SITIO}/#sitio`, url: SITIO, name: 'Imaninki', inLanguage: 'es-PE', publisher: { '@id': `${SITIO}/#organizacion` } };
 
@@ -49,8 +49,7 @@ export const migas = (items: { nombre: string; ruta: string }[]) => ({
 });
 
 /** Línea de producto: lista de productos con su descripción (sin precios: la venta es por cotización). */
-export const jsonLinea = (id: string) => {
-  const l = lineas.find((x) => x.id === id)!;
+export const jsonLinea = (l: Linea) => {
   return {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',

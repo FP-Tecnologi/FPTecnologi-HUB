@@ -4,7 +4,8 @@ import { ArrowRight, BadgePercent, Headset, ShieldCheck, Truck } from 'lucide-re
 import Reveal from '@/components/Reveal';
 import Titulo from '@/components/Titulo';
 import { CtaContacto, Listos, Quienes } from '@/components/Bloques';
-import { lineas, razones, waUrl } from '@/lib/contenido';
+import { razones, waUrl } from '@/lib/contenido';
+import { getLineas } from '@/lib/lineas';
 import { getPagina } from '@/lib/cms';
 import { IconoWhatsApp } from '@/components/WhatsApp';
 
@@ -19,6 +20,7 @@ const contenedor = 'mx-auto max-w-7xl px-5 sm:px-8';
 const retraso = (ms: number) => ({ '--retraso': `${ms}ms` }) as React.CSSProperties;
 
 export default async function Inicio() {
+  const lineas = await getLineas();
   const { hero, quienes, porque, canales } = await getPagina('inicio');
   // «construcción e industria» → «construcción» en blanco y «e industria» en rojo, como la portada del brochure.
   const [a1, a2] = hero.acento.split(/ (?=e )/);
