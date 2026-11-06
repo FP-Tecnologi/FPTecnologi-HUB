@@ -9,7 +9,7 @@ import { rolesTickets } from './tickets.roles.js';
 const ETIQUETA = { RECLAMO: 'Reclamo', VERIFICACION: 'Verificación', SOPORTE: 'Soporte técnico' } as const;
 const ESTADO_TXT = { NUEVO: 'Nuevo', EN_REVISION: 'En revisión', ESPERANDO_CLIENTE: 'Esperando tu respuesta', RESUELTO: 'Resuelto', CERRADO: 'Cerrado' } as const;
 /** Web pública de las marcas sin dominio registrado en Sitios (FPTecnologi y el resto: WEB_PUBLICA_URL). */
-const WEB_CONOCIDA: Record<string, string> = { quamtu: 'https://quamtu.com', fimav: 'https://fimavperu.com', kelqa: 'https://kelqa.com' };
+const WEB_CONOCIDA: Record<string, string> = { quamtu: 'https://quamtu.com', fimav: 'https://fimavperu.com', kelqa: 'https://kelqa.com', imaninki: 'https://imaninki.com' };
 
 /** Lo que cada correo necesita de la marca: su web (enlaces de seguimiento), nombre y color, y el buzón de tickets. */
 interface MarcaTickets { nombre: string; color: string | null; web: string; correo: string | null }

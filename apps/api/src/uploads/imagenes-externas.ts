@@ -26,7 +26,7 @@ const baseApi = () => (process.env.PUBLIC_API_URL ?? `http://localhost:${process
 
 /** Dominios propios (sus imágenes ya son nuestras), salvo la carpeta del WordPress viejo `/wp-content/`. */
 function propios(): Set<string> {
-  const lista = (process.env.DOMINIOS_PROPIOS ?? 'fptecnologi.com,fimavperu.com,quamtu.com,kelqa.com').split(',').map((d) => d.trim().toLowerCase().replace(/^www\./, '')).filter(Boolean);
+  const lista = (process.env.DOMINIOS_PROPIOS ?? 'fptecnologi.com,fimavperu.com,quamtu.com,kelqa.com,imaninki.com').split(',').map((d) => d.trim().toLowerCase().replace(/^www\./, '')).filter(Boolean);
   try {
     lista.push(new URL(baseApi()).hostname.toLowerCase().replace(/^www\./, ''));
   } catch {
