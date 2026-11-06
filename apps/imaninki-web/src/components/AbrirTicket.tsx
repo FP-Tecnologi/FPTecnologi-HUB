@@ -115,8 +115,8 @@ export default function AbrirTicket() {
           const activo = c.id === caso;
           return (
             <button key={c.id} type="button" role="radio" aria-checked={activo} onClick={() => setCaso(c.id)}
-              className={`border border-carbon/15 bg-niebla flex items-center gap-4 rounded-2xl p-4 text-left transition ${activo ? 'border-rojo-hondo bg-rojo/10' : 'hover:border-rojo-hondo/60'}`}>
-              <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${activo ? 'bg-rojo-hondo text-white' : 'bg-rojo/10 text-rojo-hondo'}`}><c.icono aria-hidden="true" size={20} /></span>
+              className={`border border-carbon/15 bg-niebla flex items-center gap-4 rounded-md p-4 text-left transition ${activo ? 'border-rojo-hondo bg-rojo/10' : 'hover:border-rojo-hondo/60'}`}>
+              <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-md ${activo ? 'bg-rojo-hondo text-white' : 'bg-rojo/10 text-rojo-hondo'}`}><c.icono aria-hidden="true" size={20} /></span>
               <span>
                 <span className="block font-titulo font-bold text-tinta">{c.titulo}</span>
                 <span className="block text-sm text-carbon">{c.texto}</span>
@@ -126,7 +126,7 @@ export default function AbrirTicket() {
         })}
       </div>
 
-      <form onSubmit={paso === 1 ? continuar : enviar} noValidate className="border border-carbon/15 bg-niebla rounded-2xl p-5 sm:p-8">
+      <form onSubmit={paso === 1 ? continuar : enviar} noValidate className="border border-carbon/15 bg-niebla rounded-md p-5 sm:p-8">
         <ol className="mb-5 flex items-center gap-3 text-sm font-semibold" aria-label="Pasos del ticket">
           {['Tus datos', 'Tu compra'].map((t, i) => (
             <li key={t} className="flex flex-1 items-center gap-2" aria-current={paso === i + 1 ? 'step' : undefined}>
@@ -140,12 +140,12 @@ export default function AbrirTicket() {
 
         <div className="space-y-4">
           {numeroTicket !== null && (
-            <p role="status" className="rounded-xl border border-rojo-hondo/50 bg-rojo/10 p-4 text-sm text-tinta">
+            <p role="status" className="rounded-md border border-rojo-hondo/50 bg-rojo/10 p-4 text-sm text-tinta">
               ¡Listo! Registramos tu ticket{numeroTicket ? <> <b>{numeroTicket}</b></> : ''}. Te enviamos una copia por correo y un asesor te contactará pronto.{' '}
               {numeroTicket && <a href={`/tickets/seguimiento?n=${encodeURIComponent(numeroTicket)}`} className="font-bold text-rojo-hondo underline">Ver seguimiento</a>}
             </p>
           )}
-          {error && <p role="alert" className="rounded-xl border border-red-700 p-4 text-sm text-red-700">{error}</p>}
+          {error && <p role="alert" className="rounded-md border border-red-700 p-4 text-sm text-red-700">{error}</p>}
           <div aria-hidden="true" className="hidden"><input tabIndex={-1} autoComplete="off" value={website} onChange={(e) => setWebsite(e.target.value)} /></div>
 
           {paso === 1 ? (
@@ -170,7 +170,7 @@ export default function AbrirTicket() {
                 <div><label htmlFor="t-tel" className={etiqueta}>Celular / WhatsApp *</label>
                   <input id="t-tel" type="tel" autoComplete="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} className={campo} placeholder="987 654 321" /></div>
               </div>
-              <p className="flex items-start gap-2 rounded-xl bg-rojo/10 p-3 text-xs leading-relaxed text-carbon">
+              <p className="flex items-start gap-2 rounded-md bg-rojo/10 p-3 text-xs leading-relaxed text-carbon">
                 <ImagePlus aria-hidden="true" size={16} className="mt-0.5 shrink-0 text-rojo-hondo" />
                 <span>En el siguiente paso podrás adjuntar pruebas (fotos o PDF, hasta {MAX_EVIDENCIAS}): <b className="text-tinta">{actual.pruebas}</b>.</span>
               </p>
@@ -195,7 +195,7 @@ export default function AbrirTicket() {
                 <p className={etiqueta}>Evidencia (fotos o PDF, hasta {MAX_EVIDENCIAS} archivos)</p>
                 <div className="mt-2 flex flex-wrap gap-3">
                   {evidencias.map((x) => (
-                    <div key={x.id} className="relative h-20 w-20 overflow-hidden rounded-xl border border-carbon/40">
+                    <div key={x.id} className="relative h-20 w-20 overflow-hidden rounded-md border border-carbon/40">
                       {x.pdf ? (
                         <span title={x.nombre} className="flex h-full w-full flex-col items-center justify-center gap-1 px-1 text-center text-[10px] font-semibold text-carbon"><FileText aria-hidden="true" size={22} /><span className="line-clamp-2 break-all">{x.nombre}</span></span>
                       ) : (
@@ -206,7 +206,7 @@ export default function AbrirTicket() {
                     </div>
                   ))}
                   {evidencias.length < MAX_EVIDENCIAS && (
-                    <button type="button" onClick={() => inputFile.current?.click()} disabled={subiendo} className="flex h-20 w-20 flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-carbon/40 text-xs font-semibold text-carbon transition hover:border-rojo-hondo disabled:opacity-60">
+                    <button type="button" onClick={() => inputFile.current?.click()} disabled={subiendo} className="flex h-20 w-20 flex-col items-center justify-center gap-1 rounded-md border-2 border-dashed border-carbon/40 text-xs font-semibold text-carbon transition hover:border-rojo-hondo disabled:opacity-60">
                       {subiendo ? <Loader2 aria-hidden="true" size={18} className="animate-spin" /> : <ImagePlus aria-hidden="true" size={18} />}{subiendo ? 'Subiendo…' : 'Agregar'}
                     </button>
                   )}

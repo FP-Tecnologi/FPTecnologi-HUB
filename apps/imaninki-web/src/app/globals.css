@@ -9,7 +9,7 @@
   --color-carbon: #2c2c30;
   --color-niebla: #f4f4f5;
   --color-plata: #c9ccd1;
-  --font-sans: var(--font-dm), system-ui, sans-serif;
+  --font-sans: var(--font-montserrat), system-ui, sans-serif;
   --font-titulo: var(--font-montserrat), system-ui, sans-serif;
 }
 
@@ -23,14 +23,29 @@ body { font-family: var(--font-sans); }
 ::selection { background: rgb(212 24 42 / 0.25); }
 
 /* Parte resaltada de los títulos: degradado rojo fijo (sin animación, para no competir con el contenido). */
-.titulo-brillo {
-  background: linear-gradient(100deg, var(--color-rojo-hondo) 20%, #ee2a3c 60%, var(--color-rojo-hondo) 100%);
-  -webkit-background-clip: text; background-clip: text; color: transparent;
-}
-.titulo-brillo-claro { background-image: linear-gradient(100deg, var(--color-rojo-claro) 20%, #fff 60%, var(--color-rojo-claro) 100%); }
+.titulo-brillo { color: var(--color-rojo-hondo); }
+.titulo-brillo-claro { color: #f0283a; }
 
 /* Filete metálico (rojo + plata) como el de las páginas del brochure. */
 .filete { height: 6px; background: linear-gradient(90deg, #4a0b12, var(--color-rojo) 30%, var(--color-plata) 55%, #6b6e73 75%, var(--color-rojo)); }
+
+/* ---- Lenguaje del brochure: negro texturizado, bandas rojas, cortes diagonales y filetes metálicos. ---- */
+.fondo-negro { background-color: #0d0d0e; background-image: linear-gradient(rgb(13 13 14 / 0.84), rgb(13 13 14 / 0.9)), url(/fotos/metal.webp); background-size: cover; background-position: center; }
+.banda-roja { background: linear-gradient(90deg, #7d0b16 0%, #c4162a 45%, #d4182a 60%, #8a0f1a 100%); }
+.banda-roja-inv { background: linear-gradient(270deg, #7d0b16 0%, #c4162a 45%, #d4182a 60%, #8a0f1a 100%); }
+.metal { background: linear-gradient(90deg, #5d6066, #eceef1 28%, #8b8e94 52%, #dcdee2 78%, #5d6066); }
+.rojo-filete { background: linear-gradient(90deg, #5c0a12, #e11d2e 45%, #8d0f1b); }
+/* Collage diagonal de la portada: dos fotos separadas por un filete rojo y otro plata. */
+.collage { --corte: 62%; }
+.collage > * { position: absolute; inset: 0; }
+.collage .foto-a { clip-path: polygon(0 0, 62% 0, 38% 100%, 0 100%); }
+.collage .filete-r { clip-path: polygon(62% 0, 64.6% 0, 40.6% 100%, 38% 100%); }
+.collage .filete-p { clip-path: polygon(64.6% 0, 66% 0, 42% 100%, 40.6% 100%); }
+.collage .foto-b { clip-path: polygon(66% 0, 100% 0, 100% 100%, 42% 100%); }
+.mascara-sube { -webkit-mask-image: linear-gradient(to bottom, transparent, #000 45%); mask-image: linear-gradient(to bottom, transparent, #000 45%); }
+.cubito { display: inline-block; width: 0.5rem; height: 0.5rem; border: 1.5px solid currentColor; transform: rotate(45deg); }
+.flotar { animation: flota 6s ease-in-out infinite; }
+@keyframes flota { 50% { transform: translateY(-10px); } }
 
 /* Cabecera: negra siempre (el logo es blanco y rojo); transparente sobre el hero y negra con filete al bajar. */
 .cabecera { transition: background-color 0.3s, box-shadow 0.3s; color: #fff; }

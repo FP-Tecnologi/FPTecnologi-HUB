@@ -12,7 +12,7 @@ const enlaces = [
 ];
 const cotizar = waUrl('Hola Imaninki, quisiera cotizar productos para mi proyecto.');
 const activo = (ruta: string, href: string) => (href === '/' ? ruta === '/' : ruta.startsWith(href));
-const link = 'cabecera-link relative flex min-h-11 items-center gap-1 text-[15px] font-semibold text-white after:absolute after:inset-x-0 after:bottom-1.5 after:h-0.5 after:origin-left after:rounded-full after:bg-rojo after:transition-transform after:duration-300 hover:after:scale-x-100';
+const link = 'cabecera-link relative flex min-h-11 items-center gap-1 text-[13px] font-bold uppercase tracking-[0.12em] text-white after:absolute after:inset-x-0 after:bottom-1.5 after:h-0.5 after:origin-left after:rounded-full after:bg-rojo after:transition-transform after:duration-300 hover:after:scale-x-100';
 
 /** Cabecera fija: transparente sobre el banner y blanca al bajar (marca html[data-scrolled]). Líneas abre un submenú. */
 export default function Header() {
@@ -43,8 +43,8 @@ export default function Header() {
   return (
     <header className="cabecera fixed inset-x-0 top-0 z-50">
       <div className="mx-auto flex h-[var(--alto-cabecera)] max-w-7xl items-center justify-between gap-6 px-5 sm:px-8">
-        <Link href="/" aria-label="Imaninki, inicio" className="shrink-0 transition-transform duration-300 hover:scale-[1.03]">
-          <img src="/brand/imaninki.svg" alt="" width="148" height="36" fetchPriority="high" className="h-9 w-auto" />
+        <Link href="/" aria-label="Imaninki, inicio" className="flex h-full shrink-0 items-center self-stretch rounded-b-md bg-rojo px-5 shadow-lg shadow-black/40 transition-colors hover:bg-rojo-hondo">
+          <img src="/brand/imaninki-blanco.svg" alt="" width="148" height="36" fetchPriority="high" className="h-8 w-auto" />
         </Link>
         <nav aria-label="Principal" className="hidden items-center gap-8 lg:flex">
           <Item {...enlaces[0]} />
@@ -54,11 +54,11 @@ export default function Header() {
               Líneas <ChevronDown aria-hidden="true" size={16} className="transition-transform duration-300 group-hover/sub:rotate-180" />
             </Link>
             <div className="invisible absolute left-1/2 top-full w-80 -translate-x-1/2 translate-y-2 pt-3 opacity-0 transition duration-300 group-focus-within/sub:visible group-focus-within/sub:translate-y-0 group-focus-within/sub:opacity-100 group-hover/sub:visible group-hover/sub:translate-y-0 group-hover/sub:opacity-100">
-              <ul className="rounded-2xl bg-white p-2 shadow-2xl shadow-tinta/20 ring-1 ring-rojo/10">
+              <ul className="rounded-md bg-white p-2 shadow-2xl shadow-tinta/20 ring-1 ring-rojo/10">
                 {lineas.map((l) => (
                   <li key={l.id}>
-                    <Link href={`/lineas/${l.id}`} className="group flex items-center gap-3 rounded-xl p-2.5 transition duration-300 hover:bg-niebla">
-                      <span className="icono-caja grid size-12 shrink-0 place-items-center rounded-xl bg-niebla group-hover:bg-white">
+                    <Link href={`/lineas/${l.id}`} className="group flex items-center gap-3 rounded-md p-2.5 transition duration-300 hover:bg-niebla">
+                      <span className="icono-caja grid size-12 shrink-0 place-items-center rounded-md bg-niebla group-hover:bg-white">
                         <img src={l.productos[0].img} alt="" className="max-h-10 max-w-10 object-contain" />
                       </span>
                       <span>
@@ -73,23 +73,23 @@ export default function Header() {
           </div>
           <Item {...enlaces[1]} />
           <Item {...enlaces[2]} />
-          <a href={cotizar} target="_blank" rel="noopener noreferrer" className="boton inline-flex h-11 items-center gap-2 rounded-xl bg-rojo px-5 text-[15px] font-semibold text-white shadow-lg shadow-rojo-hondo/30 hover:bg-rojo-hondo">
+          <a href={cotizar} target="_blank" rel="noopener noreferrer" className="boton inline-flex h-11 items-center gap-2 rounded-md bg-rojo px-5 text-[13px] font-bold uppercase tracking-[0.12em] text-white shadow-lg shadow-black/30 hover:bg-rojo-hondo">
             <MessageCircle aria-hidden="true" size={18} className="icono-sacude" />Cotizar
           </a>
         </nav>
         <details ref={menu} className="group relative lg:hidden">
-          <summary className="boton grid size-11 cursor-pointer list-none place-items-center rounded-xl bg-rojo text-white [&::-webkit-details-marker]:hidden [&_svg]:transition-transform group-open:[&_svg]:rotate-90">
+          <summary className="boton grid size-11 cursor-pointer list-none place-items-center rounded-md bg-rojo text-white [&::-webkit-details-marker]:hidden [&_svg]:transition-transform group-open:[&_svg]:rotate-90">
             <Menu aria-hidden="true" className="group-open:hidden" />
             <X aria-hidden="true" className="hidden group-open:block" />
             <span className="sr-only">Abrir menú</span>
           </summary>
-          <nav aria-label="Principal" className="absolute right-0 top-full mt-3 flex w-72 origin-top-right flex-col gap-1 rounded-2xl bg-white p-3 shadow-xl shadow-tinta/20 motion-safe:animate-[entrada_0.35s_var(--suave)]">
+          <nav aria-label="Principal" className="absolute right-0 top-full mt-3 flex w-72 origin-top-right flex-col gap-1 rounded-md bg-white p-3 shadow-xl shadow-tinta/20 motion-safe:animate-[entrada_0.35s_var(--suave)]">
             {[enlaces[0], ...lineas.map((l) => ({ href: `/lineas/${l.id}`, texto: l.nombre })), enlaces[1], enlaces[2]].map((e) => (
               <Link key={e.href} href={e.href} aria-current={activo(ruta, e.href) ? 'page' : undefined} className={`flex min-h-12 items-center rounded-lg border-l-4 px-3 font-semibold hover:bg-niebla hover:text-rojo-hondo ${activo(ruta, e.href) ? 'border-rojo text-rojo-hondo' : 'border-transparent text-carbon'} ${e.href.startsWith('/lineas') ? 'pl-6 text-sm' : ''}`}>
                 {e.texto}
               </Link>
             ))}
-            <a href={cotizar} target="_blank" rel="noopener noreferrer" className="mt-1 flex min-h-12 items-center justify-center gap-2 rounded-xl bg-rojo font-semibold text-white">
+            <a href={cotizar} target="_blank" rel="noopener noreferrer" className="mt-1 flex min-h-12 items-center justify-center gap-2 rounded-md bg-rojo font-semibold text-white">
               <MessageCircle aria-hidden="true" size={18} />Cotizar por WhatsApp
             </a>
           </nav>

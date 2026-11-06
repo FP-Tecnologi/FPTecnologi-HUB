@@ -61,8 +61,8 @@ export default function SeguimientoTicket({ numeroInicial = '' }: { numeroInicia
 
   if (!t) {
     return (
-      <form onSubmit={buscar} noValidate className="border border-carbon/15 bg-niebla mx-auto max-w-lg rounded-2xl p-6 sm:p-8">
-        <span className="flex h-12 w-12 items-center justify-center rounded-xl bg-rojo-hondo text-white"><Search aria-hidden="true" size={24} /></span>
+      <form onSubmit={buscar} noValidate className="border border-carbon/15 bg-niebla mx-auto max-w-lg rounded-md p-6 sm:p-8">
+        <span className="flex h-12 w-12 items-center justify-center rounded-md bg-rojo-hondo text-white"><Search aria-hidden="true" size={24} /></span>
         <h2 className="mt-4 font-titulo text-2xl font-bold text-tinta">Consulta tu ticket</h2>
         <p className="mt-1.5 text-sm text-carbon">Ingresa el número que te enviamos (empieza con TCK) y el correo con el que lo abriste.</p>
         <div className="mt-5 space-y-4">
@@ -83,7 +83,7 @@ export default function SeguimientoTicket({ numeroInicial = '' }: { numeroInicia
   const cerrado = t.estado === 'RESUELTO' || t.estado === 'CERRADO';
   return (
     <div className="mx-auto max-w-3xl space-y-6">
-      <div className="border border-carbon/15 bg-niebla rounded-2xl p-6">
+      <div className="border border-carbon/15 bg-niebla rounded-md p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-rojo-hondo">{TIPO[t.tipo]}</p>
@@ -97,12 +97,12 @@ export default function SeguimientoTicket({ numeroInicial = '' }: { numeroInicia
         <p className="mt-3 text-sm text-carbon">{est.ayuda}</p>
       </div>
 
-      <div className="border border-carbon/15 bg-niebla rounded-2xl p-6">
+      <div className="border border-carbon/15 bg-niebla rounded-md p-6">
         <h3 className="flex items-center gap-2 font-titulo text-lg font-bold text-tinta"><MessageSquareText aria-hidden="true" size={20} className="text-rojo-hondo" />Conversación</h3>
         <ol className="mt-4 space-y-3">
-          <li className="rounded-xl bg-white p-4 text-sm"><b className="text-tinta">Tú</b> <span className="text-carbon/70">· {fecha(t.createdAt)} · caso inicial</span><p className="mt-1 whitespace-pre-wrap text-carbon">{t.descripcion}</p></li>
+          <li className="rounded-md bg-white p-4 text-sm"><b className="text-tinta">Tú</b> <span className="text-carbon/70">· {fecha(t.createdAt)} · caso inicial</span><p className="mt-1 whitespace-pre-wrap text-carbon">{t.descripcion}</p></li>
           {t.mensajes.filter((m) => m.autor !== 'SISTEMA').map((m) => (
-            <li key={m.id} className={`rounded-xl p-4 text-sm ${m.autor === 'EQUIPO' ? 'bg-rojo/10 sm:ml-8' : 'bg-white'}`}>
+            <li key={m.id} className={`rounded-md p-4 text-sm ${m.autor === 'EQUIPO' ? 'bg-rojo/10 sm:ml-8' : 'bg-white'}`}>
               <b className="text-tinta">{m.autor === 'EQUIPO' ? 'Imaninki' : 'Tú'}</b> <span className="text-carbon/70">· {fecha(m.createdAt)}</span>
               <p className="mt-1 whitespace-pre-wrap text-carbon">{m.texto}</p>
             </li>

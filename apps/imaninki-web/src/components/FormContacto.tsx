@@ -4,7 +4,7 @@ import { Building2, Hash, IdCard, Loader2, Mail, MessageCircle, Send, Smartphone
 import { contacto, waUrl } from '@/lib/contenido';
 
 const limpio = (t: string) => t.replace(/[<>]/g, '');
-const campo = 'block min-h-12 w-full rounded-xl border border-carbon/20 bg-white px-4 py-3 text-base text-tinta transition duration-300 placeholder:text-carbon/70 hover:border-rojo/40 focus:border-rojo focus:shadow-[0_0_0_4px_rgb(212_24_42/0.12)] focus:outline-none';
+const campo = 'block min-h-12 w-full rounded-md border border-carbon/20 bg-white px-4 py-3 text-base text-tinta transition duration-300 placeholder:text-carbon/70 hover:border-rojo/40 focus:border-rojo focus:shadow-[0_0_0_4px_rgb(212_24_42/0.12)] focus:outline-none';
 const MAX_MENSAJE = 3000;
 const VACIO = { nombre: '', email: '', celular: '', empresa: '', ruc: '', dni: '', mensaje: '', acepto: false, website: '' };
 const ORDEN = ['empresa', 'ruc', 'nombre', 'dni', 'email', 'celular', 'mensaje', 'acepto'];
@@ -77,11 +77,11 @@ export default function FormContacto() {
 
   const err = (k: string) => (errores[k] ? <p id={`e-${k}`} role="alert" className="mt-1 text-sm text-red-700">{errores[k]}</p> : null);
   const aria = (k: string) => ({ 'aria-invalid': errores[k] ? true : undefined, 'aria-describedby': errores[k] ? `e-${k}` : undefined });
-  const boton = 'boton inline-flex h-12 items-center justify-center gap-2 rounded-xl px-6 font-semibold';
+  const boton = 'boton inline-flex h-12 items-center justify-center gap-2 rounded-md px-6 font-semibold';
 
   if (resultado)
     return (
-      <div ref={resultadoRef} tabIndex={-1} role="status" className="entrada rounded-[1.75rem] bg-niebla p-8 outline-none">
+      <div ref={resultadoRef} tabIndex={-1} role="status" className="entrada rounded-md bg-niebla p-8 outline-none">
         {resultado === 'ok' ? (
           <>
             <h3 className="text-2xl font-extrabold">¡Mensaje enviado!</h3>
@@ -103,10 +103,10 @@ export default function FormContacto() {
     );
 
   return (
-    <form id="contacto-form" onSubmit={enviar} noValidate className="grid gap-5 rounded-[1.75rem] bg-niebla p-6 sm:grid-cols-2 sm:p-8">
+    <form id="contacto-form" onSubmit={enviar} noValidate className="grid gap-5 rounded-md bg-niebla p-6 sm:grid-cols-2 sm:p-8">
       <fieldset className="sm:col-span-2">
         <legend className="text-sm font-semibold text-tinta">¿Quién nos escribe?</legend>
-        <div className="mt-2 grid grid-cols-2 gap-1 rounded-xl bg-white p-1 shadow-sm shadow-rojo-hondo/5 ring-1 ring-carbon/10 sm:inline-grid">
+        <div className="mt-2 grid grid-cols-2 gap-1 rounded-md bg-white p-1 shadow-sm shadow-rojo-hondo/5 ring-1 ring-carbon/10 sm:inline-grid">
           {([['persona', 'Persona natural', User], ['empresa', 'Empresa o entidad', Building2]] as const).map(([valor, texto, Icono]) => (
             <label key={valor} className="relative flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-lg px-4 text-sm font-semibold text-carbon transition duration-300 hover:text-rojo-hondo has-[:checked]:bg-rojo has-[:checked]:text-white has-[:checked]:shadow-md has-[:checked]:shadow-rojo-hondo/25 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-rojo has-[:focus-visible]:ring-offset-2">
               <input type="radio" name="tipo" value={valor} checked={tipo === valor} onChange={() => { setTipo(valor); setErrores({}); }} className="sr-only" />

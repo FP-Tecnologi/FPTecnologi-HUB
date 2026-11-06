@@ -81,12 +81,12 @@ export default function WhatsApp() {
           id="panel-whatsapp"
           role="dialog"
           aria-label="Escribirnos por WhatsApp"
-          className="absolute bottom-[5rem] right-0 w-[calc(100vw-2.5rem)] max-w-sm origin-bottom-right overflow-hidden rounded-3xl bg-white shadow-[0_30px_60px_-20px_rgb(13_13_14/0.45),0_0_0_1px_rgb(212_24_42/0.12)] motion-safe:animate-[panel-wa_0.35s_var(--suave)]"
+          className="absolute bottom-[5rem] right-0 w-[calc(100vw-2.5rem)] max-w-sm origin-bottom-right overflow-hidden rounded-md bg-white shadow-[0_30px_60px_-20px_rgb(13_13_14/0.45),0_0_0_1px_rgb(212_24_42/0.12)] motion-safe:animate-[panel-wa_0.35s_var(--suave)]"
         >
           <div className="relative overflow-hidden bg-gradient-to-br from-tinta via-carbon to-rojo-hondo px-5 pb-5 pt-4 text-white">
             <img loading="lazy" decoding="async" src="/icon.svg" alt="" aria-hidden="true" className="pointer-events-none absolute -right-8 -top-8 w-32 opacity-15 brightness-[3] grayscale" />
             <div className="relative flex items-center gap-3">
-              <span className="relative grid size-11 place-items-center rounded-2xl bg-white">
+              <span className="relative grid size-11 place-items-center rounded-md bg-white">
                 <img loading="lazy" decoding="async" src="/icon.svg" alt="" className="size-7" />
                 <span aria-hidden="true" className="absolute -bottom-0.5 -right-0.5 size-3.5 rounded-full border-2 border-white bg-[#25d366]" />
               </span>
@@ -95,7 +95,7 @@ export default function WhatsApp() {
                 <p className="text-xs text-white/75">En línea · te respondemos de inmediato</p>
               </div>
             </div>
-            <p className="relative mt-4 w-fit max-w-[85%] rounded-2xl rounded-tl-md bg-white/12 px-4 py-2.5 text-sm leading-snug backdrop-blur">
+            <p className="relative mt-4 w-fit max-w-[85%] rounded-md rounded-tl-md bg-white/12 px-4 py-2.5 text-sm leading-snug backdrop-blur">
               ¡Hola! ¿En qué te ayudamos? Elige un tema y seguimos por WhatsApp.
             </p>
           </div>
@@ -107,9 +107,9 @@ export default function WhatsApp() {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setAbierto(false)}
-                  className="group flex min-h-14 items-center gap-3 rounded-2xl px-2.5 py-2.5 transition duration-300 hover:bg-niebla focus-visible:bg-niebla"
+                  className="group flex min-h-14 items-center gap-3 rounded-md px-2.5 py-2.5 transition duration-300 hover:bg-niebla focus-visible:bg-niebla"
                 >
-                  <span className="icono-caja grid size-10 shrink-0 place-items-center rounded-xl bg-rojo/10 text-rojo-hondo group-hover:bg-rojo group-hover:text-white">
+                  <span className="icono-caja grid size-10 shrink-0 place-items-center rounded-md bg-rojo/10 text-rojo-hondo group-hover:bg-rojo group-hover:text-white">
                     <Icono aria-hidden="true" size={20} />
                   </span>
                   <span className="min-w-0 flex-1">
@@ -131,7 +131,7 @@ export default function WhatsApp() {
         <button
           type="button"
           onClick={() => setAbierto(true)}
-          className="absolute bottom-3 right-[4.75rem] w-max max-w-56 rounded-2xl rounded-br-md bg-white px-4 py-2.5 text-left text-sm font-semibold text-tinta shadow-xl shadow-tinta/15 ring-1 ring-rojo/10 motion-safe:animate-[entrada_0.5s_var(--suave)]"
+          className="absolute bottom-3 right-[4.75rem] w-max max-w-56 rounded-md rounded-br-md bg-white px-4 py-2.5 text-left text-sm font-semibold text-tinta shadow-xl shadow-tinta/15 ring-1 ring-rojo/10 motion-safe:animate-[entrada_0.5s_var(--suave)]"
         >
           ¿Necesitas una cotización? <span className="text-rojo-hondo">Escríbenos</span>
         </button>
@@ -145,9 +145,9 @@ export default function WhatsApp() {
         aria-expanded={abierto}
         aria-controls="panel-whatsapp"
         aria-haspopup="dialog"
-        className={`relative grid size-16 place-items-center rounded-2xl text-white`}
+        className={`relative grid size-16 place-items-center rounded-md text-white`}
       >
-        <span className="boton grid size-full place-items-center rounded-2xl bg-gradient-to-br from-rojo to-rojo-hondo shadow-xl shadow-rojo-hondo/40">
+        <span className="boton grid size-full place-items-center rounded-md bg-gradient-to-br from-rojo to-rojo-hondo shadow-xl shadow-rojo-hondo/40">
           {abierto ? <X size={28} aria-hidden="true" /> : <IconoWhatsApp className="icono-sacude size-8" />}
         </span>
       </button>

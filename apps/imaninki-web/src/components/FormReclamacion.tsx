@@ -7,8 +7,8 @@ import Boton from './Boton';
 
 type TipoDoc = 'DNI' | 'CE' | 'PASAPORTE' | 'RUC';
 const limpio = (t: string) => t.replace(/[<>]/g, '');
-const campo = 'mt-1 block min-h-11 w-full rounded-xl border border-carbon/40 bg-white px-4 py-2.5 text-base text-tinta';
-const radio = 'flex min-h-11 items-center gap-2 rounded-xl border border-carbon/40 bg-white px-4 text-carbon';
+const campo = 'mt-1 block min-h-11 w-full rounded-md border border-carbon/40 bg-white px-4 py-2.5 text-base text-tinta';
+const radio = 'flex min-h-11 items-center gap-2 rounded-md border border-carbon/40 bg-white px-4 text-carbon';
 const fechaLarga = (d: string | Date) => new Date(d).toLocaleDateString('es-PE', { timeZone: 'America/Lima', day: 'numeric', month: 'long', year: 'numeric' });
 
 // Mismas reglas que el servicio de la API (validarDocumento).
@@ -116,7 +116,7 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
 
   if (fallo)
     return (
-      <div ref={resultadoRef} tabIndex={-1} role="status" className="rounded-2xl bg-niebla p-6 outline-none sm:p-8">
+      <div ref={resultadoRef} tabIndex={-1} role="status" className="rounded-md bg-niebla p-6 outline-none sm:p-8">
         <h2 className="font-titulo font-bold text-2xl text-carbon">No pudimos registrar tu hoja</h2>
         <p className="mt-3 leading-relaxed text-carbon">Por un problema temporal no se guardó. Puedes presentarla escribiéndonos o llamándonos; tus datos siguen en el formulario.</p>
         <ul className="mt-4 space-y-1 text-carbon">
@@ -139,7 +139,7 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
       ['Medio de respuesta', f.medioRespuesta === 'CORREO' ? 'Correo electrónico' : 'Carta'],
     ];
     return (
-      <div ref={resultadoRef} tabIndex={-1} role="status" className="rounded-2xl bg-niebla p-6 outline-none sm:p-8 print:rounded-none print:bg-white print:p-0">
+      <div ref={resultadoRef} tabIndex={-1} role="status" className="rounded-md bg-niebla p-6 outline-none sm:p-8 print:rounded-none print:bg-white print:p-0">
         <h2 className="font-titulo font-bold text-2xl text-carbon">{hoja.codigo ? 'Hoja de reclamación registrada' : 'Recibimos tu hoja'}</h2>
         {hoja.codigo ? (
           <>
@@ -170,7 +170,7 @@ export default function FormReclamacion({ proveedor }: { proveedor: Proveedor })
     );
   }
 
-  const grupo = 'rounded-2xl bg-niebla p-5 sm:p-8';
+  const grupo = 'rounded-md bg-niebla p-5 sm:p-8';
   const docSelect = (id: string, valor: string, cambiar: (v: TipoDoc) => void, ruc: boolean) => (
     <select id={id} value={valor} onChange={(e) => cambiar(e.target.value as TipoDoc)} className={campo}>
       <option value="DNI">DNI</option><option value="CE">Carné de extranjería</option><option value="PASAPORTE">Pasaporte</option>{ruc && <option value="RUC">RUC</option>}

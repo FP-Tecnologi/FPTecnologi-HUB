@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { DM_Sans, Montserrat } from 'next/font/google';
+import { Montserrat } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -8,8 +8,7 @@ import JsonLd from '@/components/JsonLd';
 import ContadorVisitas from '@/components/ContadorVisitas';
 import { IMAGEN_SOCIAL, organizacion, sitioWeb } from '@/lib/seo';
 
-const montserrat = Montserrat({ subsets: ['latin'], variable: '--font-montserrat', weight: ['600', '700', '800'] });
-const dm = DM_Sans({ subsets: ['latin'], variable: '--font-dm' });
+const montserrat = Montserrat({ subsets: ['latin'], variable: '--font-montserrat', weight: ['400', '500', '600', '700', '800', '900'] });
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://imaninki.com'),
@@ -26,9 +25,9 @@ export const viewport: Viewport = { themeColor: '#0d0d0e', width: 'device-width'
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es-PE" className={`${montserrat.variable} ${dm.variable}`}>
+    <html lang="es-PE" className={montserrat.variable}>
       <body>
-        <a href="#contenido" className="sr-only z-[60] rounded-xl bg-white px-4 py-3 font-semibold text-rojo-hondo shadow-xl focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Saltar al contenido</a>
+        <a href="#contenido" className="sr-only z-[60] rounded-md bg-white px-4 py-3 font-semibold text-rojo-hondo shadow-xl focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Saltar al contenido</a>
         <JsonLd datos={[organizacion, sitioWeb]} />
         <Header />
         {children}

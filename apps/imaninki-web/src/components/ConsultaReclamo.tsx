@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Loader2, Search } from 'lucide-react';
 import Boton from './Boton';
 
-const campo = 'mt-1 block min-h-11 w-full rounded-xl border border-carbon/40 bg-white px-4 py-2.5 text-base text-tinta';
+const campo = 'mt-1 block min-h-11 w-full rounded-md border border-carbon/40 bg-white px-4 py-2.5 text-base text-tinta';
 const fecha = (d: string) => new Date(d).toLocaleDateString('es-PE', { timeZone: 'America/Lima', day: 'numeric', month: 'long', year: 'numeric' });
 const ESTADOS: Record<string, string> = { RECIBIDO: 'Recibido', EN_PROCESO: 'En proceso', RESPONDIDO: 'Respondido' };
 type Hoja = { codigo: string; tipo: string; estado: string; fecha: string; fechaLimite: string; respuesta?: string | null; respondidoAt?: string | null };
@@ -38,7 +38,7 @@ export default function ConsultaReclamo() {
   };
 
   return (
-    <div className="rounded-2xl bg-niebla p-5 sm:p-8">
+    <div className="rounded-md bg-niebla p-5 sm:p-8">
       <form onSubmit={consultar} noValidate className="grid gap-4 sm:grid-cols-2">
         <div>
           <label htmlFor="c-codigo" className="text-sm font-medium text-carbon">Código de la hoja</label>

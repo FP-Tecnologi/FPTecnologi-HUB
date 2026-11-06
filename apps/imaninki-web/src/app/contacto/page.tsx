@@ -37,7 +37,7 @@ export default async function Contacto() {
               {CANALES.map(({ titulo, valor, href, externo, Icono }) => {
                 const interior = (
                   <>
-                    <span className="icono-caja grid size-12 shrink-0 place-items-center rounded-xl bg-rojo text-white shadow-md shadow-rojo-hondo/25">
+                    <span className="icono-caja grid size-12 shrink-0 place-items-center rounded-md bg-rojo text-white shadow-md shadow-rojo-hondo/25">
                       {Icono ? <Icono aria-hidden="true" size={22} /> : <IconoWhatsApp className="size-6" />}
                     </span>
                     <span className="min-w-0">
@@ -46,7 +46,7 @@ export default async function Contacto() {
                     </span>
                   </>
                 );
-                const clase = 'tarjeta group flex items-center gap-4 rounded-2xl border border-rojo/10 bg-white p-4 shadow-md shadow-rojo-hondo/5';
+                const clase = 'tarjeta group flex items-center gap-4 rounded-md border border-rojo/10 bg-white p-4 shadow-md shadow-rojo-hondo/5';
                 return (
                   <li key={titulo}>
                     {href ? (
@@ -58,7 +58,7 @@ export default async function Contacto() {
                 );
               })}
             </ul>
-            <div className="mt-6 flex items-start gap-4 rounded-2xl bg-tinta p-5 text-white">
+            <div className="mt-6 flex items-start gap-4 rounded-md bg-tinta p-5 text-white">
               <Landmark aria-hidden="true" size={24} className="mt-0.5 shrink-0 text-rojo-claro" />
               <p className="text-sm leading-relaxed text-white/85">
                 <b className="text-white">Ventas directas y licitaciones públicas y privadas.</b> Encuentra todas nuestras fichas en Perú Compras.
@@ -80,7 +80,7 @@ export default async function Contacto() {
           <div className="mt-12 grid gap-3">
             {preguntas.items.map((q, i) => (
               <Reveal key={q.p} retraso={i * 70}>
-                <details className="group rounded-2xl bg-white shadow-md shadow-rojo-hondo/5 ring-1 ring-rojo/10 transition duration-300 open:shadow-lg open:shadow-rojo-hondo/10 open:ring-rojo/25" open={i === 0}>
+                <details className="group rounded-md bg-white shadow-md shadow-rojo-hondo/5 ring-1 ring-rojo/10 transition duration-300 open:shadow-lg open:shadow-rojo-hondo/10 open:ring-rojo/25" open={i === 0}>
                   <summary className="flex cursor-pointer list-none items-center gap-4 p-5 font-titulo font-bold text-tinta transition-colors hover:text-rojo-hondo [&::-webkit-details-marker]:hidden">
                     <span className="flex-1">{q.p}</span>
                     <span className="grid size-8 shrink-0 place-items-center rounded-full bg-rojo/10 text-rojo-hondo transition duration-300 group-open:rotate-180 group-open:bg-rojo group-open:text-white">

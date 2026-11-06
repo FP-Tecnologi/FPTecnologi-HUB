@@ -29,7 +29,7 @@ export const lineas: Linea[] = [
     corto: 'Pinturas',
     lema: 'Calidad, resistencia y acabado profesional para cada proyecto.',
     texto: 'Fórmulas de alto rendimiento con gran adherencia, cobertura y color duradero: desde la señalización vial hasta interiores y exteriores.',
-    foto: '/fotos/pintor.webp',
+    foto: '/fotos/trafico-banner.webp',
     galeria: [
       { src: '/fotos/trafico-banner.webp', alt: 'Imaninki Tráfico: la línea que define tu camino' },
       { src: '/fotos/vial-obra.webp', alt: 'Cuadrilla pintando señalización vial' },
