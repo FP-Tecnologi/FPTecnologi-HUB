@@ -6,7 +6,6 @@
  * No se editan desde aquí: las líneas de producto, los datos de contacto (teléfono, WhatsApp, correo) ni las fotos.
  */
 import { cache } from 'react';
-import { connection } from 'next/server';
 import { preguntas } from './contenido';
 
 export const CMS_DEFAULTS = {
@@ -77,12 +76,11 @@ function mezclar<T extends Record<string, unknown>>(base: T, guardado: unknown):
 /** Defaults + lo guardado en el dashboard para una página (cada sección por separado). */
 export const getPagina = cache(async <K extends PaginaCms>(pagina: K): Promise<CmsContenido[K]> => {
   // En cada visita (nunca prerenderizado): lo guardado se ve al instante y no depende de HUB_MARCA_ID al compilar.
-  await connection();
   const defaults = CMS_DEFAULTS[pagina];
   const marca = process.env.HUB_MARCA_ID;
   if (!marca) return defaults;
   try {
-    const res = await fetch(`${API_URL}/public/contenido/${pagina}?marcaId=${encodeURIComponent(marca)}`, { cache: 'no-store', signal: AbortSignal.timeout(3000) });
+    const res = await fetch(`${API_URL}/public/contenido/${pagina}?marcaId=${encodeURIComponent(marca)}`, { next: { revalidate: 30 }, signal: AbortSignal.timeout(3000) });
     if (!res.ok) return defaults;
     const guardado = ((await res.json())?.data ?? {}) as Record<string, unknown>;
     const out: Record<string, unknown> = {};

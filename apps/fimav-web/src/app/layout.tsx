@@ -18,6 +18,9 @@ const titulo = Source_Sans_3({ subsets: ['latin'], variable: '--font-source' });
 // Display cuadrada y condensada para títulos en mayúscula, cercana al rotulado del brochure.
 const display = Rajdhani({ subsets: ['latin'], variable: '--font-rajdhani', weight: ['700'] });
 
+// ISR: cada página se regenera como máximo cada 30 s (lo guardado en el dashboard se ve en <30 s) en vez de consultar la API en cada visita.
+export const revalidate = 30;
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://fimavperu.com'),
   title: { default: 'Fimav Perú — Especialistas en bienes y servicios', template: '%s | Fimav Perú' },

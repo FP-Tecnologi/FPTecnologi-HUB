@@ -11,7 +11,6 @@
  * de cotizar), los logos de las marcas aliadas y los botones del WhatsApp flotante.
  */
 import { cache } from 'react';
-import { connection } from 'next/server';
 import { contenido } from './contenido';
 import { contacto } from './contacto';
 import { categorias } from './categorias';
@@ -131,12 +130,11 @@ function mezclar<T extends Record<string, unknown>>(base: T, guardado: unknown):
 export const getPagina = cache(async <K extends PaginaCms>(pagina: K): Promise<CmsContenido[K]> => {
   // Siempre en cada visita (nunca prerenderizado en el build): lo guardado en el dashboard se ve al instante y no
   // depende de si HUB_MARCA_ID estaba definido al compilar.
-  await connection();
   const defaults = CMS_DEFAULTS[pagina];
   const marca = process.env.HUB_MARCA_ID;
   if (!marca) return defaults;
   try {
-    const res = await fetch(`${API_URL}/public/contenido/${pagina}?marcaId=${encodeURIComponent(marca)}`, { cache: 'no-store', signal: AbortSignal.timeout(3000) });
+    const res = await fetch(`${API_URL}/public/contenido/${pagina}?marcaId=${encodeURIComponent(marca)}`, { next: { revalidate: 30 }, signal: AbortSignal.timeout(3000) });
     if (!res.ok) return defaults;
     const guardado = ((await res.json())?.data ?? {}) as Record<string, unknown>;
     const out: Record<string, unknown> = {};

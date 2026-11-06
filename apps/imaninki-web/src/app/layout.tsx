@@ -10,6 +10,9 @@ import { IMAGEN_SOCIAL, organizacion, sitioWeb } from '@/lib/seo';
 
 const montserrat = Montserrat({ subsets: ['latin'], variable: '--font-montserrat', weight: ['400', '500', '600', '700', '800', '900'] });
 
+// ISR: cada página se regenera como máximo cada 30 s (lo guardado en el dashboard se ve en <30 s) en vez de consultar la API en cada visita.
+export const revalidate = 30;
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://imaninki.com'),
   title: { default: 'Imaninki — Soluciones en construcción e industria', template: '%s | Imaninki' },
