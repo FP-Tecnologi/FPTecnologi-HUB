@@ -23,6 +23,9 @@ const APLICAR = process.argv.includes('--aplicar');
 const SOLO = process.argv.slice(2).find((a) => !a.startsWith('--'));
 const prisma = new PrismaClient();
 
+// Import con ruta en variable: son archivos de las webs (fuera de apps/api) que tsx lee en ejecución y que tsc no debe resolver.
+const importar = (ruta: string): Promise<unknown> => import(ruta);
+
 type Producto = { nombre: string; img: string; detalle: string; descripcion: string };
 type Linea = { id: string; nombre: string; corto: string; lema: string; texto: string; foto: string; galeria: { src: string; alt: string }[]; productos: Producto[] };
 type CategoriaFimav = { slug: string; nombre: string; icono: { displayName?: string }; resumen: string; marcas: string[]; fotos: string[] };
@@ -78,18 +81,18 @@ async function cargarLineas(nombreMarca: string, prefijo: string, lineas: Linea[
 async function main() {
   console.log(APLICAR ? 'MODO: se escribe en la base' : 'MODO: simulación (agrega --aplicar para escribir)');
   if (!SOLO || SOLO === 'kelqa') {
-    const { lineas } = (await import('../../../kelqa-web/src/lib/contenido.ts')) as { lineas: Linea[] };
+    const { lineas } = (await importar('../../../kelqa-web/src/lib/contenido.ts')) as { lineas: Linea[] };
     await cargarLineas('Kelqa', 'KQ', lineas);
   }
   if (!SOLO || SOLO === 'imaninki') {
-    const { lineas } = (await import('../../../imaninki-web/src/lib/contenido.ts')) as { lineas: Linea[] };
+    const { lineas } = (await importar('../../../imaninki-web/src/lib/contenido.ts')) as { lineas: Linea[] };
     await cargarLineas('Imaninki', 'IM', lineas);
   }
   if (!SOLO || SOLO === 'fimav') {
     console.log('\nFimav');
     const marca = await marcaId('Fimav', true);
     if (marca) {
-      const { categorias } = (await import('../../../fimav-web/src/lib/categorias.ts')) as { categorias: CategoriaFimav[] };
+      const { categorias } = (await importar('../../../fimav-web/src/lib/categorias.ts')) as { categorias: CategoriaFimav[] };
       for (const [i, c] of categorias.entries()) {
         await categoria(marca, {
           slug: c.slug, nombre: c.nombre, orden: i, portadaUrl: c.fotos[0], icono: c.icono?.displayName?.toLowerCase(), resumen: c.resumen,
