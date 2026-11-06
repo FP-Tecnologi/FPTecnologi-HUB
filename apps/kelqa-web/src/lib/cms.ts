@@ -6,7 +6,7 @@
  * No se editan desde aquí: las líneas de producto, los datos de contacto (teléfono, WhatsApp, correo) ni las fotos.
  */
 import { cache } from 'react';
-import { preguntas, testimonios } from './contenido';
+import { mision, preguntas, propuesta, testimonios, valoresDetalle, vision } from './contenido';
 
 export const CMS_DEFAULTS = {
   inicio: {
@@ -43,6 +43,36 @@ export const CMS_DEFAULTS = {
       titulo: 'Nuestra experiencia',
       acento: 'habla por nosotros',
       testimonios: testimonios.map((t) => ({ texto: t.texto, autor: t.autor, empresa: t.empresa })),
+    },
+  },
+  nosotros: {
+    banner: {
+      titulo: 'Una marca integral',
+      acento: 'de confianza',
+      texto: 'Más que proveer productos, buscamos ser un aliado estratégico que acompañe cada etapa de tu proyecto.',
+    },
+    quienes: {
+      etiqueta: 'Quiénes somos',
+      titulo: 'Hecha para',
+      acento: 'avanzar contigo',
+      texto: 'Desarrollamos y ofrecemos soluciones muy confiables, eficientes y de alto valor para los sectores industrial y construcción, poniendo a disposición productos que integran buena calidad, rendimiento, durabilidad y precios competitivos.',
+      texto2: 'Nuestro compromiso es brindar alternativas que respondan de manera precisa a las necesidades reales de cada proyecto, contribuyendo a optimizar procesos, mejorar la productividad y asegurar resultados sólidos y sostenibles en el tiempo.',
+      texto3: 'Creemos en el trabajo bien hecho, en la importancia de mantenernos cerca de nuestros clientes y en el valor de construir relaciones comerciales basadas en la confianza, la responsabilidad, la transparencia y un servicio oportuno.',
+      destacado: 'Venta directa y licitaciones públicas y privadas',
+      destacadoTexto: 'Fichas disponibles en Perú Compras',
+    },
+    mision: { mision, vision },
+    valores: {
+      etiqueta: 'Valores corporativos',
+      titulo: 'Lo que nos',
+      acento: 'define',
+      items: valoresDetalle.map((v) => ({ nombre: v.nombre, texto: v.texto })),
+    },
+    propuesta: {
+      etiqueta: '¿Por qué escoger Kelqa?',
+      titulo: 'Innovación que',
+      acento: 'te acompaña',
+      items: propuesta.map((t) => ({ texto: t })),
     },
   },
   contacto: {

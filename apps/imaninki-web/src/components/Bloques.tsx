@@ -26,11 +26,11 @@ export function Quienes({ texto, texto2 }: { texto: string; texto2: string }) {
 }
 
 /** Misión y visión a dos columnas con títulos rojos en mayúsculas (página 2 del brochure). */
-export function MisionVision() {
+export function MisionVision({ mision: m = mision, vision: v = vision }: { mision?: string; vision?: string } = {}) {
   return (
     <section className="py-20 sm:py-24">
       <div className={`${contenedor} grid gap-14 md:grid-cols-2`}>
-        {[['Misión', mision], ['Visión', vision]].map(([t, d], i) => (
+        {[['Misión', m], ['Visión', v]].map(([t, d], i) => (
           <Reveal key={t} efecto={i ? 'derecha' : 'izquierda'}>
             <h2 className="text-4xl font-black uppercase tracking-tight !text-rojo-hondo sm:text-5xl">{t}</h2>
             <span aria-hidden="true" className="rojo-filete mt-4 block h-1.5 w-20" />
@@ -43,7 +43,7 @@ export function MisionVision() {
 }
 
 /** «¡Estamos listos!»: el cierre negro del brochure con barra roja y el mensaje de servicio. */
-export function Listos() {
+export function Listos({ textos = propuesta }: { textos?: string[] } = {}) {
   return (
     <section className="fondo-negro relative isolate overflow-hidden text-white">
       <img loading="lazy" decoding="async" src="/icon.svg" alt="" aria-hidden="true" className="pointer-events-none absolute -right-20 top-10 -z-10 w-[26rem] opacity-[0.06]" />
@@ -53,12 +53,12 @@ export function Listos() {
         </Reveal>
         <Reveal efecto="derecha" className="order-1 pb-6 md:order-2 md:pb-16">
           <h2 className="text-[clamp(2.4rem,6.5vw,4.75rem)] font-black uppercase leading-[0.95] tracking-tight !text-rojo-claro">¡Estamos<br />listos!</h2>
-          <p className="mt-6 max-w-xl text-justify leading-relaxed text-white/90">{propuesta[0]}</p>
+          <p className="mt-6 max-w-xl text-justify leading-relaxed text-white/90">{textos[0]}</p>
         </Reveal>
       </div>
       <div className="banda-roja h-5" />
       <div className="bg-black">
-        <p className={`${contenedor} py-8 text-justify text-sm leading-relaxed text-white/90`}>{propuesta[1]} {propuesta[2]}</p>
+        <p className={`${contenedor} py-8 text-justify text-sm leading-relaxed text-white/90`}>{textos[1]} {textos[2]}</p>
       </div>
     </section>
   );

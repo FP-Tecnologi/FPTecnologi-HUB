@@ -37,6 +37,16 @@ const INICIO = base('inicio', 'Inicio', '/', [
   }], 'clientes'),
 ]);
 
+const NOSOTROS = base('nosotros', 'Nosotros', '/nosotros', [
+  sec('banner', 'Banner de la página', [T('titulo', 'Título — parte blanca'), T('acento', 'Título — parte con brillo'), TA('texto', 'Texto')]),
+  sec('mision', 'Misión y visión', [TA('mision', 'Misión'), TA('vision', 'Visión')]),
+  sec('valores', 'Valores', [...TITULO, {
+    key: 'items', label: 'Valores', tipo: 'lista-objetos', itemLabel: 'Valor', tituloDe: 'nombre',
+    campos: [{ key: 'nombre', label: 'Nombre', tipo: 'text' }, { key: 'texto', label: 'Definición', tipo: 'textarea' }],
+  }]),
+  sec('listos', '¡Estamos listos! (cierre negro)', [TA('texto', 'Mensaje principal'), TA('texto2', 'Franja inferior — primera parte'), TA('texto3', 'Franja inferior — segunda parte')]),
+]);
+
 const CONTACTO = base('contacto', 'Contacto', '/contacto', [
   sec('banner', 'Banner de la página', [T('titulo', 'Título — parte blanca'), T('acento', 'Título — parte con brillo'), TA('texto', 'Texto')]),
   sec('preguntas', 'Preguntas frecuentes', [...TITULO, {
@@ -61,4 +71,5 @@ function SoloImaninki({ config }: { config: CmsConfig }) {
 }
 
 export const ImaninkiInicioCms = () => <SoloImaninki config={INICIO} />;
+export const ImaninkiNosotrosCms = () => <SoloImaninki config={NOSOTROS} />;
 export const ImaninkiContactoCms = () => <SoloImaninki config={CONTACTO} />;

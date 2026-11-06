@@ -37,6 +37,20 @@ const INICIO = base('inicio', 'Inicio', '/', [
   }], 'clientes'),
 ]);
 
+const NOSOTROS = base('nosotros', 'Nosotros', '/nosotros', [
+  sec('banner', 'Banner de la página', [T('titulo', 'Título — parte blanca'), T('acento', 'Título — parte con brillo'), TA('texto', 'Texto')]),
+  sec('quienes', 'Quiénes somos', [...TITULO, TA('texto', 'Primer párrafo'), TA('texto2', 'Segundo párrafo'), TA('texto3', 'Tercer párrafo'), T('destacado', 'Recuadro oscuro — título'), T('destacadoTexto', 'Recuadro oscuro — texto')]),
+  sec('mision', 'Misión y visión', [TA('mision', 'Misión'), TA('vision', 'Visión')]),
+  sec('valores', 'Valores corporativos', [...TITULO, {
+    key: 'items', label: 'Valores', tipo: 'lista-objetos', itemLabel: 'Valor', tituloDe: 'nombre',
+    campos: [{ key: 'nombre', label: 'Nombre', tipo: 'text' }, { key: 'texto', label: 'Definición', tipo: 'textarea' }],
+  }]),
+  sec('propuesta', '¿Por qué escoger Kelqa?', [...TITULO, {
+    key: 'items', label: 'Razones', tipo: 'lista-objetos', itemLabel: 'Razón', tituloDe: 'texto',
+    campos: [{ key: 'texto', label: 'Texto', tipo: 'textarea' }],
+  }]),
+]);
+
 const CONTACTO = base('contacto', 'Contacto', '/contacto', [
   sec('banner', 'Banner de la página', [T('titulo', 'Título — parte blanca'), T('acento', 'Título — parte con brillo'), TA('texto', 'Texto')]),
   sec('preguntas', 'Preguntas frecuentes', [...TITULO, {
@@ -61,4 +75,5 @@ function SoloKelqa({ config }: { config: CmsConfig }) {
 }
 
 export const KelqaInicioCms = () => <SoloKelqa config={INICIO} />;
+export const KelqaNosotrosCms = () => <SoloKelqa config={NOSOTROS} />;
 export const KelqaContactoCms = () => <SoloKelqa config={CONTACTO} />;

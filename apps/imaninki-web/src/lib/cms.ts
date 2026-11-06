@@ -6,7 +6,7 @@
  * No se editan desde aquí: las líneas de producto, los datos de contacto (teléfono, WhatsApp, correo) ni las fotos.
  */
 import { cache } from 'react';
-import { preguntas } from './contenido';
+import { mision, preguntas, propuesta, valoresDetalle, vision } from './contenido';
 
 export const CMS_DEFAULTS = {
   inicio: {
@@ -37,6 +37,25 @@ export const CMS_DEFAULTS = {
       acento: 'licitaciones',
       texto: 'Atendemos ventas directas y licitaciones públicas y privadas. Encuentra todas nuestras fichas en Perú Compras.',
       boton: 'Consultar disponibilidad',
+    },
+  },
+  nosotros: {
+    banner: {
+      titulo: 'Un aliado estratégico',
+      acento: 'en cada etapa',
+      texto: 'Más que proveer productos, acompañamos cada etapa de tu proyecto con atención personalizada y asesoría.',
+    },
+    mision: { mision, vision },
+    valores: {
+      etiqueta: 'Lo que nos define',
+      titulo: 'Nuestros',
+      acento: 'valores',
+      items: valoresDetalle.map((v) => ({ nombre: v.nombre, texto: v.texto })),
+    },
+    listos: {
+      texto: propuesta[0],
+      texto2: propuesta[1],
+      texto3: propuesta[2],
     },
   },
   contacto: {
