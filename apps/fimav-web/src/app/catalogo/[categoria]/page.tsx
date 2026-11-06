@@ -5,15 +5,15 @@ import BannerPagina from '@/components/BannerPagina';
 import BotonHex from '@/components/hex/BotonHex';
 import HexImagen from '@/components/hex/HexImagen';
 import Reveal from '@/components/motion/Reveal';
-import { categorias } from '@/lib/categorias';
 import { getCategorias } from '@/lib/cms';
 import JsonLd from '@/components/JsonLd';
 import { jsonCategoria, meta, migas } from '@/lib/seo';
 
 const categoriaPorSlug = async (slug: string) => (await getCategorias()).find((c) => c.slug === slug);
 
-export const dynamicParams = false;
-export const generateStaticParams = () => categorias.map((c) => ({ categoria: c.slug }));
+// Las categorías se crean desde el dashboard: una nueva funciona sin volver a compilar la web.
+export const revalidate = 30;
+export const generateStaticParams = async () => (await getCategorias()).map((c) => ({ categoria: c.slug }));
 
 export async function generateMetadata({ params }: { params: Promise<{ categoria: string }> }) {
   const c = await categoriaPorSlug((await params).categoria);

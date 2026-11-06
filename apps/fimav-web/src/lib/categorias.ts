@@ -1,4 +1,4 @@
-import { AirVent, Armchair, BatteryCharging, Disc3, Droplets, Laptop, Monitor, Network, Presentation, Printer, Server, type LucideIcon } from 'lucide-react';
+import { AirVent, Armchair, BatteryCharging, Disc3, Droplets, Laptop, Monitor, Network, Package, Presentation, Printer, Server, type LucideIcon } from 'lucide-react';
 
 export type Categoria = { slug: string; nombre: string; icono: LucideIcon; resumen: string; marcas: string[]; fotos: string[] };
 
@@ -18,5 +18,9 @@ export const categorias: Categoria[] = [
   { slug: 'software', nombre: 'Software', icono: Disc3, resumen: 'Licenciamiento de software para sistemas operativos, ofimática y seguridad.', marcas: [], fotos: ['/fotos/escritorios-1.jpg', '/fotos/escritorios-2.jpg', '/fotos/all-in-one-1.jpg'] },
   { slug: 'baterias', nombre: 'Baterías', icono: BatteryCharging, resumen: 'Baterías y respaldo de energía para equipos y continuidad operativa.', marcas: [], fotos: ['/fotos/baterias-1.svg', '/fotos/baterias-2.svg', '/fotos/baterias-3.svg'] },
 ];
+
+const ICONOS: Record<string, LucideIcon> = { laptop: Laptop, monitor: Monitor, presentation: Presentation, printer: Printer, airvent: AirVent, server: Server, droplets: Droplets, network: Network, armchair: Armchair, disc3: Disc3, batterycharging: BatteryCharging };
+/** Ícono por nombre (el que se escribe en el dashboard); si no se conoce, uno genérico. */
+export const iconoPorNombre = (nombre?: string | null): LucideIcon => ICONOS[(nombre ?? '').toLowerCase().replace(/[^a-z0-9]/g, '')] ?? Package;
 
 export const categoriaPorSlug = (slug: string) => categorias.find((c) => c.slug === slug);

@@ -13,7 +13,7 @@
 import { cache } from 'react';
 import { contenido } from './contenido';
 import { contacto } from './contacto';
-import { categorias } from './categorias';
+import { categorias, iconoPorNombre, type Categoria } from './categorias';
 import { legal } from './legal';
 
 type Banner = { eyebrow: string; titulo: string; resaltado: string; imagen: string };
@@ -167,8 +167,34 @@ export const getContacto = cache(async (): Promise<Contacto> => {
 
 export const waUrlDe = (numero: string, texto: string) => `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;
 
-/** Categorías con lo editado en el dashboard (el slug y el ícono vienen del código). */
-export const getCategorias = cache(async () => {
+type ApiCategoria = { nombre: string; slug: string | null; portadaUrl: string | null; icono: string | null; resumen: string | null; galeria: string[]; marcasComerciales: string[] };
+
+/** Categorías del catálogo desde la API (Ecommerce → Catálogo del dashboard); null si no responde o aún no hay. */
+async function categoriasDeLaApi(): Promise<Categoria[] | null> {
+  const marca = process.env.HUB_MARCA_ID;
+  if (!marca) return null;
+  try {
+    const res = await fetch(`${API_URL}/public/categorias?marcaId=${encodeURIComponent(marca)}`, { next: { revalidate: 30 }, signal: AbortSignal.timeout(3000) });
+    if (!res.ok) return null;
+    const lista = (((await res.json())?.data ?? []) as ApiCategoria[]).filter((c) => c.slug);
+    if (!lista.length) return null;
+    return lista.map((c) => ({
+      slug: c.slug as string,
+      nombre: c.nombre,
+      icono: iconoPorNombre(c.icono),
+      resumen: c.resumen ?? '',
+      marcas: c.marcasComerciales ?? [],
+      fotos: c.galeria?.length ? c.galeria : c.portadaUrl ? [c.portadaUrl] : [],
+    }));
+  } catch {
+    return null;
+  }
+}
+
+/** Categorías: las del dashboard (API); si no hay, las del código con lo editado en Web Fimav → Catálogo. */
+export const getCategorias = cache(async (): Promise<Categoria[]> => {
+  const api = await categoriasDeLaApi();
+  if (api) return api;
   const { categorias: cms } = await getPagina('catalogo');
   return categorias.map((c) => {
     const e = (cms.items as CategoriaCms[]).find((x) => x?.slug === c.slug);
