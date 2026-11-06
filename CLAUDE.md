@@ -68,9 +68,9 @@ Prisma (en `apps/api`, requiere `.env` con `DATABASE_URL`; ver `.env.example`):
   push main; volver a develop). No preguntar antes. Si algo no está bien, no pasa a `main`.
 - **Repos espejo**: el HUB (este, `FP-Tecnologi/FPTecnologi-HUB`) tiene TODO (API, dashboard, webs). Cada web pública tiene además un
   repo espejo con **solo esa web en su raíz**: `apps/web-fptecnologi` → `fptecnologi-web`, `apps/fimav-web` → `fimav-peru` (privado),
-  `apps/quamtu-web` → `quamtu-web` (privado), `apps/kelqa-web` → `kelqa-web`. Cada vez que un cambio toque una de esas apps, tras subir a `develop` y `main` del
+  `apps/quamtu-web` → `quamtu-web` (privado), `apps/kelqa-web` → `kelqa-web`, `apps/imaninki-web` → `imaninki-web`. Cada vez que un cambio toque una de esas apps, tras subir a `develop` y `main` del
   HUB, publicar su espejo (main y develop del repo quedan iguales): `TMPDIR=/tmp bash scripts/publicar-snapshot.sh` (fptecnologi),
-  `... publicar-snapshot.sh fimav-web fimav-peru Fimav`, `... publicar-snapshot.sh quamtu-web quamtu-web Quamtu`, `... publicar-snapshot.sh kelqa-web kelqa-web Kelqa`. Nunca editar a mano
+  `... publicar-snapshot.sh fimav-web fimav-peru Fimav`, `... publicar-snapshot.sh quamtu-web quamtu-web Quamtu`, `... publicar-snapshot.sh kelqa-web kelqa-web Kelqa`, `... publicar-snapshot.sh imaninki-web imaninki-web Imaninki`. Nunca editar a mano
   esos repos. El script no crea repos: deben existir y la cuenta de git debe poder escribir en ellos.
 - Multimedia sin uso (imágenes, video, audio) no se deja en `main`: se mueve a la rama de archivo `archivo-multimedia` (misma ruta) y se borra de `main`. Recuperar con `git checkout archivo-multimedia -- <ruta>`. Esa rama no se elimina ni se mezcla.
 - Las ramas que ya no sirven (mergeadas o abandonadas) se eliminan; no dejar ramas viejas.
