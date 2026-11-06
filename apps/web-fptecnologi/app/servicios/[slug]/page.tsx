@@ -12,6 +12,8 @@ import { ServiceCardFinal } from '@/components/home/ServiceCardFinal';
 import { CotizarServicioForm } from '@/components/site/CotizarServicioForm';
 import { Contact } from '@/components/home/Contact';
 import { Footer } from '@/components/home/Footer';
+import JsonLd from '@/components/site/JsonLd';
+import { migasJsonLd } from '@/lib/seo';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -30,6 +32,7 @@ export default async function ServicioDetailPage({ params, searchParams }: { par
 
   return (
     <>
+      <JsonLd datos={migasJsonLd([{ label: 'Inicio', href: '/' }, { label: 'Servicios', href: '/servicios' }, { label: s.title, href: `/servicios/${s.slug}` }])} />
       <PageHero
         crumbs={[
           { label: 'Inicio', href: '/' },

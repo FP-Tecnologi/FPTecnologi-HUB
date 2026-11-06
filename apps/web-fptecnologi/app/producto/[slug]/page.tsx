@@ -5,7 +5,7 @@ import { StickyNav } from '@/components/home/StickyNav';
 import { Navbar9 } from '@/components/home/Navbar9';
 import { ProductDetail } from '@/components/tienda/ProductDetail';
 import { Footer } from '@/components/home/Footer';
-import { OG_BASE, OG_LOGO } from '@/lib/seo';
+import { OG_BASE, OG_LOGO, migasJsonLd } from '@/lib/seo';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
@@ -47,9 +47,16 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
     },
   };
 
+  const migas = migasJsonLd([
+    { label: 'Inicio', href: '/' },
+    { label: 'Tienda', href: '/tienda' },
+    ...(categoria ? [{ label: categoria.title, href: `/tienda/${categoria.slug}` }] : []),
+    { label: product.name.split(',')[0], href: `/producto/${slug}` },
+  ]);
+
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify([jsonLd, migas]).replace(/</g, '\\u003c') }} />
       <StickyNav store />
       {/* Franja de portada corta (mismo marco y degradado que la tienda):
           el encabezado fijo es claro y necesita fondo oscuro detrás. */}

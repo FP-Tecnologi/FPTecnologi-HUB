@@ -19,6 +19,20 @@ export const OG_LOGO = { url: '/og-fptecnologi.png', width: 1200, height: 630, a
 /** Una página que define su propio openGraph reemplaza al del layout completo: estos campos se repiten ahí. */
 export const OG_BASE = { siteName: 'FPTecnologi & System', locale: 'es_PE' };
 
+/** Migas de pan (BreadcrumbList) para los resultados de Google. `href` puede ser relativo ('/tienda') o absoluto. */
+export function migasJsonLd(migas: { label: string; href: string }[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: migas.map((m, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      name: m.label,
+      item: m.href.startsWith('http') ? m.href : `${SITE}${m.href}`,
+    })),
+  };
+}
+
 /** Organización (GEO y SEO local): quién es FPTecnologi, qué ofrece, dónde está y sus redes. Usa los datos vigentes del dashboard. */
 export function organizacionJsonLd(sitio: Sitio) {
   return [

@@ -22,6 +22,17 @@ const REDIRECCIONES = [
   ['/checkout', '/finalizar-compra'],
   ['/checkout/gracias', '/finalizar-compra/gracias'],
   ['/education', '/educacion'],
+  // Estructura típica de WordPress/WooCommerce que Google pudo indexar: a la sección equivalente (sin ID no hay página exacta).
+  ['/category/:resto*', '/blog'],
+  ['/tag/:resto*', '/blog'],
+  ['/author/:resto*', '/nosotros'],
+  ['/feed', '/blog'],
+  ['/comments/feed', '/blog'],
+  ['/producto-categoria/:resto*', '/tienda'],
+  ['/product-category/:resto*', '/tienda'],
+  ['/shop', '/tienda'],
+  ['/cart', '/carrito'],
+  ['/my-account/:resto*', '/cuenta'],
 ].map(([source, destination]) => ({ source, destination, permanent: true }));
 
 // Cabeceras de seguridad en todas las páginas. Solo esta web y el dashboard (vista previa del editor) pueden mostrarla

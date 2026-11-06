@@ -12,7 +12,7 @@ import { Contact } from '@/components/home/Contact';
 import { Footer } from '@/components/home/Footer';
 import { fechaLarga, getArticulo, getArticulos, PORTADA_DEFECTO } from '@/lib/blog';
 import { indiceArticulo, markdownToHtml, minutosLectura } from '@/lib/markdown';
-import { OG_BASE, OG_LOGO } from '@/lib/seo';
+import { OG_BASE, OG_LOGO, migasJsonLd } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 
@@ -74,7 +74,19 @@ export default async function ArticuloPage({ params }: { params: Promise<{ slug:
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify([
+            jsonLd,
+            migasJsonLd([
+              { label: 'Inicio', href: '/' },
+              { label: 'Blog', href: '/blog' },
+              { label: a.titulo, href: `/blog/${a.slug}` },
+            ]),
+          ]).replace(/</g, '\\u003c'),
+        }}
+      />
       <ProgresoLectura />
       <PageHero
         crumbs={[
