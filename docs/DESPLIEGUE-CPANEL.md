@@ -228,3 +228,25 @@ Sin `HUB_MARCA_ID` el sitio funciona con los textos por defecto, pero cotizador,
 
 **CMS**: todo el contenido se edita en el dashboard → marca **Fimav Perú** → *Web Fimav* (Inicio, Nosotros, Catálogo, Perú Compras, Contacto, Cotizar, Ajustes del sitio, Textos legales). La web pública es **https://fimavperu.com** y el dashboard **https://admin.fptecnologi.com**: son los valores por defecto, así que el editor funciona sin variables. `NEXT_PUBLIC_WEB_FIMAV_URL` (dashboard, al compilar) y `DASHBOARD_ORIGIN` (web, varios separados por coma) solo hacen falta si alguno cambia de dirección. Si el editor dice que no puede leer la web, revisa que el servidor de Fimav tenga la última versión (ruta `/api/cms/inicio`).
 fimavperu.com hoy es WordPress: publica primero en un subdominio (p. ej. `nuevo.fimavperu.com`) y cambia al dominio principal al validar.
+
+## Webs de Kelqa, Imaninki y Quamtu
+
+Mismo esquema que Fimav (repos espejo `kelqa-web`, `imaninki-web` y `quamtu-web`; cada una en su propio hosting cPanel con *Setup Node.js App*,
+`server.cjs`, `npm ci && npm run build`). Variables: `HUB_API_URL`, `HUB_MARCA_ID` (id de su marca en `/public/marcas`), `DASHBOARD_ORIGIN` y, opcional,
+`CDN_URL` (ver `.env.example` de cada app). Sin `HUB_MARCA_ID` la web sale con sus textos y líneas de respaldo y los formularios responden 503.
+
+- **Kelqa e Imaninki**: líneas de producto desde Ecommerce → Catálogo/Productos, y CMS en *Web Kelqa* / *Web Imaninki* (Inicio, Nosotros, Contacto, Catálogos PDF,
+  Textos legales). Los legales son un **borrador**: no aparecen hasta activar «Publicar textos legales» (revísalos con un asesor y carga razón social, RUC y dirección
+  en Admin → Marcas antes).
+- **Quamtu** es una exportación estática (`out/`, sin Node): sus cambios del CMS solo se ven al recompilar y volver a subir.
+
+## Checklist al desplegar los cambios del 2026-11-06
+
+1. **API (Hostinger)**: actualizar el código y reiniciar. La migración `20261106120000_catalogo_lineas` ya está aplicada en Supabase (si usas otra base, aplícala con
+   `npx tsx prisma/apply-migrations.ts 20261106120000_catalogo_lineas` y `npx prisma migrate resolve --applied …`, por el puerto 5432). Si el hosting no es el de la
+   base actual, carga el catálogo con `npx tsx prisma/seeds/catalogo-lineas.ts --aplicar` (idempotente; sin la bandera solo simula).
+2. **Dashboard**: recompilar (`NEXT_PUBLIC_API_URL` se lee al compilar). Hay pantallas nuevas (Catálogo con ficha de línea, Nosotros, Catálogos PDF y Textos legales de Kelqa/Imaninki).
+3. **Cada web** (fptecnologi, fimav, kelqa, imaninki): `git pull` + `npm ci && npm run build` + reiniciar, con `HUB_API_URL` y `HUB_MARCA_ID` definidos.
+   `middleware.ts` pasó a `proxy.ts` en el dashboard y en web-fptecnologi (Next 16): sin cambios de configuración.
+4. **Comprobar**: abrir `/lineas/pinturas` (Kelqa/Imaninki) y `/catalogo` (Fimav); editar un texto en el dashboard y verlo en la web en menos de 30 s.
+5. **Después**: puerto de la base (`:5432` + `connection_limit=5` mide ~5× menos latencia que `:6543`) y CDN solo para archivos — ver `docs/ESTADO-ACTUAL.md` (2026-11-06) y `docs/CDN-CLOUDFLARE.md`.

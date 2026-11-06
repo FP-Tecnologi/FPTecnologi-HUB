@@ -246,3 +246,19 @@ Se agregaron 4 servicios: soporte técnico y postventa, redes y cableado estruct
 - Editar datos y direcciones guardadas, descargar comprobante, reordenar un pedido anterior, aceptar/rechazar una cotización desde Mi cuenta y avisos por correo cuando cambia el estado de un pedido o llega la propuesta.
 - Opcional: cuentas con contraseña o login con Google para clientes (hoy es solo código por correo).
 
+## 6. Webs de las marcas: catálogo editable, legales y despliegue (2026-11-06)
+
+Hecho: Fimav, Kelqa e Imaninki gestionan categorías/líneas y productos desde el dashboard; Kelqa e Imaninki suman Nosotros, Catálogos PDF y Textos legales como CMS
+(detalle en `docs/ESTADO-ACTUAL.md`, 2026-11-06). Queda:
+
+- [ ] **Desplegar** (checklist en `docs/DESPLIEGUE-CPANEL.md`, «Checklist al desplegar los cambios del 2026-11-06»).
+- [ ] **Probar en el dashboard** las pantallas nuevas (ficha de línea en Catálogo, «Detalle corto» en Productos, Nosotros, Catálogos PDF, Textos legales) y **subir un PDF real**:
+      solo se verificó que compilan y que la web lee lo guardado.
+- [ ] **Textos legales de Kelqa/Imaninki**: revisión legal, cargar razón social/RUC/dirección (Kelqa no tiene ninguno; Imaninki no tiene dirección) y activar «Publicar textos legales».
+- [ ] **Productos de Kelqa/Imaninki** están con precio 0 (venta por cotización) y sin stock real: completar fichas, fotos propias y descripciones.
+- [ ] **Quamtu**: CMS que se aplique sin recompilar (o pasar a web con servidor) y tienda/armador/productos en el admin.
+- [ ] **Supabase**: probar `:5432` con `connection_limit=5` en la API de Hostinger; ver región del hosting; decidir si unificar bases (ERP y leads son proyectos aparte).
+- [ ] **CDN** solo para archivos: elegir proveedor (p. ej. bunny.net), un CNAME `cdn.<dominio>` por web y definir `CDN_URL`; después prefijar rutas de imágenes/PDF.
+- [ ] **Rendimiento**: los 2 PDF de catálogo de FPTecnologi (12 y 11 MB), imagen social real (og.jpg 1200×630), paginar listados grandes de la API (~426 `findMany` sin `take`).
+- [ ] **Dependencias**: 3 alertas moderadas de Dependabot (`minimatch`, solo herramientas de eslint; `npm audit fix` no las resuelve sin subir versión mayor).
+- [ ] **Menú de arriba** de Fimav y FPTecnologi sin enlace a Catálogos PDF (Kelqa e Imaninki sí lo tienen cuando hay catálogos).

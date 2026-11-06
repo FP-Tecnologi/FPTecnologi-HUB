@@ -67,29 +67,23 @@ correo) — no se usa NextAuth ni login independiente por sitio.
 ```
 apps/
   api/              NestJS — API central (Prisma + PostgreSQL/Supabase)
-  web/              Next.js + Vireo — dashboard administrativo
-                    (el nombre "web" es heredado de la plantilla Vireo)
-  web-fptecnologi/  Next.js — web pública de fptecnologi.com (Fase 2,
-                    sin login, catálogo/servicios/carrito/chat propios)
-  fimav-web/        Next.js 16 — web pública de fimavperu.com (marca
-                    `fimavperu`, puerto 3005, solo modo claro). Contenido
-                    fijo en `src/lib` (categorías, textos, legales). El
-                    cotizador envía a la API vía su proxy
-                    `/api/hub/cotizador` (env `HUB_API_URL`, `HUB_MARCA_ID`).
-                    Todo su contenido es editable desde el dashboard (marca
-                    Fimav → *Web Fimav*): defaults en `src/lib/cms.ts`, mismo
-                    `ContenidoWeb` que FPTecnologi con el marcaId de Fimav.
-  kelqa-web/        Next.js 16 — web pública de kelqa.com (marca `kelqa`,
-                    puerto 3007, solo modo claro). Por ahora solo el inicio,
-                    con contenido fijo en `src/lib/contenido.ts` (del brochure
-                    comercial) y fotos en `public/fotos`. Pendiente: CMS,
-                    contador de visitas, libro de reclamaciones y tickets.
-  imaninki-web/     Next.js 16 — web pública de imaninki.com (marca `imaninki`,
-                    puerto 3008). Base de kelqa-web con identidad del brochure:
-                    negro, rojo `#d4182a` y plata (tokens en `globals.css`), logo
-                    en `public/brand`. Contenido en `src/lib/contenido.ts` y CMS
-                    (`src/lib/cms.ts`). Pendiente: HUB_MARCA_ID, repo espejo.
-docs/     Documentación de negocio y planificación
+  admin/            Next.js + Vireo — dashboard administrativo único (selector de marca)
+  web-fptecnologi/  Next.js 16 — web pública de fptecnologi.com (sin login:
+                    catálogo, servicios, carrito, blog, chat propios)
+  fimav-web/        Next.js 16 — fimavperu.com (marca `fimavperu`, puerto 3005, solo
+                    modo claro). Categorías del catálogo desde la API (`Categoria`),
+                    resto editable como CMS (Web Fimav). Cotizador vía `/api/hub/cotizador`.
+  kelqa-web/        Next.js 16 — kelqa.com (marca `kelqa`, puerto 3007).
+  imaninki-web/     Next.js 16 — imaninki.com (marca `imaninki`, puerto 3008; negro/rojo/plata).
+                    Kelqa e Imaninki: líneas y productos desde la API (`src/lib/lineas.ts`);
+                    CMS de Inicio, Nosotros, Contacto, Catálogos PDF y Textos legales
+                    (`src/lib/cms.ts`; los legales son un borrador hasta activar «publicado»).
+  quamtu-web/       Next.js 16 — quamtu.com (marca `quamtu`, puerto 3004). Exportación
+                    estática (`output: 'export'`): el CMS (solo Inicio) se aplica al recompilar.
+                    Tienda/armador/productos aún en el código, no en el admin.
+  (Las webs leen `/public/*` con caché de 30 s (ISR) y, si la API no responde, usan su contenido
+  de respaldo en `src/lib`. Se publican en su propio hosting cPanel; la API va en Hostinger.)
+docs/     Documentación de negocio, planificación y diagramas (docs/arquitectura)
 ```
 
 **Sistema de Centralización de Leads — vive en su propio repo**:
@@ -124,7 +118,7 @@ vez del contenido hardcodeado que usa hoy).
   `src/lib/api.ts` hablan con la API real (login → OTP/TOTP → tokens en
   localStorage + refresh-on-401), y el selector de marca
   (`HeaderUtils.tsx`/`Sidebar.tsx`/`manifest.ts`) ya filtra el menú por
-  rol vía `GET /usuarios/me/marcas`. `middleware.ts` (raíz de `apps/admin`)
+  rol vía `GET /usuarios/me/marcas`. `proxy.ts` (raíz de `apps/admin`; antes `middleware.ts`)
   protege las rutas — lee una cookie liviana `ax_session` (nunca el JWT
   real, que sigue solo en localStorage) porque el runtime Edge no puede
   leer localStorage. De las 15 pantallas en `src/screens/auth/`, solo
@@ -132,17 +126,13 @@ vez del contenido hardcodeado que usa hoy).
   (`*Cover`, `SignUp*`, `ResetPassword*`, `CreatePassword*`,
   `LockScreen*`) siguen siendo demo de Vireo con `setTimeout` fake, sin
   endpoint real detrás todavía.
-- **Web pública** (`apps/web-fptecnologi`): Next.js 16 (App Router) +
-  React 19 + Tailwind v4, propio `package.json`/`node_modules`, **sin
-  login**. Puerto 3002 (`.claude/launch.json`, nombre `web-fptecnologi`).
-  Contenido hoy hardcodeado en `src/lib/content.ts` (productos, marcas,
-  soluciones, contacto — copiados de fptecnologi.com real, no inventados)
-  en vez de consumir `GET /public/*` de la API — pendiente de conectar.
-  Los modelos de home, `/guia-estilos` y `/preview` ya no se publican: están
-  archivados en `temporal/modelos-home/` (ver su `LEEME.md` para restaurarlos).
-  La home oficial es `app/page.tsx`. Historia de los modelos y decisiones de
-  diseño en `ESTADO-ACTUAL.md` → Fase 2.
-- **Testing**: Vitest (`*.spec.ts` junto al archivo que prueban).
+- **Webs públicas** (`apps/web-fptecnologi`, `fimav-web`, `kelqa-web`, `imaninki-web`, `quamtu-web`): Next.js 16 (App Router) + React 19 +
+  Tailwind v4, cada una con su `package.json`/`node_modules`, **sin login**. Puertos en `.claude/launch.json`. Leen su contenido de la
+  API (`GET /public/contenido|categorias|productos|blog…`) con caché de 30 s (ISR, `revalidate = 30`): lo que se guarda en el dashboard se ve
+  en menos de 30 s sin recompilar (salvo Quamtu, estática). `src/lib/content.ts` / `contenido.ts` / `cms.ts` son el **respaldo** si la API no
+  responde o falta `HUB_MARCA_ID`. Los modelos de home de web-fptecnologi están archivados en `temporal/modelos-home/`; la home oficial es
+  `app/page.tsx`. `next.config.mjs` tiene `assetPrefix` con `CDN_URL` (inactivo sin la variable; ver `docs/CDN-CLOUDFLARE.md`).
+- **Testing**- **Testing**: Vitest (`*.spec.ts` junto al archivo que prueban).
 - **Package manager**: npm (no pnpm, no yarn) — instalar dentro de cada
   app (`cd apps/api && npm install`), no hay workspace raíz (ver arriba).
 - **Versiones mínimas**: Next.js **16.4.1+** en las 5 apps Next (hoy 16.4.3; 16.0.0–16.4.0 tienen una RCE crítica),
@@ -169,15 +159,15 @@ vez del contenido hardcodeado que usa hoy).
 | `marcas` | CRUD `/marcas` | Entidad de negocio |
 | `sitios` | CRUD `/sitios`, `GET /sitios/resolver/:dominio` | Dominio → marcaId |
 | `roles` | `/roles`, `/roles/asignaciones`, `/marcas/:marcaId/equipo`, `/usuarios/me/marcas` | Rol por usuario+marca (`UsuarioMarcaRol`) |
-| `productos` | CRUD `/productos`, `/productos/categorias*` | Filtrado server-side por marcaId |
+| `productos` | CRUD `/productos`, `/productos/categorias*`, `/catalogo/categorias*` | Filtrado server-side por marcaId. `Categoria` es también la **línea/categoría** de las webs de catálogo (Fimav, Kelqa, Imaninki): `resumen`, `texto`, `icono`, `galeria[]`, `marcasComerciales[]`, `portadaUrl`; `Producto.detalle` es el texto corto de la tarjeta. Se gestionan en Ecommerce → Catálogo y Productos |
 | `pedidos` | CRUD `/pedidos`, `PATCH /pedidos/:id/estado` | `cliente` reusa el modelo `Usuario`, no hay `Cliente` aparte |
 | `servicios` | CRUD `/servicios` (admin/marketing/ventas; borrar solo admin); público `GET /public/servicios[/:slug]` | Servicios TI (B2B) **con el contenido de su página** (slug, ícono, imagen, intro, qué incluye, beneficios, sectores, FAQ, orden): la web, el menú, el cotizador y el asistente los leen de aquí |
 | `proyectos`, `clientes` | CRUD `/proyectos`, `/clientes` (admin/marketing); públicos `GET /public/proyectos`, `/public/clientes` | Referencias de la web (mapa/listado de proyectos y logos de clientes). `esEjemplo` = dato de muestra que el asistente no cita |
 | `cotizaciones` | CRUD `/cotizaciones`, `PATCH /:id/estado` | Solicitudes de cotización sobre un servicio |
 | `notificaciones` | `/notificaciones`, `PATCH /:id/leida`, `/leidas/todas` | Centro de notificaciones del dashboard |
-| `public` | `GET /public/productos`, `/public/productos/:id`, `/public/servicios`, `/public/servicios/:id` | Sin auth — para las webs públicas |
+| `public` | `GET /public/productos`, `/public/productos/:id`, `/public/categorias[/:slug]`, `/public/servicios`, `/public/servicios/:id` | Sin auth — para las webs públicas. `GET /public/contenido` y `/public/blog` mandan `Cache-Control: s-maxage=30` (CDN/proxy) |
 | `chat` | `/chat/asesores` (CRUD), `/chat/conversaciones` (`GET`, `GET /:id`, `POST /:id/tomar`, `PATCH /:id/estado`, `POST /:id/mensajes`); públicos `/public/chat/asesores`, `/public/chat/conversaciones` (+ `/:id`, `/:id/mensajes`, validados por `token`) | Chat de la web: asesores de WhatsApp + conversaciones del asistente que un asesor retoma desde el dashboard. Roles `admin`/`asesores` |
-| `contenido` | `GET /contenido/:pagina`, `PUT /contenido/:pagina/:seccion` (admin/marketing); público `GET /public/contenido/:pagina?marcaId` | CMS de las webs públicas: JSON por marca+página+sección. Los defaults y la forma de cada sección viven en la web (`web-fptecnologi/src/lib/homeContenido.ts`) |
+| `contenido` | `GET /contenido/:pagina`, `PUT /contenido/:pagina/:seccion` (admin/marketing); público `GET /public/contenido/:pagina?marcaId` | CMS de las webs públicas: JSON por marca+página+sección. Los defaults y la forma de cada sección viven en cada web (`src/lib/cms.ts`, `homeContenido.ts`, `paginasContenido.ts`) y el editor en el dashboard (`WebHomeCms.tsx`, `WebKelqaCms.tsx`…). Páginas CMS de Kelqa/Imaninki: `inicio`, `nosotros`, `contacto`, `catalogos` (PDF), `legal` (con `estado.publicado`) |
 | `blog` | `GET/POST /blog`, `GET/PATCH/DELETE /blog/:id` (admin/marketing); públicos `GET /public/blog`, `/public/blog/:slug` (solo PUBLICADO) | Blog de las webs: artículos en Markdown, slug único por marca, borrador/publicado, destacado |
 | `popups` | `GET/POST /popups`, `GET /popups/plantillas`, `PATCH/DELETE /popups/:id`, `POST /popups/:id/duplicar` (admin/marketing); públicos `GET /public/popups?marcaId&pagina=`, `POST /public/popups/:id/evento` | Avisos emergentes de la web: plantilla (aviso/promoción/descuento/evento/producto) × formato (modal/esquina/barra), botón a URL/producto/WhatsApp, disparador, frecuencia, páginas y fechas inicio/fin. Contador de vistas/clics. La web los muestra con `PopupsSitio` |
 | `cotizador` | `GET/PATCH/DELETE /cotizador/leads[/:id]` (admin/comercial); público `POST /public/cotizador/leads?marcaId` | Leads del formulario `/cotizador` de la web (`LeadCotizador`: nombres, persona natural/jurídica, DNI/RUC, empresa, correo, celular, interés). Estados NUEVO→CONTACTADO→COTIZADO→GANADO/PERDIDO + notas. Honeypot + tope por IP; avisa a admin/comercial (notificación + correo). El formulario se edita como CMS con `contenido` (página `cotizador`) |
@@ -202,7 +192,7 @@ Ver [`apps/api/prisma/schema.prisma`](apps/api/prisma/schema.prisma) —
 es la fuente de verdad, no la dupliques en prosa aquí porque se desactualiza.
 Modelos clave: `Marca`, `Sitio`, `Usuario`, `OtpCode`, `RefreshToken`, `Rol`,
 `UsuarioMarcaRol`, `Categoria`, `Producto`, `Pedido`/`PedidoItem`,
-`Servicio`, `Proyecto`, `Cliente`, `Cotizacion`, `Notificacion`, `ChatAsesor`, `ChatConversacion`/`ChatMensaje`, `ContenidoWeb`, `BlogArticulo`, `LeadCotizador`, `Popup`, `HojaReclamacion`.
+`Servicio`, `Proyecto`, `Cliente`, `Cotizacion`, `Notificacion`, `ChatAsesor`, `ChatConversacion`/`ChatMensaje`, `ContenidoWeb`, `BlogArticulo`, `LeadCotizador`, `Popup`, `HojaReclamacion`, `Folleto`, `VisitaWeb`, `CrmEmpresa`/`CrmOportunidad`.
 
 ## Roles del sistema
 
@@ -232,7 +222,7 @@ sin rediseño — no construir nada de esto de forma anticipada.
   trae un patrón parecido (ver `VIREO-REFERENCE.md`).
 - **Módulos por marca en el dashboard**: cada marca ve solo lo que su web usa.
   `MODULOS_POR_MARCA` (`apps/admin/src/lib/manifest.ts`) lista los módulos de
-  Quamtu y Fimav (FPTecnologi ve todos) y un nodo del menú con `marcas: ["fimav"]`
+  Quamtu, Fimav, Kelqa e Imaninki (FPTecnologi ve todos) y un nodo del menú con `marcas: ["kelqa"]`
   solo aparece en esa marca. Al sumar un módulo para una web, agrégalo ahí.
 - Secrets viven en `.env` (gitignorado), nunca en el código ni en
   `.env.example`.
@@ -260,12 +250,14 @@ CI/CD y seguridad del repo (ver `.github/`):
 
 **Lista consolidada de pendientes (envío con Shalom, Fase 3, SEO, datos y decisiones): [`docs/PENDIENTES.md`](docs/PENDIENTES.md).** Lo de abajo es un resumen anterior.
 
-Pendiente:
-- `apps/web-fptecnologi` (Fase 2): elegir 1 de los 6 modelos de home como
-  definitivo, conectar el contenido hardcodeado a `GET /public/*` en vez de
-  `src/lib/content.ts`, y construir catálogo completo/fichas de
-  producto/checkout real — hoy solo hay una vista previa de carrito
-  (`localStorage`, sin pedido real) y páginas placeholder de sitemap.
+Pendiente (resumen; la lista completa está en `docs/PENDIENTES.md` y el avance real en `docs/ESTADO-ACTUAL.md`):
+- **Desplegar** lo último (webs en cPanel, API en Hostinger, dashboard) y cargar `HUB_API_URL` + `HUB_MARCA_ID` en cada web.
+- **Textos legales de Kelqa/Imaninki**: son un borrador; revisarlos con un asesor legal, cargar razón social/RUC/dirección en Admin → Marcas
+  (Kelqa aún no los tiene) y activar «Publicar textos legales» en el dashboard.
+- **Quamtu**: su CMS no se aplica sin recompilar y su tienda/productos no están en el admin.
+- **Supabase**: el pooler :6543 mide ~850 ms por consulta desde la PC y :5432 ~172 ms; decidir puerto, región (cerca de la API en Hostinger) y
+  si unificar bases. Detalle en `docs/ESTADO-ACTUAL.md` (2026-11-06).
+- **CDN**: elegir proveedor y definir `CDN_URL` por web (guía en `docs/CDN-CLOUDFLARE.md`).
 - Activar en Settings → Code security: Dependabot alerts, secret scanning
   + push protection, y una branch protection rule en `main` que exija los
   checks de CI (ver `SECURITY.md`) — requiere rol admin, no se puede hacer
