@@ -246,6 +246,12 @@ model Categoria {
   orden      Int        @default(0)
   activo     Boolean    @default(true)
   portadaUrl String?
+  // Ficha de línea/categoría para webs de catálogo (Fimav, Kelqa, Imaninki): todo opcional.
+  icono             String? // nombre de ícono (p. ej. 'laptop')
+  resumen           String? // frase corta / lema
+  texto             String? // descripción larga de la línea
+  galeria           String[] @default([]) // fotos de la línea (URLs)
+  marcasComerciales String[] @default([]) // fabricantes que se muestran en la línea
   productos  Producto[]
   createdAt  DateTime   @default(now())
 
@@ -260,6 +266,7 @@ model Producto {
   categoria       Categoria?   @relation(fields: [categoriaId], references: [id])
   nombre          String
   descripcion     String?
+  detalle         String? // texto corto bajo el nombre (tarjetas de catálogo)
   sku             String
   slug            String? // URL amigable por marca (importador WooCommerce lo genera)
   precio          Decimal

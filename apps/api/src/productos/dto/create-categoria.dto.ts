@@ -1,4 +1,4 @@
-import { IsBoolean, IsNumber, IsOptional, IsString, Matches, Min } from 'class-validator';
+import { IsArray, IsBoolean, IsNumber, IsOptional, IsString, Matches, Min } from 'class-validator';
 
 export class CreateCategoriaDto {
   @IsString()
@@ -23,4 +23,26 @@ export class CreateCategoriaDto {
   @IsOptional()
   @IsString()
   portadaUrl?: string;
+
+  @IsOptional()
+  @IsString()
+  icono?: string;
+
+  @IsOptional()
+  @IsString()
+  resumen?: string;
+
+  @IsOptional()
+  @IsString()
+  texto?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  galeria?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  marcasComerciales?: string[];
 }

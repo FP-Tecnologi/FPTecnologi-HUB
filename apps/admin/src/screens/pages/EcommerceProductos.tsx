@@ -18,6 +18,7 @@ interface Producto {
   id: string;
   nombre: string;
   descripcion: string | null;
+  detalle: string | null;
   sku: string;
   slug: string | null;
   precio: string;
@@ -47,17 +48,18 @@ interface Form {
   categoriaId: string;
   imagenes: string; // una URL por línea
   descripcion: string;
+  detalle: string; // texto corto bajo el nombre (tarjetas de catálogo)
   destacado: boolean;
   activo: boolean;
 }
 
-const VACIO: Form = { nombre: '', sku: '', slug: '', precio: '', precioAntes: '', precioMayorista: '', stock: '0', marcaComercial: '', categoriaId: '', imagenes: '', descripcion: '', destacado: false, activo: true };
+const VACIO: Form = { nombre: '', sku: '', slug: '', precio: '', precioAntes: '', precioMayorista: '', stock: '0', marcaComercial: '', categoriaId: '', imagenes: '', descripcion: '', detalle: '', destacado: false, activo: true };
 
 const usd = (v: string | number) => `$${Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const desde = (p: Producto): Form => ({
   nombre: p.nombre, sku: p.sku, slug: p.slug ?? '', precio: String(Number(p.precio)), precioAntes: p.precioAntes ? String(Number(p.precioAntes)) : '', precioMayorista: p.precioMayorista ? String(Number(p.precioMayorista)) : '',
   stock: String(p.stock), marcaComercial: p.marcaComercial ?? '', categoriaId: p.categoriaId ?? '', imagenes: p.imagenes.join('\n'),
-  descripcion: p.descripcion ?? '', destacado: p.destacado, activo: p.activo,
+  descripcion: p.descripcion ?? '', detalle: p.detalle ?? '', destacado: p.destacado, activo: p.activo,
 });
 const src = (u: string | undefined) => (u ? (u.startsWith('/') ? `${WEB}${u}` : u) : null);
 
@@ -134,6 +136,7 @@ export function EcommerceProductos() {
       ...(f.categoriaId ? { categoriaId: f.categoriaId } : {}),
       imagenes,
       ...(f.descripcion.trim() ? { descripcion: f.descripcion.trim() } : {}),
+      detalle: f.detalle.trim(),
       destacado: f.destacado,
       activo: f.activo,
     };
@@ -350,6 +353,10 @@ export function EcommerceProductos() {
                 })()}
                 <label className="ax-label" htmlFor="p-img" style={{ marginBlockStart: 'var(--ax-space-3)' }}>…o pega URLs (una por línea)</label>
                 <textarea id="p-img" className="ax-textarea" rows={3} value={edit.form.imagenes} onChange={(e) => set('imagenes', e.target.value)} placeholder="https://…" />
+              </div>
+              <div className="ax-field">
+                <label className="ax-label" htmlFor="p-detalle">Detalle corto (bajo el nombre en las tarjetas)</label>
+                <input id="p-detalle" className="ax-input" value={edit.form.detalle} onChange={(e) => set('detalle', e.target.value)} />
               </div>
               <div className="ax-field">
                 <label className="ax-label" htmlFor="p-desc">Descripción</label>

@@ -11,10 +11,14 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { SubirImagen } from '../../components/ui/SubirImagen';
 
-interface Categoria { id: string; nombre: string; slug: string | null; orden: number; activo: boolean; portadaUrl: string | null; _count: { productos: number } }
+interface Categoria {
+  id: string; nombre: string; slug: string | null; orden: number; activo: boolean; portadaUrl: string | null; _count: { productos: number };
+  icono: string | null; resumen: string | null; texto: string | null; galeria: string[]; marcasComerciales: string[];
+}
 interface MarcaCom { nombre: string; productos: number }
 type Tab = 'categorias' | 'marcas';
-const VACIA = { nombre: '', slug: '', orden: '0', portadaUrl: '' };
+// Ficha de la línea/categoría para las webs de catálogo: ícono, frase corta, descripción, galería (una URL por línea) y fabricantes (separados por coma).
+const VACIA = { nombre: '', slug: '', orden: '0', portadaUrl: '', icono: '', resumen: '', texto: '', galeria: '', marcasComerciales: '' };
 
 const errMsg = (e: unknown, fb: string) => (e instanceof ApiError ? e.message : fb);
 
@@ -45,7 +49,7 @@ export function EcommerceCatalogo() {
 
   function abrir(c?: Categoria) {
     setEditId(c ? c.id : 'nueva');
-    setForm(c ? { nombre: c.nombre, slug: c.slug ?? '', orden: String(c.orden), portadaUrl: c.portadaUrl ?? '' } : VACIA);
+    setForm(c ? { nombre: c.nombre, slug: c.slug ?? '', orden: String(c.orden), portadaUrl: c.portadaUrl ?? '', icono: c.icono ?? '', resumen: c.resumen ?? '', texto: c.texto ?? '', galeria: (c.galeria ?? []).join('\n'), marcasComerciales: (c.marcasComerciales ?? []).join(', ') } : VACIA);
   }
 
   function guardar(ev: React.FormEvent) {
@@ -55,8 +59,14 @@ export function EcommerceCatalogo() {
       ...(form.slug.trim() ? { slug: form.slug.trim() } : {}),
       orden: Number(form.orden) || 0,
       portadaUrl: form.portadaUrl.trim(),
+      icono: form.icono.trim(),
+      resumen: form.resumen.trim(),
+      texto: form.texto.trim(),
+      galeria: form.galeria.split('\n').map((l) => l.trim()).filter(Boolean),
+      marcasComerciales: form.marcasComerciales.split(',').map((l) => l.trim()).filter(Boolean),
     };
     if (!body.nombre) return;
+    if (body.galeria.some((u) => !/^(https?:\/\/|\/)/.test(u))) return setAviso({ ok: false, texto: 'Cada foto de la galería debe ser una URL (https://…) o una ruta que empiece con /.' });
     return editId === 'nueva'
       ? accion(() => api.post('/productos/categorias', body), 'Categoría creada.')
       : accion(() => api.patch(`/catalogo/categorias/${editId}`, body), 'Categoría actualizada.');
@@ -162,6 +172,15 @@ export function EcommerceCatalogo() {
               <div className="ax-field"><label className="ax-label" htmlFor="cat-slug">Slug (opcional)</label><input id="cat-slug" className="ax-input" placeholder="se genera del nombre" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} /></div>
               <div className="ax-field"><label className="ax-label" htmlFor="cat-orden">Orden</label><input id="cat-orden" type="number" min={0} className="ax-input" value={form.orden} onChange={(e) => setForm({ ...form, orden: e.target.value })} /></div>
               <div className="ax-field"><label className="ax-label" htmlFor="cat-img">URL de portada</label><input id="cat-img" className="ax-input" value={form.portadaUrl} onChange={(e) => setForm({ ...form, portadaUrl: e.target.value })} /><SubirImagen onSubida={(urls) => setForm({ ...form, portadaUrl: urls[0]! })} etiqueta="Subir portada" /></div>
+              <div className="ax-field"><label className="ax-label" htmlFor="cat-resumen">Frase corta / lema</label><input id="cat-resumen" className="ax-input" value={form.resumen} onChange={(e) => setForm({ ...form, resumen: e.target.value })} /></div>
+              <div className="ax-field"><label className="ax-label" htmlFor="cat-texto">Descripción de la línea</label><textarea id="cat-texto" className="ax-textarea" rows={4} value={form.texto} onChange={(e) => setForm({ ...form, texto: e.target.value })} /></div>
+              <div className="ax-field"><label className="ax-label" htmlFor="cat-icono">Ícono (opcional)</label><input id="cat-icono" className="ax-input" placeholder="p. ej. laptop, server, printer" value={form.icono} onChange={(e) => setForm({ ...form, icono: e.target.value })} /></div>
+              <div className="ax-field"><label className="ax-label" htmlFor="cat-marcas">Fabricantes que se muestran (separados por coma)</label><input id="cat-marcas" className="ax-input" placeholder="Dell, HP, Lenovo" value={form.marcasComerciales} onChange={(e) => setForm({ ...form, marcasComerciales: e.target.value })} /></div>
+              <div className="ax-field">
+                <label className="ax-label" htmlFor="cat-galeria">Galería de fotos (una URL por línea)</label>
+                <textarea id="cat-galeria" className="ax-textarea" rows={3} value={form.galeria} onChange={(e) => setForm({ ...form, galeria: e.target.value })} />
+                <SubirImagen multiple onSubida={(urls) => setForm({ ...form, galeria: [...form.galeria.split('\n').map((l) => l.trim()).filter(Boolean), ...urls].join('\n') })} etiqueta="Subir fotos" />
+              </div>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'flex-end' }}>
                 <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEditId(null)}>Cancelar</button>
                 <button type="submit" className="ax-btn ax-btn--primary">Guardar</button>

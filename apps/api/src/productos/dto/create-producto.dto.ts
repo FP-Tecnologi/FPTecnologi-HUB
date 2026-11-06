@@ -8,6 +8,10 @@ export class CreateProductoDto {
   @IsString()
   descripcion?: string;
 
+  @IsOptional()
+  @IsString()
+  detalle?: string;
+
   @IsString()
   sku!: string;
 
