@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Arquitectura de FPTecnologi-HUB",
+    "locale": "es",
+    "output": ".archify/architecture-hub-20261106-135905/arquitectura-hub.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/FP-Tecnologi/FPTecnologi-HUB.git",
+      "provider": "github",
+      "revision": "f0801a989cbc3c856f694039f2beec87a0efdddf"
+    }
+  },
+  "components": [
+    { "id": "visitantes", "type": "external", "label": "Visitantes", "sublabel": "navegador / celular", "pos": [40, 190], "size": [140, 120] },
+
+    { "id": "web-fp", "type": "frontend", "label": "Web FPTecnologi", "sublabel": "Next 16 · tienda y blog", "pos": [270, 40], "size": [190, 60],
+      "sources": [{ "path": "apps/web-fptecnologi/app/layout.tsx", "line": 51, "end_line": 53, "label": "layout raíz" }] },
+    { "id": "web-fimav", "type": "frontend", "label": "Web Fimav Perú", "sublabel": "Next 16 · catálogo", "pos": [270, 130], "size": [190, 60],
+      "sources": [{ "path": "apps/fimav-web/src/lib/cms.ts", "line": 173, "end_line": 200, "label": "categorías desde la API" }] },
+    { "id": "web-kelqa", "type": "frontend", "label": "Web Kelqa", "sublabel": "Next 16 · líneas de producto", "pos": [270, 220], "size": [190, 60],
+      "sources": [{ "path": "apps/kelqa-web/src/lib/lineas.ts", "line": 28, "end_line": 49, "label": "líneas desde la API" }] },
+    { "id": "web-imaninki", "type": "frontend", "label": "Web Imaninki", "sublabel": "Next 16 · líneas de producto", "pos": [270, 310], "size": [190, 60],
+      "sources": [{ "path": "apps/imaninki-web/src/lib/lineas.ts", "line": 28, "end_line": 49, "label": "líneas desde la API" }] },
+    { "id": "web-quamtu", "type": "frontend", "label": "Web Quamtu", "sublabel": "estática (export)", "pos": [270, 400], "size": [190, 60],
+      "sources": [{ "path": "apps/quamtu-web/next.config.mjs", "line": 1, "end_line": 10, "label": "output: export" }] },
+
+    { "id": "equipo", "type": "external", "label": "Equipo interno", "sublabel": "marketing, ventas, admin", "pos": [40, 540], "size": [140, 60] },
+    { "id": "admin", "type": "frontend", "label": "Dashboard admin", "sublabel": "Next 16 · selector de marca", "pos": [270, 540], "size": [190, 60],
+      "sources": [
+        { "path": "apps/admin/src/lib/api.ts", "line": 14, "end_line": 14, "label": "URL de la API" },
+        { "path": "apps/admin/proxy.ts", "line": 18, "end_line": 20, "label": "guarda de sesión" }
+      ] },
+
+    { "id": "api", "type": "backend", "label": "API NestJS", "sublabel": "JWT global · /public/* · :3001", "pos": [600, 150], "size": [190, 200], "tag": "marcaId",
+      "sources": [
+        { "path": "apps/api/src/main.ts", "line": 15, "end_line": 63, "label": "arranque y CORS" },
+        { "path": "apps/api/src/app.module.ts", "line": 104, "end_line": 107, "label": "guardas globales" },
+        { "path": "apps/api/src/common/guards/marca-rol.guard.ts", "line": 15, "end_line": 44, "label": "MarcaRolGuard" }
+      ] },
+    { "id": "archivos", "type": "database", "label": "Archivos subidos", "sublabel": "uploads/ en la API", "pos": [600, 400], "size": [190, 60],
+      "sources": [{ "path": "apps/api/src/uploads/uploads.service.ts", "line": 19, "end_line": 19, "label": "carpeta de archivos" }] },
+
+    { "id": "supabase", "type": "database", "label": "Supabase", "sublabel": "PostgreSQL · todas las marcas", "pos": [920, 218], "size": [170, 64],
+      "sources": [
+        { "path": "apps/api/prisma/schema.prisma", "line": 14, "end_line": 17, "label": "datasource postgresql" },
+        { "path": "apps/api/src/prisma/tenant-guard.extension.ts", "line": 28, "end_line": 40, "label": "modelos por marca" }
+      ] },
+    { "id": "correo", "type": "external", "label": "Correo saliente", "sublabel": "Resend o SMTP", "pos": [920, 40], "size": [170, 60],
+      "sources": [{ "path": "apps/api/src/mail/mail.service.ts", "line": 35, "end_line": 40, "label": "MailService" }] }
+  ],
+  "boundaries": [
+    { "kind": "region", "label": "Hosting cPanel (Perú): una web por hosting", "wraps": ["web-fp", "web-fimav", "web-kelqa", "web-imaninki", "web-quamtu"] },
+    { "kind": "region", "label": "Hostinger", "wraps": ["api", "archivos"] }
+  ],
+  "connections": [
+    { "id": "v-fp", "from": "visitantes", "to": "web-fp" },
+    { "id": "v-fimav", "from": "visitantes", "to": "web-fimav" },
+    { "id": "v-kelqa", "from": "visitantes", "to": "web-kelqa" },
+    { "id": "v-imaninki", "from": "visitantes", "to": "web-imaninki" },
+    { "id": "v-quamtu", "from": "visitantes", "to": "web-quamtu" },
+
+    { "id": "fp-api", "from": "web-fp", "to": "api", "label": "/public (30 s)" },
+    { "id": "fimav-api", "from": "web-fimav", "to": "api", "label": "/public (30 s)" },
+    { "id": "kelqa-api", "from": "web-kelqa", "to": "api", "label": "/public (30 s)" },
+    { "id": "imaninki-api", "from": "web-imaninki", "to": "api", "label": "/public (30 s)" },
+    { "id": "quamtu-api", "from": "web-quamtu", "to": "api", "label": "al compilar", "variant": "dashed" },
+
+    { "id": "equipo-admin", "from": "equipo", "to": "admin", "label": "HTTPS" },
+    { "id": "admin-api", "from": "admin", "to": "api", "label": "JWT", "variant": "security" },
+
+    { "id": "api-supabase", "from": "api", "to": "supabase", "label": "Prisma · SQL", "variant": "emphasis" },
+    { "id": "api-correo", "from": "api", "to": "correo", "label": "envía correos", "variant": "dashed" },
+    { "id": "api-archivos", "from": "api", "to": "archivos", "label": "imágenes y PDF" }
+  ],
+  "cards": [
+    { "dot": "cyan", "title": "Una API, una base", "items": ["Las 5 marcas comparten la API y la base de datos", "Cada consulta se separa por marcaId", "Doble candado: MarcaRolGuard (HTTP) y tenant-guard (base)"] },
+    { "dot": "emerald", "title": "Webs públicas", "items": ["Leen /public/* de la API; se regeneran cada 30 s", "Si la API no responde, muestran su contenido de respaldo", "Quamtu es estática: sus cambios se aplican al recompilar"] },
+    { "dot": "violet", "title": "Dashboard", "items": ["Un solo panel con selector de marca", "Edita contenido, catálogo, productos y textos legales", "Todo lo que guarda llega a las webs sin recompilar (salvo Quamtu)"] }
+  ]
+}

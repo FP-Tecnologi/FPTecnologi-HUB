@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Cómo llega un cambio del admin a la web",
+    "locale": "es",
+    "output": ".archify/flujo-contenido-20261106/flujo-contenido.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/FP-Tecnologi/FPTecnologi-HUB.git",
+      "provider": "github",
+      "revision": "f0801a989cbc3c856f694039f2beec87a0efdddf"
+    }
+  },
+  "participants": [
+    { "id": "equipo", "type": "external", "label": "Equipo interno", "sublabel": "marketing / admin" },
+    { "id": "admin", "type": "frontend", "label": "Dashboard admin", "sublabel": "editor de la web",
+      "sources": [{ "path": "apps/admin/src/screens/pages/WebHomeCms.tsx", "line": 155, "end_line": 162, "label": "guarda con PUT" }] },
+    { "id": "api", "type": "backend", "label": "API NestJS", "sublabel": "contenido",
+      "sources": [
+        { "path": "apps/api/src/contenido/contenido.controller.ts", "line": 25, "end_line": 62, "label": "guardar y leer contenido" },
+        { "path": "apps/api/src/main.ts", "line": 21, "end_line": 25, "label": "caché de 30 s" }
+      ] },
+    { "id": "db", "type": "database", "label": "Supabase", "sublabel": "tabla ContenidoWeb",
+      "sources": [{ "path": "apps/api/src/contenido/contenido.service.ts", "line": 14, "end_line": 24, "label": "upsert por marca" }] },
+    { "id": "web", "type": "frontend", "label": "Web pública", "sublabel": "Next 16 · ISR 30 s",
+      "sources": [
+        { "path": "apps/kelqa-web/src/lib/cms.ts", "line": 140, "end_line": 140, "label": "lee con revalidate 30" },
+        { "path": "apps/kelqa-web/src/app/layout.tsx", "line": 17, "end_line": 17, "label": "revalidate = 30" }
+      ] },
+    { "id": "visitante", "type": "external", "label": "Visitante", "sublabel": "navegador" }
+  ],
+  "segments": [
+    { "from": 150, "to": 400, "label": "1 · Guardar" },
+    { "from": 410, "to": 650, "label": "2 · Publicar en la web (hasta 30 s)" }
+  ],
+  "messages": [
+    { "id": "edita", "from": "equipo", "to": "admin", "y": 175, "label": "edita y pulsa Guardar", "variant": "default" },
+    { "id": "put", "from": "admin", "to": "api", "y": 205, "label": "PUT /contenido/página/sección", "variant": "emphasis", "note": "Solo roles admin o marketing de la marca activa" },
+    { "id": "guarda", "from": "api", "to": "db", "y": 275, "label": "guarda ContenidoWeb", "variant": "emphasis" },
+    { "id": "guardado", "from": "db", "to": "api", "y": 303, "label": "ok", "variant": "return" },
+    { "id": "respuesta", "from": "api", "to": "admin", "y": 331, "label": "200 guardado", "variant": "return" },
+    { "id": "aviso", "from": "admin", "to": "equipo", "y": 359, "label": "Cambios publicados", "variant": "return" },
+
+    { "id": "abre", "from": "visitante", "to": "web", "y": 435, "label": "abre la página", "variant": "default" },
+    { "id": "get", "from": "web", "to": "api", "y": 465, "label": "GET /public/contenido/página", "variant": "emphasis", "note": "Solo si pasaron 30 s; si no, sirve su copia" },
+    { "id": "lee", "from": "api", "to": "db", "y": 535, "label": "lee ContenidoWeb", "variant": "default" },
+    { "id": "datos", "from": "db", "to": "api", "y": 563, "label": "datos", "variant": "return" },
+    { "id": "json", "from": "api", "to": "web", "y": 591, "label": "JSON (caché 30 s)", "variant": "return" },
+    { "id": "pagina", "from": "web", "to": "visitante", "y": 619, "label": "página con el texto nuevo", "variant": "return" }
+  ],
+  "activations": [
+    { "participant": "admin", "from": 200, "to": 364, "type": "frontend" },
+    { "participant": "api", "from": 205, "to": 336, "type": "backend" },
+    { "participant": "db", "from": 270, "to": 308, "type": "database" },
+    { "participant": "web", "from": 430, "to": 624, "type": "frontend" },
+    { "participant": "api", "from": 465, "to": 596, "type": "backend" },
+    { "participant": "db", "from": 530, "to": 568, "type": "database" }
+  ],
+  "cards": [
+    { "dot": "emerald", "title": "Sin recompilar", "items": ["El cambio queda guardado en la base al pulsar Guardar", "La web lo muestra en menos de 30 s, sin redesplegar"] },
+    { "dot": "amber", "title": "Por qué hasta 30 s", "items": ["Cada página se regenera como máximo cada 30 s", "Así la API y la base no se consultan en cada visita"] },
+    { "dot": "rose", "title": "Excepciones", "items": ["Si la API no responde, la web muestra su contenido de respaldo", "Quamtu es estática: se aplica al recompilar"] }
+  ]
+}
