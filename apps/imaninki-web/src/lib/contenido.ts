@@ -31,9 +31,9 @@ export const lineas: Linea[] = [
     texto: 'Fórmulas de alto rendimiento con gran adherencia, cobertura y color duradero: desde la señalización vial hasta interiores y exteriores.',
     foto: '/fotos/trafico-banner.webp',
     galeria: [
-      { src: '/fotos/trafico-banner.webp', alt: 'Imaninki Tráfico: la línea que define tu camino' },
       { src: '/fotos/vial-obra.webp', alt: 'Cuadrilla pintando señalización vial' },
       { src: '/fotos/pintor.webp', alt: 'Pintor aplicando pintura en una pared' },
+      { src: '/fotos/base-pared.webp', alt: 'Pintura base Imaninki para preparar paredes' },
     ],
     productos: [
       {
@@ -77,8 +77,7 @@ export const lineas: Linea[] = [
     foto: '/fotos/oficina.webp',
     galeria: [
       { src: '/fotos/cuero-ambiente.webp', alt: 'Sillón de cuero en un despacho ejecutivo' },
-      { src: '/fotos/butacas-sala.webp', alt: 'Butacas en una sala de espera' },
-      { src: '/fotos/silla-foto.webp', alt: 'Silla ergonómica de oficina' },
+      { src: '/fotos/sala-oficina.webp', alt: 'Silla ergonómica en una oficina moderna' },
     ],
     productos: [
       {

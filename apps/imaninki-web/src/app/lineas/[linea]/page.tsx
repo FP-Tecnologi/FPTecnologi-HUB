@@ -54,7 +54,7 @@ export default async function PaginaLinea({ params }: Params) {
 
       {/* Galería a foto completa */}
       <section className="fondo-negro py-16 text-white">
-        <div className={`${contenedor} grid gap-4 sm:grid-cols-3`}>
+        <div className={`${contenedor} grid gap-4 ${l.galeria.length === 2 ? 'sm:grid-cols-2' : 'sm:grid-cols-3'}`}>
           {l.galeria.map((g, i) => (
             <Reveal key={g.src} retraso={i * 100}>
               <div className="group overflow-hidden border-b-4 border-rojo">
