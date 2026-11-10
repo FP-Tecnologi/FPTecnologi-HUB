@@ -8,6 +8,16 @@ const app = next({ dev: false });
 const handle = app.getRequestHandler();
 const port = process.env.PORT || 3000;
 
-app.prepare().then(() => {
-  createServer((req, res) => handle(req, res)).listen(port, () => console.log(`Kelqa web escuchando en el puerto ${port}`));
-});
+app.prepare()
+  .then(() => {
+    const server = createServer((req, res) => handle(req, res));
+    server.once('error', (error) => {
+      console.error(`Kelqa no pudo escuchar en el puerto ${port}:`, error);
+      process.exitCode = 1;
+    });
+    server.listen(port, '0.0.0.0', () => console.log(`Kelqa web escuchando en el puerto ${port}`));
+  })
+  .catch((error) => {
+    console.error('Kelqa no pudo preparar Next.js:', error);
+    process.exitCode = 1;
+  });
