@@ -22,8 +22,9 @@ export default function HeroSlider({ slides, wa }: { slides: SlideHero[]; wa: st
   }, [i, pausa, slides.length]);
 
   return (
-    <div className="flex flex-1 flex-col" onMouseEnter={() => setPausa(true)} onMouseLeave={() => setPausa(false)} onFocus={() => setPausa(true)} onBlur={() => setPausa(false)}>
-      <div className="mx-auto flex w-full max-w-7xl flex-[72] flex-col justify-center px-5 pb-4 pt-20 text-center sm:px-8 lg:justify-evenly lg:pb-[1svh] lg:pt-[11svh]">
+    <div onMouseEnter={() => setPausa(true)} onMouseLeave={() => setPausa(false)} onFocus={() => setPausa(true)} onBlur={() => setPausa(false)}>
+      <div className="flex min-h-svh flex-col">
+      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col justify-center px-5 pb-10 pt-24 text-center sm:px-8 lg:justify-evenly lg:pb-[4svh] lg:pt-[12svh]">
         <img fetchPriority="high" decoding="async" src="/brand/marca.svg" alt="Imaninki" width="400" height="100" className="entrada mx-auto h-7 w-auto sm:h-9 lg:h-[5.5svh]" />
 
         {/* Altura fija según el slide más largo para que no salte la página; los demás se apilan y se funden. */}
@@ -58,9 +59,10 @@ export default function HeroSlider({ slides, wa }: { slides: SlideHero[]; wa: st
           ))}
         </div>
       </div>
+      </div>
 
       {/* Collage diagonal con filetes plata y rojo: las fotos cambian con cada slide. */}
-      <div className="collage relative mt-2 min-h-[8rem] flex-[28] sm:min-h-[9rem] lg:mt-0 lg:min-h-0" aria-hidden="true">
+      <div className="collage relative h-[17rem] sm:h-[26rem]" aria-hidden="true">
         {slides.map((s, n) => (
           <div key={s.fotoA} className={`absolute inset-0 transition-opacity duration-1000 ${n === i ? 'opacity-100' : 'opacity-0'}`}>
             <img loading={n === 0 ? 'eager' : 'lazy'} decoding="async" src={s.fotoA} alt="" className="foto-a absolute inset-0 size-full object-cover" />

@@ -26,7 +26,7 @@ export default async function Inicio() {
   return (
     <main id="contenido">
       {/* PORTADA: slider con la marca solo con su nombre (sin icono). La primera diapositiva sale del CMS. */}
-      <section id="inicio" className="fondo-negro relative isolate flex min-h-svh flex-col lg:h-svh overflow-hidden text-white">
+      <section id="inicio" className="fondo-negro relative isolate overflow-hidden text-white">
         {/* Marca de agua: el ícono en una esquina, muy suave, para que el fondo no quede todo oscuro. */}
         <img loading="lazy" decoding="async" src="/icon.svg" alt="" aria-hidden="true" className="pointer-events-none absolute -left-24 top-32 -z-10 w-[30rem] opacity-[0.09]" />
         <HeroSlider
