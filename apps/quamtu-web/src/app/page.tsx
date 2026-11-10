@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight, BadgeCheck, BookOpen, ClipboardList, ShieldCheck, Wrench, MapPin, MessageCircle, PackageCheck, Gauge, MousePointerClick, Headset, UserCheck } from 'lucide-react';
+import { ArrowRight, BadgeCheck, BookOpen, ClipboardList, ShieldCheck, Wrench, MessageCircle, PackageCheck, Gauge, MousePointerClick, Headset, UserCheck } from 'lucide-react';
 import PcEscena from '@/components/PcEscena';
 import Reveal from '@/components/Reveal';
 import ComparaLineas from '@/components/ComparaLineas';
@@ -171,16 +171,16 @@ export default async function Home() {
               Soluciones de <span className="titulo-neon">rendimiento</span>
             </h2>
             <dl className="mt-10 divide-y divide-line border-y border-line">
-              <div data-r className="grid gap-1 py-7 sm:grid-cols-[11rem_1fr] sm:gap-8">
+              <div data-r className="grid gap-1 py-7 sm:grid-cols-[15rem_1fr] sm:gap-8">
                 <dt>
-                  <span className="block font-display text-2xl font-bold"><span className="text-claro">Línea</span> TURING</span>
+                  <span className="block whitespace-nowrap font-display text-2xl font-bold"><span className="text-claro">Línea</span> TURING</span>
                   <span className="text-sm text-slate-400">PC de escritorio</span>
                 </dt>
                 <dd className="text-lg text-slate-200">Diseñadas para la productividad diaria sin interrupciones.</dd>
               </div>
-              <div data-r className="grid gap-1 py-7 sm:grid-cols-[11rem_1fr] sm:gap-8">
+              <div data-r className="grid gap-1 py-7 sm:grid-cols-[15rem_1fr] sm:gap-8">
                 <dt>
-                  <span className="block font-display text-2xl font-bold"><span className="text-claro">Línea</span> TURING WS</span>
+                  <span className="block whitespace-nowrap font-display text-2xl font-bold"><span className="text-claro">Línea</span> TURING WS</span>
                   <span className="text-sm text-slate-400">Workstations</span>
                 </dt>
                 <dd className="text-lg text-slate-200">Alta potencia configurada para los profesionales más exigentes.</dd>
@@ -365,7 +365,7 @@ export default async function Home() {
               </a>
             </div>
             <p data-r className="mt-8 flex items-center gap-2 text-sm text-slate-400">
-              <MapPin size={16} className="shrink-0 text-claro" /> Jr. Huaraz 1841, Breña, Lima · <Link href="/cotizar" className="underline underline-offset-4 hover:text-claro">Cotizar para mi empresa</Link>
+              <Link href="/cotizar" className="underline underline-offset-4 hover:text-claro">Cotizar para mi empresa</Link>
             </p>
             <Link data-r href="/libro-de-reclamaciones" className="btn-borde mt-4 inline-flex min-h-11 items-center gap-2 rounded-full px-4 font-display text-xs">
               <BookOpen aria-hidden="true" size={15} /> LIBRO DE RECLAMACIONES

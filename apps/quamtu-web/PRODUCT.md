@@ -22,7 +22,7 @@ Configuración de precisión: equipos armados a medida bajo estándares riguroso
 ## Operating Context
 
 - Los clientes públicos y corporativos piden cotización formal, factura y entrega; el consumidor final compra por WhatsApp.
-- Hoy no hay pasarela de pago: la compra se coordina por WhatsApp (+51 975 646 074) y el pago en línea está marcado como "próximamente".
+- Hoy no hay pasarela de pago: la compra se coordina por WhatsApp (+51 960 946 835) y el pago en línea está marcado como "próximamente".
 - Precios, placas madre y nombres de gabinete del catálogo web son referenciales hasta conectar la API del HUB (marca Quamtu).
 - Ubicación central: Jr. Huaraz 1841, Breña, Lima. Sitio: www.quamtu.com.
 

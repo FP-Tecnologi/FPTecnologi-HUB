@@ -7,6 +7,7 @@ import MenuMovil from './MenuMovil';
 
 export const ENLACES = [
   { href: '/tienda', texto: 'Tienda' },
+  { href: '/equipos', texto: 'Equipos' },
   { href: '/armar', texto: 'Arma tu PC' },
   { href: '/#lineas', texto: 'Líneas Turing' },
   { href: '/#organizaciones', texto: 'Empresas' },
