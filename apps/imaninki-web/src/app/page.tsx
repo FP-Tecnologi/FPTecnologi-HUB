@@ -7,6 +7,7 @@ import { CtaContacto, Listos, Quienes } from '@/components/Bloques';
 import { razones, waUrl } from '@/lib/contenido';
 import { getLineas } from '@/lib/lineas';
 import { getPagina } from '@/lib/cms';
+import HeroSlider from '@/components/HeroSlider';
 import { IconoWhatsApp } from '@/components/WhatsApp';
 
 export const metadata: Metadata = {
@@ -22,37 +23,19 @@ const retraso = (ms: number) => ({ '--retraso': `${ms}ms` }) as React.CSSPropert
 export default async function Inicio() {
   const lineas = await getLineas();
   const { hero, quienes, porque, canales } = await getPagina('inicio');
-  // «construcción e industria» → «construcción» en blanco y «e industria» en rojo, como la portada del brochure.
-  const [a1, a2] = hero.acento.split(/ (?=e )/);
   return (
     <main id="contenido">
-      {/* PORTADA */}
+      {/* PORTADA: slider con la marca solo con su nombre (sin icono). La primera diapositiva sale del CMS. */}
       <section id="inicio" className="fondo-negro relative isolate overflow-hidden text-white">
-        <img loading="lazy" decoding="async" src="/icon.svg" alt="" aria-hidden="true" className="pointer-events-none absolute -left-24 top-32 -z-10 w-[30rem] opacity-[0.06]" />
-        <div className={`${contenedor} pt-28 text-center sm:pt-28`}>
-          <img fetchPriority="high" decoding="async" src="/icon.svg" alt="" aria-hidden="true" className="entrada flotar mx-auto w-20 drop-shadow-[0_0_38px_rgb(225_29_46/0.6)] sm:w-24" />
-          <img decoding="async" src="/brand/marca.svg" alt="Imaninki" width="400" height="100" className="entrada mx-auto mt-5 h-10 w-auto sm:h-12" style={retraso(100)} />
-          <p className="entrada mt-8 text-lg font-bold uppercase tracking-[0.12em] sm:text-2xl" style={retraso(200)}>{hero.titulo}</p>
-          <h1 className="entrada mt-1 text-[clamp(2.2rem,7.5vw,4.5rem)] font-black uppercase leading-[0.98] tracking-tight !text-white" style={retraso(280)}>{a1}</h1>
-          {a2 && <p className="entrada text-[clamp(2rem,6.6vw,4rem)] font-black uppercase leading-[0.98] tracking-tight text-rojo-claro [text-shadow:0_4px_30px_rgb(225_29_46/0.35)]" style={retraso(360)}>{a2}</p>}
-          <p className="entrada mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-white/85" style={retraso(440)}>{hero.texto}</p>
-          <p className="entrada mt-4 text-sm font-bold uppercase tracking-[0.2em] text-rojo-claro" style={retraso(480)}>Hecho en Perú, hecho para durar</p>
-          <div className="entrada mt-9 flex flex-wrap justify-center gap-3" style={retraso(520)}>
-            <a href={waUrl('Hola Imaninki, quisiera cotizar productos para mi proyecto.')} target="_blank" rel="noopener noreferrer" className="boton inline-flex h-13 items-center gap-2 rounded-md bg-rojo px-7 font-bold uppercase tracking-wide text-white shadow-lg shadow-rojo/30 hover:bg-rojo-hondo">
-              <IconoWhatsApp className="icono-sacude size-5"/>Cotizar ahora
-            </a>
-            <a href="#lineas" className="boton inline-flex h-13 items-center gap-2 rounded-md border border-white/35 px-7 font-bold uppercase tracking-wide text-white hover:bg-white hover:text-tinta">
-              Ver líneas <ArrowRight aria-hidden="true" size={18} className="icono-avanza" />
-            </a>
-          </div>
-        </div>
-        {/* Collage diagonal con filetes plata y rojo, como la portada del brochure. */}
-        <div className="collage relative mt-14 h-[17rem] sm:h-[26rem]" aria-hidden="true">
-          <img loading="lazy" decoding="async" src="/fotos/obra.webp" alt="" className="foto-a size-full object-cover" />
-          <div className="filete-r rojo-filete" />
-          <div className="filete-p metal" />
-          <img loading="lazy" decoding="async" src="/fotos/trafico-banner.webp" alt="" className="foto-b size-full object-cover object-[50%_65%]" />
-        </div>
+        <HeroSlider
+          wa={waUrl('Hola Imaninki, quisiera cotizar productos para mi proyecto.')}
+          slides={[
+            { titulo: hero.titulo, acento: hero.acento, texto: hero.texto, lema: 'Hecho en Perú, hecho para durar', fotoA: '/fotos/obra.webp', fotoB: '/fotos/trafico-banner.webp', posB: 'object-[50%_65%]' },
+            { titulo: 'Color y protección para', acento: 'cada obra|y cada acabado', texto: 'Pinturas látex, esmaltes y bases con rendimiento, cobertura y durabilidad para proyectos de cualquier tamaño.', lema: 'Pinturas de alto rendimiento', fotoA: '/fotos/pintor.webp', fotoB: '/fotos/gloss.webp' },
+            { titulo: 'Mobiliario corporativo para', acento: 'oficinas|que destacan', texto: 'Sillas gerenciales, ejecutivas y de visita, y mobiliario de oficina con diseño, comodidad y garantía.', lema: 'Comodidad y estilo para tu equipo', fotoA: '/fotos/sala-oficina.webp', fotoB: '/fotos/silla-gerencial.webp' },
+            { titulo: 'Construcción y emergencia', acento: 'listos|cuando los necesitas', texto: 'Productos para obra, señalización y contingencias, con atención y entrega a nivel nacional.', lema: 'Cobertura en todo el Perú', fotoA: '/fotos/carpa.webp', fotoB: '/fotos/vial-obra.webp' },
+          ]}
+        />
         <div aria-hidden="true" className="metal h-1.5" /><div aria-hidden="true" className="rojo-filete h-1.5" />
       </section>
 
