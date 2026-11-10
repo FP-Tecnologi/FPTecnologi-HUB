@@ -24,7 +24,7 @@ export default function HeroSlider({ slides, wa }: { slides: SlideHero[]; wa: st
   return (
     <div onMouseEnter={() => setPausa(true)} onMouseLeave={() => setPausa(false)} onFocus={() => setPausa(true)} onBlur={() => setPausa(false)}>
       <div className="mx-auto max-w-7xl px-5 pt-28 text-center sm:px-8">
-        <img fetchPriority="high" decoding="async" src="/brand/marca.svg" alt="Imaninki" width="400" height="100" className="entrada mx-auto h-10 w-auto sm:h-14" />
+        <img fetchPriority="high" decoding="async" src="/brand/marca.svg" alt="Imaninki" width="400" height="100" className="entrada mx-auto h-7 w-auto sm:h-9 lg:h-11" />
 
         {/* Altura fija según el slide más largo para que no salte la página; los demás se apilan y se funden. */}
         <div className="relative mt-8 grid" aria-live={pausa ? 'polite' : 'off'}>
