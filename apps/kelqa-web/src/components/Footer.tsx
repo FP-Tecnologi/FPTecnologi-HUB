@@ -43,7 +43,7 @@ export default async function Footer({ lineas }: { lineas: Linea[] }) {
           </ul>
         </div>
       </div>
-      <p className="border-t border-white/10 px-5 pb-24 pt-5 text-center text-xs text-white/75 md:pb-5">© {new Date().getFullYear()} Kelqa. Todos los derechos reservados. Algunas imágenes son referenciales.</p>
+      <p className="border-t border-white/10 px-5 pb-24 pt-5 text-center text-xs text-white/75 md:pb-5">© {new Date().getFullYear()} Kelqa, marca de COMPANY IMC E.I.R.L. · RUC 20608758357. Todos los derechos reservados. Algunas imágenes son referenciales.</p>
     </footer>
   );
 }

@@ -115,7 +115,7 @@ export default function Footer() {
       {/* Base */}
       <div className="border-t border-line">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-2 px-5 py-6 text-center text-xs text-slate-400 sm:flex-row sm:text-left">
-          <p>© {new Date().getFullYear()} Quamtu. Todos los derechos reservados.</p>
+          <p>© {new Date().getFullYear()} Quamtu, marca de F.P. TECNOLOGI &amp; SYSTEM S.A.C. · RUC 20536630954. Todos los derechos reservados.</p>
           <Link href="/libro-de-reclamaciones" className="btn-borde inline-flex min-h-11 items-center gap-2 rounded-full px-4 font-display text-xs">
             <BookOpen aria-hidden="true" size={15} /> LIBRO DE RECLAMACIONES
           </Link>
