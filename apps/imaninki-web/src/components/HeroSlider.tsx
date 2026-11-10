@@ -62,7 +62,7 @@ export default function HeroSlider({ slides, wa }: { slides: SlideHero[]; wa: st
       </div>
 
       {/* Collage diagonal con filetes plata y rojo: las fotos cambian con cada slide. */}
-      <div className="collage relative h-[17rem] sm:h-[26rem]" aria-hidden="true">
+      <div className="collage relative h-[16svh] sm:h-[22svh]" aria-hidden="true">
         {slides.map((s, n) => (
           <div key={s.fotoA} className={`absolute inset-0 transition-opacity duration-1000 ${n === i ? 'opacity-100' : 'opacity-0'}`}>
             <img loading={n === 0 ? 'eager' : 'lazy'} decoding="async" src={s.fotoA} alt="" className="foto-a absolute inset-0 size-full object-cover" />
