@@ -1,6 +1,6 @@
 'use client';
 /*
- * FPTecnologi-HUB — Herramientas web → Tarjetas BBVA. Leads de la landing
+ * FPTecnologi-HUB — BBVA Partner → Consultas de tarjetas. Leads de la landing
  * /tarjetas-bbva: cada consulta de ofertas (ContactoWeb tipo TARJETA_BBVA, vía
  * GET /contacto-web) con DNI, celular, correo, ofertas que mostró BBVA y la
  * tarjeta elegida. Filtro por estado y por «solicitó / sin ofertas», búsqueda,
