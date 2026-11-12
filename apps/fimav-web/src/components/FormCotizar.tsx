@@ -14,9 +14,11 @@ const OTRO = 'Otro';
 export default function FormCotizar({ categorias }: { categorias: { slug: string; nombre: string }[] }) {
   const contacto = useContacto();
   const waUrl = (t: string) => waUrlDe(contacto.whatsapp, t);
-  const cat = useSearchParams().get('categoria');
+  const params = useSearchParams();
+  const cat = params.get('categoria');
+  const producto = params.get('producto')?.slice(0, 200) ?? '';
   const inicial = categorias.find((c) => c.slug === cat)?.nombre ?? categorias[0].nombre;
-  const [f, setF] = useState({ tipo: 'JURIDICA' as Tipo, nombres: '', apellidos: '', doc: '', empresa: '', email: '', celular: '', interes: inicial, mensaje: '', website: '' });
+  const [f, setF] = useState({ tipo: 'JURIDICA' as Tipo, nombres: '', apellidos: '', doc: '', empresa: '', email: '', celular: '', interes: inicial, mensaje: producto ? `Quiero cotizar: ${producto}` : '', website: '' });
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [enviando, setEnviando] = useState(false);
   const [resultado, setResultado] = useState<null | { guardado: boolean; texto: string }>(null);

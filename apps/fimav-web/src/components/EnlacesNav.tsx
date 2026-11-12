@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 export const enlaces = [
   { href: '/', texto: 'Inicio' },
   { href: '/catalogo', texto: 'Catálogo' },
+  { href: '/tienda', texto: 'Tienda' },
   { href: '/nosotros', texto: 'Nosotros' },
   { href: '/peru-compras', texto: 'Perú Compras' },
   { href: '/tarjetas-bbva', texto: 'BBVA' },
