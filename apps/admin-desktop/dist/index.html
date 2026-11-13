@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FPTecnologi</title>
+<style>
+body{margin:0;min-height:100vh;display:grid;place-items:center;background:#FCFBF9;color:#1b2430;font-family:Segoe UI,system-ui,sans-serif;text-align:center}
+main{max-width:380px;padding:24px}h1{font-size:1.2rem;margin:16px 0 8px}p{color:#5b6675;line-height:1.5;margin:0 0 20px}
+button{background:#008dc5;color:#fff;border:0;border-radius:8px;padding:10px 20px;font:inherit;font-weight:600;cursor:pointer}
+@media (prefers-color-scheme:dark){body{background:#0A0C11;color:#e8ecf2}p{color:#9aa5b4}}
+.oculto{display:none}
+</style></head><body><main>
+<p id="cargando">Abriendo FPTecnologi…</p>
+<section id="sin" class="oculto">
+<h1>Sin conexión</h1>
+<p>Es la primera vez que abres la app en este equipo y no hay internet. Conéctate una vez para guardar lo necesario; después podrás trabajar sin conexión en el CRM.</p>
+<button id="reintentar">Reintentar</button>
+</section>
+</main>
+<script>
+/* Contenedor de escritorio: abre el dashboard online. Si no hay internet pero ya se abrió antes, igual se navega:
+   el service worker del dashboard sirve las pantallas guardadas (modo offline del CRM). */
+var DESTINO = 'https://admin.fptecnologi.com/';
+var VISTO = 'fp:visto';
+function ir() { location.replace(DESTINO); }
+function intentar() {
+  document.getElementById('sin').className = 'oculto';
+  document.getElementById('cargando').className = '';
+  var ctl = new AbortController(); var t = setTimeout(function () { ctl.abort(); }, 6000);
+  fetch(DESTINO + 'manifest.webmanifest', { mode: 'no-cors', cache: 'no-store', signal: ctl.signal })
+    .then(function () { clearTimeout(t); try { localStorage.setItem(VISTO, '1'); } catch (e) {} ir(); })
+    .catch(function () {
+      clearTimeout(t);
+      var visto = false; try { visto = localStorage.getItem(VISTO) === '1'; } catch (e) {}
+      if (visto) { ir(); return; }
+      document.getElementById('cargando').className = 'oculto';
+      document.getElementById('sin').className = '';
+    });
+}
+document.getElementById('reintentar').onclick = intentar;
+window.addEventListener('online', intentar);
+intentar();
+</script></body></html>

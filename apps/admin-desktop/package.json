@@ -1,0 +1,14 @@
+{
+  "name": "fptecnologi-admin-desktop",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Instalador de Windows del dashboard de FPTecnologi (Tauri): abre el admin online y usa su modo offline.",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "icons": "tauri icon ../admin/public/pwa/icon-512.png"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.0.0"
+  }
+}

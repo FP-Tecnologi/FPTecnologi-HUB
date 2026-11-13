@@ -96,6 +96,7 @@ export async function borrarTodoOffline(): Promise<void> {
     await tx('lecturas', 'readwrite', (s) => s.clear());
     await tx('cola', 'readwrite', (s) => s.clear());
   } catch { /* nada que borrar */ }
+  try { await caches.delete('fp-pages'); } catch { /* sin Cache API */ }
   aviso();
 }
 

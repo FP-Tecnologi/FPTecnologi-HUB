@@ -1,7 +1,8 @@
 /* Service worker del dashboard (Fase 1 PWA): guarda el "cascarón" estático para que la app abra sin red.
    No cachea páginas ni respuestas de la API (datos privados): eso es la Fase 2. Sube VERSION para forzar limpieza. */
-const VERSION = 'v1';
+const VERSION = 'v2';
 const CACHE = `fp-shell-${VERSION}`;
+const PAGES = 'fp-pages';
 const OFFLINE_URL = '/offline.html';
 const PRECACHE = [OFFLINE_URL, '/pwa/icon-192.png', '/pwa/icon-512.png', '/logo-fptecnologi.svg', '/logo-fptecnologi-icon.svg'];
 
@@ -26,8 +27,21 @@ self.addEventListener('fetch', (e) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return; // API y fuentes de Google: directo a la red
 
-  if (req.mode === 'navigate') {
-    e.respondWith(fetch(req).catch(() => caches.match(OFFLINE_URL)));
+  // Páginas (y datos RSC de Next al navegar entre pantallas): red primero; sin red, la última copia guardada.
+  // Son solo la estructura de la pantalla: los datos del usuario vienen de la API y no pasan por aquí.
+  // La copia se borra al cerrar sesión (offline.ts → borrarTodoOffline).
+  if (req.mode === 'navigate' || url.searchParams.has('_rsc')) {
+    e.respondWith(
+      fetch(req)
+        .then((res) => {
+          if (res.ok && !res.redirected && !url.pathname.startsWith('/auth')) {
+            const copia = res.clone();
+            caches.open(PAGES).then((c) => c.put(req, copia));
+          }
+          return res;
+        })
+        .catch(() => caches.match(req).then((hit) => hit || (req.mode === 'navigate' ? caches.match(OFFLINE_URL) : Response.error()))),
+    );
     return;
   }
   if (esEstatico(url)) {
