@@ -23,7 +23,7 @@ interface Reporte {
 const MES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 const RANGOS = [3, 6, 12] as const;
 
-export function CrmReportes() {
+export function CrmReportes({ propio = false }: { propio?: boolean }) {
   const { activeMarcaId } = useAuth();
   const [meses, setMeses] = useState<(typeof RANGOS)[number]>(12);
   const [r, setR] = useState<Reporte | null>(null);
@@ -31,8 +31,8 @@ export function CrmReportes() {
 
   const cargar = useCallback(async () => {
     if (!activeMarcaId) return;
-    try { setR(await api.get<Reporte>(`/crm/reportes?meses=${meses}`)); setError(''); } catch (e) { setError(msg(e, 'No se pudieron cargar los reportes.')); }
-  }, [activeMarcaId, meses]);
+    try { setR(await api.get<Reporte>(`/crm/reportes?meses=${meses}${propio ? '&mias=1' : ''}`)); setError(''); } catch (e) { setError(msg(e, 'No se pudieron cargar los reportes.')); }
+  }, [activeMarcaId, meses, propio]);
   useEffect(() => { cargar(); }, [cargar]);
 
   const monedas = r ? [...new Set(r.porMes.flatMap((m) => Object.keys(m.montos)))].sort() : [];
@@ -41,7 +41,7 @@ export function CrmReportes() {
 
   return (
     <>
-      <PageHead title="Reportes comerciales" subtitle="Ventas ganadas, embudo y desempeño del equipo comercial de la marca." actions={
+      <PageHead title={propio ? 'Mi reporte de ventas' : 'Reportes comerciales'} subtitle={propio ? 'Tus ventas ganadas, tu embudo y tu conversión.' : 'Ventas ganadas, embudo y desempeño del equipo comercial de la marca.'} actions={
         <div className="ax-segment" role="group" aria-label="Periodo">
           {RANGOS.map((n) => <button key={n} type="button" className="ax-segment__option" aria-pressed={meses === n} onClick={() => setMeses(n)}>{n} meses</button>)}
         </div>
@@ -75,6 +75,7 @@ export function CrmReportes() {
           ) : <Vacio texto="No hay oportunidades abiertas." />}
         </Card>
 
+        {!propio && (
         <Card titulo="Por comercial" sub="Abiertas hoy; ganadas y perdidas en el periodo" cols={8}>
           {r && r.porComercial.length ? (
             <div className="ax-table-wrap"><table className="ax-table">
@@ -92,7 +93,8 @@ export function CrmReportes() {
             </table></div>
           ) : <Vacio />}
         </Card>
-        <Card titulo="Por origen" sub="Qué canal trae oportunidades y cuáles se ganan" cols={4}>
+        )}
+        <Card titulo="Por origen" sub="Qué canal trae oportunidades y cuáles se ganan" cols={propio ? 12 : 4}>
           {r && r.porOrigen.length ? (
             <ol className="ax-ranklist">
               {r.porOrigen.map((o, i) => {

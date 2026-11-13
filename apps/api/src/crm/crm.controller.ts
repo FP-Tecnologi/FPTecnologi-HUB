@@ -99,11 +99,13 @@ export class CrmController {
     return this.crm.agenda(marcaId, u.sub, mias === '1', this.ambito(u, marcaId).veTodo);
   }
 
-  @Roles('admin', 'jefe_comercial', 'direccion') // los reportes comparan a todo el equipo: un comercial no los ve
+  /** Reporte del equipo (admin, jefe, dirección) o individual: un comercial solo recibe el suyo; los demás lo piden con `?mias=1`. */
+  @Roles('admin', 'jefe_comercial', 'comercial', 'direccion')
   @Get('reportes')
-  reportes(@MarcaActual() marcaId: string, @Query('meses') meses?: string) {
+  reportes(@MarcaActual() marcaId: string, @CurrentUser() u: AuthenticatedUser, @Query('meses') meses?: string, @Query('mias') mias?: string) {
     const m = Number(meses);
-    return this.crm.reportes(marcaId, [3, 6, 12].includes(m) ? m : 12);
+    const soloMio = mias === '1' || !this.ambito(u, marcaId).veTodo;
+    return this.crm.reportes(marcaId, [3, 6, 12].includes(m) ? m : 12, soloMio ? u.sub : undefined);
   }
 
   @Get('empresas')

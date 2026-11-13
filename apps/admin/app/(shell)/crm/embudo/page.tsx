@@ -1,5 +1,8 @@
 import { metadataForSlug } from '../../../../src/lib/pageMetadata';
+import { CrmEmbudo } from '../../../../src/screens/pages/crm/CrmEmbudo';
 
 export const metadata = metadataForSlug('crm/embudo');
 
-export { CrmEmbudo as default } from '../../../../src/screens/pages/crm/CrmEmbudo';
+export default function Page() {
+  return <CrmEmbudo />;
+}

@@ -4,6 +4,7 @@ import { IsBoolean, IsDateString, IsEmail, IsIn, IsInt, IsNumber, IsOptional, Is
 const TEXTO = /^[^<>]*$/; // sin etiquetas: se muestran en el dashboard
 const ETAPAS = ['NUEVO', 'CONTACTADO', 'PROPUESTA', 'NEGOCIACION', 'GANADO', 'PERDIDO'] as const;
 const ORIGENES = ['MANUAL', 'COTIZADOR', 'COTIZACION', 'CONTACTO_WEB', 'PRESUPUESTO'] as const;
+const TIPOS_PROCESO = ['VENTA_DIRECTA', 'PRIVADO', 'LICITACION', 'CONVENIO', 'OXI'] as const;
 const MONEDAS = ['PEN', 'USD'] as const;
 export const TIPOS_MANUALES = ['LLAMADA', 'REUNION', 'NOTA', 'CORREO', 'WHATSAPP', 'TAREA'] as const;
 type Etapa = (typeof ETAPAS)[number];
@@ -51,6 +52,7 @@ export class CrearOportunidadDto {
   @IsOptional() @IsIn(ETAPAS) etapa?: Etapa;
   @IsOptional() @IsNumber({ maxDecimalPlaces: 2 }) @Min(0) @Max(1e10) monto?: number;
   @IsOptional() @IsIn(MONEDAS) moneda?: string;
+  @IsOptional() @IsIn(TIPOS_PROCESO) tipoProceso?: (typeof TIPOS_PROCESO)[number];
   @IsOptional() @IsInt() @Min(0) @Max(100) probabilidad?: number;
   @IsOptional() @IsDateString() cierreEstimado?: string;
   @IsOptional() @IsUUID() asignadoId?: string;
@@ -64,6 +66,7 @@ export class ActualizarOportunidadDto {
   @IsOptional() @IsUUID() contactoId?: string | null;
   @IsOptional() @IsNumber({ maxDecimalPlaces: 2 }) @Min(0) @Max(1e10) monto?: number | null;
   @IsOptional() @IsIn(MONEDAS) moneda?: string;
+  @IsOptional() @IsIn(TIPOS_PROCESO) tipoProceso?: (typeof TIPOS_PROCESO)[number] | null;
   @IsOptional() @IsInt() @Min(0) @Max(100) probabilidad?: number | null;
   @IsOptional() @IsDateString() cierreEstimado?: string | null;
   @IsOptional() @IsUUID() asignadoId?: string | null;
@@ -96,5 +99,6 @@ export class FiltrosOportunidades {
   /** 'yo', 'sin' (sin responsable) o el id de un usuario. */
   @IsOptional() @IsString() @MaxLength(40) asignado?: string;
   @IsOptional() @IsIn(ORIGENES) origen?: (typeof ORIGENES)[number];
+  @IsOptional() @IsIn(TIPOS_PROCESO) tipoProceso?: (typeof TIPOS_PROCESO)[number];
   @IsOptional() @IsString() @MaxLength(100) q?: string;
 }

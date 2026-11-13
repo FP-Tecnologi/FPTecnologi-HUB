@@ -1,5 +1,8 @@
 import { metadataForSlug } from '../../../../src/lib/pageMetadata';
+import { CrmReportes } from '../../../../src/screens/pages/crm/CrmReportes';
 
 export const metadata = metadataForSlug('crm/reportes');
 
-export { CrmReportes as default } from '../../../../src/screens/pages/crm/CrmReportes';
+export default function Page() {
+  return <CrmReportes />;
+}

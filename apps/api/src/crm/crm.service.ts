@@ -182,6 +182,7 @@ export class CrmService {
       // Quien no ve todo queda fijado a sus propias oportunidades, sin importar el filtro que mande.
       ...(!veTodo ? { asignadoId: usuarioId } : f.asignado === 'yo' ? { asignadoId: usuarioId } : f.asignado === 'sin' ? { asignadoId: null } : f.asignado ? { asignadoId: f.asignado } : {}),
       ...(f.origen ? { origen: f.origen } : {}),
+      ...(f.tipoProceso ? { tipoProceso: f.tipoProceso } : {}),
       ...(q
         ? { OR: [
             { titulo: { contains: q, mode: 'insensitive' } },
@@ -261,6 +262,7 @@ export class CrmService {
       etapa,
       monto: dto.monto ?? null,
       moneda: dto.moneda ?? 'PEN',
+      tipoProceso: dto.tipoProceso ?? null,
       probabilidad: dto.probabilidad ?? null,
       cierreEstimado: dto.cierreEstimado ? new Date(dto.cierreEstimado) : null,
       asignadoId: dto.asignadoId ?? null,
@@ -291,6 +293,7 @@ export class CrmService {
         contactoId: dto.contactoId,
         monto: dto.monto,
         moneda: dto.moneda,
+        tipoProceso: dto.tipoProceso,
         probabilidad: dto.probabilidad,
         cierreEstimado: fecha(dto.cierreEstimado),
         asignadoId: dto.asignadoId,
@@ -504,14 +507,15 @@ export class CrmService {
    * Reportes de ventas del CRM en los últimos `meses` (por fecha de cierre o de creación): embudo actual, ganado por
    * mes, por comercial, por origen, conversión y ciclo de venta. Los montos se agrupan por moneda (PEN/USD).
    */
-  async reportes(marcaId: string, meses: number) {
+  async reportes(marcaId: string, meses: number, soloUsuarioId?: string) {
+    const propias = soloUsuarioId ? { asignadoId: soloUsuarioId } : {};
     const desde = new Date();
     desde.setMonth(desde.getMonth() - meses + 1, 1);
     desde.setHours(0, 0, 0, 0);
     const [abiertas, cerradas, creadas, asignables] = await Promise.all([
-      this.prisma.crmOportunidad.findMany({ where: { marcaId, etapa: { in: ETAPAS_ABIERTAS } }, select: { etapa: true, monto: true, moneda: true, probabilidad: true, asignadoId: true } }),
-      this.prisma.crmOportunidad.findMany({ where: { marcaId, cerradoAt: { gte: desde } }, select: { etapa: true, monto: true, moneda: true, asignadoId: true, origen: true, createdAt: true, ganadoAt: true, cerradoAt: true } }),
-      this.prisma.crmOportunidad.findMany({ where: { marcaId, createdAt: { gte: desde } }, select: { origen: true, etapa: true } }),
+      this.prisma.crmOportunidad.findMany({ where: { marcaId, ...propias, etapa: { in: ETAPAS_ABIERTAS } }, select: { etapa: true, monto: true, moneda: true, probabilidad: true, asignadoId: true } }),
+      this.prisma.crmOportunidad.findMany({ where: { marcaId, ...propias, cerradoAt: { gte: desde } }, select: { etapa: true, monto: true, moneda: true, asignadoId: true, origen: true, createdAt: true, ganadoAt: true, cerradoAt: true } }),
+      this.prisma.crmOportunidad.findMany({ where: { marcaId, ...propias, createdAt: { gte: desde } }, select: { origen: true, etapa: true } }),
       this.asignables(marcaId),
     ]);
 

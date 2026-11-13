@@ -1368,6 +1368,14 @@ enum EtapaOportunidad {
   PERDIDO
 }
 
+enum TipoProcesoCrm {
+  VENTA_DIRECTA
+  PRIVADO
+  LICITACION
+  CONVENIO
+  OXI
+}
+
 enum OrigenOportunidad {
   MANUAL
   COTIZADOR
@@ -1445,6 +1453,7 @@ model CrmOportunidad {
   etapa           EtapaOportunidad  @default(NUEVO)
   monto           Decimal?
   moneda          String            @default("PEN")
+  tipoProceso     TipoProcesoCrm? // venta directa, privado, licitación, convenio u OxI (null = sin definir, p. ej. las que entran de la web)
   probabilidad    Int? // 0-100; si falta se usa la de la etapa
   cierreEstimado  DateTime?
   asignadoId      String? // comercial responsable (usuario con rol en la marca)

@@ -8,16 +8,17 @@ import { PageHead } from '../../../components/shell/PageHead';
 import { api } from '../../../lib/api';
 import { useAuth } from '../../../context/AuthContext';
 import {
-  Alerta, BotonIcono, ETAPAS, NuevaOportunidad, ORIGENES, OportunidadPanel, dinero, etapa, fechaCorta, msg, nombreDe, useAsignables, useConfirmar, vencida, type Etapa, type Oportunidad, type Origen, EtiquetaResponsable, useVeTodoCrm,
+  Alerta, BotonIcono, ETAPAS, NuevaOportunidad, ORIGENES, TIPOS_PROCESO, OportunidadPanel, dinero, etapa, fechaCorta, msg, nombreDe, useAsignables, useConfirmar, vencida, type Etapa, type Oportunidad, type Origen, EtiquetaResponsable, useVeTodoCrm,
 } from './comun';
 import { teclaFila } from '../../../lib/teclado';
 import { Select } from '../../../components/ui/Select';
 
-export function CrmOportunidades() {
+export function CrmOportunidades({ propio = false }: { propio?: boolean }) {
   const { activeMarcaId, marcas } = useAuth();
   const esAdmin = marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre === 'admin';
   const asignables = useAsignables();
-  const { veTodo } = useVeTodoCrm();
+  const { veTodo: veTodoRol } = useVeTodoCrm();
+  const veTodo = veTodoRol && !propio; // «Mis oportunidades»: siempre solo las mías, sin selector de responsable
   const [lista, setLista] = useState<Oportunidad[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
@@ -25,6 +26,7 @@ export function CrmOportunidades() {
   const [et, setEt] = useState<'' | Etapa>('');
   const [asignado, setAsignado] = useState('');
   const [origen, setOrigen] = useState<'' | Origen>('');
+  const [tipo, setTipo] = useState('');
   const [q, setQ] = useState('');
   const [abierta, setAbierta] = useState<string | null>(null);
   // ?id=<oportunidad> abre su ficha (enlaces «Ver en CRM» y de la Agenda).
@@ -41,14 +43,14 @@ export function CrmOportunidades() {
 
   const cargar = useCallback(async () => {
     if (!activeMarcaId) return;
-    const qs = new URLSearchParams({ estado, ...(et ? { etapa: et } : {}), ...(asignado ? { asignado } : {}), ...(origen ? { origen } : {}), ...(q.trim() ? { q: q.trim() } : {}) });
+    const qs = new URLSearchParams({ estado, ...(et ? { etapa: et } : {}), ...(propio ? { asignado: 'yo' } : asignado ? { asignado } : {}), ...(tipo ? { tipoProceso: tipo } : {}), ...(origen ? { origen } : {}), ...(q.trim() ? { q: q.trim() } : {}) });
     try { setLista(await api.get<Oportunidad[]>(`/crm/oportunidades?${qs}`)); setError(''); } catch (e) { setError(msg(e, 'No se pudieron cargar las oportunidades.')); } finally { setCargando(false); }
-  }, [activeMarcaId, estado, et, asignado, origen, q]);
+  }, [activeMarcaId, estado, et, asignado, origen, tipo, propio, q]);
   useEffect(() => { const t = setTimeout(cargar, 250); return () => clearTimeout(t); }, [cargar]);
 
   return (
     <>
-      <PageHead title="Oportunidades" subtitle="Prospectos y ventas en curso de la marca, con su responsable, monto y próxima acción." actions={<button type="button" className="ax-btn ax-btn--primary" onClick={() => setNueva(true)}><span className="ax-btn__label">Nueva oportunidad</span></button>} />
+      <PageHead title={propio ? 'Mis oportunidades' : 'Oportunidades'} subtitle={propio ? 'Tus prospectos y ventas en curso, con su monto y próxima acción.' : 'Prospectos y ventas en curso de la marca, con su responsable, monto y próxima acción.'} actions={<button type="button" className="ax-btn ax-btn--primary" onClick={() => setNueva(true)}><span className="ax-btn__label">Nueva oportunidad</span></button>} />
       {error && <div style={{ marginBlockEnd: 'var(--ax-space-4)' }}><Alerta>{error}</Alerta></div>}
       {ok && <div style={{ marginBlockEnd: 'var(--ax-space-4)' }}><Alerta tono="success">{ok}</Alerta></div>}
 
@@ -70,6 +72,9 @@ export function CrmOportunidades() {
                   {asignables.map((u) => <option key={u.id} value={u.id}>{nombreDe(u)}</option>)}
                 </Select>
               )}
+              <Select className="ax-select" aria-label="Tipo de proceso" value={tipo} onChange={(e) => setTipo(e.target.value)} style={{ maxWidth: 190 }}>
+                <option value="">Todos los procesos</option>{Object.entries(TIPOS_PROCESO).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+              </Select>
               <Select className="ax-select" aria-label="Origen" value={origen} onChange={(e) => setOrigen(e.target.value as '' | Origen)} style={{ maxWidth: 210 }}>
                 <option value="">Todos los orígenes</option>{(Object.keys(ORIGENES) as Origen[]).map((o) => <option key={o} value={o}>{ORIGENES[o]}</option>)}
               </Select>
@@ -82,6 +87,7 @@ export function CrmOportunidades() {
                 <tr>
                   <th className="ax-table__th" scope="col">Oportunidad</th>
                   <th className="ax-table__th" scope="col">Cliente</th>
+                  <th className="ax-table__th" scope="col">Proceso</th>
                   <th className="ax-table__th" scope="col">Etapa</th>
                   <th className="ax-table__th" scope="col">Monto</th>
                   <th className="ax-table__th" scope="col">Responsable</th>
@@ -103,6 +109,7 @@ export function CrmOportunidades() {
                       <div>{o.empresa?.razonSocial ?? o.contacto?.nombre ?? '—'}</div>
                       {o.empresa && o.contacto && <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{o.contacto.nombre}</div>}
                     </td>
+                    <td className="ax-table__td" style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>{o.tipoProceso ? TIPOS_PROCESO[o.tipoProceso] : '—'}</td>
                     <td className="ax-table__td"><span className={`ax-badge ax-badge--soft ax-badge--sm ${etapa(o.etapa).badge}`}>{etapa(o.etapa).label}</span></td>
                     <td className="ax-table__td ax-num">{dinero(o.monto, o.moneda)}</td>
                     <td className="ax-table__td"><EtiquetaResponsable u={o.asignado} /></td>

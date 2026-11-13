@@ -16,12 +16,14 @@ const hoyFin = () => { const d = new Date(); d.setHours(23, 59, 59, 999); return
 const clave = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const DIAS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
-export function CrmAgenda() {
+export function CrmAgenda({ propio = false }: { propio?: boolean }) {
   const { activeMarcaId } = useAuth();
   const [datos, setDatos] = useState<{ tareas: Tarea[]; acciones: Oportunidad[] } | null>(null);
   const [error, setError] = useState('');
-  const [mias, setMias] = useState(true);
-  const { veTodo } = useVeTodoCrm();
+  const [miasSel, setMias] = useState(true);
+  const { veTodo: veTodoRol } = useVeTodoCrm();
+  const veTodo = veTodoRol && !propio;
+  const mias = propio || miasSel;
   const [abierta, setAbierta] = useState<string | null>(null);
   const [mes, setMes] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
   const [dia, setDia] = useState<string | null>(null);
@@ -73,7 +75,7 @@ export function CrmAgenda() {
 
   return (
     <>
-      <PageHead title="Agenda comercial" subtitle="Calendario de tareas y próximas acciones. Se llena solo desde las oportunidades y también puedes agregar a mano." actions={
+      <PageHead title={propio ? 'Mi agenda' : 'Agenda comercial'} subtitle="Calendario de tareas y próximas acciones. Se llena solo desde las oportunidades y también puedes agregar a mano." actions={
         <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
           {veTodo && (
             <div className="ax-btn-group ax-btn-group--segmented" role="radiogroup" aria-label="De quién">

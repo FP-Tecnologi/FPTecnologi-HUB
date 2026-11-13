@@ -19,13 +19,15 @@ type Vista = 'tablero' | 'lista';
 const CLAVE_VISTA = 'crm:vista-embudo';
 const sumar = (lista: Oportunidad[]) => lista.reduce<Record<string, number>>((a, o) => ((a[o.moneda] = (a[o.moneda] ?? 0) + Number(o.monto ?? 0)), a), {});
 
-export function CrmEmbudo() {
+export function CrmEmbudo({ propio = false }: { propio?: boolean }) {
   const { activeMarcaId } = useAuth();
   const [lista, setLista] = useState<Oportunidad[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
-  const [mias, setMias] = useState(false);
-  const { veTodo } = useVeTodoCrm();
+  const [miasSel, setMias] = useState(false);
+  const { veTodo: veTodoRol } = useVeTodoCrm();
+  const veTodo = veTodoRol && !propio;
+  const mias = propio || miasSel;
   const [cerradas, setCerradas] = useState(false);
   const [q, setQ] = useState('');
   const [abierta, setAbierta] = useState<string | null>(null);
@@ -67,7 +69,7 @@ export function CrmEmbudo() {
 
   return (
     <>
-      <PageHead title="Embudo comercial" subtitle="Oportunidades por etapa. Muévelas arrastrando la tarjeta o con su selector de etapa; las solicitudes de la web entran solas en «Nuevo»." actions={<button type="button" className="ax-btn ax-btn--primary" onClick={() => setNueva(true)}><span className="ax-btn__label">Nueva oportunidad</span></button>} />
+      <PageHead title={propio ? 'Mi embudo' : 'Embudo comercial'} subtitle="Oportunidades por etapa. Muévelas arrastrando la tarjeta o con su selector de etapa; las solicitudes de la web entran solas en «Nuevo»." actions={<button type="button" className="ax-btn ax-btn--primary" onClick={() => setNueva(true)}><span className="ax-btn__label">Nueva oportunidad</span></button>} />
       {error && <div style={{ marginBlockEnd: 'var(--ax-space-4)' }}><Alerta>{error}</Alerta></div>}
 
       <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', marginBlockEnd: 'var(--ax-space-4)', flexWrap: 'wrap' }}>

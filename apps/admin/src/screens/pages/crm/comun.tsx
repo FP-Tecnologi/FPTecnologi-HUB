@@ -16,11 +16,12 @@ import { numeroMoneda } from '@/lib/moneda';
 
 export type Etapa = 'NUEVO' | 'CONTACTADO' | 'PROPUESTA' | 'NEGOCIACION' | 'GANADO' | 'PERDIDO';
 export type Origen = 'MANUAL' | 'COTIZADOR' | 'COTIZACION' | 'CONTACTO_WEB' | 'PRESUPUESTO';
+export type TipoProceso = 'VENTA_DIRECTA' | 'PRIVADO' | 'LICITACION' | 'CONVENIO' | 'OXI';
 export type TipoActividad = 'LLAMADA' | 'REUNION' | 'NOTA' | 'CORREO' | 'WHATSAPP' | 'TAREA' | 'ETAPA' | 'SOLICITUD';
 
 export interface Usuario { id: string; nombre: string | null; email: string; rol?: string }
 export interface Oportunidad {
-  id: string; numero: string; titulo: string; etapa: Etapa; monto: string | number | null; moneda: string; probabilidad: number | null;
+  id: string; numero: string; titulo: string; etapa: Etapa; monto: string | number | null; moneda: string; tipoProceso: TipoProceso | null; probabilidad: number | null;
   cierreEstimado: string | null; origen: Origen; origenId: string | null; proximaAccion: string | null; proximaAccionAt: string | null;
   motivoPerdida: string | null; ganadoAt: string | null; createdAt: string; updatedAt: string; asignadoId: string | null;
   empresa: { id: string; razonSocial: string; ruc: string | null; rubro?: string | null; telefono?: string | null; web?: string | null } | null;
@@ -45,6 +46,7 @@ export const ETAPAS: { v: Etapa; label: string; badge: string; color: string }[]
 export const ABIERTAS: Etapa[] = ['NUEVO', 'CONTACTADO', 'PROPUESTA', 'NEGOCIACION'];
 export const etapa = (e: Etapa) => ETAPAS.find((x) => x.v === e)!;
 export const ORIGENES: Record<Origen, string> = { MANUAL: 'Manual', COTIZADOR: 'Cotizador web', COTIZACION: 'Cotización de servicio', CONTACTO_WEB: 'Formulario de contacto', PRESUPUESTO: 'Presupuesto mayorista' };
+export const TIPOS_PROCESO: Record<TipoProceso, string> = { VENTA_DIRECTA: 'Venta directa', PRIVADO: 'Privado', LICITACION: 'Licitación', CONVENIO: 'Convenio', OXI: 'OxI' };
 export const TIPOS: Record<TipoActividad, string> = { LLAMADA: 'Llamada', REUNION: 'Reunión', NOTA: 'Nota', CORREO: 'Correo', WHATSAPP: 'WhatsApp', TAREA: 'Tarea', ETAPA: 'Cambio de etapa', SOLICITUD: 'Solicitud web' };
 export const TIPOS_MANUALES: TipoActividad[] = ['LLAMADA', 'REUNION', 'WHATSAPP', 'CORREO', 'NOTA', 'TAREA'];
 
@@ -168,13 +170,13 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
   const [error, setError] = useState('');
   const [ok, setOk] = useState('');
   const [busy, setBusy] = useState(false);
-  const [form, setForm] = useState({ titulo: '', monto: '', moneda: 'PEN', cierreEstimado: '', asignadoId: '', proximaAccion: '', proximaAccionAt: '' });
+  const [form, setForm] = useState({ titulo: '', tipoProceso: '', monto: '', moneda: 'PEN', cierreEstimado: '', asignadoId: '', proximaAccion: '', proximaAccionAt: '' });
   const [act, setAct] = useState<{ tipo: TipoActividad; texto: string; fecha: string }>({ tipo: 'LLAMADA', texto: '', fecha: '' });
 
   const cargarForm = (d: Detalle) => {
     setO(d);
     setForm({
-      titulo: d.titulo, monto: d.monto === null ? '' : String(Number(d.monto)), moneda: d.moneda, cierreEstimado: d.cierreEstimado?.slice(0, 10) ?? '',
+      titulo: d.titulo, tipoProceso: d.tipoProceso ?? '', monto: d.monto === null ? '' : String(Number(d.monto)), moneda: d.moneda, cierreEstimado: d.cierreEstimado?.slice(0, 10) ?? '',
       asignadoId: d.asignadoId ?? '', proximaAccion: d.proximaAccion ?? '', proximaAccionAt: aLocal(d.proximaAccionAt),
     });
   };
@@ -198,7 +200,7 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
     e.preventDefault();
     if (form.monto && !(Number(form.monto) >= 0)) return setError('Monto no válido.');
     correr(() => api.patch<Detalle>(`/crm/oportunidades/${id}`, {
-      titulo: form.titulo.trim(), monto: form.monto === '' ? null : Number(form.monto), moneda: form.moneda,
+      titulo: form.titulo.trim(), tipoProceso: form.tipoProceso || null, monto: form.monto === '' ? null : Number(form.monto), moneda: form.moneda,
       cierreEstimado: form.cierreEstimado ? new Date(`${form.cierreEstimado}T12:00:00`).toISOString() : null,
       ...(puedeAsignar ? { asignadoId: form.asignadoId || null } : {}), proximaAccion: form.proximaAccion.trim() || null, proximaAccionAt: deLocal(form.proximaAccionAt),
     }), 'Cambios guardados.');
@@ -271,6 +273,8 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
                   ) : (
                     <div id="op-resp"><EtiquetaResponsable u={asignables.find((u) => u.id === form.asignadoId) ?? (o?.asignado ?? null)} /></div>
                   )}</div>
+                <div className="ax-field"><label className="ax-label" htmlFor="op-tp">Tipo de proceso</label>
+                  <Select id="op-tp" className="ax-select" value={form.tipoProceso} onChange={set('tipoProceso')}><option value="">Sin definir</option>{Object.entries(TIPOS_PROCESO).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</Select></div>
                 <div className="ax-field"><label className="ax-label" htmlFor="op-monto">Monto estimado</label>
                   <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
                     <Select aria-label="Moneda" className="ax-select" style={{ width: 84 }} value={form.moneda} onChange={set('moneda')}><option value="PEN">S/</option><option value="USD">US$</option></Select>
@@ -366,7 +370,7 @@ export function NuevaOportunidad({ onClose, onCreada }: { onClose: () => void; o
   }, [empresaSel]);
   const elegirEmpresa = (e: EmpresaSel) => { setEmpresaSel(e); setContactoSel(null); setBuscar(''); };
   const elegirContacto = (c: ContactoSel) => { setContactoSel(c); setEmpresaSel(c.empresa ?? null); setBuscar(''); };
-  const [f, setF] = useState({ titulo: '', empresa: '', ruc: '', contacto: '', email: '', celular: '', etapa: 'NUEVO' as Etapa, monto: '', moneda: 'PEN', asignadoId: '', proximaAccion: '', proximaAccionAt: '' });
+  const [f, setF] = useState({ titulo: '', empresa: '', ruc: '', contacto: '', email: '', celular: '', etapa: 'NUEVO' as Etapa, tipoProceso: '', monto: '', moneda: 'PEN', asignadoId: '', proximaAccion: '', proximaAccionAt: '' });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
@@ -374,12 +378,13 @@ export function NuevaOportunidad({ onClose, onCreada }: { onClose: () => void; o
   async function crear(e: React.FormEvent) {
     e.preventDefault();
     if (f.titulo.trim().length < 3) return setError('Escribe un título (qué quiere comprar o contratar).');
+    if (!f.tipoProceso) return setError('Elige el tipo de proceso.');
     if (!empresaSel && f.ruc && !/^(10|15|16|17|20)\d{9}$/.test(f.ruc)) return setError('El RUC debe tener 11 dígitos.');
     if (!contactoSel && !f.contacto.trim() && (f.email || f.celular)) return setError('Escribe el nombre del contacto.');
     setBusy(true); setError('');
     try {
       const o = await api.post<Detalle>('/crm/oportunidades', {
-        titulo: f.titulo.trim(), etapa: f.etapa, moneda: f.moneda, monto: f.monto ? Number(f.monto) : undefined,
+        titulo: f.titulo.trim(), etapa: f.etapa, tipoProceso: f.tipoProceso, moneda: f.moneda, monto: f.monto ? Number(f.monto) : undefined,
         empresaId: empresaSel?.id,
         contactoId: contactoSel?.id,
         empresaNueva: !empresaSel && (f.empresa.trim() || f.ruc) ? { razonSocial: f.empresa.trim() || undefined, ruc: f.ruc || undefined } : undefined,
@@ -448,6 +453,8 @@ export function NuevaOportunidad({ onClose, onCreada }: { onClose: () => void; o
             </div>
           </>
         )}
+        <div className="ax-field"><label className="ax-label" htmlFor="no-tp">Tipo de proceso *</label>
+          <Select id="no-tp" className="ax-select" value={f.tipoProceso} onChange={set('tipoProceso')}><option value="">Elige el tipo de proceso…</option>{Object.entries(TIPOS_PROCESO).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</Select></div>
         <div style={fila}>
           <div className="ax-field"><label className="ax-label" htmlFor="no-et">Etapa</label>
             <Select id="no-et" className="ax-select" value={f.etapa} onChange={set('etapa')}>{ETAPAS.filter((e) => e.v !== 'PERDIDO').map((e) => <option key={e.v} value={e.v}>{e.label}</option>)}</Select></div>
