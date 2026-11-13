@@ -1,8 +1,7 @@
 'use client';
 /*
  * FPTecnologi-HUB — Bitácora del sistema: quién hizo qué, cuándo y desde dónde.
- *  · Administración → Actividad (super admin): toda la plataforma. GET /actividad
- *  · Marca → Actividad del equipo (admin de la marca): solo su marca. GET /actividad-marca
+ *  · Administración → Actividad (solo super admin): toda la plataforma. GET /actividad
  * Registra inicios de sesión, acciones administrativas y, de forma automática, cada cambio y exportación de cualquier módulo.
  * Filtros por texto, usuario, marca, acción y fechas; 50 por página; exporta a CSV.
  */
@@ -49,8 +48,8 @@ const info = (a: string) => {
 };
 const fecha = (iso: string) => new Date(iso).toLocaleString('es-PE', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-export function ActividadAdmin({ modo = 'global' }: { modo?: 'global' | 'marca' }) {
-  const base = modo === 'global' ? '/actividad' : '/actividad-marca';
+export function ActividadAdmin() {
+  const base = '/actividad';
   const [data, setData] = useState<Respuesta | null>(null);
   const [f, setF] = useState({ q: '', usuario: '', accion: '', marcaId: '', desde: '', hasta: '' });
   const [page, setPage] = useState(1);
@@ -86,10 +85,8 @@ export function ActividadAdmin({ modo = 'global' }: { modo?: 'global' | 'marca' 
   return (
     <>
       <PageHead
-        title={modo === 'global' ? 'Actividad' : 'Actividad del equipo'}
-        subtitle={modo === 'global'
-          ? 'Bitácora de toda la plataforma: quién hizo qué, cuándo y desde dónde. Solo el super administrador.'
-          : 'Bitácora de esta marca: quién hizo qué, cuándo y desde dónde. Solo el administrador de la marca.'}
+        title="Actividad"
+        subtitle="Bitácora de toda la plataforma: quién hizo qué, cuándo y desde dónde. Solo el super administrador."
         actions={
           <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
             <button type="button" className="ax-btn ax-btn--ghost" onClick={() => void cargar()}>Actualizar</button>
@@ -103,12 +100,10 @@ export function ActividadAdmin({ modo = 'global' }: { modo?: 'global' | 'marca' 
         <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', marginBlockEnd: 'var(--ax-space-3)', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <input type="search" className="ax-input" style={{ width: 200 }} placeholder="Buscar detalle o ruta" aria-label="Buscar en la actividad" value={f.q} onChange={(e) => cambiar({ q: e.target.value })} />
           <input type="search" className="ax-input" style={{ width: 200 }} placeholder="Usuario (correo)" aria-label="Filtrar por usuario" value={f.usuario} onChange={(e) => cambiar({ usuario: e.target.value })} />
-          {modo === 'global' && (
-            <Select className="ax-select" style={{ width: 'auto' }} aria-label="Filtrar por marca" value={f.marcaId} onChange={(e) => cambiar({ marcaId: e.target.value })}>
-              <option value="">Todas las marcas</option>
-              {data?.marcas.map((m) => <option key={m.id} value={m.id}>{m.nombre}</option>)}
-            </Select>
-          )}
+          <Select className="ax-select" style={{ width: 'auto' }} aria-label="Filtrar por marca" value={f.marcaId} onChange={(e) => cambiar({ marcaId: e.target.value })}>
+            <option value="">Todas las marcas</option>
+            {data?.marcas.map((m) => <option key={m.id} value={m.id}>{m.nombre}</option>)}
+          </Select>
           <Select className="ax-select" style={{ width: 'auto' }} aria-label="Filtrar por acción" value={f.accion} onChange={(e) => cambiar({ accion: e.target.value })}>
             <option value="">Todas las acciones</option>
             {data?.acciones.map((a) => <option key={a} value={a}>{info(a).label}</option>)}
@@ -122,7 +117,7 @@ export function ActividadAdmin({ modo = 'global' }: { modo?: 'global' | 'marca' 
               <th className="ax-table__th" scope="col">Fecha</th>
               <th className="ax-table__th" scope="col">Acción</th>
               <th className="ax-table__th" scope="col">Usuario</th>
-              {modo === 'global' && <th className="ax-table__th" scope="col">Marca</th>}
+              <th className="ax-table__th" scope="col">Marca</th>
               <th className="ax-table__th" scope="col">Detalle</th>
               <th className="ax-table__th" scope="col"><span className="ax-sr-only">Ver más</span></th>
             </tr></thead>
@@ -135,7 +130,7 @@ export function ActividadAdmin({ modo = 'global' }: { modo?: 'global' | 'marca' 
                     <td className="ax-table__td" style={{ color: 'var(--ax-text-muted)', whiteSpace: 'nowrap' }}>{fecha(e.createdAt)}</td>
                     <td className="ax-table__td"><span className={`ax-badge ax-badge--soft ax-badge--pill ${info(e.accion).badge}`}>{info(e.accion).label}</span></td>
                     <td className="ax-table__td">{e.email ?? '—'}</td>
-                    {modo === 'global' && <td className="ax-table__td">{marca(e.marcaId)}</td>}
+                    <td className="ax-table__td">{marca(e.marcaId)}</td>
                     <td className="ax-table__td" style={{ color: 'var(--ax-text-muted)' }}>{e.detalle ?? e.ruta ?? '—'}</td>
                     <td className="ax-table__td" style={{ textAlign: 'right' }}>
                       <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" aria-expanded={abierto === e.id} onClick={() => setAbierto(abierto === e.id ? null : e.id)}>{abierto === e.id ? 'Ocultar' : 'Detalle'}</button>
@@ -172,7 +167,5 @@ export function ActividadAdmin({ modo = 'global' }: { modo?: 'global' | 'marca' 
     </>
   );
 }
-
-export function ActividadMarca() { return <ActividadAdmin modo="marca" />; }
 
 export default ActividadAdmin;
