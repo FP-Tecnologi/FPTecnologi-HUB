@@ -10,18 +10,20 @@ import { MonedaSelector } from './tienda/Moneda';
 export default function Header() {
   return (
     <header className="cabecera print:hidden fixed inset-x-0 top-3 z-50 mx-auto w-[calc(100%-1rem)] max-w-7xl">
-      <div className="cabecera-interior mx-auto flex min-h-[4.5rem] items-center justify-between gap-4 px-5 sm:px-9">
+      <div className="cabecera-interior mx-auto flex min-h-[4.5rem] items-center justify-between gap-2 px-4 sm:gap-4 sm:px-9">
         <Link href="/" aria-label="Fimav Perú, inicio" className="cabecera-marca block">
           <Logo src="/brand/fimav-peru-blanco.svg" alt="" className="cabecera-logo cabecera-logo-transparente h-12 w-auto object-contain" />
           <Logo src="/brand/fimav-peru.svg" alt="" className="cabecera-logo cabecera-logo-fijo h-12 w-auto object-contain" />
         </Link>
         <nav aria-label="Principal" className="cabecera-nav hidden items-center gap-4 lg:flex xl:gap-8">
           <EnlacesNav />
-          <BotonHex href="/cotizar" icono={FileText} rotulo>Cotizar</BotonHex>
         </nav>
-        <MonedaSelector />
-        <CarritoBoton />
-        <MenuMovil />
+        <div className="ml-auto flex items-center gap-1 sm:gap-3 lg:ml-0">
+          <MonedaSelector />
+          <CarritoBoton />
+          <span className="hidden lg:block"><BotonHex href="/cotizar" icono={FileText} rotulo>Cotizar</BotonHex></span>
+          <MenuMovil />
+        </div>
       </div>
     </header>
   );
