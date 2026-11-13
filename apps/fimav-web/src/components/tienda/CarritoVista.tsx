@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { FileText, MessageCircle, Trash2 } from 'lucide-react';
 import BotonHex from '@/components/hex/BotonHex';
+import ContadorCantidad from './ContadorCantidad';
 import { useContacto, waUrl } from '@/components/ContactoContext';
 import { cambiarCantidad, quitar, totalPrecio, totalUnidades, useCarrito, vaciar } from '@/lib/carrito';
 import { usd } from '@/lib/tienda';
@@ -35,10 +36,7 @@ export default function CarritoVista() {
               <Link href={`/tienda/${i.slug}`} className="font-semibold text-carbon hover:text-rojo-hondo hover:underline">{i.nombre}</Link>
               <p className="text-sm text-carbon/70">Código: {i.sku} · {usd(i.precio)} c/u</p>
             </div>
-            <label className="text-sm text-carbon">
-              <span className="sr-only">Cantidad de {i.nombre}</span>
-              <input type="number" inputMode="numeric" min={1} max={999} value={i.cantidad} onChange={(e) => cambiarCantidad(i.sku, Number(e.target.value))} className="min-h-11 w-20 rounded-lg border border-carbon/60 bg-white px-3 text-base text-tinta" />
-            </label>
+            <ContadorCantidad etiqueta={`Cantidad de ${i.nombre}`} valor={i.cantidad} onCambio={(n) => cambiarCantidad(i.sku, n)} />
             <p className="w-28 text-right font-display text-lg font-bold text-carbon">{usd(i.precio * i.cantidad)}</p>
             <button type="button" onClick={() => quitar(i.sku)} aria-label={`Quitar ${i.nombre}`} className="flex size-11 items-center justify-center rounded-lg text-carbon hover:bg-gris hover:text-rojo-hondo"><Trash2 aria-hidden="true" size={18} /></button>
           </li>
