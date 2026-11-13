@@ -117,6 +117,13 @@ html[data-scrolled] .cabecera::before {
 html[data-scrolled] .cabecera-interior { min-height: 3.8rem; }
 html[data-scrolled] .cabecera-logo { transform: scale(0.82); }
 html[data-scrolled] .cabecera-link { color: var(--color-carbon); }
+/* Selector de moneda de la cabecera: sin relleno, contorno fino y la opción activa apenas resaltada. */
+.moneda { color: white; border-color: rgb(255 255 255 / 0.4); }
+.moneda button { opacity: 0.75; }
+.moneda button:hover { opacity: 1; }
+.moneda button[aria-pressed='true'] { opacity: 1; background: rgb(255 255 255 / 0.22); }
+html[data-scrolled] .moneda { color: var(--color-carbon); border-color: rgb(56 56 60 / 0.25); }
+html[data-scrolled] .moneda button[aria-pressed='true'] { background: rgb(224 36 36 / 0.12); color: var(--color-rojo-hondo); }
 .hero-fondo-imagen { filter: brightness(0.48) saturate(0.82); animation: hero-respira 24s ease-in-out infinite alternate; }
 .hero-emblema { animation: hero-emblema-giro 32s linear infinite; }
 @keyframes hero-texto-entrada { from { opacity: 0; transform: translateY(14px); } }
