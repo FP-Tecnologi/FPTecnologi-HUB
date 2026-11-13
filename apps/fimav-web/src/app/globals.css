@@ -98,8 +98,8 @@ p, li { text-wrap: pretty; }
   pointer-events: none;
   background: transparent;
   border: 1px solid transparent;
-  clip-path: polygon(0px -0.0px, 0px 0.1px, 0px 0.3px, 0px 0.6px, 0px 1.1px, 0px 1.7px, 0px 2.4px, 0px 3.2px, 0px 4.2px, 0px 5.9px, 0px 11.1px, 0px 17.3px, 0px calc(50% - 7.0px), 0px calc(50% - 0.0px), 0px calc(50% + 7.0px), 0px calc(100% - 17.3px), 0px calc(100% - 11.1px), 0px calc(100% - 5.9px), 0px calc(100% - 4.2px), 0px calc(100% - 3.2px), 0px calc(100% - 2.4px), 0px calc(100% - 1.7px), 0px calc(100% - 1.1px), 0px calc(100% - 0.6px), 0px calc(100% - 0.3px), 0px calc(100% - 0.1px), 0px calc(100% - 0.0px), 100% calc(100% - 0.0px), 100% calc(100% - 0.1px), 100% calc(100% - 0.3px), 100% calc(100% - 0.6px), 100% calc(100% - 1.1px), 100% calc(100% - 1.7px), 100% calc(100% - 2.4px), 100% calc(100% - 3.2px), 100% calc(100% - 4.2px), 100% calc(100% - 5.9px), 100% calc(100% - 11.1px), 100% calc(100% - 17.3px), 100% calc(50% + 7.0px), 100% calc(50% - 0.0px), 100% calc(50% - 7.0px), 100% 17.3px, 100% 11.1px, 100% 5.9px, 100% 4.2px, 100% 3.2px, 100% 2.4px, 100% 1.7px, 100% 1.1px, 100% 0.6px, 100% 0.3px, 100% 0.1px, 100% -0.0px);
-  transition: background-color 0.35s, border-color 0.35s, clip-path 0.35s;
+  border-radius: 0;
+  transition: background-color 0.35s, border-color 0.35s, border-radius 0.35s;
 }
 .cabecera-interior { transition: min-height 0.35s; }
 .cabecera-logo { transform-origin: left center; transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1); }
@@ -112,7 +112,7 @@ html:not([data-scrolled]) .cabecera-link { color: white; }
 html[data-scrolled] .cabecera::before {
   background: white;
   border-color: rgb(56 56 60 / 0.08);
-  clip-path: polygon(40.2px -0.0px, 38.7px 0.1px, 37.3px 0.3px, 35.8px 0.6px, 34.4px 1.1px, 33.1px 1.7px, 31.8px 2.4px, 30.6px 3.2px, 29.4px 4.2px, 27.6px 5.9px, 22.9px 11.1px, 19.4px 17.3px, 17.2px calc(50% - 7.0px), 16.5px calc(50% - 0.0px), 17.2px calc(50% + 7.0px), 19.4px calc(100% - 17.3px), 22.9px calc(100% - 11.1px), 27.6px calc(100% - 5.9px), 29.4px calc(100% - 4.2px), 30.6px calc(100% - 3.2px), 31.8px calc(100% - 2.4px), 33.1px calc(100% - 1.7px), 34.4px calc(100% - 1.1px), 35.8px calc(100% - 0.6px), 37.3px calc(100% - 0.3px), 38.7px calc(100% - 0.1px), 40.2px calc(100% - 0.0px), calc(100% - 40.2px) calc(100% - 0.0px), calc(100% - 38.7px) calc(100% - 0.1px), calc(100% - 37.3px) calc(100% - 0.3px), calc(100% - 35.8px) calc(100% - 0.6px), calc(100% - 34.4px) calc(100% - 1.1px), calc(100% - 33.1px) calc(100% - 1.7px), calc(100% - 31.8px) calc(100% - 2.4px), calc(100% - 30.6px) calc(100% - 3.2px), calc(100% - 29.4px) calc(100% - 4.2px), calc(100% - 27.6px) calc(100% - 5.9px), calc(100% - 22.9px) calc(100% - 11.1px), calc(100% - 19.4px) calc(100% - 17.3px), calc(100% - 17.2px) calc(50% + 7.0px), calc(100% - 16.5px) calc(50% - 0.0px), calc(100% - 17.2px) calc(50% - 7.0px), calc(100% - 19.4px) 17.3px, calc(100% - 22.9px) 11.1px, calc(100% - 27.6px) 5.9px, calc(100% - 29.4px) 4.2px, calc(100% - 30.6px) 3.2px, calc(100% - 31.8px) 2.4px, calc(100% - 33.1px) 1.7px, calc(100% - 34.4px) 1.1px, calc(100% - 35.8px) 0.6px, calc(100% - 37.3px) 0.3px, calc(100% - 38.7px) 0.1px, calc(100% - 40.2px) -0.0px);
+  border-radius: 1rem;
 }
 html[data-scrolled] .cabecera-interior { min-height: 3.8rem; }
 html[data-scrolled] .cabecera-logo { transform: scale(0.82); }

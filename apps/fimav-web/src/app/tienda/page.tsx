@@ -1,8 +1,7 @@
 import Link from 'next/link';
-import { Search } from 'lucide-react';
 import BannerPagina from '@/components/BannerPagina';
 import BotonHex from '@/components/hex/BotonHex';
-import CampoHex from '@/components/tienda/CampoHex';
+import FiltrosTienda from '@/components/tienda/FiltrosTienda';
 import ProductoCard from '@/components/tienda/ProductoCard';
 import Reveal from '@/components/motion/Reveal';
 import { getProductosTienda } from '@/lib/tienda';
@@ -12,7 +11,6 @@ export const metadata = meta('Tienda de equipos tecnológicos', 'Tienda de Fimav
 
 type Params = { categoria?: string; q?: string; marca?: string; orden?: string };
 const ORDENES = { nuevos: 'Más recientes', precio_asc: 'Menor precio', precio_desc: 'Mayor precio', nombre: 'Nombre (A-Z)' } as const;
-const campo = 'min-h-10 w-full min-w-0 bg-transparent text-base text-tinta outline-none placeholder:text-carbon/60';
 
 export default async function TiendaPage({ searchParams }: { searchParams: Promise<Params> }) {
   const { categoria, q = '', marca, orden = 'nuevos' } = await searchParams;
@@ -41,35 +39,12 @@ export default async function TiendaPage({ searchParams }: { searchParams: Promi
       <BannerPagina eyebrow="Tienda" titulo="Equipos y" resaltado="soluciones" imagen="/fotos/escritorios-2.jpg" />
       <Reveal className="mx-auto max-w-7xl px-4 pb-16 pt-8 sm:px-6">
         <div className="rounded-2xl bg-gris p-4 sm:p-5">
-          <form action="/tienda" className="flex flex-wrap items-end gap-x-3 gap-y-4">
-            <label className="grow text-sm font-medium text-carbon sm:min-w-64">Buscar
-              <CampoHex className="mt-1"><input name="q" defaultValue={q} placeholder="Nombre, marca o código" className={campo} /></CampoHex>
-            </label>
-            <label className="text-sm font-medium text-carbon">Categoría
-              <CampoHex className="mt-1">
-                <select name="categoria" defaultValue={categoria ?? ''} className={campo}>
-                  <option value="">Todo ({todos.length})</option>
-                  {categorias.map((c) => <option key={c.slug} value={c.slug}>{c.nombre} ({c.n})</option>)}
-                </select>
-              </CampoHex>
-            </label>
-            <label className="text-sm font-medium text-carbon">Marca
-              <CampoHex className="mt-1">
-                <select name="marca" defaultValue={marca ?? ''} className={campo}>
-                  <option value="">Todas</option>
-                  {marcas.map((m) => <option key={m}>{m}</option>)}
-                </select>
-              </CampoHex>
-            </label>
-            <label className="text-sm font-medium text-carbon">Ordenar por
-              <CampoHex className="mt-1">
-                <select name="orden" defaultValue={orden} className={campo}>
-                  {Object.entries(ORDENES).map(([v, tx]) => <option key={v} value={v}>{tx}</option>)}
-                </select>
-              </CampoHex>
-            </label>
-            <BotonHex type="submit" variante="carbon" icono={Search}>Filtrar</BotonHex>
-          </form>
+          <FiltrosTienda
+            categorias={categorias.map((c) => ({ valor: c.slug, texto: `${c.nombre} (${c.n})` }))}
+            marcas={marcas}
+            ordenes={Object.entries(ORDENES).map(([valor, texto]) => ({ valor, texto }))}
+            inicial={{ categoria: categoria ?? '', q, marca: marca ?? '', orden }}
+          />
         </div>
 
         <p className="mt-6 text-sm text-carbon/80" role="status">{lista.length} {lista.length === 1 ? 'producto' : 'productos'}</p>
