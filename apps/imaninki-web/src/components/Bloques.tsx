@@ -1,6 +1,7 @@
+import { getContacto, waUrlDe } from '@/lib/cms';
 import { Mail, Phone } from 'lucide-react';
 import Reveal from './Reveal';
-import { contacto, mision, propuesta, vision, waUrl, type Producto } from '@/lib/contenido';
+import { mision, propuesta, vision, type Producto } from '@/lib/contenido';
 import { IconoWhatsApp } from './WhatsApp';
 
 const contenedor = 'mx-auto max-w-7xl px-5 sm:px-8';
@@ -87,7 +88,9 @@ export function BandaProducto({ p, i }: { p: Producto; i: number }) {
 }
 
 /** Cierre: bloque negro con la etiqueta CONTACTO roja y los canales de atención comercial. */
-export function CtaContacto({ id }: { id?: string }) {
+export async function CtaContacto({ id }: { id?: string }) {
+  const contacto = await getContacto();
+  const waUrl = (t: string) => waUrlDe(contacto.whatsapp, t);
   const item = 'boton inline-flex min-h-13 items-center gap-3 border border-white/25 px-5 py-3 font-semibold text-white hover:border-rojo hover:bg-rojo';
   return (
     <section id={id} className="fondo-negro relative isolate overflow-hidden text-white">

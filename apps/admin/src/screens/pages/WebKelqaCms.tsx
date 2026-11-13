@@ -10,7 +10,7 @@ import { useAuth } from '../../context/AuthContext';
 import { webDeMarca } from '../../lib/webMarca';
 
 type CampoDe = Seccion['campos'][number];
-const T = (key: string, label: string): CampoDe => ({ key, label, tipo: 'text' });
+const T = (key: string, label: string, ayuda?: string): CampoDe => ({ key, label, tipo: 'text', ...(ayuda ? { ayuda } : {}) });
 const TA = (key: string, label: string): CampoDe => ({ key, label, tipo: 'textarea' });
 const sec = (key: string, nombre: string, campos: CampoDe[], ancla = ''): Seccion => ({ key, nombre, ancla, campos });
 
@@ -20,7 +20,7 @@ const TITULO = [T('etiqueta', 'Etiqueta (pequeña, arriba)'), T('titulo', 'Títu
 const base = (pagina: string, titulo: string, previewPath: string, secciones: Seccion[]): CmsConfig => ({
   pagina,
   titulo: `Kelqa · ${titulo}`,
-  subtitulo: 'Edita los textos de kelqa.com. Los cambios se publican al guardar. Fotos, líneas de producto y datos de contacto se cambian en el código.',
+  subtitulo: 'Edita los textos de kelqa.com. Los cambios se publican al guardar. Fotos, líneas de producto se cambian en el código; el teléfono, WhatsApp y correo, en «Ajustes del sitio».',
   previewPath,
   conVisible: false,
   secciones,
@@ -71,6 +71,15 @@ const CONTACTO = base('contacto', 'Contacto', '/contacto', [
   }]),
 ]);
 
+const AJUSTES = base('ajustes', 'Ajustes del sitio', '/contacto', [
+  sec('contacto', 'Datos de contacto (toda la web)', [
+    T('telefono', 'Teléfono', 'Como se muestra. Ej.: +51 933 819 389'),
+    T('whatsapp', 'WhatsApp', 'Celular de 9 dígitos (sin +51). Lo usan el botón flotante, contacto y los botones de cotizar.'),
+    T('correo', 'Correo de ventas'),
+  ]),
+  sec('redes', 'Redes sociales (pie de página)', [T('texto', 'Usuario en redes', 'Ej.: @Kelqa')]),
+]);
+
 /** El editor solo con la marca Kelqa activa: así nada se guarda por error en otra marca. */
 function SoloKelqa({ config }: { config: CmsConfig }) {
   const { marcas, activeMarcaId, adminMode } = useAuth();
@@ -91,3 +100,4 @@ export const KelqaNosotrosCms = () => <SoloKelqa config={NOSOTROS} />;
 export const KelqaCatalogosCms = () => <SoloKelqa config={CATALOGOS} />;
 export const KelqaLegalesCms = () => <SoloKelqa config={LEGALES} />;
 export const KelqaContactoCms = () => <SoloKelqa config={CONTACTO} />;
+export const KelqaAjustesCms = () => <SoloKelqa config={AJUSTES} />;

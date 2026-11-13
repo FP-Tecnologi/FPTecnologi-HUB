@@ -1,10 +1,11 @@
+import { getContacto, waUrlDe } from '@/lib/cms';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, BadgePercent, Headset, MessageCircle, Quote, ShieldCheck, Truck } from 'lucide-react';
 import Reveal from '@/components/Reveal';
 import Titulo from '@/components/Titulo';
 import { Clientes, CtaContacto } from '@/components/Bloques';
-import { razones, valores, waUrl } from '@/lib/contenido';
+import { razones, valores } from '@/lib/contenido';
 import { getLineas } from '@/lib/lineas';
 import { getPagina } from '@/lib/cms';
 
@@ -20,6 +21,8 @@ const botonPrimario = 'boton inline-flex h-13 items-center gap-2 rounded-xl bg-k
 const retraso = (ms: number) => ({ '--retraso': `${ms}ms` }) as React.CSSProperties;
 
 export default async function Inicio() {
+  const contacto = await getContacto();
+  const waUrl = (t: string) => waUrlDe(contacto.whatsapp, t);
   const lineas = await getLineas();
   const { hero, quienes, porque, canales, clientes } = await getPagina('inicio');
   return (

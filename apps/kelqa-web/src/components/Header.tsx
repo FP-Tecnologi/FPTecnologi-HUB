@@ -3,19 +3,21 @@ import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronDown, Menu, MessageCircle, X } from 'lucide-react';
-import { waUrl, type Linea } from '@/lib/contenido';
+import { type Linea } from '@/lib/contenido';
+import { useContacto } from './ContactoContext';
 
 const enlaces = [
   { href: '/', texto: 'Inicio' },
   { href: '/nosotros', texto: 'Nosotros' },
   { href: '/contacto', texto: 'Contacto' },
 ];
-const cotizar = waUrl('Hola Kelqa, quisiera cotizar productos para mi proyecto.');
 const activo = (ruta: string, href: string) => (href === '/' ? ruta === '/' : ruta.startsWith(href));
 const link = 'cabecera-link relative flex min-h-11 items-center gap-1 text-[15px] font-semibold text-carbon after:absolute after:inset-x-0 after:bottom-1.5 after:h-0.5 after:origin-left after:rounded-full after:bg-kelqa after:transition-transform after:duration-300 hover:after:scale-x-100';
 
 /** Cabecera fija: transparente sobre el banner y blanca al bajar (marca html[data-scrolled]). Líneas abre un submenú. */
 export default function Header({ lineas, conCatalogos = false }: { lineas: Linea[]; conCatalogos?: boolean }) {
+  const { waUrl } = useContacto();
+  const cotizar = waUrl('Hola Kelqa, quisiera cotizar productos para mi proyecto.');
   const ruta = usePathname();
   const menu = useRef<HTMLDetailsElement>(null);
   useEffect(() => {

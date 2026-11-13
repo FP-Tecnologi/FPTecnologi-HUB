@@ -1,6 +1,7 @@
+import { getContacto, waUrlDe } from '@/lib/cms';
 import { Mail, MessageCircle, Phone } from 'lucide-react';
 import Reveal from './Reveal';
-import { clientes, contacto, waUrl } from '@/lib/contenido';
+import { clientes } from '@/lib/contenido';
 
 /** Franja de logos de clientes. */
 export function Clientes({ className = '' }: { className?: string }) {
@@ -21,7 +22,9 @@ export function Clientes({ className = '' }: { className?: string }) {
 }
 
 /** Cierre de página: «¡Estamos listos!» con WhatsApp, teléfono y correo. */
-export function CtaContacto({ id }: { id?: string }) {
+export async function CtaContacto({ id }: { id?: string }) {
+  const contacto = await getContacto();
+  const waUrl = (t: string) => waUrlDe(contacto.whatsapp, t);
   return (
     <section id={id} className="px-5 pb-24 sm:px-8">
       <Reveal efecto="zoom" className="relative isolate mx-auto max-w-7xl overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-kelqa to-kelqa-hondo px-8 py-14 text-center text-white sm:px-14">

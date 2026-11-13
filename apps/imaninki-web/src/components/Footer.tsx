@@ -1,12 +1,14 @@
+import { getContacto } from '@/lib/cms';
 import Link from 'next/link';
 import { AtSign, BookOpen, Headset, Mail, Phone } from 'lucide-react';
-import { contacto, type Linea } from '@/lib/contenido';
+import { type Linea } from '@/lib/contenido';
 import { getPagina } from '@/lib/cms';
 
 const enlace = 'inline-flex items-center gap-2 transition duration-300 hover:translate-x-1 hover:text-rojo-claro';
 const Titulo = ({ children }: { children: string }) => <h2 className="text-sm font-bold uppercase tracking-[0.16em] text-white">{children}</h2>;
 
 export default async function Footer({ lineas }: { lineas: Linea[] }) {
+  const contacto = await getContacto();
   const [{ lista }, legal] = await Promise.all([getPagina('catalogos'), getPagina('legal')]);
   const conCatalogos = lista.items.some((x) => x.titulo && x.archivo);
   return (

@@ -1,9 +1,9 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { Loader2, Mail, Phone, Printer, Send } from 'lucide-react';
-import { contacto } from '@/lib/contenido';
 import type { Proveedor } from '@/lib/proveedor';
 import Boton from './Boton';
+import { useContacto } from './ContactoContext';
 
 type TipoDoc = 'DNI' | 'CE' | 'PASAPORTE' | 'RUC';
 const limpio = (t: string) => t.replace(/[<>]/g, '');
@@ -34,6 +34,7 @@ type Hoja = { codigo?: string; fecha: string; fechaLimite?: string };
 const ORDEN = ['nombres', 'apellidos', 'nroDocumento', 'domicilio', 'telefono', 'email', 'repNombres', 'repNroDocumento', 'monto', 'descripcionBien', 'detalle', 'pedidoConsumidor', 'acepta'];
 
 export default function FormReclamacion({ proveedor }: { proveedor: Proveedor }) {
+  const { contacto } = useContacto();
   const [f, setF] = useState<Datos>(inicial);
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [enviando, setEnviando] = useState(false);

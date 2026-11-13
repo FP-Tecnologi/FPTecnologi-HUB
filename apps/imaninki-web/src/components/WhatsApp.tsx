@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Armchair, ChevronRight, FileText, HardHat, HelpCircle, Landmark, PaintBucket, Phone, X, type LucideIcon } from 'lucide-react';
-import { contacto, waUrl } from '@/lib/contenido';
+import { useContacto } from './ContactoContext';
 
 /** Logo de WhatsApp (glifo oficial, un solo color). */
 export function IconoWhatsApp({ className = 'size-6' }: { className?: string }) {
@@ -27,6 +27,7 @@ const MOTIVOS: { titulo: string; detalle: string; Icono: LucideIcon; mensaje: st
 const ZONAS = ['pie', 'contacto-form'];
 
 export default function WhatsApp() {
+  const { contacto, waUrl } = useContacto();
   const ruta = usePathname();
   const [abierto, setAbierto] = useState(false);
   const [sobreZona, setSobreZona] = useState(false);

@@ -1,3 +1,4 @@
+import { getContacto, waUrlDe, type Contacto } from '@/lib/cms';
 import type { Metadata } from 'next';
 import { AtSign, ChevronDown, Landmark, Mail, Phone } from 'lucide-react';
 import Banner from '@/components/Banner';
@@ -8,13 +9,12 @@ import { IconoWhatsApp } from '@/components/WhatsApp';
 import JsonLd from '@/components/JsonLd';
 import { meta, migas } from '@/lib/seo';
 import { getPagina } from '@/lib/cms';
-import { contacto, waUrl } from '@/lib/contenido';
 
 export const metadata: Metadata = meta('Contacto', 'Escríbenos por WhatsApp, llámanos o déjanos tu mensaje. Atendemos venta directa y licitaciones públicas y privadas en todo el Perú.', '/contacto');
 
 const contenedor = 'mx-auto max-w-7xl px-5 sm:px-8';
 
-const CANALES = [
+const canales = (contacto: Contacto, waUrl: (t: string) => string) => [
   { titulo: 'WhatsApp', valor: contacto.telefono, href: waUrl('Hola Imaninki, quisiera más información.'), externo: true, Icono: null },
   { titulo: 'Teléfono', valor: contacto.telefono, href: contacto.telefonoHref, Icono: Phone },
   { titulo: 'Correo', valor: contacto.correo, href: `mailto:${contacto.correo}`, Icono: Mail },
@@ -22,6 +22,9 @@ const CANALES = [
 ];
 
 export default async function Contacto() {
+  const contacto = await getContacto();
+  const waUrl = (t: string) => waUrlDe(contacto.whatsapp, t);
+  const CANALES = canales(contacto, waUrl);
   const { banner, preguntas } = await getPagina('contacto');
   const jsonPreguntas = { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: preguntas.items.map((q) => ({ '@type': 'Question', name: q.p, acceptedAnswer: { '@type': 'Answer', text: q.r } })) };
   return (

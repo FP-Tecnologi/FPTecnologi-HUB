@@ -1,7 +1,7 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { Building2, Hash, IdCard, Loader2, Mail, MessageCircle, Send, Smartphone, User } from 'lucide-react';
-import { contacto, waUrl } from '@/lib/contenido';
+import { useContacto } from './ContactoContext';
 
 const limpio = (t: string) => t.replace(/[<>]/g, '');
 const campo = 'block min-h-12 w-full rounded-xl border border-carbon/20 bg-white px-4 py-3 text-base text-tinta transition duration-300 placeholder:text-carbon/70 hover:border-kelqa/40 focus:border-kelqa focus:shadow-[0_0_0_4px_rgb(27_137_143/0.12)] focus:outline-none';
@@ -20,6 +20,7 @@ const ConIcono = ({ icono: Icono, children }: { icono: typeof User; children: Re
 
 /** Formulario de contacto: envía a la API del HUB por /api/hub/contacto; si no responde, ofrece WhatsApp y correo. */
 export default function FormContacto() {
+  const { contacto, waUrl } = useContacto();
   const [tipo, setTipo] = useState<Tipo>('persona');
   const [f, setF] = useState(VACIO);
   const esEmpresa = tipo === 'empresa';

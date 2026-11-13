@@ -1,10 +1,11 @@
+import { getContacto, waUrlDe } from '@/lib/cms';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { ArrowRight, BadgePercent, Headset, ShieldCheck, Truck } from 'lucide-react';
 import Reveal from '@/components/Reveal';
 import Titulo from '@/components/Titulo';
 import { CtaContacto, Listos, Quienes } from '@/components/Bloques';
-import { razones, waUrl } from '@/lib/contenido';
+import { razones } from '@/lib/contenido';
 import { getLineas } from '@/lib/lineas';
 import { getPagina } from '@/lib/cms';
 import HeroSlider from '@/components/HeroSlider';
@@ -21,6 +22,8 @@ const contenedor = 'mx-auto max-w-7xl px-5 sm:px-8';
 const retraso = (ms: number) => ({ '--retraso': `${ms}ms` }) as React.CSSProperties;
 
 export default async function Inicio() {
+  const contacto = await getContacto();
+  const waUrl = (t: string) => waUrlDe(contacto.whatsapp, t);
   const lineas = await getLineas();
   const { hero, quienes, porque, canales } = await getPagina('inicio');
   return (

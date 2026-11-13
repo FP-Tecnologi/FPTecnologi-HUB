@@ -3,11 +3,11 @@
  * fijos; lo que se guarde en el dashboard (API central, /public/contenido/:pagina, por sección) los reemplaza campo
  * por campo. Sin HUB_MARCA_ID o si la API no responde, la web sale con los defaults. Mismo modelo que Fimav.
  *
- * No se editan desde aquí: las líneas de producto, los datos de contacto (teléfono, WhatsApp, correo) ni las fotos.
+ * No se editan desde aquí: las líneas de producto, ni las fotos. El teléfono, WhatsApp, correo y redes sí: página «ajustes».
  */
 import { cache } from 'react';
 import { LEGAL_DEFAULTS } from './legal';
-import { mision, preguntas, propuesta, valoresDetalle, vision } from './contenido';
+import { contacto, mision, preguntas, propuesta, valoresDetalle, vision } from './contenido';
 
 export const CMS_DEFAULTS = {
   inicio: {
@@ -60,6 +60,10 @@ export const CMS_DEFAULTS = {
     },
   },
   // Los textos legales son un borrador: no se muestran en la web hasta que se active «publicado» (Web Imaninki → Textos legales).
+  ajustes: {
+    contacto: { telefono: contacto.telefono, whatsapp: contacto.whatsapp.replace(/^51/, ''), correo: contacto.correo },
+    redes: { texto: contacto.redes },
+  },
   legal: {
     estado: { publicado: false },
     privacidad: LEGAL_DEFAULTS.privacidad,
@@ -130,3 +134,21 @@ export const getPagina = cache(async <K extends PaginaCms>(pagina: K): Promise<C
     return defaults;
   }
 });
+
+/** Datos de contacto vigentes (Ajustes del dashboard) con los derivados que usa la web (tel:, wa.me). */
+export type Contacto = { telefono: string; telefonoHref: string; whatsapp: string; correo: string; redes: string };
+
+export const getContacto = cache(async (): Promise<Contacto> => {
+  const { contacto: c, redes } = await getPagina('ajustes');
+  const digitos = c.whatsapp.replace(/\D/g, '');
+  const tel = c.telefono.replace(/[^\d+]/g, '');
+  return {
+    telefono: c.telefono,
+    telefonoHref: `tel:${tel.startsWith('+') ? tel : `+51${tel.replace(/^0/, '')}`}`,
+    whatsapp: digitos.length === 9 ? `51${digitos}` : digitos || contacto.whatsapp,
+    correo: c.correo,
+    redes: redes.texto,
+  };
+});
+
+export const waUrlDe = (numero: string, texto: string) => `https://wa.me/${numero}?text=${encodeURIComponent(texto)}`;

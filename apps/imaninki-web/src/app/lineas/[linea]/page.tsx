@@ -1,3 +1,4 @@
+import { getContacto, waUrlDe } from '@/lib/cms';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -6,7 +7,6 @@ import Banner from '@/components/Banner';
 import Reveal from '@/components/Reveal';
 import { BandaProducto, CtaContacto } from '@/components/Bloques';
 import JsonLd from '@/components/JsonLd';
-import { waUrl } from '@/lib/contenido';
 import { getLineas } from '@/lib/lineas';
 import { jsonLinea, meta, migas } from '@/lib/seo';
 import { IconoWhatsApp } from '@/components/WhatsApp';
@@ -26,6 +26,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 const contenedor = 'mx-auto max-w-7xl px-5 sm:px-8';
 
 export default async function PaginaLinea({ params }: Params) {
+  const contacto = await getContacto();
+  const waUrl = (t: string) => waUrlDe(contacto.whatsapp, t);
   const { linea } = await params;
   const lineas = await getLineas();
   const l = lineas.find((x) => x.id === linea);
