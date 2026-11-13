@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { Loader2, MessageCircle, Send } from 'lucide-react';
 import { useContacto, waUrl as waUrlDe } from './ContactoContext';
 import BotonHex from './hex/BotonHex';
+import { resumenCarrito, useCarrito, vaciar } from '@/lib/carrito';
 
 type Tipo = 'NATURAL' | 'JURIDICA';
 const limpio = (t: string) => t.replace(/[<>]/g, '');
@@ -17,12 +18,22 @@ export default function FormCotizar({ categorias }: { categorias: { slug: string
   const params = useSearchParams();
   const cat = params.get('categoria');
   const producto = params.get('producto')?.slice(0, 200) ?? '';
+  const conCarrito = params.get('carrito') === '1';
+  const carrito = useCarrito();
   const inicial = categorias.find((c) => c.slug === cat)?.nombre ?? categorias[0].nombre;
   const [f, setF] = useState({ tipo: 'JURIDICA' as Tipo, nombres: '', apellidos: '', doc: '', empresa: '', email: '', celular: '', interes: inicial, mensaje: producto ? `Quiero cotizar: ${producto}` : '', website: '' });
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [enviando, setEnviando] = useState(false);
   const [resultado, setResultado] = useState<null | { guardado: boolean; texto: string }>(null);
   const [errorApi, setErrorApi] = useState('');
+
+  // El carrito vive en el navegador: se vuelca al mensaje cuando está disponible (una sola vez; después el cliente puede editarlo).
+  const volcado = useRef(false);
+  useEffect(() => {
+    if (!conCarrito || volcado.current || !carrito.length) return;
+    volcado.current = true;
+    setF((x) => ({ ...x, mensaje: resumenCarrito(carrito) }));
+  }, [conCarrito, carrito]);
 
   const resultadoRef = useRef<HTMLDivElement>(null);
   const errorApiRef = useRef<HTMLParagraphElement>(null);
@@ -65,7 +76,7 @@ export default function FormCotizar({ categorias }: { categorias: { slug: string
     const fallo = { guardado: false, texto: `No pudimos registrar la solicitud. Escríbenos por WhatsApp o a ${contacto.ventas}` };
     try {
       const res = await fetch('/api/hub/cotizador', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cuerpo) });
-      if (res.ok) setResultado({ guardado: true, texto: 'Recibimos tu solicitud. Un asesor te contactará pronto.' });
+      if (res.ok) { if (conCarrito) vaciar(); setResultado({ guardado: true, texto: 'Recibimos tu solicitud. Un asesor te contactará pronto.' }); }
       else if (res.status >= 500) setResultado(fallo);
       else {
         const j = await res.json().catch(() => ({}));

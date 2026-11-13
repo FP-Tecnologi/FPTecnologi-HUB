@@ -3,6 +3,7 @@ import { FileText, MessageCircle } from 'lucide-react';
 import BannerPagina from '@/components/BannerPagina';
 import BotonHex from '@/components/hex/BotonHex';
 import ProductoCard from '@/components/tienda/ProductoCard';
+import AgregarCarrito from '@/components/tienda/AgregarCarrito';
 import GaleriaProducto from '@/components/tienda/GaleriaProducto';
 import Reveal from '@/components/motion/Reveal';
 import { getContacto, waUrlDe } from '@/lib/cms';
@@ -37,7 +38,8 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
               {p.precioAntes && <s className="text-carbon/60">{usd(p.precioAntes)}</s>}
             </p>
             <p className="mt-1 text-sm text-carbon/70">Precio referencial en dólares, sin IGV. Confirmamos precio y disponibilidad en tu cotización.</p>
-            <div className="mt-6 flex flex-wrap gap-4">
+            <AgregarCarrito p={p} />
+            <div className="mt-4 flex flex-wrap gap-4">
               <BotonHex href={`/cotizar?producto=${consulta}`} size="lg" icono={FileText}>Cotizar este equipo</BotonHex>
               <BotonHex href={wa} variante="contorno" size="lg" icono={MessageCircle}>WhatsApp</BotonHex>
             </div>

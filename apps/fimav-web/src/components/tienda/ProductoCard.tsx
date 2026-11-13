@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { FileText } from 'lucide-react';
+import { AgregarRapido } from './AgregarCarrito';
 import { usd, type ProductoTienda } from '@/lib/tienda';
 
 /** Tarjeta de producto de la tienda: foto sobre blanco, marca, nombre, precio referencial y enlace a la ficha. */
@@ -22,7 +23,10 @@ export default function ProductoCard({ p }: { p: ProductoTienda }) {
           {p.precioAntes && <s className="text-sm text-carbon/60">{usd(p.precioAntes)}</s>}
         </p>
         <p className="mt-1 text-xs text-carbon/70">Precio referencial, sin IGV</p>
-        <span className="mt-3 inline-flex min-h-11 items-center gap-2 font-display text-sm font-bold uppercase tracking-widest text-rojo-hondo"><FileText aria-hidden="true" size={16} /> Ver y cotizar</span>
+        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+          <span className="inline-flex min-h-11 items-center gap-2 font-display text-sm font-bold uppercase tracking-widest text-rojo-hondo"><FileText aria-hidden="true" size={16} /> Ver y cotizar</span>
+          <AgregarRapido p={p} />
+        </div>
       </div>
     </article>
   );
