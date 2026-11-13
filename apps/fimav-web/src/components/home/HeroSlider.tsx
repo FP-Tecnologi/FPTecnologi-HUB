@@ -1,13 +1,13 @@
 'use client';
 
-import { ArrowRight, ChevronDown, FileText, Landmark, LayoutGrid } from 'lucide-react';
+import { ArrowRight, ChevronDown, FileText, Landmark, LayoutGrid, ShoppingCart } from 'lucide-react';
 import SeccionTitulo from '@/components/SeccionTitulo';
 import BotonHex from '@/components/hex/BotonHex';
 import Carrusel from '@/components/slider/Carrusel';
 import type { Slide } from '@/lib/cms';
 
 /** Ícono del botón según a dónde lleva (los botones se editan en Administrador → Web Fimav → Inicio). */
-const iconoDe = (href: string) => (href.startsWith('/cotizar') ? FileText : href.startsWith('/catalogo') ? LayoutGrid : href.startsWith('/peru-compras') ? Landmark : ArrowRight);
+const iconoDe = (href: string) => (href.startsWith('/tienda') ? ShoppingCart : href.startsWith('/cotizar') ? FileText : href.startsWith('/catalogo') ? LayoutGrid : href.startsWith('/peru-compras') ? Landmark : ArrowRight);
 
 type Diapositiva = Slide;
 
