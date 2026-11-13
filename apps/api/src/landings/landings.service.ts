@@ -1,6 +1,7 @@
 import { BadRequestException, ConflictException, ForbiddenException, HttpException, HttpStatus, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { ActividadService } from '../actividad/actividad.service.js';
 import { ActualizarLandingDto, CrearLandingDto, RegistroPublicoDto } from './landings.dto.js';
 import {
   type Contenido,
@@ -14,6 +15,9 @@ import {
 
 // Roles que reciben el aviso de registro nuevo en una landing.
 const ROLES_AVISO = ['admin', 'marketing'];
+// Roles que revisan y aprueban las landings que envía un comercial.
+const ROLES_REVISAN = ['admin', 'jefe_comercial'];
+export interface Actor { id: string; email: string; rol: string }
 const VENTANA_MS = 10 * 60_000;
 const MAX_POR_VENTANA = 8;
 const intentos = new Map<string, number[]>();
@@ -26,7 +30,7 @@ const slugDe = (s: string) =>
 export class LandingsService {
   private readonly logger = new Logger(LandingsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly actividad: ActividadService) {}
 
   // ---------------------------------------------------------------- dashboard
 
@@ -34,7 +38,7 @@ export class LandingsService {
     return this.prisma.landing.findMany({
       where: { marcaId },
       select: {
-        id: true, slug: true, nombre: true, plantilla: true, estado: true, campanaId: true, createdAt: true, updatedAt: true,
+        id: true, slug: true, nombre: true, plantilla: true, estado: true, campanaId: true, createdAt: true, updatedAt: true, creadoPorId: true, comentarioRevision: true,
         campana: { select: { id: true, nombre: true } },
         _count: { select: { registros: true } },
       },
@@ -48,23 +52,33 @@ export class LandingsService {
     return l;
   }
 
-  async crear(marcaId: string, dto: CrearLandingDto) {
+  async crear(marcaId: string, dto: CrearLandingDto, actor: Actor) {
     const plantilla = plantillaPorId(dto.plantilla)!;
     if (dto.campanaId) await this.campanaValida(marcaId, dto.campanaId);
     const slug = await this.slugLibre(marcaId, dto.slug ?? slugDe(dto.nombre));
     return this.prisma.landing.create({
       data: {
-        marcaId, slug, nombre: dto.nombre.trim(), plantilla: plantilla.id, campanaId: dto.campanaId ?? null,
+        marcaId, slug, nombre: dto.nombre.trim(), plantilla: plantilla.id, campanaId: dto.campanaId ?? null, creadoPorId: actor.id,
         contenido: plantilla.contenido as never, formulario: plantilla.formulario as never,
       },
     });
   }
 
-  async actualizar(marcaId: string, id: string, dto: ActualizarLandingDto) {
+  async actualizar(marcaId: string, id: string, dto: ActualizarLandingDto, actor: Actor) {
     const actual = await this.get(marcaId, id);
+    const esComercial = actor.rol === 'comercial';
+    if (esComercial) {
+      // Un comercial no publica: trabaja sus borradores y los envía a revisión.
+      if (actual.creadoPorId !== actor.id) throw new ForbiddenException('Solo puedes editar las landings que creaste');
+      if (actual.estado === 'EN_REVISION') throw new ConflictException('Está en revisión: espera la respuesta del jefe comercial');
+      if (actual.estado === 'PUBLICADA') throw new ConflictException('Ya está publicada: pide al jefe comercial que la despublique para editarla');
+    }
     const data: Record<string, unknown> = {};
     if (dto.nombre !== undefined) data.nombre = dto.nombre.trim();
-    if (dto.estado !== undefined) data.estado = dto.estado;
+    if (dto.estado !== undefined && !esComercial) {
+      data.estado = dto.estado;
+      if (dto.estado === 'PUBLICADA') { data.revisadoPorId = actor.id; data.revisadoAt = new Date(); data.comentarioRevision = null; }
+    }
     if (dto.campanaId !== undefined) {
       if (dto.campanaId) await this.campanaValida(marcaId, dto.campanaId);
       data.campanaId = dto.campanaId;
@@ -82,11 +96,11 @@ export class LandingsService {
     return this.get(marcaId, id);
   }
 
-  async duplicar(marcaId: string, id: string) {
+  async duplicar(marcaId: string, id: string, actor: Actor) {
     const l = await this.get(marcaId, id);
     const slug = await this.slugLibre(marcaId, `${l.slug}-copia`);
     return this.prisma.landing.create({
-      data: { marcaId, slug, nombre: `${l.nombre} (copia)`, plantilla: l.plantilla, campanaId: l.campanaId, contenido: l.contenido as never, formulario: l.formulario as never },
+      data: { marcaId, slug, nombre: `${l.nombre} (copia)`, plantilla: l.plantilla, campanaId: l.campanaId, creadoPorId: actor.id, contenido: l.contenido as never, formulario: l.formulario as never },
     });
   }
 
@@ -95,6 +109,52 @@ export class LandingsService {
     await this.prisma.landingRegistro.deleteMany({ where: { marcaId, landingId: id } });
     await this.prisma.landing.deleteMany({ where: { id, marcaId } });
     return { eliminada: true };
+  }
+
+  // ------------------------------------------------------------------ revisión
+
+  /** El comercial (o quien la creó) manda su borrador al jefe comercial. */
+  async enviarRevision(marcaId: string, id: string, actor: Actor) {
+    const l = await this.get(marcaId, id);
+    if (actor.rol === 'comercial' && l.creadoPorId !== actor.id) throw new ForbiddenException('Solo puedes enviar las landings que creaste');
+    if (l.estado !== 'BORRADOR') throw new ConflictException(l.estado === 'EN_REVISION' ? 'Ya está en revisión' : 'Ya está publicada');
+    await this.prisma.landing.updateMany({ where: { id, marcaId }, data: { estado: 'EN_REVISION', enviadaRevisionAt: new Date(), comentarioRevision: null } });
+    await this.notificar(marcaId, ROLES_REVISAN, 'Landing por revisar', `${actor.email} envió “${l.nombre}” a revisión`, actor.id);
+    void this.actividad.registrar({ usuarioId: actor.id, email: actor.email, accion: 'landing_enviada_revision', detalle: l.nombre, marcaId });
+    return this.get(marcaId, id);
+  }
+
+  /** Landings esperando respuesta, con quién las envió. */
+  async pendientes(marcaId: string) {
+    const filas = await this.prisma.landing.findMany({
+      where: { marcaId, estado: 'EN_REVISION' },
+      select: { id: true, slug: true, nombre: true, plantilla: true, creadoPorId: true, enviadaRevisionAt: true, updatedAt: true, campana: { select: { id: true, nombre: true } } },
+      orderBy: { enviadaRevisionAt: 'asc' },
+    });
+    const ids = [...new Set(filas.map((f) => f.creadoPorId).filter((x): x is string => !!x))];
+    const usuarios = ids.length ? await this.prisma.usuario.findMany({ where: { id: { in: ids } }, select: { id: true, nombre: true, email: true } }) : [];
+    return filas.map((f) => ({ ...f, creador: usuarios.find((u) => u.id === f.creadoPorId) ?? null }));
+  }
+
+  /** Aprobar = publicar. Avisa a quien la creó. */
+  async aprobar(marcaId: string, id: string, actor: Actor) {
+    const l = await this.get(marcaId, id);
+    if (l.estado !== 'EN_REVISION') throw new ConflictException('Esta landing no está en revisión');
+    await this.prisma.landing.updateMany({ where: { id, marcaId }, data: { estado: 'PUBLICADA', revisadoPorId: actor.id, revisadoAt: new Date(), comentarioRevision: null } });
+    if (l.creadoPorId) await this.avisarUsuario(marcaId, l.creadoPorId, 'Tu landing fue aprobada', `“${l.nombre}” ya está publicada`);
+    void this.actividad.registrar({ usuarioId: actor.id, email: actor.email, accion: 'landing_aprobada', detalle: l.nombre, marcaId });
+    return this.get(marcaId, id);
+  }
+
+  /** Devolver al borrador con el motivo, para que el comercial la corrija. */
+  async rechazar(marcaId: string, id: string, comentario: string, actor: Actor) {
+    const l = await this.get(marcaId, id);
+    if (l.estado !== 'EN_REVISION') throw new ConflictException('Esta landing no está en revisión');
+    const motivo = comentario.trim();
+    await this.prisma.landing.updateMany({ where: { id, marcaId }, data: { estado: 'BORRADOR', revisadoPorId: actor.id, revisadoAt: new Date(), comentarioRevision: motivo } });
+    if (l.creadoPorId) await this.avisarUsuario(marcaId, l.creadoPorId, 'Tu landing necesita cambios', `“${l.nombre}”: ${motivo}`);
+    void this.actividad.registrar({ usuarioId: actor.id, email: actor.email, accion: 'landing_devuelta', detalle: `${l.nombre} · ${motivo}`.slice(0, 280), marcaId });
+    return this.get(marcaId, id);
   }
 
   async registros(marcaId: string, id: string) {
@@ -188,5 +248,19 @@ export class LandingsService {
     await this.prisma.notificacion.createMany({
       data: ids.map((usuarioId) => ({ marcaId, usuarioId, tipo: 'SISTEMA' as const, titulo: 'Nuevo registro en una landing', mensaje: `${quien} se registró en “${landing}”`.slice(0, 140) })),
     });
+  }
+
+  private async notificar(marcaId: string, roles: string[], titulo: string, mensaje: string, excluir?: string) {
+    const asignaciones = await this.prisma.usuarioMarcaRol.findMany({
+      where: { marcaId, rol: { nombre: { in: roles } } },
+      include: { usuario: { select: { id: true, activo: true } } },
+    });
+    const ids = [...new Set(asignaciones.filter((a) => a.usuario.activo && a.usuario.id !== excluir).map((a) => a.usuario.id))];
+    if (!ids.length) return;
+    await this.prisma.notificacion.createMany({ data: ids.map((usuarioId) => ({ marcaId, usuarioId, tipo: 'SISTEMA' as const, titulo, mensaje: mensaje.slice(0, 140) })) });
+  }
+
+  private async avisarUsuario(marcaId: string, usuarioId: string, titulo: string, mensaje: string) {
+    await this.prisma.notificacion.create({ data: { marcaId, usuarioId, tipo: 'SISTEMA', titulo, mensaje: mensaje.slice(0, 140) } });
   }
 }

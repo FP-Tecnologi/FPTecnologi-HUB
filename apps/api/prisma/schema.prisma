@@ -858,6 +858,7 @@ enum EstadoCampana {
 
 enum EstadoLanding {
   BORRADOR
+  EN_REVISION // el comercial la envió; el jefe comercial la aprueba (→ PUBLICADA) o la devuelve (→ BORRADOR con comentario)
   PUBLICADA
 }
 
@@ -893,6 +894,11 @@ model Landing {
   contenido  Json
   formulario Json
   registros  LandingRegistro[]
+  creadoPorId       String? // quien la creó (un comercial solo edita las suyas)
+  enviadaRevisionAt DateTime?
+  revisadoPorId     String?
+  revisadoAt        DateTime?
+  comentarioRevision String? // motivo de la devolución
   createdAt  DateTime          @default(now())
   updatedAt  DateTime          @updatedAt
 

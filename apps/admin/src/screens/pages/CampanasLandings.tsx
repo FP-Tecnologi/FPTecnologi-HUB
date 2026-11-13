@@ -28,11 +28,13 @@ interface Plantilla { id: string; nombre: string; descripcion: string; usa: stri
 interface FormularioPre { id: string; nombre: string; descripcion: string; formulario: Formulario }
 interface Plantillas { plantillas: Plantilla[]; formularios: FormularioPre[]; tiposCampo: TipoCampo[] }
 interface Campana { id: string; nombre: string }
-interface FilaLanding { id: string; slug: string; nombre: string; plantilla: string; estado: 'BORRADOR' | 'PUBLICADA'; updatedAt: string; campana: { id: string; nombre: string } | null; _count: { registros: number } }
+interface FilaLanding { id: string; slug: string; nombre: string; plantilla: string; estado: 'BORRADOR' | 'EN_REVISION' | 'PUBLICADA'; creadoPorId?: string | null; comentarioRevision?: string | null; updatedAt: string; campana: { id: string; nombre: string } | null; _count: { registros: number } }
 interface Landing extends FilaLanding { contenido: Contenido; formulario: Formulario; campanaId: string | null }
 interface Registro { id: string; datos: Record<string, string | boolean>; nombre: string | null; email: string | null; celular: string | null; origen: string | null; createdAt: string }
 
 const TIPO_LABEL: Record<TipoCampo, string> = { texto: 'Texto corto', textarea: 'Texto largo', email: 'Correo', telefono: 'Celular', documento: 'DNI / RUC', select: 'Lista de opciones', checkbox: 'Casilla de aceptación' };
+const ESTADO_LABEL = { BORRADOR: 'Borrador', EN_REVISION: 'En revisión', PUBLICADA: 'Publicada' } as const;
+const ESTADO_CLASE = { BORRADOR: 'ax-badge--neutral', EN_REVISION: 'ax-badge--warning', PUBLICADA: 'ax-badge--success' } as const;
 const errMsg = (e: unknown, fb: string) => (e instanceof ApiError ? e.message : fb);
 const fecha = (iso: string) => new Date(iso).toLocaleString('es-PE', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
@@ -84,7 +86,7 @@ export function CampanasLandings() {
                     <tr key={l.id} className="ax-table__row" style={{ cursor: 'pointer' }} onClick={() => setSelId(l.id)} tabIndex={0} onKeyDown={teclaFila(() => setSelId(l.id))}>
                       <td className="ax-table__td"><div style={{ fontWeight: 'var(--ax-weight-medium)', color: 'var(--ax-text-strong)' }}>{l.nombre}</div><div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>/l/{l.slug}</div></td>
                       <td className="ax-table__td">{plantillas?.plantillas.find((p) => p.id === l.plantilla)?.nombre ?? l.plantilla}</td>
-                      <td className="ax-table__td"><span className={`ax-badge ax-badge--soft ax-badge--pill ${l.estado === 'PUBLICADA' ? 'ax-badge--success' : 'ax-badge--neutral'}`}>{l.estado === 'PUBLICADA' ? 'Publicada' : 'Borrador'}</span></td>
+                      <td className="ax-table__td"><span className={`ax-badge ax-badge--soft ax-badge--pill ${ESTADO_CLASE[l.estado]}`}>{ESTADO_LABEL[l.estado]}</span>{l.estado === 'BORRADOR' && l.comentarioRevision && <span className="ax-badge ax-badge--soft ax-badge--pill ax-badge--danger" style={{ marginLeft: 'var(--ax-space-1)' }} title={l.comentarioRevision}>Devuelta</span>}</td>
                       <td className="ax-table__td">{l.campana?.nombre ?? '—'}</td>
                       <td className="ax-table__td">{l._count.registros}</td>
                       <td className="ax-table__td" style={{ color: 'var(--ax-text-muted)' }}>{fecha(l.updatedAt)}</td>
@@ -155,6 +157,8 @@ function NuevaLanding({ plantillas, campanas, alCerrar, alCrear }: { plantillas:
 // ---------------------------------------------------------------- editor
 
 function Editor({ id, plantillas, campanas, alSalir }: { id: string; plantillas: Plantillas; campanas: Campana[]; alSalir: () => void }) {
+  const { marcas, activeMarcaId } = useAuth();
+  const esComercial = (marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre ?? '').toLowerCase() === 'comercial';
   const [l, setL] = useState<Landing | null>(null);
   const [tab, setTab] = useState<Tab>('contenido');
   const [busy, setBusy] = useState(false);
@@ -194,22 +198,38 @@ function Editor({ id, plantillas, campanas, alSalir }: { id: string; plantillas:
 
   if (!l) return <><PageHead title="Landing" subtitle="Cargando…" />{aviso && <p role="alert" style={{ color: 'var(--ax-danger-500)' }}>{aviso.texto}</p>}</>;
   const publicada = l.estado === 'PUBLICADA';
+  const enRevision = l.estado === 'EN_REVISION';
+  // Un comercial no publica: edita su borrador y lo envía a revisión del jefe comercial.
+  const bloqueada = esComercial && l.estado !== 'BORRADOR';
 
   return (
     <>
       <PageHead
         title={l.nombre}
-        subtitle={`${plantilla?.nombre ?? l.plantilla} · ${publicada ? 'Publicada' : 'Borrador'} · ${WEB.replace(/^https?:\/\//, '')}/l/${l.slug}`}
+        subtitle={`${plantilla?.nombre ?? l.plantilla} · ${ESTADO_LABEL[l.estado]} · ${WEB.replace(/^https?:\/\//, '')}/l/${l.slug}`}
         actions={
           <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
             <button type="button" className="ax-btn ax-btn--ghost" onClick={() => (!sucio || window.confirm('Hay cambios sin guardar. ¿Salir igual?')) && alSalir()}>← Volver</button>
             <button type="button" className="ax-btn ax-btn--secondary" onClick={vistaPrevia}>Vista previa</button>
-            <button type="button" className="ax-btn ax-btn--secondary" disabled={busy || !sucio} onClick={() => guardar()}>{busy ? 'Guardando…' : sucio ? 'Guardar cambios' : 'Guardado'}</button>
-            <button type="button" className="ax-btn ax-btn--primary" disabled={busy} onClick={async () => { if (await guardar({ estado: publicada ? 'BORRADOR' : 'PUBLICADA' })) { await cargar(); } }}>{publicada ? 'Despublicar' : 'Publicar'}</button>
+            <button type="button" className="ax-btn ax-btn--secondary" disabled={busy || !sucio || bloqueada} onClick={() => guardar()}>{busy ? 'Guardando…' : sucio ? 'Guardar cambios' : 'Guardado'}</button>
+            {esComercial ? (
+              l.estado === 'BORRADOR' && <button type="button" className="ax-btn ax-btn--primary" disabled={busy} onClick={async () => {
+                if (!window.confirm('¿Enviar esta landing a revisión? Tu jefe comercial la revisará y, si la aprueba, se publica.')) return;
+                if (sucio && !(await guardar())) return;
+                setBusy(true);
+                try { await api.post(`/landings/${l.id}/enviar-revision`); await cargar(); setAviso({ ok: true, texto: 'Enviada a revisión. Te avisaremos cuando el jefe comercial responda.' }); }
+                catch (e) { setAviso({ ok: false, texto: errMsg(e, 'No se pudo enviar a revisión.') }); }
+                finally { setBusy(false); }
+              }}>Enviar a revisión</button>
+            ) : (
+              <button type="button" className="ax-btn ax-btn--primary" disabled={busy} onClick={async () => { if (await guardar({ estado: publicada ? 'BORRADOR' : 'PUBLICADA' })) { await cargar(); } }}>{publicada ? 'Despublicar' : enRevision ? 'Publicar sin revisar' : 'Publicar'}</button>
+            )}
           </div>
         }
       />
       <div className="ax-dash-grid">
+        {l.estado === 'BORRADOR' && l.comentarioRevision && <div role="alert" className="ax-alert ax-alert--warning ax-col--12" style={{ padding: 'var(--ax-space-3) var(--ax-space-4)' }}><div className="ax-alert__content"><p className="ax-alert__message"><strong>El jefe comercial pidió cambios:</strong> {l.comentarioRevision}</p></div></div>}
+        {bloqueada && <div role="status" className="ax-alert ax-alert--info ax-col--12" style={{ padding: 'var(--ax-space-3) var(--ax-space-4)' }}><div className="ax-alert__content"><p className="ax-alert__message">{enRevision ? 'Está en revisión: no se puede editar hasta que el jefe comercial la apruebe o la devuelva.' : 'Ya está publicada. Para editarla, pide al jefe comercial que la despublique.'}</p></div></div>}
         {aviso && <div role={aviso.ok ? 'status' : 'alert'} className={`ax-alert ax-col--12 ${aviso.ok ? 'ax-alert--success' : 'ax-alert--danger'}`} style={{ padding: 'var(--ax-space-3) var(--ax-space-4)' }}><div className="ax-alert__content"><p className="ax-alert__message">{aviso.texto}{publicada && aviso.ok ? ` — pública en ${WEB}/l/${l.slug}` : ''}</p></div></div>}
         <section className="ax-card ax-col--12">
           <div className="ax-card__body">

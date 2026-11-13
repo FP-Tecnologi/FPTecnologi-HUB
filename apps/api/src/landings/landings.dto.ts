@@ -63,3 +63,10 @@ export class RegistroPublicoDto {
   @IsString()
   website?: string;
 }
+
+export class RechazarLandingDto {
+  @IsString()
+  @MinLength(3, { message: 'Explica qué hay que corregir' })
+  @MaxLength(500)
+  comentario!: string;
+}

@@ -1,15 +1,19 @@
 import { BadRequestException, Body, Controller, Delete, Get, Headers, Ip, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
-import { LandingsService } from './landings.service.js';
-import { ActualizarLandingDto, CrearLandingDto, RegistroPublicoDto } from './landings.dto.js';
+import { type Actor, LandingsService } from './landings.service.js';
+import { ActualizarLandingDto, CrearLandingDto, RechazarLandingDto, RegistroPublicoDto } from './landings.dto.js';
 import { FORMULARIOS, PLANTILLAS, TIPOS_CAMPO } from './landings.modelo.js';
 import { MarcaRolGuard } from '../common/guards/marca-rol.guard.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
 import { Public } from '../common/decorators/public.decorator.js';
 import { MarcaActual } from '../common/decorators/marca-actual.decorator.js';
+import { CurrentUser } from '../common/decorators/current-user.decorator.js';
+import type { AuthenticatedUser } from '../auth/types/authenticated-user.js';
+
+const actorDe = (user: AuthenticatedUser, marcaId: string): Actor => ({ id: user.sub, email: user.email, rol: user.marcas.find((m) => m.marcaId === marcaId)?.rol ?? '' });
 
 /** Dashboard → Campañas → Landing pages. */
 @UseGuards(MarcaRolGuard)
-@Roles('admin', 'marketing', 'comercial')
+@Roles('admin', 'marketing', 'comercial', 'jefe_comercial')
 @Controller('landings')
 export class LandingsController {
   constructor(private readonly landings: LandingsService) {}
@@ -24,14 +28,21 @@ export class LandingsController {
     };
   }
 
+  /** Landings que un comercial envió y esperan aprobación. */
+  @Roles('admin', 'jefe_comercial')
+  @Get('revision')
+  pendientes(@MarcaActual() marcaId: string) {
+    return this.landings.pendientes(marcaId);
+  }
+
   @Get()
   list(@MarcaActual() marcaId: string) {
     return this.landings.list(marcaId);
   }
 
   @Post()
-  crear(@MarcaActual() marcaId: string, @Body() dto: CrearLandingDto) {
-    return this.landings.crear(marcaId, dto);
+  crear(@MarcaActual() marcaId: string, @CurrentUser() user: AuthenticatedUser, @Body() dto: CrearLandingDto) {
+    return this.landings.crear(marcaId, dto, actorDe(user, marcaId));
   }
 
   @Get(':id')
@@ -40,13 +51,30 @@ export class LandingsController {
   }
 
   @Patch(':id')
-  actualizar(@MarcaActual() marcaId: string, @Param('id') id: string, @Body() dto: ActualizarLandingDto) {
-    return this.landings.actualizar(marcaId, id, dto);
+  actualizar(@MarcaActual() marcaId: string, @CurrentUser() user: AuthenticatedUser, @Param('id') id: string, @Body() dto: ActualizarLandingDto) {
+    return this.landings.actualizar(marcaId, id, dto, actorDe(user, marcaId));
+  }
+
+  @Post(':id/enviar-revision')
+  enviarRevision(@MarcaActual() marcaId: string, @CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.landings.enviarRevision(marcaId, id, actorDe(user, marcaId));
+  }
+
+  @Roles('admin', 'jefe_comercial')
+  @Post(':id/aprobar')
+  aprobar(@MarcaActual() marcaId: string, @CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.landings.aprobar(marcaId, id, actorDe(user, marcaId));
+  }
+
+  @Roles('admin', 'jefe_comercial')
+  @Post(':id/rechazar')
+  rechazar(@MarcaActual() marcaId: string, @CurrentUser() user: AuthenticatedUser, @Param('id') id: string, @Body() dto: RechazarLandingDto) {
+    return this.landings.rechazar(marcaId, id, dto.comentario, actorDe(user, marcaId));
   }
 
   @Post(':id/duplicar')
-  duplicar(@MarcaActual() marcaId: string, @Param('id') id: string) {
-    return this.landings.duplicar(marcaId, id);
+  duplicar(@MarcaActual() marcaId: string, @CurrentUser() user: AuthenticatedUser, @Param('id') id: string) {
+    return this.landings.duplicar(marcaId, id, actorDe(user, marcaId));
   }
 
   @Post(':id/vista-previa')
