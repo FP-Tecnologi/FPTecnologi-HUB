@@ -1,6 +1,5 @@
 import { Eye, Lightbulb, Medal, RefreshCw, ShieldCheck, Target } from 'lucide-react';
 import Reveal from '@/components/motion/Reveal';
-import Espiral from '@/components/Espiral';
 import Hexagono from '@/components/Hexagono';
 import BannerPagina from '@/components/BannerPagina';
 import SeccionTitulo from '@/components/SeccionTitulo';
@@ -34,7 +33,6 @@ export default async function NosotrosPage() {
     <main id="contenido">
       <BannerPagina eyebrow={c.banner.eyebrow} titulo={c.banner.titulo} resaltado={c.banner.resaltado} imagen={c.banner.imagen} posicion="center 35%" />
       <section className="relative overflow-hidden bg-white py-16 lg:py-20">
-        <Espiral contorno className="aparecer pointer-events-none absolute -right-24 -top-24 w-80 opacity-20" />
         <Reveal className="relative mx-auto max-w-6xl px-4 sm:px-6">
           <SeccionTitulo nivel="h2" eyebrow={c.quienes.eyebrow} claro={c.quienes.claro} rojo={c.quienes.rojo} />
           <p className="mt-6 max-w-3xl leading-relaxed text-carbon/80">{c.quienes.texto}</p>

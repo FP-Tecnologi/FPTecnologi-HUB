@@ -4,7 +4,6 @@ import Hexagono from '@/components/Hexagono';
 import BannerPagina from '@/components/BannerPagina';
 import SeccionTitulo from '@/components/SeccionTitulo';
 import { FranjaMarcas } from '@/components/home/Marcas';
-import OrnamentoGeometrico from '@/components/OrnamentoGeometrico';
 import HexImagen from '@/components/hex/HexImagen';
 import { getCategorias, getPagina } from '@/lib/cms';
 import { meta } from '@/lib/seo';
@@ -19,7 +18,6 @@ export default async function PeruComprasPage() {
     <main id="contenido">
       <BannerPagina eyebrow={c.banner.eyebrow} titulo={c.banner.titulo} resaltado={c.banner.resaltado} imagen={c.banner.imagen} posicion="center 45%" />
       <section className="relative isolate overflow-hidden bg-white pb-16 pt-8 lg:pb-24">
-        <OrnamentoGeometrico className="pointer-events-none absolute -right-24 top-1/2 z-0 hidden w-80 -translate-y-1/2 text-carbon opacity-[0.07] md:block" />
         <Reveal className="relative z-10 mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_auto]">
           <div>
             <div className="flex items-center gap-4">

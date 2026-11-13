@@ -5,7 +5,6 @@ import BannerPagina from '@/components/BannerPagina';
 import SeccionTitulo from '@/components/SeccionTitulo';
 import BotonHex from '@/components/hex/BotonHex';
 import HexImagen from '@/components/hex/HexImagen';
-import OrnamentoGeometrico from '@/components/OrnamentoGeometrico';
 import { getCategorias, getPagina } from '@/lib/cms';
 import { meta } from '@/lib/seo';
 
@@ -18,9 +17,6 @@ export default async function CatalogoPage() {
       <BannerPagina eyebrow={b.eyebrow} titulo={b.titulo} resaltado={b.resaltado} imagen={b.imagen} />
       {categorias.map((c, i) => (
         <section key={c.slug} className={`relative isolate overflow-hidden py-12 ${i % 2 ? 'bg-gris' : 'bg-white'}`}>
-          {['all-in-one', 'proyectores', 'software'].includes(c.slug) && (
-            <OrnamentoGeometrico className="pointer-events-none absolute -right-24 top-1/2 z-0 hidden w-80 -translate-y-1/2 text-carbon opacity-[0.07] md:block" />
-          )}
           <div className="relative z-10 mx-auto grid max-w-6xl items-center gap-6 px-4 sm:px-6 lg:grid-cols-[1fr_auto]">
             <Reveal className="flex gap-5">
               <div className="shrink-0"><Hexagono icono={c.icono} tam={64} /></div>
