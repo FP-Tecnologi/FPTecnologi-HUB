@@ -1,6 +1,6 @@
 /* Service worker del dashboard (Fase 1 PWA): guarda el "cascarón" estático para que la app abra sin red.
    No cachea páginas ni respuestas de la API (datos privados): eso es la Fase 2. Sube VERSION para forzar limpieza. */
-const VERSION = 'v2';
+const VERSION = 'v3';
 const CACHE = `fp-shell-${VERSION}`;
 const PAGES = 'fp-pages';
 const OFFLINE_URL = '/offline.html';

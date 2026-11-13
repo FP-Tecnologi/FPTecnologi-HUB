@@ -114,8 +114,12 @@ export const metadata: Metadata = {
   manifest: '/manifest.webmanifest',
   appleWebApp: { capable: true, title: 'FPTecnologi', statusBarStyle: 'default' },
   icons: {
-    icon: '/logo-fptecnologi-icon.svg',
-    shortcut: '/logo-fptecnologi-icon.svg',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/pwa/favicon-32.png', sizes: '32x32', type: 'image/png' },
+      { url: '/pwa/favicon-48.png', sizes: '48x48', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
     apple: '/pwa/apple-touch-icon.png',
   },
 };
