@@ -36,7 +36,7 @@ export default function FiltrosTienda({ categorias, marcas, ordenes, inicial }: 
         <CampoHex className="mt-1"><input name="q" type="search" value={f.q} onChange={set('q')} placeholder="Nombre, marca o código" className={campo} /></CampoHex>
       </label>
       <label className="text-sm font-medium text-carbon">Categoría
-        <CampoHex className="mt-1">
+        <CampoHex rojo className="mt-1">
           <select name="categoria" value={f.categoria} onChange={set('categoria')} className={campo}>
             <option value="">Todo</option>
             {categorias.map((c) => <option key={c.valor} value={c.valor}>{c.texto}</option>)}
@@ -44,7 +44,7 @@ export default function FiltrosTienda({ categorias, marcas, ordenes, inicial }: 
         </CampoHex>
       </label>
       <label className="text-sm font-medium text-carbon">Marca
-        <CampoHex className="mt-1">
+        <CampoHex rojo className="mt-1">
           <select name="marca" value={f.marca} onChange={set('marca')} className={campo}>
             <option value="">Todas</option>
             {marcas.map((m) => <option key={m}>{m}</option>)}
@@ -52,7 +52,7 @@ export default function FiltrosTienda({ categorias, marcas, ordenes, inicial }: 
         </CampoHex>
       </label>
       <label className="text-sm font-medium text-carbon">Ordenar por
-        <CampoHex className="mt-1">
+        <CampoHex rojo className="mt-1">
           <select name="orden" value={f.orden} onChange={set('orden')} className={campo}>
             {ordenes.map((o) => <option key={o.valor} value={o.valor}>{o.texto}</option>)}
           </select>
