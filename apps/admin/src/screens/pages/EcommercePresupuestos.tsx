@@ -11,6 +11,7 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { VerEnCrm } from './crm/VerEnCrm';
 import { teclaFila } from '../../lib/teclado';
+import { Modal } from '../../components/ui/Modal';
 
 type Estado = 'PENDIENTE' | 'EN_REVISION' | 'ENVIADA' | 'ACEPTADA' | 'RECHAZADA';
 interface Item { id: string; sku: string; nombre: string; cantidad: number; precioLista: string; precioUnitario: string; mayorista: boolean; subtotal: string }
@@ -116,7 +117,7 @@ export function EcommercePresupuestos() {
           </div>
         </section>
 
-        <section className={`ax-card ${selId ? 'ax-col--6' : 'ax-col--12'}`} aria-label="Lista de presupuestos">
+        <section className="ax-card ax-col--12" aria-label="Lista de presupuestos">
           {visibles.length === 0 ? (
             <div className="ax-card__body" style={{ textAlign: 'center', color: 'var(--ax-text-muted)', paddingBlock: 'var(--ax-space-8)' }}>{lista.length === 0 ? 'Aún no hay presupuestos: se crean cuando un cliente mayorista pide su presupuesto desde el carrito.' : 'Ningún presupuesto coincide con el filtro.'}</div>
           ) : (
@@ -148,15 +149,15 @@ export function EcommercePresupuestos() {
         </section>
 
         {selId && (
-          <section className="ax-card ax-col--6" aria-label="Detalle del presupuesto">
-            {!sel ? <div className="ax-card__body">Cargando…</div> : (
+          <Modal
+            tamano="lg"
+            titulo={sel ? sel.numero : 'Presupuesto'}
+            subtitulo={sel ? `Solicitado el ${fecha(sel.createdAt)} · válido hasta ${fecha(sel.validezHasta)}` : undefined}
+            acciones={sel ? <VerEnCrm origen="PRESUPUESTO" id={sel.id} /> : undefined}
+            onCerrar={() => setSelId(null)}
+          >
+            {!sel ? <p style={{ margin: 0 }}>Cargando…</p> : (
               <>
-                <div className="ax-card__header">
-                  <div className="ax-card__titles"><h2 className="ax-card__title">{sel.numero}</h2><p className="ax-card__subtitle">Solicitado el {fecha(sel.createdAt)} · válido hasta {fecha(sel.validezHasta)}</p></div>
-                  <VerEnCrm origen="PRESUPUESTO" id={sel.id} />
-                  <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setSelId(null)}>Cerrar</button>
-                </div>
-                <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
                   <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 'var(--ax-space-2) var(--ax-space-4)', fontSize: 'var(--ax-text-sm)', margin: 0 }}>
                     <dt style={{ color: 'var(--ax-text-muted)' }}>Cliente</dt><dd style={{ margin: 0 }}>{sel.clienteNombre}</dd>
                     {sel.clienteDocumento && (<><dt style={{ color: 'var(--ax-text-muted)' }}>{sel.clienteDocumento.length === 11 ? 'RUC' : 'DNI'}</dt><dd style={{ margin: 0 }}>{sel.clienteDocumento}</dd></>)}
@@ -200,10 +201,9 @@ export function EcommercePresupuestos() {
                     <button type="button" className="ax-btn ax-btn--primary" disabled={busy} onClick={reenviar}>Enviar por correo</button>
                     <button type="button" className="ax-btn ax-btn--ghost" style={{ color: 'var(--ax-danger-500)', marginInlineStart: 'auto' }} onClick={() => eliminar()}>Eliminar</button>
                   </div>
-                </div>
               </>
             )}
-          </section>
+          </Modal>
         )}
       </div>
     </>

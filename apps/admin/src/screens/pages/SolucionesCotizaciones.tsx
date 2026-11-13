@@ -11,6 +11,7 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { VerEnCrm } from './crm/VerEnCrm';
 import { teclaFila } from '../../lib/teclado';
+import { Modal } from '../../components/ui/Modal';
 
 type Estado = 'PENDIENTE' | 'EN_REVISION' | 'ENVIADA' | 'ACEPTADA' | 'RECHAZADA';
 interface Envio { id: string; canal: 'EMAIL' | 'WHATSAPP'; destinatario: string; mensaje: string; enviadoPor: string; createdAt: string }
@@ -143,7 +144,7 @@ export function SolucionesCotizaciones() {
           </div>
         </section>
 
-        <section className={`ax-card ${selId ? 'ax-col--6' : 'ax-col--12'}`} aria-label="Lista de cotizaciones">
+        <section className="ax-card ax-col--12" aria-label="Lista de cotizaciones">
           {visibles.length === 0 ? (
             <div className="ax-card__body" style={{ textAlign: 'center', color: 'var(--ax-text-muted)', paddingBlock: 'var(--ax-space-8)' }}>{lista.length === 0 ? 'Aún no hay solicitudes: llegan desde el botón “Solicitar cotización” de cada servicio en la web.' : 'Ninguna cotización coincide con los filtros.'}</div>
           ) : (
@@ -176,15 +177,15 @@ export function SolucionesCotizaciones() {
         </section>
 
         {selId && (
-          <section className="ax-card ax-col--6" aria-label="Detalle de la cotización">
-            {!sel ? <div className="ax-card__body">Cargando…</div> : (
+          <Modal
+            tamano="lg"
+            titulo={sel ? `${sel.numero ?? 'Cotización'} · ${sel.servicio.nombre}` : 'Cotización'}
+            subtitulo={sel ? `Solicitada el ${fecha(sel.createdAt)}${sel.atendidoPor ? ` · última gestión: ${sel.atendidoPor}` : ''}` : undefined}
+            acciones={sel ? <VerEnCrm origen="COTIZACION" id={sel.id} /> : undefined}
+            onCerrar={() => setSelId(null)}
+          >
+            {!sel ? <p style={{ margin: 0 }}>Cargando…</p> : (
               <>
-                <div className="ax-card__header">
-                  <div className="ax-card__titles"><h2 className="ax-card__title">{sel.numero ?? 'Cotización'} · {sel.servicio.nombre}</h2><p className="ax-card__subtitle">Solicitada el {fecha(sel.createdAt)}{sel.atendidoPor ? ` · última gestión: ${sel.atendidoPor}` : ''}</p></div>
-                  <VerEnCrm origen="COTIZACION" id={sel.id} />
-                  <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setSelId(null)}>Cerrar</button>
-                </div>
-                <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
                   <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 'var(--ax-space-2) var(--ax-space-4)', fontSize: 'var(--ax-text-sm)', margin: 0 }}>
                     <dt style={{ color: 'var(--ax-text-muted)' }}>Cliente</dt><dd style={{ margin: 0 }}>{sel.clienteNombre}{sel.clienteEmpresa ? ` · ${sel.clienteEmpresa}` : ''}</dd>
                     <dt style={{ color: 'var(--ax-text-muted)' }}>Correo</dt><dd style={{ margin: 0, wordBreak: 'break-all' }}><a href={`mailto:${sel.clienteEmail}`}>{sel.clienteEmail}</a></dd>
@@ -244,10 +245,9 @@ export function SolucionesCotizaciones() {
                       </ul>
                     </div>
                   )}
-                </div>
               </>
             )}
-          </section>
+          </Modal>
         )}
       </div>
     </>

@@ -9,6 +9,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { abrirArchivoPrivado, api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
+import { Modal } from '../../components/ui/Modal';
 
 type Estado = 'NUEVO' | 'EN_REVISION' | 'ESPERANDO_CLIENTE' | 'RESUELTO' | 'CERRADO';
 type Tipo = 'RECLAMO' | 'VERIFICACION' | 'SOPORTE';
@@ -173,11 +174,11 @@ export function WebTickets() {
     }
   }
 
-  async function eliminar() {
-    if (!sel || !window.confirm(`¿Eliminar el ticket ${sel.numero} y su conversación? Esta acción no se puede deshacer.`)) return;
+  async function eliminar(t: { id: string; numero: string } | null = sel) {
+    if (!t || !window.confirm(`¿Eliminar el ticket ${t.numero} y su conversación? Esta acción no se puede deshacer.`)) return;
     try {
-      await api.delete(`/tickets/${sel.id}`);
-      setSelId(null);
+      await api.delete(`/tickets/${t.id}`);
+      if (selId === t.id) setSelId(null);
       await cargar();
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'No se pudo eliminar (solo administradores).');
@@ -219,7 +220,7 @@ export function WebTickets() {
       )}
 
       <div className="ax-dash-grid">
-        <section className={`ax-card ${selId ? 'ax-col--5' : 'ax-col--12'}`} role="region" aria-label="Tickets" style={{ alignSelf: 'start' }}>
+        <section className="ax-card ax-col--12" role="region" aria-label="Tickets" style={{ alignSelf: 'start' }}>
           <div className="ax-card__body">
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', justifyContent: 'space-between', flexWrap: 'wrap' }}>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'wrap' }}>
@@ -245,15 +246,16 @@ export function WebTickets() {
                   <th className="ax-table__th" scope="col">Ticket</th>
                   <th className="ax-table__th" scope="col">Cliente</th>
                   <th className="ax-table__th" scope="col">Estado</th>
-                  {!selId && <th className="ax-table__th" scope="col">Prioridad</th>}
-                  {!selId && <th className="ax-table__th" scope="col">Recibido</th>}
+                  <th className="ax-table__th" scope="col">Prioridad</th>
+                  <th className="ax-table__th" scope="col">Recibido</th>
+                  <th className="ax-table__th" scope="col" style={{ textAlign: 'right' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {cargando ? (
-                  <tr><td className="ax-table__td" colSpan={5}>Cargando…</td></tr>
+                  <tr><td className="ax-table__td" colSpan={6}>Cargando…</td></tr>
                 ) : visibles.length === 0 ? (
-                  <tr><td className="ax-table__td" colSpan={5} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay tickets. Aparecerán cuando un cliente use /tickets en la web.' : 'Ningún ticket coincide con el filtro.'}</td></tr>
+                  <tr><td className="ax-table__td" colSpan={6} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay tickets. Aparecerán cuando un cliente use /tickets en la web.' : 'Ningún ticket coincide con el filtro.'}</td></tr>
                 ) : (
                   visibles.map((t) => (
                     <tr key={t.id} className="ax-table__row" onClick={() => setSelId(t.id)} tabIndex={0} onKeyDown={teclaFila(() => setSelId(t.id))} style={{ cursor: 'pointer', background: t.id === selId ? 'var(--ax-surface-subtle)' : undefined }}>
@@ -266,8 +268,14 @@ export function WebTickets() {
                         <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{t.email}</div>
                       </td>
                       <td className="ax-table__td"><span className={`ax-badge ax-badge--soft ax-badge--sm ${meta(t.estado).badge}`}>{meta(t.estado).label}</span></td>
-                      {!selId && <td className="ax-table__td"><span className={`ax-badge ax-badge--soft ax-badge--sm ${prio(t.prioridad).badge}`}>{prio(t.prioridad).label}</span></td>}
-                      {!selId && <td className="ax-table__td" style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>{fecha(t.createdAt)}</td>}
+                      <td className="ax-table__td"><span className={`ax-badge ax-badge--soft ax-badge--sm ${prio(t.prioridad).badge}`}>{prio(t.prioridad).label}</span></td>
+                      <td className="ax-table__td" style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>{fecha(t.createdAt)}</td>
+                      <td className="ax-table__td" style={{ textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
+                        <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap', justifyContent: 'flex-end' }}>
+                          <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => setSelId(t.id)}>Gestionar</button>
+                          <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => void eliminar(t)} aria-label={`Eliminar el ticket ${t.numero}`} style={{ color: 'var(--ax-danger-500)' }}>Eliminar</button>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -277,16 +285,9 @@ export function WebTickets() {
         </section>
 
         {selId && (
-          <section className="ax-card ax-col--7" role="region" aria-label="Detalle del ticket">
-            <div className="ax-card__header">
-              <div className="ax-card__titles">
-                <h2 className="ax-card__title">{sel?.numero ?? 'Cargando…'}</h2>
-                {sel && <p className="ax-card__subtitle">{TIPOS[sel.tipo]} · abierto {fecha(sel.createdAt)}</p>}
-              </div>
-              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setSelId(null)} aria-label="Cerrar detalle">Cerrar</button>
-            </div>
+          <Modal tamano="lg" titulo={sel?.numero ?? 'Cargando…'} subtitulo={sel ? `${TIPOS[sel.tipo]} · abierto ${fecha(sel.createdAt)}` : undefined} onCerrar={() => setSelId(null)}>
             {sel && (
-              <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
+              <>
                 <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'wrap' }}>
                   <div className="ax-field" style={{ minWidth: 150 }}>
                     <label className="ax-label" htmlFor="t-estado">Estado</label>
@@ -390,10 +391,10 @@ export function WebTickets() {
                   </div>
                 </div>
 
-                <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ alignSelf: 'flex-start' }} onClick={eliminar}>Eliminar ticket</button>
-              </div>
+                <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ alignSelf: 'flex-start' }} onClick={() => void eliminar()}>Eliminar ticket</button>
+              </>
             )}
-          </section>
+          </Modal>
         )}
       </div>
     </>

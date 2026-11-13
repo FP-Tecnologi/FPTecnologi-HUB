@@ -11,6 +11,7 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { VerEnCrm } from './crm/VerEnCrm';
 import { teclaFila } from '../../lib/teclado';
+import { Modal } from '../../components/ui/Modal';
 
 type Estado = 'NUEVO' | 'CONTACTADO' | 'RESUELTO' | 'DESCARTADO';
 type Tipo = 'CONTACTO' | 'RECLAMO' | 'TARJETA_BBVA'; // TARJETA_BBVA tiene su propia pantalla (web/bbva)
@@ -164,7 +165,7 @@ export function ContactosWeb() {
       )}
 
       <div className="ax-dash-grid">
-        <section className={`ax-card ${sel ? 'ax-col--8' : 'ax-col--12'}`} role="region" aria-label="Contactos" style={{ alignSelf: 'start' }}>
+        <section className="ax-card ax-col--12" role="region" aria-label="Contactos" style={{ alignSelf: 'start' }}>
           <div className="ax-card__body">
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', justifyContent: 'space-between', flexWrap: 'wrap' }}>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'wrap' }}>
@@ -230,16 +231,12 @@ export function ContactosWeb() {
         </section>
 
         {sel && (
-          <section className="ax-card ax-col--4" role="region" aria-label="Detalle del contacto">
-            <div className="ax-card__header">
-              <div className="ax-card__titles">
-                <h2 className="ax-card__title">{sel.nombre}</h2>
-                <p className="ax-card__subtitle">{sel.tipo === 'RECLAMO' ? 'Libro de Reclamaciones' : 'Formulario de contacto'}</p>
-              </div>
-              {sel.tipo === 'CONTACTO' && <VerEnCrm origen="CONTACTO_WEB" id={sel.id} />}
-              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setSelId(null)} aria-label="Cerrar detalle">Cerrar</button>
-            </div>
-            <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
+          <Modal
+            titulo={sel.nombre}
+            subtitulo={sel.tipo === 'RECLAMO' ? 'Libro de Reclamaciones' : 'Formulario de contacto'}
+            acciones={sel.tipo === 'CONTACTO' ? <VerEnCrm origen="CONTACTO_WEB" id={sel.id} /> : undefined}
+            onCerrar={() => setSelId(null)}
+          >
               {editando ? (
                 <form
                   style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}
@@ -302,8 +299,7 @@ export function ContactosWeb() {
                 {!editando && sel.tipo === 'CONTACTO' && <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => editar(sel)}>Editar datos</button>}
                 <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={() => eliminar(sel)}>Eliminar contacto</button>
               </div>
-            </div>
-          </section>
+          </Modal>
         )}
       </div>
     </>

@@ -11,6 +11,7 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
 import { teclaFila } from '../../lib/teclado';
+import { Modal } from '../../components/ui/Modal';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
@@ -198,7 +199,7 @@ export function EcommerceProductos() {
       {ok && !error && <p role="status" style={{ marginBlockEnd: 'var(--ax-space-4)', color: 'var(--ax-success-500, #2f9e62)', fontSize: 'var(--ax-text-sm)' }}>{ok}</p>}
 
       <div className="ax-dash-grid">
-        <section className={`ax-card ${edit ? 'ax-col--7' : 'ax-col--12'}`} role="region" aria-label="Productos" style={{ alignSelf: 'start' }}>
+        <section className="ax-card ax-col--12" role="region" aria-label="Productos" style={{ alignSelf: 'start' }}>
           <div className="ax-card__body">
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', justifyContent: 'space-between', flexWrap: 'wrap' }}>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
@@ -275,17 +276,20 @@ export function EcommerceProductos() {
         </section>
 
         {edit && (
-          <section className="ax-card ax-col--5" role="region" aria-label="Editar producto">
-            <div className="ax-card__header">
-              <div className="ax-card__titles">
-                <h2 className="ax-card__title">{edit.id ? 'Editar producto' : 'Nuevo producto'}</h2>
-                {edit.id && edit.form.slug && (
-                  <p className="ax-card__subtitle"><a href={`${WEB}/producto/${edit.form.slug}`} target="_blank" rel="noreferrer">Ver en la tienda</a></p>
-                )}
-              </div>
-              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setEdit(null)}>Cerrar</button>
-            </div>
-            <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)', maxHeight: 'calc(100vh - 300px)', overflowY: 'auto' }}>
+          <Modal
+            tamano="lg"
+            titulo={edit.id ? 'Editar producto' : 'Nuevo producto'}
+            subtitulo={edit.id && edit.form.slug ? <a href={`${WEB}/producto/${edit.form.slug}`} target="_blank" rel="noreferrer">Ver en la tienda</a> : undefined}
+            onCerrar={() => setEdit(null)}
+            pie={
+              <>
+                <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEdit(null)} disabled={guardando}>Cancelar</button>
+                <button type="button" className={`ax-btn ax-btn--primary${guardando ? ' is-loading' : ''}`} onClick={guardar} disabled={guardando}>
+                  <span className="ax-btn__label">{edit.id ? 'Guardar cambios' : 'Crear producto'}</span>
+                </button>
+              </>
+            }
+          >
               <div className="ax-field">
                 <label className="ax-label" htmlFor="p-nombre">Nombre</label>
                 <input id="p-nombre" className="ax-input" value={edit.form.nombre} onChange={(e) => set('nombre', e.target.value)} />
@@ -374,14 +378,7 @@ export function EcommerceProductos() {
                   <input type="checkbox" className="ax-switch" checked={edit.form.destacado} onChange={(e) => set('destacado', e.target.checked)} /> Destacado
                 </label>
               </div>
-            </div>
-            <div className="ax-card__body" style={{ borderTop: '1px solid var(--ax-border)', display: 'flex', justifyContent: 'flex-end', gap: 'var(--ax-space-3)' }}>
-              <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEdit(null)} disabled={guardando}>Cancelar</button>
-              <button type="button" className={`ax-btn ax-btn--primary${guardando ? ' is-loading' : ''}`} onClick={guardar} disabled={guardando}>
-                <span className="ax-btn__label">{edit.id ? 'Guardar cambios' : 'Crear producto'}</span>
-              </button>
-            </div>
-          </section>
+          </Modal>
         )}
       </div>
     </>

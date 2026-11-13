@@ -11,6 +11,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
+import { Modal } from '../../components/ui/Modal';
 
 type Estado = 'NUEVO' | 'CONTACTADO' | 'RESUELTO' | 'DESCARTADO';
 type Vista = '' | 'solicito' | 'ofertas' | 'sin-ofertas';
@@ -184,7 +185,7 @@ export function TarjetasBbva() {
       </div>
 
       <div className="ax-dash-grid">
-        <section className={`ax-card ${sel ? 'ax-col--8' : 'ax-col--12'}`} role="region" aria-label="Consultas BBVA" style={{ alignSelf: 'start' }}>
+        <section className="ax-card ax-col--12" role="region" aria-label="Consultas BBVA" style={{ alignSelf: 'start' }}>
           <div className="ax-card__body">
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', justifyContent: 'space-between', flexWrap: 'wrap' }}>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'wrap' }}>
@@ -215,13 +216,14 @@ export function TarjetasBbva() {
                   <th className="ax-table__th" scope="col">Eligió</th>
                   <th className="ax-table__th" scope="col">Estado</th>
                   <th className="ax-table__th" scope="col">Recibido</th>
+                  <th className="ax-table__th" scope="col">Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {cargando ? (
-                  <tr><td className="ax-table__td" colSpan={5}>Cargando…</td></tr>
+                  <tr><td className="ax-table__td" colSpan={6}>Cargando…</td></tr>
                 ) : visibles.length === 0 ? (
-                  <tr><td className="ax-table__td" colSpan={5} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay consultas. Aparecerán cuando alguien use la landing de tarjetas BBVA.' : 'Ninguna consulta coincide con el filtro.'}</td></tr>
+                  <tr><td className="ax-table__td" colSpan={6} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay consultas. Aparecerán cuando alguien use la landing de tarjetas BBVA.' : 'Ninguna consulta coincide con el filtro.'}</td></tr>
                 ) : (
                   visibles.map((c) => (
                     <tr key={c.id} className="ax-table__row" onClick={() => setSelId(c.id)} tabIndex={0} onKeyDown={teclaFila(() => setSelId(c.id))} style={{ cursor: 'pointer', background: c.id === selId ? 'var(--ax-surface-subtle)' : undefined }}>
@@ -235,6 +237,12 @@ export function TarjetasBbva() {
                       <td className="ax-table__td">{c.solicito ? <span className="ax-badge ax-badge--soft ax-badge--sm ax-badge--success">{c.solicito}</span> : <span style={{ color: 'var(--ax-text-muted)' }}>—</span>}</td>
                       <td className="ax-table__td"><span className={`ax-badge ax-badge--soft ax-badge--sm ${meta(c.estado).badge}`}>{meta(c.estado).label}</span></td>
                       <td className="ax-table__td" style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>{fecha(c.createdAt)}</td>
+                      <td className="ax-table__td" onClick={(e) => e.stopPropagation()}>
+                        <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
+                          <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => setSelId(c.id)} aria-label={`Ver y gestionar la consulta de ${c.nombre}`}>Gestionar</button>
+                          <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => eliminar(c)} aria-label={`Eliminar la consulta de ${c.nombre}`} style={{ color: 'var(--ax-danger-500)' }}>Eliminar</button>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -244,15 +252,7 @@ export function TarjetasBbva() {
         </section>
 
         {sel && (
-          <section className="ax-card ax-col--4" role="region" aria-label="Detalle de la consulta">
-            <div className="ax-card__header">
-              <div className="ax-card__titles">
-                <h2 className="ax-card__title">{sel.nombre}</h2>
-                <p className="ax-card__subtitle">Consulta de tarjetas BBVA</p>
-              </div>
-              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setSelId(null)} aria-label="Cerrar detalle">Cerrar</button>
-            </div>
-            <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
+          <Modal titulo={sel.nombre} subtitulo="Consulta de tarjetas BBVA" onCerrar={() => setSelId(null)}>
               <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 'var(--ax-space-2) var(--ax-space-4)', fontSize: 'var(--ax-text-sm)', margin: 0 }}>
                 {sel.dni && (<><dt style={{ color: 'var(--ax-text-muted)' }}>DNI</dt><dd style={{ margin: 0 }}>{sel.dni}</dd></>)}
                 <dt style={{ color: 'var(--ax-text-muted)' }}>Correo</dt>
@@ -298,8 +298,7 @@ export function TarjetasBbva() {
               </div>
 
               <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ alignSelf: 'flex-start' }} onClick={() => eliminar(sel)}>Eliminar consulta</button>
-            </div>
-          </section>
+          </Modal>
         )}
       </div>
     </>

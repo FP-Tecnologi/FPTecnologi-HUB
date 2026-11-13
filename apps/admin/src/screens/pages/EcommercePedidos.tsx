@@ -10,6 +10,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
+import { Modal } from '../../components/ui/Modal';
 
 type Estado = 'PENDIENTE' | 'PAGADO' | 'ENVIADO' | 'ENTREGADO' | 'CANCELADO';
 type Pago = 'PENDIENTE' | 'POR_CONFIRMAR' | 'PAGADO';
@@ -148,7 +149,7 @@ export function EcommercePedidos() {
       )}
 
       <div className="ax-dash-grid">
-        <section className={`ax-card ${sel ? 'ax-col--7' : 'ax-col--12'}`} role="region" aria-label="Pedidos" style={{ alignSelf: 'start' }}>
+        <section className="ax-card ax-col--12" role="region" aria-label="Pedidos" style={{ alignSelf: 'start' }}>
           <div className="ax-card__body">
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', justifyContent: 'space-between', flexWrap: 'wrap' }}>
               <div style={{ maxWidth: '100%', overflowX: 'auto' }}>
@@ -171,13 +172,14 @@ export function EcommercePedidos() {
                   <th className="ax-table__th" scope="col">Comprador</th>
                   <th className="ax-table__th" scope="col">Estado</th>
                   <th className="ax-table__th" scope="col" style={{ textAlign: 'right' }}>Total</th>
+                  <th className="ax-table__th" scope="col" style={{ textAlign: 'right' }}>Acciones</th>
                 </tr>
               </thead>
               <tbody>
                 {cargando ? (
-                  <tr><td className="ax-table__td" colSpan={4}>Cargando…</td></tr>
+                  <tr><td className="ax-table__td" colSpan={5}>Cargando…</td></tr>
                 ) : visibles.length === 0 ? (
-                  <tr><td className="ax-table__td" colSpan={4} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay pedidos.' : 'Ningún pedido coincide con el filtro.'}</td></tr>
+                  <tr><td className="ax-table__td" colSpan={5} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay pedidos.' : 'Ningún pedido coincide con el filtro.'}</td></tr>
                 ) : (
                   visibles.map((p) => (
                     <tr key={p.id} className="ax-table__row" onClick={() => setSelId(p.id)} tabIndex={0} onKeyDown={teclaFila(() => setSelId(p.id))} style={{ cursor: 'pointer', background: p.id === selId ? 'var(--ax-surface-subtle)' : undefined }}>
@@ -196,6 +198,9 @@ export function EcommercePedidos() {
                         </div>
                       </td>
                       <td className="ax-table__td" style={{ textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}>{usd(p.total)}</td>
+                      <td className="ax-table__td" style={{ textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
+                        <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => setSelId(p.id)}>Gestionar</button>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -205,15 +210,7 @@ export function EcommercePedidos() {
         </section>
 
         {sel && (
-          <section className="ax-card ax-col--5" role="region" aria-label="Detalle del pedido">
-            <div className="ax-card__header">
-              <div className="ax-card__titles">
-                <h2 className="ax-card__title">{numero(sel)}</h2>
-                <p className="ax-card__subtitle">{fecha(sel.createdAt)}</p>
-              </div>
-              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setSelId(null)}>Cerrar</button>
-            </div>
-            <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
+          <Modal tamano="lg" titulo={numero(sel)} subtitulo={fecha(sel.createdAt)} onCerrar={() => setSelId(null)}>
               <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 'var(--ax-space-2) var(--ax-space-4)', fontSize: 'var(--ax-text-sm)', margin: 0 }}>
                 <dt style={{ color: 'var(--ax-text-muted)' }}>Comprador</dt><dd style={{ margin: 0 }}>{sel.nombre}</dd>
                 {sel.documento && (<><dt style={{ color: 'var(--ax-text-muted)' }}>{sel.documento.length === 11 ? 'RUC' : 'DNI'}</dt><dd style={{ margin: 0 }}>{sel.documento}</dd></>)}
@@ -277,8 +274,7 @@ export function EcommercePedidos() {
                   {PAGOS.map((e) => <option key={e.v} value={e.v}>{e.label}</option>)}
                 </select>
               </div>
-            </div>
-          </section>
+          </Modal>
         )}
       </div>
     </>

@@ -187,7 +187,7 @@ export function WebServicios() {
       {ok && !error && <p role="status" style={{ marginBlockEnd: 'var(--ax-space-4)', color: 'var(--ax-success-500, #2f9e62)', fontSize: 'var(--ax-text-sm)' }}>{ok}</p>}
 
       <div className="ax-dash-grid">
-        <section className={`ax-card ${edit ? 'ax-col--6' : 'ax-col--12'}`} role="region" aria-label="Servicios" style={{ alignSelf: 'start' }}>
+        {!edit && <section className="ax-card ax-col--12" role="region" aria-label="Servicios" style={{ alignSelf: 'start' }}>
           <div className="ax-card__body">
             <input type="search" className="ax-input" placeholder="Buscar servicio…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Buscar servicios" style={{ maxWidth: 300 }} />
           </div>
@@ -208,7 +208,7 @@ export function WebServicios() {
                   <tr><td className="ax-table__td" colSpan={4} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay servicios. Crea el primero o carga el seed inicial.' : 'Ningún servicio coincide.'}</td></tr>
                 ) : (
                   visibles.map((s) => (
-                    <tr key={s.id} className="ax-table__row" onClick={() => { setOk(''); setError(''); setEdit({ id: s.id, form: desde(s) }); }} tabIndex={0} onKeyDown={teclaFila(() => { setOk(''); setError(''); setEdit({ id: s.id, form: desde(s) }); })} style={{ cursor: 'pointer', background: edit?.id === s.id ? 'var(--ax-surface-subtle)' : undefined }}>
+                    <tr key={s.id} className="ax-table__row" onClick={() => { setOk(''); setError(''); setEdit({ id: s.id, form: desde(s) }); }} tabIndex={0} onKeyDown={teclaFila(() => { setOk(''); setError(''); setEdit({ id: s.id, form: desde(s) }); })} style={{ cursor: 'pointer' }}>
                       <td className="ax-table__td">
                         <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'nowrap' }}>
                           <span style={{ width: 52, height: 40, flexShrink: 0, borderRadius: 8, overflow: 'hidden', background: 'var(--ax-surface-subtle)' }}>
@@ -238,10 +238,10 @@ export function WebServicios() {
               </tbody>
             </table>
           </div>
-        </section>
+        </section>}
 
         {edit && (
-          <section className="ax-card ax-col--6" role="region" aria-label="Editar servicio">
+          <section className="ax-card ax-col--12" role="region" aria-label="Editar servicio">
             <div className="ax-card__header">
               <div className="ax-card__titles">
                 <h2 className="ax-card__title">{edit.id ? 'Editar servicio' : 'Nuevo servicio'}</h2>
@@ -251,7 +251,7 @@ export function WebServicios() {
               </div>
               <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setEdit(null)}>Cerrar</button>
             </div>
-            <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)', maxHeight: 'calc(100vh - 300px)', overflowY: 'auto' }}>
+            <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
               <div className="ax-field">
                 <label className="ax-label" htmlFor="s-nombre">Nombre</label>
                 <input id="s-nombre" className="ax-input" value={edit.form.nombre} onChange={(e) => set('nombre', e.target.value)} />
@@ -315,7 +315,7 @@ export function WebServicios() {
               </label>
             </div>
             <div className="ax-card__body" style={{ borderTop: '1px solid var(--ax-border)', display: 'flex', justifyContent: 'space-between', gap: 'var(--ax-space-3)' }}>
-              <div>{esAdmin && edit.id && <button type="button" className="ax-btn ax-btn--ghost" onClick={() => void borrar()} disabled={guardando}>Eliminar</button>}</div>
+              <div>{esAdmin && edit.id && <button type="button" className="ax-btn ax-btn--ghost" style={{ color: 'var(--ax-danger-500)' }} onClick={() => void borrar()} disabled={guardando}>Eliminar</button>}</div>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
                 <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEdit(null)} disabled={guardando}>Cancelar</button>
                 <button type="button" className={`ax-btn ax-btn--primary${guardando ? ' is-loading' : ''}`} onClick={() => void guardar()} disabled={guardando}>

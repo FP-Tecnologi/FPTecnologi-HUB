@@ -10,6 +10,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
+import { Modal } from '../../components/ui/Modal';
 
 const SECTORES = [['gobierno', 'Sector gobierno'], ['educacion', 'Educación'], ['privado', 'Sector privado']] as const;
 const etiquetaSector = (k: string) => SECTORES.find(([v]) => v === k)?.[1] ?? k;
@@ -131,7 +132,7 @@ export function WebClientes() {
       {ok && !error && <p role="status" style={{ marginBlockEnd: 'var(--ax-space-4)', color: 'var(--ax-success-500, #2f9e62)', fontSize: 'var(--ax-text-sm)' }}>{ok}</p>}
 
       <div className="ax-dash-grid">
-        <section className={`ax-card ${edit ? 'ax-col--7' : 'ax-col--12'}`} role="region" aria-label="Clientes" style={{ alignSelf: 'start' }}>
+        <section className="ax-card ax-col--12" role="region" aria-label="Clientes" style={{ alignSelf: 'start' }}>
           <div className="ax-card__body">
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
               <select className="ax-select" aria-label="Filtrar por sector" value={sector} onChange={(e) => setSector(e.target.value)} style={{ maxWidth: 200 }}>
@@ -184,12 +185,22 @@ export function WebClientes() {
         </section>
 
         {edit && (
-          <section className="ax-card ax-col--5" role="region" aria-label="Editar cliente">
-            <div className="ax-card__header">
-              <div className="ax-card__titles"><h2 className="ax-card__title">{edit.id ? 'Editar cliente' : 'Nuevo cliente'}</h2></div>
-              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setEdit(null)}>Cerrar</button>
-            </div>
-            <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
+          <Modal
+            tamano="sm"
+            titulo={edit.id ? 'Editar cliente' : 'Nuevo cliente'}
+            onCerrar={() => setEdit(null)}
+            pie={
+              <div style={{ display: 'flex', justifyContent: 'space-between', gap: 'var(--ax-space-3)', inlineSize: '100%' }}>
+                <div>{edit.id && <button type="button" className="ax-btn ax-btn--ghost" style={{ color: 'var(--ax-danger-500)' }} onClick={() => void borrar()} disabled={guardando}>Eliminar</button>}</div>
+                <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
+                  <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEdit(null)} disabled={guardando}>Cancelar</button>
+                  <button type="button" className={`ax-btn ax-btn--primary${guardando ? ' is-loading' : ''}`} onClick={() => void guardar()} disabled={guardando}>
+                    <span className="ax-btn__label">{edit.id ? 'Guardar cambios' : 'Crear cliente'}</span>
+                  </button>
+                </div>
+              </div>
+            }
+          >
               <div className="ax-field">
                 <label className="ax-label" htmlFor="c-nombre">Nombre</label>
                 <input id="c-nombre" className="ax-input" value={edit.form.nombre} onChange={(e) => set('nombre', e.target.value)} />
@@ -222,17 +233,7 @@ export function WebClientes() {
                   <input type="checkbox" className="ax-switch" checked={edit.form.esEjemplo} onChange={(e) => set('esEjemplo', e.target.checked)} /> Dato de muestra
                 </label>
               </div>
-            </div>
-            <div className="ax-card__body" style={{ borderTop: '1px solid var(--ax-border)', display: 'flex', justifyContent: 'space-between', gap: 'var(--ax-space-3)' }}>
-              <div>{edit.id && <button type="button" className="ax-btn ax-btn--ghost" onClick={() => void borrar()} disabled={guardando}>Eliminar</button>}</div>
-              <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
-                <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEdit(null)} disabled={guardando}>Cancelar</button>
-                <button type="button" className={`ax-btn ax-btn--primary${guardando ? ' is-loading' : ''}`} onClick={() => void guardar()} disabled={guardando}>
-                  <span className="ax-btn__label">{edit.id ? 'Guardar cambios' : 'Crear cliente'}</span>
-                </button>
-              </div>
-            </div>
-          </section>
+          </Modal>
         )}
       </div>
     </>

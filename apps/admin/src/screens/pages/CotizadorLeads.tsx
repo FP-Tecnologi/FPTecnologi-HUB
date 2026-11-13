@@ -11,6 +11,7 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { VerEnCrm } from './crm/VerEnCrm';
 import { teclaFila } from '../../lib/teclado';
+import { Modal } from '../../components/ui/Modal';
 
 type Estado = 'NUEVO' | 'CONTACTADO' | 'COTIZADO' | 'GANADO' | 'PERDIDO';
 
@@ -159,7 +160,7 @@ export function CotizadorLeads() {
       )}
 
       <div className="ax-dash-grid">
-        <section className={`ax-card ${sel ? 'ax-col--8' : 'ax-col--12'}`} role="region" aria-label="Leads" style={{ alignSelf: 'start' }}>
+        <section className="ax-card ax-col--12" role="region" aria-label="Leads" style={{ alignSelf: 'start' }}>
           <div className="ax-card__body">
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', justifyContent: 'space-between', flexWrap: 'wrap' }}>
               <div style={{ maxWidth: '100%', overflowX: 'auto' }}>
@@ -217,16 +218,12 @@ export function CotizadorLeads() {
         </section>
 
         {sel && (
-          <section className="ax-card ax-col--4" role="region" aria-label="Detalle del lead">
-            <div className="ax-card__header">
-              <div className="ax-card__titles">
-                <h2 className="ax-card__title">{nombre(sel)}</h2>
-                <p className="ax-card__subtitle">{sel.tipoPersona === 'JURIDICA' ? 'Persona jurídica' : 'Persona natural'} · {sel.tipoDocumento} {sel.nroDocumento}</p>
-              </div>
-              <VerEnCrm origen="COTIZADOR" id={sel.id} />
-              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setSelId(null)} aria-label="Cerrar detalle">Cerrar</button>
-            </div>
-            <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
+          <Modal
+            titulo={nombre(sel)}
+            subtitulo={`${sel.tipoPersona === 'JURIDICA' ? 'Persona jurídica' : 'Persona natural'} · ${sel.tipoDocumento} ${sel.nroDocumento}`}
+            acciones={<VerEnCrm origen="COTIZADOR" id={sel.id} />}
+            onCerrar={() => setSelId(null)}
+          >
               {editando ? (
                 <form
                   style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}
@@ -296,8 +293,7 @@ export function CotizadorLeads() {
                 {!editando && <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => editar(sel)}>Editar datos</button>}
                 <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={() => eliminar(sel)}>Eliminar lead</button>
               </div>
-            </div>
-          </section>
+          </Modal>
         )}
       </div>
     </>

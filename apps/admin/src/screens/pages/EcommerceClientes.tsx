@@ -9,6 +9,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
+import { Modal } from '../../components/ui/Modal';
 
 interface Cliente { email: string; nombre: string; celular: string; documento: string | null; pedidos: number; gastado: number; ultimoPedido: string; cotizaciones: number }
 interface Detalle {
@@ -67,7 +68,7 @@ export function EcommerceClientes() {
           </div>
         </section>
 
-        <section className={`ax-card ${sel ? 'ax-col--7' : 'ax-col--12'}`} aria-label="Lista de clientes">
+        <section className="ax-card ax-col--12" aria-label="Lista de clientes">
           {filtrados.length === 0 ? (
             <div className="ax-card__body" style={{ textAlign: 'center', color: 'var(--ax-text-muted)', paddingBlock: 'var(--ax-space-8)' }}>{cargando ? 'Cargando…' : clientes.length === 0 ? 'Aún no hay clientes: aparecen cuando alguien confirma un pedido en la tienda.' : 'Ningún cliente coincide con la búsqueda.'}</div>
           ) : (
@@ -79,6 +80,7 @@ export function EcommerceClientes() {
                   <th className="ax-table__th" scope="col">Gastado</th>
                   <th className="ax-table__th" scope="col">Cotizaciones</th>
                   <th className="ax-table__th" scope="col">Último pedido</th>
+                  <th className="ax-table__th" scope="col" style={{ textAlign: 'right' }}>Acciones</th>
                 </tr></thead>
                 <tbody>
                   {filtrados.map((c) => (
@@ -88,6 +90,9 @@ export function EcommerceClientes() {
                       <td className="ax-table__td" style={{ fontVariantNumeric: 'tabular-nums' }}>{usd(c.gastado)}</td>
                       <td className="ax-table__td">{c.cotizaciones || '—'}</td>
                       <td className="ax-table__td" style={{ color: 'var(--ax-text-muted)' }}>{fecha(c.ultimoPedido)}</td>
+                      <td className="ax-table__td" style={{ textAlign: 'right' }} onClick={(e) => e.stopPropagation()}>
+                        <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => setSel(c)}>Ver detalle</button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -97,12 +102,7 @@ export function EcommerceClientes() {
         </section>
 
         {sel && (
-          <section className="ax-card ax-col--5" aria-label="Detalle del cliente">
-            <div className="ax-card__header">
-              <div className="ax-card__titles"><h2 className="ax-card__title">{sel.nombre}</h2><p className="ax-card__subtitle">{sel.documento ? `${sel.documento.length === 11 ? 'RUC' : 'DNI'} ${sel.documento}` : 'Sin documento'}</p></div>
-              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setSel(null)}>Cerrar</button>
-            </div>
-            <div className="ax-card__body" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
+          <Modal tamano="lg" titulo={sel.nombre} subtitulo={sel.documento ? `${sel.documento.length === 11 ? 'RUC' : 'DNI'} ${sel.documento}` : 'Sin documento'} onCerrar={() => setSel(null)}>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
                 <a className="ax-btn ax-btn--secondary ax-btn--sm" href={`https://wa.me/51${sel.celular}`} target="_blank" rel="noreferrer">WhatsApp {sel.celular}</a>
                 <a className="ax-btn ax-btn--ghost ax-btn--sm" href={`mailto:${sel.email}`}>{sel.email}</a>
@@ -136,8 +136,7 @@ export function EcommerceClientes() {
                 )}
                 <a className="ax-link" href="/soluciones/cotizaciones" style={{ fontSize: 'var(--ax-text-xs)' }}>Gestionar en Soluciones → Cotizaciones</a>
               </div>
-            </div>
-          </section>
+          </Modal>
         )}
       </div>
     </>
