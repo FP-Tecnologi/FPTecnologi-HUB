@@ -40,7 +40,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
             <p className="mt-1 text-sm text-carbon/70">Precio referencial en dólares, sin IGV. Confirmamos precio y disponibilidad en tu cotización.</p>
             <AgregarCarrito p={p} />
             <div className="mt-4 flex flex-wrap gap-4">
-              <BotonHex href={`/cotizar?producto=${consulta}`} size="lg" icono={FileText}>Cotizar este equipo</BotonHex>
+              <BotonHex href={`/cotizar?producto=${consulta}`} size="lg" icono={FileText}>Cotizar</BotonHex>
               <BotonHex href={wa} variante="contorno" size="lg" icono={MessageCircle}>WhatsApp</BotonHex>
             </div>
             {texto && <p className="mt-8 whitespace-pre-line leading-relaxed text-carbon/90">{texto}</p>}

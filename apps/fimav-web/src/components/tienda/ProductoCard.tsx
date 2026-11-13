@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { FileText } from 'lucide-react';
+import { Eye, FileText } from 'lucide-react';
+import BotonHex from '@/components/hex/BotonHex';
 import { AgregarRapido } from './AgregarCarrito';
 import { usd, type ProductoTienda } from '@/lib/tienda';
 
@@ -9,6 +10,7 @@ export default function ProductoCard({ p }: { p: ProductoTienda }) {
   return (
     <article className="group/card relative flex w-full flex-col overflow-hidden rounded-2xl border border-carbon/15 bg-white transition-shadow focus-within:shadow-lg hover:shadow-lg">
       {descuento > 0 && <span className="absolute left-3 top-3 z-10 rounded-full bg-boton px-2.5 py-1 text-xs font-bold text-white">-{descuento}%</span>}
+      <span aria-hidden="true" className="pointer-events-none absolute right-3 top-3 z-10 inline-flex items-center gap-1.5 rounded-full bg-carbon px-3 py-1.5 text-xs font-bold uppercase tracking-widest text-white opacity-0 transition-opacity group-hover/card:opacity-100 group-focus-within/card:opacity-100 [@media(hover:none)]:opacity-100"><Eye size={14} /> Ver</span>
       <div className="aspect-square bg-white p-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={p.imagenes[0] ?? '/brand/og.jpg'} alt="" loading="lazy" decoding="async" className="size-full object-contain transition-transform duration-500 motion-safe:group-hover/card:scale-105" />
@@ -23,8 +25,8 @@ export default function ProductoCard({ p }: { p: ProductoTienda }) {
           {p.precioAntes && <s className="text-sm text-carbon/60">{usd(p.precioAntes)}</s>}
         </p>
         <p className="mt-1 text-xs text-carbon/70">Precio referencial, sin IGV</p>
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
-          <span className="inline-flex min-h-11 items-center gap-2 font-display text-sm font-bold uppercase tracking-widest text-rojo-hondo"><FileText aria-hidden="true" size={16} /> Ver y cotizar</span>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <BotonHex href={`/cotizar?producto=${encodeURIComponent(`${p.nombre} (código ${p.sku})`)}`} size="sm" icono={FileText} className="relative z-20">Cotizar</BotonHex>
           <AgregarRapido p={p} />
         </div>
       </div>
