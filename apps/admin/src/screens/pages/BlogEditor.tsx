@@ -10,7 +10,8 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { markdownToHtml } from '../../lib/markdown';
-import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
+import { urlImagen } from '../../components/ui/SubirImagen';
+import { CampoImagen } from '../../components/ui/CampoImagen';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 const CATEGORIAS = ['Tienda', 'Videoconferencia', 'Seguridad', 'Data centers', 'Datos empresariales', 'Cloud', 'Educación', 'Novedades'];
@@ -302,8 +303,7 @@ export function BlogEditor() {
               <div style={{ aspectRatio: '16 / 10', borderRadius: 12, overflow: 'hidden', background: 'var(--ax-surface-subtle)', display: 'grid', placeItems: 'center', color: 'var(--ax-text-subtle)', fontSize: 'var(--ax-text-sm)' }}>
                 {portada ? <img src={portada} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : 'Sin portada'}
               </div>
-              <input className="ax-input" placeholder="https://… o /images/…" value={form.portadaUrl} onChange={(e) => set('portadaUrl', e.target.value)} aria-label="URL de la portada" />
-              <SubirImagen onSubida={(urls) => set('portadaUrl', urls[0]!)} etiqueta="Subir portada" />
+              <CampoImagen value={form.portadaUrl} onChange={(u) => set('portadaUrl', u)} />
             </div>
           </section>
         </div>

@@ -8,10 +8,12 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
-import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
+import { urlImagen } from '../../components/ui/SubirImagen';
+import { CampoImagen } from '../../components/ui/CampoImagen';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
+import { Select } from '../../components/ui/Select';
 
 type Estado = 'BORRADOR' | 'ACTIVO' | 'PAUSADO';
 type Situacion = 'borrador' | 'pausado' | 'programado' | 'en_curso' | 'finalizado';
@@ -292,7 +294,7 @@ function Editor({ popup, opciones, alSalir }: { popup: Popup; opciones: Opciones
   const select = (id: string, etiqueta: string, valor: string, onChange: (v: string) => void, items: [string, string][]) => (
     <div className="ax-field">
       <label className="ax-label" htmlFor={id}>{etiqueta}</label>
-      <select id={id} className="ax-select" value={valor} onChange={(e) => onChange(e.target.value)}>{items.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
+      <Select id={id} className="ax-select" value={valor} onChange={(e) => onChange(e.target.value)}>{items.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</Select>
     </div>
   );
   const num = (id: string, etiqueta: string, valor: number, onChange: (v: number) => void, min: number, max: number) => (
@@ -353,11 +355,8 @@ function Editor({ popup, opciones, alSalir }: { popup: Popup; opciones: Opciones
                 )}
                 {p.formato === 'modal' && !usa.includes('producto') && (
                   <div className="ax-field">
-                    <label className="ax-label" htmlFor="pp-img">Imagen (URL o ruta que empiece con /)</label>
-                    <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
-                      <input id="pp-img" className="ax-input" style={{ flex: 1 }} value={c.imagenUrl} onChange={(e) => setC('imagenUrl', e.target.value)} />
-                      <SubirImagen onSubida={(u) => u[0] && setC('imagenUrl', u[0])} />
-                    </div>
+                    <label className="ax-label" htmlFor="pp-img">Imagen</label>
+                    <CampoImagen id="pp-img" value={c.imagenUrl} onChange={(u) => setC('imagenUrl', u)} />
                   </div>
                 )}
                 <hr style={{ border: 0, borderTop: '1px solid var(--ax-border)', width: '100%' }} />
@@ -370,10 +369,10 @@ function Editor({ popup, opciones, alSalir }: { popup: Popup; opciones: Opciones
                 {c.accion === 'producto' && (
                   <div className="ax-field">
                     <label className="ax-label" htmlFor="pp-prod">Producto (el botón lleva a su ficha en la web)</label>
-                    <select id="pp-prod" className="ax-select" value={p.productoId ?? ''} onChange={(e) => set('productoId', e.target.value || null)}>
+                    <Select id="pp-prod" className="ax-select" value={p.productoId ?? ''} onChange={(e) => set('productoId', e.target.value || null)}>
                       <option value="">— Elige un producto —</option>
                       {productos.map((x) => <option key={x.id} value={x.id}>{x.nombre} ({x.sku})</option>)}
-                    </select>
+                    </Select>
                   </div>
                 )}
                 {p.formato !== 'barra' && campo('pp-cerrar', 'Enlace para cerrar (vacío = solo la X)', c.cerrarTexto, (v) => setC('cerrarTexto', v), { max: 30, ph: 'No, gracias' })}

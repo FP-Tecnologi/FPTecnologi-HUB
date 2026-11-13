@@ -9,6 +9,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { Select } from '../../components/ui/Select';
 
 interface Tarifa { id: string; proveedor: string; departamento: string; costo: string; moneda: string; plazoDias: string | null; activo: boolean }
 
@@ -78,7 +79,7 @@ export function EcommerceEnvios() {
           ) : (
             <div className="ax-table-wrap">
               <table className="ax-table ax-table--hover">
-                <thead className="ax-table__head"><tr>{th('Departamento')}{th('Costo (USD)')}{th('Plazo')}{th('Estado')}{th('Acciones', true)}</tr></thead>
+                <thead className="ax-table__head"><tr>{th('Departamento')}{th('Costo (S/)')}{th('Plazo')}{th('Estado')}{th('Acciones', true)}</tr></thead>
                 <tbody>
                   {tarifas.map((t) => (
                     <tr key={t.id} className="ax-table__row">
@@ -110,10 +111,10 @@ export function EcommerceEnvios() {
             <div className="ax-card__body" style={{ paddingTop: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
               {editId === 'nueva' && (
                 <div className="ax-field"><label className="ax-label" htmlFor="env-dep">Departamento</label>
-                  <select id="env-dep" className="ax-select" required value={form.departamento} onChange={(e) => setForm({ ...form, departamento: e.target.value })}>
+                  <Select id="env-dep" className="ax-select" required value={form.departamento} onChange={(e) => setForm({ ...form, departamento: e.target.value })}>
                     <option value="">Elige…</option>
                     {DEPARTAMENTOS.filter((d) => !usados.has(d)).map((d) => <option key={d} value={d}>{d}</option>)}
-                  </select>
+                  </Select>
                 </div>
               )}
               <div className="ax-field"><label className="ax-label" htmlFor="env-costo">Costo de envío (S/, tarifa de Shalom)</label><input id="env-costo" type="number" min={0} step="0.01" required className="ax-input" value={form.costo} onChange={(e) => setForm({ ...form, costo: e.target.value })} /></div>

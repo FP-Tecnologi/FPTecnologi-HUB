@@ -9,7 +9,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
-import { SubirImagen } from '../../components/ui/SubirImagen';
+import { CampoImagen, CampoImagenes } from '../../components/ui/CampoImagen';
 
 interface Categoria {
   id: string; nombre: string; slug: string | null; orden: number; activo: boolean; portadaUrl: string | null; _count: { productos: number };
@@ -171,15 +171,14 @@ export function EcommerceCatalogo() {
               <div className="ax-field"><label className="ax-label" htmlFor="cat-nombre">Nombre</label><input id="cat-nombre" className="ax-input" required value={form.nombre} onChange={(e) => setForm({ ...form, nombre: e.target.value })} /></div>
               <div className="ax-field"><label className="ax-label" htmlFor="cat-slug">Slug (opcional)</label><input id="cat-slug" className="ax-input" placeholder="se genera del nombre" value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} /></div>
               <div className="ax-field"><label className="ax-label" htmlFor="cat-orden">Orden</label><input id="cat-orden" type="number" min={0} className="ax-input" value={form.orden} onChange={(e) => setForm({ ...form, orden: e.target.value })} /></div>
-              <div className="ax-field"><label className="ax-label" htmlFor="cat-img">URL de portada</label><input id="cat-img" className="ax-input" value={form.portadaUrl} onChange={(e) => setForm({ ...form, portadaUrl: e.target.value })} /><SubirImagen onSubida={(urls) => setForm({ ...form, portadaUrl: urls[0]! })} etiqueta="Subir portada" /></div>
+              <div className="ax-field"><label className="ax-label" htmlFor="cat-img">Imagen de portada</label><CampoImagen id="cat-img" value={form.portadaUrl} onChange={(u) => setForm({ ...form, portadaUrl: u })} /></div>
               <div className="ax-field"><label className="ax-label" htmlFor="cat-resumen">Frase corta / lema</label><input id="cat-resumen" className="ax-input" value={form.resumen} onChange={(e) => setForm({ ...form, resumen: e.target.value })} /></div>
               <div className="ax-field"><label className="ax-label" htmlFor="cat-texto">Descripción de la línea</label><textarea id="cat-texto" className="ax-textarea" rows={4} value={form.texto} onChange={(e) => setForm({ ...form, texto: e.target.value })} /></div>
               <div className="ax-field"><label className="ax-label" htmlFor="cat-icono">Ícono (opcional)</label><input id="cat-icono" className="ax-input" placeholder="p. ej. laptop, server, printer" value={form.icono} onChange={(e) => setForm({ ...form, icono: e.target.value })} /></div>
               <div className="ax-field"><label className="ax-label" htmlFor="cat-marcas">Fabricantes que se muestran (separados por coma)</label><input id="cat-marcas" className="ax-input" placeholder="Dell, HP, Lenovo" value={form.marcasComerciales} onChange={(e) => setForm({ ...form, marcasComerciales: e.target.value })} /></div>
               <div className="ax-field">
-                <label className="ax-label" htmlFor="cat-galeria">Galería de fotos (una URL por línea)</label>
-                <textarea id="cat-galeria" className="ax-textarea" rows={3} value={form.galeria} onChange={(e) => setForm({ ...form, galeria: e.target.value })} />
-                <SubirImagen multiple onSubida={(urls) => setForm({ ...form, galeria: [...form.galeria.split('\n').map((l) => l.trim()).filter(Boolean), ...urls].join('\n') })} etiqueta="Subir fotos" />
+                <label className="ax-label" htmlFor="cat-galeria">Galería de fotos</label>
+                <CampoImagenes id="cat-galeria" value={form.galeria.split('\n').map((l) => l.trim()).filter(Boolean)} onChange={(urls) => setForm({ ...form, galeria: urls.join('\n') })} etiquetaPortada="Principal" />
               </div>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'flex-end' }}>
                 <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEditId(null)}>Cancelar</button>

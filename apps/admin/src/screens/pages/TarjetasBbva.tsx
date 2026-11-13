@@ -12,6 +12,7 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
+import { Select } from '../../components/ui/Select';
 
 type Estado = 'NUEVO' | 'CONTACTADO' | 'RESUELTO' | 'DESCARTADO';
 type Vista = '' | 'solicito' | 'ofertas' | 'sin-ofertas';
@@ -282,9 +283,9 @@ export function TarjetasBbva() {
 
               <div className="ax-field">
                 <label className="ax-label" htmlFor="bbva-estado">Estado</label>
-                <select id="bbva-estado" className="ax-select" value={sel.estado} disabled={guardando} onChange={(e) => actualizar(sel, { estado: e.target.value as Estado })}>
+                <Select id="bbva-estado" className="ax-select" value={sel.estado} disabled={guardando} onChange={(e) => actualizar(sel, { estado: e.target.value as Estado })}>
                   {ESTADOS.map((e) => <option key={e.v} value={e.v}>{e.label}</option>)}
-                </select>
+                </Select>
               </div>
 
               <div className="ax-field">

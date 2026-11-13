@@ -8,8 +8,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth } from '../../context/AuthContext';
-import { SubirImagen } from '../../components/ui/SubirImagen';
+import { CampoImagen } from '../../components/ui/CampoImagen';
 import { api } from '../../lib/api';
+import { Select } from '../../components/ui/Select';
 
 type Bloque =
   | { id: string; tipo: 'hero'; titulo: string; texto: string; imagen: string }
@@ -253,9 +254,9 @@ export function MailingEditor() {
       {m && (
         <>
           <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', marginBlockEnd: 'var(--ax-space-3)', flexWrap: 'wrap' }}>
-            <select className="ax-select" aria-label="Mailing" value={m.id} onChange={(e) => setActualId(e.target.value)}>
+            <Select className="ax-select" aria-label="Mailing" value={m.id} onChange={(e) => setActualId(e.target.value)}>
               {lista.map((x) => <option key={x.id} value={x.id}>{x.nombre}</option>)}
-            </select>
+            </Select>
             <button type="button" className="ax-btn ax-btn--ghost" onClick={duplicar}>Duplicar</button>
             <button type="button" className="ax-btn ax-btn--ghost" onClick={copiarHtml}>Copiar HTML</button>
             <button type="button" className="ax-btn ax-btn--ghost" onClick={descargar}>Descargar HTML</button>
@@ -275,11 +276,8 @@ export function MailingEditor() {
                   {campos.length === 0 && <p style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>No quedan [marcadores] por reemplazar. Para cambiar otros textos o imágenes edita el HTML.</p>}
                   {campos.map((c, k) => (esImagen(c) ? (
                     <div key={c} className="ax-field">
-                      {campo(`ml-v${k}`, `${etiquetaImagen(c)} (enlace)`, m.valores?.[c] ?? '', (v) => cambiar({ valores: { ...m.valores, [c]: v } }))}
-                      <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
-                        <SubirImagen etiqueta={m.valores?.[c] ? 'Cambiar imagen' : 'Subir imagen'} onSubida={(urls) => cambiar({ valores: { ...m.valores, [c]: urls[0] } })} />
-                        {m.valores?.[c] && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => cambiar({ valores: { ...m.valores, [c]: '' } })}>Quitar imagen</button>}
-                      </div>
+                      <label className="ax-label" htmlFor={`ml-v${k}`}>{etiquetaImagen(c)}</label>
+                      <CampoImagen id={`ml-v${k}`} value={m.valores?.[c] ?? ''} onChange={(u) => cambiar({ valores: { ...m.valores, [c]: u } })} />
                       <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Opcional. Sin imagen, ese espacio no aparece en el correo. Medida recomendada de la portada: 1280 × 640 px.</span>
                     </div>
                   ) : campo(`ml-v${k}`, c, m.valores?.[c] ?? '', (v) => cambiar({ valores: { ...m.valores, [c]: v } }))))}
@@ -347,10 +345,10 @@ export function MailingEditor() {
             <h2 className="ax-card__title">Enviar «{m.nombre}»</h2>
             <div className="ax-field">
               <label className="ax-label" htmlFor="ml-aud">Enviar a</label>
-              <select id="ml-aud" className="ax-select" value={audiencia} onChange={(e) => setAudiencia(e.target.value)}>
+              <Select id="ml-aud" className="ax-select" value={audiencia} onChange={(e) => setAudiencia(e.target.value)}>
                 <option value="suscriptores">Suscriptores del boletín{conteo !== null ? ` (${conteo})` : ''}</option>
                 <option value="pegados">Lista de correos que pego</option>
-              </select>
+              </Select>
             </div>
             {audiencia === 'pegados' && <div className="ax-field"><label className="ax-label" htmlFor="ml-lista">Correos (separados por coma, espacio o línea)</label><textarea id="ml-lista" className="ax-textarea" rows={4} value={pegados} onChange={(e) => setPegados(e.target.value)} /></div>}
             <div className="ax-field"><label className="ax-label" htmlFor="ml-test">Enviar prueba a</label><input id="ml-test" type="email" className="ax-input" placeholder="tu@correo.com" value={prueba} onChange={(e) => setPrueba(e.target.value)} /></div>

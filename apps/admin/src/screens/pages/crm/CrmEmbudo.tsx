@@ -13,6 +13,7 @@ import {
   Alerta, ETAPAS, NuevaOportunidad, OportunidadPanel, dinero, etapa, msg, montos, nombreDe, pedirMotivo, vencida, fechaCorta, type Etapa, type Oportunidad,
 } from './comun';
 import { teclaFila } from '../../../lib/teclado';
+import { Select } from '../../../components/ui/Select';
 
 type Vista = 'tablero' | 'lista';
 const CLAVE_VISTA = 'crm:vista-embudo';
@@ -128,9 +129,9 @@ export function CrmEmbudo() {
                               {o.proximaAccion ? `${o.proximaAccion}${o.proximaAccionAt ? ` · ${fechaCorta(o.proximaAccionAt)}` : ''}` : '—'}
                             </td>
                             <td className="ax-table__td" onClick={(e) => e.stopPropagation()}>
-                              <select aria-label={`Mover ${o.numero} a otra etapa`} className="ax-select" value={o.etapa} onChange={(e) => mover(o.id, e.target.value as Etapa)} style={{ minWidth: 170 }}>
+                              <Select aria-label={`Mover ${o.numero} a otra etapa`} className="ax-select" value={o.etapa} onChange={(e) => mover(o.id, e.target.value as Etapa)} style={{ minWidth: 170 }}>
                                 {ETAPAS.map((e) => <option key={e.v} value={e.v}>{e.label}</option>)}
-                              </select>
+                              </Select>
                             </td>
                           </tr>
                         ))}
@@ -178,10 +179,10 @@ export function CrmEmbudo() {
                         </div>
                       )}
                     </button>
-                    <select aria-label={`Mover ${o.numero} a otra etapa`} className="ax-select" value={o.etapa} onChange={(e) => mover(o.id, e.target.value as Etapa)}
+                    <Select aria-label={`Mover ${o.numero} a otra etapa`} className="ax-select" value={o.etapa} onChange={(e) => mover(o.id, e.target.value as Etapa)}
                       style={{ marginBlockStart: 'var(--ax-space-2)', fontSize: 'var(--ax-text-xs)', minHeight: 30, padding: '2px 8px' }}>
                       {ETAPAS.map((e) => <option key={e.v} value={e.v}>{etapa(e.v).label}</option>)}
-                    </select>
+                    </Select>
                   </article>
                 ))}
               </div>

@@ -10,6 +10,7 @@ import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { VerificacionModal } from '../../components/ui/VerificacionModal';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { Select } from '../../components/ui/Select';
 
 interface Asig { marcaId: string; rolId: string; marca: { nombre: string }; rol: { nombre: string } }
 interface Usuario { id: string; email: string; nombre: string | null; cargo: string | null; telefono?: string | null; dni?: string | null; activo: boolean; totpEnabled: boolean; superAdmin: boolean; createdAt: string; marcas: Asig[] }
@@ -165,14 +166,14 @@ export function UsuariosGlobal() {
       <section className="ax-card" style={{ padding: 'var(--ax-space-4)' }}>
         <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', marginBlockEnd: 'var(--ax-space-3)', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <input type="search" className="ax-input" style={{ width: 240 }} placeholder="Buscar por nombre o correo" aria-label="Buscar usuario" value={q} onChange={(e) => setQ(e.target.value)} />
-          <select className="ax-select" style={{ width: "auto" }} aria-label="Filtrar por marca" value={marcaF} onChange={(e) => setMarcaF(e.target.value)}>
+          <Select className="ax-select" style={{ width: "auto" }} aria-label="Filtrar por marca" value={marcaF} onChange={(e) => setMarcaF(e.target.value)}>
             <option value="">Todas las empresas</option>
             {data?.marcas.map((m) => <option key={m.id} value={m.id}>{m.nombre}</option>)}
-          </select>
-          <select className="ax-select" style={{ width: "auto" }} aria-label="Filtrar por rol" value={rolF} onChange={(e) => setRolF(e.target.value)}>
+          </Select>
+          <Select className="ax-select" style={{ width: "auto" }} aria-label="Filtrar por rol" value={rolF} onChange={(e) => setRolF(e.target.value)}>
             <option value="">Todos los roles</option>
             {data?.roles.map((r) => <option key={r.id} value={r.id}>{r.nombre}</option>)}
-          </select>
+          </Select>
         </div>
 
         <div className="ax-table-wrap">
@@ -210,8 +211,8 @@ export function UsuariosGlobal() {
                       ))}
                       {agregando === u.id ? (
                         <span className="ax-cluster" style={{ gap: 4 }}>
-                          <select className="ax-select ax-select--sm" aria-label="Marca" value={nuevaMarca} onChange={(e) => setNuevaMarca(e.target.value)}><option value="">Marca…</option>{data.marcas.map((m) => <option key={m.id} value={m.id}>{m.nombre}</option>)}</select>
-                          <select className="ax-select ax-select--sm" aria-label="Rol" value={nuevoRol} onChange={(e) => setNuevoRol(e.target.value)}><option value="">Rol…</option>{data.roles.map((r) => <option key={r.id} value={r.id}>{r.nombre}</option>)}</select>
+                          <Select className="ax-select ax-select--sm" aria-label="Marca" value={nuevaMarca} onChange={(e) => setNuevaMarca(e.target.value)}><option value="">Marca…</option>{data.marcas.map((m) => <option key={m.id} value={m.id}>{m.nombre}</option>)}</Select>
+                          <Select className="ax-select ax-select--sm" aria-label="Rol" value={nuevoRol} onChange={(e) => setNuevoRol(e.target.value)}><option value="">Rol…</option>{data.roles.map((r) => <option key={r.id} value={r.id}>{r.nombre}</option>)}</Select>
                           <button type="button" className="ax-btn ax-btn--primary ax-btn--sm" disabled={!nuevaMarca || !nuevoRol}
                             onClick={() => accion(async () => { await api.post(`/usuarios/global/${u.id}/asignaciones`, { marcaId: nuevaMarca, rolId: nuevoRol }); setAgregando(null); }, 'No se pudo asignar el rol.')}>Agregar</button>
                           <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setAgregando(null)}>Cancelar</button>
@@ -282,16 +283,16 @@ export function UsuariosGlobal() {
                 </label>
                 <div style={{ display: 'grid', gap: 'var(--ax-space-3)', gridTemplateColumns: 'repeat(auto-fit, minmax(14rem, 1fr))' }}>
                   <div className="ax-field"><label className="ax-label" htmlFor="cu-marca">Empresa{cf.superAdmin ? '' : ' *'}</label>
-                    <select id="cu-marca" className="ax-select" required={!cf.superAdmin} disabled={!data || cf.superAdmin} value={cf.marcaId} onChange={(e) => setCf({ ...cf, marcaId: e.target.value })}>
+                    <Select id="cu-marca" className="ax-select" required={!cf.superAdmin} disabled={!data || cf.superAdmin} value={cf.marcaId} onChange={(e) => setCf({ ...cf, marcaId: e.target.value })}>
                       <option value="">{cf.superAdmin ? 'Todas las empresas' : data ? 'Elegir empresa…' : error ? 'No se pudo cargar: reintenta' : 'Cargando empresas…'}</option>
                       {data?.marcas.map((m) => <option key={m.id} value={m.id}>{m.nombre}</option>)}
-                    </select>
+                    </Select>
                   </div>
                   <div className="ax-field"><label className="ax-label" htmlFor="cu-rol">Rol{cf.superAdmin ? '' : ' *'}</label>
-                    <select id="cu-rol" className="ax-select" required={!cf.superAdmin} disabled={!data || cf.superAdmin} value={cf.rolId} onChange={(e) => setCf({ ...cf, rolId: e.target.value })}>
+                    <Select id="cu-rol" className="ax-select" required={!cf.superAdmin} disabled={!data || cf.superAdmin} value={cf.rolId} onChange={(e) => setCf({ ...cf, rolId: e.target.value })}>
                       <option value="">{cf.superAdmin ? 'Super administrador' : data ? 'Elegir rol…' : error ? 'No se pudo cargar: reintenta' : 'Cargando roles…'}</option>
                       {data?.roles.filter((r) => r.nombre !== 'cliente').map((r) => <option key={r.id} value={r.id}>{r.nombre}</option>)}
-                    </select>
+                    </Select>
                   </div>
                 </div>
               </fieldset>

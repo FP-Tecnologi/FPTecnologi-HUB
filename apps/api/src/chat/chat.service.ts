@@ -96,6 +96,13 @@ export class ChatService {
     return rest;
   }
 
+  async deleteConversacion(marcaId: string, id: string) {
+    await this.getConversacion(marcaId, id);
+    // Los mensajes se borran en cascada (onDelete: Cascade en ChatMensaje).
+    await this.prisma.chatConversacion.delete({ where: { id, marcaId } });
+    return { success: true };
+  }
+
   async tomar(marcaId: string, id: string, usuarioId: string) {
     const conv = await this.getConversacion(marcaId, id);
     const res = await this.prisma.chatConversacion.update({

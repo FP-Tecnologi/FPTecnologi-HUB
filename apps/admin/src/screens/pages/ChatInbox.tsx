@@ -100,7 +100,8 @@ const I_REABRIR = <svg {...ICON}><path d="M20 11a8.1 8.1 0 0 0 -15.5 -2m-.5 -4v4
 const I_SEND = <svg {...ICON}><path d="M10 14l11 -11" /><path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5" /></svg>;
 
 export function ChatInbox() {
-  const { activeMarcaId, user } = useAuth();
+  const { activeMarcaId, user, marcas } = useAuth();
+  const esAdmin = marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre.toLowerCase() === 'admin';
   const [filtro, setFiltro] = useState<'' | Estado>('BOT');
   const [lista, setLista] = useState<ConversacionResumen[]>([]);
   const [cargando, setCargando] = useState(true);
@@ -175,6 +176,17 @@ export function ChatInbox() {
     await accion(() => api.post(`/chat/conversaciones/${conv.id}/mensajes`, { texto: texto.trim() }));
     setTexto('');
     setEnviando(false);
+  }
+
+  async function eliminar(c: { id: string; titulo: string | null }) {
+    if (!window.confirm(`¿Eliminar la conversación «${c.titulo ?? 'sin título'}» con todos sus mensajes? No se puede deshacer.`)) return;
+    try {
+      await api.delete(`/chat/conversaciones/${c.id}`);
+      if (selId === c.id) { setSelId(null); setConv(null); }
+      await cargarLista();
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'No se pudo eliminar la conversación.');
+    }
   }
 
   const esMia = conv?.asesor?.id === user?.id;
@@ -258,6 +270,11 @@ export function ChatInbox() {
                         {fmt(c.updatedAt)} · {c.totalMensajes} mensajes{c.asesor ? ` · ${c.asesor.nombre ?? c.asesor.email}` : ''}
                       </div>
                     </div>
+                    {esAdmin && (
+                      <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" aria-label={`Eliminar la conversación ${c.titulo ?? ''}`} title="Eliminar conversación" style={{ color: 'var(--ax-danger-500)', flexShrink: 0 }} onClick={(e) => { e.stopPropagation(); void eliminar(c); }} onKeyDown={(e) => e.stopPropagation()}>
+                        ✕
+                      </button>
+                    )}
                   </li>
                 ))}
               </ul>
@@ -305,6 +322,11 @@ export function ChatInbox() {
                         {I_FIN}<span className="ax-btn__label">Finalizar</span>
                       </button>
                     </>
+                  )}
+                  {esAdmin && (
+                    <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={() => void eliminar(conv)}>
+                      <span className="ax-btn__label">Eliminar</span>
+                    </button>
                   )}
                 </div>
               </div>

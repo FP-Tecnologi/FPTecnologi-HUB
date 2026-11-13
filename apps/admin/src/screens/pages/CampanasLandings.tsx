@@ -7,10 +7,11 @@
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
-import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
+import { CampoImagen } from '../../components/ui/CampoImagen';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
+import { Select } from '../../components/ui/Select';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
@@ -139,7 +140,7 @@ function NuevaLanding({ plantillas, campanas, alCerrar, alCrear }: { plantillas:
             ))}
           </div>
           <div className="ax-field"><label className="ax-label" htmlFor="nl-camp">Campaña (opcional)</label>
-            <select id="nl-camp" className="ax-select" value={campanaId} onChange={(e) => setCampanaId(e.target.value)}><option value="">Sin campaña</option>{campanas.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}</select>
+            <Select id="nl-camp" className="ax-select" value={campanaId} onChange={(e) => setCampanaId(e.target.value)}><option value="">Sin campaña</option>{campanas.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}</Select>
           </div>
           <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'flex-end' }}>
             <button type="button" className="ax-btn ax-btn--ghost" onClick={alCerrar}>Cancelar</button>
@@ -230,7 +231,7 @@ function Editor({ id, plantillas, campanas, alSalir }: { id: string; plantillas:
               <span className="ax-help">Solo minúsculas, números y guiones. Si cambias la dirección, el enlace anterior deja de funcionar.</span>
             </div>
             <div className="ax-field"><label className="ax-label" htmlFor="aj-camp">Campaña</label>
-              <select id="aj-camp" className="ax-select" value={l.campanaId ?? ''} onChange={(e) => cambiar({ campanaId: e.target.value || null })}><option value="">Sin campaña</option>{campanas.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}</select>
+              <Select id="aj-camp" className="ax-select" value={l.campanaId ?? ''} onChange={(e) => cambiar({ campanaId: e.target.value || null })}><option value="">Sin campaña</option>{campanas.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}</Select>
             </div>
             {publicada && <p style={{ margin: 0, fontSize: 'var(--ax-text-sm)' }}>Enlace público: <a href={`${WEB}/l/${l.slug}`} target="_blank" rel="noreferrer">{WEB}/l/{l.slug}</a></p>}
           </div></section>
@@ -255,13 +256,8 @@ function PestanaContenido({ l, usa, cambiar }: { l: Landing; usa: (b: string) =>
     </Campo2>
   );
   const imagen = (k: 'imagenUrl' | 'logoUrl', label: string) => (
-    <div className="ax-field"><span className="ax-label">{label}</span>
-      <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', alignItems: 'center' }}>
-        {c[k] && /* eslint-disable-next-line @next/next/no-img-element */ <img src={urlImagen(c[k])} alt="" style={{ inlineSize: 72, blockSize: 56, objectFit: 'cover', borderRadius: 'var(--ax-radius-md)', border: '1px solid var(--ax-border)' }} />}
-        <SubirImagen onSubida={(u) => cambiar({ [k]: u[0]! })} />
-        {c[k] && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => cambiar({ [k]: '' })}>Quitar</button>}
-      </div>
-      <input className="ax-input" placeholder="…o pega una URL" value={c[k]} onChange={(e) => cambiar({ [k]: e.target.value })} aria-label={`URL de ${label}`} />
+    <div className="ax-field"><label className="ax-label" htmlFor={`c-${k}`}>{label}</label>
+      <CampoImagen id={`c-${k}`} value={c[k]} onChange={(u) => cambiar({ [k]: u })} />
     </div>
   );
   const lista = <T extends Record<string, string>>(clave: 'beneficios' | 'agenda' | 'faqs', campos: { k: keyof T & string; label: string; area?: boolean }[], vacio: T, max: number, titulo: string) => {
@@ -295,7 +291,7 @@ function PestanaContenido({ l, usa, cambiar }: { l: Landing; usa: (b: string) =>
         </div></section>
       <section className="ax-card ax-col--5"><div className="ax-card__header"><div className="ax-card__titles"><h2 className="ax-card__title">Apariencia</h2></div></div>
         <div className="ax-card__body" style={{ paddingTop: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
-          <Campo2 id="c-tema" label="Fondo del encabezado"><select id="c-tema" className="ax-select" value={c.tema} onChange={(e) => cambiar({ tema: e.target.value as Contenido['tema'] })}><option value="azul">Azul de marca</option><option value="oscuro">Oscuro</option><option value="claro">Claro</option></select></Campo2>
+          <Campo2 id="c-tema" label="Fondo del encabezado"><Select id="c-tema" className="ax-select" value={c.tema} onChange={(e) => cambiar({ tema: e.target.value as Contenido['tema'] })}><option value="azul">Azul de marca</option><option value="oscuro">Oscuro</option><option value="claro">Claro</option></Select></Campo2>
           {usa('imagen') && imagen('imagenUrl', 'Imagen principal')}
           {imagen('logoUrl', 'Logo (opcional; si no, el de FPTecnologi)')}
         </div></section>
@@ -369,7 +365,7 @@ function PestanaFormulario({ l, plantillas, cambiar }: { l: Landing; plantillas:
 
       <section className="ax-card ax-col--12"><div className="ax-card__header"><div className="ax-card__titles"><h2 className="ax-card__title">Campos ({f.campos.length})</h2></div>
         <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
-          <select className="ax-select" aria-label="Tipo de campo nuevo" value={tipoNuevo} onChange={(e) => setTipoNuevo(e.target.value as TipoCampo)}>{plantillas.tiposCampo.map((t) => <option key={t} value={t}>{TIPO_LABEL[t]}</option>)}</select>
+          <Select className="ax-select" aria-label="Tipo de campo nuevo" value={tipoNuevo} onChange={(e) => setTipoNuevo(e.target.value as TipoCampo)}>{plantillas.tiposCampo.map((t) => <option key={t} value={t}>{TIPO_LABEL[t]}</option>)}</Select>
           <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" disabled={f.campos.length >= 30} onClick={agregar}>Agregar campo</button>
         </div></div>
         <div className="ax-card__body" style={{ paddingTop: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
@@ -377,8 +373,8 @@ function PestanaFormulario({ l, plantillas, cambiar }: { l: Landing; plantillas:
             <div key={c.id} style={{ border: '1px solid var(--ax-border)', borderRadius: 'var(--ax-radius-md)', padding: 'var(--ax-space-3)' }}>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap', alignItems: 'center' }}>
                 <input className="ax-input" style={{ flex: '2 1 220px' }} aria-label="Etiqueta" value={c.etiqueta} onChange={(e) => upd(i, { etiqueta: e.target.value })} />
-                <select className="ax-select" style={{ flex: '1 1 150px' }} aria-label="Tipo" value={c.tipo} onChange={(e) => upd(i, { tipo: e.target.value as TipoCampo, ...(e.target.value === 'select' && !c.opciones?.length ? { opciones: ['Opción 1', 'Opción 2'] } : {}) })}>{plantillas.tiposCampo.map((t) => <option key={t} value={t}>{TIPO_LABEL[t]}</option>)}</select>
-                {f.pasos.length > 1 && <select className="ax-select" style={{ flex: '0 1 140px' }} aria-label="Paso" value={c.paso ?? 0} onChange={(e) => upd(i, { paso: Number(e.target.value) })}>{f.pasos.map((p, j) => <option key={j} value={j}>{p || `Paso ${j + 1}`}</option>)}</select>}
+                <Select className="ax-select" style={{ flex: '1 1 150px' }} aria-label="Tipo" value={c.tipo} onChange={(e) => upd(i, { tipo: e.target.value as TipoCampo, ...(e.target.value === 'select' && !c.opciones?.length ? { opciones: ['Opción 1', 'Opción 2'] } : {}) })}>{plantillas.tiposCampo.map((t) => <option key={t} value={t}>{TIPO_LABEL[t]}</option>)}</Select>
+                {f.pasos.length > 1 && <Select className="ax-select" style={{ flex: '0 1 140px' }} aria-label="Paso" value={c.paso ?? 0} onChange={(e) => upd(i, { paso: Number(e.target.value) })}>{f.pasos.map((p, j) => <option key={j} value={j}>{p || `Paso ${j + 1}`}</option>)}</Select>}
                 <label className="ax-check"><input type="checkbox" className="ax-checkbox" checked={c.requerido} onChange={(e) => upd(i, { requerido: e.target.checked })} /><span>Obligatorio</span></label>
                 <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" disabled={i === 0} aria-label="Subir" onClick={() => { const n = [...f.campos]; [n[i - 1], n[i]] = [n[i]!, n[i - 1]!]; set(n); }}>↑</button>
                 <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" disabled={i === f.campos.length - 1} aria-label="Bajar" onClick={() => { const n = [...f.campos]; [n[i + 1], n[i]] = [n[i]!, n[i + 1]!]; set(n); }}>↓</button>

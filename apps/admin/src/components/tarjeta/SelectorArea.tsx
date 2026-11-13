@@ -1,6 +1,7 @@
 'use client';
 /* Área de la tarjeta: se elige de la lista o, con «Otra…», se escribe a mano. */
 import { useState } from 'react';
+import { Select } from '../ui/Select';
 
 export const AREAS = ['Comercial', 'Ventas', 'Marketing', 'Servicios', 'Tienda', 'Partners', 'Soporte técnico', 'Logística', 'Finanzas', 'Dirección', 'Administración'];
 
@@ -10,7 +11,7 @@ export function SelectorArea({ id, valor, onCambio }: { id: string; valor: strin
   const esOtra = otra || (valor !== '' && !AREAS.includes(valor));
   return (
     <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
-      <select
+      <Select
         id={id}
         className="ax-select"
         value={esOtra ? '__otra' : valor}
@@ -21,7 +22,7 @@ export function SelectorArea({ id, valor, onCambio }: { id: string; valor: strin
         <option value="">Sin área</option>
         {AREAS.map((a) => <option key={a} value={a}>{a}</option>)}
         <option value="__otra">Otra…</option>
-      </select>
+      </Select>
       {esOtra && <input className="ax-input" aria-label="Escribe el área" placeholder="Escribe el área" maxLength={40} value={valor} onChange={(e) => onCambio(e.target.value)} autoFocus={otra} />}
     </div>
   );

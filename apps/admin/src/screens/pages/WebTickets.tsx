@@ -10,6 +10,7 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { abrirArchivoPrivado, api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
+import { Select } from '../../components/ui/Select';
 
 type Estado = 'NUEVO' | 'EN_REVISION' | 'ESPERANDO_CLIENTE' | 'RESUELTO' | 'CERRADO';
 type Tipo = 'RECLAMO' | 'VERIFICACION' | 'SOPORTE';
@@ -231,10 +232,10 @@ export function WebTickets() {
                     </button>
                   ))}
                 </div>
-                <select className="ax-select" aria-label="Filtrar por tipo" value={tipo} onChange={(e) => setTipo(e.target.value as '' | Tipo)}>
+                <Select className="ax-select" aria-label="Filtrar por tipo" value={tipo} onChange={(e) => setTipo(e.target.value as '' | Tipo)}>
                   <option value="">Todos los tipos</option>
                   {(Object.keys(TIPOS) as Tipo[]).map((t) => <option key={t} value={t}>{TIPOS[t]}</option>)}
-                </select>
+                </Select>
               </div>
               <input type="search" className="ax-input" placeholder="Buscar n.º, nombre, compra…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Buscar tickets" style={{ maxWidth: 260 }} />
             </div>
@@ -291,15 +292,15 @@ export function WebTickets() {
                 <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'wrap' }}>
                   <div className="ax-field" style={{ minWidth: 150 }}>
                     <label className="ax-label" htmlFor="t-estado">Estado</label>
-                    <select id="t-estado" className="ax-select" value={sel.estado} disabled={guardando} onChange={(e) => actualizar({ estado: e.target.value as Estado })}>
+                    <Select id="t-estado" className="ax-select" value={sel.estado} disabled={guardando} onChange={(e) => actualizar({ estado: e.target.value as Estado })}>
                       {ESTADOS.map((e) => <option key={e.v} value={e.v}>{e.label}</option>)}
-                    </select>
+                    </Select>
                   </div>
                   <div className="ax-field" style={{ minWidth: 130 }}>
                     <label className="ax-label" htmlFor="t-prio">Prioridad</label>
-                    <select id="t-prio" className="ax-select" value={sel.prioridad} disabled={guardando} onChange={(e) => actualizar({ prioridad: e.target.value as Prioridad })}>
+                    <Select id="t-prio" className="ax-select" value={sel.prioridad} disabled={guardando} onChange={(e) => actualizar({ prioridad: e.target.value as Prioridad })}>
                       {PRIORIDADES.map((p) => <option key={p.v} value={p.v}>{p.label}</option>)}
-                    </select>
+                    </Select>
                   </div>
                   <div className="ax-field" style={{ flex: '1 1 200px' }}>
                     <label className="ax-label" htmlFor="t-asig">Responsable (correo)</label>
@@ -367,11 +368,11 @@ export function WebTickets() {
                           <input type="checkbox" checked={interno} onChange={(e) => setInterno(e.target.checked)} /> Nota interna
                         </label>
                         {!interno && (
-                          <select className="ax-select" aria-label="Estado después de responder" value={estadoAlResponder} onChange={(e) => setEstadoAlResponder(e.target.value as '' | Estado)}>
+                          <Select className="ax-select" aria-label="Estado después de responder" value={estadoAlResponder} onChange={(e) => setEstadoAlResponder(e.target.value as '' | Estado)}>
                             <option value="">Mantener estado</option>
                             <option value="ESPERANDO_CLIENTE">Pasar a Esperando cliente</option>
                             <option value="RESUELTO">Pasar a Resuelto</option>
-                          </select>
+                          </Select>
                         )}
                       </div>
                       <button type="submit" className="ax-btn ax-btn--primary ax-btn--sm" disabled={guardando || !texto.trim()}>

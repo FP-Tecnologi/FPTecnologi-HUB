@@ -19,8 +19,14 @@ export function PageHero({
   descripcion,
   imagen = '/images/modelo9/hero-office.jpg',
   video,
+  tinte,
+  logo,
   children,
 }: {
+  /** Colores de una marca aliada: tiñe el hero y lo combina con el azul de FPTecnologi. */
+  tinte?: { primario: string; oscuro: string };
+  /** Logo de la marca que se muestra sobre el título (en una tarjeta blanca). */
+  logo?: string;
   crumbs: { label: string; href: string }[];
   /** Ya no se muestra (las migas de pan hacen de etiqueta); se deja por compatibilidad. */
   badge?: string;
@@ -43,7 +49,12 @@ export function PageHero({
               <source src={video} type="video/mp4" />
             </video>
           )}
-          <div className="absolute inset-0 z-[1] bg-gradient-to-b from-ink/75 via-ink/65 to-ink/80" />
+          {tinte ? (
+            // Landing de marca: degradé de los colores de la marca que termina en el azul de FPTecnologi.
+            <div className="absolute inset-0 z-[1]" style={{ background: `linear-gradient(135deg, ${tinte.oscuro}F7 0%, ${tinte.oscuro}EB 40%, ${tinte.primario}CC 78%, #2898eeD9 100%)` }} />
+          ) : (
+            <div className="absolute inset-0 z-[1] bg-gradient-to-b from-ink/75 via-ink/65 to-ink/80" />
+          )}
           <div className="absolute inset-0 z-[1] bg-[radial-gradient(ellipse_60%_50%_at_50%_45%,rgba(0,0,0,0.35),transparent)]" />
           <div className="absolute inset-0 z-[2]">
             <ParticlesBackground />
@@ -81,6 +92,13 @@ export function PageHero({
                   </span>
                 ))}
               </nav>
+
+              {logo && (
+                <div className="v9-appear v9-appear--scale mb-5 flex h-20 items-center justify-center rounded-2xl bg-white px-8 shadow-xl shadow-black/25 sm:h-24" style={{ animationDelay: '100ms', borderBottom: tinte ? `4px solid ${tinte.primario}` : undefined }}>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={logo} alt="" className="h-12 w-40 object-contain sm:h-14 sm:w-48" />
+                </div>
+              )}
 
               <h1
                 className="v9-appear v9-appear--scale mx-auto mb-3 max-w-4xl text-4xl font-normal leading-[1.08] tracking-tight text-white sm:text-5xl 2xl:text-6xl"

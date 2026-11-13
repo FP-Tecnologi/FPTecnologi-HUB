@@ -10,6 +10,7 @@ import { PageHead } from '../components/shell/PageHead';
 import { Avatar } from '../components/ui/Avatar';
 import { useAuth, ApiError } from '../context/AuthContext';
 import { AutenticadorCard } from '../components/ajustes/AutenticadorCard';
+import { Select } from '../components/ui/Select';
 
 // ponytail: sin backend de storage todavía -- la foto se manda como data:
 // URI (base64) en la columna de texto avatarUrl. Tope generoso pero bajo:
@@ -310,12 +311,12 @@ export function Ajustes() {
             </ul>
             <div className="ax-field" style={{ marginTop: 'var(--ax-space-4)', maxWidth: 280 }}>
               <label className="ax-label" htmlFor="aj-resumen">Frecuencia del resumen</label>
-              <select id="aj-resumen" className="ax-select" value={resumenFrecuencia} onChange={(e) => setFrecuencia(e.target.value)}>
+              <Select id="aj-resumen" className="ax-select" value={resumenFrecuencia} onChange={(e) => setFrecuencia(e.target.value)}>
                 <option>Diaria</option>
                 <option>Semanal</option>
                 <option>Mensual</option>
                 <option>Nunca</option>
-              </select>
+              </Select>
             </div>
             <div className="ax-cluster" style={{ justifyContent: 'space-between', paddingTop: 'var(--ax-space-3)', marginTop: 'var(--ax-space-3)', borderTop: '1px solid var(--ax-border)' }}>
               <div><div style={{ fontWeight: 'var(--ax-weight-medium)', color: 'var(--ax-text-strong)', fontSize: 'var(--ax-text-sm)' }}>Silenciar todos los avisos</div><div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Pausa temporalmente todos los avisos</div></div>

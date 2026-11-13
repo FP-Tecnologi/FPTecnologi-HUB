@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { PageHead } from '../components/shell/PageHead';
 import { ApiError, useAuth } from '../context/AuthContext';
 import { api } from '../lib/api';
+import { Select } from '../components/ui/Select';
 
 type Estado = 'ABIERTO' | 'EN_REVISION' | 'CERRADO';
 interface Ticket {
@@ -85,11 +86,11 @@ export function Ayuda() {
               </div>
               <div className="ax-field">
                 <label className="ax-label" htmlFor="ay-cat">Categoría</label>
-                <select id="ay-cat" className="ax-select" value={categoria} onChange={(e) => setCategoria(e.target.value)}>
+                <Select id="ay-cat" className="ax-select" value={categoria} onChange={(e) => setCategoria(e.target.value)}>
                   {CATEGORIAS.map((c) => (
                     <option key={c}>{c}</option>
                   ))}
-                </select>
+                </Select>
               </div>
               <div className="ax-field">
                 <label className="ax-label" htmlFor="ay-msg">Detalle</label>

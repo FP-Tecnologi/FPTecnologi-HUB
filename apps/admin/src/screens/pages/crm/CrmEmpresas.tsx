@@ -9,6 +9,7 @@ import { PageHead } from '../../../components/shell/PageHead';
 import { api } from '../../../lib/api';
 import { useAuth } from '../../../context/AuthContext';
 import { Alerta, BotonIcono, Modal, msg, useConfirmar } from './comun';
+import { Select } from '../../../components/ui/Select';
 
 interface Empresa { id: string; razonSocial: string; ruc: string | null; rubro: string | null; web: string | null; telefono: string | null; direccion: string | null; notas: string | null; _count: { contactos: number; oportunidades: number } }
 interface Contacto { id: string; nombre: string; cargo: string | null; email: string | null; celular: string | null; documento: string | null; notas: string | null; empresaId: string | null; empresa: { id: string; razonSocial: string } | null; _count: { oportunidades: number } }
@@ -175,9 +176,9 @@ export function CrmEmpresas() {
             <div style={fila}>{campo(fc, setFc as never, 'nombre', 'Nombre *', { maxLength: 160 })}{campo(fc, setFc as never, 'cargo', 'Cargo', { maxLength: 80 })}</div>
             <div style={fila}>{campo(fc, setFc as never, 'email', 'Correo', { type: 'email', maxLength: 120 })}{campo(fc, setFc as never, 'celular', 'Celular', { maxLength: 30 })}{campo(fc, setFc as never, 'documento', 'DNI / RUC', { maxLength: 15 })}</div>
             <div className="ax-field"><label className="ax-label" htmlFor="crm-cemp">Empresa</label>
-              <select id="crm-cemp" className="ax-select" value={fc.empresaId} onChange={(e) => setFc({ ...fc, empresaId: e.target.value })}>
+              <Select id="crm-cemp" className="ax-select" value={fc.empresaId} onChange={(e) => setFc({ ...fc, empresaId: e.target.value })}>
                 <option value="">Sin empresa</option>{todas.map((e) => <option key={e.id} value={e.id}>{e.razonSocial}</option>)}
-              </select></div>
+              </Select></div>
             <div className="ax-field"><label className="ax-label" htmlFor="crm-cnotas">Notas</label><textarea id="crm-cnotas" className="ax-textarea" rows={3} maxLength={2000} value={fc.notas} onChange={(e) => setFc({ ...fc, notas: e.target.value })} /></div>
             <div className="ax-cluster" style={{ justifyContent: 'flex-end', gap: 'var(--ax-space-2)' }}>
               <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEditC(null)}>Cancelar</button>

@@ -15,6 +15,7 @@ import { MenuPuntos } from '../../components/ui/MenuPuntos';
 import { EditorTarjeta } from '../../components/tarjeta/EditorTarjeta';
 import { descargarQrPng } from '../../lib/descargarQr';
 import { VACIA, type Tarjeta } from './MiTarjeta';
+import { Select } from '../../components/ui/Select';
 
 type Fila = Tarjeta & { id: string; usuarioId: string; propietario: string | null; url: string; faltantes: { campo: string; aviso: string }[] };
 interface SinTarjeta { usuarioId: string; nombre: string; email: string; rol: string }
@@ -144,11 +145,11 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
         <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', marginBlockEnd: 'var(--ax-space-3)', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <input type="search" className="ax-input" style={{ width: 240 }} placeholder="Buscar persona, cargo o enlace" aria-label="Buscar" value={q} onChange={(e) => setQ(e.target.value)} />
           {filtroMarca}
-          <select className="ax-select" style={{ width: 'auto' }} aria-label="Filtrar por estado" value={filtro} onChange={(e) => setFiltro(e.target.value as typeof filtro)}>
+          <Select className="ax-select" style={{ width: 'auto' }} aria-label="Filtrar por estado" value={filtro} onChange={(e) => setFiltro(e.target.value as typeof filtro)}>
             <option value="todas">Todas ({datos?.tarjetas.length ?? 0})</option>
             <option value="incompletas">Incompletas</option>
             <option value="ocultas">Ocultas</option>
-          </select>
+          </Select>
         </div>
         <div className="ax-table-wrap">
           <table className="ax-table ax-table--hover">

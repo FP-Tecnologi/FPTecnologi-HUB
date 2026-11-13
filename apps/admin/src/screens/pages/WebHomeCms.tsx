@@ -16,6 +16,7 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { api, API_URL } from '../../lib/api';
 import { SubirImagen } from '../../components/ui/SubirImagen';
 import { apuntaALocal } from '../../lib/webMarca';
+import { Select } from '../../components/ui/Select';
 
 const WEB_FPT = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
@@ -203,13 +204,13 @@ export function CmsEditor({ config }: { config: CmsConfig }) {
           <div className="ax-card__body" style={{ flex: '0 0 auto', borderBottom: '1px solid var(--ax-border)' }}>
             <label className="ax-label" htmlFor="cms-sec">Sección</label>
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'nowrap' }}>
-              <select id="cms-sec" className="ax-select" value={sel} onChange={(e) => setSel(e.target.value)} style={{ flex: 1 }}>
+              <Select id="cms-sec" className="ax-select" value={sel} onChange={(e) => setSel(e.target.value)} style={{ flex: 1 }}>
                 {SECCIONES.map((s, i) => (
                   <option key={s.key} value={s.key}>
                     {i + 1}. {s.nombre}{conVisible && borrador[s.key]?.visible === false ? ' (oculta)' : ''}
                   </option>
                 ))}
-              </select>
+              </Select>
               {conVisible && (
                 <label className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap', whiteSpace: 'nowrap', fontSize: 'var(--ax-text-sm)' }}>
                   <input type="checkbox" className="ax-switch" checked={datos.visible !== false} onChange={() => toggleVisible(sel)} disabled={!guardado || guardando} />

@@ -5,7 +5,7 @@
  */
 import type { ReactNode } from 'react';
 import { PageHead } from '../shell/PageHead';
-import { SubirImagen, urlImagen } from '../ui/SubirImagen';
+import { CampoImagen } from '../ui/CampoImagen';
 import { PanelOpciones } from './PanelOpciones';
 import { SelectorArea } from './SelectorArea';
 import { VistaPreviaReal, type MarcaTarjeta } from './VistaPreviaReal';
@@ -63,25 +63,13 @@ export function EditorTarjeta({ titulo, volver = '← Volver', form, set, onGuar
         <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 'var(--ax-space-5)', alignItems: 'flex-start' }}>
           <section className="ax-card" style={{ flex: '1 1 24rem', minWidth: 0, padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
             <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 'var(--ax-space-4)', alignItems: 'flex-start' }}>
-              <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
-                {form.fotoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={urlImagen(form.fotoUrl)} alt="Foto" width={64} height={64} style={{ width: 64, height: 64, borderRadius: '50%', objectFit: 'cover' }} />
-                ) : (
-                  <span style={{ width: 64, height: 64, borderRadius: '50%', background: 'var(--ax-surface-subtle)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>{(form.nombre || '?').charAt(0).toUpperCase()}</span>
-                )}
-                <SubirImagen etiqueta={form.fotoUrl ? 'Cambiar foto' : 'Subir foto'} onSubida={(urls) => set('fotoUrl', urls[0])} />
-                {form.fotoUrl && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => set('fotoUrl', '')}>Quitar foto</button>}
+              <div className="ax-field" style={{ flex: '1 1 100%' }}>
+                <label className="ax-label" htmlFor="tj-foto">Foto</label>
+                <CampoImagen id="tj-foto" value={form.fotoUrl} onChange={(u) => set('fotoUrl', u)} />
               </div>
-              <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
-                {form.portadaUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={urlImagen(form.portadaUrl)} alt="Portada" style={{ width: 160, height: 60, borderRadius: 8, objectFit: 'cover' }} />
-                ) : (
-                  <span style={{ width: 160, height: 60, borderRadius: 8, background: 'var(--ax-surface-subtle)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Sin portada</span>
-                )}
-                <SubirImagen etiqueta={form.portadaUrl ? 'Cambiar portada' : 'Subir portada'} onSubida={(urls) => set('portadaUrl', urls[0])} />
-                {form.portadaUrl && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => set('portadaUrl', '')}>Quitar portada</button>}
+              <div className="ax-field" style={{ flex: '1 1 100%' }}>
+                <label className="ax-label" htmlFor="tj-portada">Portada</label>
+                <CampoImagen id="tj-portada" value={form.portadaUrl} onChange={(u) => set('portadaUrl', u)} />
               </div>
             </div>
             {conVersion && campo('etiqueta', 'Nombre de esta versión (solo para ti)', 'Comercial, Redes, Soporte…')}

@@ -12,6 +12,7 @@ import { api } from '../../lib/api';
 import { VerEnCrm } from './crm/VerEnCrm';
 import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
+import { Select } from '../../components/ui/Select';
 
 type Estado = 'NUEVO' | 'CONTACTADO' | 'RESUELTO' | 'DESCARTADO';
 type Tipo = 'CONTACTO' | 'RECLAMO' | 'TARJETA_BBVA'; // TARJETA_BBVA tiene su propia pantalla (web/bbva)
@@ -280,9 +281,9 @@ export function ContactosWeb() {
 
               <div className="ax-field">
                 <label className="ax-label" htmlFor="contacto-estado">Estado</label>
-                <select id="contacto-estado" className="ax-select" value={sel.estado} disabled={guardando} onChange={(e) => actualizar(sel, { estado: e.target.value as Estado })}>
+                <Select id="contacto-estado" className="ax-select" value={sel.estado} disabled={guardando} onChange={(e) => actualizar(sel, { estado: e.target.value as Estado })}>
                   {ESTADOS.map((e) => <option key={e.v} value={e.v}>{e.label}</option>)}
-                </select>
+                </Select>
               </div>
 
               <div className="ax-field">

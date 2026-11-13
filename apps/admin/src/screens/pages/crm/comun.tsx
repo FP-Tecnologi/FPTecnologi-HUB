@@ -11,6 +11,7 @@ import { ApiError } from '../../../context/AuthContext';
 import { useFocusTrap } from '../../../hooks/useFocusTrap';
 import { manifest, hrefForSlug } from '../../../lib/manifest';
 import { Icon } from '../../../components/ui/Icon';
+import { Select } from '../../../components/ui/Select';
 
 export type Etapa = 'NUEVO' | 'CONTACTADO' | 'PROPUESTA' | 'NEGOCIACION' | 'GANADO' | 'PERDIDO';
 export type Origen = 'MANUAL' | 'COTIZADOR' | 'COTIZACION' | 'CONTACTO_WEB' | 'PRESUPUESTO';
@@ -201,7 +202,7 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
   };
 
   const moduloSolicitud = o?.solicitud ? manifest.byId.get(o.solicitud.modulo) : null;
-  const set = (k: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setForm({ ...form, [k]: e.target.value });
+  const set = (k: keyof typeof form) => (e: { target: { value: string } }) => setForm({ ...form, [k]: e.target.value });
 
   return (
     <Modal lado ancho={640} titulo={o ? <>{o.numero} · <span style={{ fontWeight: 'var(--ax-weight-regular)' }}>{o.titulo}</span></> : 'Cargando…'} onClose={onClose}>
@@ -248,13 +249,13 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
               <div className="ax-field"><label className="ax-label" htmlFor="op-tit">Título</label><input id="op-tit" className="ax-input" maxLength={160} value={form.titulo} onChange={set('titulo')} /></div>
               <div style={fila}>
                 <div className="ax-field"><label className="ax-label" htmlFor="op-resp">Responsable</label>
-                  <select id="op-resp" className="ax-select" value={form.asignadoId} onChange={set('asignadoId')}>
+                  <Select id="op-resp" className="ax-select" value={form.asignadoId} onChange={set('asignadoId')}>
                     <option value="">Sin asignar</option>
                     {asignables.map((u) => <option key={u.id} value={u.id}>{nombreDe(u)}</option>)}
-                  </select></div>
+                  </Select></div>
                 <div className="ax-field"><label className="ax-label" htmlFor="op-monto">Monto estimado</label>
                   <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
-                    <select aria-label="Moneda" className="ax-select" style={{ width: 84 }} value={form.moneda} onChange={set('moneda')}><option value="PEN">S/</option><option value="USD">US$</option></select>
+                    <Select aria-label="Moneda" className="ax-select" style={{ width: 84 }} value={form.moneda} onChange={set('moneda')}><option value="PEN">S/</option><option value="USD">US$</option></Select>
                     <input id="op-monto" className="ax-input" inputMode="decimal" value={form.monto} onChange={set('monto')} placeholder="0" />
                   </div></div>
                 <div className="ax-field"><label className="ax-label" htmlFor="op-cierre">Cierre estimado</label><input id="op-cierre" type="date" className="ax-input" value={form.cierreEstimado} onChange={set('cierreEstimado')} /></div>
@@ -347,7 +348,7 @@ export function NuevaOportunidad({ onClose, onCreada }: { onClose: () => void; o
   const [f, setF] = useState({ titulo: '', empresa: '', ruc: '', contacto: '', email: '', celular: '', etapa: 'NUEVO' as Etapa, monto: '', moneda: 'PEN', asignadoId: '', proximaAccion: '', proximaAccionAt: '' });
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
-  const set = (k: keyof typeof f) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => setF({ ...f, [k]: e.target.value });
+  const set = (k: keyof typeof f) => (e: { target: { value: string } }) => setF({ ...f, [k]: e.target.value });
 
   async function crear(e: React.FormEvent) {
     e.preventDefault();
@@ -414,10 +415,10 @@ export function NuevaOportunidad({ onClose, onCreada }: { onClose: () => void; o
           <>
             {empresaSel && deEmpresa.length > 0 && (
               <div className="ax-field"><label className="ax-label" htmlFor="no-cex">Contacto de la empresa</label>
-                <select id="no-cex" className="ax-select" value="" onChange={(e) => { const c = deEmpresa.find((x) => x.id === e.target.value); if (c) setContactoSel({ ...c, empresa: empresaSel }); }}>
+                <Select id="no-cex" className="ax-select" value="" onChange={(e) => { const c = deEmpresa.find((x) => x.id === e.target.value); if (c) setContactoSel({ ...c, empresa: empresaSel }); }}>
                   <option value="">Nuevo contacto (llenar abajo)</option>
                   {deEmpresa.map((c) => <option key={c.id} value={c.id}>{c.nombre}{c.email ? ` · ${c.email}` : ''}</option>)}
-                </select></div>
+                </Select></div>
             )}
             <div style={fila}>
               <div className="ax-field"><label className="ax-label" htmlFor="no-con">Contacto</label><input id="no-con" className="ax-input" maxLength={160} value={f.contacto} onChange={set('contacto')} /></div>
@@ -428,14 +429,14 @@ export function NuevaOportunidad({ onClose, onCreada }: { onClose: () => void; o
         )}
         <div style={fila}>
           <div className="ax-field"><label className="ax-label" htmlFor="no-et">Etapa</label>
-            <select id="no-et" className="ax-select" value={f.etapa} onChange={set('etapa')}>{ETAPAS.filter((e) => e.v !== 'PERDIDO').map((e) => <option key={e.v} value={e.v}>{e.label}</option>)}</select></div>
+            <Select id="no-et" className="ax-select" value={f.etapa} onChange={set('etapa')}>{ETAPAS.filter((e) => e.v !== 'PERDIDO').map((e) => <option key={e.v} value={e.v}>{e.label}</option>)}</Select></div>
           <div className="ax-field"><label className="ax-label" htmlFor="no-monto">Monto estimado</label>
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
-              <select aria-label="Moneda" className="ax-select" style={{ width: 84 }} value={f.moneda} onChange={set('moneda')}><option value="PEN">S/</option><option value="USD">US$</option></select>
+              <Select aria-label="Moneda" className="ax-select" style={{ width: 84 }} value={f.moneda} onChange={set('moneda')}><option value="PEN">S/</option><option value="USD">US$</option></Select>
               <input id="no-monto" className="ax-input" inputMode="decimal" value={f.monto} onChange={set('monto')} />
             </div></div>
           <div className="ax-field"><label className="ax-label" htmlFor="no-resp">Responsable</label>
-            <select id="no-resp" className="ax-select" value={f.asignadoId} onChange={set('asignadoId')}><option value="">Sin asignar</option>{asignables.map((u) => <option key={u.id} value={u.id}>{nombreDe(u)}</option>)}</select></div>
+            <Select id="no-resp" className="ax-select" value={f.asignadoId} onChange={set('asignadoId')}><option value="">Sin asignar</option>{asignables.map((u) => <option key={u.id} value={u.id}>{nombreDe(u)}</option>)}</Select></div>
         </div>
         <div style={fila}>
           <div className="ax-field"><label className="ax-label" htmlFor="no-acc">Próxima acción</label><input id="no-acc" className="ax-input" maxLength={200} value={f.proximaAccion} onChange={set('proximaAccion')} /></div>

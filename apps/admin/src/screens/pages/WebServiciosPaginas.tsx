@@ -13,6 +13,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { CampoEditor, Preview, type Seccion } from './WebHomeCms';
+import { Select } from '../../components/ui/Select';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 const PANEL_H = 'calc(100vh - 370px)';
@@ -266,15 +267,15 @@ export function WebServiciosPaginas() {
           <div className="ax-card__body" style={{ flex: '0 0 auto', borderBottom: '1px solid var(--ax-border)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
             <div className="ax-field">
               <label className="ax-label" htmlFor="sp-serv">Servicio</label>
-              <select id="sp-serv" className="ax-select" value={selId} onChange={(e) => { setOk(''); setError(''); setSelId(e.target.value); }}>
+              <Select id="sp-serv" className="ax-select" value={selId} onChange={(e) => { setOk(''); setError(''); setSelId(e.target.value); }}>
                 {lista.map((s) => <option key={s.id} value={s.id}>{s.nombre}{s.activo ? '' : ' (inactivo)'}</option>)}
-              </select>
+              </Select>
             </div>
             <div className="ax-field">
               <label className="ax-label" htmlFor="sp-sec">Sección</label>
-              <select id="sp-sec" className="ax-select" value={sel} onChange={(e) => setSel(e.target.value)}>
+              <Select id="sp-sec" className="ax-select" value={sel} onChange={(e) => setSel(e.target.value)}>
                 {SECCIONES.map((s, i) => <option key={s.key} value={s.key}>{i + 1}. {s.nombre}</option>)}
-              </select>
+              </Select>
             </div>
           </div>
 

@@ -11,6 +11,7 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
+import { Select } from '../../components/ui/Select';
 
 type Estado = 'PENDIENTE' | 'PAGADO' | 'ENVIADO' | 'ENTREGADO' | 'CANCELADO';
 type Pago = 'PENDIENTE' | 'POR_CONFIRMAR' | 'PAGADO';
@@ -256,9 +257,9 @@ export function EcommercePedidos() {
 
               <div className="ax-field">
                 <label className="ax-label" htmlFor="ped-estado">Estado del pedido</label>
-                <select id="ped-estado" className="ax-select" value={sel.estado} disabled={guardando || sel.estado === 'CANCELADO'} onChange={(e) => actualizar(sel, { estado: e.target.value as Estado })}>
+                <Select id="ped-estado" className="ax-select" value={sel.estado} disabled={guardando || sel.estado === 'CANCELADO'} onChange={(e) => actualizar(sel, { estado: e.target.value as Estado })}>
                   {ESTADOS.map((e) => <option key={e.v} value={e.v}>{e.label}</option>)}
-                </select>
+                </Select>
                 {sel.estado === 'CANCELADO' && <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Un pedido cancelado no se puede reactivar.</span>}
               </div>
               {sel.envioProveedor && (
@@ -270,9 +271,9 @@ export function EcommercePedidos() {
               )}
               <div className="ax-field">
                 <label className="ax-label" htmlFor="ped-pago">Estado del pago</label>
-                <select id="ped-pago" className="ax-select" value={sel.estadoPago} disabled={guardando} onChange={(e) => actualizar(sel, { estadoPago: e.target.value as Pago })}>
+                <Select id="ped-pago" className="ax-select" value={sel.estadoPago} disabled={guardando} onChange={(e) => actualizar(sel, { estadoPago: e.target.value as Pago })}>
                   {PAGOS.map((e) => <option key={e.v} value={e.v}>{e.label}</option>)}
-                </select>
+                </Select>
               </div>
           </Modal>
         )}

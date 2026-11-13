@@ -9,6 +9,7 @@ import { aplicarMostrar } from '../../lib/tarjetaOpciones';
 import type { Tarjeta } from '../../screens/pages/MiTarjeta';
 import { urlImagen } from '../ui/SubirImagen';
 import { ESTILOS_TARJETA, type EstiloTarjeta } from '../../lib/tarjetaGrafica';
+import { Select } from '../ui/Select';
 
 const WEB_ENV = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
@@ -89,13 +90,13 @@ export function VistaPreviaReal({ t, url, base, marca, onCambio }: { t: Tarjeta;
         <strong>Vista previa</strong>
         {onCambio && (
           <div className="ax-cluster" style={{ gap: 4 }}>
-            <select className="ax-select ax-select--sm" style={{ width: 'auto' }} aria-label="Diseño de la página" value={t.vista} onChange={(e) => onCambio('vista', e.target.value as Tarjeta['vista'])}>
+            <Select className="ax-select ax-select--sm" style={{ width: 'auto' }} aria-label="Diseño de la página" value={t.vista} onChange={(e) => onCambio('vista', e.target.value as Tarjeta['vista'])}>
               <option value="perfil">Diseño: Perfil completo</option>
               <option value="linktree">Diseño: Linktree</option>
-            </select>
-            <select className="ax-select ax-select--sm" style={{ width: 'auto' }} aria-label="Estilo" value={t.estilo} onChange={(e) => onCambio('estilo', e.target.value as EstiloTarjeta)}>
+            </Select>
+            <Select className="ax-select ax-select--sm" style={{ width: 'auto' }} aria-label="Estilo" value={t.estilo} onChange={(e) => onCambio('estilo', e.target.value as EstiloTarjeta)}>
               {ESTILOS_TARJETA.map((e) => <option key={e.id} value={e.id}>Estilo: {e.nombre}</option>)}
-            </select>
+            </Select>
           </div>
         )}
         <div className="ax-cluster" style={{ gap: 4 }}>

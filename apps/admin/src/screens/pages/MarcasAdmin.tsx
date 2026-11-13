@@ -9,7 +9,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { ApiError, useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
-import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
+import { CampoImagen } from '../../components/ui/CampoImagen';
 
 interface Marca {
   id: string; nombre: string; logo: string | null; colorPrimario: string | null; colorSecundario: string | null;
@@ -153,14 +153,7 @@ export function MarcasAdmin() {
               {campo('nombre', 'Nombre', { required: true, maxLength: 80 })}
               <div className="ax-field">
                 <span className="ax-label">Logo (se usa en la portada de las tarjetas digitales)</span>
-                <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
-                  {form.logo ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={urlImagen(form.logo)} alt="Logo" style={{ height: 40, maxWidth: 160, objectFit: 'contain', background: form.colorPrimario || 'var(--ax-surface-subtle)', borderRadius: 8, padding: 6 }} />
-                  ) : <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Sin logo</span>}
-                  <SubirImagen etiqueta={form.logo ? 'Cambiar logo' : 'Subir logo'} onSubida={(urls) => setForm({ ...form, logo: urls[0] })} />
-                  {form.logo && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setForm({ ...form, logo: '' })}>Quitar</button>}
-                </div>
+                <CampoImagen value={form.logo} onChange={(u) => setForm({ ...form, logo: u })} />
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--ax-space-3)' }}>
                 {campo('colorPrimario', 'Color principal', { placeholder: '#238DC1', maxLength: 9 })}

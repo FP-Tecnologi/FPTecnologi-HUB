@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { Select } from '../../components/ui/Select';
 
 interface Evento { id: string; usuarioId: string | null; email: string | null; accion: string; detalle: string | null; marcaId: string | null; createdAt: string }
 interface Respuesta { eventos: Evento[]; acciones: string[]; marcas: { id: string; nombre: string }[] }
@@ -62,10 +63,10 @@ export function ActividadAdmin() {
       <section className="ax-card" style={{ padding: 'var(--ax-space-4)' }}>
         <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', marginBlockEnd: 'var(--ax-space-3)', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <input type="search" className="ax-input" style={{ width: 240 }} placeholder="Buscar correo o detalle" aria-label="Buscar en la actividad" value={q} onChange={(e) => setQ(e.target.value)} />
-          <select className="ax-select" style={{ width: 'auto' }} aria-label="Filtrar por acción" value={accion} onChange={(e) => setAccion(e.target.value)}>
+          <Select className="ax-select" style={{ width: 'auto' }} aria-label="Filtrar por acción" value={accion} onChange={(e) => setAccion(e.target.value)}>
             <option value="">Todas las acciones</option>
             {data?.acciones.map((a) => <option key={a} value={a}>{info(a).label}</option>)}
-          </select>
+          </Select>
         </div>
         <div className="ax-table-wrap">
           <table className="ax-table ax-table--hover">

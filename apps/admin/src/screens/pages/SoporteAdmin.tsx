@@ -9,6 +9,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { Select } from '../../components/ui/Select';
 
 type Estado = 'ABIERTO' | 'EN_REVISION' | 'CERRADO';
 interface Ticket {
@@ -85,14 +86,14 @@ export function SoporteAdmin() {
       <section className="ax-card" style={{ padding: 'var(--ax-space-4)' }}>
         <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', marginBlockEnd: 'var(--ax-space-3)', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <input type="search" className="ax-input" style={{ width: 240 }} placeholder="Buscar asunto o correo" aria-label="Buscar ticket" value={q} onChange={(e) => setQ(e.target.value)} />
-          <select className="ax-select" style={{ width: 'auto' }} aria-label="Filtrar por estado" value={estadoF} onChange={(e) => setEstadoF(e.target.value)}>
+          <Select className="ax-select" style={{ width: 'auto' }} aria-label="Filtrar por estado" value={estadoF} onChange={(e) => setEstadoF(e.target.value)}>
             <option value="">Todos los estados</option>
             {ESTADOS.map((s) => <option key={s.v} value={s.v}>{s.label}</option>)}
-          </select>
-          <select className="ax-select" style={{ width: 'auto' }} aria-label="Filtrar por empresa" value={marcaF} onChange={(e) => setMarcaF(e.target.value)}>
+          </Select>
+          <Select className="ax-select" style={{ width: 'auto' }} aria-label="Filtrar por empresa" value={marcaF} onChange={(e) => setMarcaF(e.target.value)}>
             <option value="">Todas las empresas</option>
             {data?.marcas.map((m) => <option key={m.id} value={m.id}>{m.nombre}</option>)}
-          </select>
+          </Select>
         </div>
 
         <div className="ax-table-wrap">
@@ -149,9 +150,9 @@ export function SoporteAdmin() {
                 {abierto.respondidoAt && <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Última respuesta: {abierto.respondidoPor} · {fecha(abierto.respondidoAt)}</span>}
               </div>
               <div className="ax-field"><label className="ax-label" htmlFor="st-estado">Estado</label>
-                <select id="st-estado" className="ax-select" value={estado} onChange={(e) => setEstado(e.target.value as Estado)}>
+                <Select id="st-estado" className="ax-select" value={estado} onChange={(e) => setEstado(e.target.value as Estado)}>
                   {ESTADOS.map((s) => <option key={s.v} value={s.v}>{s.label}</option>)}
-                </select>
+                </Select>
               </div>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'flex-end' }}>
                 <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setAbierto(null)}>Cancelar</button>

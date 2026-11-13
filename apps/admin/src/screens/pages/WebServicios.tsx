@@ -11,6 +11,8 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
+import { Select } from '../../components/ui/Select';
+import { CampoImagen } from '../../components/ui/CampoImagen';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
@@ -263,14 +265,14 @@ export function WebServicios() {
                 </div>
                 <div className="ax-field" style={{ flex: 1 }}>
                   <label className="ax-label" htmlFor="s-icono">Ícono</label>
-                  <select id="s-icono" className="ax-select" value={edit.form.icono} onChange={(e) => set('icono', e.target.value)}>
+                  <Select id="s-icono" className="ax-select" value={edit.form.icono} onChange={(e) => set('icono', e.target.value)}>
                     {ICONOS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-                  </select>
+                  </Select>
                 </div>
               </div>
               <div className="ax-field">
                 <label className="ax-label" htmlFor="s-img">Imagen (URL o ruta que empiece con /)</label>
-                <input id="s-img" className="ax-input" value={edit.form.imagenUrl} onChange={(e) => set('imagenUrl', e.target.value)} placeholder="/images/solutions/seguridad.jpg" />
+                <CampoImagen id="s-img" value={edit.form.imagenUrl} onChange={(u) => set('imagenUrl', u)} />
               </div>
               <div className="ax-field">
                 <label className="ax-label" htmlFor="s-desc">Descripción corta (tarjeta y encabezado)</label>

@@ -12,6 +12,7 @@ import { api } from '../../lib/api';
 import { VerEnCrm } from './crm/VerEnCrm';
 import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
+import { Select } from '../../components/ui/Select';
 
 type Estado = 'PENDIENTE' | 'EN_REVISION' | 'ENVIADA' | 'ACEPTADA' | 'RECHAZADA';
 interface Envio { id: string; canal: 'EMAIL' | 'WHATSAPP'; destinatario: string; mensaje: string; enviadoPor: string; createdAt: string }
@@ -195,9 +196,9 @@ export function SolucionesCotizaciones() {
 
                   <div className="ax-field">
                     <label className="ax-label" htmlFor="cot-estado">Estado</label>
-                    <select id="cot-estado" className="ax-select" value={sel.estado} disabled={busy} onChange={(e) => guardar({ estado: e.target.value })}>
+                    <Select id="cot-estado" className="ax-select" value={sel.estado} disabled={busy} onChange={(e) => guardar({ estado: e.target.value })}>
                       {ESTADOS.map((e) => <option key={e.v} value={e.v}>{e.label}</option>)}
-                    </select>
+                    </Select>
                   </div>
 
                   <div className="ax-field">
@@ -206,7 +207,7 @@ export function SolucionesCotizaciones() {
                   </div>
                   <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'wrap' }}>
                     <div className="ax-field" style={{ flex: '1 1 120px' }}><label className="ax-label" htmlFor="cot-monto">Monto</label><input id="cot-monto" type="number" min={0} step="0.01" className="ax-input" value={form.monto} onChange={(e) => setForm({ ...form, monto: e.target.value })} /></div>
-                    <div className="ax-field" style={{ flex: '0 1 100px' }}><label className="ax-label" htmlFor="cot-moneda">Moneda</label><select id="cot-moneda" className="ax-select" value={form.moneda} onChange={(e) => setForm({ ...form, moneda: e.target.value as 'USD' | 'PEN' })}><option value="USD">USD</option><option value="PEN">PEN</option></select></div>
+                    <div className="ax-field" style={{ flex: '0 1 100px' }}><label className="ax-label" htmlFor="cot-moneda">Moneda</label><Select id="cot-moneda" className="ax-select" value={form.moneda} onChange={(e) => setForm({ ...form, moneda: e.target.value as 'USD' | 'PEN' })}><option value="USD">USD</option><option value="PEN">PEN</option></Select></div>
                     <div className="ax-field" style={{ flex: '1 1 120px' }}><label className="ax-label" htmlFor="cot-validez">Vigencia (días, 0 = sin límite)</label><input id="cot-validez" type="number" min={0} max={365} className="ax-input" value={form.validezDias} onChange={(e) => setForm({ ...form, validezDias: e.target.value })} /></div>
                   </div>
                   <div className="ax-field"><label className="ax-label" htmlFor="cot-notas">Notas internas (el cliente no las ve)</label><textarea id="cot-notas" className="ax-input" rows={2} value={form.notas} onChange={(e) => setForm({ ...form, notas: e.target.value })} /></div>

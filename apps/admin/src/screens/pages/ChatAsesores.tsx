@@ -10,6 +10,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { CampoImagen } from '../../components/ui/CampoImagen';
 
 interface Asesor {
   id: string;
@@ -210,8 +211,8 @@ export function ChatAsesores() {
                 <input id="as-wa" className="ax-input" inputMode="numeric" placeholder="51999999999" value={form.whatsapp} onChange={(e) => set('whatsapp', e.target.value)} required />
               </div>
               <div className="ax-field">
-                <label className="ax-label" htmlFor="as-foto">Foto (URL)</label>
-                <input id="as-foto" className="ax-input" placeholder="https://… o /images/asesores/nombre.jpg" value={form.fotoUrl ?? ''} onChange={(e) => set('fotoUrl', e.target.value)} maxLength={500} />
+                <label className="ax-label" htmlFor="as-foto">Foto</label>
+                <CampoImagen id="as-foto" value={form.fotoUrl ?? ''} onChange={(u) => set('fotoUrl', u)} />
               </div>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-4)' }}>
                 <div className="ax-field" style={{ maxWidth: 120 }}><label className="ax-label" htmlFor="as-orden">Orden</label><input id="as-orden" type="number" min={0} className="ax-input" value={form.orden} onChange={(e) => set('orden', Number(e.target.value))} /></div>

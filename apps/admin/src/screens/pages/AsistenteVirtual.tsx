@@ -13,6 +13,7 @@ import { Icon } from '../../components/ui/Icon';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { hrefForSlug, manifest, visibleForRole, visibleParaMarca } from '../../lib/manifest';
+import { Select } from '../../components/ui/Select';
 
 interface Metrica { etiqueta: string; valor: number; formato: 'numero' | 'moneda'; moneda?: string; modulo?: string; detalle?: string }
 interface Tabla { titulo: string; modulo: string; columnas: string[]; filas: (string | number | null)[][]; total?: number }
@@ -153,9 +154,9 @@ export function AsistenteVirtual() {
         actions={
           <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
             <label className="ax-visually-hidden" htmlFor="asistente-marca">Marca a consultar</label>
-            <select id="asistente-marca" className="ax-select" value={activeMarcaId} disabled={pensando} onChange={(e) => setMarcaId(e.target.value)}>
+            <Select id="asistente-marca" className="ax-select" value={activeMarcaId} disabled={pensando} onChange={(e) => setMarcaId(e.target.value)}>
               {marcas.map((m) => <option key={m.marcaId} value={m.marcaId}>{m.marca.nombre}</option>)}
-            </select>
+            </Select>
             {mensajes.length > 0 && (
               <button type="button" className="ax-btn ax-btn--secondary" onClick={nueva}>
                 <span className="ax-btn__label">Nueva conversación</span>

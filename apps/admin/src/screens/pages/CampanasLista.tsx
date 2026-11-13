@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { Select } from '../../components/ui/Select';
 
 type Estado = 'BORRADOR' | 'ACTIVA' | 'FINALIZADA';
 interface Campana {
@@ -122,8 +123,8 @@ export function CampanasLista() {
               </div>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'wrap' }}>
                 <div className="ax-field" style={{ flex: '1 1 140px' }}><label className="ax-label" htmlFor="cm-pres">Presupuesto</label><input id="cm-pres" type="number" min={0} step="0.01" className="ax-input" value={edit.f.presupuesto} onChange={(e) => setEdit({ ...edit, f: { ...edit.f, presupuesto: e.target.value } })} /></div>
-                <div className="ax-field" style={{ flex: '0 1 100px' }}><label className="ax-label" htmlFor="cm-mon">Moneda</label><select id="cm-mon" className="ax-select" value={edit.f.moneda} onChange={(e) => setEdit({ ...edit, f: { ...edit.f, moneda: e.target.value as 'PEN' | 'USD' } })}><option value="PEN">PEN</option><option value="USD">USD</option></select></div>
-                <div className="ax-field" style={{ flex: '1 1 140px' }}><label className="ax-label" htmlFor="cm-est">Estado</label><select id="cm-est" className="ax-select" value={edit.f.estado} onChange={(e) => setEdit({ ...edit, f: { ...edit.f, estado: e.target.value as Estado } })}>{ESTADOS.map((e) => <option key={e.v} value={e.v}>{e.label}</option>)}</select></div>
+                <div className="ax-field" style={{ flex: '0 1 100px' }}><label className="ax-label" htmlFor="cm-mon">Moneda</label><Select id="cm-mon" className="ax-select" value={edit.f.moneda} onChange={(e) => setEdit({ ...edit, f: { ...edit.f, moneda: e.target.value as 'PEN' | 'USD' } })}><option value="PEN">PEN</option><option value="USD">USD</option></Select></div>
+                <div className="ax-field" style={{ flex: '1 1 140px' }}><label className="ax-label" htmlFor="cm-est">Estado</label><Select id="cm-est" className="ax-select" value={edit.f.estado} onChange={(e) => setEdit({ ...edit, f: { ...edit.f, estado: e.target.value as Estado } })}>{ESTADOS.map((e) => <option key={e.v} value={e.v}>{e.label}</option>)}</Select></div>
               </div>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'flex-end' }}>
                 <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEdit(null)}>Cancelar</button>

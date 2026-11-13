@@ -9,6 +9,7 @@
 import { useMemo, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { PageHead } from '../../components/shell/PageHead';
+import { Select } from '../../components/ui/Select';
 
 interface Article { id: number; title: string; cat: string; }
 const ARTICLES: Article[] = [
@@ -179,23 +180,23 @@ export function Support() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--ax-space-3)' }}>
                   <div className="ax-field">
                     <label className="ax-label" htmlFor="t-cat">Categoría</label>
-                    <select id="t-cat" className="ax-select" required defaultValue="">
+                    <Select id="t-cat" className="ax-select" required defaultValue="">
                       <option value="">Elige…</option>
                       <option>Pedidos</option>
                       <option>Cuenta y acceso</option>
                       <option>Cotizaciones</option>
                       <option>Garantías y soporte técnico</option>
                       <option>Otro</option>
-                    </select>
+                    </Select>
                   </div>
                   <div className="ax-field">
                     <label className="ax-label" htmlFor="t-pri">Prioridad</label>
-                    <select id="t-pri" className="ax-select" defaultValue="Normal">
+                    <Select id="t-pri" className="ax-select" defaultValue="Normal">
                       <option>Baja</option>
                       <option>Normal</option>
                       <option>Alta</option>
                       <option>Urgente</option>
-                    </select>
+                    </Select>
                   </div>
                 </div>
                 <div className="ax-field">

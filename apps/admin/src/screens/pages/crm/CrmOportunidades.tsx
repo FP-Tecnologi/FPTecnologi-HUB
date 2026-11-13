@@ -11,6 +11,7 @@ import {
   Alerta, BotonIcono, ETAPAS, NuevaOportunidad, ORIGENES, OportunidadPanel, dinero, etapa, fechaCorta, msg, nombreDe, useAsignables, useConfirmar, vencida, type Etapa, type Oportunidad, type Origen,
 } from './comun';
 import { teclaFila } from '../../../lib/teclado';
+import { Select } from '../../../components/ui/Select';
 
 export function CrmOportunidades() {
   const { activeMarcaId, marcas } = useAuth();
@@ -59,16 +60,16 @@ export function CrmOportunidades() {
                   <button key={v} type="button" role="radio" aria-checked={estado === v} className={`ax-btn ax-btn--sm${estado === v ? ' is-selected' : ''}`} onClick={() => { setEstado(v); setEt(''); }}>{v[0]!.toUpperCase() + v.slice(1)}</button>
                 ))}
               </div>
-              <select className="ax-select" aria-label="Etapa" value={et} onChange={(e) => setEt(e.target.value as '' | Etapa)} style={{ maxWidth: 190 }}>
+              <Select className="ax-select" aria-label="Etapa" value={et} onChange={(e) => setEt(e.target.value as '' | Etapa)} style={{ maxWidth: 190 }}>
                 <option value="">Todas las etapas</option>{ETAPAS.map((e) => <option key={e.v} value={e.v}>{e.label}</option>)}
-              </select>
-              <select className="ax-select" aria-label="Responsable" value={asignado} onChange={(e) => setAsignado(e.target.value)} style={{ maxWidth: 200 }}>
+              </Select>
+              <Select className="ax-select" aria-label="Responsable" value={asignado} onChange={(e) => setAsignado(e.target.value)} style={{ maxWidth: 200 }}>
                 <option value="">Todos los responsables</option><option value="yo">Mías</option><option value="sin">Sin asignar</option>
                 {asignables.map((u) => <option key={u.id} value={u.id}>{nombreDe(u)}</option>)}
-              </select>
-              <select className="ax-select" aria-label="Origen" value={origen} onChange={(e) => setOrigen(e.target.value as '' | Origen)} style={{ maxWidth: 210 }}>
+              </Select>
+              <Select className="ax-select" aria-label="Origen" value={origen} onChange={(e) => setOrigen(e.target.value as '' | Origen)} style={{ maxWidth: 210 }}>
                 <option value="">Todos los orígenes</option>{(Object.keys(ORIGENES) as Origen[]).map((o) => <option key={o} value={o}>{ORIGENES[o]}</option>)}
-              </select>
+              </Select>
               <input type="search" className="ax-input" placeholder="Buscar cliente, empresa, n.º…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Buscar" style={{ maxWidth: 260 }} />
             </div>
           </div>

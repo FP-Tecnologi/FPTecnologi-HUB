@@ -12,6 +12,7 @@ import { api } from '../../lib/api';
 import { VerEnCrm } from './crm/VerEnCrm';
 import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
+import { Select } from '../../components/ui/Select';
 
 type Estado = 'PENDIENTE' | 'EN_REVISION' | 'ENVIADA' | 'ACEPTADA' | 'RECHAZADA';
 interface Item { id: string; sku: string; nombre: string; cantidad: number; precioLista: string; precioUnitario: string; mayorista: boolean; subtotal: string }
@@ -169,9 +170,9 @@ export function EcommercePresupuestos() {
 
                   <div className="ax-field">
                     <label className="ax-label" htmlFor="pre-estado">Estado</label>
-                    <select id="pre-estado" className="ax-select" value={sel.estado} disabled={busy} onChange={(e) => cambiarEstado(e.target.value as Estado)}>
+                    <Select id="pre-estado" className="ax-select" value={sel.estado} disabled={busy} onChange={(e) => cambiarEstado(e.target.value as Estado)}>
                       {ESTADOS.map((e) => <option key={e.v} value={e.v}>{e.label}</option>)}
-                    </select>
+                    </Select>
                   </div>
 
                   <div className="ax-table-wrap">

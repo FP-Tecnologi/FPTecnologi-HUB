@@ -5,6 +5,7 @@ import { ScrollReveal } from '@/components/home/ScrollReveal';
 import { MoreInfoButton } from '@/components/home/MoreInfoButton';
 import { Footer } from '@/components/home/Footer';
 import { PARTNER_BRANDS, brandSlug } from '@/lib/content';
+import { MARCAS_INFO } from '@/lib/marcasInfo';
 import { getCatalogo } from '@/lib/catalogo';
 
 export const metadata = {
@@ -20,9 +21,13 @@ export default async function MarcasPage() {
   for (const p of products) conteo.set(brandSlug(p.brand), (conteo.get(brandSlug(p.brand)) ?? 0) + 1);
 
   const conLogo = new Set(PARTNER_BRANDS.map((b) => brandSlug(b.name)));
-  const extra = [...new Set(products.map((p) => p.brand))].filter((b) => !conLogo.has(brandSlug(b)));
+  // Marcas con ficha propia que no están en el carrusel (ej. Genetec, Milestone): se listan con su logo.
+  const conFicha = Object.entries(MARCAS_INFO).filter(([slug]) => !conLogo.has(slug)).map(([slug, m]) => ({ slug, name: m.nombre, logo: m.logo as string | null }));
+  const yaListadas = new Set([...conLogo, ...conFicha.map((m) => m.slug)]);
+  const extra = [...new Set(products.map((p) => p.brand))].filter((b) => !yaListadas.has(brandSlug(b)));
   const marcas = [
     ...PARTNER_BRANDS.map((b) => ({ name: b.name, logo: b.logo as string | null })),
+    ...conFicha.map(({ name, logo, slug }) => ({ name, logo, slug })),
     ...extra.map((name) => ({ name, logo: null })),
   ].sort((a, b) => (conteo.get(brandSlug(b.name)) ?? 0) - (conteo.get(brandSlug(a.name)) ?? 0) || a.name.localeCompare(b.name));
 
@@ -54,7 +59,7 @@ export default async function MarcasPage() {
               return (
                 <ScrollReveal key={m.name} direction="up" delayMs={(i % 5) * 80} className="h-full">
                   <a
-                    href={`/marcas/${brandSlug(m.name)}`}
+                    href={`/marcas/${(m as { slug?: string }).slug ?? brandSlug(m.name)}`}
                     className="group flex h-full flex-col items-center justify-center rounded-2xl border border-ink/5 bg-white p-6 text-center shadow-lg shadow-brand-dark/10 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-brand-dark/25"
                   >
                     <span className="relative flex h-16 w-full items-center justify-center">

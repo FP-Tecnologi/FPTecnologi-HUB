@@ -9,6 +9,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { setMarcaForzada, tokenStore } from '../../lib/api';
 import { WebTarjetasEquipo } from './WebTarjetasEquipo';
+import { Select } from '../../components/ui/Select';
 
 export function TarjetasAdmin() {
   const { marcas } = useAuth();
@@ -33,9 +34,9 @@ export function TarjetasAdmin() {
 
   const selector = (
     <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
-      <select id="ta-marca" className="ax-select" aria-label="Filtrar por marca" style={{ width: 'auto' }} value={sel} onChange={(e) => setSel(e.target.value)}>
+      <Select id="ta-marca" className="ax-select" aria-label="Filtrar por marca" style={{ width: 'auto' }} value={sel} onChange={(e) => setSel(e.target.value)}>
         {marcas.map((m) => <option key={m.marcaId} value={m.marcaId}>{m.marca.nombre}</option>)}
-      </select>
+      </Select>
     </div>
   );
 

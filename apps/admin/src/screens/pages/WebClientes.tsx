@@ -11,6 +11,8 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
+import { Select } from '../../components/ui/Select';
+import { CampoImagen } from '../../components/ui/CampoImagen';
 
 const SECTORES = [['gobierno', 'Sector gobierno'], ['educacion', 'Educación'], ['privado', 'Sector privado']] as const;
 const etiquetaSector = (k: string) => SECTORES.find(([v]) => v === k)?.[1] ?? k;
@@ -135,10 +137,10 @@ export function WebClientes() {
         <section className="ax-card ax-col--12" role="region" aria-label="Clientes" style={{ alignSelf: 'start' }}>
           <div className="ax-card__body">
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
-              <select className="ax-select" aria-label="Filtrar por sector" value={sector} onChange={(e) => setSector(e.target.value)} style={{ maxWidth: 200 }}>
+              <Select className="ax-select" aria-label="Filtrar por sector" value={sector} onChange={(e) => setSector(e.target.value)} style={{ maxWidth: 200 }}>
                 <option value="">Todos los sectores</option>
                 {SECTORES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-              </select>
+              </Select>
               <input type="search" className="ax-input" placeholder="Buscar cliente…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Buscar clientes" style={{ maxWidth: 280 }} />
             </div>
           </div>
@@ -208,9 +210,9 @@ export function WebClientes() {
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'nowrap' }}>
                 <div className="ax-field" style={{ flex: 1 }}>
                   <label className="ax-label" htmlFor="c-sector">Sector</label>
-                  <select id="c-sector" className="ax-select" value={edit.form.sector} onChange={(e) => set('sector', e.target.value)}>
+                  <Select id="c-sector" className="ax-select" value={edit.form.sector} onChange={(e) => set('sector', e.target.value)}>
                     {SECTORES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-                  </select>
+                  </Select>
                 </div>
                 <div className="ax-field" style={{ flex: '0 0 90px' }}>
                   <label className="ax-label" htmlFor="c-sigla">Sigla</label>
@@ -223,7 +225,7 @@ export function WebClientes() {
               </div>
               <div className="ax-field">
                 <label className="ax-label" htmlFor="c-logo">Logo (URL o ruta que empiece con /; si no hay se muestra la sigla)</label>
-                <input id="c-logo" className="ax-input" value={edit.form.logoUrl} onChange={(e) => set('logoUrl', e.target.value)} />
+                <CampoImagen id="c-logo" value={edit.form.logoUrl} onChange={(u) => set('logoUrl', u)} />
               </div>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-5)' }}>
                 <label className="ax-cluster" style={{ gap: 'var(--ax-space-2)', fontSize: 'var(--ax-text-sm)' }}>

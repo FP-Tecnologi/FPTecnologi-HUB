@@ -9,9 +9,10 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
-import { SubirImagen, urlImagen } from '../../components/ui/SubirImagen';
+import { CampoImagenes } from '../../components/ui/CampoImagen';
 import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
+import { Select } from '../../components/ui/Select';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
@@ -179,6 +180,26 @@ export function EcommerceProductos() {
 
   const sinFoto = (p: Producto) => p.imagenes.length === 0;
 
+  // Selección múltiple: acciones en bloque sobre los productos marcados.
+  const [marcados, setMarcados] = useState<Set<string>>(new Set());
+  const idsVisibles = visibles.map((p) => p.id);
+  const todosMarcados = idsVisibles.length > 0 && idsVisibles.every((id) => marcados.has(id));
+  const alternarMarca = (id: string) => setMarcados((s) => { const n = new Set(s); if (n.has(id)) n.delete(id); else n.add(id); return n; });
+  const alternarTodos = () => setMarcados((s) => { const n = new Set(s); if (todosMarcados) idsVisibles.forEach((id) => n.delete(id)); else idsVisibles.forEach((id) => n.add(id)); return n; });
+
+  async function enBloque(accion: 'activar' | 'desactivar' | 'eliminar') {
+    const ids = [...marcados];
+    if (ids.length === 0) return;
+    if (accion === 'eliminar' && !window.confirm(`¿Eliminar ${ids.length} producto(s)? No se puede deshacer.`)) return;
+    setError('');
+    const resultados = await Promise.allSettled(ids.map((id) => (accion === 'eliminar' ? api.delete(`/productos/${id}`) : api.patch(`/productos/${id}`, { activo: accion === 'activar' }))));
+    const fallos = resultados.filter((r) => r.status === 'rejected').length;
+    setMarcados(new Set());
+    if (fallos) setError(`${fallos} de ${ids.length} no se pudieron ${accion === 'eliminar' ? 'eliminar' : 'actualizar'}.`);
+    else setOk(accion === 'eliminar' ? `${ids.length} producto(s) eliminado(s).` : `${ids.length} producto(s) ${accion === 'activar' ? 'activado(s)' : 'desactivado(s)'}.`);
+    await cargar();
+  }
+
   return (
     <>
       <PageHead
@@ -203,24 +224,36 @@ export function EcommerceProductos() {
           <div className="ax-card__body">
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', justifyContent: 'space-between', flexWrap: 'wrap' }}>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
-                <select className="ax-select" aria-label="Filtrar por categoría" value={cat} onChange={(e) => setCat(e.target.value)} style={{ maxWidth: 220 }}>
+                <Select className="ax-select" aria-label="Filtrar por categoría" value={cat} onChange={(e) => setCat(e.target.value)} style={{ maxWidth: 220 }}>
                   <option value="">Todas las categorías</option>
                   {categorias.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-                </select>
-                <select className="ax-select" aria-label="Filtrar por estado" value={estado} onChange={(e) => setEstado(e.target.value as typeof estado)} style={{ maxWidth: 180 }}>
+                </Select>
+                <Select className="ax-select" aria-label="Filtrar por estado" value={estado} onChange={(e) => setEstado(e.target.value as typeof estado)} style={{ maxWidth: 180 }}>
                   <option value="">Todos</option>
                   <option value="activos">Activos</option>
                   <option value="inactivos">Inactivos</option>
                   <option value="sinstock">Sin stock</option>
-                </select>
+                </Select>
               </div>
               <input type="search" className="ax-input" placeholder="Buscar nombre, SKU o marca…" value={q} onChange={(e) => setQ(e.target.value)} aria-label="Buscar productos" style={{ maxWidth: 300 }} />
             </div>
+            {marcados.size > 0 && (
+              <div role="toolbar" aria-label="Acciones sobre los productos seleccionados" className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap', marginBlockStart: 'var(--ax-space-3)', padding: 'var(--ax-space-2) var(--ax-space-3)', background: 'var(--ax-surface-subtle)', borderRadius: 'var(--ax-radius-md)' }}>
+                <strong style={{ fontSize: 'var(--ax-text-sm)' }}>{marcados.size} seleccionado{marcados.size === 1 ? '' : 's'}</strong>
+                <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => void enBloque('activar')}>Activar</button>
+                <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => void enBloque('desactivar')}>Desactivar</button>
+                {esAdmin && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={() => void enBloque('eliminar')}>Eliminar</button>}
+                <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setMarcados(new Set())}>Quitar selección</button>
+              </div>
+            )}
           </div>
           <div className="ax-table-wrap">
             <table className="ax-table ax-table--hover">
               <thead className="ax-table__head">
                 <tr>
+                  <th className="ax-table__th" scope="col" style={{ width: 40 }}>
+                    <input type="checkbox" aria-label="Seleccionar todos los productos visibles" checked={todosMarcados} onChange={alternarTodos} />
+                  </th>
                   <th className="ax-table__th" scope="col">Producto</th>
                   <th className="ax-table__th" scope="col">Categoría</th>
                   <th className="ax-table__th" scope="col" style={{ textAlign: 'right' }}>Precio</th>
@@ -231,12 +264,15 @@ export function EcommerceProductos() {
               </thead>
               <tbody>
                 {cargando ? (
-                  <tr><td className="ax-table__td" colSpan={6}>Cargando…</td></tr>
+                  <tr><td className="ax-table__td" colSpan={7}>Cargando…</td></tr>
                 ) : visibles.length === 0 ? (
-                  <tr><td className="ax-table__td" colSpan={6} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay productos. Importa el catálogo o crea el primero.' : 'Ningún producto coincide con el filtro.'}</td></tr>
+                  <tr><td className="ax-table__td" colSpan={7} style={{ color: 'var(--ax-text-muted)' }}>{lista.length === 0 ? 'Todavía no hay productos. Importa el catálogo o crea el primero.' : 'Ningún producto coincide con el filtro.'}</td></tr>
                 ) : (
                   visibles.map((p) => (
-                    <tr key={p.id} className="ax-table__row" onClick={() => { setOk(''); setError(''); setEdit({ id: p.id, form: desde(p) }); }} tabIndex={0} onKeyDown={teclaFila(() => { setOk(''); setError(''); setEdit({ id: p.id, form: desde(p) }); })} style={{ cursor: 'pointer', background: edit?.id === p.id ? 'var(--ax-surface-subtle)' : undefined }}>
+                    <tr key={p.id} className="ax-table__row" onClick={() => { setOk(''); setError(''); setEdit({ id: p.id, form: desde(p) }); }} tabIndex={0} onKeyDown={teclaFila(() => { setOk(''); setError(''); setEdit({ id: p.id, form: desde(p) }); })} style={{ cursor: 'pointer', background: marcados.has(p.id) || edit?.id === p.id ? 'var(--ax-surface-subtle)' : undefined }}>
+                      <td className="ax-table__td" onClick={(e) => e.stopPropagation()}>
+                        <input type="checkbox" aria-label={`Seleccionar ${p.nombre}`} checked={marcados.has(p.id)} onChange={() => alternarMarca(p.id)} />
+                      </td>
                       <td className="ax-table__td">
                         <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'nowrap' }}>
                           <span style={{ width: 44, height: 44, flexShrink: 0, borderRadius: 8, overflow: 'hidden', background: 'var(--ax-surface-subtle)' }}>
@@ -324,39 +360,14 @@ export function EcommerceProductos() {
               </div>
               <div className="ax-field">
                 <label className="ax-label" htmlFor="p-cat">Categoría</label>
-                <select id="p-cat" className="ax-select" value={edit.form.categoriaId} onChange={(e) => set('categoriaId', e.target.value)}>
+                <Select id="p-cat" className="ax-select" value={edit.form.categoriaId} onChange={(e) => set('categoriaId', e.target.value)}>
                   <option value="">Sin categoría</option>
                   {categorias.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
-                </select>
+                </Select>
               </div>
               <div className="ax-field">
-                <span className="ax-label">Imágenes (la primera es la portada)</span>
-                {(() => {
-                  const lista = edit.form.imagenes.split('\n').map((l) => l.trim()).filter(Boolean);
-                  const guardar = (nueva: string[]) => set('imagenes', nueva.join('\n'));
-                  return (
-                    <>
-                      {lista.length > 0 && (
-                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--ax-space-2)', marginBlockEnd: 'var(--ax-space-2)' }}>
-                          {lista.map((u, i) => (
-                            <div key={u + i} style={{ position: 'relative', inlineSize: 84, blockSize: 84, borderRadius: 'var(--ax-radius-md)', border: i === 0 ? '2px solid var(--ax-accent)' : '1px solid var(--ax-border)', background: 'var(--ax-surface-subtle)', overflow: 'hidden' }}>
-                              {/* eslint-disable-next-line @next/next/no-img-element */}
-                              <img src={urlImagen(u)} alt="" style={{ inlineSize: '100%', blockSize: '100%', objectFit: 'contain' }} />
-                              {i === 0 && <span style={{ position: 'absolute', insetBlockStart: 2, insetInlineStart: 2, fontSize: 10, background: 'var(--ax-accent)', color: 'var(--ax-on-accent)', borderRadius: 4, paddingInline: 4 }}>Portada</span>}
-                              <div style={{ position: 'absolute', insetBlockEnd: 0, insetInline: 0, display: 'flex', justifyContent: 'space-between', background: 'rgba(0,0,0,.55)' }}>
-                                <button type="button" aria-label="Poner de portada" disabled={i === 0} onClick={() => guardar([u, ...lista.filter((_, j) => j !== i)])} style={{ color: '#fff', fontSize: 12, padding: '2px 6px', opacity: i === 0 ? 0.3 : 1 }}>★</button>
-                                <button type="button" aria-label="Quitar imagen" onClick={() => guardar(lista.filter((_, j) => j !== i))} style={{ color: '#fff', fontSize: 12, padding: '2px 6px' }}>✕</button>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                      <SubirImagen multiple onSubida={(urls) => guardar([...lista, ...urls])} />
-                    </>
-                  );
-                })()}
-                <label className="ax-label" htmlFor="p-img" style={{ marginBlockStart: 'var(--ax-space-3)' }}>…o pega URLs (una por línea)</label>
-                <textarea id="p-img" className="ax-textarea" rows={3} value={edit.form.imagenes} onChange={(e) => set('imagenes', e.target.value)} placeholder="https://…" />
+                <label className="ax-label" htmlFor="p-img">Imágenes (la primera es la portada)</label>
+                <CampoImagenes id="p-img" value={edit.form.imagenes.split('\n').map((l) => l.trim()).filter(Boolean)} onChange={(urls) => set('imagenes', urls.join('\n'))} />
               </div>
               <div className="ax-field">
                 <label className="ax-label" htmlFor="p-detalle">Detalle corto (bajo el nombre en las tarjetas)</label>

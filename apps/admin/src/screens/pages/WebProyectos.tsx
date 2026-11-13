@@ -12,6 +12,8 @@ import { api } from '../../lib/api';
 import { DEPARTAMENTOS } from '../../lib/departamentos';
 import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
+import { Select } from '../../components/ui/Select';
+import { CampoImagen } from '../../components/ui/CampoImagen';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
@@ -230,9 +232,9 @@ export function WebProyectos() {
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'nowrap' }}>
                 <div className="ax-field" style={{ flex: 1 }}>
                   <label className="ax-label" htmlFor="pr-dpto">Región</label>
-                  <select id="pr-dpto" className="ax-select" value={edit.form.departamento} onChange={(e) => set('departamento', e.target.value)}>
+                  <Select id="pr-dpto" className="ax-select" value={edit.form.departamento} onChange={(e) => set('departamento', e.target.value)}>
                     {DEPARTAMENTOS.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}
-                  </select>
+                  </Select>
                 </div>
                 <div className="ax-field" style={{ flex: '0 0 90px' }}>
                   <label className="ax-label" htmlFor="pr-anio">Año</label>
@@ -249,7 +251,7 @@ export function WebProyectos() {
               </div>
               <div className="ax-field">
                 <label className="ax-label" htmlFor="pr-img">Imagen (URL o ruta que empiece con /)</label>
-                <input id="pr-img" className="ax-input" value={edit.form.imagenUrl} onChange={(e) => set('imagenUrl', e.target.value)} />
+                <CampoImagen id="pr-img" value={edit.form.imagenUrl} onChange={(u) => set('imagenUrl', u)} />
               </div>
               <div className="ax-field">
                 <label className="ax-label" htmlFor="pr-desc">Descripción</label>

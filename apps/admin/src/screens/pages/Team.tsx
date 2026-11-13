@@ -10,6 +10,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { Select } from '../../components/ui/Select';
 
 interface Rol { id: string; nombre: string }
 interface Usuario { id: string; email: string; nombre: string | null; activo: boolean; telefono: string | null; cargo: string | null; totpEnabled: boolean; createdAt: string }
@@ -177,10 +178,10 @@ export function Team() {
                   </td>
                   <td className="ax-table__td">
                     {esEquipo && !yo ? (
-                      <select className="ax-select" aria-label={`Rol de ${u.email}`} value={f.rolId} style={{ maxWidth: 160 }}
+                      <Select className="ax-select" aria-label={`Rol de ${u.email}`} value={f.rolId} style={{ maxWidth: 160 }}
                         onChange={(e) => accion(() => api.patch(`/roles/equipo/${u.id}`, { rolId: e.target.value }), 'Rol actualizado.')}>
                         {rolesEquipo.map((r) => <option key={r.id} value={r.id}>{r.nombre}</option>)}
-                      </select>
+                      </Select>
                     ) : (
                       <span className="ax-badge ax-badge--soft ax-badge--neutral ax-badge--pill">{f.rol.nombre}</span>
                     )}
@@ -353,9 +354,9 @@ export function Team() {
               {invErr && <div role="alert" className="ax-alert ax-alert--danger"><div className="ax-alert__content"><p className="ax-alert__message">{invErr}</p></div></div>}
               <div className="ax-field"><label className="ax-label" htmlFor="inv-email">Correo electrónico</label><input id="inv-email" type="email" className="ax-input" placeholder="nombre@empresa.com" required value={invEmail} onChange={(e) => setInvEmail(e.target.value)} /></div>
               <div className="ax-field"><label className="ax-label" htmlFor="inv-role">Rol</label>
-                <select id="inv-role" className="ax-select" value={invRol || rolesEquipo[0]?.id || ''} onChange={(e) => setInvRol(e.target.value)}>
+                <Select id="inv-role" className="ax-select" value={invRol || rolesEquipo[0]?.id || ''} onChange={(e) => setInvRol(e.target.value)}>
                   {rolesEquipo.map((r) => <option key={r.id} value={r.id}>{r.nombre}</option>)}
-                </select>
+                </Select>
               </div>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'flex-end' }}>
                 <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setInvite(false)}>Cancelar</button>

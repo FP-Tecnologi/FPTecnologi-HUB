@@ -51,6 +51,13 @@ export class ChatController {
     return this.chat.getConversacion(marcaId, id);
   }
 
+  /** Elimina la conversación y sus mensajes (útil para borrar pruebas). Solo admin. */
+  @Roles('admin')
+  @Delete('conversaciones/:id')
+  borrarConversacion(@MarcaActual() marcaId: string, @Param('id') id: string) {
+    return this.chat.deleteConversacion(marcaId, id);
+  }
+
   @Post('conversaciones/:id/tomar')
   tomar(@MarcaActual() marcaId: string, @Param('id') id: string, @CurrentUser() user: AuthenticatedUser) {
     return this.chat.tomar(marcaId, id, user.sub);
