@@ -163,6 +163,17 @@ function htmlFinal(m: Mailing): string {
 
 interface Aprobacion { id: string; nombre: string; asunto: string; audiencia: string | null; estado: 'PENDIENTE' | 'APROBADO' | 'RECHAZADO'; nota: string | null; solicitadoPor: string; revisadoPor: string | null; createdAt: string }
 
+/** Copia el correo como contenido con formato: al pegarlo en Outlook (o Gmail) conserva el diseño. */
+async function copiarRico(html: string, asunto: string): Promise<boolean> {
+  const cuerpo = html.match(/<body[^>]*>([\s\S]*)<\/body>/i)?.[1] ?? html;
+  const doc = `<html><body>${cuerpo}</body></html>`;
+  try {
+    await navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([doc], { type: 'text/html' }), 'text/plain': new Blob([asunto], { type: 'text/plain' }) })]);
+    return true;
+  } catch { return false; }
+}
+const abrirOutlook = (asunto: string) => window.open(`https://outlook.office.com/mail/deeplink/compose?subject=${encodeURIComponent(asunto)}`, '_blank', 'noopener');
+
 const cargar = (): Mailing[] => { try { return JSON.parse(localStorage.getItem(KEY) ?? '[]'); } catch { return []; } };
 const guardar = (l: Mailing[]) => { try { localStorage.setItem(KEY, JSON.stringify(l)); } catch { /* sin almacenamiento */ } };
 
@@ -181,7 +192,6 @@ export function MailingEditor() {
   const [audiencia, setAudiencia] = useState('suscriptores');
   const [conteo, setConteo] = useState<number | null>(null);
   const [pegados, setPegados] = useState('');
-  const [prueba, setPrueba] = useState('');
   const esAdmin = useMemo(() => !activeMarcaId || marcas.some((x) => x.marcaId === activeMarcaId && x.rol.nombre.toLowerCase() === 'admin'), [marcas, activeMarcaId]);
   const [aprobs, setAprobs] = useState<Aprobacion[]>([]);
   const [verAprobs, setVerAprobs] = useState(false);
@@ -237,13 +247,33 @@ export function MailingEditor() {
   const copiarHtml = async () => { try { await navigator.clipboard.writeText(html); nota('HTML copiado'); } catch { nota('No se pudo copiar'); } };
   /** Copia el correo como contenido con formato (no como código): al pegarlo en Outlook (o Gmail) conserva el diseño. */
   const copiarOutlook = async () => {
-    const cuerpo = html.match(/<body[^>]*>([\s\S]*)<\/body>/i)?.[1] ?? html;
-    const doc = `<html><body>${cuerpo}</body></html>`;
-    try {
-      await navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([doc], { type: 'text/html' }), 'text/plain': new Blob([m?.asunto ?? ''], { type: 'text/plain' }) })]);
-      nota('Copiado con formato: pega con Ctrl+V en un correo nuevo de Outlook');
-    } catch { nota('Tu navegador no permite copiar con formato; usa «Copiar HTML» o «Descargar HTML»'); }
+    if (!m) return;
+    nota(await copiarRico(html, m.asunto) ? 'Copiado con formato: pega con Ctrl+V en un correo nuevo de Outlook' : 'Tu navegador no permite copiar con formato; usa «Copiar HTML» o «Descargar HTML»');
   };
+  const enviarPorOutlook = async () => {
+    if (!m) return;
+    const ok = await copiarRico(html, m.asunto);
+    abrirOutlook(m.asunto);
+    nota(ok ? 'Se abrió Outlook: pega el correo copiado (Ctrl+V) en el cuerpo y envíalo' : 'Se abrió Outlook; usa «Copiar HTML» o «Descargar HTML» para el cuerpo');
+  };
+  /** Aprobado: copia el correo con formato y abre Outlook con el asunto puesto. */
+  async function enviarAprobado(id: string, asunto: string) {
+    try {
+      const d = await api.get<{ html: string }>(`/mailing/aprobaciones/${id}`);
+      const ok = await copiarRico(d.html, asunto);
+      abrirOutlook(asunto);
+      nota(ok ? 'Se abrió Outlook: pega el correo copiado (Ctrl+V) en el cuerpo y envíalo' : 'Se abrió Outlook; no se pudo copiar con formato');
+    } catch { nota('No se pudo abrir el correo aprobado'); }
+  }
+  async function abrirEnEditor(id: string) {
+    try {
+      const d = await api.get<{ html: string; nombre: string; asunto: string; preheader: string | null }>(`/mailing/aprobaciones/${id}`);
+      const n: Mailing = { id: uid(), nombre: `${d.nombre} (aprobado)`, asunto: d.asunto, preheader: d.preheader ?? '', bloques: [], html: d.html, valores: {}, actualizado: new Date().toISOString() };
+      guardarLista([n, ...lista]);
+      setActualId(n.id);
+      nota('Cargado en el editor');
+    } catch { nota('No se pudo abrir'); }
+  }
   async function aAprobacion() {
     if (!m) return;
     if (!m.asunto.trim()) return nota('Escribe el asunto antes de enviarlo a aprobación');
@@ -273,10 +303,7 @@ export function MailingEditor() {
 
   return (
     <>
-      <PageHead title="Mailing" subtitle="Arma correos a partir de plantillas, revísalos en vivo, copia el HTML o simula el envío a una lista." />
-      <div role="note" className="ax-alert ax-alert--info" style={{ marginBlockEnd: 'var(--ax-space-4)', padding: 'var(--ax-space-3) var(--ax-space-4)' }}>
-        <div className="ax-alert__content"><p className="ax-alert__message">Versión de demostración: los mailings se guardan solo en este navegador y el envío es simulado (no sale ningún correo).</p></div>
-      </div>
+      <PageHead title="Mailing" subtitle="Arma correos a partir de plantillas. Los comerciales los mandan a revisión; el administrador los aprueba y se envían copiándolos a Outlook." />
 
       <section className="ax-card" style={{ padding: 'var(--ax-space-4)', marginBlockEnd: 'var(--ax-space-4)' }}>
         <strong style={{ color: 'var(--ax-text-strong)' }}>Nuevo mailing desde plantilla</strong>
@@ -334,6 +361,7 @@ export function MailingEditor() {
             </Select>
             <button type="button" className="ax-btn ax-btn--ghost" onClick={duplicar}>Duplicar</button>
             <button type="button" className="ax-btn ax-btn--secondary" onClick={copiarOutlook}>Copiar para Outlook</button>
+            {esAdmin && <button type="button" className="ax-btn ax-btn--secondary" onClick={enviarPorOutlook}>Copiar y abrir Outlook</button>}
             <button type="button" className="ax-btn ax-btn--ghost" onClick={copiarHtml}>Copiar HTML</button>
             <button type="button" className="ax-btn ax-btn--ghost" onClick={descargar}>Descargar HTML</button>
             <button type="button" className="ax-btn ax-btn--ghost" onClick={eliminar}>Eliminar</button>
@@ -451,6 +479,12 @@ export function MailingEditor() {
                 {a.nota && <div style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>Nota de {a.revisadoPor}: {a.nota}</div>}
                 <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
                   <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => (vistaAprob?.id === a.id ? setVistaAprob(null) : verAprob(a.id))}>{vistaAprob?.id === a.id ? 'Cerrar vista' : 'Ver correo'}</button>
+                  {a.estado === 'APROBADO' && (
+                    <>
+                      <button type="button" className="ax-btn ax-btn--primary ax-btn--sm" onClick={() => enviarAprobado(a.id, a.asunto)}>Copiar y abrir Outlook</button>
+                      <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => abrirEnEditor(a.id)}>Abrir en el editor</button>
+                    </>
+                  )}
                   {esAdmin && a.estado === 'PENDIENTE' && (
                     <>
                       <input className="ax-input ax-input--sm" style={{ flex: '1 1 200px' }} placeholder="Nota (opcional)" aria-label="Nota de revisión" value={notaRev[a.id] ?? ''} onChange={(e) => setNotaRev({ ...notaRev, [a.id]: e.target.value })} />
@@ -479,13 +513,10 @@ export function MailingEditor() {
               </Select>
             </div>
             {audiencia === 'pegados' && <div className="ax-field"><label className="ax-label" htmlFor="ml-lista">Correos (separados por coma, espacio o línea)</label><textarea id="ml-lista" className="ax-textarea" rows={4} value={pegados} onChange={(e) => setPegados(e.target.value)} /></div>}
-            <div className="ax-field"><label className="ax-label" htmlFor="ml-test">Enviar prueba a</label><input id="ml-test" type="email" className="ax-input" placeholder="tu@correo.com" value={prueba} onChange={(e) => setPrueba(e.target.value)} /></div>
-            <p style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>Destinatarios: <strong>{destinatarios}</strong>. Modo demostración: no se envía ningún correo.</p>
+            <p style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>Destinatarios: <strong>{destinatarios}</strong>. Al aprobarse, el correo se envía desde Outlook con «Copiar y abrir Outlook».</p>
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'flex-end' }}>
               <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEnvio(false)}>Cerrar</button>
-              <button type="button" className="ax-btn ax-btn--ghost" disabled={!prueba} onClick={() => { setEnvio(false); nota(`Prueba simulada a ${prueba}`); }}>Enviar prueba</button>
               <button type="button" className={`ax-btn ${esAdmin ? 'ax-btn--secondary' : 'ax-btn--primary'}`} disabled={destinatarios === 0 || !m.asunto.trim()} onClick={aAprobacion}><span className="ax-btn__label">Mandar a aprobación</span></button>
-              {esAdmin && <button type="button" className="ax-btn ax-btn--primary" disabled={destinatarios === 0 || !m.asunto.trim()} onClick={() => { setEnvio(false); nota(`Envío simulado a ${destinatarios} destinatarios`); }}><span className="ax-btn__label">Enviar a la lista</span></button>}
             </div>
           </div>
         </div>
