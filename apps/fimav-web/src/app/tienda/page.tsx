@@ -41,26 +41,17 @@ export default async function TiendaPage({ searchParams }: { searchParams: Promi
       <BannerPagina eyebrow="Tienda" titulo="Equipos y" resaltado="soluciones" imagen="/fotos/escritorios-2.jpg" />
       <Reveal className="mx-auto max-w-7xl px-4 pb-16 pt-8 sm:px-6">
         <div className="rounded-2xl bg-gris p-4 sm:p-5">
-          <nav aria-label="Categorías de la tienda">
-            <ul className="flex flex-wrap gap-x-2 gap-y-3">
-              {[{ slug: undefined as string | undefined, nombre: 'Todo', n: todos.length }, ...categorias].map((c) => {
-                const activo = categoria === c.slug;
-                return (
-                  <li key={c.slug ?? 'todo'}>
-                    <BotonHex href={c.slug ? `/tienda?categoria=${c.slug}` : '/tienda'} size="sm" variante={activo ? 'rojo' : 'contorno'}>
-                      {c.nombre} <span className="opacity-70">({c.n})</span>
-                      {activo && <span className="sr-only"> (seleccionada)</span>}
-                    </BotonHex>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-
-          <form action="/tienda" className="mt-4 flex flex-wrap items-end gap-x-3 gap-y-4 border-t border-carbon/15 pt-4">
-            {categoria && <input type="hidden" name="categoria" value={categoria} />}
+          <form action="/tienda" className="flex flex-wrap items-end gap-x-3 gap-y-4">
             <label className="grow text-sm font-medium text-carbon sm:min-w-64">Buscar
               <CampoHex className="mt-1"><input name="q" defaultValue={q} placeholder="Nombre, marca o código" className={campo} /></CampoHex>
+            </label>
+            <label className="text-sm font-medium text-carbon">Categoría
+              <CampoHex className="mt-1">
+                <select name="categoria" defaultValue={categoria ?? ''} className={campo}>
+                  <option value="">Todo ({todos.length})</option>
+                  {categorias.map((c) => <option key={c.slug} value={c.slug}>{c.nombre} ({c.n})</option>)}
+                </select>
+              </CampoHex>
             </label>
             <label className="text-sm font-medium text-carbon">Marca
               <CampoHex className="mt-1">
