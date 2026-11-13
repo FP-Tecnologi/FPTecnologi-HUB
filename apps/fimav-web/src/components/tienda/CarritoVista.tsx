@@ -1,6 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { FileText, MessageCircle, Trash2 } from 'lucide-react';
+import AvisoCompra from '@/components/bbva/AvisoCompra';
 import BotonHex from '@/components/hex/BotonHex';
 import ContadorCantidad from './ContadorCantidad';
 import { useContacto, waUrl } from '@/components/ContactoContext';
@@ -50,6 +51,7 @@ export default function CarritoVista() {
         <BotonHex href={waUrl(contacto.whatsapp, pedido)} size="lg" icono={MessageCircle} className="mt-5">Comprar por WhatsApp</BotonHex>
         <BotonHex href="/cotizar?carrito=1" variante="contorno" size="lg" icono={FileText} className="mt-4">Solicitar cotización</BotonHex>
         <button type="button" onClick={vaciar} className="mt-4 min-h-11 text-sm font-semibold text-carbon underline hover:text-rojo-hondo">Vaciar carrito</button>
+        <AvisoCompra className="mt-6" />
       </aside>
     </div>
   );

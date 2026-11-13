@@ -7,7 +7,7 @@ import { AbanicoBbva, HREF_BBVA, LogoBbva } from './Tarjetas';
 
 const CLAVE = 'bbva-popup-visto';
 // Páginas informativas donde el aviso no estorba. Nunca en formularios (cotizar, contacto, reclamos) ni en la propia página de BBVA.
-const PAGINAS = ['/', '/catalogo', '/nosotros', '/peru-compras'];
+const PAGINAS = ['/', '/catalogo', '/nosotros', '/peru-compras', '/tienda'];
 const aplica = (ruta: string) => PAGINAS.some((p) => (p === '/' ? ruta === '/' : ruta === p || ruta.startsWith(`${p}/`)));
 
 /* Aviso en esquina con el abanico de tarjetas: una vez por sesión, al bajar la mitad de la página o a los 25 s. */

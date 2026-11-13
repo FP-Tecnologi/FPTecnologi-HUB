@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { FileText, MessageCircle } from 'lucide-react';
 import BannerPagina from '@/components/BannerPagina';
+import AvisoCompra from '@/components/bbva/AvisoCompra';
 import BotonHex from '@/components/hex/BotonHex';
 import ProductoCard from '@/components/tienda/ProductoCard';
 import AgregarCarrito from '@/components/tienda/AgregarCarrito';
@@ -43,6 +44,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
               <BotonHex href={`/cotizar?producto=${consulta}`} size="lg" icono={FileText}>Cotizar</BotonHex>
               <BotonHex href={wa} variante="contorno" size="lg" icono={MessageCircle}>WhatsApp</BotonHex>
             </div>
+            <AvisoCompra className="mt-6" />
             {texto && <p className="mt-8 whitespace-pre-line leading-relaxed text-carbon/90">{texto}</p>}
           </div>
         </div>

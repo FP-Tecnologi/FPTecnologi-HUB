@@ -5,8 +5,9 @@ import BotonHex from '@/components/hex/BotonHex';
 import { HREF_BBVA, LogoBbva, TarjetaBbva } from './Tarjetas';
 
 // Donde no va: el inicio (ya tiene su bloque grande), la propia página de BBVA y las páginas de formulario o legales.
-const SIN_BANNER = ['/', '/tarjetas-bbva', '/cotizar', '/contacto', '/libro-de-reclamaciones', '/legal'];
-const oculto = (ruta: string) => SIN_BANNER.some((p) => (p === '/' ? ruta === '/' : ruta === p || ruta.startsWith(`${p}/`)));
+const SIN_BANNER = ['/', '/tarjetas-bbva', '/carrito', '/cotizar', '/contacto', '/libro-de-reclamaciones', '/legal'];
+// En la ficha de producto (/tienda/<slug>) y en el carrito ya hay una tarjeta de BBVA junto a la compra.
+const oculto = (ruta: string) => ruta.startsWith('/tienda/') || SIN_BANNER.some((p) => (p === '/' ? ruta === '/' : ruta === p || ruta.startsWith(`${p}/`)));
 
 /** Franja delgada de todo el ancho, en azul BBVA, justo antes del pie (CTA de cotizar): invita a consultar tarjetas BBVA. */
 export default function BannerBbva() {

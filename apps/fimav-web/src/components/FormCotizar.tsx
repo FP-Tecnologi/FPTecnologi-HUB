@@ -4,6 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import { Loader2, MessageCircle, Send } from 'lucide-react';
 import { useContacto, waUrl as waUrlDe } from './ContactoContext';
 import BotonHex from './hex/BotonHex';
+import AvisoCompra from '@/components/bbva/AvisoCompra';
 import { resumenCarrito, useCarrito, vaciar } from '@/lib/carrito';
 
 type Tipo = 'NATURAL' | 'JURIDICA';
@@ -107,6 +108,7 @@ export default function FormCotizar({ categorias }: { categorias: { slug: string
 
   return (
     <form id="cotizar-form" onSubmit={enviar} noValidate className="grid gap-4 rounded-2xl bg-gris p-5 sm:grid-cols-2 sm:p-8">
+      {conCarrito && <AvisoCompra className="sm:col-span-2" />}
       <fieldset className="sm:col-span-2">
         <legend className="text-sm font-medium text-carbon">Tipo de persona</legend>
         <div className="mt-2 flex flex-wrap gap-3">
