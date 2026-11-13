@@ -21,6 +21,7 @@ import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { CustomizerProvider } from '../src/context/CustomizerContext';
 import { AuthProvider } from '../src/context/AuthContext';
+import { PwaShell } from '../src/components/pwa/PwaShell';
 import '../src/styles/app.css';
 
 /* The anti-flash IIFE — verbatim from the HTML reference. MUST run before the
@@ -110,10 +111,12 @@ export const metadata: Metadata = {
   },
   description:
     'Dashboard administrativo de FPTecnologi-HUB: gestión multi-marca de productos, pedidos, servicios y cotizaciones.',
+  manifest: '/manifest.webmanifest',
+  appleWebApp: { capable: true, title: 'FPTecnologi', statusBarStyle: 'default' },
   icons: {
     icon: '/logo-fptecnologi-icon.svg',
     shortcut: '/logo-fptecnologi-icon.svg',
-    apple: '/logo-fptecnologi-icon.svg',
+    apple: '/pwa/apple-touch-icon.png',
   },
 };
 
@@ -145,6 +148,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <AuthProvider>
           <CustomizerProvider>{children}</CustomizerProvider>
         </AuthProvider>
+        <PwaShell />
       </body>
     </html>
   );

@@ -44,7 +44,11 @@ const SEGURIDAD = [
 const nextConfig = {
   poweredByHeader: false,
   async headers() {
-    return [{ source: '/:path*', headers: SEGURIDAD }];
+    return [
+      { source: '/:path*', headers: SEGURIDAD },
+      // El service worker nunca se cachea, para que las versiones nuevas lleguen al instante.
+      { source: '/sw.js', headers: [{ key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' }, { key: 'Service-Worker-Allowed', value: '/' }] },
+    ];
   },
   async redirects() {
     return RUTAS_EN_ES;
