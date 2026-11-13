@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { ChevronRight, FileText, Headset, HelpCircle, Landmark, MessageCircle, PackageSearch, TriangleAlert, X, type LucideIcon } from 'lucide-react';
-import Espiral from './Espiral';
 import Hexagono from './Hexagono';
 import { rutaHexagono } from './hex/rutaHexagono';
 import { useContacto, waUrl as waUrlDe } from './ContactoContext';
@@ -75,7 +74,7 @@ export default function WhatsAppFlotante() {
           className="absolute bottom-[4.75rem] right-0 w-[calc(100vw-2.5rem)] max-w-sm origin-bottom-right overflow-hidden rounded-3xl border border-carbon/15 bg-white shadow-[0_24px_48px_-16px_rgb(192_32_32/0.35),0_12px_28px_-12px_rgb(56_56_60/0.45)] motion-safe:animate-[aparecer_0.2s_ease-out]"
         >
           <div className="relative overflow-hidden bg-carbon px-5 py-4 text-white">
-            <Espiral contorno className="pointer-events-none absolute -right-8 -top-10 w-32 opacity-30" />
+            <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[url(/fondos/hex-patron.svg)] bg-[length:70px_auto] opacity-60 [mask-image:linear-gradient(to_left,#000_0%,transparent_75%)]" />
             <p className="relative font-display text-lg font-bold uppercase leading-tight tracking-wide">¿En qué te ayudamos?</p>
             <p className="relative mt-0.5 text-sm text-white/90">Elige un tema y seguimos por WhatsApp</p>
           </div>
