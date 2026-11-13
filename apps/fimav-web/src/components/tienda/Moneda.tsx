@@ -22,7 +22,7 @@ export function MonedaProvider({ tipoCambio, children }: { tipoCambio: number; c
   const valor = useMemo<Valor>(() => ({
     moneda, setMoneda, tipoCambio,
     formato: (usd) => (moneda === 'USD'
-      ? `US$ ${usd.toLocaleString('es-PE', { maximumFractionDigits: 2 })}`
+      ? `US$ ${usd.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
       : `S/ ${(usd * tipoCambio).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`),
   }), [moneda, setMoneda, tipoCambio]);
   return <Ctx.Provider value={valor}>{children}</Ctx.Provider>;

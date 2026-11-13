@@ -67,7 +67,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
 
   const value = useMemo<CurrencyContextValue>(() => {
     const format = (usdAmount: number) =>
-      currency === 'USD' ? `$${usdAmount.toFixed(2)}` : `S/ ${(usdAmount * rate).toFixed(2)}`;
+      currency === 'USD' ? `$${usdAmount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : `S/ ${(usdAmount * rate).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     return { currency, setCurrency, toggleCurrency, rate, format };
   }, [currency, setCurrency, toggleCurrency, rate]);
 

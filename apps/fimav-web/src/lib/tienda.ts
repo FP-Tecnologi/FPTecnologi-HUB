@@ -70,7 +70,7 @@ export const getProductoTienda = cache(async (slug: string): Promise<ProductoTie
   return (await getProductosTienda())?.find((p) => p.slug === slug || slugDe(p.sku) === slug) ?? null;
 });
 
-export const usd = (n: number) => `US$ ${n.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+export const usd = (n: number) => `US$ ${n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 /** Soles por dólar: el que se guarda en FPTecnologi (Ajustes del sitio → Tipo de cambio), para que ambas webs coticen igual.
  *  Respaldo: TIPO_CAMBIO_USD_PEN o 3.75. */

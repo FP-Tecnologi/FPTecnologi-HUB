@@ -12,7 +12,7 @@ const USOS = [
   { id: 'juegos', t: 'Juegos', i: Gamepad2, build: 1, d: 'Alto rendimiento gráfico y refrigeración que sostiene el máximo por horas.' },
 ] as const;
 
-const soles = (n: number) => `S/ ${n.toLocaleString('es-PE')}`;
+const soles = (n: number) => `S/ ${n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 // "¿Para qué usarás tu PC?": cada uso recomienda una configuración y lleva al armador o al cotizador.
 export default function SelectorUso() {

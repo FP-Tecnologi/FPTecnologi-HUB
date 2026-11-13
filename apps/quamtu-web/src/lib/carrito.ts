@@ -43,7 +43,7 @@ export function agregarAlCarrito(item: ItemCarrito) {
   window.dispatchEvent(new Event('quamtu-carrito-abrir'));
 }
 
-const soles = (n: number) => `S/ ${n.toLocaleString('es-PE')}`;
+const soles = (n: number) => `S/ ${n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 // Texto del pedido/cotización para WhatsApp.
 export function mensajeWhatsApp(items: ItemCarrito[], intro = 'Hola Quamtu, quiero comprar lo siguiente:') {

@@ -13,6 +13,7 @@ import { Icon } from '../ui/Icon';
 import { Card, Kpi, Vacio, VIZ, num, viz } from './piezas';
 import { TraficoWeb } from './TraficoWeb';
 import { useAuth } from '../../context/AuthContext';
+import { numeroMoneda } from '@/lib/moneda';
 import {
   contarPorEstado, contarPorMes, sumarPorMes, ultimosMeses, useResumen, variacion,
   type NotifRow, type PedidoRow,
@@ -36,7 +37,7 @@ const ESTADOS_CHAT = ['BOT', 'ASESOR', 'CERRADA'];
 const ESTADOS_CONTACTO = ['NUEVO', 'CONTACTADO', 'RESUELTO', 'DESCARTADO'];
 
 const etiqueta = (e: string) => e.charAt(0) + e.slice(1).toLowerCase().replace('_', ' ');
-const usd = (n: number) => `$${n.toLocaleString('es-PE', { maximumFractionDigits: 0 })}`;
+const usd = (n: number) => `$${numeroMoneda(n)}`;
 
 /** Barras horizontales (embudo / estados) con total numérico. */
 function BarrasEstado({ estados, valores, nombre }: { estados: string[]; valores: number[] | null; nombre: string }) {

@@ -19,7 +19,7 @@ const campo = 'mt-1 block min-h-11 w-full rounded-lg border border-carbon/60 bg-
 const VACIO = { dni: '', nacimiento: '', celular: '', operador: '', email: '', aceptaDatos: false };
 const ORDEN = ['dni', 'nacimiento', 'celular', 'operador', 'email', 'aceptaDatos'];
 
-const dinero = (n: number, moneda: string) => new Intl.NumberFormat('es-PE', { style: 'currency', currency: moneda, maximumFractionDigits: 0 }).format(n);
+const dinero = (n: number, moneda: string) => new Intl.NumberFormat('es-PE', { style: 'currency', currency: moneda, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
 
 /* Formulario de consulta (campos que pide BBVA Cards offer) y lista de tarjetas disponibles. */
 export default function FormBbva() {

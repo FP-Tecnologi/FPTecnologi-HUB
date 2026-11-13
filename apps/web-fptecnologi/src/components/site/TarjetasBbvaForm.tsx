@@ -30,7 +30,7 @@ function Campo({ id, label, icon: Icon, children }: { id: string; label: string;
   );
 }
 
-const dinero = (n: number, moneda: string) => new Intl.NumberFormat('es-PE', { style: 'currency', currency: moneda, maximumFractionDigits: 0 }).format(n);
+const dinero = (n: number, moneda: string) => new Intl.NumberFormat('es-PE', { style: 'currency', currency: moneda, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n);
 
 const VACIO = { dni: '', nacimiento: '', celular: '', operador: '', email: '', aceptaDatos: false };
 

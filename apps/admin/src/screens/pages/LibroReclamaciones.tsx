@@ -12,6 +12,7 @@ import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
+import { numeroMoneda } from '@/lib/moneda';
 
 type Estado = 'RECIBIDO' | 'EN_PROCESO' | 'RESPONDIDO';
 
@@ -62,7 +63,7 @@ const meta = (e: Estado) => ESTADOS.find((x) => x.v === e)!;
 const fecha = (iso: string) => new Date(iso).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' });
 const fechaHora = (iso: string) => new Date(iso).toLocaleString('es-PE', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 const consumidor = (h: Hoja) => `${h.nombres} ${h.apellidos}`;
-const monto = (h: Hoja) => (h.montoReclamado == null || h.montoReclamado === '' ? '—' : `${h.moneda === 'USD' ? 'US$' : 'S/'} ${Number(h.montoReclamado).toFixed(2)}`);
+const monto = (h: Hoja) => (h.montoReclamado == null || h.montoReclamado === '' ? '—' : `${h.moneda === 'USD' ? 'US$' : 'S/'} ${numeroMoneda(h.montoReclamado)}`);
 const tipoLabel = (t: Hoja['tipo']) => (t === 'RECLAMO' ? 'Reclamo' : 'Queja');
 const plural = (n: number) => `${n} día${n === 1 ? '' : 's'} háb.`;
 

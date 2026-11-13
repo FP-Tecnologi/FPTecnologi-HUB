@@ -7,7 +7,7 @@ import { agregarAlCarrito, mensajeWhatsApp, type ItemCarrito } from '@/lib/carri
 import { waUrl } from '@/lib/contacto';
 import { CATS, avisoFuente, incompatible, porCat, seleccionDe, total, type Opcion, type Seleccion } from '@/lib/piezas';
 
-const soles = (n: number) => `S/ ${n.toLocaleString('es-PE')}`;
+const soles = (n: number) => `S/ ${n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 type Modo = 'pc' | 'repuestos';
 
 // Total sobre el gabinete: el número corre hasta el nuevo valor y un "+S/ x" / "-S/ x" avisa el cambio.

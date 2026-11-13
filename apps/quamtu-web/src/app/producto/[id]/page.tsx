@@ -7,7 +7,7 @@ import { CATS, OPCIONES, porId } from '@/lib/piezas';
 import JsonLd from '@/components/JsonLd';
 import { jsonProducto, meta, migas } from '@/lib/seo';
 
-const soles = (n: number) => `S/ ${n.toLocaleString('es-PE')}`;
+const soles = (n: number) => `S/ ${n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export const dynamicParams = false;
 export const generateStaticParams = () => OPCIONES.map((o) => ({ id: o.id }));

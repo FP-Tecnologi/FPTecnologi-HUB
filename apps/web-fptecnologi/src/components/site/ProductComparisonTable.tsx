@@ -42,7 +42,7 @@ export function ProductComparisonTable({ products }: { products: (typeof FEATURE
             <th className="pl-4 text-left text-xs font-medium text-ink/65">Precio</th>
             {products.map((p) => (
               <td key={p.sku} className="font-mono text-sm font-bold text-ink">
-                ${p.price.toFixed(2)}
+                ${p.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </td>
             ))}
           </tr>

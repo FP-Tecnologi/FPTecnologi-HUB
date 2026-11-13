@@ -7,7 +7,7 @@ import { waUrl } from '@/lib/contacto';
 import { BUILDS, CATS, OPCIONES, porId, seleccionDe, total, type Cat } from '@/lib/piezas';
 import { hubJson } from '@/lib/hub';
 
-const soles = (n: number) => `S/ ${n.toLocaleString('es-PE')}`;
+const soles = (n: number) => `S/ ${n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 type Linea = { clave: string; nombre: string; detalle?: string; unit: number; cantidad: number };
 type Tipo = 'JURIDICA' | 'NATURAL';

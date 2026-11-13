@@ -63,7 +63,7 @@ export function CrmReportes() {
         <Card titulo="Ventas ganadas por mes" sub="Monto de las oportunidades ganadas, por mes de cierre" cols={8}>
           {r && r.porMes.some((m) => m.ganadas) ? (
             <ApexChart type="bar" height={300} legend={monedas.length > 1 ? 'bottom' : 'none'} ariaLabel="Ventas ganadas por mes"
-              series={monedas.map((mon) => ({ name: mon === 'USD' ? 'US$' : 'S/', data: r.porMes.map((m) => Math.round(m.montos[mon] ?? 0)) }))}
+              series={monedas.map((mon) => ({ name: mon === 'USD' ? 'US$' : 'S/', data: r.porMes.map((m) => Math.round((m.montos[mon] ?? 0) * 100) / 100) }))}
               apex={{ colors: viz(), plotOptions: { bar: { borderRadius: 4, columnWidth: '55%' } }, xaxis: { categories: etiquetas } }} />
           ) : <Vacio texto="Aún no hay oportunidades ganadas en este periodo." />}
         </Card>

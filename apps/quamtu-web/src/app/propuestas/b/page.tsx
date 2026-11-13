@@ -57,7 +57,7 @@ export default function PropuestaB() {
             </dl>
             <div className="mt-4 flex items-end justify-between border-t border-line pt-4">
               <span className="text-xs tracking-widest text-slate-400">PRECIO REFERENCIAL</span>
-              <b className="font-display text-3xl text-claro">S/ {total(s).toLocaleString('es-PE')}</b>
+              <b className="font-display text-3xl text-claro">S/ {total(s).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</b>
             </div>
           </aside>
         </div>

@@ -9,6 +9,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { Select } from '../../components/ui/Select';
+import { numeroMoneda } from '@/lib/moneda';
 
 type Estado = 'BORRADOR' | 'ACTIVA' | 'FINALIZADA';
 interface Campana {
@@ -80,7 +81,7 @@ export function CampanasLista() {
           return (
             <section key={c.id} className="ax-card ax-col--6" aria-label={c.nombre}>
               <div className="ax-card__header">
-                <div className="ax-card__titles"><h2 className="ax-card__title">{c.nombre}</h2><p className="ax-card__subtitle">{verDia(c.inicio)} → {verDia(c.fin)}{c.presupuesto ? ` · ${c.moneda} ${Number(c.presupuesto).toLocaleString('es-PE')}` : ''}</p></div>
+                <div className="ax-card__titles"><h2 className="ax-card__title">{c.nombre}</h2><p className="ax-card__subtitle">{verDia(c.inicio)} → {verDia(c.fin)}{c.presupuesto ? ` · ${c.moneda} ${numeroMoneda(c.presupuesto)}` : ''}</p></div>
                 <span className={`ax-badge ax-badge--soft ax-badge--pill ${est.badge}`}>{est.label}</span>
               </div>
               <div className="ax-card__body" style={{ paddingTop: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>

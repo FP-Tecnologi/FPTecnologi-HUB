@@ -5,7 +5,7 @@ import { ClipboardList, Info, Minus, MessageCircle, Plus, ShoppingBag, Trash2 } 
 import { guardarCarrito, leerCarrito, subtotal, totalCarrito, unidades, whatsappCarrito, type ItemCarrito } from '@/lib/carrito';
 import { porId } from '@/lib/piezas';
 
-const soles = (n: number) => `S/ ${n.toLocaleString('es-PE')}`;
+const soles = (n: number) => `S/ ${n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export default function Carrito() {
   const [items, setItems] = useState<ItemCarrito[] | null>(null);

@@ -6,7 +6,7 @@ import ImgPieza from './ImgPieza';
 import { agregarAlCarrito } from '@/lib/carrito';
 import { CATS, type Opcion } from '@/lib/piezas';
 
-const soles = (n: number) => `S/ ${n.toLocaleString('es-PE')}`;
+const soles = (n: number) => `S/ ${n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 // Tarjeta de la tienda: foto que se acerca al pasar el mouse, datos clave y dos acciones siempre visibles.
 export default function TarjetaProducto({ o }: { o: Opcion }) {

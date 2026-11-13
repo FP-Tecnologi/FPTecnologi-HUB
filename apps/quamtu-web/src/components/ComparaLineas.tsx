@@ -1,6 +1,6 @@
 import { BUILDS, seleccionDe, total } from '@/lib/piezas';
 
-const soles = (n: number) => `S/ ${n.toLocaleString('es-PE')}`;
+const soles = (n: number) => `S/ ${n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const desde = (ids: number[]) => Math.min(...ids.map((i) => total(seleccionDe(BUILDS[i].ids))));
 const nombres = (ids: number[], cat: 'ram' | 'ssd' | 'gpu' | 'cooler' | 'cpu') =>
   [...new Set(ids.map((i) => seleccionDe(BUILDS[i].ids)[cat]?.nombre))].join(' · ');

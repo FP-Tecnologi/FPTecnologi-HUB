@@ -10,6 +10,7 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
+import { numeroMoneda } from '@/lib/moneda';
 
 interface Cliente { email: string; nombre: string; celular: string; documento: string | null; pedidos: number; gastado: number; ultimoPedido: string; cotizaciones: number }
 interface Detalle {
@@ -129,7 +130,7 @@ export function EcommerceClientes() {
                     {detalle.cotizaciones.map((c) => (
                       <li key={c.id} className="ax-list__row" style={{ paddingInline: 0 }}>
                         <span className="ax-list__content"><span className="ax-list__title">{c.servicio.nombre}</span><span className="ax-list__meta">{c.numero ?? ''} · {fecha(c.createdAt)} · {etiqueta(c.estado)}</span></span>
-                        <span className="ax-list__trailing">{c.monto ? `${c.moneda} ${Number(c.monto).toFixed(2)}` : '—'}</span>
+                        <span className="ax-list__trailing">{c.monto ? `${c.moneda} ${numeroMoneda(c.monto)}` : '—'}</span>
                       </li>
                     ))}
                   </ul>

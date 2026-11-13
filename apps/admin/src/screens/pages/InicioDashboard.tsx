@@ -13,11 +13,12 @@ import { Icon } from '../../components/ui/Icon';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { useResumen, contarPorEstado, sumarPorMes, ultimosMeses } from '../../components/dashboard/useResumen';
+import { numeroMoneda } from '@/lib/moneda';
 
 interface CampanaFila { id: string; nombre: string; estado: string; registros: number; landings: { id: string; nombre: string; registros: number }[] }
 interface LandingFila { id: string; nombre: string; slug: string; estado: string; _count: { registros: number } }
 
-const usd = (n: number) => `$${n.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+const usd = (n: number) => `$${numeroMoneda(n)}`;
 
 function Pendiente({ icon, tono, label, valor, href }: { icon: string; tono: string; label: string; valor: number | null; href: string }) {
   return (

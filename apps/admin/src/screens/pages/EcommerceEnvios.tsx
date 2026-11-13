@@ -10,6 +10,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { Select } from '../../components/ui/Select';
+import { numeroMoneda } from '@/lib/moneda';
 
 interface Tarifa { id: string; proveedor: string; departamento: string; costo: string; moneda: string; plazoDias: string | null; activo: boolean }
 
@@ -84,7 +85,7 @@ export function EcommerceEnvios() {
                   {tarifas.map((t) => (
                     <tr key={t.id} className="ax-table__row">
                       <td className="ax-table__td" style={{ fontWeight: 'var(--ax-weight-medium)', color: 'var(--ax-text-strong)' }}>{t.departamento}</td>
-                      <td className="ax-table__td" style={{ fontVariantNumeric: 'tabular-nums' }}>{t.moneda === 'PEN' ? 'S/ ' : 'US$ '}{Number(t.costo).toFixed(2)}</td>
+                      <td className="ax-table__td" style={{ fontVariantNumeric: 'tabular-nums' }}>{t.moneda === 'PEN' ? 'S/ ' : 'US$ '}{numeroMoneda(t.costo)}</td>
                       <td className="ax-table__td">{t.plazoDias ?? '—'}</td>
                       <td className="ax-table__td"><span className={`ax-badge ax-badge--soft ax-badge--pill ${t.activo ? 'ax-badge--success' : 'ax-badge--neutral'}`}>{t.activo ? 'Activa' : 'Inactiva'}</span></td>
                       <td className="ax-table__td" style={{ textAlign: 'right' }}>

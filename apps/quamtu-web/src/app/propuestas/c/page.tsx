@@ -67,7 +67,7 @@ export default function PropuestaC() {
                   <div className="p-5">
                     <h3 className="font-display text-base font-bold normal-case text-white">{o.nombre}</h3>
                     <p className="mt-1 text-sm text-slate-400">{o.spec}</p>
-                    <p className="mt-3 font-display text-xl font-bold text-claro">S/ {o.precio.toLocaleString('es-PE')}</p>
+                    <p className="mt-3 font-display text-xl font-bold text-claro">S/ {o.precio.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
                   </div>
                 </Link>
               );

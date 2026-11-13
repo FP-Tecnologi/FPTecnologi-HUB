@@ -263,7 +263,7 @@ function Pedestal({ y, color }: { y: number; color: string }) {
 }
 
 /* ---------- etiquetas: punto sobre la pieza + línea punteada hacia una tarjeta a un lado del gabinete ---------- */
-const soles = (n: number) => `S/ ${n.toLocaleString('es-PE')}`;
+const soles = (n: number) => `S/ ${n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 function Etiqueta({ o, p, q, lado, activa, setHover }: { o: Opcion; p: V3; q: V3; lado: 'izq' | 'der'; activa: boolean; setHover: (id: string | null) => void }) {
   const eventos = { onMouseEnter: () => setHover(o.id), onMouseLeave: () => setHover(null) };

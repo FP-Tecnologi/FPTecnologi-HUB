@@ -20,7 +20,7 @@ export type Project = {
 };
 
 /** "S/ 127,129" (determinista para evitar diferencias SSR/cliente). */
-export const montoSoles = (n: number) => `S/ ${Math.round(n).toLocaleString('en-US')}`;
+export const montoSoles = (n: number) => `S/ ${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 /** Año o, si no hay, monto: lo que se pueda mostrar como dato corto de la tarjeta. */
 export const datoCorto = (p: Project) => (p.year ? String(p.year) : p.monto ? montoSoles(p.monto) : '');

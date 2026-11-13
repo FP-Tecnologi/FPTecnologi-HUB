@@ -6,7 +6,7 @@ import { MessageCircle, ShoppingBag, X } from 'lucide-react';
 import { leerCarrito, subtotal, totalCarrito, unidades, whatsappCarrito, type ItemCarrito } from '@/lib/carrito';
 import { porId } from '@/lib/piezas';
 
-const soles = (n: number) => `S/ ${n.toLocaleString('es-PE')}`;
+const soles = (n: number) => `S/ ${n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 // Icono de carrito con contador + panel lateral de vista previa. Se abre al pulsarlo o al añadir algo.
 export default function CarritoMini() {

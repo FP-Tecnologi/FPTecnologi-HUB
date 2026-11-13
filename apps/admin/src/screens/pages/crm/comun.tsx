@@ -12,6 +12,7 @@ import { useFocusTrap } from '../../../hooks/useFocusTrap';
 import { manifest, hrefForSlug } from '../../../lib/manifest';
 import { Icon } from '../../../components/ui/Icon';
 import { Select } from '../../../components/ui/Select';
+import { numeroMoneda } from '@/lib/moneda';
 
 export type Etapa = 'NUEVO' | 'CONTACTADO' | 'PROPUESTA' | 'NEGOCIACION' | 'GANADO' | 'PERDIDO';
 export type Origen = 'MANUAL' | 'COTIZADOR' | 'COTIZACION' | 'CONTACTO_WEB' | 'PRESUPUESTO';
@@ -48,7 +49,7 @@ export const TIPOS: Record<TipoActividad, string> = { LLAMADA: 'Llamada', REUNIO
 export const TIPOS_MANUALES: TipoActividad[] = ['LLAMADA', 'REUNION', 'WHATSAPP', 'CORREO', 'NOTA', 'TAREA'];
 
 export const dinero = (monto: string | number | null | undefined, moneda = 'PEN') =>
-  monto === null || monto === undefined || monto === '' ? '—' : `${moneda === 'USD' ? 'US$' : 'S/'} ${Number(monto).toLocaleString('es-PE', { maximumFractionDigits: 0 })}`;
+  monto === null || monto === undefined || monto === '' ? '—' : `${moneda === 'USD' ? 'US$' : 'S/'} ${numeroMoneda(monto)}`;
 export const montos = (m: Record<string, number> | undefined) => {
   const partes = Object.entries(m ?? {}).filter(([, v]) => v > 0).map(([mon, v]) => dinero(v, mon));
   return partes.length ? partes.join(' + ') : dinero(0);
@@ -464,7 +465,7 @@ export function NuevaOportunidad({ onClose, onCreada }: { onClose: () => void; o
         </div>
         <div style={fila}>
           <div className="ax-field"><label className="ax-label" htmlFor="no-acc">Próxima acción</label><input id="no-acc" className="ax-input" maxLength={200} value={f.proximaAccion} onChange={set('proximaAccion')} /></div>
-          <div className="ax-field"><label className="ax-label" htmlFor="no-accf">¿Cuándo?</label><input id="no-accf" type="datetime-local" className="ax-input" value={f.proximaAccionAt} onChange={set('proximaAccionAt')} /></div>
+          <div className="ax-field"><label className="ax-label" htmlFor="no-accf">¿Cuándo?</label><input id="no-accf" type="date" className="ax-input" value={f.proximaAccionAt.slice(0, 10)} onChange={(e) => setF({ ...f, proximaAccionAt: e.target.value ? `${e.target.value}T09:00` : '' })} /></div>
         </div>
         <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'flex-end' }}>
           <button type="button" className="ax-btn ax-btn--ghost" onClick={onClose}>Cancelar</button>
