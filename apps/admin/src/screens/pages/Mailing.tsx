@@ -501,7 +501,7 @@ export function MailingEditor() {
       </section>
 
       {envio && m && (
-        <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 60, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
+        <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 'var(--ax-z-modal)' as unknown as number, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
           <div onClick={() => setEnvio(false)} style={{ position: 'absolute', inset: 0, background: 'rgba(8,10,16,.55)' }} />
           <div role="dialog" aria-modal="true" aria-label="Enviar mailing" className="ax-card" style={{ position: 'relative', maxWidth: 520, width: '100%', padding: 'var(--ax-space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
             <h2 className="ax-card__title">Enviar «{m.nombre}»</h2>

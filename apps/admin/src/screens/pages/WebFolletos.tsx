@@ -54,7 +54,7 @@ function Modal({ titulo, ancho = 520, onClose, children }: { titulo: string; anc
     return () => window.removeEventListener('keydown', k);
   }, [onClose]);
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 85, display: 'grid', placeItems: 'center', padding: 'var(--ax-space-4)' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 'var(--ax-z-modal)' as unknown as number, display: 'grid', placeItems: 'center', padding: 'var(--ax-space-4)' }}>
       <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(8,10,16,.55)' }} />
       <div role="dialog" aria-modal="true" aria-label={titulo} className="ax-card" style={{ position: 'relative', width: '100%', maxWidth: ancho, maxHeight: '90vh', overflow: 'auto', padding: 'var(--ax-space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
         <h2 className="ax-card__title" style={{ margin: 0 }}>{titulo}</h2>
@@ -221,7 +221,7 @@ function VistaPrevia({ f, onClose, onCopiar }: { f: Folleto; onClose: () => void
   }, [onClose]);
   const movil = modo === 'visor' && disp === 'movil';
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 80, display: 'flex', flexDirection: 'column', background: 'rgba(8,10,16,.72)', padding: 'var(--ax-space-3)' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 'var(--ax-z-modal)' as unknown as number, display: 'flex', flexDirection: 'column', background: 'rgba(8,10,16,.72)', padding: 'var(--ax-space-3)' }}>
       <div role="dialog" aria-modal="true" aria-label={`Vista previa de ${f.titulo}`} className="ax-card" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
         <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap', padding: 'var(--ax-space-3)', borderBlockEnd: '1px solid var(--ax-border, #e5e7eb)', alignItems: 'center' }}>
           <strong style={{ flex: '1 1 12rem', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.titulo}</strong>

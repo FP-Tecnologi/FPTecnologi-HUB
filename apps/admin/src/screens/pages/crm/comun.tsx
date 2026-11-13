@@ -101,7 +101,7 @@ export function Modal({ titulo, onClose, lado = false, ancho = 520, children }: 
     return () => window.removeEventListener('keydown', esc);
   }, [onClose]);
   return (
-    <div style={{ position: 'fixed', inset: 0, zIndex: 400, display: 'flex', justifyContent: lado ? 'flex-end' : 'center', alignItems: lado ? 'stretch' : 'center', padding: lado ? 0 : 'var(--ax-space-4)' }}>
+    <div style={{ position: 'fixed', inset: 0, zIndex: 'var(--ax-z-modal)' as unknown as number, display: 'flex', justifyContent: lado ? 'flex-end' : 'center', alignItems: lado ? 'stretch' : 'center', padding: lado ? 0 : 'var(--ax-space-4)' }}>
       <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'rgba(8,10,16,.55)', backdropFilter: 'blur(2px)' }} />
       <div ref={ref} role="dialog" aria-modal="true" aria-label={typeof titulo === 'string' ? titulo : undefined} className="ax-card"
         style={{ position: 'relative', width: '100%', maxWidth: ancho, maxHeight: lado ? '100vh' : '90vh', overflowY: 'auto', borderRadius: lado ? 0 : undefined }}>

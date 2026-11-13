@@ -214,7 +214,7 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
       </section>
 
       {viendo && createPortal(
-        <div role="dialog" aria-modal="true" aria-labelledby="vt-title" style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(8,10,16,.55)', backdropFilter: 'blur(2px)', display: 'grid', placeItems: 'center', padding: 'var(--ax-space-4)' }} onClick={(e) => { if (e.target === e.currentTarget) setViendo(null); }}>
+        <div role="dialog" aria-modal="true" aria-labelledby="vt-title" style={{ position: 'fixed', inset: 0, zIndex: 'var(--ax-z-modal)' as unknown as number, background: 'rgba(8,10,16,.55)', backdropFilter: 'blur(2px)', display: 'grid', placeItems: 'center', padding: 'var(--ax-space-4)' }} onClick={(e) => { if (e.target === e.currentTarget) setViendo(null); }}>
           <div className="ax-card" style={{ width: 'min(1100px, 100%)', maxHeight: '92vh', overflowY: 'auto', padding: 'var(--ax-space-5)', display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 'var(--ax-space-5)', alignItems: 'flex-start' }}>
             <div style={{ flex: '1 1 18rem', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
               <div>
@@ -250,7 +250,7 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
       )}
 
       {eligiendo && datos && createPortal(
-        <div role="dialog" aria-modal="true" aria-labelledby="nt-title" style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(8,10,16,.55)', backdropFilter: 'blur(2px)', display: 'grid', placeItems: 'center', padding: 'var(--ax-space-4)' }} onClick={(e) => { if (e.target === e.currentTarget) setEligiendo(false); }}>
+        <div role="dialog" aria-modal="true" aria-labelledby="nt-title" style={{ position: 'fixed', inset: 0, zIndex: 'var(--ax-z-modal)' as unknown as number, background: 'rgba(8,10,16,.55)', backdropFilter: 'blur(2px)', display: 'grid', placeItems: 'center', padding: 'var(--ax-space-4)' }} onClick={(e) => { if (e.target === e.currentTarget) setEligiendo(false); }}>
           <div className="ax-card" style={{ width: 'min(480px, 100%)', maxHeight: '80vh', display: 'flex', flexDirection: 'column' }}>
             <div className="ax-card__header">
               <div className="ax-card__titles"><h2 className="ax-card__title" id="nt-title">Nueva tarjeta</h2><p className="ax-card__subtitle">Elige a quién del equipo le falta su tarjeta (se abre con sus datos) o crea una para alguien externo.</p></div>

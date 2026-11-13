@@ -255,11 +255,12 @@ export function UsuariosGlobal() {
       </section>
 
       {crear && (
-        <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 60, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
+        <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 'var(--ax-z-modal)' as unknown as number, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
           <div onClick={() => setCrear(false)} style={{ position: 'absolute', inset: 0, background: 'rgba(8,10,16,.55)', backdropFilter: 'blur(2px)' }} />
           <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="cu-title" className="ax-card" style={{ position: 'relative', maxWidth: 640, width: '100%', maxHeight: '92vh', overflowY: 'auto' }}>
-            <div className="ax-card__header">
+            <div className="ax-card__header" style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 'var(--ax-space-3)' }}>
               <div className="ax-card__titles"><h2 className="ax-card__title" id="cu-title">Crear usuario</h2><p className="ax-card__subtitle">Completa sus datos, elige la empresa y el rol, y cómo obtendrá su contraseña. Solo verá la empresa que le asignes.</p></div>
+              <button type="button" className="ax-btn ax-btn--ghost" aria-label="Cerrar" title="Cerrar" onClick={() => setCrear(false)} style={{ flexShrink: 0, fontSize: 22, lineHeight: 1, padding: '4px 10px' }}>×</button>
             </div>
             <form className="ax-card__body" style={{ paddingTop: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-5)' }} onSubmit={enviar}>
               {cErr && <div role="alert" className="ax-alert ax-alert--danger"><div className="ax-alert__content"><p className="ax-alert__message">{cErr}</p></div></div>}
@@ -334,7 +335,7 @@ export function UsuariosGlobal() {
       )}
 
       {edU && (
-        <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 60, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
+        <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 'var(--ax-z-modal)' as unknown as number, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
           <div onClick={() => setEdU(null)} style={{ position: 'absolute', inset: 0, background: 'rgba(8,10,16,.55)', backdropFilter: 'blur(2px)' }} />
           <div role="dialog" aria-modal="true" aria-labelledby="eu-title" className="ax-card" style={{ position: 'relative', maxWidth: 460, width: '100%', maxHeight: '90vh', overflowY: 'auto' }}>
             <div className="ax-card__header"><div className="ax-card__titles"><h2 className="ax-card__title" id="eu-title">Editar usuario</h2><p className="ax-card__subtitle">{edU.email}. Si cambias el correo se cierran sus sesiones.</p></div></div>
@@ -370,7 +371,7 @@ export function UsuariosGlobal() {
       )}
 
       {pwU && (
-        <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 60, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
+        <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 'var(--ax-z-modal)' as unknown as number, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
           <div onClick={() => setPwU(null)} style={{ position: 'absolute', inset: 0, background: 'rgba(8,10,16,.55)', backdropFilter: 'blur(2px)' }} />
           <div role="dialog" aria-modal="true" aria-labelledby="pw-title" className="ax-card" style={{ position: 'relative', maxWidth: 420, width: '100%' }}>
             <div className="ax-card__header">

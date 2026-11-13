@@ -233,7 +233,7 @@ export function ChatConocimiento() {
       )}
 
       {form && (
-        <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 60, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
+        <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 'var(--ax-z-modal)' as unknown as number, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
           <div onClick={() => setForm(null)} style={{ position: 'absolute', inset: 0, background: 'rgba(8,10,16,.55)' }} />
           <form role="dialog" aria-modal="true" aria-label="Respuesta oficial" className="ax-card" style={{ position: 'relative', maxWidth: 520, width: '100%', ...tarjeta, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }} onSubmit={guardarRespuesta}>
             <h2 className="ax-card__title">{form.id ? 'Editar respuesta' : 'Nueva respuesta oficial'}</h2>

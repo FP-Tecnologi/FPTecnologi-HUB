@@ -126,7 +126,7 @@ function NuevaLanding({ plantillas, campanas, alCerrar, alCrear }: { plantillas:
     catch (e) { setErr(errMsg(e, 'No se pudo crear la landing.')); setBusy(false); }
   }
   return (
-    <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 60, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
+    <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 'var(--ax-z-modal)' as unknown as number, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
       <div onClick={alCerrar} style={{ position: 'absolute', inset: 0, background: 'rgba(8,10,16,.55)' }} />
       <form onSubmit={crear} role="dialog" aria-modal="true" aria-label="Nueva landing" className="ax-card" style={{ position: 'relative', maxWidth: 640, width: '100%', maxHeight: '90vh', overflow: 'auto' }}>
         <div className="ax-card__header"><div className="ax-card__titles"><h2 className="ax-card__title">Nueva landing</h2><p className="ax-card__subtitle">Elige el modelo de página; luego editas el contenido y el formulario.</p></div></div>

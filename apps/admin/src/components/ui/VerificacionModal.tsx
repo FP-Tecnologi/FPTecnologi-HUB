@@ -46,7 +46,7 @@ export function VerificacionModal({ titulo, detalle, onConfirmar, onCerrar }: {
   }
 
   return createPortal(
-    <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 300, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
+    <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 'var(--ax-z-modal)' as unknown as number, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
       <div onClick={onCerrar} style={{ position: 'absolute', inset: 0, background: 'rgba(8,10,16,.6)', backdropFilter: 'blur(2px)' }} />
       <div ref={ref} role="dialog" aria-modal="true" aria-labelledby="vf-title" className="ax-card" style={{ position: 'relative', maxWidth: 420, width: '100%' }}>
         <div className="ax-card__header">

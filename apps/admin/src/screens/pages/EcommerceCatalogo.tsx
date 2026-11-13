@@ -163,7 +163,7 @@ export function EcommerceCatalogo() {
       </div>
 
       {editId && (
-        <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 60, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
+        <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 'var(--ax-z-modal)' as unknown as number, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
           <div onClick={() => setEditId(null)} style={{ position: 'absolute', inset: 0, background: 'rgba(8,10,16,.55)' }} />
           <form onSubmit={guardar} role="dialog" aria-modal="true" aria-label="Categoría" className="ax-card" style={{ position: 'relative', maxWidth: 440, width: '100%' }}>
             <div className="ax-card__header"><div className="ax-card__titles"><h2 className="ax-card__title">{editId === 'nueva' ? 'Nueva categoría' : 'Editar categoría'}</h2></div></div>
@@ -190,7 +190,7 @@ export function EcommerceCatalogo() {
       )}
 
       {renombrar && (
-        <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 60, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
+        <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 'var(--ax-z-modal)' as unknown as number, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
           <div onClick={() => setRenombrar(null)} style={{ position: 'absolute', inset: 0, background: 'rgba(8,10,16,.55)' }} />
           <form onSubmit={(e) => { e.preventDefault(); void accion(() => api.patch('/catalogo/marcas-comerciales', renombrar), 'Marca actualizada.'); }} role="dialog" aria-modal="true" aria-label="Renombrar marca" className="ax-card" style={{ position: 'relative', maxWidth: 420, width: '100%' }}>
             <div className="ax-card__header"><div className="ax-card__titles"><h2 className="ax-card__title">Renombrar «{renombrar.desde}»</h2><p className="ax-card__subtitle">Si escribes el nombre de otra marca existente, se fusionan.</p></div></div>
