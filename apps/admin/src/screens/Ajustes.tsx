@@ -131,6 +131,23 @@ export function Ajustes() {
     reader.readAsDataURL(file);
   }
 
+  const [avatarLink, setAvatarLink] = useState('');
+  async function usarEnlaceAvatar() {
+    const u = avatarLink.trim();
+    if (!/^https?:\/\//.test(u)) return setAvatarErr('El enlace debe empezar con https://');
+    setAvatarErr('');
+    setAvatarSaving(true);
+    try {
+      await updateProfile({ avatarUrl: u });
+      setAvatarLink('');
+      setOkMsg('Foto de perfil actualizada.');
+    } catch (err: unknown) {
+      setAvatarErr(err instanceof ApiError ? err.message : 'No se pudo guardar el enlace.');
+    } finally {
+      setAvatarSaving(false);
+    }
+  }
+
   async function quitarAvatar() {
     setAvatarErr('');
     setAvatarSaving(true);
@@ -215,6 +232,8 @@ export function Ajustes() {
                 {user?.avatarUrl && (
                   <button type="button" className="ax-btn ax-btn--ghost" disabled={avatarSaving} onClick={quitarAvatar}>Quitar</button>
                 )}
+                <input type="text" inputMode="url" className="ax-input" aria-label="Enlace de la foto" placeholder="…o pega un enlace https://…" value={avatarLink} onChange={(e) => setAvatarLink(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); void usarEnlaceAvatar(); } }} />
+                <button type="button" className="ax-btn ax-btn--secondary" disabled={avatarSaving || !avatarLink.trim()} onClick={usarEnlaceAvatar}>Usar enlace</button>
               </div>
             </div>
           </div>

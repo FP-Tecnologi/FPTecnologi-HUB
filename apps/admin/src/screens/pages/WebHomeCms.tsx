@@ -14,7 +14,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api, API_URL } from '../../lib/api';
-import { SubirImagen } from '../../components/ui/SubirImagen';
+import { CampoImagen as CampoImagenUnif } from '../../components/ui/CampoImagen';
 import { apuntaALocal } from '../../lib/webMarca';
 import { Select } from '../../components/ui/Select';
 
@@ -474,20 +474,11 @@ export function CampoEditor({ campo, valor, onChange, web = WEB_FPT }: { campo: 
 
 /* Imagen de una sección: miniatura, ruta/URL editable y "Subir" (POST /uploads: queda en nuestro servidor). */
 function CampoImagen({ id, label, ayuda, valor, onChange, web }: { id: string; label: string; ayuda?: string; valor: string; onChange: (v: string) => void; web: string }) {
-  const vista = valor.startsWith('/uploads/') ? `${API_URL}${valor}` : valor.startsWith('/') ? `${web}${valor}` : valor;
+  void web;
   return (
     <div className="ax-field">
       <label className="ax-label" htmlFor={id}>{label}</label>
-      <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'nowrap', alignItems: 'flex-start' }}>
-        <span style={{ flex: '0 0 auto', width: 72, height: 54, borderRadius: 8, border: '1px solid var(--ax-border)', background: 'var(--ax-surface-subtle)', overflow: 'hidden', display: 'grid', placeItems: 'center' }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          {vista ? <img src={vista} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Sin imagen</span>}
-        </span>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-2)', flex: 1, minWidth: 0 }}>
-          <input id={id} className="ax-input" value={valor} placeholder="/fotos/… o súbela" onChange={(e) => onChange(e.target.value)} />
-          <SubirImagen etiqueta={valor ? 'Reemplazar imagen' : 'Subir imagen'} onSubida={(urls) => urls[0] && onChange(urls[0])} />
-        </div>
-      </div>
+      <CampoImagenUnif id={id} value={valor} onChange={onChange} />
       <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{ayuda ?? 'JPG, PNG o WEBP de hasta 5 MB. Si pegas un enlace de otra web, el servidor guarda una copia propia.'}</span>
     </div>
   );

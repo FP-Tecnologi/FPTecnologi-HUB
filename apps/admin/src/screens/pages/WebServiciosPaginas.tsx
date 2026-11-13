@@ -53,7 +53,7 @@ const SECCIONES: Seccion[] = [
       t(S('nombre'), 'Nombre del servicio'),
       t(S('etiqueta'), 'Etiqueta sobre el título', 'Ej. Soluciones de, Somos expertos en…'),
       { key: S('descripcion'), label: 'Descripción corta (encabezado y tarjeta)', tipo: 'textarea' },
-      t(S('imagenUrl'), 'Imagen (URL o ruta que empiece con /)'),
+      { key: S('imagenUrl'), label: 'Imagen', tipo: 'imagen' },
       t(P('det-hero', 'destacado'), 'Título — parte con brillo (tras el nombre)'),
       t(P('det-hero', 'botonCotizar'), 'Botón de cotizar'),
       t(P('det-hero', 'botonContactar'), 'Botón de WhatsApp'),
