@@ -1338,10 +1338,20 @@ model ActividadLog {
   accion    String
   detalle   String?
   marcaId   String?
+  // Bitácora automática (interceptor): quién, desde dónde y qué datos envió.
+  entidad     String? // primer recurso de la ruta (landings, crm, pedidos…)
+  entidadId   String?
+  metodo      String?
+  ruta        String?
+  ip          String?
+  dispositivo String?
+  cambios     Json? // cuerpo enviado, sin secretos
   createdAt DateTime @default(now())
 
   @@index([createdAt])
   @@index([accion, createdAt])
+  @@index([marcaId, createdAt])
+  @@index([usuarioId, createdAt])
 }
 
 // Contador propio de tráfico de las webs públicas (sin cookies ni datos personales): una fila por página vista.
