@@ -142,6 +142,6 @@ Teléfono: ${telefono}` : dto.mensaje.trim();
         mensaje: `${nombre}: ${mensaje}`.slice(0, 140),
       })),
     });
-    await Promise.all(usuarios.map((u) => this.mail.sendContactoNuevo(u.email, etiqueta, nombre, mensaje, url)));
+    await Promise.all(usuarios.map((u) => this.mail.sendContactoNuevo(u.email, etiqueta, nombre, mensaje, url, marcaId)));
   }
 }

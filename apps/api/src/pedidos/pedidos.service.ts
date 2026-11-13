@@ -191,7 +191,7 @@ export class PedidosService {
     this.avisarEquipo(marcaId, numeroPedido, dto.nombre.trim(), total, envioCotizado ? `Envío por ${envioCotizado.proveedor} · ${envioCotizado.departamento}` : (dto.direccion ? 'Envío a domicilio (a coordinar)' : 'Recojo en tienda'), itemsData.map((i) => `${i.cantidad} × ${i.nombreSnapshot}`)).catch((e) =>
       this.logger.error('No se pudo avisar al equipo del pedido nuevo', e as Error),
     );
-    this.mail.sendPedidoConfirmado(dto.email.trim().toLowerCase(), numeroPedido).catch((e) =>
+    this.mail.sendPedidoConfirmado(dto.email.trim().toLowerCase(), numeroPedido, marcaId).catch((e) =>
       this.logger.error('No se pudo enviar la confirmación del pedido', e as Error),
     );
     return { ok: true as const, numeroPedido, total };
@@ -293,7 +293,7 @@ export class PedidosService {
     const url = `${process.env.WEB_ORIGIN ?? 'http://localhost:3000'}/ecommerce/pedidos`;
     await Promise.all(
       usuarios.map((u) =>
-        this.mail.sendPedidoNuevoEquipo(u.email, { numero, cliente: nombre, total: `USD ${total.toFixed(2)}`, entrega, items: lineas, url }),
+        this.mail.sendPedidoNuevoEquipo(u.email, { numero, cliente: nombre, total: `USD ${total.toFixed(2)}`, entrega, items: lineas, url }, marcaId),
       ),
     );
   }

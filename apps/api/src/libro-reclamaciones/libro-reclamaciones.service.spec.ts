@@ -125,8 +125,8 @@ describe('LibroReclamacionesService.crearPublico', () => {
     const { service, mail } = setup();
     await service.crearPublico('m1', base, '10.0.2.1');
     await flush();
-    expect(mail.sendHojaConsumidor).toHaveBeenCalledWith('ana@correo.com', expect.objectContaining({ codigo: `LR-0001-${anio}` }));
-    expect(mail.sendHojaEquipo).toHaveBeenCalledWith('eq@x.pe', expect.anything(), expect.any(String));
+    expect(mail.sendHojaConsumidor).toHaveBeenCalledWith('ana@correo.com', expect.objectContaining({ codigo: `LR-0001-${anio}` }), expect.anything());
+    expect(mail.sendHojaEquipo).toHaveBeenCalledWith('eq@x.pe', expect.anything(), expect.any(String), expect.anything());
 
     const silencio = vi.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
     const f = setup();
@@ -182,7 +182,7 @@ describe('LibroReclamacionesService aviso al equipo', () => {
     await service.crearPublico('m1', base, '10.8.0.1');
     await flush();
     expect(mail.sendHojaEquipo).toHaveBeenCalledTimes(1);
-    expect(mail.sendHojaEquipo).toHaveBeenCalledWith('a@b.pe', expect.anything(), expect.any(String));
+    expect(mail.sendHojaEquipo).toHaveBeenCalledWith('a@b.pe', expect.anything(), expect.any(String), expect.anything());
   });
 
   it('(I1b) sin usuarios ni contactoEmail → warn y registro ok', async () => {
@@ -203,7 +203,7 @@ describe('LibroReclamacionesService aviso al equipo', () => {
     await service.crearPublico('m1', base, '10.8.0.3');
     await flush();
     expect(mail.sendHojaEquipo).toHaveBeenCalledTimes(1);
-    expect(mail.sendHojaEquipo).toHaveBeenCalledWith('eq@x.pe', expect.anything(), expect.any(String));
+    expect(mail.sendHojaEquipo).toHaveBeenCalledWith('eq@x.pe', expect.anything(), expect.any(String), expect.anything());
   });
 });
 
@@ -241,7 +241,7 @@ describe('LibroReclamacionesService.responder', () => {
     expect(arg.where).toEqual({ id: 'h1', marcaId: 'm1', estado: { not: 'RESPONDIDO' } });
     expect(arg.data).toMatchObject({ estado: 'RESPONDIDO', respondidoPor: 'ag@fp.pe', respuesta: 'Le devolveremos su dinero.' });
     expect(arg.data.respondidoAt).toBeInstanceOf(Date);
-    expect(mail.sendRespuestaReclamo).toHaveBeenCalledWith('a@b.pe', expect.objectContaining({ codigo: 'LR-0001-2026' }));
+    expect(mail.sendRespuestaReclamo).toHaveBeenCalledWith('a@b.pe', expect.objectContaining({ codigo: 'LR-0001-2026' }), expect.anything());
 
     mail.sendRespuestaReclamo.mockClear();
     prisma.hojaReclamacion.updateMany.mockResolvedValue({ count: 0 });

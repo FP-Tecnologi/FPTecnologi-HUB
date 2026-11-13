@@ -152,6 +152,6 @@ export class CotizadorService {
         mensaje: `${nombre} quiere cotizar: ${interes}`.slice(0, 140),
       })),
     });
-    await Promise.all(usuarios.map((u) => this.mail.sendLeadNuevo(u.email, nombre, interes, url)));
+    await Promise.all(usuarios.map((u) => this.mail.sendLeadNuevo(u.email, nombre, interes, url, marcaId)));
   }
 }

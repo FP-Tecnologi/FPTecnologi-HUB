@@ -27,7 +27,7 @@ describe('PresupuestosService.crear', () => {
     const { service, prisma, mail } = setup();
     await service.crear('m1', { ...cliente, items: [{ sku: 'A1', cantidad: 6 }, { sku: 'B2', cantidad: 6 }] }, 'ip-1');
     // El correo sale en segundo plano (primero genera el PDF adjunto).
-    await vi.waitFor(() => expect(mail.sendPresupuestoCliente).toHaveBeenCalledWith('a@acme.com', expect.objectContaining({ total: 'US$ 8,354.40' }), [expect.objectContaining({ filename: 'presupuesto-COT-2026-ABC123.pdf' })]));
+    await vi.waitFor(() => expect(mail.sendPresupuestoCliente).toHaveBeenCalledWith('a@acme.com', expect.objectContaining({ total: 'US$ 8,354.40' }), [expect.objectContaining({ filename: 'presupuesto-COT-2026-ABC123.pdf' })], expect.anything()));
     const data = prisma.presupuesto.create.mock.calls[0][0].data as { subtotal: number; igv: number; total: number; items: { create: { precioUnitario: number; mayorista: boolean }[] } };
     expect(data.items.create.map((i) => [i.precioUnitario, i.mayorista])).toEqual([[180, true], [1000, false]]);
     expect(data.subtotal).toBe(7080); // 6*180 + 6*1000

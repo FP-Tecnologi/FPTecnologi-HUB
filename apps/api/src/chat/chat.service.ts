@@ -241,6 +241,6 @@ export class ChatService {
         mensaje: primerMensaje.slice(0, 140),
       })),
     });
-    await Promise.all(usuarios.map((u) => this.mail.sendChatNuevo(u.email, primerMensaje, url)));
+    await Promise.all(usuarios.map((u) => this.mail.sendChatNuevo(u.email, primerMensaje, url, marcaId)));
   }
 }

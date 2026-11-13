@@ -38,12 +38,13 @@ export class AuthService {
   ) {}
 
   /** Step 1 of forgot-password: emails a reset code if the account exists (anti-enumeration: same response either way). */
-  async requestPasswordReset(email: string): Promise<{ sent: true }> {
+  async requestPasswordReset(email: string, origen?: string): Promise<{ sent: true }> {
     email = normalizeEmail(email);
     const usuario = await this.prisma.usuario.findUnique({ where: { email } });
     if (usuario && usuario.activo) {
+      const marca = await this.mailService.marcaDeUsuario(usuario.id, origen);
       await this.issueOtp(usuario.id, usuario.email, OtpProposito.RESET_PASSWORD, (e, c) =>
-        this.mailService.sendPasswordResetCode(e, c),
+        this.mailService.sendPasswordResetCode(e, c, marca),
       );
     }
     return { sent: true };
@@ -83,7 +84,7 @@ export class AuthService {
     ]);
 
     void this.actividad?.registrar({ usuarioId: usuario.id, email: usuario.email, accion: 'password_restablecida', detalle: 'Con código enviado al correo' });
-    await this.mailService.sendPasswordChanged(usuario.email);
+    await this.mailService.sendPasswordChanged(usuario.email, await this.mailService.marcaDeUsuario(usuario.id));
   }
 
   /**
@@ -97,6 +98,7 @@ export class AuthService {
     email: string,
     password: string,
     deviceToken?: string,
+    origen?: string,
   ) {
     email = normalizeEmail(email);
     const usuario = await this.prisma.usuario.findUnique({
@@ -122,19 +124,21 @@ export class AuthService {
       return { requiresTotp: true as const, email: usuario.email };
     }
 
+    const marca = await this.mailService.marcaDeUsuario(usuario.id, origen);
     await this.issueOtp(usuario.id, usuario.email, OtpProposito.LOGIN_2FA, (e, c) =>
-      this.mailService.sendOtpCode(e, c),
+      this.mailService.sendOtpCode(e, c, marca),
     );
     return { requiresOtp: true as const, email: usuario.email };
   }
 
-  async requestOtp(email: string): Promise<{ requiresOtp: true }> {
+  async requestOtp(email: string, origen?: string): Promise<{ requiresOtp: true }> {
     email = normalizeEmail(email);
     const usuario = await this.prisma.usuario.findUnique({ where: { email } });
     // No revelamos si el correo existe o no para evitar enumeración de usuarios.
     if (usuario && usuario.activo) {
+      const marca = await this.mailService.marcaDeUsuario(usuario.id, origen);
       await this.issueOtp(usuario.id, usuario.email, OtpProposito.LOGIN_2FA, (e, c) =>
-        this.mailService.sendOtpCode(e, c),
+        this.mailService.sendOtpCode(e, c, marca),
       );
     }
     return { requiresOtp: true };
@@ -223,7 +227,7 @@ export class AuthService {
         data: { email, passwordHash, nombre, avatarUrl, bienvenidaVista: false, marcas: { create: { marcaId, rolId: rolCliente.id } } },
         include: { marcas: { include: { rol: true } } },
       });
-      await this.mailService.sendWelcome(created.email, created.nombre);
+      await this.mailService.sendWelcome(created.email, created.nombre, await this.mailService.marcaDe(marcaId));
       usuario = created;
     } else if (!usuario.activo) {
       throw new UnauthorizedException('Cuenta inactiva');
@@ -409,9 +413,11 @@ export class AuthService {
     if (!u) throw new NotFoundException('Usuario no encontrado');
     if (u.totpEnabled) return { metodo: 'totp' };
     const minutos = this.configService.get<AppConfig['otp']>('otp')!.expiresInMinutes;
+    const marca = await this.mailService.marcaDeUsuario(u.id);
     await this.issueOtp(u.id, u.email, OtpProposito.CONFIRMAR_ACCION, (e, c) =>
       this.mailService.sendAviso(e, {
-        asunto: 'Código para confirmar una acción en FPTecnologi',
+        marca,
+        asunto: 'Código para confirmar una acción',
         titulo: 'Confirma la acción',
         parrafos: [`Tu código de verificación es ${c}. Vence en ${minutos} minutos.`, 'Si no lo pediste tú, ignora este correo y cambia tu contraseña.'],
       }),

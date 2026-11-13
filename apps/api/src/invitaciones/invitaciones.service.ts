@@ -132,7 +132,7 @@ export class InvitacionesService {
       include: { marca: true, rol: true },
     });
     const url = `${process.env.WEB_ORIGIN ?? 'http://localhost:3000'}/auth/invitacion?token=${token}`;
-    await this.mail.sendInvitacion(email, inv.marca.nombre, inv.rol.nombre, url, VIGENCIA_DIAS);
+    await this.mail.sendInvitacion(email, inv.marca.nombre, inv.rol.nombre, url, VIGENCIA_DIAS, inv.marcaId);
     return inv;
   }
 }

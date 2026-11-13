@@ -27,7 +27,7 @@ describe('CotizacionesService.enviar', () => {
   it('por correo: envía, registra el envío y la pasa a ENVIADA', async () => {
     const { service, prisma, mail } = setup();
     const r = await service.enviar('m1', 'c1', { canal: 'EMAIL' }, 'a@fp.com');
-    expect(mail.sendCotizacionServicio).toHaveBeenCalledWith('ana@x.com', expect.objectContaining({ numero: 'COT-2026-ABC123', monto: 'USD 1,200.00' }), [expect.objectContaining({ filename: 'cotizacion-COT-2026-ABC123.pdf' })]);
+    expect(mail.sendCotizacionServicio).toHaveBeenCalledWith('ana@x.com', expect.objectContaining({ numero: 'COT-2026-ABC123', monto: 'USD 1,200.00' }), [expect.objectContaining({ filename: 'cotizacion-COT-2026-ABC123.pdf' })], expect.anything());
     expect(prisma.cotizacionEnvio.create).toHaveBeenCalledWith({ data: expect.objectContaining({ marcaId: 'm1', canal: 'EMAIL', destinatario: 'ana@x.com', enviadoPor: 'a@fp.com' }) });
     expect(prisma.cotizacion.updateMany.mock.calls[0][0].data.estado).toBe('ENVIADA');
     expect(r.url).toBeNull();

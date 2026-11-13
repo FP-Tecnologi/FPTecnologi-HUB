@@ -201,6 +201,6 @@ export class RecursosService {
     await this.prisma.notificacion.createMany({
       data: usuarios.map((u) => ({ marcaId, usuarioId: u.id, tipo: 'SISTEMA' as const, titulo: 'Nueva solicitud de socio', mensaje: `${empresa} pidió ser socio`.slice(0, 140) })),
     });
-    await Promise.all(usuarios.map((u) => this.mail.sendLeadNuevo(u.email, empresa, 'Solicitud de socio', url)));
+    await Promise.all(usuarios.map((u) => this.mail.sendLeadNuevo(u.email, empresa, 'Solicitud de socio', url, marcaId)));
   }
 }

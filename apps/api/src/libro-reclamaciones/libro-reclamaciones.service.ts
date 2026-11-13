@@ -239,7 +239,7 @@ export class LibroReclamacionesService {
       tipo: hoja.tipo,
       respuesta,
       proveedor: { razonSocial: prov.razonSocial, nombreComercial: prov.nombreComercial },
-    });
+    }, marcaId);
     return hoja;
   }
 
@@ -260,7 +260,7 @@ export class LibroReclamacionesService {
       pedido: h.pedidoConsumidor,
       medioRespuesta: h.medioRespuesta,
     };
-    const res = await Promise.allSettled([this.mail.sendHojaConsumidor(h.email, datos), this.avisarEquipo(h.marcaId, h, datos, marca.contactoEmail)]);
+    const res = await Promise.allSettled([this.mail.sendHojaConsumidor(h.email, datos, h.marcaId), this.avisarEquipo(h.marcaId, h, datos, marca.contactoEmail)]);
     for (const r of res) if (r.status === 'rejected') this.logger.error('Falló un aviso de la hoja de reclamación', r.reason as Error);
   }
 
@@ -273,7 +273,7 @@ export class LibroReclamacionesService {
     const url = `${process.env.WEB_ORIGIN ?? 'http://localhost:3000'}/libro-reclamaciones?id=${h.id}`;
     if (usuarios.length === 0) {
       // Sin usuarios asignados, la hoja no puede quedar sin aviso dentro del plazo de 15 días hábiles.
-      if (contactoEmail) await this.mail.sendHojaEquipo(contactoEmail, datos, url);
+      if (contactoEmail) await this.mail.sendHojaEquipo(contactoEmail, datos, url, marcaId);
       else this.logger.warn(`Hoja ${h.codigo} (marca ${marcaId}) sin destinatarios: no hay usuarios admin/comercial ni contactoEmail`);
       return;
     }
@@ -286,6 +286,6 @@ export class LibroReclamacionesService {
         mensaje: `${h.nombres} ${h.apellidos}: ${h.detalle}`.slice(0, 140),
       })),
     });
-    await Promise.all(usuarios.map((u) => this.mail.sendHojaEquipo(u.email, datos, url)));
+    await Promise.all(usuarios.map((u) => this.mail.sendHojaEquipo(u.email, datos, url, marcaId)));
   }
 }

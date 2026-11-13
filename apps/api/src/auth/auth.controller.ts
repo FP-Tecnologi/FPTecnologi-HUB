@@ -47,8 +47,8 @@ export class AuthController {
   @Limite(5)
   @HttpCode(HttpStatus.OK)
   @Post('password-reset/request')
-  requestPasswordReset(@Body() dto: PasswordResetRequestDto) {
-    return this.authService.requestPasswordReset(dto.email);
+  requestPasswordReset(@Body() dto: PasswordResetRequestDto, @Req() req: Request) {
+    return this.authService.requestPasswordReset(dto.email, req.headers.origin ?? req.headers.referer);
   }
 
   @Public()
@@ -65,15 +65,15 @@ export class AuthController {
   @Post('login')
   login(@Body() dto: LoginDto, @Req() req: Request) {
     const deviceToken = req.cookies?.[DEVICE_COOKIE] as string | undefined;
-    return this.authService.login(dto.email, dto.password, deviceToken);
+    return this.authService.login(dto.email, dto.password, deviceToken, req.headers.origin ?? req.headers.referer);
   }
 
   @Public()
   @Limite(5)
   @HttpCode(HttpStatus.OK)
   @Post('otp/request')
-  requestOtp(@Body() dto: RequestOtpDto) {
-    return this.authService.requestOtp(dto.email);
+  requestOtp(@Body() dto: RequestOtpDto, @Req() req: Request) {
+    return this.authService.requestOtp(dto.email, req.headers.origin ?? req.headers.referer);
   }
 
   @Public()

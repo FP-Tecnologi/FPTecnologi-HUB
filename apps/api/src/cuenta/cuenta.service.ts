@@ -78,7 +78,7 @@ export class CuentaService {
       await this.prisma.codigoCuenta.create({
         data: { marcaId, email, codigoHash: await bcrypt.hash(codigo, 10), expiresAt: new Date(Date.now() + CODIGO_MIN * 60_000) },
       });
-      this.mail.sendCodigoCuenta(email, codigo, CODIGO_MIN).catch((e) => this.logger.error('No se pudo enviar el código de cuenta', e as Error));
+      this.mail.sendCodigoCuenta(email, codigo, CODIGO_MIN, marcaId).catch((e) => this.logger.error('No se pudo enviar el código de cuenta', e as Error));
     }
     return { enviado: true as const };
   }

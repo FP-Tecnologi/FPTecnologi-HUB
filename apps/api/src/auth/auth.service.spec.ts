@@ -48,6 +48,8 @@ describe('AuthService', () => {
     sendPasswordResetCode: ReturnType<typeof vi.fn>;
     sendWelcome: ReturnType<typeof vi.fn>;
     sendPasswordChanged: ReturnType<typeof vi.fn>;
+    marcaDe: ReturnType<typeof vi.fn>;
+    marcaDeUsuario: ReturnType<typeof vi.fn>;
   };
   let passwordHash: string;
 
@@ -77,6 +79,8 @@ describe('AuthService', () => {
       sendPasswordResetCode: vi.fn().mockResolvedValue(undefined),
       sendWelcome: vi.fn().mockResolvedValue(undefined),
       sendPasswordChanged: vi.fn().mockResolvedValue(undefined),
+      marcaDe: vi.fn().mockResolvedValue(undefined),
+      marcaDeUsuario: vi.fn().mockResolvedValue(undefined),
     };
     const configService = {
       get: (key: string) => ({ jwt: JWT_CONFIG, otp: OTP_CONFIG })[key],
@@ -130,7 +134,7 @@ describe('AuthService', () => {
 
       expect(result).toEqual({ requiresOtp: true, email: 'a@b.com' });
       expect(prisma.otpCode.create).toHaveBeenCalledOnce();
-      expect(mailService.sendOtpCode).toHaveBeenCalledWith('a@b.com', expect.any(String));
+      expect(mailService.sendOtpCode).toHaveBeenCalledWith('a@b.com', expect.any(String), undefined);
       expect(jwtService.signAsync).not.toHaveBeenCalled();
     });
 
@@ -457,7 +461,7 @@ describe('AuthService', () => {
       await service.requestPasswordReset('a@b.com');
 
       expect(prisma.otpCode.create).toHaveBeenCalledOnce();
-      expect(mailService.sendPasswordResetCode).toHaveBeenCalledWith('a@b.com', expect.any(String));
+      expect(mailService.sendPasswordResetCode).toHaveBeenCalledWith('a@b.com', expect.any(String), undefined);
     });
 
     it('says nothing was sent differently for an unknown email (anti-enumeration)', async () => {
@@ -582,7 +586,7 @@ describe('AuthService', () => {
         avatarUrl: 'https://lh3.googleusercontent.com/foto.jpg',
         marcas: { create: { marcaId: 'm1', rolId: 'rol-cliente' } },
       });
-      expect(mailService.sendWelcome).toHaveBeenCalledWith('new@b.com', 'Ana');
+      expect(mailService.sendWelcome).toHaveBeenCalledWith('new@b.com', 'Ana', undefined);
       expect(result.usuario).toEqual({
         id: 'u2', email: 'new@b.com', nombre: 'Ana', avatarUrl: 'https://lh3.googleusercontent.com/foto.jpg',
       });

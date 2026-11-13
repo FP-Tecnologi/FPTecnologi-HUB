@@ -137,7 +137,7 @@ export class UsuariosGlobalService {
       data: { email, passwordHash: await bcrypt.hash(d.password, 10), ...datos, bienvenidaVista: false, superAdmin: !!d.superAdmin, marcas: { create: asignaciones } },
       select: { id: true, email: true, nombre: true },
     });
-    await this.mail.sendWelcome(u.email, u.nombre);
+    await this.mail.sendWelcome(u.email, u.nombre, await this.mail.marcaDe(marcaId));
     if (d.enviarCambio) await this.auth.requestPasswordReset(u.email);
     return { creado: true, invitado: false, email };
   }
@@ -223,7 +223,7 @@ export class UsuariosGlobalService {
       this.prisma.refreshToken.updateMany({ where: { usuarioId: id, revoked: false }, data: { revoked: true } }),
       this.prisma.dispositivoConfiable.updateMany({ where: { usuarioId: id, revoked: false }, data: { revoked: true } }),
     ]);
-    await this.mail.sendPasswordChanged(u.email);
+    await this.mail.sendPasswordChanged(u.email, await this.mail.marcaDeUsuario(id));
     return { cambiada: true };
   }
 

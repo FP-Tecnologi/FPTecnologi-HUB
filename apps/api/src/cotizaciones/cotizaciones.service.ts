@@ -158,7 +158,7 @@ export class CotizacionesService {
           monto,
           validezHasta: validez,
           mensajeExtra: dto.mensaje,
-        }, adjunto);
+        }, adjunto, marcaId);
       } catch (e) {
         this.logger.error(`No se pudo enviar la cotización ${c.numero} a ${destinatario}`, e as Error);
         throw new HttpException('No se pudo enviar el correo. Revisa la configuración de correo e intenta de nuevo.', HttpStatus.BAD_GATEWAY);
@@ -220,6 +220,6 @@ export class CotizacionesService {
         mensaje: `${cliente} pidió cotizar: ${servicio}`.slice(0, 140),
       })),
     });
-    await Promise.all(usuarios.map((u) => this.mail.sendLeadNuevo(u.email, cliente, servicio, url)));
+    await Promise.all(usuarios.map((u) => this.mail.sendLeadNuevo(u.email, cliente, servicio, url, marcaId)));
   }
 }

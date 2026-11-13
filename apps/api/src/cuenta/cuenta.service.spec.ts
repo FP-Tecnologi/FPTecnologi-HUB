@@ -36,7 +36,7 @@ describe('pedirCodigo', () => {
     const { service, prisma, mail } = setup();
     await service.pedirCodigo('m1', ' ANA@x.com ', '1.1.1.1');
     expect(prisma.codigoCuenta.create).toHaveBeenCalled();
-    expect(mail.sendCodigoCuenta).toHaveBeenCalledWith('ana@x.com', expect.stringMatching(/^\d{6}$/), 10);
+    expect(mail.sendCodigoCuenta).toHaveBeenCalledWith('ana@x.com', expect.stringMatching(/^\d{6}$/), 10, 'm1');
   });
 
   it('con un correo sin compras responde igual pero no guarda ni envía nada', async () => {

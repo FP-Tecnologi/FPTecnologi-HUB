@@ -203,7 +203,7 @@ SKU ${i.sku}${i.mayorista ? ' · precio mayorista' : ''}`, String(i.cantidad), d
       total: `US$ ${Number(p.total).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       validezHasta: p.validezHasta.toLocaleDateString('es-PE', { day: '2-digit', month: 'long', year: 'numeric' }),
       url: `${web}/presupuesto/${p.id}`,
-    }, adjunto);
+    }, adjunto, marcaId);
   }
 
   private async avisarEquipo(marcaId: string, id: string, cliente: string, numero: string, total: number) {
@@ -223,7 +223,7 @@ SKU ${i.sku}${i.mayorista ? ' · precio mayorista' : ''}`, String(i.cantidad), d
         mensaje: `${cliente} pidió el presupuesto ${numero} por US$ ${total.toFixed(2)}`.slice(0, 140),
       })),
     });
-    await Promise.all(usuarios.map((u) => this.mail.sendLeadNuevo(u.email, cliente, `Presupuesto mayorista ${numero}`, url)));
+    await Promise.all(usuarios.map((u) => this.mail.sendLeadNuevo(u.email, cliente, `Presupuesto mayorista ${numero}`, url, marcaId)));
   }
 
   private limitar(clave: string) {
