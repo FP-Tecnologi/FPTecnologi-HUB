@@ -55,6 +55,7 @@ model Marca {
   hojasReclamacion   HojaReclamacion[]
   contactosWeb       ContactoWeb[]
   suscriptores       SuscriptorBoletin[]
+  mailingsAprobacion MailingAprobacion[]
   invitaciones       Invitacion[]
   tarifasEnvio       TarifaEnvio[]
   cotizacionEnvios   CotizacionEnvio[]
@@ -761,6 +762,26 @@ model SuscriptorBoletin {
 
   @@unique([marcaId, email])
   @@index([marcaId, createdAt])
+}
+
+// Mailing: correos enviados a aprobación del admin antes de su envío
+model MailingAprobacion {
+  id            String    @id @default(uuid())
+  marcaId       String
+  marca         Marca     @relation(fields: [marcaId], references: [id])
+  nombre        String
+  asunto        String
+  preheader     String?
+  html          String
+  audiencia     String?
+  estado        String    @default("PENDIENTE") // PENDIENTE | APROBADO | RECHAZADO
+  nota          String?
+  solicitadoPor String
+  revisadoPor   String?
+  revisadoAt    DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([marcaId, estado, createdAt])
 }
 
 // ---------------------------------------------------------------------------

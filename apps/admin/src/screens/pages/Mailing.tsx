@@ -18,10 +18,15 @@ type Bloque =
   | { id: string; tipo: 'imagen'; imagen: string; alt: string }
   | { id: string; tipo: 'boton'; texto: string; url: string }
   | { id: string; tipo: 'productos'; titulo: string; items: { nombre: string; precio: string; url: string; imagen: string }[] }
-  | { id: string; tipo: 'separador' };
+  | { id: string; tipo: 'separador' }
+  | { id: string; tipo: 'columnas'; titulo: string; texto: string; imagen: string; derecha: boolean }
+  | { id: string; tipo: 'cifras'; items: { valor: string; etiqueta: string }[] }
+  | { id: string; tipo: 'cita'; texto: string; autor: string }
+  | { id: string; tipo: 'cupon'; titulo: string; codigo: string; detalle: string }
+  | { id: string; tipo: 'lista'; titulo: string; items: string };
 
 // html: mailing completo (de la biblioteca mailing-fp); sus [marcadores] se llenan con `valores`. Sin html: se arma con bloques.
-interface Mailing { id: string; nombre: string; asunto: string; preheader: string; bloques: Bloque[]; actualizado: string; html?: string; valores?: Record<string, string> }
+interface Mailing { tema?: string; id: string; nombre: string; asunto: string; preheader: string; bloques: Bloque[]; actualizado: string; html?: string; valores?: Record<string, string> }
 type Area = 'ventas' | 'marketing' | 'general';
 interface ItemBiblioteca { area?: Area; grupo: string; nombre: string; archivo: string; valores?: Record<string, string> }
 const AREA_NOMBRE: Record<Area, string> = { ventas: 'Ventas', marketing: 'Marketing', general: 'General' };
@@ -36,10 +41,20 @@ function areasDeRoles(roles: string[], global: boolean): Area[] {
 }
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
-const COLOR = '#008DC5';
 const KEY = 'fpt:mailings';
 const uid = () => Math.random().toString(36).slice(2, 9);
-const ETIQUETA: Record<Bloque['tipo'], string> = { hero: 'Portada', texto: 'Texto', imagen: 'Imagen', boton: 'Botón', productos: 'Productos', separador: 'Separador' };
+const ETIQUETA: Record<Bloque['tipo'], string> = { hero: 'Portada', texto: 'Texto', imagen: 'Imagen', boton: 'Botón', productos: 'Productos', separador: 'Separador', columnas: 'Imagen + texto', cifras: 'Cifras', cita: 'Testimonio', cupon: 'Cupón', lista: 'Lista' };
+
+/** Temas visuales del correo (colores y forma). Se eligen por mailing. */
+interface Tema { nombre: string; primario: string; cabecera: string; fondo: string; titulo: string; texto: string; suave: string; radio: number; cabeceraTexto: string }
+const TEMAS: Record<string, Tema> = {
+  fp: { nombre: 'FPTecnologi (azul)', primario: '#008DC5', cabecera: '#008DC5', cabeceraTexto: '#ffffff', fondo: '#F0F3F6', titulo: '#0B2A3D', texto: '#1F2733', suave: '#EBF6FA', radio: 12 },
+  oscuro: { nombre: 'Oscuro elegante', primario: '#0284C7', cabecera: '#0B1220', cabeceraTexto: '#ffffff', fondo: '#111827', titulo: '#0B1220', texto: '#1F2733', suave: '#E8F4FB', radio: 6 },
+  calido: { nombre: 'Cálido (naranja)', primario: '#EA580C', cabecera: '#7C2D12', cabeceraTexto: '#ffffff', fondo: '#FFF7ED', titulo: '#7C2D12', texto: '#3B2A20', suave: '#FFEDD5', radio: 16 },
+  verde: { nombre: 'Verde fresco', primario: '#16A34A', cabecera: '#14532D', cabeceraTexto: '#ffffff', fondo: '#F0FDF4', titulo: '#14532D', texto: '#1F2D24', suave: '#DCFCE7', radio: 12 },
+  minimal: { nombre: 'Minimalista (blanco y negro)', primario: '#111827', cabecera: '#ffffff', cabeceraTexto: '#111827', fondo: '#FFFFFF', titulo: '#111827', texto: '#374151', suave: '#F3F4F6', radio: 0 },
+  vino: { nombre: 'Vino y dorado', primario: '#B45309', cabecera: '#4C0519', cabeceraTexto: '#FDE68A', fondo: '#FDF2F8', titulo: '#4C0519', texto: '#3F2A33', suave: '#FEF3C7', radio: 8 },
+};
 
 const nuevoBloque = (tipo: Bloque['tipo']): Bloque => {
   const id = uid();
@@ -49,11 +64,16 @@ const nuevoBloque = (tipo: Bloque['tipo']): Bloque => {
     case 'imagen': return { id, tipo, imagen: `${WEB}/images/modelo9/hero-office.jpg`, alt: 'Imagen' };
     case 'boton': return { id, tipo, texto: 'Cotiza ahora', url: `${WEB}/cotizador` };
     case 'productos': return { id, tipo, titulo: 'Productos destacados', items: [1, 2, 3].map((n) => ({ nombre: `Producto ${n}`, precio: 'US$ 0.00', url: `${WEB}/tienda`, imagen: '' })) };
+    case 'columnas': return { id, tipo, titulo: 'Un beneficio clave', texto: 'Explica en pocas líneas por qué esto le sirve al cliente.', imagen: `${WEB}/images/modelo9/hero-office.jpg`, derecha: false };
+    case 'cifras': return { id, tipo, items: [{ valor: '+500', etiqueta: 'clientes' }, { valor: '15 años', etiqueta: 'de experiencia' }, { valor: '24/7', etiqueta: 'soporte' }] };
+    case 'cita': return { id, tipo, texto: 'Excelente servicio, nos ayudaron a migrar toda la infraestructura sin parar la operación.', autor: 'Nombre, Empresa' };
+    case 'cupon': return { id, tipo, titulo: '15% de descuento', codigo: 'FP15', detalle: 'Válido hasta fin de mes en toda la tienda.' };
+    case 'lista': return { id, tipo, titulo: 'Qué incluye', items: 'Instalación y configuración\nSoporte técnico incluido\nGarantía de 12 meses' };
     default: return { id, tipo: 'separador' };
   }
 };
 
-const PLANTILLAS: { nombre: string; descripcion: string; asunto: string; bloques: () => Bloque[] }[] = [
+const PLANTILLAS: { nombre: string; descripcion: string; asunto: string; tema?: string; bloques: () => Bloque[] }[] = [
   {
     nombre: 'Promoción de productos', descripcion: 'Portada + 3 productos + botón a la tienda', asunto: 'Ofertas de la semana en FPTecnologi',
     bloques: () => [nuevoBloque('hero'), nuevoBloque('productos'), { ...(nuevoBloque('boton') as Extract<Bloque, { tipo: 'boton' }>), texto: 'Ver la tienda', url: `${WEB}/tienda` }],
@@ -67,6 +87,11 @@ const PLANTILLAS: { nombre: string; descripcion: string; asunto: string; bloques
     bloques: () => [{ ...(nuevoBloque('hero') as Extract<Bloque, { tipo: 'hero' }>), titulo: 'Soluciones TI a medida' }, nuevoBloque('texto'), nuevoBloque('boton')],
   },
   { nombre: 'Bienvenida', descripcion: 'Mensaje breve para nuevos suscriptores', asunto: '¡Bienvenido a FPTecnologi!', bloques: () => [{ ...(nuevoBloque('texto') as Extract<Bloque, { tipo: 'texto' }>), titulo: '¡Gracias por suscribirte!', texto: 'Te contaremos primero de promociones, lanzamientos y consejos de tecnología para tu empresa.' }, nuevoBloque('boton')] },
+  { nombre: 'Lanzamiento de producto', descripcion: 'Portada, imagen + texto, lista y botón', asunto: 'Ya llegó: conoce lo nuevo', tema: 'oscuro', bloques: () => [{ ...(nuevoBloque('hero') as Extract<Bloque, { tipo: 'hero' }>), titulo: 'Presentamos lo nuevo' }, nuevoBloque('columnas'), nuevoBloque('lista'), nuevoBloque('boton')] },
+  { nombre: 'Descuento con cupón', descripcion: 'Oferta con cupón destacado y productos', asunto: 'Un descuento solo para ti', tema: 'calido', bloques: () => [{ ...(nuevoBloque('hero') as Extract<Bloque, { tipo: 'hero' }>), titulo: 'Tu descuento te espera' }, nuevoBloque('cupon'), nuevoBloque('productos'), nuevoBloque('boton')] },
+  { nombre: 'Confianza y resultados', descripcion: 'Cifras, testimonio y botón de contacto', asunto: 'Por qué confían en FPTecnologi', tema: 'verde', bloques: () => [nuevoBloque('texto'), nuevoBloque('cifras'), nuevoBloque('cita'), nuevoBloque('boton')] },
+  { nombre: 'Boletín minimalista', descripcion: 'Texto limpio, separadores y lista', asunto: 'Novedades del mes', tema: 'minimal', bloques: () => [nuevoBloque('texto'), nuevoBloque('separador'), nuevoBloque('lista'), nuevoBloque('separador'), nuevoBloque('boton')] },
+  { nombre: 'Invitación a evento', descripcion: 'Portada elegante, detalles y confirmación', asunto: 'Estás invitado', tema: 'vino', bloques: () => [{ ...(nuevoBloque('hero') as Extract<Bloque, { tipo: 'hero' }>), titulo: 'Te invitamos a nuestro evento' }, { ...(nuevoBloque('lista') as Extract<Bloque, { tipo: 'lista' }>), titulo: 'Detalles', items: 'Fecha: por definir\nHora: por definir\nLugar: por definir' }, { ...(nuevoBloque('boton') as Extract<Bloque, { tipo: 'boton' }>), texto: 'Confirmar asistencia' }] },
   { nombre: 'En blanco', descripcion: 'Empieza desde cero', asunto: '', bloques: () => [nuevoBloque('texto')] },
 ];
 
@@ -74,30 +99,45 @@ const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replac
 const seguro = (u: string) => (/^(https?:\/\/|mailto:|tel:)/i.test(u.trim()) ? esc(u.trim()) : '#');
 const parrafos = (t: string) => esc(t).split(/\n+/).map((p) => `<p style="margin:0 0 12px;">${p}</p>`).join('');
 
-function bloqueHtml(b: Bloque): string {
+function bloqueHtml(b: Bloque, t: Tema): string {
+  const R = t.radio;
   switch (b.tipo) {
     case 'hero':
-      return `${b.imagen ? `<tr><td><img src="${seguro(b.imagen)}" alt="" width="600" style="display:block;width:100%;height:auto;border:0;"></td></tr>` : ''}<tr><td style="padding:28px 32px 8px;"><h1 style="margin:0 0 10px;font-size:26px;line-height:1.25;color:#0B2A3D;">${esc(b.titulo)}</h1><div style="color:#5B6B7A;font-size:16px;line-height:1.6;">${parrafos(b.texto)}</div></td></tr>`;
+      return `${b.imagen ? `<tr><td><img src="${seguro(b.imagen)}" alt="" width="600" style="display:block;width:100%;height:auto;border:0;"></td></tr>` : ''}<tr><td style="padding:28px 32px 8px;"><h1 style="margin:0 0 10px;font-size:26px;line-height:1.25;color:${t.titulo};">${esc(b.titulo)}</h1><div style="color:#5B6B7A;font-size:16px;line-height:1.6;">${parrafos(b.texto)}</div></td></tr>`;
     case 'texto':
-      return `<tr><td style="padding:20px 32px 4px;"><h2 style="margin:0 0 8px;font-size:19px;color:#0B2A3D;">${esc(b.titulo)}</h2><div style="color:#1F2733;font-size:15px;line-height:1.6;">${parrafos(b.texto)}</div></td></tr>`;
+      return `<tr><td style="padding:20px 32px 4px;"><h2 style="margin:0 0 8px;font-size:19px;color:${t.titulo};">${esc(b.titulo)}</h2><div style="color:${t.texto};font-size:15px;line-height:1.6;">${parrafos(b.texto)}</div></td></tr>`;
     case 'imagen':
-      return `<tr><td style="padding:12px 32px;"><img src="${seguro(b.imagen)}" alt="${esc(b.alt)}" width="536" style="display:block;width:100%;height:auto;border:0;border-radius:8px;"></td></tr>`;
+      return `<tr><td style="padding:12px 32px;"><img src="${seguro(b.imagen)}" alt="${esc(b.alt)}" width="536" style="display:block;width:100%;height:auto;border:0;border-radius:${R}px;"></td></tr>`;
     case 'boton':
-      return `<tr><td align="center" style="padding:20px 32px;"><a href="${seguro(b.url)}" style="display:inline-block;background:${COLOR};color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:13px 28px;border-radius:8px;">${esc(b.texto)}</a></td></tr>`;
+      return `<tr><td align="center" style="padding:20px 32px;"><a href="${seguro(b.url)}" style="display:inline-block;background:${t.primario};color:#ffffff;text-decoration:none;font-weight:700;font-size:15px;padding:13px 28px;border-radius:${Math.min(R, 8)}px;">${esc(b.texto)}</a></td></tr>`;
     case 'productos':
-      return `<tr><td style="padding:20px 32px 4px;"><h2 style="margin:0 0 12px;font-size:19px;color:#0B2A3D;">${esc(b.titulo)}</h2><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>${b.items.map((i) => `<td width="33%" valign="top" style="padding:0 6px;text-align:center;">${i.imagen ? `<img src="${seguro(i.imagen)}" alt="" width="150" style="display:block;width:100%;height:auto;border:0;border-radius:8px;margin-bottom:8px;">` : `<div style="height:110px;background:#EBF6FA;border-radius:8px;margin-bottom:8px;"></div>`}<a href="${seguro(i.url)}" style="color:#0B2A3D;font-size:13px;font-weight:700;text-decoration:none;">${esc(i.nombre)}</a><div style="color:${COLOR};font-size:13px;margin-top:4px;">${esc(i.precio)}</div></td>`).join('')}</tr></table></td></tr>`;
+      return `<tr><td style="padding:20px 32px 4px;"><h2 style="margin:0 0 12px;font-size:19px;color:${t.titulo};">${esc(b.titulo)}</h2><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>${b.items.map((i) => `<td width="33%" valign="top" style="padding:0 6px;text-align:center;">${i.imagen ? `<img src="${seguro(i.imagen)}" alt="" width="150" style="display:block;width:100%;height:auto;border:0;border-radius:${R}px;margin-bottom:8px;">` : `<div style="height:110px;background:${t.suave};border-radius:${R}px;margin-bottom:8px;"></div>`}<a href="${seguro(i.url)}" style="color:${t.titulo};font-size:13px;font-weight:700;text-decoration:none;">${esc(i.nombre)}</a><div style="color:${t.primario};font-size:13px;margin-top:4px;">${esc(i.precio)}</div></td>`).join('')}</tr></table></td></tr>`;
+    case 'columnas': {
+      const img = `<td width="45%" valign="middle" style="padding:0 ${b.derecha ? '0 0 16px' : '16px 0 0'};">${b.imagen ? `<img src="${seguro(b.imagen)}" alt="" width="230" style="display:block;width:100%;height:auto;border:0;border-radius:${R}px;">` : `<div style="height:150px;background:${t.suave};border-radius:${R}px;"></div>`}</td>`;
+      const txt = `<td width="55%" valign="middle"><h2 style="margin:0 0 8px;font-size:19px;color:${t.titulo};">${esc(b.titulo)}</h2><div style="color:${t.texto};font-size:15px;line-height:1.6;">${parrafos(b.texto)}</div></td>`;
+      return `<tr><td style="padding:20px 32px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>${b.derecha ? txt + img : img + txt}</tr></table></td></tr>`;
+    }
+    case 'cifras':
+      return `<tr><td style="padding:20px 32px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${t.suave};border-radius:${R}px;"><tr>${b.items.map((i) => `<td align="center" style="padding:18px 8px;"><div style="font-size:26px;font-weight:700;color:${t.primario};">${esc(i.valor)}</div><div style="font-size:13px;color:${t.texto};margin-top:4px;">${esc(i.etiqueta)}</div></td>`).join('')}</tr></table></td></tr>`;
+    case 'cita':
+      return `<tr><td style="padding:20px 32px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td style="border-left:4px solid ${t.primario};padding:6px 0 6px 16px;"><div style="font-size:17px;line-height:1.55;font-style:italic;color:${t.titulo};">&ldquo;${esc(b.texto)}&rdquo;</div><div style="font-size:13px;color:#5B6B7A;margin-top:8px;">— ${esc(b.autor)}</div></td></tr></table></td></tr>`;
+    case 'cupon':
+      return `<tr><td align="center" style="padding:20px 32px;"><table role="presentation" cellpadding="0" cellspacing="0" style="width:100%;border:2px dashed ${t.primario};border-radius:${R}px;background:${t.suave};"><tr><td align="center" style="padding:20px;"><div style="font-size:20px;font-weight:700;color:${t.titulo};">${esc(b.titulo)}</div><div style="display:inline-block;margin:10px 0;padding:8px 20px;background:#ffffff;border-radius:${Math.min(R, 8)}px;font-size:22px;letter-spacing:.12em;font-weight:700;color:${t.primario};">${esc(b.codigo)}</div><div style="font-size:13px;color:${t.texto};">${esc(b.detalle)}</div></td></tr></table></td></tr>`;
+    case 'lista':
+      return `<tr><td style="padding:20px 32px 4px;"><h2 style="margin:0 0 8px;font-size:19px;color:${t.titulo};">${esc(b.titulo)}</h2><table role="presentation" cellpadding="0" cellspacing="0" width="100%">${b.items.split(/\n+/).filter(Boolean).map((l) => `<tr><td width="22" valign="top" style="color:${t.primario};font-size:16px;line-height:1.6;">&#10003;</td><td style="color:${t.texto};font-size:15px;line-height:1.6;padding-bottom:4px;">${esc(l)}</td></tr>`).join('')}</table></td></tr>`;
     default:
       return `<tr><td style="padding:12px 32px;"><div style="border-top:1px solid #E6EBEF;"></div></td></tr>`;
   }
 }
 
 function renderHtml(m: Mailing): string {
-  return `<!DOCTYPE html><html lang="es"><body style="margin:0;padding:0;background:#F0F3F6;font-family:Arial,Helvetica,sans-serif;">
+  const t = TEMAS[m.tema ?? 'fp'] ?? TEMAS.fp;
+  return `<!DOCTYPE html><html lang="es"><body style="margin:0;padding:0;background:${t.fondo};font-family:Arial,Helvetica,sans-serif;">
 <span style="display:none;max-height:0;overflow:hidden;">${esc(m.preheader)}</span>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F0F3F6;padding:24px 12px;"><tr><td align="center">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:100%;background:#ffffff;border-radius:12px;overflow:hidden;">
-<tr><td style="background:${COLOR};padding:18px 32px;"><span style="color:#ffffff;font-size:18px;font-weight:700;letter-spacing:.02em;">FPTecnologi</span></td></tr>
-${m.bloques.map(bloqueHtml).join('\n')}
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${t.fondo};padding:24px 12px;"><tr><td align="center">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:100%;background:#ffffff;border-radius:${t.radio}px;overflow:hidden;">
+<tr><td style="background:${t.cabecera};padding:18px 32px;${t.cabecera === '#ffffff' ? 'border-bottom:2px solid #111827;' : ''}"><span style="color:${t.cabeceraTexto};font-size:18px;font-weight:700;letter-spacing:.02em;">FPTecnologi</span></td></tr>
+${m.bloques.map((b) => bloqueHtml(b, t)).join('\n')}
 <tr><td style="padding:20px 32px;background:#F8FAFB;border-top:1px solid #E6EBEF;"><p style="margin:0;font-size:12px;color:#5B6B7A;">FPTecnologi &amp; System · Jr. Huaraz 1841, Breña — Lima, Perú.<br>Recibes este correo porque te suscribiste en nuestra web. <a href="#" style="color:#5B6B7A;">Cancelar suscripción</a></p></td></tr>
 </table></td></tr></table></body></html>`;
 }
@@ -121,6 +161,8 @@ function htmlFinal(m: Mailing): string {
   return h;
 }
 
+interface Aprobacion { id: string; nombre: string; asunto: string; audiencia: string | null; estado: 'PENDIENTE' | 'APROBADO' | 'RECHAZADO'; nota: string | null; solicitadoPor: string; revisadoPor: string | null; createdAt: string }
+
 const cargar = (): Mailing[] => { try { return JSON.parse(localStorage.getItem(KEY) ?? '[]'); } catch { return []; } };
 const guardar = (l: Mailing[]) => { try { localStorage.setItem(KEY, JSON.stringify(l)); } catch { /* sin almacenamiento */ } };
 
@@ -140,6 +182,13 @@ export function MailingEditor() {
   const [conteo, setConteo] = useState<number | null>(null);
   const [pegados, setPegados] = useState('');
   const [prueba, setPrueba] = useState('');
+  const esAdmin = useMemo(() => !activeMarcaId || marcas.some((x) => x.marcaId === activeMarcaId && x.rol.nombre.toLowerCase() === 'admin'), [marcas, activeMarcaId]);
+  const [aprobs, setAprobs] = useState<Aprobacion[]>([]);
+  const [verAprobs, setVerAprobs] = useState(false);
+  const [notaRev, setNotaRev] = useState<Record<string, string>>({});
+  const [vistaAprob, setVistaAprob] = useState<{ id: string; html: string } | null>(null);
+  const cargarAprobs = () => { if (activeMarcaId) api.get<Aprobacion[]>('/mailing/aprobaciones').then(setAprobs).catch(() => setAprobs([])); };
+  useEffect(cargarAprobs, [activeMarcaId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => { const l = cargar(); setLista(l); setActualId(l[0]?.id ?? null); }, []);
   useEffect(() => {
@@ -178,7 +227,7 @@ export function MailingEditor() {
     } catch { nota('No se pudo abrir la plantilla'); }
   }
   function crear(p: (typeof PLANTILLAS)[number]) {
-    const n: Mailing = { id: uid(), nombre: p.nombre, asunto: p.asunto, preheader: '', bloques: p.bloques(), actualizado: new Date().toISOString() };
+    const n: Mailing = { id: uid(), tema: p.tema ?? 'fp', nombre: p.nombre, asunto: p.asunto, preheader: '', bloques: p.bloques(), actualizado: new Date().toISOString() };
     guardarLista([n, ...lista]);
     setActualId(n.id);
   }
@@ -186,6 +235,32 @@ export function MailingEditor() {
   const eliminar = () => { if (!m || !window.confirm(`¿Eliminar «${m.nombre}»?`)) return; const l = lista.filter((x) => x.id !== m.id); guardarLista(l); setActualId(l[0]?.id ?? null); };
   const mover = (i: number, d: number) => { if (!m) return; const b = [...m.bloques]; const j = i + d; if (j < 0 || j >= b.length) return; [b[i], b[j]] = [b[j], b[i]]; cambiar({ bloques: b }); };
   const copiarHtml = async () => { try { await navigator.clipboard.writeText(html); nota('HTML copiado'); } catch { nota('No se pudo copiar'); } };
+  /** Copia el correo como contenido con formato (no como código): al pegarlo en Outlook (o Gmail) conserva el diseño. */
+  const copiarOutlook = async () => {
+    const cuerpo = html.match(/<body[^>]*>([\s\S]*)<\/body>/i)?.[1] ?? html;
+    const doc = `<html><body>${cuerpo}</body></html>`;
+    try {
+      await navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([doc], { type: 'text/html' }), 'text/plain': new Blob([m?.asunto ?? ''], { type: 'text/plain' }) })]);
+      nota('Copiado con formato: pega con Ctrl+V en un correo nuevo de Outlook');
+    } catch { nota('Tu navegador no permite copiar con formato; usa «Copiar HTML» o «Descargar HTML»'); }
+  };
+  async function aAprobacion() {
+    if (!m) return;
+    if (!m.asunto.trim()) return nota('Escribe el asunto antes de enviarlo a aprobación');
+    try {
+      await api.post('/mailing/aprobaciones', { nombre: m.nombre, asunto: m.asunto, preheader: m.preheader, html, audiencia: audiencia === 'suscriptores' ? `Suscriptores del boletín${conteo !== null ? ` (${conteo})` : ''}` : `Lista pegada (${emails.length})` });
+      setEnvio(false);
+      setVerAprobs(true);
+      cargarAprobs();
+      nota('Enviado a aprobación del administrador');
+    } catch { nota('No se pudo enviar a aprobación'); }
+  }
+  async function revisar(id: string, accion: 'aprobar' | 'rechazar') {
+    try { await api.patch(`/mailing/aprobaciones/${id}/${accion}`, { nota: notaRev[id] ?? '' }); cargarAprobs(); nota(accion === 'aprobar' ? 'Mailing aprobado' : 'Mailing rechazado'); } catch { nota('No se pudo guardar la revisión'); }
+  }
+  async function verAprob(id: string) {
+    try { const d = await api.get<{ html: string }>(`/mailing/aprobaciones/${id}`); setVistaAprob({ id, html: d.html }); } catch { nota('No se pudo abrir'); }
+  }
   const descargar = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([html], { type: 'text/html;charset=utf-8' })); a.download = `${m?.nombre ?? 'mailing'}.html`; a.click(); URL.revokeObjectURL(a.href); };
 
   const destinatarios = audiencia === 'suscriptores' ? (conteo ?? 0) : emails.length;
@@ -258,10 +333,11 @@ export function MailingEditor() {
               {lista.map((x) => <option key={x.id} value={x.id}>{x.nombre}</option>)}
             </Select>
             <button type="button" className="ax-btn ax-btn--ghost" onClick={duplicar}>Duplicar</button>
+            <button type="button" className="ax-btn ax-btn--secondary" onClick={copiarOutlook}>Copiar para Outlook</button>
             <button type="button" className="ax-btn ax-btn--ghost" onClick={copiarHtml}>Copiar HTML</button>
             <button type="button" className="ax-btn ax-btn--ghost" onClick={descargar}>Descargar HTML</button>
             <button type="button" className="ax-btn ax-btn--ghost" onClick={eliminar}>Eliminar</button>
-            <button type="button" className="ax-btn ax-btn--primary" onClick={() => setEnvio(true)}><span className="ax-btn__label">Enviar…</span></button>
+            <button type="button" className="ax-btn ax-btn--primary" onClick={() => setEnvio(true)}><span className="ax-btn__label">{esAdmin ? 'Enviar…' : 'Enviar a aprobación…'}</span></button>
             {aviso && <span role="status" style={{ color: 'var(--ax-text-muted)' }}>{aviso}</span>}
           </div>
 
@@ -270,6 +346,14 @@ export function MailingEditor() {
               {campo('ml-nombre', 'Nombre interno', m.nombre, (v) => cambiar({ nombre: v }))}
               {campo('ml-asunto', 'Asunto del correo', m.asunto, (v) => cambiar({ asunto: v }))}
               {campo('ml-pre', 'Texto de vista previa (preheader)', m.preheader, (v) => cambiar({ preheader: v }))}
+              {m.html === undefined && (
+                <div className="ax-field">
+                  <label className="ax-label" htmlFor="ml-tema">Diseño (colores y estilo)</label>
+                  <Select id="ml-tema" className="ax-select" value={m.tema ?? 'fp'} onChange={(e) => cambiar({ tema: e.target.value })}>
+                    {Object.entries(TEMAS).map(([k, t]) => <option key={k} value={k}>{t.nombre}</option>)}
+                  </Select>
+                </div>
+              )}
               {m.html !== undefined && (
                 <>
                   <strong style={{ color: 'var(--ax-text-strong)' }}>Textos por completar</strong>
@@ -296,10 +380,20 @@ export function MailingEditor() {
                       <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => cambiar({ bloques: m.bloques.filter((x) => x.id !== b.id) })}>Quitar</button>
                     </span>
                   </div>
-                  {b.tipo === 'hero' && <>{campo(`${b.id}t`, 'Título', b.titulo, (v) => cambiarBloque(b.id, { titulo: v }))}{campo(`${b.id}x`, 'Texto', b.texto, (v) => cambiarBloque(b.id, { texto: v }), true)}{campo(`${b.id}i`, 'Imagen (URL)', b.imagen, (v) => cambiarBloque(b.id, { imagen: v }))}</>}
+                  {b.tipo === 'hero' && <>{campo(`${b.id}t`, 'Título', b.titulo, (v) => cambiarBloque(b.id, { titulo: v }))}{campo(`${b.id}x`, 'Texto', b.texto, (v) => cambiarBloque(b.id, { texto: v }), true)}<div className="ax-field"><span className="ax-label">Imagen</span><CampoImagen value={b.imagen} onChange={(u) => cambiarBloque(b.id, { imagen: u })} /></div></>}
                   {b.tipo === 'texto' && <>{campo(`${b.id}t`, 'Título', b.titulo, (v) => cambiarBloque(b.id, { titulo: v }))}{campo(`${b.id}x`, 'Texto', b.texto, (v) => cambiarBloque(b.id, { texto: v }), true)}</>}
-                  {b.tipo === 'imagen' && <>{campo(`${b.id}i`, 'Imagen (URL)', b.imagen, (v) => cambiarBloque(b.id, { imagen: v }))}{campo(`${b.id}a`, 'Texto alternativo', b.alt, (v) => cambiarBloque(b.id, { alt: v }))}</>}
+                  {b.tipo === 'imagen' && <><div className="ax-field"><span className="ax-label">Imagen</span><CampoImagen value={b.imagen} onChange={(u) => cambiarBloque(b.id, { imagen: u })} /></div>{campo(`${b.id}a`, 'Texto alternativo', b.alt, (v) => cambiarBloque(b.id, { alt: v }))}</>}
                   {b.tipo === 'boton' && <>{campo(`${b.id}t`, 'Texto del botón', b.texto, (v) => cambiarBloque(b.id, { texto: v }))}{campo(`${b.id}u`, 'Enlace', b.url, (v) => cambiarBloque(b.id, { url: v }))}</>}
+                  {b.tipo === 'columnas' && <>{campo(`${b.id}t`, 'Título', b.titulo, (v) => cambiarBloque(b.id, { titulo: v }))}{campo(`${b.id}x`, 'Texto', b.texto, (v) => cambiarBloque(b.id, { texto: v }), true)}<div className="ax-field"><span className="ax-label">Imagen</span><CampoImagen value={b.imagen} onChange={(u) => cambiarBloque(b.id, { imagen: u })} /></div><label className="ax-cluster" style={{ gap: 8 }}><input type="checkbox" checked={b.derecha} onChange={(e) => cambiarBloque(b.id, { derecha: e.target.checked })} /> Imagen a la derecha</label></>}
+                  {b.tipo === 'cifras' && b.items.map((it, k) => (
+                    <div key={k} className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
+                      <input className="ax-input ax-input--sm" style={{ flex: '1 1 90px' }} aria-label={`Valor ${k + 1}`} value={it.valor} onChange={(e) => cambiarBloque(b.id, { items: b.items.map((x, j) => (j === k ? { ...x, valor: e.target.value } : x)) })} />
+                      <input className="ax-input ax-input--sm" style={{ flex: '2 1 140px' }} aria-label={`Etiqueta ${k + 1}`} value={it.etiqueta} onChange={(e) => cambiarBloque(b.id, { items: b.items.map((x, j) => (j === k ? { ...x, etiqueta: e.target.value } : x)) })} />
+                    </div>
+                  ))}
+                  {b.tipo === 'cita' && <>{campo(`${b.id}x`, 'Testimonio', b.texto, (v) => cambiarBloque(b.id, { texto: v }), true)}{campo(`${b.id}a`, 'Autor', b.autor, (v) => cambiarBloque(b.id, { autor: v }))}</>}
+                  {b.tipo === 'cupon' && <>{campo(`${b.id}t`, 'Título', b.titulo, (v) => cambiarBloque(b.id, { titulo: v }))}{campo(`${b.id}c`, 'Código', b.codigo, (v) => cambiarBloque(b.id, { codigo: v }))}{campo(`${b.id}d`, 'Detalle', b.detalle, (v) => cambiarBloque(b.id, { detalle: v }))}</>}
+                  {b.tipo === 'lista' && <>{campo(`${b.id}t`, 'Título', b.titulo, (v) => cambiarBloque(b.id, { titulo: v }))}{campo(`${b.id}x`, 'Elementos (uno por línea)', b.items, (v) => cambiarBloque(b.id, { items: v }), true)}</>}
                   {b.tipo === 'productos' && (
                     <>
                       {campo(`${b.id}t`, 'Título de la sección', b.titulo, (v) => cambiarBloque(b.id, { titulo: v }))}
@@ -338,6 +432,40 @@ export function MailingEditor() {
         </>
       )}
 
+      <section className="ax-card" style={{ padding: 'var(--ax-space-4)', marginBlockStart: 'var(--ax-space-4)' }}>
+        <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
+          <div>
+            <strong style={{ color: 'var(--ax-text-strong)' }}>Aprobaciones{aprobs.filter((a) => a.estado === 'PENDIENTE').length > 0 ? ` (${aprobs.filter((a) => a.estado === 'PENDIENTE').length} pendientes)` : ''}</strong>
+            <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{esAdmin ? 'Revisa y aprueba los mailings que manda el equipo.' : 'Estado de los mailings que mandaste al administrador.'}</div>
+          </div>
+          <button type="button" className="ax-btn ax-btn--ghost" onClick={() => { setVerAprobs((v) => !v); cargarAprobs(); }}>{verAprobs ? 'Ocultar' : 'Ver aprobaciones'}</button>
+        </div>
+        {verAprobs && (aprobs.length === 0 ? <p style={{ color: 'var(--ax-text-muted)', marginBlockStart: 'var(--ax-space-3)' }}>No hay mailings enviados a aprobación.</p> : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-2)', marginBlockStart: 'var(--ax-space-3)' }}>
+            {aprobs.map((a) => (
+              <div key={a.id} className="ax-card" style={{ padding: 'var(--ax-space-3)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-2)' }}>
+                <div className="ax-cluster" style={{ justifyContent: 'space-between', flexWrap: 'wrap' }}>
+                  <span><strong>{a.nombre}</strong> <span style={{ color: 'var(--ax-text-subtle)', fontSize: 'var(--ax-text-xs)' }}>· {a.asunto} · {a.audiencia ?? ''} · {a.solicitadoPor} · {new Date(a.createdAt).toLocaleString('es-PE')}</span></span>
+                  <span className={`ax-badge ax-badge--soft ax-badge--pill ax-badge--${a.estado === 'APROBADO' ? 'success' : a.estado === 'RECHAZADO' ? 'danger' : 'warning'}`}>{a.estado === 'APROBADO' ? 'Aprobado' : a.estado === 'RECHAZADO' ? 'Rechazado' : 'Pendiente'}</span>
+                </div>
+                {a.nota && <div style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>Nota de {a.revisadoPor}: {a.nota}</div>}
+                <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
+                  <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => (vistaAprob?.id === a.id ? setVistaAprob(null) : verAprob(a.id))}>{vistaAprob?.id === a.id ? 'Cerrar vista' : 'Ver correo'}</button>
+                  {esAdmin && a.estado === 'PENDIENTE' && (
+                    <>
+                      <input className="ax-input ax-input--sm" style={{ flex: '1 1 200px' }} placeholder="Nota (opcional)" aria-label="Nota de revisión" value={notaRev[a.id] ?? ''} onChange={(e) => setNotaRev({ ...notaRev, [a.id]: e.target.value })} />
+                      <button type="button" className="ax-btn ax-btn--primary ax-btn--sm" onClick={() => revisar(a.id, 'aprobar')}>Aprobar</button>
+                      <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={() => revisar(a.id, 'rechazar')}>Rechazar</button>
+                    </>
+                  )}
+                </div>
+                {vistaAprob?.id === a.id && <iframe title="Correo enviado a aprobación" srcDoc={vistaAprob.html} sandbox="" style={{ width: '100%', height: 520, border: '1px solid var(--ax-border)', borderRadius: 10, background: '#fff' }} />}
+              </div>
+            ))}
+          </div>
+        ))}
+      </section>
+
       {envio && m && (
         <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 60, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
           <div onClick={() => setEnvio(false)} style={{ position: 'absolute', inset: 0, background: 'rgba(8,10,16,.55)' }} />
@@ -356,7 +484,8 @@ export function MailingEditor() {
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'flex-end' }}>
               <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setEnvio(false)}>Cerrar</button>
               <button type="button" className="ax-btn ax-btn--ghost" disabled={!prueba} onClick={() => { setEnvio(false); nota(`Prueba simulada a ${prueba}`); }}>Enviar prueba</button>
-              <button type="button" className="ax-btn ax-btn--primary" disabled={destinatarios === 0 || !m.asunto.trim()} onClick={() => { setEnvio(false); nota(`Envío simulado a ${destinatarios} destinatarios`); }}><span className="ax-btn__label">Enviar a la lista</span></button>
+              <button type="button" className={`ax-btn ${esAdmin ? 'ax-btn--secondary' : 'ax-btn--primary'}`} disabled={destinatarios === 0 || !m.asunto.trim()} onClick={aAprobacion}><span className="ax-btn__label">Mandar a aprobación</span></button>
+              {esAdmin && <button type="button" className="ax-btn ax-btn--primary" disabled={destinatarios === 0 || !m.asunto.trim()} onClick={() => { setEnvio(false); nota(`Envío simulado a ${destinatarios} destinatarios`); }}><span className="ax-btn__label">Enviar a la lista</span></button>}
             </div>
           </div>
         </div>

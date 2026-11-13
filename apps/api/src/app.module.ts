@@ -21,6 +21,7 @@ import { PublicApiModule } from './public/public.module.js';
 import { UsuariosModule } from './usuarios/usuarios.module.js';
 import { ChatModule } from './chat/chat.module.js';
 import { BoletinModule } from './boletin/boletin.module.js';
+import { MailingModule } from './mailing/mailing.module.js';
 import { InvitacionesModule } from './invitaciones/invitaciones.module.js';
 import { CotizadorModule } from './cotizador/cotizador.module.js';
 import { LibroReclamacionesModule } from './libro-reclamaciones/libro-reclamaciones.module.js';
@@ -80,6 +81,7 @@ import { AsistenteModule } from './asistente/asistente.module.js';
     LandingsModule,
     ClientesTiendaModule,
     BoletinModule,
+    MailingModule,
     InvitacionesModule,
     BlogModule,
     ProyectosModule,
