@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { FileText, Menu, X } from 'lucide-react';
 import BotonHex, { CapasHex } from './hex/BotonHex';
-import { enlaces, esActivo } from './EnlacesNav';
+import { enlaces, esActivo, esActivoConHijos } from './EnlacesNav';
 
 export default function MenuMovil() {
   const ref = useRef<HTMLDetailsElement>(null);
@@ -34,9 +34,20 @@ export default function MenuMovil() {
       </summary>
       <nav aria-label="Principal" className="absolute right-0 top-full mt-2 flex w-72 flex-col gap-1 rounded-2xl border border-gris bg-white p-3 shadow-lg">
         {enlaces.map((e) => (
-          <Link key={e.href} href={e.href} aria-current={esActivo(ruta, e.href) ? 'page' : undefined} className={`flex min-h-12 items-center rounded-lg border-l-4 px-3 font-display text-2xl font-bold uppercase tracking-widest hover:bg-gris hover:text-rojo-hondo ${esActivo(ruta, e.href) ? 'border-rojo text-rojo-hondo' : 'border-transparent text-carbon'}`}>
-            {e.texto}
-          </Link>
+          <div key={e.href}>
+            <Link href={e.href} aria-current={esActivo(ruta, e.href) ? 'page' : undefined} className={`flex min-h-12 items-center rounded-lg border-l-4 px-3 font-display text-2xl font-bold uppercase tracking-widest hover:bg-gris hover:text-rojo-hondo ${esActivoConHijos(ruta, e) ? 'border-rojo text-rojo-hondo' : 'border-transparent text-carbon'}`}>
+              {e.texto}
+            </Link>
+            {e.hijos && (
+              <ul className="ml-6 border-l-2 border-gris">
+                {e.hijos.filter((h) => h.href !== e.href).map((h) => (
+                  <li key={h.href}>
+                    <Link href={h.href} aria-current={ruta === h.href ? 'page' : undefined} className={`flex min-h-11 items-center rounded-lg px-4 font-display text-lg font-bold uppercase tracking-widest hover:bg-gris hover:text-rojo-hondo ${ruta === h.href ? 'text-rojo-hondo' : 'text-carbon'}`}>{h.texto}</Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
         ))}
         <BotonHex href="/cotizar" icono={FileText} size="lg" rotulo className="mt-2">Cotizar</BotonHex>
       </nav>
