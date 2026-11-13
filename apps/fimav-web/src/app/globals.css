@@ -98,8 +98,8 @@ p, li { text-wrap: pretty; }
   pointer-events: none;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 0;
-  transition: background-color 0.35s, border-color 0.35s, border-radius 0.35s;
+  clip-path: polygon(0 0, calc(100% - 0px) 0, 100% 0, 100% 46%, 100% 54%, 100% 100%, 100% 100%, 0 100%, 0 100%, 0 54%, 0 46%, 0 0);
+  transition: background-color 0.35s, border-color 0.35s, clip-path 0.35s;
 }
 .cabecera-interior { transition: min-height 0.35s; }
 .cabecera-logo { transform-origin: left center; transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1); }
@@ -112,7 +112,7 @@ html:not([data-scrolled]) .cabecera-link { color: white; }
 html[data-scrolled] .cabecera::before {
   background: white;
   border-color: rgb(56 56 60 / 0.08);
-  border-radius: 1rem;
+  clip-path: polygon(28px 0, calc(100% - 28px) 0, calc(100% - 5px) 38%, 100% 46%, 100% 54%, calc(100% - 5px) 62%, calc(100% - 28px) 100%, 28px 100%, 5px 62%, 0 54%, 0 46%, 5px 38%);
 }
 html[data-scrolled] .cabecera-interior { min-height: 3.8rem; }
 html[data-scrolled] .cabecera-logo { transform: scale(0.82); }

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { Search } from 'lucide-react';
 import BannerPagina from '@/components/BannerPagina';
 import BotonHex from '@/components/hex/BotonHex';
+import CampoHex from '@/components/tienda/CampoHex';
 import ProductoCard from '@/components/tienda/ProductoCard';
 import Reveal from '@/components/motion/Reveal';
 import { getProductosTienda } from '@/lib/tienda';
@@ -11,7 +12,7 @@ export const metadata = meta('Tienda de equipos tecnológicos', 'Tienda de Fimav
 
 type Params = { categoria?: string; q?: string; marca?: string; orden?: string };
 const ORDENES = { nuevos: 'Más recientes', precio_asc: 'Menor precio', precio_desc: 'Mayor precio', nombre: 'Nombre (A-Z)' } as const;
-const campo = 'min-h-11 rounded-lg border border-carbon/60 bg-white px-3 text-base text-tinta';
+const campo = 'min-h-10 w-full min-w-0 bg-transparent text-base text-tinta outline-none placeholder:text-carbon/60';
 
 export default async function TiendaPage({ searchParams }: { searchParams: Promise<Params> }) {
   const { categoria, q = '', marca, orden = 'nuevos' } = await searchParams;
@@ -39,36 +40,46 @@ export default async function TiendaPage({ searchParams }: { searchParams: Promi
     <main id="contenido">
       <BannerPagina eyebrow="Tienda" titulo="Equipos y" resaltado="soluciones" imagen="/fotos/escritorios-2.jpg" />
       <Reveal className="mx-auto max-w-7xl px-4 pb-16 pt-8 sm:px-6">
-        <nav aria-label="Categorías de la tienda" className="flex flex-wrap gap-2">
-          {[{ slug: undefined as string | undefined, nombre: 'Todo', n: todos.length }, ...categorias].map((c) => {
-            const activo = categoria === c.slug;
-            return (
-              <Link key={c.slug ?? 'todo'} href={c.slug ? `/tienda?categoria=${c.slug}` : '/tienda'} aria-current={activo ? 'page' : undefined}
-                className={`inline-flex min-h-11 items-center rounded-full border px-4 text-sm font-semibold transition-colors ${activo ? 'border-boton bg-boton text-white' : 'border-carbon/40 bg-white text-carbon hover:border-rojo-hondo hover:text-rojo-hondo'}`}>
-                {c.nombre} <span className="ml-1.5 opacity-70">({c.n})</span>
-              </Link>
-            );
-          })}
-        </nav>
+        <div className="rounded-2xl bg-gris p-4 sm:p-5">
+          <nav aria-label="Categorías de la tienda">
+            <ul className="flex flex-wrap gap-x-2 gap-y-3">
+              {[{ slug: undefined as string | undefined, nombre: 'Todo', n: todos.length }, ...categorias].map((c) => {
+                const activo = categoria === c.slug;
+                return (
+                  <li key={c.slug ?? 'todo'}>
+                    <BotonHex href={c.slug ? `/tienda?categoria=${c.slug}` : '/tienda'} size="sm" variante={activo ? 'rojo' : 'contorno'}>
+                      {c.nombre} <span className="opacity-70">({c.n})</span>
+                      {activo && <span className="sr-only"> (seleccionada)</span>}
+                    </BotonHex>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
 
-        <form action="/tienda" className="mt-6 flex flex-wrap items-end gap-3 rounded-2xl bg-gris p-4">
-          {categoria && <input type="hidden" name="categoria" value={categoria} />}
-          <label className="grow text-sm font-medium text-carbon sm:min-w-64">Buscar
-            <input name="q" defaultValue={q} placeholder="Nombre, marca o código" className={`${campo} mt-1 block w-full`} />
-          </label>
-          <label className="text-sm font-medium text-carbon">Marca
-            <select name="marca" defaultValue={marca ?? ''} className={`${campo} mt-1 block`}>
-              <option value="">Todas</option>
-              {marcas.map((m) => <option key={m}>{m}</option>)}
-            </select>
-          </label>
-          <label className="text-sm font-medium text-carbon">Ordenar por
-            <select name="orden" defaultValue={orden} className={`${campo} mt-1 block`}>
-              {Object.entries(ORDENES).map(([v, tx]) => <option key={v} value={v}>{tx}</option>)}
-            </select>
-          </label>
-          <button className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-carbon px-5 font-bold text-white hover:bg-tinta"><Search aria-hidden="true" size={16} /> Filtrar</button>
-        </form>
+          <form action="/tienda" className="mt-4 flex flex-wrap items-end gap-x-3 gap-y-4 border-t border-carbon/15 pt-4">
+            {categoria && <input type="hidden" name="categoria" value={categoria} />}
+            <label className="grow text-sm font-medium text-carbon sm:min-w-64">Buscar
+              <CampoHex className="mt-1"><input name="q" defaultValue={q} placeholder="Nombre, marca o código" className={campo} /></CampoHex>
+            </label>
+            <label className="text-sm font-medium text-carbon">Marca
+              <CampoHex className="mt-1">
+                <select name="marca" defaultValue={marca ?? ''} className={campo}>
+                  <option value="">Todas</option>
+                  {marcas.map((m) => <option key={m}>{m}</option>)}
+                </select>
+              </CampoHex>
+            </label>
+            <label className="text-sm font-medium text-carbon">Ordenar por
+              <CampoHex className="mt-1">
+                <select name="orden" defaultValue={orden} className={campo}>
+                  {Object.entries(ORDENES).map(([v, tx]) => <option key={v} value={v}>{tx}</option>)}
+                </select>
+              </CampoHex>
+            </label>
+            <BotonHex type="submit" variante="carbon" icono={Search}>Filtrar</BotonHex>
+          </form>
+        </div>
 
         <p className="mt-6 text-sm text-carbon/80" role="status">{lista.length} {lista.length === 1 ? 'producto' : 'productos'}</p>
         {lista.length ? (
