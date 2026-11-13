@@ -7,7 +7,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { api } from '../../../lib/api';
-import { ApiError } from '../../../context/AuthContext';
+import { ApiError, useAuth } from '../../../context/AuthContext';
 import { useFocusTrap } from '../../../hooks/useFocusTrap';
 import { manifest, hrefForSlug } from '../../../lib/manifest';
 import { Icon } from '../../../components/ui/Icon';
@@ -61,6 +61,18 @@ export const nombreDe = (u: Usuario | null | undefined) => (u ? u.nombre || u.em
 export const aLocal = (iso: string | null) => (iso ? new Date(new Date(iso).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : '');
 export const deLocal = (v: string) => (v ? new Date(v).toISOString() : null);
 export const msg = (e: unknown, d: string) => (e instanceof ApiError ? e.message : d);
+
+/** Admin, jefe comercial y dirección ven todo el CRM (y admin / jefe lo asignan); un comercial solo ve y trabaja lo que tiene asignado. */
+export function useVeTodoCrm() {
+  const { marcas, activeMarcaId } = useAuth();
+  const rol = (marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre ?? '').toLowerCase();
+  return { veTodo: ['admin', 'jefe_comercial', 'direccion'].includes(rol), puedeAsignar: ['admin', 'jefe_comercial'].includes(rol) };
+}
+
+/** Etiqueta del comercial que lleva la oportunidad (o "Sin asignar"). */
+export function EtiquetaResponsable({ u }: { u: Usuario | null | undefined }) {
+  return <span className={`ax-badge ax-badge--soft ax-badge--sm ${u ? 'ax-badge--info' : 'ax-badge--warning'}`} title={u ? `Lleva el seguimiento: ${nombreDe(u)}` : 'Nadie la tiene asignada todavía'}>{nombreDe(u)}</span>;
+}
 
 export function useAsignables() {
   const [lista, setLista] = useState<Usuario[]>([]);
@@ -149,6 +161,7 @@ export function pedirMotivo(): string | null {
 /** Ficha de una oportunidad en un panel lateral. `onCambio` refresca la lista de quien la abrió. */
 export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClose: () => void; onCambio: () => void }) {
   const asignables = useAsignables();
+  const { puedeAsignar } = useVeTodoCrm();
   const { confirmar, dialogo } = useConfirmar();
   const [o, setO] = useState<Detalle | null>(null);
   const [error, setError] = useState('');
@@ -186,7 +199,7 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
     correr(() => api.patch<Detalle>(`/crm/oportunidades/${id}`, {
       titulo: form.titulo.trim(), monto: form.monto === '' ? null : Number(form.monto), moneda: form.moneda,
       cierreEstimado: form.cierreEstimado ? new Date(`${form.cierreEstimado}T12:00:00`).toISOString() : null,
-      asignadoId: form.asignadoId || null, proximaAccion: form.proximaAccion.trim() || null, proximaAccionAt: deLocal(form.proximaAccionAt),
+      ...(puedeAsignar ? { asignadoId: form.asignadoId || null } : {}), proximaAccion: form.proximaAccion.trim() || null, proximaAccionAt: deLocal(form.proximaAccionAt),
     }), 'Cambios guardados.');
   };
   const registrar = (e: React.FormEvent) => {
@@ -249,10 +262,14 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
               <div className="ax-field"><label className="ax-label" htmlFor="op-tit">Título</label><input id="op-tit" className="ax-input" maxLength={160} value={form.titulo} onChange={set('titulo')} /></div>
               <div style={fila}>
                 <div className="ax-field"><label className="ax-label" htmlFor="op-resp">Responsable</label>
-                  <Select id="op-resp" className="ax-select" value={form.asignadoId} onChange={set('asignadoId')}>
-                    <option value="">Sin asignar</option>
-                    {asignables.map((u) => <option key={u.id} value={u.id}>{nombreDe(u)}</option>)}
-                  </Select></div>
+                  {puedeAsignar ? (
+                    <Select id="op-resp" className="ax-select" value={form.asignadoId} onChange={set('asignadoId')}>
+                      <option value="">Sin asignar</option>
+                      {asignables.map((u) => <option key={u.id} value={u.id}>{nombreDe(u)}</option>)}
+                    </Select>
+                  ) : (
+                    <div id="op-resp"><EtiquetaResponsable u={asignables.find((u) => u.id === form.asignadoId) ?? (o?.asignado ?? null)} /></div>
+                  )}</div>
                 <div className="ax-field"><label className="ax-label" htmlFor="op-monto">Monto estimado</label>
                   <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
                     <Select aria-label="Moneda" className="ax-select" style={{ width: 84 }} value={form.moneda} onChange={set('moneda')}><option value="PEN">S/</option><option value="USD">US$</option></Select>
@@ -316,12 +333,15 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
   );
 }
 
-type EmpresaSel = { id: string; razonSocial: string; ruc?: string | null };
+type EmpresaSel = { id: string; razonSocial: string; ruc?: string | null; empresaPadre?: { razonSocial: string } | null };
+/** «Principal › Sede» para empresas que son sedes o subempresas. */
+const nombreEmpresa = (e: { razonSocial: string; empresaPadre?: { razonSocial: string } | null }) => (e.empresaPadre ? `${e.empresaPadre.razonSocial} › ${e.razonSocial}` : e.razonSocial);
 type ContactoSel = { id: string; nombre: string; email: string | null; celular: string | null; empresa?: EmpresaSel | null };
 
 /** Alta manual: título, empresa y contacto (existentes o nuevos), etapa, monto, responsable y próxima acción. */
 export function NuevaOportunidad({ onClose, onCreada }: { onClose: () => void; onCreada: (id: string) => void }) {
   const asignables = useAsignables();
+  const { puedeAsignar } = useVeTodoCrm();
   // Cliente existente: se busca por RUC, empresa, nombre, correo o celular y se elige en vez de volver a escribirlo.
   const [buscar, setBuscar] = useState('');
   const [sug, setSug] = useState<{ empresas: EmpresaSel[]; contactos: ContactoSel[] }>({ empresas: [], contactos: [] });
@@ -363,7 +383,7 @@ export function NuevaOportunidad({ onClose, onCreada }: { onClose: () => void; o
         contactoId: contactoSel?.id,
         empresaNueva: !empresaSel && (f.empresa.trim() || f.ruc) ? { razonSocial: f.empresa.trim() || undefined, ruc: f.ruc || undefined } : undefined,
         contactoNuevo: !contactoSel && f.contacto.trim() ? { nombre: f.contacto.trim(), email: f.email.trim() || undefined, celular: f.celular.trim() || undefined } : undefined,
-        asignadoId: f.asignadoId || undefined, proximaAccion: f.proximaAccion.trim() || undefined, proximaAccionAt: deLocal(f.proximaAccionAt) ?? undefined,
+        ...(puedeAsignar ? { asignadoId: f.asignadoId || undefined } : {}), proximaAccion: f.proximaAccion.trim() || undefined, proximaAccionAt: deLocal(f.proximaAccionAt) ?? undefined,
       });
       onCreada(o.id);
     } catch (err) { setError(msg(err, 'No se pudo crear la oportunidad.')); } finally { setBusy(false); }
@@ -382,7 +402,7 @@ export function NuevaOportunidad({ onClose, onCreada }: { onClose: () => void; o
               <ul aria-label="Clientes encontrados" className="ax-card" style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 10, margin: '4px 0 0', padding: 'var(--ax-space-1)', listStyle: 'none', maxHeight: 280, overflowY: 'auto' }}>
                 {sug.empresas.map((e) => (
                   <li key={`e${e.id}`}><button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ width: '100%', justifyContent: 'flex-start' }} onClick={() => elegirEmpresa(e)}>
-                    <span className="ax-badge ax-badge--soft ax-badge--sm">Empresa</span> {e.razonSocial}{e.ruc ? ` · RUC ${e.ruc}` : ''}</button></li>
+                    <span className="ax-badge ax-badge--soft ax-badge--sm">Empresa</span> {nombreEmpresa(e)}{e.ruc ? ` · RUC ${e.ruc}` : ''}</button></li>
                 ))}
                 {sug.contactos.map((c) => (
                   <li key={`c${c.id}`}><button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ width: '100%', justifyContent: 'flex-start' }} onClick={() => elegirContacto(c)}>
@@ -396,7 +416,7 @@ export function NuevaOportunidad({ onClose, onCreada }: { onClose: () => void; o
         {empresaSel ? (
           <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
             <span className="ax-label" style={{ margin: 0 }}>Empresa:</span>
-            <b>{empresaSel.razonSocial}</b>{empresaSel.ruc && <span style={{ color: 'var(--ax-text-subtle)' }}>RUC {empresaSel.ruc}</span>}
+            <b>{nombreEmpresa(empresaSel)}</b>{empresaSel.ruc && <span style={{ color: 'var(--ax-text-subtle)' }}>RUC {empresaSel.ruc}</span>}
             <button type="button" className="ax-btn ax-btn--link ax-btn--sm" onClick={() => { setEmpresaSel(null); setContactoSel(null); }}>Cambiar</button>
           </div>
         ) : (
@@ -435,8 +455,12 @@ export function NuevaOportunidad({ onClose, onCreada }: { onClose: () => void; o
               <Select aria-label="Moneda" className="ax-select" style={{ width: 84 }} value={f.moneda} onChange={set('moneda')}><option value="PEN">S/</option><option value="USD">US$</option></Select>
               <input id="no-monto" className="ax-input" inputMode="decimal" value={f.monto} onChange={set('monto')} />
             </div></div>
-          <div className="ax-field"><label className="ax-label" htmlFor="no-resp">Responsable</label>
-            <Select id="no-resp" className="ax-select" value={f.asignadoId} onChange={set('asignadoId')}><option value="">Sin asignar</option>{asignables.map((u) => <option key={u.id} value={u.id}>{nombreDe(u)}</option>)}</Select></div>
+          {puedeAsignar ? (
+            <div className="ax-field"><label className="ax-label" htmlFor="no-resp">Responsable</label>
+              <Select id="no-resp" className="ax-select" value={f.asignadoId} onChange={set('asignadoId')}><option value="">Sin asignar</option>{asignables.map((u) => <option key={u.id} value={u.id}>{nombreDe(u)}</option>)}</Select></div>
+          ) : (
+            <div className="ax-field"><span className="ax-label">Responsable</span><span style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>Quedará asignada a ti.</span></div>
+          )}
         </div>
         <div style={fila}>
           <div className="ax-field"><label className="ax-label" htmlFor="no-acc">Próxima acción</label><input id="no-acc" className="ax-input" maxLength={200} value={f.proximaAccion} onChange={set('proximaAccion')} /></div>

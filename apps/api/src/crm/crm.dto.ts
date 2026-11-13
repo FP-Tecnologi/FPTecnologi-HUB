@@ -16,6 +16,8 @@ export class EmpresaDto {
   @IsOptional() @IsString() @MaxLength(40) telefono?: string | null;
   @IsOptional() @IsString() @MaxLength(200) @Matches(TEXTO) direccion?: string | null;
   @IsOptional() @IsString() @MaxLength(2000) notas?: string | null;
+  /** Empresa principal de la que esta es sede o subempresa (null = empresa principal). */
+  @IsOptional() @IsUUID() empresaPadreId?: string | null;
 }
 
 export class ContactoDto {

@@ -10,7 +10,7 @@ import { PageHead } from '../../../components/shell/PageHead';
 import { api } from '../../../lib/api';
 import { useAuth } from '../../../context/AuthContext';
 import {
-  Alerta, ETAPAS, NuevaOportunidad, OportunidadPanel, dinero, etapa, msg, montos, nombreDe, pedirMotivo, vencida, fechaCorta, type Etapa, type Oportunidad,
+  Alerta, ETAPAS, NuevaOportunidad, OportunidadPanel, dinero, etapa, msg, montos, nombreDe, pedirMotivo, vencida, fechaCorta, type Etapa, type Oportunidad, EtiquetaResponsable, useVeTodoCrm,
 } from './comun';
 import { teclaFila } from '../../../lib/teclado';
 import { Select } from '../../../components/ui/Select';
@@ -25,6 +25,7 @@ export function CrmEmbudo() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
   const [mias, setMias] = useState(false);
+  const { veTodo } = useVeTodoCrm();
   const [cerradas, setCerradas] = useState(false);
   const [q, setQ] = useState('');
   const [abierta, setAbierta] = useState<string | null>(null);
@@ -74,10 +75,12 @@ export function CrmEmbudo() {
           <button type="button" role="radio" aria-checked={vista === 'tablero'} className={`ax-btn ax-btn--sm${vista === 'tablero' ? ' is-selected' : ''}`} onClick={() => setVista('tablero')}>Tablero</button>
           <button type="button" role="radio" aria-checked={vista === 'lista'} className={`ax-btn ax-btn--sm${vista === 'lista' ? ' is-selected' : ''}`} onClick={() => setVista('lista')}>Lista</button>
         </div>
-        <div className="ax-btn-group ax-btn-group--segmented" role="radiogroup" aria-label="De quién">
-          <button type="button" role="radio" aria-checked={!mias} className={`ax-btn ax-btn--sm${!mias ? ' is-selected' : ''}`} onClick={() => setMias(false)}>Todas</button>
-          <button type="button" role="radio" aria-checked={mias} className={`ax-btn ax-btn--sm${mias ? ' is-selected' : ''}`} onClick={() => setMias(true)}>Mías</button>
-        </div>
+        {veTodo && (
+          <div className="ax-btn-group ax-btn-group--segmented" role="radiogroup" aria-label="De quién">
+            <button type="button" role="radio" aria-checked={!mias} className={`ax-btn ax-btn--sm${!mias ? ' is-selected' : ''}`} onClick={() => setMias(false)}>Todas</button>
+            <button type="button" role="radio" aria-checked={mias} className={`ax-btn ax-btn--sm${mias ? ' is-selected' : ''}`} onClick={() => setMias(true)}>Mías</button>
+          </div>
+        )}
         <label className="ax-cluster" style={{ gap: 'var(--ax-space-2)', fontSize: 'var(--ax-text-sm)' }}>
           <input type="checkbox" checked={cerradas} onChange={(e) => setCerradas(e.target.checked)} /> Ver ganadas y perdidas
         </label>
@@ -124,7 +127,7 @@ export function CrmEmbudo() {
                             <td className="ax-table__td"><div style={{ fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-strong)' }}>{o.titulo}</div><div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{o.numero}</div></td>
                             <td className="ax-table__td">{o.empresa?.razonSocial ?? o.contacto?.nombre ?? '—'}</td>
                             <td className="ax-table__td ax-num">{dinero(o.monto, o.moneda)}</td>
-                            <td className="ax-table__td" style={{ color: o.asignado ? undefined : 'var(--ax-text-subtle)' }}>{nombreDe(o.asignado)}</td>
+                            <td className="ax-table__td"><EtiquetaResponsable u={o.asignado} /></td>
                             <td className="ax-table__td" style={{ fontSize: 'var(--ax-text-sm)', color: vencida(o.proximaAccionAt) ? 'var(--ax-danger-500)' : 'var(--ax-text-muted)' }}>
                               {o.proximaAccion ? `${o.proximaAccion}${o.proximaAccionAt ? ` · ${fechaCorta(o.proximaAccionAt)}` : ''}` : '—'}
                             </td>
@@ -171,7 +174,7 @@ export function CrmEmbudo() {
                       <div style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>{o.empresa?.razonSocial ?? o.contacto?.nombre ?? '—'}</div>
                       <div className="ax-cluster" style={{ justifyContent: 'space-between', marginBlockStart: 'var(--ax-space-2)', fontSize: 'var(--ax-text-xs)' }}>
                         <b className="ax-num">{dinero(o.monto, o.moneda)}</b>
-                        <span style={{ color: o.asignado ? 'var(--ax-text-muted)' : 'var(--ax-warning-600, var(--ax-viz-amber))' }}>{nombreDe(o.asignado)}</span>
+                        <EtiquetaResponsable u={o.asignado} />
                       </div>
                       {o.proximaAccion && (
                         <div style={{ marginBlockStart: 'var(--ax-space-2)', fontSize: 'var(--ax-text-xs)', color: vencida(o.proximaAccionAt) ? 'var(--ax-danger-500)' : 'var(--ax-text-muted)' }}>

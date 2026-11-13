@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { BadRequestException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { CrmService } from './crm.service.js';
 
 /** Prisma falso en memoria, lo justo para el CRM. */
@@ -15,7 +15,12 @@ function prismaFalso() {
     });
   const prisma = {
     db,
-    crmEmpresa: { findFirst: vi.fn(async ({ where }) => db.empresas.find((r) => coincide(r, where)) ?? null), create: vi.fn(async ({ data }) => nuevo(db.empresas, data)) },
+    crmEmpresa: {
+      findFirst: vi.fn(async ({ where }) => db.empresas.find((r) => coincide(r, where)) ?? null),
+      create: vi.fn(async ({ data }) => nuevo(db.empresas, data)),
+      count: vi.fn(async ({ where }) => db.empresas.filter((r) => coincide(r, where)).length),
+      update: vi.fn(async ({ where, data }) => Object.assign(db.empresas.find((r) => r.id === where.id)!, data)),
+    },
     crmContacto: {
       findFirst: vi.fn(async ({ where }) => db.contactos.find((r) => coincide(r, where)) ?? null),
       create: vi.fn(async ({ data }) => nuevo(db.contactos, data)),
@@ -26,6 +31,7 @@ function prismaFalso() {
       create: vi.fn(async ({ data }) => nuevo(db.opps, { etapa: 'NUEVO', ...data })),
       update: vi.fn(async ({ where, data }) => Object.assign(db.opps.find((r) => r.id === where.id)!, data)),
       findMany: vi.fn(async () => []),
+      count: vi.fn(async ({ where }) => db.opps.filter((r) => coincide(r, where)).length),
     },
     crmActividad: { create: vi.fn(async ({ data }) => nuevo(db.acts, data)) },
     usuarioMarcaRol: { findMany: vi.fn(async () => []) },
@@ -118,5 +124,58 @@ describe('CrmService.crear', () => {
     expect(prisma.db.empresas).toHaveLength(1);
     expect(prisma.db.contactos).toHaveLength(1);
     expect(prisma.db.opps.at(-1)).toMatchObject({ empresaId: 'e1', contactoId: 'c1', titulo: 'Proyectores' });
+  });
+});
+
+describe('CrmService: cada comercial ve solo lo suyo', () => {
+  const comercial = { usuarioId: 'u1', veTodo: false };
+
+  it('listar fija el responsable al usuario aunque pida el de otro', async () => {
+    const prisma = prismaFalso();
+    await new CrmService(prisma as never).listar('m1', { asignado: 'u2' } as never, 'u1', false);
+    expect(prisma.crmOportunidad.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ asignadoId: 'u1' }) }));
+  });
+
+  it('listar con vista completa respeta el filtro de responsable', async () => {
+    const prisma = prismaFalso();
+    await new CrmService(prisma as never).listar('m1', { asignado: 'u2' } as never, 'u1', true);
+    expect(prisma.crmOportunidad.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ asignadoId: 'u2' }) }));
+  });
+
+  it('una oportunidad de otro comercial responde "no encontrada"', async () => {
+    const prisma = prismaFalso();
+    prisma.db.opps.push({ id: 'o1', marcaId: 'm1', asignadoId: 'u2', titulo: 'Ajena' });
+    await expect(new CrmService(prisma as never).actualizar('m1', 'o1', { titulo: 'x' } as never, 'a@b.pe', comercial)).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('un comercial no puede reasignar ni siquiera la suya', async () => {
+    const prisma = prismaFalso();
+    prisma.db.opps.push({ id: 'o2', marcaId: 'm1', asignadoId: 'u1', titulo: 'Mía' });
+    await expect(new CrmService(prisma as never).actualizar('m1', 'o2', { asignadoId: 'u3' } as never, 'a@b.pe', comercial)).rejects.toBeInstanceOf(ForbiddenException);
+  });
+});
+
+describe('CrmService: sedes y subempresas', () => {
+  const RUC = '20123456789';
+
+  it('una sede con el mismo RUC de la principal se guarda sin RUC propio', async () => {
+    const prisma = prismaFalso();
+    prisma.db.empresas.push({ id: 'p1', marcaId: 'm1', razonSocial: 'Universidad Andina', ruc: RUC, empresaPadreId: null });
+    const sede = await new CrmService(prisma as never).crearEmpresa('m1', { razonSocial: 'Universidad Andina - Sede Cusco', ruc: RUC, empresaPadreId: 'p1' } as never);
+    expect(sede).toMatchObject({ ruc: null, empresaPadreId: 'p1' });
+  });
+
+  it('rechaza una empresa principal que no existe en la marca', async () => {
+    const prisma = prismaFalso();
+    await expect(new CrmService(prisma as never).crearEmpresa('m1', { razonSocial: 'Sede huérfana', empresaPadreId: 'x' } as never)).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('no permite que una empresa sea sede de sí misma ni de una de sus sedes', async () => {
+    const prisma = prismaFalso();
+    prisma.db.empresas.push({ id: 'a', marcaId: 'm1', razonSocial: 'Grupo A', ruc: null, empresaPadreId: null });
+    prisma.db.empresas.push({ id: 'b', marcaId: 'm1', razonSocial: 'Filial B', ruc: null, empresaPadreId: 'a' });
+    const svc = new CrmService(prisma as never);
+    await expect(svc.actualizarEmpresa('m1', 'a', { empresaPadreId: 'a' } as never)).rejects.toBeInstanceOf(BadRequestException);
+    await expect(svc.actualizarEmpresa('m1', 'a', { empresaPadreId: 'b' } as never)).rejects.toBeInstanceOf(BadRequestException);
   });
 });

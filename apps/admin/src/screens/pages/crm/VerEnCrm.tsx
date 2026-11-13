@@ -11,7 +11,7 @@ export function VerEnCrm({ origen, id }: { origen: 'COTIZADOR' | 'COTIZACION' | 
   const { marcas, activeMarcaId } = useAuth();
   const rol = marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre;
   const [aviso, setAviso] = useState('');
-  if (rol !== 'admin' && rol !== 'comercial') return null;
+  if (rol !== 'admin' && rol !== 'jefe_comercial' && rol !== 'comercial') return null;
 
   async function ir() {
     setAviso('');
@@ -19,7 +19,7 @@ export function VerEnCrm({ origen, id }: { origen: 'COTIZADOR' | 'COTIZACION' | 
       const o = await api.get<{ id: string }>(`/crm/por-origen?origen=${origen}&id=${encodeURIComponent(id)}`);
       router.push(`/crm/oportunidades?id=${o.id}`);
     } catch {
-      setAviso('Esta solicitud llegó antes del CRM.');
+      setAviso('No hay una oportunidad tuya para esta solicitud (llegó antes del CRM o la lleva otro comercial).');
     }
   }
   return (

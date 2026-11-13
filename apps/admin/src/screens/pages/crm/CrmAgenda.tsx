@@ -7,7 +7,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { PageHead } from '../../../components/shell/PageHead';
 import { api } from '../../../lib/api';
 import { useAuth } from '../../../context/AuthContext';
-import { Alerta, OportunidadPanel, etapa, fechaHora, msg, nombreDe, vencida, type Actividad, type Etapa, type Oportunidad, type Usuario } from './comun';
+import { Alerta, OportunidadPanel, useVeTodoCrm, etapa, fechaHora, msg, nombreDe, vencida, type Actividad, type Etapa, type Oportunidad, type Usuario } from './comun';
 
 type Tarea = Actividad & { oportunidad: { id: string; numero: string; titulo: string; etapa: Etapa; asignado: Usuario | null; contacto: { nombre: string } | null } };
 const hoyFin = () => { const d = new Date(); d.setHours(23, 59, 59, 999); return d.getTime(); };
@@ -17,6 +17,7 @@ export function CrmAgenda() {
   const [datos, setDatos] = useState<{ tareas: Tarea[]; acciones: Oportunidad[] } | null>(null);
   const [error, setError] = useState('');
   const [mias, setMias] = useState(true);
+  const { veTodo } = useVeTodoCrm();
   const [abierta, setAbierta] = useState<string | null>(null);
 
   const cargar = useCallback(async () => {
@@ -42,7 +43,7 @@ export function CrmAgenda() {
   return (
     <>
       <PageHead title="Agenda comercial" subtitle="Tareas y próximas acciones de las oportunidades abiertas." actions={
-        <div className="ax-btn-group ax-btn-group--segmented" role="radiogroup" aria-label="De quién">
+        !veTodo ? null : <div className="ax-btn-group ax-btn-group--segmented" role="radiogroup" aria-label="De quién">
           <button type="button" role="radio" aria-checked={mias} className={`ax-btn ax-btn--sm${mias ? ' is-selected' : ''}`} onClick={() => setMias(true)}>Mías</button>
           <button type="button" role="radio" aria-checked={!mias} className={`ax-btn ax-btn--sm${!mias ? ' is-selected' : ''}`} onClick={() => setMias(false)}>Todo el equipo</button>
         </div>

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { EtapaOportunidad, OrigenOportunidad, Prisma, TipoActividadCrm } from '../generated/prisma/client.js';
 import type {
@@ -6,7 +6,12 @@ import type {
 } from './crm.dto.js';
 
 /** Roles que trabajan el CRM de una marca (y a quienes se puede asignar una oportunidad). */
-export const ROLES_CRM = ['admin', 'comercial'];
+export const ROLES_CRM = ['admin', 'jefe_comercial', 'comercial'];
+/** Roles que ven TODAS las oportunidades de la marca y pueden asignarlas (dirección: solo lectura). Los demás ven solo las suyas. */
+export const ROLES_VE_TODO_CRM = ['admin', 'jefe_comercial', 'direccion'];
+/** Quién consulta: su id y si ve todo el CRM o solo lo que tiene asignado. */
+export interface AmbitoCrm { usuarioId: string; veTodo: boolean }
+const TODO: AmbitoCrm = { usuarioId: '', veTodo: true };
 export const ETAPAS_ABIERTAS: EtapaOportunidad[] = ['NUEVO', 'CONTACTADO', 'PROPUESTA', 'NEGOCIACION'];
 /** Probabilidad por defecto de cada etapa (para el pipeline ponderado). */
 export const PROBABILIDAD: Record<EtapaOportunidad, number> = { NUEVO: 10, CONTACTADO: 25, PROPUESTA: 50, NEGOCIACION: 75, GANADO: 100, PERDIDO: 0 };
@@ -142,12 +147,20 @@ export class CrmService {
 
   // ----------------------------------------------------------- oportunidades
 
-  async asignables(marcaId: string) {
+  /** Un comercial que no ve todo solo se ve a sí mismo (no se listan sus compañeros). */
+  async asignables(marcaId: string, ambito: AmbitoCrm = TODO) {
     const filas = await this.prisma.usuarioMarcaRol.findMany({
-      where: { marcaId, rol: { nombre: { in: ROLES_CRM } }, usuario: { activo: true } },
+      where: { marcaId, rol: { nombre: { in: ROLES_CRM } }, usuario: { activo: true, ...(ambito.veTodo ? {} : { id: ambito.usuarioId }) } },
       select: { rol: { select: { nombre: true } }, usuario: { select: { id: true, nombre: true, email: true } } },
     });
     return filas.map((f) => ({ ...f.usuario, rol: f.rol.nombre })).sort((a, b) => (a.nombre ?? a.email).localeCompare(b.nombre ?? b.email));
+  }
+
+  /** Un comercial solo toca las oportunidades que tiene asignadas; las demás responden "no encontrada" (no revela que existen). */
+  private async asegurarAcceso(marcaId: string, oportunidadId: string, ambito: AmbitoCrm) {
+    if (ambito.veTodo) return;
+    const ok = await this.prisma.crmOportunidad.count({ where: { id: oportunidadId, marcaId, asignadoId: ambito.usuarioId } });
+    if (!ok) throw new NotFoundException('Oportunidad no encontrada');
   }
 
   private async validarAsignado(marcaId: string, asignadoId: string | null | undefined) {
@@ -161,12 +174,13 @@ export class CrmService {
     if (contactoId && !(await this.prisma.crmContacto.count({ where: { id: contactoId, marcaId } }))) throw new BadRequestException('El contacto no existe en esta marca');
   }
 
-  listar(marcaId: string, f: FiltrosOportunidades, usuarioId: string) {
+  listar(marcaId: string, f: FiltrosOportunidades, usuarioId: string, veTodo = true) {
     const q = f.q?.trim();
     const where: Prisma.CrmOportunidadWhereInput = {
       marcaId,
       ...(f.etapa ? { etapa: f.etapa } : f.estado === 'abiertas' ? { etapa: { in: ETAPAS_ABIERTAS } } : f.estado === 'cerradas' ? { etapa: { in: ['GANADO', 'PERDIDO'] } } : {}),
-      ...(f.asignado === 'yo' ? { asignadoId: usuarioId } : f.asignado === 'sin' ? { asignadoId: null } : f.asignado ? { asignadoId: f.asignado } : {}),
+      // Quien no ve todo queda fijado a sus propias oportunidades, sin importar el filtro que mande.
+      ...(!veTodo ? { asignadoId: usuarioId } : f.asignado === 'yo' ? { asignadoId: usuarioId } : f.asignado === 'sin' ? { asignadoId: null } : f.asignado ? { asignadoId: f.asignado } : {}),
       ...(f.origen ? { origen: f.origen } : {}),
       ...(q
         ? { OR: [
@@ -181,9 +195,9 @@ export class CrmService {
     return this.prisma.crmOportunidad.findMany({ where, include: INCLUDE_LISTA, orderBy: { updatedAt: 'desc' }, take: 500 });
   }
 
-  async obtener(marcaId: string, id: string) {
+  async obtener(marcaId: string, id: string, ambito: AmbitoCrm = TODO) {
     const o = await this.prisma.crmOportunidad.findFirst({
-      where: { id, marcaId },
+      where: { id, marcaId, ...(ambito.veTodo ? {} : { asignadoId: ambito.usuarioId }) },
       include: {
         ...INCLUDE_LISTA,
         empresa: true,
@@ -215,14 +229,17 @@ export class CrmService {
   }
 
   /** ¿Qué oportunidad tiene esta solicitud? (la abrió o se sumó a su historial). Para «Ver en CRM» en las bandejas. */
-  async porOrigen(marcaId: string, origen: OrigenOportunidad, origenId: string) {
-    const directa = await this.prisma.crmOportunidad.findFirst({ where: { marcaId, origen, origenId }, select: { id: true, numero: true, etapa: true } });
+  async porOrigen(marcaId: string, origen: OrigenOportunidad, origenId: string, ambito: AmbitoCrm = TODO) {
+    const propias = ambito.veTodo ? {} : { asignadoId: ambito.usuarioId };
+    const directa = await this.prisma.crmOportunidad.findFirst({ where: { marcaId, origen, origenId, ...propias }, select: { id: true, numero: true, etapa: true } });
     if (directa) return directa;
-    const act = await this.prisma.crmActividad.findFirst({ where: { marcaId, origen, origenId }, select: { oportunidad: { select: { id: true, numero: true, etapa: true } } } });
+    const act = await this.prisma.crmActividad.findFirst({ where: { marcaId, origen, origenId, oportunidad: propias }, select: { oportunidad: { select: { id: true, numero: true, etapa: true } } } });
     return act?.oportunidad ?? null;
   }
 
-  async crear(marcaId: string, dto: CrearOportunidadDto, email: string) {
+  async crear(marcaId: string, dto: CrearOportunidadDto, email: string, ambito: AmbitoCrm = TODO) {
+    // Un comercial que crea una oportunidad la queda asignada a sí mismo (si no, no la vería).
+    if (!ambito.veTodo) dto = { ...dto, asignadoId: ambito.usuarioId };
     await this.validarAsignado(marcaId, dto.asignadoId);
     await this.validarRelaciones(marcaId, dto.empresaId, dto.contactoId);
     // Un RUC o correo que ya está en el CRM reutiliza ese cliente: un mismo cliente puede tener varias oportunidades.
@@ -254,12 +271,15 @@ export class CrmService {
       ...(etapa === 'GANADO' ? { ganadoAt: new Date(), cerradoAt: new Date() } : {}),
     });
     await this.prisma.crmActividad.create({ data: { marcaId, oportunidadId: o.id, tipo: 'NOTA', texto: `Oportunidad creada por ${email}.`, autor: email } });
-    return this.obtener(marcaId, o.id);
+    return this.obtener(marcaId, o.id, ambito);
   }
 
-  async actualizar(marcaId: string, id: string, dto: ActualizarOportunidadDto, email: string) {
+  async actualizar(marcaId: string, id: string, dto: ActualizarOportunidadDto, email: string, ambito: AmbitoCrm = TODO) {
+    await this.asegurarAcceso(marcaId, id, ambito);
     const o = await this.prisma.crmOportunidad.findFirst({ where: { id, marcaId }, include: { asignado: { select: { nombre: true, email: true } } } });
     if (!o) throw new NotFoundException('Oportunidad no encontrada');
+    // Asignar o reasignar es del admin / jefe comercial: un comercial no puede pasarla a otra persona ni dejarla sin responsable.
+    if (!ambito.veTodo && dto.asignadoId !== undefined && dto.asignadoId !== o.asignadoId) throw new ForbiddenException('Solo el administrador o el jefe comercial asigna oportunidades');
     if (dto.asignadoId !== undefined) await this.validarAsignado(marcaId, dto.asignadoId);
     await this.validarRelaciones(marcaId, dto.empresaId, dto.contactoId);
     const fecha = (v: string | null | undefined) => (v === undefined ? undefined : v ? new Date(v) : null);
@@ -282,13 +302,14 @@ export class CrmService {
       const nuevo = dto.asignadoId ? (await this.asignables(marcaId)).find((u) => u.id === dto.asignadoId) : null;
       await this.prisma.crmActividad.create({ data: { marcaId, oportunidadId: id, tipo: 'NOTA', texto: nuevo ? `Asignada a ${nuevo.nombre ?? nuevo.email}.` : 'Quedó sin responsable.', autor: email } });
     }
-    return this.obtener(marcaId, id);
+    return this.obtener(marcaId, id, ambito);
   }
 
-  async cambiarEtapa(marcaId: string, id: string, dto: CambiarEtapaDto, email: string) {
+  async cambiarEtapa(marcaId: string, id: string, dto: CambiarEtapaDto, email: string, ambito: AmbitoCrm = TODO) {
+    await this.asegurarAcceso(marcaId, id, ambito);
     const o = await this.prisma.crmOportunidad.findFirst({ where: { id, marcaId }, select: { etapa: true } });
     if (!o) throw new NotFoundException('Oportunidad no encontrada');
-    if (o.etapa === dto.etapa) return this.obtener(marcaId, id);
+    if (o.etapa === dto.etapa) return this.obtener(marcaId, id, ambito);
     const motivo = limpio(dto.motivoPerdida);
     if (dto.etapa === 'PERDIDO' && !motivo) throw new BadRequestException('Indica el motivo de la pérdida');
     const ahora = new Date();
@@ -305,7 +326,7 @@ export class CrmService {
     });
     const texto = `${ETAPA_TXT[o.etapa]} → ${ETAPA_TXT[dto.etapa]}${motivo && dto.etapa === 'PERDIDO' ? `. Motivo: ${motivo}` : ''}`;
     await this.prisma.crmActividad.create({ data: { marcaId, oportunidadId: id, tipo: 'ETAPA', texto, autor: email } });
-    return this.obtener(marcaId, id);
+    return this.obtener(marcaId, id, ambito);
   }
 
   async eliminar(marcaId: string, id: string) {
@@ -316,35 +337,38 @@ export class CrmService {
 
   // -------------------------------------------------------------- actividades
 
-  async agregarActividad(marcaId: string, oportunidadId: string, dto: ActividadDto, email: string) {
+  async agregarActividad(marcaId: string, oportunidadId: string, dto: ActividadDto, email: string, ambito: AmbitoCrm = TODO) {
+    await this.asegurarAcceso(marcaId, oportunidadId, ambito);
     if (!(await this.prisma.crmOportunidad.count({ where: { id: oportunidadId, marcaId } }))) throw new NotFoundException('Oportunidad no encontrada');
     const tarea = dto.tipo === 'TAREA';
     await this.prisma.crmActividad.create({
       data: { marcaId, oportunidadId, tipo: dto.tipo as TipoActividadCrm, texto: dto.texto.trim(), fecha: dto.fecha ? new Date(dto.fecha) : new Date(), hecha: tarea ? !!dto.hecha : true, autor: email },
     });
     await this.prisma.crmOportunidad.update({ where: { id: oportunidadId, marcaId }, data: { updatedAt: new Date() } });
-    return this.obtener(marcaId, oportunidadId);
+    return this.obtener(marcaId, oportunidadId, ambito);
   }
 
-  async actualizarActividad(marcaId: string, id: string, dto: ActualizarActividadDto) {
+  async actualizarActividad(marcaId: string, id: string, dto: ActualizarActividadDto, ambito: AmbitoCrm = TODO) {
     const a = await this.prisma.crmActividad.findFirst({ where: { id, marcaId }, select: { oportunidadId: true, tipo: true } });
     if (!a) throw new NotFoundException('Actividad no encontrada');
+    await this.asegurarAcceso(marcaId, a.oportunidadId, ambito);
     if (a.tipo === 'ETAPA' || a.tipo === 'SOLICITUD') throw new BadRequestException('Los registros automáticos no se editan');
     await this.prisma.crmActividad.update({ where: { id, marcaId }, data: { hecha: dto.hecha, texto: dto.texto?.trim(), fecha: dto.fecha ? new Date(dto.fecha) : undefined } });
-    return this.obtener(marcaId, a.oportunidadId);
+    return this.obtener(marcaId, a.oportunidadId, ambito);
   }
 
-  async eliminarActividad(marcaId: string, id: string) {
+  async eliminarActividad(marcaId: string, id: string, ambito: AmbitoCrm = TODO) {
     const a = await this.prisma.crmActividad.findFirst({ where: { id, marcaId }, select: { oportunidadId: true, tipo: true } });
     if (!a) throw new NotFoundException('Actividad no encontrada');
+    await this.asegurarAcceso(marcaId, a.oportunidadId, ambito);
     if (a.tipo === 'ETAPA' || a.tipo === 'SOLICITUD') throw new BadRequestException('Los registros automáticos no se borran');
     await this.prisma.crmActividad.delete({ where: { id, marcaId } });
-    return this.obtener(marcaId, a.oportunidadId);
+    return this.obtener(marcaId, a.oportunidadId, ambito);
   }
 
   /** Tareas pendientes y próximas acciones de las oportunidades abiertas (de todos o solo mías). */
-  async agenda(marcaId: string, usuarioId: string, soloMias: boolean) {
-    const deQuien = soloMias ? { asignadoId: usuarioId } : {};
+  async agenda(marcaId: string, usuarioId: string, soloMias: boolean, veTodo = true) {
+    const deQuien = soloMias || !veTodo ? { asignadoId: usuarioId } : {};
     const [tareas, acciones] = await Promise.all([
       this.prisma.crmActividad.findMany({
         where: { marcaId, tipo: 'TAREA', hecha: false, oportunidad: { marcaId, etapa: { in: ETAPAS_ABIERTAS }, ...deQuien } },
@@ -368,17 +392,38 @@ export class CrmService {
     const t = q?.trim();
     return this.prisma.crmEmpresa.findMany({
       where: { marcaId, ...(t ? { OR: [{ razonSocial: { contains: t, mode: 'insensitive' } }, { ruc: { contains: t } }] } : {}) },
-      include: { _count: { select: { contactos: true, oportunidades: true } } },
+      include: { empresaPadre: { select: { id: true, razonSocial: true } }, _count: { select: { contactos: true, oportunidades: true, sedes: true } } },
       orderBy: { razonSocial: 'asc' },
       take: 500,
     });
   }
 
+  /**
+   * Valida la empresa principal de una sede: existe en la marca, no es la misma empresa ni una de sus propias sedes (sin ciclos).
+   * Devuelve su RUC para que una sede con el mismo RUC no choque con la restricción de RUC único.
+   */
+  private async validarPadre(marcaId: string, padreId: string | null | undefined, propiaId?: string): Promise<{ ruc: string | null } | null> {
+    if (!padreId) return null;
+    if (propiaId && padreId === propiaId) throw new BadRequestException('Una empresa no puede ser sede de sí misma');
+    const padre = await this.prisma.crmEmpresa.findFirst({ where: { id: padreId, marcaId }, select: { ruc: true, empresaPadreId: true } });
+    if (!padre) throw new BadRequestException('La empresa principal no existe en esta marca');
+    // Subir por la cadena de padres: si aparece la propia empresa, se formaría un ciclo.
+    let actual = padre.empresaPadreId;
+    for (let i = 0; propiaId && actual && i < 20; i++) {
+      if (actual === propiaId) throw new BadRequestException('Esa empresa ya depende de esta: elige otra como principal');
+      actual = (await this.prisma.crmEmpresa.findFirst({ where: { id: actual, marcaId }, select: { empresaPadreId: true } }))?.empresaPadreId ?? null;
+    }
+    return { ruc: padre.ruc };
+  }
+
   async crearEmpresa(marcaId: string, dto: EmpresaDto) {
-    const ruc = limpio(dto.ruc);
+    let ruc = limpio(dto.ruc);
     if (ruc && !rucValido(ruc)) throw new BadRequestException('El RUC debe tener 11 dígitos (empieza con 10, 15, 16, 17 o 20)');
+    const padre = await this.validarPadre(marcaId, dto.empresaPadreId);
+    // Una sede suele compartir el RUC de la principal: se guarda sin RUC propio (el RUC es único por marca).
+    if (padre && ruc && ruc === padre.ruc) ruc = null;
     try {
-      return await this.prisma.crmEmpresa.create({ data: { marcaId, razonSocial: dto.razonSocial.trim(), ruc, rubro: limpio(dto.rubro), web: limpio(dto.web), telefono: limpio(dto.telefono), direccion: limpio(dto.direccion), notas: limpio(dto.notas) } });
+      return await this.prisma.crmEmpresa.create({ data: { marcaId, razonSocial: dto.razonSocial.trim(), ruc, rubro: limpio(dto.rubro), web: limpio(dto.web), telefono: limpio(dto.telefono), direccion: limpio(dto.direccion), notas: limpio(dto.notas), empresaPadreId: dto.empresaPadreId ?? null } });
     } catch (e) {
       if (esP2002(e)) throw new BadRequestException('Ya existe una empresa con ese RUC en esta marca');
       throw e;
@@ -387,11 +432,13 @@ export class CrmService {
 
   async actualizarEmpresa(marcaId: string, id: string, dto: Partial<EmpresaDto>) {
     if (!(await this.prisma.crmEmpresa.count({ where: { id, marcaId } }))) throw new NotFoundException('Empresa no encontrada');
-    const ruc = dto.ruc === undefined ? undefined : limpio(dto.ruc);
+    let ruc = dto.ruc === undefined ? undefined : limpio(dto.ruc);
     if (ruc && !rucValido(ruc)) throw new BadRequestException('El RUC debe tener 11 dígitos');
+    const padre = await this.validarPadre(marcaId, dto.empresaPadreId, id);
+    if (padre && ruc && ruc === padre.ruc) ruc = null;
     const opc = (v: string | null | undefined) => (v === undefined ? undefined : limpio(v));
     try {
-      return await this.prisma.crmEmpresa.update({ where: { id, marcaId }, data: { razonSocial: dto.razonSocial?.trim(), ruc, rubro: opc(dto.rubro), web: opc(dto.web), telefono: opc(dto.telefono), direccion: opc(dto.direccion), notas: opc(dto.notas) } });
+      return await this.prisma.crmEmpresa.update({ where: { id, marcaId }, data: { razonSocial: dto.razonSocial?.trim(), ruc, rubro: opc(dto.rubro), web: opc(dto.web), telefono: opc(dto.telefono), direccion: opc(dto.direccion), notas: opc(dto.notas), empresaPadreId: dto.empresaPadreId } });
     } catch (e) {
       if (esP2002(e)) throw new BadRequestException('Ya existe una empresa con ese RUC en esta marca');
       throw e;

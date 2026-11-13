@@ -8,7 +8,7 @@ import { PageHead } from '../../../components/shell/PageHead';
 import { api } from '../../../lib/api';
 import { useAuth } from '../../../context/AuthContext';
 import {
-  Alerta, BotonIcono, ETAPAS, NuevaOportunidad, ORIGENES, OportunidadPanel, dinero, etapa, fechaCorta, msg, nombreDe, useAsignables, useConfirmar, vencida, type Etapa, type Oportunidad, type Origen,
+  Alerta, BotonIcono, ETAPAS, NuevaOportunidad, ORIGENES, OportunidadPanel, dinero, etapa, fechaCorta, msg, nombreDe, useAsignables, useConfirmar, vencida, type Etapa, type Oportunidad, type Origen, EtiquetaResponsable, useVeTodoCrm,
 } from './comun';
 import { teclaFila } from '../../../lib/teclado';
 import { Select } from '../../../components/ui/Select';
@@ -17,6 +17,7 @@ export function CrmOportunidades() {
   const { activeMarcaId, marcas } = useAuth();
   const esAdmin = marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre === 'admin';
   const asignables = useAsignables();
+  const { veTodo } = useVeTodoCrm();
   const [lista, setLista] = useState<Oportunidad[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
@@ -63,10 +64,12 @@ export function CrmOportunidades() {
               <Select className="ax-select" aria-label="Etapa" value={et} onChange={(e) => setEt(e.target.value as '' | Etapa)} style={{ maxWidth: 190 }}>
                 <option value="">Todas las etapas</option>{ETAPAS.map((e) => <option key={e.v} value={e.v}>{e.label}</option>)}
               </Select>
-              <Select className="ax-select" aria-label="Responsable" value={asignado} onChange={(e) => setAsignado(e.target.value)} style={{ maxWidth: 200 }}>
-                <option value="">Todos los responsables</option><option value="yo">Mías</option><option value="sin">Sin asignar</option>
-                {asignables.map((u) => <option key={u.id} value={u.id}>{nombreDe(u)}</option>)}
-              </Select>
+              {veTodo && (
+                <Select className="ax-select" aria-label="Responsable" value={asignado} onChange={(e) => setAsignado(e.target.value)} style={{ maxWidth: 200 }}>
+                  <option value="">Todos los responsables</option><option value="yo">Mías</option><option value="sin">Sin asignar</option>
+                  {asignables.map((u) => <option key={u.id} value={u.id}>{nombreDe(u)}</option>)}
+                </Select>
+              )}
               <Select className="ax-select" aria-label="Origen" value={origen} onChange={(e) => setOrigen(e.target.value as '' | Origen)} style={{ maxWidth: 210 }}>
                 <option value="">Todos los orígenes</option>{(Object.keys(ORIGENES) as Origen[]).map((o) => <option key={o} value={o}>{ORIGENES[o]}</option>)}
               </Select>
@@ -102,7 +105,7 @@ export function CrmOportunidades() {
                     </td>
                     <td className="ax-table__td"><span className={`ax-badge ax-badge--soft ax-badge--sm ${etapa(o.etapa).badge}`}>{etapa(o.etapa).label}</span></td>
                     <td className="ax-table__td ax-num">{dinero(o.monto, o.moneda)}</td>
-                    <td className="ax-table__td" style={{ color: o.asignado ? undefined : 'var(--ax-text-subtle)' }}>{nombreDe(o.asignado)}</td>
+                    <td className="ax-table__td"><EtiquetaResponsable u={o.asignado} /></td>
                     <td className="ax-table__td" style={{ fontSize: 'var(--ax-text-sm)', color: vencida(o.proximaAccionAt) ? 'var(--ax-danger-500)' : 'var(--ax-text-muted)' }}>
                       {o.proximaAccion ? <>{o.proximaAccion}{o.proximaAccionAt ? <div style={{ fontSize: 'var(--ax-text-xs)' }}>{fechaCorta(o.proximaAccionAt)}{vencida(o.proximaAccionAt) ? ' · vencida' : ''}</div> : null}</> : '—'}
                     </td>

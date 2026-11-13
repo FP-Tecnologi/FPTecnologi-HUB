@@ -15,7 +15,8 @@ const ROLES: Record<string, string> = {
   admin: 'Control total de la empresa: equipo, contenido web, tienda, chat, cotizador y reportes.',
   marketing: 'Contenido de la web, blogs, campañas, boletín, mailing y formulario del cotizador.',
   ventas: 'Tienda (productos, pedidos, clientes), presupuestos, cotizaciones y reporte de ventas.',
-  comercial: 'Contactos y tickets de la web, leads del cotizador, presupuestos y campañas.',
+  jefe_comercial: 'Ve y asigna todas las oportunidades del CRM, y ve los reportes del equipo comercial.',
+  comercial: 'Contactos y tickets de la web, leads del cotizador, presupuestos y campañas; en el CRM solo ve las oportunidades que le asignan.',
   asesores: 'Conversaciones del chat, asesores de WhatsApp y conocimiento del asistente.',
   cliente: 'Acceso de cliente a la web (sin panel de gestión).',
 };

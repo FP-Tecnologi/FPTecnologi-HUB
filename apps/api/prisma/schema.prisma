@@ -1398,6 +1398,10 @@ model CrmEmpresa {
   telefono      String?
   direccion     String?
   notas         String?
+  // Sede o subempresa: apunta a la empresa principal (universidad con sedes, grupo con filiales). Sin padre = empresa principal.
+  empresaPadreId String?
+  empresaPadre   CrmEmpresa?      @relation("CrmEmpresaSedes", fields: [empresaPadreId], references: [id], onDelete: SetNull)
+  sedes          CrmEmpresa[]     @relation("CrmEmpresaSedes")
   contactos     CrmContacto[]
   oportunidades CrmOportunidad[]
   createdAt     DateTime         @default(now())
@@ -1405,6 +1409,7 @@ model CrmEmpresa {
 
   @@unique([marcaId, ruc])
   @@index([marcaId, razonSocial])
+  @@index([marcaId, empresaPadreId])
 }
 
 model CrmContacto {
