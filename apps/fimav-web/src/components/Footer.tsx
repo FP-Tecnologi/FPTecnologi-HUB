@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Facebook, Instagram, Landmark, Linkedin, Mail, MapPin, Phone } from 'lucide-react';
+import { CreditCard, Facebook, Instagram, Landmark, Linkedin, Mail, MapPin, Phone } from 'lucide-react';
 import Logo from './Logo';
 import LibroBadge from './LibroBadge';
 import CorteHex from './hex/CorteHex';
@@ -91,7 +91,8 @@ export default async function Footer() {
           <div className="text-sm md:border-t md:border-white/15 lg:border-t-0">
             <Titulo>Acceso</Titulo>
             <LibroBadge />
-            <Link href="/peru-compras" className={`${enlace} mt-3 font-semibold`}><Landmark aria-hidden="true" size={18} className="shrink-0" />Estamos en Perú Compras</Link>
+            <Link href="/tarjetas-bbva" className={`${enlace} mt-3 font-semibold`}><CreditCard aria-hidden="true" size={18} className="shrink-0" />Tarjetas BBVA</Link>
+            <Link href="/peru-compras" className={`${enlace} font-semibold`}><Landmark aria-hidden="true" size={18} className="shrink-0" />Estamos en Perú Compras</Link>
           </div>
         </div>
         <p className="mt-6 border-t border-white/15 px-4 pb-24 pt-5 text-center text-sm text-white/90 md:pb-5">© {new Date().getFullYear()} {datosFijos.razonSocial}. Todos los derechos reservados.</p>

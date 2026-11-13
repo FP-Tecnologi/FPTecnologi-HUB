@@ -8,6 +8,8 @@ import PopupBbva from '@/components/bbva/PopupBbva';
 import CursorHex from '@/components/motion/CursorHex';
 import ContadorVisitas from '@/components/ContadorVisitas';
 import { ContactoProvider } from '@/components/ContactoContext';
+import { MonedaProvider } from '@/components/tienda/Moneda';
+import { getTipoCambio } from '@/lib/tienda';
 import JsonLd from '@/components/JsonLd';
 import { getContacto } from '@/lib/cms';
 import { IMAGEN_SOCIAL, organizacion, sitioWeb } from '@/lib/seo';
@@ -36,12 +38,13 @@ export const metadata: Metadata = {
 export const viewport: Viewport = { themeColor: '#c91f1f', width: 'device-width', initialScale: 1 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const contacto = await getContacto();
+  const [contacto, tipoCambio] = await Promise.all([getContacto(), getTipoCambio()]);
   return (
     <html lang="es-PE" className={`${poppins.variable} ${titulo.variable} ${display.variable}`}>
       <body>
         <a href="#contenido" className="sr-only z-[60] rounded-lg bg-white px-4 py-3 font-semibold text-rojo-hondo shadow-xl focus:not-sr-only focus:fixed focus:left-4 focus:top-4">Saltar al contenido</a>
         <JsonLd datos={[organizacion(contacto), sitioWeb]} />
+        <MonedaProvider tipoCambio={tipoCambio}>
         <ContactoProvider valor={contacto}>
           <Header />
           {children}
@@ -51,6 +54,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <CursorHex />
           <ContadorVisitas />
         </ContactoProvider>
+        </MonedaProvider>
       </body>
     </html>
   );

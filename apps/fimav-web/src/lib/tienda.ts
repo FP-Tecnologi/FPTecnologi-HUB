@@ -71,3 +71,12 @@ export const getProductoTienda = cache(async (slug: string): Promise<ProductoTie
 });
 
 export const usd = (n: number) => `US$ ${n.toLocaleString('es-PE', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
+
+/** Soles por dólar: el que se guarda en FPTecnologi (Ajustes del sitio → Tipo de cambio), para que ambas webs coticen igual.
+ *  Respaldo: TIPO_CAMBIO_USD_PEN o 3.75. */
+export const getTipoCambio = cache(async (): Promise<number> => {
+  const respaldo = Number(process.env.TIPO_CAMBIO_USD_PEN) > 0 ? Number(process.env.TIPO_CAMBIO_USD_PEN) : 3.75;
+  const sitio = await api<{ cambio?: { tipoCambio?: unknown } }>('/contenido/sitio');
+  const tc = Number(String(sitio?.cambio?.tipoCambio ?? '').replace(',', '.'));
+  return Number.isFinite(tc) && tc > 0 ? tc : respaldo;
+});

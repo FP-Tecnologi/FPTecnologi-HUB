@@ -62,7 +62,7 @@ apps/
   api/              NestJS — API central (Prisma + PostgreSQL/Supabase)
   admin/            Next.js + Vireo — dashboard único (selector de marca)
   web-fptecnologi/  Next.js 16 — fptecnologi.com (catálogo, servicios, carrito, blog, chat; sin login)
-  fimav-web/        Next.js 16 — fimavperu.com (puerto 3005). Categorías desde la API; resto, CMS. `/tienda`: productos de FPTecnologi (env `TIENDA_MARCA_ID`), solo lectura; carrito en localStorage (`lib/carrito.ts`) que se envía como cotización (`/cotizar?carrito=1`), sin pago en línea
+  fimav-web/        Next.js 16 — fimavperu.com (puerto 3005). Categorías desde la API; resto, CMS. `/tienda`: productos de FPTecnologi (env `TIENDA_MARCA_ID`), solo lectura; carrito en localStorage (`lib/carrito.ts`) que se envía como cotización (`/cotizar?carrito=1`), sin pago en línea; selector de moneda S/ | US$ en la cabecera (tipo de cambio de FPTecnologi, respaldo 3.75)
   kelqa-web/        Next.js 16 — kelqa.com (3007). Líneas/productos desde la API; CMS: Inicio, Nosotros,
                     Contacto, Catálogos PDF y Textos legales (borrador hasta «publicado»)
   imaninki-web/     Next.js 16 — imaninki.com (3008), igual que Kelqa

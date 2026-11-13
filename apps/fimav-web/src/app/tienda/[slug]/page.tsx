@@ -8,7 +8,8 @@ import AgregarCarrito from '@/components/tienda/AgregarCarrito';
 import GaleriaProducto from '@/components/tienda/GaleriaProducto';
 import Reveal from '@/components/motion/Reveal';
 import { getContacto, waUrlDe } from '@/lib/cms';
-import { getProductoTienda, getProductosTienda, usd } from '@/lib/tienda';
+import { Precio } from '@/components/tienda/Moneda';
+import { getProductoTienda, getProductosTienda } from '@/lib/tienda';
 import { meta } from '@/lib/seo';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -35,10 +36,10 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
             <h2 className="titulo-menor mt-1 text-2xl text-carbon sm:text-3xl">{p.nombre}</h2>
             <p className="mt-1 text-sm text-carbon/70">Código: {p.sku}</p>
             <p className="mt-5 flex items-baseline gap-3 text-carbon">
-              <span className="font-display text-3xl font-bold">{usd(p.precio)}</span>
-              {p.precioAntes && <s className="text-carbon/60">{usd(p.precioAntes)}</s>}
+              <span className="font-display text-3xl font-bold"><Precio usd={p.precio} /></span>
+              {p.precioAntes && <s className="text-carbon/60"><Precio usd={p.precioAntes} /></s>}
             </p>
-            <p className="mt-1 text-sm text-carbon/70">Precio referencial en dólares, sin IGV. Confirmamos precio y disponibilidad en tu cotización.</p>
+            <p className="mt-1 text-sm text-carbon/70">Precio referencial, sin IGV. Confirmamos precio y disponibilidad en tu cotización.</p>
             <AgregarCarrito p={p} />
             <div className="mt-4 flex flex-wrap gap-4">
               <BotonHex href={`/cotizar?producto=${consulta}`} size="lg" icono={FileText}>Cotizar</BotonHex>

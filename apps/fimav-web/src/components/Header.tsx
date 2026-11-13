@@ -5,6 +5,7 @@ import BotonHex from './hex/BotonHex';
 import EnlacesNav from './EnlacesNav';
 import MenuMovil from './MenuMovil';
 import CarritoBoton from './tienda/CarritoBoton';
+import { MonedaSelector } from './tienda/Moneda';
 
 export default function Header() {
   return (
@@ -14,10 +15,11 @@ export default function Header() {
           <Logo src="/brand/fimav-peru-blanco.svg" alt="" className="cabecera-logo cabecera-logo-transparente h-12 w-auto object-contain" />
           <Logo src="/brand/fimav-peru.svg" alt="" className="cabecera-logo cabecera-logo-fijo h-12 w-auto object-contain" />
         </Link>
-        <nav aria-label="Principal" className="cabecera-nav hidden items-center gap-5 lg:flex xl:gap-8">
+        <nav aria-label="Principal" className="cabecera-nav hidden items-center gap-4 lg:flex xl:gap-8">
           <EnlacesNav />
           <BotonHex href="/cotizar" icono={FileText} rotulo>Cotizar</BotonHex>
         </nav>
+        <MonedaSelector />
         <CarritoBoton />
         <MenuMovil />
       </div>

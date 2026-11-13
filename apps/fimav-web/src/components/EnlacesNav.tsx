@@ -9,7 +9,6 @@ export const enlaces = [
   { href: '/tienda', texto: 'Tienda' },
   { href: '/nosotros', texto: 'Nosotros' },
   { href: '/peru-compras', texto: 'Perú Compras' },
-  { href: '/tarjetas-bbva', texto: 'BBVA' },
   { href: '/contacto', texto: 'Contacto' },
 ];
 

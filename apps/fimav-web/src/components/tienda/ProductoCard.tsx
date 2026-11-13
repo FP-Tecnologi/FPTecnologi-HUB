@@ -2,7 +2,8 @@ import Link from 'next/link';
 import { Eye, FileText } from 'lucide-react';
 import BotonHex from '@/components/hex/BotonHex';
 import { AgregarRapido } from './AgregarCarrito';
-import { usd, type ProductoTienda } from '@/lib/tienda';
+import { Precio } from './Moneda';
+import type { ProductoTienda } from '@/lib/tienda';
 
 /** Tarjeta de producto de la tienda: foto sobre blanco, marca, nombre, precio referencial y enlace a la ficha. */
 export default function ProductoCard({ p }: { p: ProductoTienda }) {
@@ -21,8 +22,8 @@ export default function ProductoCard({ p }: { p: ProductoTienda }) {
           <Link href={`/tienda/${p.slug}`} className="after:absolute after:inset-0">{p.nombre}</Link>
         </h3>
         <p className="mt-3 flex items-baseline gap-2 text-carbon">
-          <span className="font-display text-xl font-bold">{usd(p.precio)}</span>
-          {p.precioAntes && <s className="text-sm text-carbon/60">{usd(p.precioAntes)}</s>}
+          <span className="font-display text-xl font-bold"><Precio usd={p.precio} /></span>
+          {p.precioAntes && <s className="text-sm text-carbon/60"><Precio usd={p.precioAntes} /></s>}
         </p>
         <p className="mt-1 text-xs text-carbon/70">Precio referencial, sin IGV</p>
         <div className="mt-3 flex flex-wrap items-center gap-2">
