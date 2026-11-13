@@ -1,9 +1,10 @@
 'use client';
 /*
- * PWA (Fase 1): registra el service worker, avisa cuando no hay conexión y ofrece "Instalar app".
- * Los datos offline y la cola de sincronización llegan en la Fase 2.
+ * PWA: registra el service worker, ofrece "Instalar app", avisa de la conexión y sincroniza la cola offline del CRM.
  */
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { sincronizarCola } from '../../lib/api';
+import { listarCola, quitarDeCola, estaSincronizando, type CambioPendiente } from '../../lib/offline';
 
 interface InstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -15,10 +16,24 @@ const CLAVE_DESCARTE = 'ax:pwa-install-dismissed';
 export function PwaShell() {
   const [online, setOnline] = useState(true);
   const [instalador, setInstalador] = useState<InstallPromptEvent | null>(null);
+  const [cola, setCola] = useState<CambioPendiente[]>([]);
+  const [sync, setSync] = useState(false);
+  const [desactualizado, setDesactualizado] = useState<number | null>(null);
+
+  const refrescar = useCallback(() => {
+    setSync(estaSincronizando());
+    void listarCola().then(setCola);
+  }, []);
 
   useEffect(() => {
     setOnline(navigator.onLine);
-    const alVolver = () => setOnline(true);
+    refrescar();
+    void sincronizarCola();
+    const cada30s = window.setInterval(() => { if (navigator.onLine) void sincronizarCola(); }, 30_000);
+    const alGuardados = (e: Event) => setDesactualizado((e as CustomEvent<number>).detail);
+    window.addEventListener('ax:cola', refrescar);
+    window.addEventListener('ax:datos-guardados', alGuardados);
+    const alVolver = () => { setOnline(true); setDesactualizado(null); void sincronizarCola(); };
     const alPerder = () => setOnline(false);
     window.addEventListener('online', alVolver);
     window.addEventListener('offline', alPerder);
@@ -37,12 +52,18 @@ export function PwaShell() {
     window.addEventListener('beforeinstallprompt', alOfrecer);
     window.addEventListener('appinstalled', alInstalar);
     return () => {
+      window.clearInterval(cada30s);
+      window.removeEventListener('ax:cola', refrescar);
+      window.removeEventListener('ax:datos-guardados', alGuardados);
       window.removeEventListener('online', alVolver);
       window.removeEventListener('offline', alPerder);
       window.removeEventListener('beforeinstallprompt', alOfrecer);
       window.removeEventListener('appinstalled', alInstalar);
     };
-  }, []);
+  }, [refrescar]);
+
+  const pendientes = cola.filter((c) => !c.error);
+  const fallidos = cola.filter((c) => c.error);
 
   const instalar = async () => {
     if (!instalador) return;
@@ -57,9 +78,20 @@ export function PwaShell() {
 
   return (
     <>
-      {!online && (
-        <div role="status" aria-live="polite" style={{ position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 9999, background: '#b45309', color: '#fff', textAlign: 'center', padding: '8px 16px', fontSize: 13, fontWeight: 600 }}>
-          Sin conexión: algunas funciones no estarán disponibles hasta que vuelva internet.
+      {(!online || pendientes.length > 0 || fallidos.length > 0) && (
+        <div role="status" aria-live="polite" style={{ position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 9999, background: online && !fallidos.length ? '#0369a1' : '#b45309', color: '#fff', padding: '8px 16px', fontSize: 13, fontWeight: 600, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <span>
+            {!online
+              ? `Sin conexión: el CRM sigue disponible con lo último guardado${desactualizado ? ` (${new Date(desactualizado).toLocaleString('es-PE')})` : ''}; el resto vuelve con internet.`
+              : sync ? 'Sincronizando cambios…' : null}
+            {pendientes.length > 0 && ` ${pendientes.length} cambio${pendientes.length === 1 ? '' : 's'} pendiente${pendientes.length === 1 ? '' : 's'} de enviar.`}
+          </span>
+          {fallidos.map((c) => (
+            <span key={c.id} style={{ fontWeight: 500 }}>
+              No se pudo enviar un cambio ({c.method} {c.path}): {c.error}{' '}
+              <button type="button" onClick={() => c.id !== undefined && void quitarDeCola(c.id)} style={{ background: 'rgba(255,255,255,.2)', color: '#fff', border: 0, borderRadius: 6, padding: '2px 8px', cursor: 'pointer' }}>Descartar</button>
+            </span>
+          ))}
         </div>
       )}
       {instalador && online && (

@@ -48,6 +48,7 @@ import { TicketsModule } from './tickets/tickets.module.js';
 import { SoporteModule } from './soporte/soporte.module.js';
 import { ActividadModule } from './actividad/actividad.module.js';
 import { ActividadInterceptor } from './actividad/actividad.interceptor.js';
+import { IdempotenciaInterceptor } from './common/interceptors/idempotencia.interceptor.js';
 import { RecursosModule } from './recursos/recursos.module.js';
 import { AsistenteModule } from './asistente/asistente.module.js';
 
@@ -107,6 +108,8 @@ import { AsistenteModule } from './asistente/asistente.module.js';
     { provide: APP_GUARD, useClass: LimitePeticionesGuard },
     { provide: APP_GUARD, useClass: JwtAuthGuard },
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
+    // Primero: una repetición con la misma Idempotency-Key (cola offline del dashboard) no se vuelve a ejecutar.
+    { provide: APP_INTERCEPTOR, useClass: IdempotenciaInterceptor },
     { provide: APP_INTERCEPTOR, useClass: ResponseInterceptor },
     // Bitácora automática de cambios y exportaciones (quién, qué, desde dónde).
     { provide: APP_INTERCEPTOR, useClass: ActividadInterceptor },

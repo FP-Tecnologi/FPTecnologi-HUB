@@ -12,7 +12,7 @@ import {
   createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode,
 } from 'react';
 import { useRouter } from 'next/navigation';
-import { api, ApiError, tokenStore } from '../lib/api';
+import { api, ApiError, borrarDatosOffline, tokenStore } from '../lib/api';
 
 export interface MarcaAsignada {
   marcaId: string;
@@ -230,6 +230,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       /* best-effort revoke; proceed with local logout regardless */
     }
     tokenStore.clear();
+    void borrarDatosOffline();
     writeAdminFlag(false);
     if (typeof window !== 'undefined') window.localStorage.removeItem(USER_KEY);
     setUser(null);

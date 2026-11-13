@@ -11,6 +11,8 @@
  *     `typeof window`.
  */
 
+import { borrarTodoOffline, encolar, guardarLectura, leerLectura, rutaOffline, sincronizar, type CambioPendiente } from './offline';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 const ACCESS_TOKEN_KEY = 'ax:auth:access';
@@ -89,12 +91,24 @@ export const tokenStore = {
   },
 };
 
+/** El cambio no llegó al servidor por falta de internet: quedó en la cola local y se enviará al volver la conexión. */
+export class CambioEnColaError extends ApiError {
+  constructor() {
+    super('Sin conexión: el cambio quedó guardado en este dispositivo y se enviará solo cuando vuelva internet.', 0);
+  }
+}
+
+/** fetch rechaza con TypeError cuando no hay red (a diferencia de AbortError, que es una cancelación a propósito). */
+export const esErrorDeRed = (e: unknown) => e instanceof TypeError;
+
 interface RequestOptions {
   method?: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
   body?: unknown;
   auth?: boolean; // default true — send Authorization header when a token exists
   marcaId?: string | null; // overrides the active marca for this call
   signal?: AbortSignal;
+  /** Interno: reenvío de la cola offline (no vuelve a encolar y conserva la Idempotency-Key original). */
+  _replay?: { clave: string };
 }
 
 let refreshPromise: Promise<boolean> | null = null;
@@ -131,7 +145,7 @@ let marcaForzada: string | null = null;
 export const setMarcaForzada = (id: string | null) => { marcaForzada = id; };
 
 async function request<T>(path: string, options: RequestOptions = {}, _retried = false): Promise<T> {
-  const { method = 'GET', body, auth = true, marcaId, signal } = options;
+  const { method = 'GET', body, auth = true, marcaId, signal, _replay } = options;
   const esForm = typeof FormData !== 'undefined' && body instanceof FormData;
   // Con FormData el navegador arma el Content-Type (multipart + boundary): no se debe fijar a mano.
   const headers: Record<string, string> = esForm ? {} : { 'Content-Type': 'application/json' };
@@ -143,15 +157,43 @@ async function request<T>(path: string, options: RequestOptions = {}, _retried =
   const effectiveMarcaId = marcaId !== undefined ? marcaId : (marcaForzada ?? tokenStore.getActiveMarcaId());
   if (effectiveMarcaId) headers['x-marca-id'] = effectiveMarcaId;
 
-  const res = await fetch(`${API_URL}${path}`, {
-    method,
-    headers,
-    body: body === undefined ? undefined : esForm ? (body as FormData) : JSON.stringify(body),
-    signal,
-    // Necesario para que el navegador guarde/envíe la cookie httpOnly de
-    // "dispositivo confiable" (ax_device) — la API está en otro origen.
-    credentials: 'include',
-  });
+  // Modo offline (solo rutas /crm/): las escrituras llevan una clave de idempotencia para que un reintento no duplique.
+  const esEscritura = method !== 'GET';
+  const offline = rutaOffline(path) && !esForm;
+  const claveIdem = offline && esEscritura ? (_replay?.clave ?? crypto.randomUUID()) : null;
+  if (claveIdem) headers['Idempotency-Key'] = claveIdem;
+
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      method,
+      headers,
+      body: body === undefined ? undefined : esForm ? (body as FormData) : JSON.stringify(body),
+      signal,
+      // Necesario para que el navegador guarde/envíe la cookie httpOnly de
+      // "dispositivo confiable" (ax_device) — la API está en otro origen.
+      credentials: 'include',
+    });
+  } catch (e) {
+    if (!esErrorDeRed(e) || !offline) throw e;
+    if (!esEscritura) {
+      // Lectura sin internet: se muestra lo último guardado.
+      const guardada = await leerLectura<T>(effectiveMarcaId, path);
+      if (guardada) {
+        if (typeof window !== 'undefined') window.dispatchEvent(new CustomEvent('ax:datos-guardados', { detail: guardada.ts }));
+        return guardada.data;
+      }
+      throw new ApiError('Sin conexión y todavía no hay datos guardados de esta pantalla.', 0);
+    }
+    if (_replay) throw e;
+    if (path.includes('offline-')) throw new ApiError('Sin conexión: espera a que se sincronice lo anterior antes de seguir.', 0);
+    try {
+      await encolar({ clave: claveIdem!, method: method as CambioPendiente['method'], path, body, marcaId: effectiveMarcaId });
+    } catch {
+      throw e; // sin IndexedDB no hay dónde guardarlo
+    }
+    throw new CambioEnColaError();
+  }
 
   // Access token expired mid-session: refresh once, then retry the call.
   if (res.status === 401 && auth && !_retried && tokenStore.getRefreshToken()) {
@@ -173,8 +215,21 @@ async function request<T>(path: string, options: RequestOptions = {}, _retried =
     throw new ApiError(message, json?.statusCode ?? res.status);
   }
 
+  if (offline && !esEscritura && json?.data !== undefined) void guardarLectura(effectiveMarcaId, path, json.data);
   return (json?.data as T) ?? (undefined as T);
 }
+
+/** Reenvía los cambios hechos sin conexión (en orden). Se llama al volver internet y al abrir la app. */
+export function sincronizarCola(): Promise<void> {
+  return sincronizar(
+    (c) => request<unknown>(c.path, { method: c.method, body: c.body, marcaId: c.marcaId, _replay: { clave: c.clave } }).then(() => undefined),
+    esErrorDeRed,
+    (e) => (e instanceof ApiError ? e.statusCode : 0),
+  );
+}
+
+/** Cierre de sesión: borra del dispositivo los datos guardados para uso offline. */
+export const borrarDatosOffline = borrarTodoOffline;
 
 /**
  * Descarga un archivo privado de la API (recursos, evidencias de tickets) con la sesión del dashboard y lo abre en
