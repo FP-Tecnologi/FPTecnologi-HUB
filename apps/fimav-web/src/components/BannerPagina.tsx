@@ -42,9 +42,9 @@ export default function BannerPagina({ eyebrow, titulo, resaltado, miga, migas =
         <div aria-hidden="true" className={`absolute inset-0 bg-[linear-gradient(to_bottom,rgb(56_56_60/0.3),rgb(56_56_60/0.8)_18%,rgb(56_56_60/0.8)_80%,rgb(56_56_60/0.35))] ${producto ? 'lg:bg-[linear-gradient(to_right,rgb(56_56_60/0.92),rgb(56_56_60/0.88)_58%,rgb(56_56_60/0.4)_88%)]' : 'lg:bg-[linear-gradient(to_right,rgb(56_56_60/0.92),rgb(56_56_60/0.88)_58%,rgb(56_56_60/0.2)_88%)]'}`} />
         {/* Franja inferior que enlaza con el color de la muesca hexagonal (carbón). */}
         <div aria-hidden="true" className="absolute inset-x-0 bottom-0 h-8 bg-linear-to-t from-carbon to-transparent" />
-        {/* Decoración de fondo: malla de hexágonos suaves sobre el velo oscuro (más visible a la derecha) y un resplandor rojo tenue. */}
+        {/* Decoración de fondo: malla de hexágonos suaves sobre el velo oscuro (más visible a la derecha y desvanecida hacia abajo) y un resplandor rojo tenue. */}
         <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_88%_40%,rgb(224_36_36/0.2),transparent_45%)]" />
-        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[url(/fondos/hex-patron.svg)] bg-[length:78px_auto] opacity-70 [mask-image:linear-gradient(to_left,#000_0%,rgb(0_0_0/0.55)_45%,transparent_90%)] sm:bg-[length:97px_auto]" />
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[url(/fondos/hex-patron.svg)] bg-[length:78px_auto] opacity-70 [mask-image:linear-gradient(to_left,#000_0%,rgb(0_0_0/0.55)_45%,transparent_90%),linear-gradient(to_bottom,#000_0%,#000_30%,transparent_88%)] [mask-composite:intersect] [-webkit-mask-composite:source-in] sm:bg-[length:97px_auto]" />
         <div className="entrada relative mx-auto max-w-6xl min-h-[15rem] px-4 pb-8 pt-24 sm:min-h-[21rem] sm:px-6 sm:pb-14 sm:pt-28">
           <nav aria-label="Ruta de navegación" className="mb-2 text-sm text-white/80 sm:mb-4">
             <ol className="flex flex-nowrap items-center gap-x-1.5">
