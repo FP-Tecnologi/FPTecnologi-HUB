@@ -59,6 +59,14 @@ export function CampanasLandings() {
   useEffect(() => { void cargar(); }, [cargar]);
   useEffect(() => { const id = new URLSearchParams(window.location.search).get('id'); if (id) setSelId(id); }, []);
 
+  const [creando, setCreando] = useState<string | null>(null);
+  async function crearDesde(plantilla: string, nombre: string) {
+    setCreando(plantilla); setAviso(null);
+    try { const l = await api.post<{ id: string }>('/landings', { nombre, plantilla }); setSelId(l.id); }
+    catch (e) { setAviso({ ok: false, texto: errMsg(e, 'No se pudo crear la landing.') }); }
+    finally { setCreando(null); }
+  }
+
   if (selId && plantillas) {
     return <Editor id={selId} plantillas={plantillas} campanas={campanas} alSalir={() => { setSelId(null); void cargar(); }} />;
   }
@@ -72,6 +80,19 @@ export function CampanasLandings() {
       />
       <div className="ax-dash-grid">
         {aviso && <div role={aviso.ok ? 'status' : 'alert'} className={`ax-alert ax-col--12 ${aviso.ok ? 'ax-alert--success' : 'ax-alert--danger'}`} style={{ padding: 'var(--ax-space-3) var(--ax-space-4)' }}><div className="ax-alert__content"><p className="ax-alert__message">{aviso.texto}</p></div></div>}
+        {plantillas && plantillas.plantillas.length > 0 && (
+          <section className="ax-card ax-col--12" aria-label="Nueva landing desde plantilla" style={{ padding: 'var(--ax-space-4)' }}>
+            <strong style={{ color: 'var(--ax-text-strong)' }}>Nueva landing desde plantilla</strong>
+            <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', marginBlockStart: 'var(--ax-space-3)', alignItems: 'stretch' }}>
+              {plantillas.plantillas.map((p) => (
+                <button key={p.id} type="button" className="ax-card" disabled={!!creando} onClick={() => void crearDesde(p.id, p.nombre)} style={{ padding: 'var(--ax-space-3)', textAlign: 'left', cursor: 'pointer', minWidth: 190, flex: '1 1 190px', opacity: creando && creando !== p.id ? 0.6 : 1 }}>
+                  <div style={{ fontWeight: 'var(--ax-weight-medium)', color: 'var(--ax-text-strong)' }}>{creando === p.id ? 'Creando…' : p.nombre}</div>
+                  <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{p.descripcion}</div>
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
         <section className="ax-card ax-col--12" aria-label="Landings">
           {lista.length === 0 ? (
             <div className="ax-card__body" style={{ textAlign: 'center', color: 'var(--ax-text-muted)', paddingBlock: 'var(--ax-space-8)' }}>Aún no hay landings. Crea la primera eligiendo una plantilla.</div>
@@ -163,6 +184,7 @@ function Editor({ id, plantillas, campanas, alSalir }: { id: string; plantillas:
   const [tab, setTab] = useState<Tab>('contenido');
   const [busy, setBusy] = useState(false);
   const [sucio, setSucio] = useState(false);
+  const [version, setVersion] = useState(0);
   const [aviso, setAviso] = useState<{ ok: boolean; texto: string } | null>(null);
 
   const cargar = useCallback(async () => {
@@ -182,7 +204,7 @@ function Editor({ id, plantillas, campanas, alSalir }: { id: string; plantillas:
     setBusy(true); setAviso(null);
     try {
       const guardada = await api.patch<Landing>(`/landings/${l.id}`, { nombre: l.nombre, slug: l.slug, campanaId: l.campanaId ?? null, contenido: l.contenido, formulario: l.formulario, ...extra });
-      setL({ ...guardada }); setSucio(false);
+      setL({ ...guardada }); setSucio(false); setVersion((v) => v + 1);
       setAviso({ ok: true, texto: 'Cambios guardados.' });
       return true;
     } catch (e) { setAviso({ ok: false, texto: errMsg(e, 'No se pudo guardar.') }); return false; }
@@ -240,7 +262,9 @@ function Editor({ id, plantillas, campanas, alSalir }: { id: string; plantillas:
             </div>
           </div>
         </section>
-
+      </div>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--ax-space-4)', alignItems: 'flex-start', marginBlockStart: 'var(--ax-space-4)' }}>
+        <div className="ax-dash-grid" style={{ flex: '1 1 560px', minWidth: 0 }}>
         {tab === 'contenido' && <PestanaContenido l={l} usa={usa} cambiar={cambiarContenido} />}
         {tab === 'formulario' && <PestanaFormulario l={l} plantillas={plantillas} cambiar={(f) => cambiar({ formulario: f })} />}
         {tab === 'ajustes' && (
@@ -257,8 +281,45 @@ function Editor({ id, plantillas, campanas, alSalir }: { id: string; plantillas:
           </div></section>
         )}
         {tab === 'registros' && <PestanaRegistros l={l} />}
+        </div>
+        {tab !== 'registros' && <VistaPreviaLanding id={l.id} version={version} sucio={sucio} busy={busy} alGuardar={() => guardar()} />}
       </div>
     </>
+  );
+}
+
+// ---- vista previa en vivo (se carga sola al abrir y se refresca al guardar)
+
+function VistaPreviaLanding({ id, version, sucio, busy, alGuardar }: { id: string; version: number; sucio: boolean; busy: boolean; alGuardar: () => void }) {
+  const [src, setSrc] = useState('');
+  const [err, setErr] = useState('');
+  const [movil, setMovil] = useState(false);
+  const [n, setN] = useState(0);
+  useEffect(() => {
+    let vivo = true;
+    setErr('');
+    api.post<{ slug: string; token: string }>(`/landings/${id}/vista-previa`)
+      .then((r) => { if (vivo) setSrc(`${WEB}/l/${r.slug}?preview=${r.token}`); })
+      .catch((e) => { if (vivo) setErr(errMsg(e, 'No se pudo cargar la vista previa.')); });
+    return () => { vivo = false; };
+  }, [id, version, n]);
+  return (
+    <aside className="ax-card" aria-label="Vista previa" style={{ flex: '1 1 380px', maxWidth: 560, minWidth: 0, position: 'sticky', insetBlockStart: 'calc(var(--ax-header-h) + var(--ax-space-3))' }}>
+      <div className="ax-card__header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
+        <div className="ax-card__titles"><h2 className="ax-card__title">Vista previa</h2></div>
+        <div className="ax-cluster" style={{ gap: 'var(--ax-space-1)' }}>
+          <button type="button" className={`ax-btn ax-btn--sm ${!movil ? 'ax-btn--secondary' : 'ax-btn--ghost'}`} onClick={() => setMovil(false)}>Escritorio</button>
+          <button type="button" className={`ax-btn ax-btn--sm ${movil ? 'ax-btn--secondary' : 'ax-btn--ghost'}`} onClick={() => setMovil(true)}>Móvil</button>
+          <button type="button" className="ax-btn ax-btn--sm ax-btn--ghost" onClick={() => setN((x) => x + 1)}>Actualizar</button>
+        </div>
+      </div>
+      <div className="ax-card__body" style={{ paddingTop: 0 }}>
+        {sucio && <div role="status" className="ax-alert ax-alert--warning" style={{ padding: 'var(--ax-space-2) var(--ax-space-3)', marginBlockEnd: 'var(--ax-space-3)' }}><div className="ax-alert__content"><p className="ax-alert__message">Hay cambios sin guardar. <button type="button" className="ax-btn ax-btn--link" disabled={busy} onClick={alGuardar}>Guardar y actualizar</button></p></div></div>}
+        {err ? <p role="alert" style={{ color: 'var(--ax-danger-500)', margin: 0 }}>{err}</p> : src ? (
+          <iframe key={src} title="Vista previa de la landing" src={src} style={{ width: movil ? 375 : '100%', maxWidth: '100%', height: 'min(70vh, 720px)', border: '1px solid var(--ax-border)', borderRadius: 10, display: 'block', margin: '0 auto', background: '#fff' }} />
+        ) : <p style={{ margin: 0, color: 'var(--ax-text-muted)' }}>Cargando vista previa…</p>}
+      </div>
+    </aside>
   );
 }
 

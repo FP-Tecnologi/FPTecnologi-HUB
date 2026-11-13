@@ -11,6 +11,7 @@ import { useAuth } from '../../context/AuthContext';
 import { CampoImagen } from '../../components/ui/CampoImagen';
 import { api } from '../../lib/api';
 import { Select } from '../../components/ui/Select';
+import { urlImagen } from '../../components/ui/SubirImagen';
 
 type Bloque =
   | { id: string; tipo: 'hero'; titulo: string; texto: string; imagen: string }
@@ -204,6 +205,12 @@ export function MailingEditor() {
   useEffect(() => {
     if (!activeMarcaId) return;
     api.get<unknown[]>('/boletin/suscriptores').then((r) => setConteo(r.length)).catch(() => setConteo(null));
+  }, [activeMarcaId]);
+
+  const [catalogo, setCatalogo] = useState<{ id: string; nombre: string; slug: string | null; precio: string; imagenes: string[] }[]>([]);
+  useEffect(() => {
+    if (!activeMarcaId) return;
+    api.get<{ id: string; nombre: string; slug: string | null; precio: string; imagenes: string[]; activo: boolean }[]>('/productos').then((l) => setCatalogo(l.filter((x) => x.activo))).catch(() => setCatalogo([]));
   }, [activeMarcaId]);
 
   const m = lista.find((x) => x.id === actualId) ?? null;
@@ -425,13 +432,23 @@ export function MailingEditor() {
                   {b.tipo === 'productos' && (
                     <>
                       {campo(`${b.id}t`, 'Título de la sección', b.titulo, (v) => cambiarBloque(b.id, { titulo: v }))}
+                      <datalist id="mailing-productos">{catalogo.map((p) => <option key={p.id} value={p.nombre} />)}</datalist>
                       {b.items.map((it, k) => (
                         <div key={k} className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
                           {(['nombre', 'precio', 'url', 'imagen'] as const).map((f) => (
-                            <input key={f} className="ax-input ax-input--sm" style={{ flex: '1 1 110px' }} placeholder={f} aria-label={`${f} del producto ${k + 1}`} value={it[f]} onChange={(e) => cambiarBloque(b.id, { items: b.items.map((x, j) => (j === k ? { ...x, [f]: e.target.value } : x)) })} />
+                            <input key={f} className="ax-input ax-input--sm" style={{ flex: '1 1 110px' }} placeholder={f === 'nombre' ? 'nombre (elige de la lista o escribe uno nuevo)' : f} list={f === 'nombre' ? 'mailing-productos' : undefined} aria-label={`${f} del producto ${k + 1}`} value={it[f]} onChange={(e) => {
+                              const v = e.target.value;
+                              const p = f === 'nombre' ? catalogo.find((c) => c.nombre.toLowerCase() === v.trim().toLowerCase()) : undefined;
+                              const parche = p
+                                ? { nombre: p.nombre, precio: `US$ ${Number(p.precio).toFixed(2)}`, url: p.slug ? `${WEB}/tienda/${p.slug}` : `${WEB}/tienda`, imagen: p.imagenes?.[0] ? urlImagen(p.imagenes[0]) : '' }
+                                : { [f]: v };
+                              cambiarBloque(b.id, { items: b.items.map((x, j) => (j === k ? { ...x, ...parche } : x)) });
+                            }} />
                           ))}
+                          <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" aria-label={`Quitar producto ${k + 1}`} onClick={() => cambiarBloque(b.id, { items: b.items.filter((_, j) => j !== k) })}>Quitar</button>
                         </div>
                       ))}
+                      <div><button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => cambiarBloque(b.id, { items: [...b.items, { nombre: '', precio: '', url: `${WEB}/tienda`, imagen: '' }] })}>+ Agregar producto</button></div>
                     </>
                   )}
                 </div>
