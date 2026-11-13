@@ -26,7 +26,7 @@ export default function TarjetasBbvaPage() {
       <JsonLd datos={migas([{ nombre: 'Tarjetas BBVA', ruta: '/tarjetas-bbva' }])} />
       <BannerPagina eyebrow="Aliado BBVA" titulo="Tarjetas de crédito" resaltado="BBVA" miga="Tarjetas BBVA" />
 
-      <section id="consulta" className="scroll-mt-24 bg-gris py-16 lg:py-24">
+      <section id="consulta" className="scroll-mt-24 bg-white py-16 lg:py-24">
         <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:gap-14">
           <Reveal>
             <SeccionTitulo nivel="h2" tam="md" eyebrow="Preaprobadas para ti" claro="Descubre qué tarjeta" rojo="tienes disponible" />
@@ -45,7 +45,7 @@ export default function TarjetasBbvaPage() {
         </div>
       </section>
 
-      <section id="como-funciona" className="bg-white py-16 lg:py-24">
+      <section id="como-funciona" className="bg-gris py-16 lg:py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
             <SeccionTitulo nivel="h2" tam="md" eyebrow="Cuatro pasos, sin papeleo" claro="¿Cómo" rojo="funciona?" />
@@ -53,7 +53,7 @@ export default function TarjetasBbvaPage() {
           </Reveal>
           <ol className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {PASOS.map((p, i) => (
-              <Reveal as="li" key={p.titulo} retraso={i * 90} className="rounded-2xl bg-gris p-6">
+              <Reveal as="li" key={p.titulo} retraso={i * 90} className="rounded-2xl bg-white p-6">
                 <Hexagono icono={p.icono} tam={56} />
                 <p className="mt-4 font-display text-sm font-semibold uppercase tracking-[0.16em] text-rojo-hondo">Paso {i + 1} · {p.etiqueta}</p>
                 <h3 className="titulo-menor mt-1 text-xl text-carbon">{p.titulo}</h3>
@@ -64,7 +64,7 @@ export default function TarjetasBbvaPage() {
         </div>
       </section>
 
-      <section id="tarjetas" className="scroll-mt-24 bg-gris py-16 lg:py-24">
+      <section id="tarjetas" className="scroll-mt-24 bg-white py-16 lg:py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <Reveal>
             <SeccionTitulo nivel="h2" tam="md" eyebrow="De la primera a la más exclusiva" claro="Conoce las tarjetas" rojo="que puedes obtener" />

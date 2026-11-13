@@ -108,7 +108,7 @@ export default function FormBbva() {
 
   if (res) {
     return (
-      <div ref={resultadoRef} tabIndex={-1} role="status" className="rounded-2xl bg-white p-5 outline-none sm:p-8">
+      <div ref={resultadoRef} tabIndex={-1} role="status" className="rounded-2xl bg-gris p-5 outline-none sm:p-8">
         {res.ofertas.length ? (
           <>
             <p className="font-display text-sm font-semibold uppercase tracking-[0.16em] text-rojo-hondo">Tus ofertas preaprobadas</p>
@@ -118,7 +118,7 @@ export default function FormBbva() {
             <p className="mt-2 text-carbon/80">Elige la que prefieras: la solicitud continúa en la web o app de BBVA.</p>
             <div className="mt-8 grid grid-cols-[repeat(auto-fit,minmax(15rem,1fr))] gap-5">
               {res.ofertas.map((o) => (
-                <article key={o.id} className="flex flex-col rounded-2xl bg-gris p-5">
+                <article key={o.id} className="flex flex-col rounded-2xl bg-white p-5">
                   {o.imagen ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={o.imagen} alt={o.tarjeta} className="mx-auto aspect-[188/304] w-32 object-contain drop-shadow-[0_18px_30px_rgba(0,19,145,0.35)]" />
@@ -127,11 +127,11 @@ export default function FormBbva() {
                   )}
                   <h3 className="titulo-menor mt-5 text-xl text-carbon">{o.tarjeta}</h3>
                   <dl className="mt-3 grid grid-cols-2 gap-3 text-sm">
-                    <div className="rounded-xl bg-white p-3">
+                    <div className="rounded-xl bg-gris p-3">
                       <dt className="text-carbon/80">Línea de crédito</dt>
                       <dd className="whitespace-nowrap text-base font-bold text-carbon">{dinero(o.linea, o.moneda)}</dd>
                     </div>
-                    <div className="rounded-xl bg-white p-3">
+                    <div className="rounded-xl bg-gris p-3">
                       <dt className="text-carbon/80">TEA referencial</dt>
                       <dd className="whitespace-nowrap text-base font-bold text-carbon">{o.tea}%</dd>
                     </div>
@@ -166,7 +166,7 @@ export default function FormBbva() {
   }
 
   return (
-    <form onSubmit={consultar} noValidate className="relative grid gap-4 rounded-2xl bg-white p-5 sm:grid-cols-2 sm:p-8">
+    <form onSubmit={consultar} noValidate className="relative grid gap-4 rounded-2xl bg-gris p-5 sm:grid-cols-2 sm:p-8">
       <input type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" value={trampa} onChange={(e) => setTrampa(e.target.value)} className="hidden" />
       <div className="sm:col-span-2">
         <h2 className="titulo-menor text-2xl text-carbon">Consulta tus tarjetas disponibles</h2>
