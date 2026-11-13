@@ -29,11 +29,8 @@ export default function AgregarCarrito({ p }: { p: ProductoTienda }) {
   const [ok, setOk] = useState(false);
   return (
     <div className="mt-6">
-      <div className="flex flex-wrap items-end gap-3">
-        <div className="text-sm font-medium text-carbon">
-          <span>Cantidad</span>
-          <ContadorCantidad className="mt-1 flex w-fit" etiqueta={`Cantidad de ${p.nombre}`} valor={cant} onCambio={setCant} />
-        </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <ContadorCantidad etiqueta={`Cantidad de ${p.nombre}`} valor={cant} onCambio={setCant} />
         <BotonHex onClick={() => { agregar(datos(p), cant); setOk(true); }} variante="carbon" icono={ShoppingCart}>Agregar al carrito</BotonHex>
       </div>
       <p role="status" className="mt-2 min-h-6 text-sm text-carbon">
