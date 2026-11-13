@@ -15,7 +15,7 @@ export function AgregarRapido({ p }: { p: ProductoTienda }) {
   useEffect(() => { if (!ok) return; const t = setTimeout(() => setOk(false), 1800); return () => clearTimeout(t); }, [ok]);
   return (
     <>
-      <BotonHex onClick={() => { agregar(datos(p)); setOk(true); }} size="sm" variante="contorno" icono={ok ? Check : ShoppingCart} className="relative z-20">
+      <BotonHex onClick={() => { agregar(datos(p)); setOk(true); }} size="sm" icono={ok ? Check : ShoppingCart} className="relative z-20 whitespace-nowrap">
         {ok ? 'Agregado' : 'Agregar'}
       </BotonHex>
       <span role="status" className="sr-only">{ok ? `${p.nombre} agregado al carrito` : ''}</span>

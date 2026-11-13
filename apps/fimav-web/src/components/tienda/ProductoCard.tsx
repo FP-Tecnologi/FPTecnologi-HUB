@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { Eye, FileText } from 'lucide-react';
-import BotonHex from '@/components/hex/BotonHex';
 import { AgregarRapido } from './AgregarCarrito';
 import { Precio } from './Moneda';
 import type { ProductoTienda } from '@/lib/tienda';
@@ -26,8 +25,10 @@ export default function ProductoCard({ p }: { p: ProductoTienda }) {
           {p.precioAntes && <s className="text-sm text-carbon/60"><Precio usd={p.precioAntes} /></s>}
         </p>
         <p className="mt-1 text-xs text-carbon/70">Precio referencial, sin IGV</p>
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <BotonHex href={`/cotizar?producto=${encodeURIComponent(`${p.nombre} (código ${p.sku})`)}`} size="sm" icono={FileText} className="relative z-20">Cotizar</BotonHex>
+        <div className="mt-3 flex items-center justify-between gap-3">
+          <Link href={`/cotizar?producto=${encodeURIComponent(`${p.nombre} (código ${p.sku})`)}`} className="relative z-20 inline-flex min-h-11 items-center gap-1.5 whitespace-nowrap text-sm font-semibold text-rojo-hondo underline-offset-4 hover:underline focus-visible:underline">
+            <FileText aria-hidden="true" size={16} className="shrink-0" />Cotizar
+          </Link>
           <AgregarRapido p={p} />
         </div>
       </div>
