@@ -1260,6 +1260,21 @@ hr {
   .ax-main > :not(.ax-footer) {
     padding-block: var(--ax-space-4);
   }
+  /* page-head actions wrap under the title: start-align them instead of leaving
+     one lonely button floating on the right edge */
+  .ax-page-head .ax-page-head__actions {
+    margin-inline-start: 0;
+  }
+  /* toolbar filters: pages hard-code widths (e.g. 240px search + auto selects)
+     and right-align the row; on a phone each control takes the full row. Table
+     cells are excluded — their inline inputs are sized for the column. */
+  .ax-main :is(input.ax-input, select.ax-select, button.ax-select)[style*='width']:not(td *, th *) {
+    width: 100% !important;
+    max-inline-size: 100%;
+  }
+  .ax-main .ax-cluster[style*='flex-end']:not(td *, th *) {
+    justify-content: flex-start !important;
+  }
   /* footer stacks */
   .ax-footer {
     flex-direction: column;
