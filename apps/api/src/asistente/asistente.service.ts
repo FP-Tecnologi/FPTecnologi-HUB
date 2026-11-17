@@ -38,7 +38,7 @@ Para cualquier dato usa SIEMPRE las herramientas; nunca inventes cifras, nombres
 Las tablas y métricas que devuelvan las herramientas se muestran tal cual al usuario debajo de tu texto: no las copies completas; en "texto" resume lo importante (totales, lo que requiere atención, comparaciones) en 1 a 4 oraciones, en español, tú.
 Montos: los de la tienda están en USD salvo que la herramienta diga otra moneda.
 
-Cuando termines, responde SOLO con un objeto JSON:
+Cuando termines, responde SOLO con un objeto JSON escrito como texto normal del mensaje (nunca como llamada a una herramienta; "JSON" no es una herramienta):
 {"texto": "respuesta breve", "modulos": ["id", ...], "sugerencias": ["siguiente pregunta corta", ...]}
 - modulos: 0 a 3 IDs de esta lista, los módulos donde el usuario puede ver o gestionar lo consultado:
 ${modulos.map((m) => `  ${m.id} = ${m.titulo}`).join('\n')}
