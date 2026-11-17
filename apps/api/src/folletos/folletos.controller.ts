@@ -1,5 +1,6 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import type { Response } from 'express';
 import { IsBoolean, IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 import { FolletosService } from './folletos.service.js';
 import { MAX_BYTES_CATALOGO } from '../uploads/uploads.service.js';
@@ -75,5 +76,25 @@ export class PublicFolletosController {
   ver(@Query('marcaId') marcaId: string, @Param('slug') slug: string) {
     if (!marcaId) throw new BadRequestException('Falta marcaId');
     return this.folletos.ver(marcaId, slug);
+  }
+
+  /** El PDF del folleto (guardado en la base). Lo piden el visor de la web, el dashboard (vista previa) y el botón «Descargar PDF». */
+  @Limite(120)
+  @Get(':slug/pdf')
+  async pdf(@Query('marcaId') marcaId: string, @Param('slug') slug: string, @Res() res: Response) {
+    if (!marcaId) throw new BadRequestException('Falta marcaId');
+    const { titulo, datos } = await this.folletos.pdf(marcaId, slug);
+    const nombre = titulo.replace(/[^\w. -]/g, '_').slice(0, 80) || 'folleto';
+    res.set({
+      'Content-Type': 'application/pdf',
+      'Content-Disposition': `inline; filename="${nombre}.pdf"`,
+      'Cache-Control': 'public, max-age=300',
+      'X-Content-Type-Options': 'nosniff',
+      'Cross-Origin-Resource-Policy': 'cross-origin',
+      'Access-Control-Allow-Origin': '*',
+      'Content-Security-Policy': 'frame-ancestors *',
+    });
+    res.removeHeader('X-Frame-Options'); // el dashboard lo muestra en un iframe (otro origen)
+    res.send(datos);
   }
 }

@@ -122,12 +122,19 @@ export class UploadsService {
     });
   }
 
-  /** Catálogo PDF público (se hojea en /catalogos): por su firma real, escaneado, bajo `<marca>/catalogos/` de la carpeta pública. */
-  async guardarCatalogo(marcaId: string, archivo?: { buffer: Buffer; size: number }) {
+  /** Un PDF subido es válido si pesa lo permitido, empieza con la firma real de PDF y pasa el escaneo. */
+  async validarPdf(archivo?: { buffer: Buffer; size: number }) {
     if (!archivo?.buffer?.length) throw new BadRequestException('Elige un PDF');
     if (archivo.size > MAX_BYTES_CATALOGO) throw new BadRequestException('El PDF pesa más de 50 MB. Comprímelo (por ejemplo en ilovepdf.com → «Comprimir PDF») y vuelve a subirlo.');
     if (archivo.buffer.toString('ascii', 0, 5) !== '%PDF-') throw new BadRequestException('El archivo no es un PDF válido');
     await escanear(archivo.buffer);
+    return archivo.buffer;
+  }
+
+  /** Catálogo PDF público (se hojea en /catalogos): por su firma real, escaneado, bajo `<marca>/catalogos/` de la carpeta pública. */
+  async guardarCatalogo(marcaId: string, archivo?: { buffer: Buffer; size: number }) {
+    await this.validarPdf(archivo);
+    if (!archivo) throw new BadRequestException('Elige un PDF');
     const carpeta = `${marcaId.replace(/[^a-zA-Z0-9-]/g, '')}/catalogos`;
     const nombre = `${randomUUID()}.pdf`;
     await mkdir(join(uploadsDir(), carpeta), { recursive: true });

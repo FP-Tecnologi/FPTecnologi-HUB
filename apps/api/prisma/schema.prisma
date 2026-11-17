@@ -1258,7 +1258,8 @@ model Folleto {
   marca      Marca    @relation(fields: [marcaId], references: [id])
   titulo     String
   slug       String // único por marca
-  archivoUrl String // `/uploads/<marcaId>/catalogos/<uuid>.pdf`
+  archivoUrl String // `/uploads/<marcaId>/catalogos/<uuid>.pdf` (los antiguos); los nuevos van en `datos`
+  datos      Bytes? // el PDF dentro de la base: la carpeta de subidas del hosting se borra al desplegar y el folleto se perdía
   bytes      Int      @default(0)
   activo     Boolean  @default(true)
   vistas     Int      @default(0)
