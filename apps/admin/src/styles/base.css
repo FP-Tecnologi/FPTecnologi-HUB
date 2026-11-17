@@ -390,11 +390,17 @@ hr {
 
 /* ── MAIN — the scroll/padding region, offset below the fixed header ── */
 .ax-main {
+  --ax-page-pad: var(--ax-space-6);
   flex: 1;
   display: flex;
   flex-direction: column;
   padding-block-start: var(--ax-header-h); /* clear the fixed header */
+  /* The side gutter lives HERE, not on the children: a page section that sets
+     its own inline `padding` (cards, alerts) used to override the child rule and
+     ended up flush against the viewport edge — tables included. */
+  padding-inline: var(--ax-page-pad);
   min-block-size: 0;
+  min-inline-size: 0;
 }
 /* page padding (Fluid default); width modes override below.
    `--ax-page-pad` mirrors the inline padding and inherits down the page, so
@@ -403,9 +409,12 @@ hr {
    width/page mode AND on phones. Hard-coding space-6 there bled 8px past the
    viewport once the phone breakpoint tightened the gutter to space-4. */
 .ax-main > :not(.ax-footer) {
-  --ax-page-pad: var(--ax-space-6);
-  padding-inline: var(--ax-page-pad);
   padding-block: var(--ax-space-6);
+}
+/* flex children default to min-width:auto: a wide table/grid would stretch the
+   column past the viewport instead of scrolling inside its own wrapper */
+.ax-main > * {
+  min-inline-size: 0;
 }
 
 /* ── FOOTER — pinned to column bottom, hairline top edge ── */
@@ -438,9 +447,8 @@ hr {
    5 · WIDTH MODES  [data-ax-width="fluid|full"]
    fluid = padded (default) · full = edge-to-edge
    ════════════════════════════════════════════════════════════════════════ */
-[data-ax-width='full'] .ax-main > :not(.ax-footer) {
+[data-ax-width='full'] .ax-main {
   --ax-page-pad: var(--ax-space-4);
-  padding-inline: var(--ax-page-pad);
 }
 
 /* ════════════════════════════════════════════════════════════════════════
@@ -1215,7 +1223,11 @@ hr {
     inset-inline-start: 0;
     inset-inline-end: 0;
   }
-  .ax-sidebar {
+  /* [data-ax-shell-style='detached'] repeated: its 16px floating inset (0,2,0)
+     would otherwise beat inset 0 here and leave a sliver of the drawer peeking
+     out while closed. */
+  .ax-sidebar,
+  [data-ax-shell-style='detached'] .ax-sidebar {
     inline-size: var(--ax-drawer-w);
     --ax-sidebar-w: var(--ax-drawer-w);
     transform: translateX(-100%); /* logical: hidden off inline-start */
@@ -1242,9 +1254,10 @@ hr {
     opacity: 1;
   }
   /* tighter page padding on phones */
-  .ax-main > :not(.ax-footer) {
+  .ax-main {
     --ax-page-pad: var(--ax-space-4);
-    padding-inline: var(--ax-page-pad);
+  }
+  .ax-main > :not(.ax-footer) {
     padding-block: var(--ax-space-4);
   }
   /* footer stacks */
@@ -1352,9 +1365,10 @@ body.is-locked {
   border-block-end: 1px solid var(--ax-border);
   padding-block-end: var(--ax-space-4);
 }
-[data-ax-page='compact'] .ax-main > :not(.ax-footer) {
+[data-ax-page='compact'] .ax-main {
   --ax-page-pad: var(--ax-space-4);
-  padding-inline: var(--ax-page-pad);
+}
+[data-ax-page='compact'] .ax-main > :not(.ax-footer) {
   padding-block: var(--ax-space-4);
 }
 [data-ax-page='compact'] .ax-page-head {

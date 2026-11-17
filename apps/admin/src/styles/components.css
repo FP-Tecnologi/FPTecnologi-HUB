@@ -2162,6 +2162,20 @@
     gap: var(--ax-space-1);
     border-bottom: 1px solid var(--ax-border);
   }
+  /* more tabs than the screen is wide: the row scrolls instead of pushing the page */
+  @media (max-width: 991.98px) {
+    .ax-tabs:not(.ax-tabs--vertical) > .ax-tabs__list {
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .ax-tabs:not(.ax-tabs--vertical) > .ax-tabs__list::-webkit-scrollbar {
+      display: none;
+    }
+    .ax-tabs:not(.ax-tabs--vertical) .ax-tabs__tab {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+  }
   .ax-tabs__tab {
     position: relative;
     display: inline-flex;
@@ -3175,7 +3189,20 @@
   .ax-table-wrap {
     position: relative;
     width: 100%;
+    max-inline-size: 100%;
     overflow-x: auto;
+    overscroll-behavior-x: contain; /* swiping the table must not drag the page sideways */
+    -webkit-overflow-scrolling: touch;
+  }
+  /* Phones: a table with 4+ columns keeps a readable width and scrolls inside its
+     wrapper instead of crushing every cell into a 60px sliver of wrapped text. */
+  @media (max-width: 767.98px) {
+    .ax-table:has(thead th:nth-child(4)) {
+      min-width: 560px;
+    }
+    .ax-table:has(thead th:nth-child(7)) {
+      min-width: 760px;
+    }
   }
   .ax-table {
     width: 100%;
