@@ -18,6 +18,7 @@
 @import './components.css'; /* ax-* component classes (one block per 05 contract) */
 @import './nav.css'; /* sidebar navigation tree (manifest-driven menu) */
 @import './shell.css'; /* shell-chrome: customizer drawer, header dropdowns, command palette, etc. */
+@import './mobile-nav.css'; /* barra inferior en celular */
 @import './appshell.css'; /* full-screen app shell for src/html/apps/** (no sidebar, no header) */
 @import './utilities.css'; /* token-driven helpers */
 

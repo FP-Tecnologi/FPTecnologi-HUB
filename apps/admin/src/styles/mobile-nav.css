@@ -1,0 +1,52 @@
+/* Barra inferior del dashboard en celular (components/shell/MobileNav.tsx). Solo existe por debajo de 768px. */
+.ax-mobnav { display: none; }
+
+@media (max-width: 767.98px) {
+  :root { --ax-mobnav-h: 60px; }
+
+  .ax-mobnav {
+    position: fixed;
+    inset-inline: 0;
+    inset-block-end: 0;
+    z-index: var(--ax-z-header);
+    display: flex;
+    padding-block-end: env(safe-area-inset-bottom);
+    background: var(--ax-header-bg, var(--ax-surface-raised));
+    border-block-start: 1px solid var(--ax-header-border, var(--ax-border));
+    box-shadow: 0 -4px 16px rgb(0 0 0 / 0.12);
+    transition: transform var(--ax-motion-base, 200ms) var(--ax-ease-standard, ease);
+  }
+  .ax-mobnav.is-hidden,
+  [data-ax-drawer='open'] .ax-mobnav { transform: translateY(110%); }
+
+  .ax-mobnav__item {
+    flex: 1 1 0;
+    min-inline-size: 0;
+    min-block-size: var(--ax-mobnav-h);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 6px 2px;
+    border: 0;
+    background: none;
+    color: var(--ax-text-muted);
+    font: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.1;
+    text-decoration: none;
+    white-space: nowrap;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .ax-mobnav__item > span { max-inline-size: 100%; overflow: hidden; text-overflow: ellipsis; }
+  .ax-mobnav__icon { inline-size: 22px; block-size: 22px; }
+  .ax-mobnav__item.is-active { color: var(--ax-accent); }
+  .ax-mobnav__item.is-active .ax-mobnav__icon { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--ax-accent) 45%, transparent)); }
+  .ax-mobnav__item:focus-visible { outline: 2px solid var(--ax-accent); outline-offset: -4px; border-radius: var(--ax-radius-md, 8px); }
+
+  /* El contenido no queda tapado por la barra. */
+  .ax-shell { padding-block-end: calc(var(--ax-mobnav-h) + env(safe-area-inset-bottom)); }
+}

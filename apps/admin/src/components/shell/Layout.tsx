@@ -31,6 +31,7 @@ import { Header } from './Header';
 import { Footer } from './Footer';
 import { Loader } from './Loader';
 import { CommandPalette } from './CommandPalette';
+import { MobileNav } from './MobileNav';
 import { slugFromPath } from '../../lib/manifest';
 import { useCustomizer } from '../../context/CustomizerContext';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
@@ -129,6 +130,7 @@ export function Layout({ children }: { children: ReactNode }) {
           <Footer />
         </div>
       </div>
+      <MobileNav onMenu={() => setDrawerOpen(true)} />
       <CommandPalette
         open={commandOpen}
         onClose={() => setCommandOpen(false)}
