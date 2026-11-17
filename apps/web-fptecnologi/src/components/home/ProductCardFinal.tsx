@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Check, ChevronLeft, ChevronRight, GitCompareArrows, Heart, ShoppingCart } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useFavorites } from '@/context/FavoritesContext';
@@ -40,6 +40,12 @@ export function ProductCardFinal({
   const images: readonly string[] = product.images;
   const [active, setActive] = useState(0);
   const go = (d: number) => setActive((i) => (i + d + images.length) % images.length);
+  // Celular: deslizar la foto de lado cambia de imagen.
+  const touchX = useRef<number | null>(null);
+  const onSwipeEnd = (x: number) => {
+    if (touchX.current !== null && images.length > 1 && Math.abs(x - touchX.current) > 40) go(x < touchX.current ? 1 : -1);
+    touchX.current = null;
+  };
 
   const discount = discountOf(product);
   // El chip del ícono solo toma su fondo al hover/sweep (rotated): en reposo
@@ -60,7 +66,11 @@ export function ProductCardFinal({
       <div className="group h-full overflow-hidden rounded-2xl bg-white shadow-lg shadow-brand-950/10 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-brand-dark/25">
         {/* Fondo celeste suave (azul bajo); el blanco de las fotos se funde
             con mix-blend-multiply. */}
-        <div className="relative aspect-square overflow-hidden bg-producto">
+        <div
+          className="relative aspect-square touch-pan-y overflow-hidden bg-producto"
+          onTouchStart={(e) => (touchX.current = e.touches[0].clientX)}
+          onTouchEnd={(e) => onSwipeEnd(e.changedTouches[0].clientX)}
+        >
           {discount > 0 && (
             <span className="absolute left-3 top-3 z-10 rounded-md bg-red-600 px-2 py-0.5 text-xs font-bold text-white">-{discount}%</span>
           )}
@@ -132,7 +142,7 @@ export function ProductCardFinal({
 
         {/* Tira de miniaturas (4.4). Siempre visible, también con 1 sola
             foto, para que todas las tarjetas tengan la misma altura. */}
-        <div className="flex gap-2 border-b border-black/5 px-4 py-3">
+        <div className="flex gap-2 overflow-x-auto border-b border-black/5 px-4 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {images.map((img, i) => (
             <button
               key={i}
