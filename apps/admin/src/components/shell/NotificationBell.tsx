@@ -9,6 +9,8 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { destinoNotificacion } from '../../lib/notificacionDestino';
 import { Dropdown } from '../ui/Dropdown';
 import { Icon } from '../ui/Icon';
 import { api } from '../../lib/api';
@@ -47,6 +49,7 @@ const TONO: Record<string, string> = {
 
 export function NotificationBell() {
   const { activeMarcaId } = useAuth();
+  const router = useRouter();
   const [items, setItems] = useState<Notificacion[]>([]);
   const [toasts, setToasts] = useState<Notificacion[]>([]);
   const vistas = useRef<Set<string> | null>(null); // null = primera carga (no avisar de lo que ya existía)
@@ -127,7 +130,7 @@ export function NotificationBell() {
                     <button
                       type="button"
                       className={`ax-notif__row${n.leida ? '' : ' is-unread'}`}
-                      onClick={() => marcar(n.id)}
+                      onClick={() => { marcar(n.id); close(); router.push(destinoNotificacion(n)); }}
                       style={{ inlineSize: '100%', textAlign: 'start', border: 0, cursor: 'pointer' }}
                     >
                       <span className={`ax-notif__chip ${TONO[n.tipo] ?? ''}`}>
@@ -160,7 +163,7 @@ export function NotificationBell() {
               <div className="ax-toast__content">
                 <div className="ax-toast__title">{n.titulo}</div>
                 <div className="ax-toast__message">{n.mensaje}</div>
-                <Link href="/notificaciones" className="ax-toast__action" onClick={() => setToasts((t) => t.filter((x) => x.id !== n.id))}>Ver</Link>
+                <Link href={destinoNotificacion(n)} className="ax-toast__action" onClick={() => { marcar(n.id); setToasts((t) => t.filter((x) => x.id !== n.id)); }}>Ver</Link>
               </div>
               <button type="button" className="ax-toast__dismiss" aria-label="Cerrar aviso" onClick={() => setToasts((t) => t.filter((x) => x.id !== n.id))}>×</button>
             </div>

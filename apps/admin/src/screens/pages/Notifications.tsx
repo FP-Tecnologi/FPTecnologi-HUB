@@ -6,7 +6,9 @@
  * PATCH /notificaciones/:id/leida y PATCH /notificaciones/leidas/todas.
  */
 import { useCallback, useEffect, useState } from 'react';
+import Link from 'next/link';
 import { PageHead } from '../../components/shell/PageHead';
+import { destinoNotificacion } from '../../lib/notificacionDestino';
 import { api } from '../../lib/api';
 
 type Notificacion = {
@@ -193,6 +195,13 @@ export function Notifications() {
                       <span className="ax-num" style={{ fontFamily: 'var(--ax-font-mono)', fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>
                         {new Date(n.createdAt).toLocaleString()}
                       </span>
+                      <Link
+                        className="ax-btn ax-btn--ghost ax-btn--sm"
+                        href={destinoNotificacion(n)}
+                        onClick={() => { if (!n.leida) void markOne(n.id); }}
+                      >
+                        Abrir
+                      </Link>
                       {!n.leida && (
                         <button
                           type="button"
