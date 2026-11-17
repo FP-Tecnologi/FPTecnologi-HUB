@@ -282,7 +282,7 @@ export function StoreCatalog({
           </div>
         </aside>
 
-        <div>
+        <div className="min-w-0">
           {/* Barra: resultados + filtros (celular) + orden */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-ink/60">
@@ -334,12 +334,15 @@ export function StoreCatalog({
 
           <h2 className="sr-only">Productos</h2>
           {results.length > 0 ? (
-            <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            // Celular: carrusel horizontal, 2 tarjetas por vista y se desliza de lado. Desde sm: grilla.
+            <div className="mt-6 flex snap-x snap-mandatory gap-3 overflow-x-auto overscroll-x-contain pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-2 sm:gap-6 sm:overflow-visible sm:pb-0 xl:grid-cols-3">
               {results.map((p, i) => (
                 <Fragment key={p.sku}>
-                  <ProductCardFinal product={p} compared={compare.skus.includes(p.sku)} onToggleCompare={compare.toggle} />
+                  <div className="w-[calc(50%-0.375rem)] shrink-0 snap-start sm:w-auto">
+                    <ProductCardFinal product={p} compared={compare.skus.includes(p.sku)} onToggleCompare={compare.toggle} />
+                  </div>
                   {/* Llamada a tarjetas BBVA tras la segunda fila (o al final si hay pocos productos). */}
-                  {(i === 5 || (results.length < 6 && i === results.length - 1)) && <BannerBbva variante="tarjeta" className="col-span-full" />}
+                  {(i === 5 || (results.length < 6 && i === results.length - 1)) && <BannerBbva variante="tarjeta" className="w-full shrink-0 snap-start sm:col-span-full sm:w-auto" />}
                 </Fragment>
               ))}
             </div>
