@@ -138,6 +138,16 @@ export function FlipCatalogo({ src, titulo, inmersivo = false }: { src: string; 
         paginaRef.current = e.data as number;
         setPagina(paginaRef.current + 1);
       });
+      // Aspecto de libro real: sombra sobre la mesa, canto de páginas apiladas a los lados y sombra del lomo en el pliegue.
+      const canto = (lado: 1 | -1) => [1, 3, 5].map((n, i) => `${lado * n}px 0 0 ${i % 2 ? '#fff' : '#d9dde3'}`).join(',');
+      el.style.position = 'relative';
+      el.style.boxShadow = `${canto(1)},${canto(-1)},0 26px 40px -14px rgba(12,40,90,.45)`;
+      if (doble) {
+        const lomo = document.createElement('div');
+        lomo.setAttribute('aria-hidden', 'true');
+        lomo.style.cssText = `position:absolute;top:0;bottom:0;left:50%;width:${Math.round(pw * 0.2)}px;transform:translateX(-50%);pointer-events:none;z-index:50;background:linear-gradient(to right,rgba(0,0,0,0),rgba(0,0,0,.14) 36%,rgba(0,0,0,.38) 49.5%,rgba(255,255,255,.22) 50.5%,rgba(0,0,0,.16) 64%,rgba(0,0,0,0))`;
+        el.appendChild(lomo);
+      }
       flip.current = pf;
     })();
     return () => {
