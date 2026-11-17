@@ -1,20 +1,13 @@
 import { notFound } from 'next/navigation';
 import { TarjetaVista, type DatosTarjeta } from '@/components/site/TarjetaVista';
+import { buscarPorMarca } from '@/lib/publicoPorMarca';
 
 export const dynamic = 'force-dynamic';
 
-const API_URL = process.env.HUB_API_URL ?? 'http://localhost:3001';
-const MARCA_ID = process.env.HUB_MARCA_ID ?? '';
-
 async function cargar(slug: string): Promise<DatosTarjeta | null> {
-  if (!MARCA_ID || !/^[a-z0-9-]{3,60}$/.test(slug)) return null;
-  try {
-    const res = await fetch(`${API_URL}/public/tarjetas/${slug}?marcaId=${encodeURIComponent(MARCA_ID)}`, { cache: 'no-store' });
-    if (!res.ok) return null;
-    return (await res.json())?.data ?? null;
-  } catch {
-    return null;
-  }
+  if (!/^[a-z0-9-]{3,60}$/.test(slug)) return null;
+  const res = await buscarPorMarca(`/public/tarjetas/${slug}`);
+  return res ? ((await res.json())?.data ?? null) : null;
 }
 
 // La tarjeta es para compartir por QR o enlace, no para aparecer en Google.

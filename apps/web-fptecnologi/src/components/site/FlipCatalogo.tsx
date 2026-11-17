@@ -40,26 +40,37 @@ export function FlipCatalogo({ src, titulo, inmersivo = false }: { src: string; 
         }).promise;
         const imgs: string[] = [];
         let ratio = 0.707;
+        let fallidas = 0;
         // Resolución según la pantalla: la página se ve a ~90 % del alto de la ventana; se rinde a 1.5× ese tamaño
         // en píxeles reales (devicePixelRatio) para que el texto quede nítido incluso al ampliar. Con tope de memoria.
         const dpr = Math.min(window.devicePixelRatio || 1, 3);
         const altoObjetivo = Math.min(2800, Math.max(1500, Math.round(Math.min(window.innerHeight * 0.9, 1000) * dpr * 1.5)));
         for (let n = 1; n <= pdf.numPages; n++) {
-          const p = await pdf.getPage(n);
-          const base = p.getViewport({ scale: 1 });
-          const vp = p.getViewport({ scale: Math.min(4, altoObjetivo / base.height) });
-          if (n === 1) ratio = vp.width / vp.height;
-          const c = document.createElement('canvas');
-          c.width = vp.width;
-          c.height = vp.height;
-          await p.render({ canvas: c, viewport: vp }).promise;
-          const blob = await new Promise<Blob>((ok) => c.toBlob((b) => ok(b!), 'image/jpeg', 0.93));
-          const u = URL.createObjectURL(blob);
-          urls.push(u);
+          // Una página que falle (imagen rara, memoria) queda en blanco: no tumba todo el folleto.
+          let u = '';
+          try {
+            const p = await pdf.getPage(n);
+            const base = p.getViewport({ scale: 1 });
+            const vp = p.getViewport({ scale: Math.min(4, altoObjetivo / base.height) });
+            if (n === 1) ratio = vp.width / vp.height;
+            const c = document.createElement('canvas');
+            c.width = vp.width;
+            c.height = vp.height;
+            // Fondo blanco: el JPEG no tiene transparencia y las zonas transparentes del PDF salían negras.
+            await p.render({ canvas: c, viewport: vp, background: '#ffffff' }).promise;
+            const blob = await new Promise<Blob>((ok) => c.toBlob((b) => ok(b!), 'image/jpeg', 0.93));
+            u = URL.createObjectURL(blob);
+            urls.push(u);
+            c.width = c.height = 0; // libera la memoria del lienzo (en el celular se acaba con folletos largos)
+            p.cleanup();
+          } catch {
+            fallidas++;
+          }
           imgs.push(u);
           if (!vivo) return;
           setProgreso(Math.round((n / pdf.numPages) * 100));
         }
+        if (fallidas === pdf.numPages) throw new Error('sin páginas');
         if (!vivo) return;
         imagenes.current = imgs;
         ratioRef.current = ratio;
@@ -101,7 +112,7 @@ export function FlipCatalogo({ src, titulo, inmersivo = false }: { src: string; 
         width: pw,
         height: ph,
         size: 'fixed',
-        showCover: true,
+        showCover: false,
         usePortrait: true,
         startPage: paginaRef.current,
         maxShadowOpacity: 0.4,
@@ -112,7 +123,7 @@ export function FlipCatalogo({ src, titulo, inmersivo = false }: { src: string; 
       const hojas = imagenes.current.map((u, i) => {
         const d = document.createElement('div');
         d.style.cssText = 'background:#fff;overflow:hidden';
-        if (i === 0 || i === imagenes.current.length - 1) d.setAttribute('data-density', 'hard');
+        if (!u) { el.appendChild(d); return d; }
         const im = document.createElement('img');
         im.src = u;
         im.alt = `Página ${i + 1}`;
@@ -122,24 +133,10 @@ export function FlipCatalogo({ src, titulo, inmersivo = false }: { src: string; 
         el.appendChild(d);
         return d;
       });
-      // Abierto en dos páginas, la portada (y la contraportada) quedan solas en una mitad: se desplaza el libro
-      // media página para que se vea centrada y no con una página en blanco al lado.
-      const total = hojas.length;
-      const centrar = (i: number, animar: boolean) => {
-        let dx = 0;
-        if (doble) {
-          if (i <= 0) dx = -pw / 2;
-          else if (i % 2 === 1 && i + 1 >= total) dx = pw / 2;
-        }
-        el.style.transition = animar ? 'transform .45s ease' : 'none';
-        el.style.transform = dx ? `translateX(${dx}px)` : '';
-      };
-      centrar(paginaRef.current, false);
       pf.loadFromHTML(hojas);
       pf.on('flip', (e: { data: unknown }) => {
         paginaRef.current = e.data as number;
         setPagina(paginaRef.current + 1);
-        centrar(paginaRef.current, true);
       });
       flip.current = pf;
     })();

@@ -1,21 +1,14 @@
 import { notFound } from 'next/navigation';
 import { FlipCatalogo } from '@/components/site/FlipCatalogo';
 import { urlArchivo } from '@/lib/paginasContenido';
+import { buscarPorMarca } from '@/lib/publicoPorMarca';
 
 export const dynamic = 'force-dynamic';
 
-const API_URL = process.env.HUB_API_URL ?? 'http://localhost:3001';
-const MARCA_ID = process.env.HUB_MARCA_ID ?? '';
-
 async function cargar(slug: string): Promise<{ titulo: string; archivo: string } | null> {
-  if (!MARCA_ID || !/^[a-z0-9-]{3,80}$/.test(slug)) return null;
-  try {
-    const res = await fetch(`${API_URL}/public/folletos/${slug}?marcaId=${encodeURIComponent(MARCA_ID)}`, { cache: 'no-store' });
-    if (!res.ok) return null;
-    return (await res.json())?.data ?? null;
-  } catch {
-    return null;
-  }
+  if (!/^[a-z0-9-]{3,80}$/.test(slug)) return null;
+  const res = await buscarPorMarca(`/public/folletos/${slug}`);
+  return res ? ((await res.json())?.data ?? null) : null;
 }
 
 // El folleto es para compartir por enlace, no para aparecer en Google.
