@@ -28,8 +28,8 @@ export function FlipCatalogo({ src, titulo, inmersivo = false }: { src: string; 
         const pdfjs = await import('pdfjs-dist');
         pdfjs.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
         // Sin estas rutas pdf.js no puede decodificar imágenes JPEG2000/JBIG2, perfiles de color ICC, fuentes estándar
-        // ni CMaps (CJK): esas imágenes salían en blanco o deformes. Los archivos viven en public/pdfjs.
-        const base = `${window.location.origin}/pdfjs/`;
+        // ni CMaps (CJK): esas imágenes salían en blanco o deformes. Los archivos viven en public/pdfjs-6-5 (se copian de pdfjs-dist en cada build; si cambia la versión, nuevo nombre para romper la caché de 30 días).
+        const base = `${window.location.origin}/pdfjs-6-5/`;
         const pdf = await pdfjs.getDocument({
           url: src,
           wasmUrl: `${base}wasm/`,

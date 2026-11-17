@@ -5,7 +5,7 @@
   "description": "Web pública de fptecnologi.com (Next.js 16 + React 19 + Tailwind v4) — sin login, consume /public/* de la API central.",
   "scripts": {
     "dev": "next dev",
-    "prebuild": "npm install --include=dev --no-audit --no-fund",
+    "prebuild": "npm install --include=dev --no-audit --no-fund && node -e \"for(const d of ['wasm','iccs','cmaps','standard_fonts'])require('fs').cpSync('node_modules/pdfjs-dist/'+d,'public/pdfjs-6-5/'+d,{recursive:true})\"",
     "build": "next build --webpack",
     "start": "next start",
     "start:cpanel": "node server.cjs",

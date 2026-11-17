@@ -55,7 +55,7 @@ const nextConfig = {
     const larga = [{ key: 'Cache-Control', value: 'public, max-age=2592000, stale-while-revalidate=86400' }];
     return [
       { source: '/:path*', headers: SEGURIDAD },
-      ...['fonts', 'images', 'wp-content', 'herobanner', 'pdfjs'].map((d) => ({ source: `/${d}/:path*`, headers: larga })),
+      ...['fonts', 'images', 'wp-content', 'herobanner', 'pdfjs-6-5'].map((d) => ({ source: `/${d}/:path*`, headers: larga })),
     ];
   },
   // Menos RAM en el build: el contenedor de AI App Hosting mata el proceso ("Killed") si se pasa de memoria.
