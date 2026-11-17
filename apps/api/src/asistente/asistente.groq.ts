@@ -2,7 +2,7 @@
  * Cliente mínimo de Groq (API compatible con OpenAI: /chat/completions con function calling). Sin SDK: un fetch con
  * tiempo máximo. Es el mismo proveedor que usa el chat de la web (GROQ_API_KEY).
  */
-import { BadGatewayException } from '@nestjs/common';
+import { BadGatewayException, ServiceUnavailableException } from '@nestjs/common';
 
 const URL = 'https://api.groq.com/openai/v1/chat/completions';
 const TIMEOUT_MS = 30_000;
@@ -35,6 +35,7 @@ export async function completar(peticion: PeticionModelo, apiKey: string): Promi
   } catch {
     throw new BadGatewayException('El asistente no respondió a tiempo. Intenta de nuevo.');
   }
+  if (res.status === 401) throw new ServiceUnavailableException('La clave de Groq (GROQ_API_KEY) de la API no es válida o fue revocada. Crea una nueva en console.groq.com/keys.');
   if (res.status === 429) throw new BadGatewayException('El asistente está ocupado. Intenta en un minuto.');
   if (!res.ok) throw new BadGatewayException('El asistente no está disponible en este momento.');
   const json = (await res.json().catch(() => null)) as { choices?: { message?: { content?: string | null; tool_calls?: ToolCall[] } }[] } | null;
