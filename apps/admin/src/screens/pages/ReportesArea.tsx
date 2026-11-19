@@ -1,6 +1,6 @@
 'use client';
 /*
- * FPTecnologi-HUB — Reportes por área (Marketing, Comercial, Soporte, Finanzas, Dirección). Una sola pantalla para
+ * FPTecnologi-HUB — Reportes por área (Marketing, Comercial, Soporte, Finanzas, Gerencia). Una sola pantalla para
  * todas: lee GET /reportes/<area>?desde&hasta, que siempre responde { rango, kpis, serie, tablas }, y pinta los
  * indicadores (con comparación contra el periodo anterior), la serie diaria y las tablas. Con varias marcas permite
  * comparar los indicadores de todas las webs. Exporta el reporte completo a CSV.
@@ -29,7 +29,7 @@ const AREAS: Record<AreaReporte, { titulo: string; subtitulo: string; iconos: st
   comercial: { titulo: 'Reporte comercial', subtitulo: 'Leads, cotizaciones, presupuestos y embudo del CRM por comercial.', iconos: ['users-group', 'article', 'files', 'briefcase-2', 'diamond', 'layout-dashboard', 'shopping-cart', 'folders'] },
   soporte: { titulo: 'Reporte de soporte', subtitulo: 'Tickets, tiempos de resolución, libro de reclamaciones y chats.', iconos: ['headset', 'bell', 'article', 'layout-dashboard', 'files', 'alert-triangle', 'messages'] },
   finanzas: { titulo: 'Reporte de finanzas', subtitulo: 'Cobrado y por cobrar de la tienda, IGV, medios de pago y presupuestos aceptados (USD).', iconos: ['shopping-cart', 'article', 'bell', 'layout-dashboard', 'files', 'folders', 'briefcase-2', 'alert-triangle'] },
-  direccion: { titulo: 'Reporte de dirección', subtitulo: 'Resumen ejecutivo cruzado: ventas, marketing, comercial y soporte frente al periodo anterior.', iconos: ['shopping-cart', 'article', 'world', 'users-group', 'diamond', 'send', 'headset', 'alert-triangle'] },
+  direccion: { titulo: 'Reporte de gerencia', subtitulo: 'Resumen ejecutivo cruzado: ventas, marketing, comercial y soporte frente al periodo anterior.', iconos: ['shopping-cart', 'article', 'world', 'users-group', 'diamond', 'send', 'headset', 'alert-triangle'] },
 };
 const TONOS = ['c1', 'c2', 'c3', 'c4'];
 
