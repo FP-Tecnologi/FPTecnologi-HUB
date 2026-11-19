@@ -13,6 +13,7 @@ import {
 } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, ApiError, borrarDatosOffline, tokenStore } from '../lib/api';
+import { ROLES_VISTA_COMERCIAL } from '../lib/manifest';
 
 export interface MarcaAsignada {
   marcaId: string;
@@ -56,7 +57,8 @@ interface AuthContextValue {
   requestPasswordReset: (email: string) => Promise<{ sent: true }>;
   confirmPasswordReset: (email: string, codigo: string, newPassword: string) => Promise<void>;
   logout: () => Promise<void>;
-  setActiveMarcaId: (marcaId: string) => void;
+  /** `mantenerVista`: cambia la marca de trabajo sin salir de la vista Comercial. */
+  setActiveMarcaId: (marcaId: string, opts?: { mantenerVista?: boolean }) => void;
   updateProfile: (data: {
     nombre?: string; email?: string; currentPassword?: string;
     dni?: string; telefono?: string; cargo?: string; avatarUrl?: string;
@@ -66,6 +68,11 @@ interface AuthContextValue {
   /** Super administrador de la plataforma: el único que ve y usa Administración. */
   esSuperAdmin: boolean;
   setAdminMode: (on: boolean) => void;
+  /** Vista Comercial: CRM, captación, campañas y material de venta de todas las marcas donde el usuario es comercial. */
+  comercialMode: boolean;
+  /** Tiene rol comercial en alguna marca (o es super administrador): puede entrar a la vista Comercial. */
+  esComercial: boolean;
+  setComercialMode: (on: boolean) => void;
   refreshMarcas: () => Promise<void>;
 }
 
@@ -92,6 +99,19 @@ function writeAdminFlag(on: boolean): void {
   }
 }
 
+const COMERCIAL_FLAG = 'ax:auth:comercialmode';
+export const ROLES_COMERCIALES = ROLES_VISTA_COMERCIAL;
+export const esRolComercial = (rol?: string | null) => ROLES_COMERCIALES.includes((rol ?? '').toLowerCase());
+function readComercialFlag(): boolean {
+  try { return typeof window !== 'undefined' && window.localStorage.getItem(COMERCIAL_FLAG) === '1'; } catch { return false; }
+}
+function writeComercialFlag(on: boolean): void {
+  try {
+    if (typeof window === 'undefined') return;
+    if (on) window.localStorage.setItem(COMERCIAL_FLAG, '1'); else window.localStorage.removeItem(COMERCIAL_FLAG);
+  } catch { /* ignore */ }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -99,6 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [activeMarcaId, setActiveMarcaIdState] = useState<string | null>(null);
   const [adminMode, setAdminModeState] = useState(false);
   const [esSuperAdmin, setEsSuperAdmin] = useState(false);
+  const [comercialMode, setComercialModeState] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const setAdminMode = useCallback((on: boolean) => {
@@ -106,16 +127,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       tokenStore.setActiveMarcaId(null);
       setActiveMarcaIdState(null);
     }
+    if (on) { writeComercialFlag(false); setComercialModeState(false); }
     writeAdminFlag(on);
     setAdminModeState(on);
   }, []);
 
-  const setActiveMarcaId = useCallback((marcaId: string) => {
+  const setActiveMarcaId = useCallback((marcaId: string, opts?: { mantenerVista?: boolean }) => {
     writeAdminFlag(false);
     setAdminModeState(false);
+    if (!opts?.mantenerVista) { writeComercialFlag(false); setComercialModeState(false); }
     tokenStore.setActiveMarcaId(marcaId);
     setActiveMarcaIdState(marcaId);
   }, []);
+
+  const marcasComerciales = useMemo(() => marcas.filter((m) => esRolComercial(m.rol.nombre)), [marcas]);
+  const esComercial = esSuperAdmin || marcasComerciales.length > 0;
+
+  const setComercialMode = useCallback((on: boolean) => {
+    writeComercialFlag(on);
+    setComercialModeState(on);
+    if (!on) return;
+    writeAdminFlag(false);
+    setAdminModeState(false);
+    // La vista Comercial trabaja siempre con una marca donde el usuario es comercial (el CRM se filtra por esa marca).
+    const actual = tokenStore.getActiveMarcaId();
+    const ok = marcasComerciales.some((m) => m.marcaId === actual) || (esSuperAdmin && marcas.some((m) => m.marcaId === actual));
+    if (!ok) {
+      const destino = marcasComerciales[0] ?? marcas[0];
+      if (destino) { tokenStore.setActiveMarcaId(destino.marcaId); setActiveMarcaIdState(destino.marcaId); }
+    }
+  }, [marcas, marcasComerciales, esSuperAdmin]);
 
   const refreshMarcas = useCallback(async () => {
     try {
@@ -130,12 +171,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         tokenStore.setActiveMarcaId(null);
         setActiveMarcaIdState(null);
         setAdminModeState(true);
+        setComercialModeState(false);
         return;
       }
       setAdminModeState(false);
+      const puedeComercial = isAdmin || list.some((m) => esRolComercial(m.rol.nombre));
+      const quiereComercial = readComercialFlag() && puedeComercial;
+      if (readComercialFlag() && !puedeComercial) writeComercialFlag(false);
+      setComercialModeState(quiereComercial);
       const current = tokenStore.getActiveMarcaId();
       const stillValid = current && list.some((m) => m.marcaId === current);
-      if (!stillValid && list.length > 0) setActiveMarcaId(list[0].marcaId);
+      if (!stillValid && list.length > 0) {
+        const primera = (quiereComercial ? list.find((m) => esRolComercial(m.rol.nombre)) : null) ?? list[0];
+        setActiveMarcaId(primera.marcaId, { mantenerVista: quiereComercial });
+      }
     } catch {
       setMarcas([]);
     }
@@ -232,6 +281,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     tokenStore.clear();
     void borrarDatosOffline();
     writeAdminFlag(false);
+    writeComercialFlag(false);
+    setComercialModeState(false);
     if (typeof window !== 'undefined') window.localStorage.removeItem(USER_KEY);
     setUser(null);
     setMarcas([]);
@@ -247,11 +298,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AuthContextValue>(() => ({
     user, marcas, activeMarcaId, loading, login, verifyOtp, verifyTotp, completeGoogleLogin,
     requestPasswordReset, confirmPasswordReset,
-    logout, setActiveMarcaId, adminMode, esSuperAdmin, setAdminMode, refreshMarcas, updateProfile,
+    logout, setActiveMarcaId, adminMode, esSuperAdmin, setAdminMode, comercialMode, esComercial, setComercialMode, refreshMarcas, updateProfile,
   }), [
     user, marcas, activeMarcaId, loading, login, verifyOtp, verifyTotp, completeGoogleLogin,
     requestPasswordReset, confirmPasswordReset,
-    logout, setActiveMarcaId, adminMode, esSuperAdmin, setAdminMode, refreshMarcas, updateProfile,
+    logout, setActiveMarcaId, adminMode, esSuperAdmin, setAdminMode, comercialMode, esComercial, setComercialMode, refreshMarcas, updateProfile,
   ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

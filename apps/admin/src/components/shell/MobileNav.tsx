@@ -24,13 +24,14 @@ const PRIORIDAD: [id: string, etiqueta: string][] = [
   ['inicio.reportes', 'Reportes'],
   ['marca.herramientas', 'Herramientas'],
 ];
+const PRIORIDAD_COMERCIAL: [string, string][] = [['marca.crm', 'CRM'], ['com.captacion', 'Captación'], ['com.campanas', 'Campañas'], ['com.material', 'Material']];
 const PRIORIDAD_ADMIN: [string, string][] = [['grp.configuracion', 'Config.'], ['grp.soporte', 'Soporte']];
 
 interface Destino { id: string; etiqueta: string; href: string; icon: string }
 
 export function MobileNav({ onMenu }: { onMenu: () => void }) {
   const pathname = usePathname() || '/';
-  const { marcas, activeMarcaId, adminMode, esSuperAdmin } = useAuth();
+  const { marcas, activeMarcaId, adminMode, esSuperAdmin, comercialMode } = useAuth();
   const [teclado, setTeclado] = useState(false);
 
   // Con el teclado abierto (escribiendo) la barra estorba: se oculta mientras un campo tiene el foco.
@@ -44,10 +45,10 @@ export function MobileNav({ onMenu }: { onMenu: () => void }) {
   }, []);
 
   const marcaActiva = adminMode ? null : (marcas.find((m) => m.marcaId === activeMarcaId) ?? null);
-  const roleName = adminMode ? (esSuperAdmin ? 'admin' : (marcas[0]?.rol.nombre ?? null)) : (marcaActiva?.rol.nombre ?? null);
-  const ctx = { roleName, adminMode, marcaNombre: marcaActiva?.marca.nombre ?? null };
+  const roleName = adminMode || (comercialMode && esSuperAdmin) ? (esSuperAdmin ? 'admin' : (marcas[0]?.rol.nombre ?? null)) : (marcaActiva?.rol.nombre ?? null);
+  const ctx = { roleName, adminMode, comercialMode, marcaNombre: marcaActiva?.marca.nombre ?? null };
 
-  const modulos: Destino[] = (adminMode ? PRIORIDAD_ADMIN : PRIORIDAD)
+  const modulos: Destino[] = (adminMode ? PRIORIDAD_ADMIN : comercialMode ? PRIORIDAD_COMERCIAL : PRIORIDAD)
     .map(([id, etiqueta]) => ({ nodo: manifest.byId.get(id), etiqueta }))
     .filter((x) => x.nodo && visibleEnDashboard(x.nodo, ctx))
     .slice(0, esSuperAdmin ? 2 : 3)

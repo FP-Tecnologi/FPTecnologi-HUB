@@ -188,11 +188,11 @@ export function CommandPalette({
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
-  const { marcas, activeMarcaId, adminMode, esSuperAdmin } = useAuth();
+  const { marcas, activeMarcaId, adminMode, esSuperAdmin, comercialMode } = useAuth();
   const marcaActiva = marcas.find((m) => m.marcaId === activeMarcaId);
-  const roleName = adminMode ? (esSuperAdmin ? 'admin' : (marcas[0]?.rol.nombre ?? null)) : (marcaActiva?.rol.nombre ?? null);
+  const roleName = adminMode || (comercialMode && esSuperAdmin) ? (esSuperAdmin ? 'admin' : (marcas[0]?.rol.nombre ?? null)) : (marcaActiva?.rol.nombre ?? null);
   const marcaNombre = adminMode ? null : (marcaActiva?.marca.nombre ?? null);
-  const items = useMemo(() => buildItems((n) => visibleEnDashboard(n, { roleName, adminMode, marcaNombre })), [roleName, adminMode, marcaNombre]);
+  const items = useMemo(() => buildItems((n) => visibleEnDashboard(n, { roleName, adminMode, marcaNombre, comercialMode })), [roleName, adminMode, marcaNombre, comercialMode]);
   useFocusTrap(panelRef, open);
 
   const groups = useMemo(

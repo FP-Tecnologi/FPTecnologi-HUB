@@ -38,6 +38,8 @@ export interface NavNode {
   roles?: string[];
   /** Solo en la vista de una marca; oculto en el modo Administración (global). */
   soloMarca?: boolean;
+  /** Ya vive en la vista Comercial (sección COMERCIAL): se oculta en la vista de marca para quien tiene rol comercial. */
+  ocultoAComercial?: boolean;
   /** Solo para estas marcas (parte del nombre, sin distinguir mayúsculas). Ej. ["fimav"]. Sin lista = todas. */
   marcas?: string[];
 }
@@ -172,19 +174,25 @@ export function visibleParaMarca(node: NavNode, marcaNombre: string | null | und
  * vista de Administración; MARCA nunca en Administración y, dentro de una marca, solo sus módulos (visibleParaMarca).
  * La usa el buscador (⌘K) para no listar módulos que el menú oculta.
  */
-export function visibleEnDashboard(node: NavNode, ctx: { roleName: string | null; adminMode: boolean; marcaNombre: string | null | undefined }): boolean {
+export function visibleEnDashboard(node: NavNode, ctx: { roleName: string | null; adminMode: boolean; marcaNombre: string | null | undefined; comercialMode?: boolean }): boolean {
   const trail = manifest.trail(node);
   const raiz = trail[0];
   if (!raiz) return false;
   if (trail.some((n) => !n.inMenu || !visibleForRole(n, ctx.roleName))) return false;
   if (raiz.section === 'GENERAL' && !ctx.adminMode) return false;
   if (raiz.id === 'inicio.dashboards' && !ctx.adminMode) return false;
-  if (raiz.section === 'MARCA' && ctx.adminMode) return false;
+  if (raiz.section === 'MARCA' && (ctx.adminMode || ctx.comercialMode)) return false;
+  if (raiz.section === 'COMERCIAL' && !ctx.comercialMode) return false;
   if (ctx.adminMode && trail.some((n) => n.soloMarca)) return false;
-  return ctx.adminMode || trail.every((n) => visibleParaMarca(n, ctx.marcaNombre, ctx.roleName));
+  // La vista Comercial muestra los módulos de venta de todas las marcas: no se filtra por la marca activa.
+  return ctx.adminMode || !!ctx.comercialMode || trail.every((n) => visibleParaMarca(n, ctx.marcaNombre, ctx.roleName));
 }
 
+/** Roles que trabajan desde la vista Comercial (CRM, captación, campañas y material de venta). */
+export const ROLES_VISTA_COMERCIAL = ['comercial', 'jefe_comercial', 'direccion'];
+
 export function visibleForRole(node: NavNode, roleName: string | null): boolean {
+  if (node.ocultoAComercial && ROLES_VISTA_COMERCIAL.includes((roleName ?? '').toLowerCase())) return false;
   if (!node.roles || node.roles.length === 0) return true;
   if (!roleName) return false;
   const role = roleName.toLowerCase();

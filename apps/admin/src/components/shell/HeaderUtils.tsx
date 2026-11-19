@@ -53,10 +53,12 @@ export function HeaderUtils(_props: { onCustomizer: () => void }) {
   const c = useCustomizer();
   const [full, setFull] = useState(false);
   const shed = useOverflowShed();
-  const { user, marcas, activeMarcaId, adminMode, logout } = useAuth();
+  const { user, marcas, activeMarcaId, adminMode, comercialMode, logout } = useAuth();
   const activeMarca = marcas.find((m) => m.marcaId === activeMarcaId) ?? marcas[0] ?? null;
   const roleLabel = adminMode
     ? 'Administración'
+    : comercialMode && activeMarca
+      ? `Comercial · ${activeMarca.marca.nombre}`
     : activeMarca
       ? `${activeMarca.marca.nombre} · ${activeMarca.rol.nombre}`
       : '';

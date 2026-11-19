@@ -8,6 +8,7 @@ import { usePathname } from 'next/navigation';
 import { type ReactNode } from 'react';
 import { Breadcrumb } from './Breadcrumb';
 import { slugFromPath } from '../../lib/manifest';
+import { useAuth } from '../../context/AuthContext';
 
 export function PageHead({
   title,
@@ -19,6 +20,15 @@ export function PageHead({
   actions?: ReactNode;
 }) {
   const slug = slugFromPath(usePathname() || '/');
+  const { comercialMode, marcas, activeMarcaId } = useAuth();
+  // En la vista Comercial cada pantalla dice con qué marca se está trabajando (el CRM y los demás módulos se filtran por ella).
+  const marcaTrabajo = comercialMode ? marcas.find((m) => m.marcaId === activeMarcaId)?.marca.nombre : null;
+  const etiqueta = marcaTrabajo ? (
+    <span className="ax-badge ax-badge--accent" title="Marca con la que estás trabajando" style={{ gap: 6 }}>
+      <span aria-hidden="true" style={{ width: 8, height: 8, borderRadius: '50%', background: 'currentColor' }} />
+      Marca: {marcaTrabajo}
+    </span>
+  ) : null;
   return (
     <div className="ax-page-head">
       <div className="ax-page-head__row">
@@ -27,7 +37,7 @@ export function PageHead({
           <h1 className="ax-page-head__title">{title}</h1>
           {subtitle && <p className="ax-page-head__subtitle">{subtitle}</p>}
         </div>
-        {actions && <div className="ax-page-head__actions">{actions}</div>}
+        {(actions || etiqueta) && <div className="ax-page-head__actions">{etiqueta}{actions}</div>}
       </div>
     </div>
   );
