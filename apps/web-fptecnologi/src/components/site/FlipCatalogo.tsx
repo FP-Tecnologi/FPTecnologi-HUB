@@ -17,6 +17,7 @@ export function FlipCatalogo({ src, titulo, inmersivo = false }: { src: string; 
   const [progreso, setProgreso] = useState(0);
   const [pagina, setPagina] = useState(1);
   const [total, setTotal] = useState(0);
+  const [vistaDoble, setVistaDoble] = useState(false);
 
   useEffect(() => {
     let vivo = true;
@@ -98,9 +99,13 @@ export function FlipCatalogo({ src, titulo, inmersivo = false }: { src: string; 
       const r = ratioRef.current;
       const aW = caja.current.clientWidth;
       const aH = caja.current.clientHeight;
+      // PDF cuyas páginas ya son apaisadas (cada hoja trae las dos caras del libro): se muestra una hoja a la vez;
+      // si no, se armaría un libro de dobles páginas y cada cara saldría repetida.
+      const yaEsPliego = r > 1.15;
       const una = Math.min(aW, aH * r);
       const dos = Math.min(aW / 2, aH * r);
-      const doble = dos >= una * 0.9;
+      const doble = !yaEsPliego && dos >= una * 0.9;
+      setVistaDoble(doble);
       const pw = Math.floor(doble ? dos : una);
       const ph = Math.floor(pw / r);
       const el = document.createElement('div');
@@ -112,7 +117,8 @@ export function FlipCatalogo({ src, titulo, inmersivo = false }: { src: string; 
         width: pw,
         height: ph,
         size: 'fixed',
-        showCover: false,
+        // Como un libro real: la portada sola, luego pliegos de dos caras (2-3, 4-5…) y la contraportada sola.
+        showCover: !yaEsPliego,
         usePortrait: true,
         startPage: paginaRef.current,
         maxShadowOpacity: 0.4,
@@ -134,20 +140,30 @@ export function FlipCatalogo({ src, titulo, inmersivo = false }: { src: string; 
         return d;
       });
       pf.loadFromHTML(hojas);
+      // Aspecto de libro real: sombra sobre la mesa, canto de páginas apiladas a los lados y sombra del lomo en el pliegue.
+      // En la portada y la contraportada (una sola hoja visible) no hay pliegue ni canto doble: solo la sombra de la mesa.
+      const canto = (lado: 1 | -1) => [1, 3, 5].map((n, i) => `${lado * n}px 0 0 ${i % 2 ? '#fff' : '#d9dde3'}`).join(',');
+      const mesa = '0 26px 40px -14px rgba(12,40,90,.45)';
+      let lomo: HTMLDivElement | null = null;
+      const aplicarVista = (idx: number) => {
+        const n = imagenes.current.length;
+        const sola = !doble || (!yaEsPliego && (idx === 0 || (n % 2 === 0 && idx >= n - 1)));
+        el.style.boxShadow = sola ? mesa : `${canto(1)},${canto(-1)},${mesa}`;
+        if (lomo) lomo.style.opacity = sola ? '0' : '1';
+      };
       pf.on('flip', (e: { data: unknown }) => {
         paginaRef.current = e.data as number;
         setPagina(paginaRef.current + 1);
+        aplicarVista(paginaRef.current);
       });
-      // Aspecto de libro real: sombra sobre la mesa, canto de páginas apiladas a los lados y sombra del lomo en el pliegue.
-      const canto = (lado: 1 | -1) => [1, 3, 5].map((n, i) => `${lado * n}px 0 0 ${i % 2 ? '#fff' : '#d9dde3'}`).join(',');
       el.style.position = 'relative';
-      el.style.boxShadow = `${canto(1)},${canto(-1)},0 26px 40px -14px rgba(12,40,90,.45)`;
       if (doble) {
-        const lomo = document.createElement('div');
+        lomo = document.createElement('div');
         lomo.setAttribute('aria-hidden', 'true');
         lomo.style.cssText = `position:absolute;top:0;bottom:0;left:50%;width:${Math.round(pw * 0.2)}px;transform:translateX(-50%);pointer-events:none;z-index:50;background:linear-gradient(to right,rgba(0,0,0,0),rgba(0,0,0,.14) 36%,rgba(0,0,0,.38) 49.5%,rgba(255,255,255,.22) 50.5%,rgba(0,0,0,.16) 64%,rgba(0,0,0,0))`;
         el.appendChild(lomo);
       }
+      aplicarVista(paginaRef.current);
       flip.current = pf;
     })();
     return () => {
@@ -232,6 +248,9 @@ export function FlipCatalogo({ src, titulo, inmersivo = false }: { src: string; 
     </button>
   );
   const listo = estado === 'listo';
+  // En vista de libro (portada sola, luego pliegos 2-3, 4-5…) se muestra el par visible, no solo la página de la izquierda.
+  const izq = vistaDoble && pagina > 1 ? (pagina % 2 === 0 ? pagina : pagina - 1) : pagina;
+  const etiquetaPagina = vistaDoble && pagina > 1 && izq < total ? `${izq}–${izq + 1}` : `${pagina}`;
   const btn = 'rounded-full border border-brand-primary/30 p-2 text-brand-700 transition hover:bg-brand-50 disabled:opacity-40';
 
   return (
@@ -266,7 +285,7 @@ export function FlipCatalogo({ src, titulo, inmersivo = false }: { src: string; 
         <button type="button" disabled={!listo} onClick={() => flip.current?.flipPrev()} aria-label="Página anterior" className={btn}>
           <ChevronLeft className="h-5 w-5" />
         </button>
-        <span className="min-w-20 text-center text-sm text-ink/70">{listo ? `${pagina} / ${total}` : '—'}</span>
+        <span className="min-w-20 text-center text-sm text-ink/70">{listo ? `${etiquetaPagina} / ${total}` : '—'}</span>
         <button type="button" disabled={!listo} onClick={() => flip.current?.flipNext()} aria-label="Página siguiente" className={btn}>
           <ChevronRight className="h-5 w-5" />
         </button>
