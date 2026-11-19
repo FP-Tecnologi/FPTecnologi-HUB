@@ -104,6 +104,14 @@ Soporte técnico/Postventa, Logística/Almacén, Finanzas/Facturación (fase
 futura), Cliente/portal (fase futura). Detalle en
 [`docs/documentacion-tecnica.md`](docs/documentacion-tecnica.md#6-roles-y-permisos).
 
+## Vista Comercial (dashboard)
+
+Tercer modo del selector del menú (junto a Administración y cada marca) para roles `comercial`, `jefe_comercial`, `direccion` y super admin. Sección `COMERCIAL` del
+`nav-manifest.json`: Inicio comercial, CRM (movido aquí), Captación, Campañas y mailing, Material de venta. Las páginas de otros grupos entran por **nodos `alias`** (misma
+ruta, otro grupo); el original lleva `ocultoAComercial` y se oculta en la vista de marca solo para esos roles. `AuthContext`: `comercialMode`, `esComercial`,
+`setActiveMarcaId(id, { mantenerVista })`. Cada página muestra «Marca: X» (PageHead). CRM multimarca: `/crm/global/{oportunidades,agenda,reportes}` (sin `MarcaRolGuard`; marcas y
+roles del token, el filtro solo recorta). El front elige alcance con `useAlcanceMarcas` (Esta marca / Todas mis marcas) y abre fichas de otra marca con `setMarcaForzada` (`useFichaOportunidad`).
+
 ## Fuera de alcance (por ahora)
 
 Pasarela de pago, facturación electrónica SUNAT, logística de envíos, CRM

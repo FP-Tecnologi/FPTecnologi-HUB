@@ -57,12 +57,14 @@ export function MobileNav({ onMenu }: { onMenu: () => void }) {
   const slug = slugFromPath(pathname);
   const raizActiva = manifest.trail(manifest.bySlug.get(slug))[0]?.id;
   const destinos: Destino[] = [
-    { id: 'inicio', etiqueta: 'Inicio', href: '/', icon: 'home' },
+    { id: 'inicio', etiqueta: 'Inicio', href: comercialMode ? '/comercial/inicio' : '/', icon: 'home' },
     ...modulos,
     // La pantalla del asistente es solo para el super administrador: al resto no se le ofrece un callejón sin salida.
     ...(esSuperAdmin ? [{ id: 'asistente', etiqueta: 'Asistente', href: '/asistente', icon: 'sparkles' }] : []),
   ];
-  const activo = (d: Destino) => (d.id === 'inicio' ? slug === '' : d.id === 'asistente' ? slug === 'asistente' : raizActiva === d.id);
+  // En la vista Comercial los grupos usan alias (la misma página vive en otro grupo): se busca el slug entre los hijos ya resueltos.
+  const contiene = (id: string): boolean => manifest.childrenOf(id).some((c) => manifest.resolve(c)?.slug === slug || contiene(c.id));
+  const activo = (d: Destino) => (d.id === 'inicio' ? slug === (comercialMode ? 'comercial/inicio' : '') : d.id === 'asistente' ? slug === 'asistente' : comercialMode ? contiene(d.id) : raizActiva === d.id);
 
   return (
     <nav className={`ax-mobnav${teclado ? ' is-hidden' : ''}`} aria-label="Navegación rápida">

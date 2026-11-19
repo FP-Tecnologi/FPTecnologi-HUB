@@ -1313,3 +1313,10 @@ Plan: [`docs/superpowers/plans/2026-10-23-cms-fimav.md`](superpowers/plans/2026-
 - `AGENTS.md` pasó de ~27 KB a ~11 KB y `CLAUDE.md` quedó en ~6 KB (antes ~34 KB entre los dos, cargados en cada sesión). El detalle de la API, el stack y la seguridad se movió **sin pérdidas** a `docs/API-MODULOS.md` (no se carga solo).
 - Reglas nuevas para gastar pocos tokens (en ambos archivos): consultar el grafo con `graphify query|explain|path` antes de abrir archivos, leer archivos/carpetas concretos, no abrir PDF/`public/`/lockfiles/`graph.json`, y `docs/ESTADO-ACTUAL.md` (140 KB) solo por fecha o con Grep.
 - Archify: la skill (`.claude/skills/archify`, 18 MB) **sí está en git** (no afecta a producción: cada espejo publica solo su `apps/<app>`); `skills-lock.json` la registra. La carpeta de trabajo `.archify/` queda fuera (`.gitignore`): los diagramas ya generados están en `docs/arquitectura/`.
+
+### 2026-11-19 — Vista Comercial y CRM multimarca (dashboard + API)
+
+- Tercer modo «Comercial» en el selector (menú propio: Inicio comercial, CRM, Captación, Campañas y mailing, Material de venta; alias en el manifiesto; etiqueta «Marca: X» en cada pantalla; selector de marca de trabajo; barra móvil y ⌘K adaptados).
+- API: `GET /crm/global/oportunidades|agenda|reportes` (CRM de todas las marcas del usuario; aislamiento verificado con tests). Embudo, Oportunidades y Reportes con «Todas mis marcas», etiqueta y filtro por marca; Nueva oportunidad elige marca.
+- Embudo: Llamar/WhatsApp/Correo en la tarjeta y aviso de 7+ días sin movimiento.
+- Pendiente: probar con login real (no se verificó en navegador), enviar cotización/folleto desde la ficha, metas por vendedor, jefe comercial sin Captación/Material (roles originales).
