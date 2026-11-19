@@ -132,6 +132,21 @@ export function EcommercePedidos() {
     }
   }
 
+  async function eliminar(p: Pedido) {
+    const devuelve = p.estado !== 'CANCELADO' ? ' El stock de sus productos volverá al inventario.' : '';
+    if (!await confirmar(`¿Eliminar el pedido ${numero(p)} de ${p.nombre || 'cliente'}? Se borra con todo su detalle y no se puede deshacer.${devuelve}`, { titulo: 'Eliminar pedido', boton: 'Eliminar pedido', tono: 'peligro' })) return;
+    setGuardando(true);
+    try {
+      await api.delete(`/pedidos/${p.id}`);
+      setSelId(null);
+      await cargar();
+    } catch (e) {
+      setError(e instanceof ApiError ? e.message : 'No se pudo eliminar el pedido.');
+    } finally {
+      setGuardando(false);
+    }
+  }
+
   return (
     <>
       <PageHead
@@ -262,6 +277,9 @@ export function EcommercePedidos() {
                   {ESTADOS.map((e) => <option key={e.v} value={e.v}>{e.label}</option>)}
                 </Select>
                 {sel.estado === 'CANCELADO' && <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Un pedido cancelado no se puede reactivar.</span>}
+              </div>
+              <div>
+                <button type="button" className="ax-btn ax-btn--ghost" style={{ color: 'var(--ax-danger-500)' }} disabled={guardando} onClick={() => void eliminar(sel)}>Eliminar pedido</button>
               </div>
               {sel.envioProveedor && (
                 <div className="ax-field">

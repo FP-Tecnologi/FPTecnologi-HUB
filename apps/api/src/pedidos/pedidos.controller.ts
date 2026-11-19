@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Headers, Ip, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Headers, Ip, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { PedidosService } from './pedidos.service.js';
 import { CreatePedidoDto } from './dto/create-pedido.dto.js';
 import { UpdateEstadoPedidoDto } from './dto/update-estado-pedido.dto.js';
@@ -39,6 +39,12 @@ export class PedidosController {
     @Body() dto: UpdateEstadoPedidoDto,
   ) {
     return this.pedidosService.updateEstado(marcaId, id, dto);
+  }
+
+  @Roles('admin')
+  @Delete(':id')
+  remove(@MarcaActual() marcaId: string, @Param('id') id: string) {
+    return this.pedidosService.remove(marcaId, id);
   }
 }
 

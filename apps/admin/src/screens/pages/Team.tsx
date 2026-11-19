@@ -306,7 +306,7 @@ export function Team() {
                           <td className="ax-table__td" style={{ textAlign: 'right' }}>
                             <div className="ax-cluster" style={{ gap: 'var(--ax-space-1)', justifyContent: 'flex-end' }}>
                               <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => accion(() => api.post(`/invitaciones/${i.id}/reenviar`), 'Invitación reenviada.')}>Reenviar</button>
-                              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={() => accion(() => api.delete(`/invitaciones/${i.id}`), 'Invitación revocada.')}>Revocar</button>
+                              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={async () => await confirmar(`¿Revocar la invitación a ${i.email}? Su enlace dejará de funcionar.`, { boton: 'Revocar' }) && accion(() => api.delete(`/invitaciones/${i.id}`), 'Invitación revocada.')}>Revocar</button>
                             </div>
                           </td>
                         </tr>
@@ -333,7 +333,7 @@ export function Team() {
               <div className="ax-field"><label className="ax-label" htmlFor="as-tel">Teléfono que se muestra</label><input id="as-tel" className="ax-input" required maxLength={30} placeholder="999 999 999" value={asesorForm.telefono} onChange={(e) => setAsesorForm({ ...asesorForm, telefono: e.target.value })} /></div>
               <div className="ax-field"><label className="ax-label" htmlFor="as-wa">WhatsApp (con código de país)</label><input id="as-wa" className="ax-input" inputMode="numeric" required placeholder="51999999999" value={asesorForm.whatsapp} onChange={(e) => setAsesorForm({ ...asesorForm, whatsapp: e.target.value })} /></div>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'space-between' }}>
-                <span>{asesorDeUsuario(asesorDe.id) && <button type="button" className="ax-btn ax-btn--ghost" style={{ color: 'var(--ax-danger-500)' }} onClick={() => { const a = asesorDeUsuario(asesorDe.id)!; setAsesorDe(null); void accion(() => api.delete(`/chat/asesores/${a.id}`), 'Ya no es asesor del chat.'); }}>Quitar de asesores</button>}</span>
+                <span>{asesorDeUsuario(asesorDe.id) && <button type="button" className="ax-btn ax-btn--ghost" style={{ color: 'var(--ax-danger-500)' }} onClick={async () => { const a = asesorDeUsuario(asesorDe.id)!; if (!await confirmar(`¿Quitar a ${asesorDe.nombre || asesorDe.email} de los asesores del chat? Dejará de aparecer en la web.`, { boton: 'Quitar' })) return; setAsesorDe(null); void accion(() => api.delete(`/chat/asesores/${a.id}`), 'Ya no es asesor del chat.'); }}>Quitar de asesores</button>}</span>
                 <span className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
                   <button type="button" className="ax-btn ax-btn--ghost" onClick={() => setAsesorDe(null)}>Cancelar</button>
                   <button type="submit" className="ax-btn ax-btn--primary">Guardar</button>

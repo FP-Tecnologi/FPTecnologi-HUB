@@ -245,6 +245,23 @@ export class PedidosService {
     return actualizado;
   }
 
+  /**
+   * Elimina un pedido con sus líneas. Si no estaba cancelado, el stock de sus productos vuelve al inventario
+   * (un cancelado ya lo devolvió al cancelarse).
+   */
+  async remove(marcaId: string, id: string) {
+    const pedido = await this.prisma.pedido.findFirst({ where: { id, marcaId }, include: { items: true } });
+    if (!pedido) throw new NotFoundException('Pedido no encontrado');
+    await this.prisma.$transaction([
+      this.prisma.pedidoItem.deleteMany({ where: { pedidoId: id } }),
+      this.prisma.pedido.delete({ where: { id, marcaId } }),
+    ]);
+    if (pedido.estado !== 'CANCELADO') {
+      await this.devolverStock(marcaId, pedido.items.map((i) => ({ productoId: i.productoId, cantidad: i.cantidad })));
+    }
+    return { id, eliminado: true };
+  }
+
   /** Devuelve stock descontado si el pedido no llegó a crearse (best-effort). */
   private async devolverStock(marcaId: string, items: Array<{ productoId: string; cantidad: number }>) {
     for (const item of items) {
