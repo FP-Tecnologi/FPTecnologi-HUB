@@ -73,6 +73,22 @@ function csv(filas: Consulta[]) {
   URL.revokeObjectURL(a.href);
 }
 
+/** Excel: tabla HTML guardada como .xls (Excel la abre directo; DNI y celular como texto para no perder ceros). */
+function excel(filas: Consulta[]) {
+  const cab = ['Fecha', 'Nombre', 'DNI', 'Correo', 'Celular', 'Estado', 'Ofertas', 'Eligió', 'Página'];
+  const esc = (v: string) => v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const texto = new Set([2, 4]);
+  const datos = filas.map((c) => [fecha(c.createdAt), c.nombre, c.dni, c.email, c.celular ?? '', meta(c.estado).label, c.ofertas.join(' | '), c.solicito ?? '', c.origen ?? '']);
+  const fila = (f: string[], th = false) =>
+    `<tr>${f.map((v, i) => (th ? `<th>${esc(v)}</th>` : `<td${texto.has(i) ? ' style="mso-number-format:\\@"' : ''}>${esc(v)}</td>`)).join('')}</tr>`;
+  const html = `<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="utf-8"></head><body><table border="1">${fila(cab, true)}${datos.map((f) => fila(f)).join('')}</table></body></html>`;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob(['﻿' + html], { type: 'application/vnd.ms-excel;charset=utf-8' }));
+  a.download = `tarjetas-bbva-${new Date().toISOString().slice(0, 10)}.xls`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
 export function TarjetasBbva() {
   const { activeMarcaId } = useAuth();
   const [lista, setLista] = useState<Consulta[]>([]);
@@ -157,9 +173,14 @@ export function TarjetasBbva() {
         title="Tarjetas BBVA"
         subtitle="Consultas de la landing /tarjetas-bbva: quién consultó, qué ofertas le salieron y qué tarjeta eligió. La contratación se completa en BBVA."
         actions={
-          <button type="button" className="ax-btn ax-btn--secondary" disabled={visibles.length === 0} onClick={() => csv(visibles)}>
-            <span className="ax-btn__label">Exportar CSV</span>
-          </button>
+          <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
+            <button type="button" className="ax-btn ax-btn--secondary" disabled={visibles.length === 0} onClick={() => csv(visibles)}>
+              <span className="ax-btn__label">Exportar CSV</span>
+            </button>
+            <button type="button" className="ax-btn ax-btn--secondary" disabled={visibles.length === 0} onClick={() => excel(visibles)}>
+              <span className="ax-btn__label">Exportar Excel</span>
+            </button>
+          </div>
         }
       />
 
