@@ -32,7 +32,7 @@ export interface MarcaInfo {
 export const MARCAS_INFO: Record<string, MarcaInfo> = {
   hp: {
     nombre: 'HP',
-    logo: '/images/marcas/hp-amplify-partner.svg',
+    logo: '/images/marcas/hp.svg',
     lema: 'Computación y impresión para el trabajo de todos los días.',
     datos: [
       { etiqueta: 'Fundada', valor: '1939, Palo Alto (EE. UU.)' },
@@ -59,7 +59,7 @@ export const MARCAS_INFO: Record<string, MarcaInfo> = {
 
   dell: {
     nombre: 'Dell',
-    logo: '/images/marcas/dell-partner.svg',
+    logo: '/images/marcas/dell.svg',
     lema: 'De la laptop al centro de datos, con un solo proveedor.',
     datos: [
       { etiqueta: 'Fundada', valor: '1984, Texas (EE. UU.)' },
