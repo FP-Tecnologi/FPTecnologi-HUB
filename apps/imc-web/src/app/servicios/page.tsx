@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { meta, migas } from "@/lib/seo";
 import Enlace from "@/components/Enlace";
 import Reveal from "@/components/Reveal";
 import { Cta, Hex, Icono, Portada, Seccion, Titulo } from "@/components/ui";
 import { PASOS, PROYECTOS, SERVICIOS } from "@/lib/datos";
 
-export const metadata: Metadata = { title: "Servicios", description: "Cómputo, impresión, networking, servidores, software, cableado estructurado e implementación de centrales telefónicas." };
+export const metadata: Metadata = meta("Servicios", "Cómputo, impresión, networking, servidores, software, cableado estructurado e implementación de centrales telefónicas.", "/servicios/");
 
 export default function Servicios() {
   return (
     <>
+      <JsonLd datos={migas("Servicios", "/servicios/")} />
       <Portada etiqueta="Qué hacemos" a="Nuestros" b="servicios" texto="Desde equipos de cómputo hasta cableado estructurado y telefonía: un portafolio completo para cubrir todas tus necesidades tecnológicas." />
 
       <Seccion className="bg-white">

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { meta, migas } from "@/lib/seo";
 import Reveal from "@/components/Reveal";
 import { Hex, Icono, Portada, Seccion } from "@/components/ui";
 import { getEmpresa, getPagina } from "@/lib/cms";
 
-export const metadata: Metadata = { title: "Contacto", description: "Contáctanos para una asesoría personalizada en tecnología: Pueblo Libre, Lima." };
+export const metadata: Metadata = meta("Contacto", "Contáctanos para una asesoría personalizada en tecnología: Pueblo Libre, Lima.", "/contacto/");
 
 const campo = "mt-1.5 w-full border-2 border-gris/80 bg-white px-5 py-3.5 font-normal outline-none transition focus:border-azul-2 focus:shadow-[0_0_0_4px_rgba(43,84,172,.15)]";
 
@@ -17,6 +19,7 @@ export default async function Contacto() {
   ] as const;
   return (
     <>
+      <JsonLd datos={migas("Contacto", "/contacto/")} />
       <Portada etiqueta={banner.etiqueta} a={banner.titulo} b={banner.acento} texto={banner.texto} />
 
       <Seccion className="bg-white">

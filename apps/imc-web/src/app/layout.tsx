@@ -4,6 +4,8 @@ import "./globals.css";
 import Cabecera from "@/components/Cabecera";
 import Pie from "@/components/Pie";
 import Cortina from "@/components/Cortina";
+import JsonLd from "@/components/JsonLd";
+import { IMAGEN_SOCIAL, SITIO, organizacion, sitioWeb } from "@/lib/seo";
 import Whatsapp from "@/components/Whatsapp";
 import { getEmpresa } from "@/lib/cms";
 
@@ -13,6 +15,10 @@ export const dynamic = "force-dynamic";
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], variable: "--font-poppins" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITIO),
+  alternates: { canonical: "/", languages: { "es-PE": "/" } },
+  openGraph: { siteName: "Company IMC", locale: "es_PE", type: "website", url: "/", images: [IMAGEN_SOCIAL] },
+  twitter: { card: "summary_large_image", images: [IMAGEN_SOCIAL.url] },
   title: { default: "Company IMC E.I.R.L. | Soluciones tecnológicas para el crecimiento empresarial", template: "%s | Company IMC" },
   description:
     "Equipos de cómputo, impresión, networking, servidores, software, cableado estructurado y centrales telefónicas. Proveedor en Perú Compras con más de 4 años de experiencia.",
@@ -25,6 +31,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang="es" className={poppins.variable}>
       <body>
         <noscript><style>{`.cortina{display:none!important}.rev{opacity:1!important;transform:none!important}`}</style></noscript>
+        <JsonLd datos={[organizacion, sitioWeb]} />
         <Cortina />
         <Cabecera empresa={empresa} />
         <main>{children}</main>

@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { meta, migas } from "@/lib/seo";
 import Reveal from "@/components/Reveal";
 import { Chevrones, Cta, Hex, Icono, Portada, Seccion, Titulo } from "@/components/ui";
 import { MOTIVOS, VALORES } from "@/lib/datos";
 
-export const metadata: Metadata = { title: "Nosotros", description: "Conoce a Company IMC: misión, visión y valores de tu socio estratégico en soluciones tecnológicas." };
+export const metadata: Metadata = meta("Nosotros", "Conoce a Company IMC: misión, visión y valores de tu socio estratégico en soluciones tecnológicas.", "/nosotros/");
 
 export default function Nosotros() {
   return (
     <>
+      <JsonLd datos={migas("Nosotros", "/nosotros/")} />
       <Portada etiqueta="Sobre nosotros" a="Tecnología que" b="transforma negocios" texto="Más de 4 años siendo el socio estratégico de empresas e instituciones que buscan eficiencia y crecimiento." />
 
       <Seccion className="bg-white">

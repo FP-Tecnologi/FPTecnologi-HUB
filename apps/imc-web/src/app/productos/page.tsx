@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { meta, migas } from "@/lib/seo";
 import Enlace from "@/components/Enlace";
 import Reveal from "@/components/Reveal";
 import { Cta, Hex, Icono, Portada, Seccion, Titulo } from "@/components/ui";
 import { MARCAS, PRODUCTOS } from "@/lib/datos";
 
-export const metadata: Metadata = { title: "Productos", description: "Computadoras, monitores, impresoras, proyectores, servidores y equipos de red de las marcas más reconocidas." };
+export const metadata: Metadata = meta("Productos", "Computadoras, monitores, impresoras, proyectores, servidores y equipos de red de las marcas más reconocidas.", "/productos/");
 
 export default function Productos() {
   return (
     <>
+      <JsonLd datos={migas("Productos", "/productos/")} />
       <Portada etiqueta="Catálogo" a="Nuestros" b="productos" texto="Trabajamos con las marcas más reconocidas del mercado para garantizar la calidad y confiabilidad de cada equipo." />
 
       <Seccion className="bg-white">

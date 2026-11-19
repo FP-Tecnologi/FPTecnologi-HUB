@@ -1,13 +1,16 @@
 import type { Metadata } from "next";
+import JsonLd from "@/components/JsonLd";
+import { meta, migas } from "@/lib/seo";
 import Reveal from "@/components/Reveal";
 import { Cta, Hex, Icono, Portada, Seccion } from "@/components/ui";
 import { PERU_COMPRAS } from "@/lib/datos";
 
-export const metadata: Metadata = { title: "Perú Compras", description: "Company IMC tiene fichas publicadas en Perú Compras para facilitar tus adquisiciones estatales." };
+export const metadata: Metadata = meta("Perú Compras", "Company IMC tiene fichas publicadas en Perú Compras para facilitar tus adquisiciones estatales.", "/peru-compras/");
 
 export default function PeruCompras() {
   return (
     <>
+      <JsonLd datos={migas("Perú Compras", "/peru-compras/")} />
       <Portada etiqueta="Compras estatales" a="Estamos en" b="Perú Compras" texto="Fichas publicadas y una logística que atiende de manera directa a los clientes de Perú Compras." />
 
       <Seccion className="bg-white">
