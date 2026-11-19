@@ -26,6 +26,19 @@ const ATAJOS: { href: string; icon: string; titulo: string; detalle: string }[] 
   { href: '/web/recursos', icon: 'folders', titulo: 'Recursos', detalle: 'Logos, videos y material' },
 ];
 
+const ESTILOS = `
+.ci-lista{display:flex;flex-direction:column;gap:var(--ax-space-2);margin:0;padding:0;list-style:none}
+.ci-fila{all:unset;box-sizing:border-box;width:100%;display:grid;grid-template-columns:56px minmax(0,1fr);gap:var(--ax-space-3);align-items:center;padding:var(--ax-space-3);border-radius:var(--ax-radius-md);border:1px solid var(--ax-border);border-inline-start:3px solid var(--c,var(--ax-border));background:var(--ax-surface-raised,var(--ax-surface));cursor:pointer;transition:box-shadow .2s}
+.ci-fila:hover{box-shadow:var(--ax-shadow-sm,0 1px 6px rgba(0,0,0,.08))}
+.ci-fila:focus-visible{outline:2px solid var(--ax-focus-ring,var(--ax-accent));outline-offset:2px}
+.ci-hora{display:flex;flex-direction:column;line-height:1.25}
+.ci-hora b{font-size:var(--ax-text-sm);color:var(--ax-text-strong);font-variant-numeric:tabular-nums}
+.ci-hora span{font-size:var(--ax-text-xs);color:var(--ax-text-subtle)}
+.ci-cuerpo{display:flex;flex-direction:column;gap:4px;min-width:0}
+.ci-tit{font-weight:var(--ax-weight-semibold);color:var(--ax-text-strong);line-height:1.3;overflow-wrap:anywhere}
+.ci-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:var(--ax-text-xs);color:var(--ax-text-muted)}
+`;
+
 export function ComercialInicio() {
   const router = useRouter();
   const { user, marcas, activeMarcaId, setActiveMarcaId } = useAuth();
@@ -51,34 +64,51 @@ export function ComercialInicio() {
   const hoy = new Date(); hoy.setHours(23, 59, 59, 999);
   const tareasHoy = (agenda?.tareas ?? []).filter((t) => new Date(t.fecha).getTime() <= hoy.getTime());
   const accionesVencidas = (agenda?.acciones ?? []).filter((o) => ABIERTAS.includes(o.etapa) && vencida(o.proximaAccionAt));
+  // Pendientes de hoy y vencidos (tareas y próximas acciones) en una sola lista, del más antiguo al más próximo.
+  const pendientes = [
+    ...tareasHoy.map((t) => ({ clave: `t${t.id}`, tarea: true, fecha: t.fecha, titulo: t.texto, detalle: t.oportunidad.titulo, marcaId: t.marcaId, marca: t.marca, opId: t.oportunidad.id, vencida: vencida(t.fecha) })),
+    ...accionesVencidas.map((o) => ({ clave: `a${o.id}`, tarea: false, fecha: o.proximaAccionAt!, titulo: o.proximaAccion ?? 'Dar seguimiento', detalle: `${o.titulo} (${dinero(o.monto, o.moneda)})`, marcaId: o.marcaId, marca: o.marca, opId: o.id, vencida: true })),
+  ].sort((x, y) => new Date(x.fecha).getTime() - new Date(y.fecha).getTime());
   const nombre = (user?.nombre ?? '').split(' ')[0];
 
   return (
     <>
+      <style>{ESTILOS}</style>
       <PageHead title={nombre ? `Hola, ${nombre}` : 'Inicio comercial'} subtitle={`Tu trabajo de hoy en ${marcas.length > 1 ? 'todas tus marcas' : 'tu marca'}. La marca con la que abres el CRM se cambia desde el menú lateral.`} />
       {error && <div className="ax-alert ax-alert--danger" role="alert" style={{ marginBottom: 'var(--ax-space-4)' }}>{error}</div>}
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 'var(--ax-space-3)', marginBottom: 'var(--ax-space-5)' }}>
         <Tarjeta etiqueta="Mis oportunidades abiertas" valor={abiertas ? String(abiertas.length) : '…'} />
         <Tarjeta etiqueta="Mi pipeline" valor={abiertas ? montos(pipeline) : '…'} />
-        <Tarjeta etiqueta="Pendientes de hoy" valor={agenda ? String(tareasHoy.length + accionesVencidas.length) : '…'} />
+        <Tarjeta etiqueta="Pendientes de hoy" valor={agenda ? String(pendientes.length) : '…'} />
         <Tarjeta etiqueta="Marcas en las que trabajo" valor={String(new Set((abiertas ?? []).map((o) => o.marcaId)).size || marcas.length)} />
       </div>
 
       <div className="ax-card" style={{ marginBottom: 'var(--ax-space-5)' }}>
         <div className="ax-card__header"><div className="ax-card__titles"><h2 className="ax-card__title">Pendientes de hoy</h2><p className="ax-card__subtitle">Tareas por hacer y oportunidades con próxima acción vencida.</p></div></div>
         <div className="ax-card__body">
-          {!agenda ? <p style={{ margin: 0, color: 'var(--ax-text-muted)' }}>Cargando…</p> : tareasHoy.length + accionesVencidas.length === 0 ? (
+          {!agenda ? <p style={{ margin: 0, color: 'var(--ax-text-muted)' }}>Cargando…</p> : pendientes.length === 0 ? (
             <p style={{ margin: 0, color: 'var(--ax-text-muted)' }}>No tienes pendientes para hoy.</p>
           ) : (
-            <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-2)' }}>
-              {tareasHoy.map((t) => (
-                <li key={t.id}><button type="button" onClick={() => abrir(t.marcaId, t.oportunidad.id)} style={{ all: 'unset', cursor: 'pointer', display: 'flex', gap: 'var(--ax-space-2)', alignItems: 'center', flexWrap: 'wrap' }}><Icon name="bell" className="ax-icon" /><EtiquetaMarca m={t.marca} /><span><b>{t.texto}</b> · {t.oportunidad.titulo}</span></button></li>
-              ))}
-              {accionesVencidas.map((o) => (
-                <li key={o.id}><button type="button" onClick={() => abrir(o.marcaId, o.id)} style={{ all: 'unset', cursor: 'pointer', display: 'flex', gap: 'var(--ax-space-2)', alignItems: 'center', flexWrap: 'wrap' }}><Icon name="alert-triangle" className="ax-icon" /><EtiquetaMarca m={o.marca} /><span><b>{o.proximaAccion ?? 'Dar seguimiento'}</b> · {o.titulo} ({dinero(o.monto, o.moneda)})</span></button></li>
+            <><ul className="ci-lista">
+              {pendientes.map((i) => (
+                <li key={i.clave}>
+                  <button type="button" className="ci-fila" style={{ ['--c' as string]: i.vencida ? 'var(--ax-danger-500)' : i.tarea ? 'var(--ax-viz-amber)' : 'var(--ax-viz-emerald)' }} onClick={() => abrir(i.marcaId, i.opId)}>
+                    <span className="ci-hora"><b>{new Date(i.fecha).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })}</b><span>{new Date(i.fecha).toLocaleDateString('es-PE', { day: 'numeric', month: 'short' })}</span></span>
+                    <span className="ci-cuerpo">
+                      <span className="ci-tit">{i.titulo}</span>
+                      <span className="ci-meta">
+                        <span className={`ax-badge ax-badge--soft ax-badge--sm ${i.tarea ? 'ax-badge--warning' : 'ax-badge--success'}`}>{i.tarea ? 'Tarea' : 'Próxima acción'}</span>
+                        {i.vencida && <span className="ax-badge ax-badge--soft ax-badge--sm ax-badge--danger">Vencida</span>}
+                        <EtiquetaMarca m={i.marca} />
+                        <span>{i.detalle}</span>
+                      </span>
+                    </span>
+                  </button>
+                </li>
               ))}
             </ul>
+            <Link href="/crm/mi-agenda" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ marginBlockStart: 'var(--ax-space-3)' }}>Ver mi agenda completa</Link></>
           )}
         </div>
       </div>

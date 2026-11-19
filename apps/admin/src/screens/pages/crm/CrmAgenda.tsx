@@ -1,57 +1,109 @@
 'use client';
 /*
- * FPTecnologi-HUB — CRM → Agenda: calendario mensual + lista del día (o de todo lo pendiente). Reúne las tareas
- * pendientes y las «próximas acciones» de las oportunidades abiertas (se agregan solas desde la ficha / el embudo)
- * y permite agregar tareas a mano desde aquí. «Hecha» cierra la tarea sin abrir la ficha.
+ * FPTecnologi-HUB — CRM → Agenda: calendario mensual y una sola lista de pendientes. Reúne las tareas pendientes y las
+ * «próximas acciones» de las oportunidades abiertas (se agregan solas desde la ficha / el embudo), agrupadas en Vencidas,
+ * Hoy y Próximas; filtra por tipo y por día. «Hecha» cierra la tarea sin abrir la ficha. En la vista Comercial puede
+ * juntar todas tus marcas (cada pendiente lleva su etiqueta de marca).
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../../components/shell/PageHead';
 import { Select } from '../../../components/ui/Select';
 import { api } from '../../../lib/api';
 import { useAuth } from '../../../context/AuthContext';
-import { Alerta, Modal, OportunidadPanel, deLocal, etapa, fechaHora, msg, nombreDe, useVeTodoCrm, vencida, type Actividad, type Etapa, type Oportunidad, type Usuario } from './comun';
+import {
+  Alerta, EtiquetaMarca, Modal, OportunidadPanel, SelectorAlcance, deLocal, etapa, msg, nombreDe, useAlcanceMarcas, useFichaOportunidad, useVeTodoCrm, vencida,
+  type Actividad, type Etapa, type MarcaRef, type Oportunidad, type Usuario,
+} from './comun';
 
-type Tarea = Actividad & { oportunidad: { id: string; numero: string; titulo: string; etapa: Etapa; asignado: Usuario | null; contacto: { nombre: string } | null } };
+type Tarea = Actividad & { marcaId?: string; marca?: MarcaRef; oportunidad: { id: string; numero: string; titulo: string; etapa: Etapa; asignado: Usuario | null; contacto: { nombre: string } | null } };
+/** Un pendiente de la agenda: una tarea o la «próxima acción» de una oportunidad, con lo mismo para mostrarlos juntos. */
+interface Item {
+  clave: string; tipo: 'tarea' | 'accion'; fecha: string; titulo: string; opId: string; opNumero: string; opTitulo: string; cliente: string | null;
+  etapa: Etapa; asignado: Usuario | null; marcaId?: string; marca?: MarcaRef; tareaId?: string;
+}
+type Filtro = 'todo' | 'tarea' | 'accion';
+
 const hoyFin = () => { const d = new Date(); d.setHours(23, 59, 59, 999); return d.getTime(); };
 const clave = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const DIAS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+const hora = (iso: string) => new Date(iso).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+const diaCorto = (iso: string) => new Date(iso).toLocaleDateString('es-PE', { day: 'numeric', month: 'short' });
+
+const ESTILOS = `
+.ag-grid{display:grid;grid-template-columns:minmax(300px,380px) minmax(0,1fr);gap:var(--ax-space-4);align-items:start}
+.ag-cal{position:sticky;top:var(--ax-space-4)}
+@media (max-width:960px){.ag-grid{grid-template-columns:minmax(0,1fr)}.ag-cal{position:static}}
+.ag-resumen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--ax-space-2);margin-block-end:var(--ax-space-3)}
+.ag-kpi{padding:var(--ax-space-3);border-radius:var(--ax-radius-md);background:var(--ax-surface-subtle)}
+.ag-kpi b{display:block;font-size:var(--ax-text-lg);line-height:1.2;color:var(--c,var(--ax-text-strong))}
+.ag-kpi span{font-size:var(--ax-text-xs);color:var(--ax-text-muted)}
+.ag-barra{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--ax-space-2);margin-block-end:var(--ax-space-3)}
+.ag-grupo{margin-block-end:var(--ax-space-4)}
+.ag-grupo__tit{display:flex;align-items:center;gap:8px;margin:0 0 var(--ax-space-2);font-size:var(--ax-text-sm);font-weight:var(--ax-weight-semibold);color:var(--c,var(--ax-text-muted));text-transform:capitalize}
+.ag-grupo__n{min-width:22px;padding:0 7px;border-radius:999px;text-align:center;font-size:var(--ax-text-xs);background:color-mix(in srgb,var(--c,var(--ax-text-muted)) 16%,transparent)}
+.ag-lista{display:flex;flex-direction:column;gap:var(--ax-space-2);margin:0;padding:0;list-style:none}
+.ag-fila{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:var(--ax-space-3);align-items:center;padding:var(--ax-space-3);border-radius:var(--ax-radius-md);border:1px solid var(--ax-border);border-inline-start:3px solid var(--c,var(--ax-border));background:var(--ax-surface-raised,var(--ax-surface));transition:box-shadow .2s}
+.ag-fila:hover{box-shadow:var(--ax-shadow-sm,0 1px 6px rgba(0,0,0,.08))}
+.ag-hora{display:flex;flex-direction:column;align-items:flex-start;line-height:1.25}
+.ag-hora b{font-size:var(--ax-text-sm);color:var(--ax-text-strong);font-variant-numeric:tabular-nums}
+.ag-hora span{font-size:var(--ax-text-xs);color:var(--ax-text-subtle)}
+.ag-cuerpo{display:flex;flex-direction:column;gap:4px;min-width:0}
+.ag-tit{font-weight:var(--ax-weight-semibold);color:var(--ax-text-strong);line-height:1.3;overflow-wrap:anywhere}
+.ag-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;font-size:var(--ax-text-xs);color:var(--ax-text-muted)}
+.ag-abrir{all:unset;cursor:pointer;color:var(--ax-accent);border-radius:4px}
+.ag-abrir:hover{text-decoration:underline}
+.ag-abrir:focus-visible{outline:2px solid var(--ax-focus-ring,var(--ax-accent));outline-offset:2px}
+.ag-vacio{padding:var(--ax-space-6) var(--ax-space-4);text-align:center;color:var(--ax-text-muted);border:1px dashed var(--ax-border);border-radius:var(--ax-radius-md)}
+@media (max-width:560px){.ag-fila{grid-template-columns:minmax(0,1fr) auto}.ag-hora{grid-column:1/-1;flex-direction:row;gap:8px;align-items:baseline}}
+`;
 
 export function CrmAgenda({ propio = false }: { propio?: boolean }) {
   const { activeMarcaId } = useAuth();
+  const alcance = useAlcanceMarcas();
   const [datos, setDatos] = useState<{ tareas: Tarea[]; acciones: Oportunidad[] } | null>(null);
   const [error, setError] = useState('');
   const [miasSel, setMias] = useState(true);
   const { veTodo: veTodoRol } = useVeTodoCrm();
   const veTodo = veTodoRol && !propio;
   const mias = propio || miasSel;
-  const [abierta, setAbierta] = useState<string | null>(null);
   const [mes, setMes] = useState(() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); });
   const [dia, setDia] = useState<string | null>(null);
+  const [filtro, setFiltro] = useState<Filtro>('todo');
   const [nueva, setNueva] = useState(false);
 
   const cargar = useCallback(async () => {
     if (!activeMarcaId) return;
-    try { setDatos(await api.get(`/crm/agenda${mias ? '?mias=1' : ''}`)); setError(''); } catch (e) { setError(msg(e, 'No se pudo cargar la agenda.')); }
-  }, [activeMarcaId, mias]);
+    try { setDatos(await api.get(`${alcance.todas ? '/crm/global/agenda' : '/crm/agenda'}${mias ? '?mias=1' : ''}`)); setError(''); } catch (e) { setError(msg(e, 'No se pudo cargar la agenda.')); }
+  }, [activeMarcaId, mias, alcance.todas]);
   useEffect(() => { cargar(); }, [cargar]);
 
-  async function hecha(t: Tarea) {
-    try { await api.patch(`/crm/actividades/${t.id}`, { hecha: true }); cargar(); } catch (e) { setError(msg(e, 'No se pudo marcar.')); }
+  // Todos los pendientes en una sola lista, con la misma forma.
+  const items = useMemo<Item[]>(() => {
+    const t: Item[] = (datos?.tareas ?? []).map((x) => ({
+      clave: `t${x.id}`, tipo: 'tarea', fecha: x.fecha, titulo: x.texto, opId: x.oportunidad.id, opNumero: x.oportunidad.numero, opTitulo: x.oportunidad.titulo, cliente: x.oportunidad.contacto?.nombre ?? null,
+      etapa: x.oportunidad.etapa, asignado: x.oportunidad.asignado, marcaId: x.marcaId, marca: x.marca, tareaId: x.id,
+    }));
+    const a: Item[] = (datos?.acciones ?? []).filter((o) => o.proximaAccionAt).map((o) => ({
+      clave: `a${o.id}`, tipo: 'accion', fecha: o.proximaAccionAt!, titulo: o.proximaAccion ?? 'Dar seguimiento', opId: o.id, opNumero: o.numero, opTitulo: o.titulo, cliente: o.empresa?.razonSocial ?? o.contacto?.nombre ?? null,
+      etapa: o.etapa, asignado: o.asignado, marcaId: o.marcaId, marca: o.marca,
+    }));
+    return [...t, ...a].sort((x, y) => new Date(x.fecha).getTime() - new Date(y.fecha).getTime());
+  }, [datos]);
+
+  // La ficha de una oportunidad de otra marca se abre con esa marca (ver useFichaOportunidad).
+  const referencias = useMemo(() => items.map((i) => ({ id: i.opId, marcaId: i.marcaId }) as Oportunidad), [items]);
+  const [abierta, setAbierta] = useFichaOportunidad(referencias, alcance.todas);
+
+  async function hecha(i: Item) {
+    try { await api.patch(`/crm/actividades/${i.tareaId}`, { hecha: true }, { marcaId: alcance.todas ? i.marcaId : undefined }); cargar(); } catch (e) { setError(msg(e, 'No se pudo marcar.')); }
   }
 
-  // Eventos por día (tareas + próximas acciones) para los puntos del calendario.
+  // Puntos del calendario: tareas y próximas acciones por día.
   const porDia = useMemo(() => {
     const m = new Map<string, { tareas: number; acciones: number }>();
-    const suma = (iso: string | null, k: 'tareas' | 'acciones') => {
-      if (!iso) return;
-      const c = clave(new Date(iso));
-      const x = m.get(c) ?? { tareas: 0, acciones: 0 };
-      x[k]++; m.set(c, x);
-    };
-    datos?.tareas.forEach((t) => suma(t.fecha, 'tareas'));
-    datos?.acciones.forEach((o) => suma(o.proximaAccionAt, 'acciones'));
+    items.forEach((i) => { const c = clave(new Date(i.fecha)); const x = m.get(c) ?? { tareas: 0, acciones: 0 }; x[i.tipo === 'tarea' ? 'tareas' : 'acciones']++; m.set(c, x); });
     return m;
-  }, [datos]);
+  }, [items]);
 
   const celdas = useMemo(() => {
     const primero = new Date(mes.getFullYear(), mes.getMonth(), 1);
@@ -60,23 +112,24 @@ export function CrmAgenda({ propio = false }: { propio?: boolean }) {
     return [...Array(desfase).fill(null), ...Array.from({ length: total }, (_, i) => new Date(mes.getFullYear(), mes.getMonth(), i + 1))] as (Date | null)[];
   }, [mes]);
 
-  const tareasVis = (datos?.tareas ?? []).filter((t) => !dia || clave(new Date(t.fecha)) === dia);
-  const accionesVis = (datos?.acciones ?? []).filter((o) => !dia || (o.proximaAccionAt && clave(new Date(o.proximaAccionAt)) === dia));
-  const grupos = (() => {
-    if (dia) return [{ titulo: new Date(`${dia}T12:00`).toLocaleDateString('es-PE', { weekday: 'long', day: 'numeric', month: 'long' }), filas: tareasVis, tono: 'var(--ax-text)' }];
-    const fin = hoyFin();
-    return [
-      { titulo: 'Vencidas', filas: tareasVis.filter((x) => vencida(x.fecha)), tono: 'var(--ax-danger-500)' },
-      { titulo: 'Hoy', filas: tareasVis.filter((x) => !vencida(x.fecha) && new Date(x.fecha).getTime() <= fin), tono: 'var(--ax-viz-amber)' },
-      { titulo: 'Próximas', filas: tareasVis.filter((x) => new Date(x.fecha).getTime() > fin), tono: 'var(--ax-text-muted)' },
+  const visibles = items.filter((i) => (filtro === 'todo' || i.tipo === filtro) && (!dia || clave(new Date(i.fecha)) === dia));
+  const fin = hoyFin();
+  const grupos = dia
+    ? [{ titulo: new Date(`${dia}T12:00`).toLocaleDateString('es-PE', { weekday: 'long', day: 'numeric', month: 'long' }), filas: visibles, tono: 'var(--ax-text-strong)' }]
+    : [
+      { titulo: 'Vencidas', filas: visibles.filter((x) => vencida(x.fecha)), tono: 'var(--ax-danger-500)' },
+      { titulo: 'Hoy', filas: visibles.filter((x) => !vencida(x.fecha) && new Date(x.fecha).getTime() <= fin), tono: 'var(--ax-warning-500, var(--ax-viz-amber))' },
+      { titulo: 'Próximas', filas: visibles.filter((x) => new Date(x.fecha).getTime() > fin), tono: 'var(--ax-text-muted)' },
     ];
-  })();
+  const cuenta = { vencidas: items.filter((x) => vencida(x.fecha)).length, hoy: items.filter((x) => !vencida(x.fecha) && new Date(x.fecha).getTime() <= fin).length, proximas: items.filter((x) => new Date(x.fecha).getTime() > fin).length };
   const hoy = clave(new Date());
 
   return (
     <>
-      <PageHead title={propio ? 'Mi agenda' : 'Agenda comercial'} subtitle="Calendario de tareas y próximas acciones. Se llena solo desde las oportunidades y también puedes agregar a mano." actions={
-        <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
+      <style>{ESTILOS}</style>
+      <PageHead title={propio ? 'Mi agenda' : 'Agenda comercial'} subtitle="Tus pendientes en un solo lugar: tareas y próximas acciones de las oportunidades. Se llena solo y también puedes agregar a mano." actions={
+        <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
+          <SelectorAlcance alcance={alcance} />
           {veTodo && (
             <div className="ax-btn-group ax-btn-group--segmented" role="radiogroup" aria-label="De quién">
               <button type="button" role="radio" aria-checked={mias} className={`ax-btn ax-btn--sm${mias ? ' is-selected' : ''}`} onClick={() => setMias(true)}>Mías</button>
@@ -88,8 +141,8 @@ export function CrmAgenda({ propio = false }: { propio?: boolean }) {
       } />
       {error && <div style={{ marginBlockEnd: 'var(--ax-space-4)' }}><Alerta>{error}</Alerta></div>}
 
-      <div className="ax-dash-grid">
-        <section className="ax-card ax-col--5" aria-label="Calendario">
+      <div className="ag-grid">
+        <section className="ax-card ag-cal" aria-label="Calendario">
           <div className="ax-card__header">
             <div className="ax-card__titles"><h2 className="ax-card__title" style={{ textTransform: 'capitalize' }}>{mes.toLocaleDateString('es-PE', { month: 'long', year: 'numeric' })}</h2></div>
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-1)' }}>
@@ -132,56 +185,57 @@ export function CrmAgenda({ propio = false }: { propio?: boolean }) {
           </div>
         </section>
 
-        <div className="ax-col--7" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
-          <section className="ax-card" aria-label="Tareas pendientes">
-            <div className="ax-card__header"><div className="ax-card__titles"><h2 className="ax-card__title">Tareas {dia ? 'del día' : 'pendientes'}</h2></div></div>
-            <div className="ax-card__body" style={{ paddingTop: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
-              {!datos ? <p>Cargando…</p> : tareasVis.length === 0 ? <p style={{ margin: 0, color: 'var(--ax-text-muted)' }}>{dia ? 'Sin tareas este día.' : 'No hay tareas pendientes.'}</p> : grupos.filter((g) => g.filas.length).map((g) => (
-                <div key={g.titulo}>
-                  <h3 style={{ margin: '0 0 var(--ax-space-2)', fontSize: 'var(--ax-text-sm)', color: g.tono, textTransform: 'capitalize' }}>{g.titulo} ({g.filas.length})</h3>
-                  <ul className="ax-list ax-list--compact" style={{ margin: 0, padding: 0 }}>
-                    {g.filas.map((t) => (
-                      <li key={t.id} className="ax-list__row" style={{ paddingInline: 0, alignItems: 'flex-start' }}>
-                        <span className="ax-list__content">
-                          <span className="ax-list__title">{t.texto}</span>
-                          <button type="button" className="ax-btn ax-btn--link" style={{ padding: 0, fontSize: 'var(--ax-text-xs)' }} onClick={() => setAbierta(t.oportunidad.id)}>
-                            {t.oportunidad.numero} · {t.oportunidad.titulo}{t.oportunidad.contacto ? ` · ${t.oportunidad.contacto.nombre}` : ''}
-                          </button>
-                          <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{fechaHora(t.fecha)}{!mias ? ` · ${nombreDe(t.oportunidad.asignado)}` : ''}</span>
-                        </span>
-                        <span className="ax-list__trailing"><button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => hecha(t)}>Hecha</button></span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+        <section aria-label="Pendientes" aria-busy={!datos}>
+          <div className="ag-resumen">
+            <div className="ag-kpi" style={{ ['--c' as string]: cuenta.vencidas ? 'var(--ax-danger-500)' : undefined }}><b>{datos ? cuenta.vencidas : '—'}</b><span>Vencidas</span></div>
+            <div className="ag-kpi"><b>{datos ? cuenta.hoy : '—'}</b><span>Para hoy</span></div>
+            <div className="ag-kpi"><b>{datos ? cuenta.proximas : '—'}</b><span>Próximas</span></div>
+          </div>
+          <div className="ag-barra">
+            <div className="ax-btn-group ax-btn-group--segmented" role="radiogroup" aria-label="Tipo de pendiente">
+              {([['todo', 'Todo'], ['tarea', 'Tareas'], ['accion', 'Próximas acciones']] as const).map(([v, t]) => (
+                <button key={v} type="button" role="radio" aria-checked={filtro === v} className={`ax-btn ax-btn--sm${filtro === v ? ' is-selected' : ''}`} onClick={() => setFiltro(v)}>{t}</button>
               ))}
             </div>
-          </section>
+            {dia && <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setDia(null)}>Quitar filtro de día</button>}
+          </div>
 
-          <section className="ax-card" aria-label="Próximas acciones">
-            <div className="ax-card__header"><div className="ax-card__titles"><h2 className="ax-card__title">Próximas acciones</h2><p className="ax-card__subtitle">La «próxima acción» con fecha de cada oportunidad abierta (se agregan solas).</p></div></div>
-            <div className="ax-card__body" style={{ paddingTop: 0 }}>
-              {!datos ? <p>Cargando…</p> : accionesVis.length === 0 ? <p style={{ margin: 0, color: 'var(--ax-text-muted)' }}>{dia ? 'Sin acciones este día.' : 'Ninguna oportunidad abierta tiene una próxima acción con fecha.'}</p> : (
-                <ul className="ax-list ax-list--compact" style={{ margin: 0, padding: 0 }}>
-                  {accionesVis.map((o) => (
-                    <li key={o.id} className="ax-list__row" style={{ paddingInline: 0, alignItems: 'flex-start' }}>
-                      <span className="ax-list__content">
-                        <span className="ax-list__title" style={{ color: vencida(o.proximaAccionAt) ? 'var(--ax-danger-500)' : undefined }}>{o.proximaAccion}</span>
-                        <button type="button" className="ax-btn ax-btn--link" style={{ padding: 0, fontSize: 'var(--ax-text-xs)' }} onClick={() => setAbierta(o.id)}>
-                          {o.numero} · {o.titulo}{o.empresa ? ` · ${o.empresa.razonSocial}` : ''}
-                        </button>
-                        <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{o.proximaAccionAt ? fechaHora(o.proximaAccionAt) : ''}{vencida(o.proximaAccionAt) ? ' · vencida' : ''} · {etapa(o.etapa).label}{!mias ? ` · ${nombreDe(o.asignado)}` : ''}</span>
+          {!datos ? <p style={{ color: 'var(--ax-text-muted)' }}>Cargando…</p> : visibles.length === 0 ? (
+            <div className="ag-vacio">{dia ? 'No hay pendientes este día.' : 'No tienes pendientes. Las tareas y próximas acciones de tus oportunidades aparecerán aquí.'}</div>
+          ) : grupos.filter((g) => g.filas.length).map((g) => (
+            <div key={g.titulo} className="ag-grupo" style={{ ['--c' as string]: g.tono }}>
+              <h3 className="ag-grupo__tit">{g.titulo} <span className="ag-grupo__n">{g.filas.length}</span></h3>
+              <ul className="ag-lista">
+                {g.filas.map((i) => {
+                  const tarde = vencida(i.fecha);
+                  return (
+                    <li key={i.clave} className="ag-fila" style={{ ['--c' as string]: tarde ? 'var(--ax-danger-500)' : i.tipo === 'tarea' ? 'var(--ax-viz-amber)' : 'var(--ax-viz-emerald)' }}>
+                      <span className="ag-hora"><b>{hora(i.fecha)}</b><span>{diaCorto(i.fecha)}</span></span>
+                      <span className="ag-cuerpo">
+                        <span className="ag-tit">{i.titulo}</span>
+                        <span className="ag-meta">
+                          <span className={`ax-badge ax-badge--soft ax-badge--sm ${i.tipo === 'tarea' ? 'ax-badge--warning' : 'ax-badge--success'}`}>{i.tipo === 'tarea' ? 'Tarea' : 'Próxima acción'}</span>
+                          {tarde && <span className="ax-badge ax-badge--soft ax-badge--sm ax-badge--danger">Vencida</span>}
+                          <EtiquetaMarca m={i.marca} />
+                          <button type="button" className="ag-abrir" onClick={() => setAbierta(i.opId)} aria-label={`Abrir la oportunidad ${i.opNumero}`}>{i.opNumero} · {i.opTitulo}</button>
+                          {i.cliente && <span>{i.cliente}</span>}
+                          <span>{etapa(i.etapa).label}</span>
+                          {!mias && <span>{nombreDe(i.asignado)}</span>}
+                        </span>
                       </span>
+                      {i.tipo === 'tarea'
+                        ? <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => hecha(i)}>Hecha</button>
+                        : <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setAbierta(i.opId)}>Abrir</button>}
                     </li>
-                  ))}
-                </ul>
-              )}
+                  );
+                })}
+              </ul>
             </div>
-          </section>
-        </div>
+          ))}
+        </section>
       </div>
       {abierta && <OportunidadPanel id={abierta} onClose={() => setAbierta(null)} onCambio={cargar} />}
-      {nueva && <NuevaTarea fechaInicial={dia} onClose={() => setNueva(false)} onCreada={() => { setNueva(false); cargar(); }} />}
+      {nueva && <NuevaTarea key={activeMarcaId} fechaInicial={dia} onClose={() => setNueva(false)} onCreada={() => { setNueva(false); cargar(); }} />}
     </>
   );
 }
