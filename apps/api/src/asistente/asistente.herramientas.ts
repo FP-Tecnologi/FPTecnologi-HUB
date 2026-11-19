@@ -506,9 +506,35 @@ const traficoWeb: Herramienta = {
   },
 };
 
+const buscarUsuarios: Herramienta = {
+  nombre: 'buscar_usuarios',
+  descripcion: 'Lista el equipo inscrito en la marca (usuarios con su rol: admin, ventas, comercial, marketing, asesores…). Úsala para "cuántos vendedores/usuarios tengo", "quién es comercial". Filtra por rol y/o nombre o correo.',
+  parametros: objeto({ ...P_TEXTO, rol: { type: 'string', description: 'admin, ventas, comercial, marketing, asesores…' } }),
+  roles: ['admin'],
+  async ejecutar({ prisma, marcaId }, args) {
+    const q = str(args.texto, 80);
+    const rol = str(args.rol, 30).toLowerCase();
+    const where = {
+      marcaId,
+      ...(rol ? { rol: { nombre: rol } } : {}),
+      ...(q ? { usuario: { OR: [{ nombre: { contains: q, mode: 'insensitive' as const } }, { email: { contains: q, mode: 'insensitive' as const } }] } } : {}),
+    };
+    const [filas, total] = await Promise.all([
+      prisma.usuarioMarcaRol.findMany({ where, take: MAX_FILAS, orderBy: { createdAt: 'desc' }, select: { rol: { select: { nombre: true } }, usuario: { select: { nombre: true, email: true, cargo: true, activo: true } } } }),
+      prisma.usuarioMarcaRol.count({ where }),
+    ]);
+    const tabla: Tabla = {
+      titulo: 'Equipo de la marca', modulo: 'equipo.usuarios', total,
+      columnas: ['Nombre', 'Correo', 'Rol', 'Cargo', 'Activo'],
+      filas: filas.map((f) => [f.usuario.nombre, f.usuario.email, f.rol.nombre, f.usuario.cargo, f.usuario.activo ? 'Sí' : 'No']),
+    };
+    return { paraIA: paraIA(tabla), tabla };
+  },
+};
+
 export const HERRAMIENTAS: Herramienta[] = [
   resumenNegocio, reporteVentas, buscarProductos, buscarPedidos, buscarCotizaciones, buscarPresupuestos,
-  buscarLeads, buscarTickets, buscarReclamos, buscarContactos, buscarChats, buscarConocimiento, traficoWeb, buscarOportunidades,
+  buscarLeads, buscarTickets, buscarReclamos, buscarContactos, buscarChats, buscarConocimiento, traficoWeb, buscarOportunidades, buscarUsuarios,
 ];
 
 /**

@@ -3181,6 +3181,14 @@
     transform: rotate(45deg);
   }
 
+
+  /* Asistente virtual en móvil: el botón enviar queda solo con el icono y la conversación usa todo el ancho. */
+  @media (max-width: 575.98px) {
+    .asistente-enviar__txt { display: none; }
+    .asistente-enviar { padding-inline: var(--ax-space-3); }
+    .ax-card:has(> [aria-live]) > .ax-card__body { padding: var(--ax-space-3); }
+  }
+
   /* ========================================================================
      25 · TABLES — .ax-table (wrap + base/striped/bordered/hover/compact)
      sticky header, selected row = accent-wash + accent marker, status pills.

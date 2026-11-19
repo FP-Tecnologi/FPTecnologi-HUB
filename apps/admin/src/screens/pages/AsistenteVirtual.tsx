@@ -166,14 +166,14 @@ export function AsistenteVirtual() {
         }
       />
 
-      <section className="ax-card" aria-label="Conversación con el asistente" style={{ display: 'flex', flexDirection: 'column', minHeight: 'min(70vh, 720px)' }}>
+      <section className="ax-card" aria-label="Conversación con el asistente" style={{ display: 'flex', flexDirection: 'column', minHeight: 'min(70dvh, 720px)' }}>
         <div
           ref={hiloRef}
           className="ax-card__body"
           role="log"
           aria-live="polite"
           aria-busy={pensando}
-          style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)', flex: '1 1 auto', overflowY: 'auto', maxHeight: '68vh', background: 'var(--ax-surface-subtle)' }}
+          style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)', flex: '1 1 auto', overflowY: 'auto', maxHeight: 'calc(100dvh - 260px)', background: 'var(--ax-surface-subtle)' }}
         >
           {mensajes.length === 0 && (
             <div style={{ margin: 'auto', textAlign: 'center', maxWidth: 560, padding: 'var(--ax-space-6) 0' }}>
@@ -196,7 +196,7 @@ export function AsistenteVirtual() {
 
           {mensajes.map((m, i) =>
             m.role === 'user' ? (
-              <div key={i} style={{ alignSelf: 'flex-end', maxWidth: '75%', padding: 'var(--ax-space-2) var(--ax-space-3)', borderRadius: '14px 14px 4px 14px', background: 'var(--ax-accent)', color: '#fff', whiteSpace: 'pre-wrap' }}>
+              <div key={i} style={{ alignSelf: 'flex-end', maxWidth: 'min(88%, 640px)', overflowWrap: 'anywhere', padding: 'var(--ax-space-2) var(--ax-space-3)', borderRadius: '14px 14px 4px 14px', background: 'var(--ax-accent)', color: '#fff', whiteSpace: 'pre-wrap' }}>
                 {m.content}
               </div>
             ) : (
@@ -205,7 +205,7 @@ export function AsistenteVirtual() {
                   <Icon name="sparkles" />
                 </span>
                 <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
-                  <div style={{ alignSelf: 'flex-start', maxWidth: '85%', padding: 'var(--ax-space-2) var(--ax-space-3)', borderRadius: '14px 14px 14px 4px', background: 'var(--ax-surface)', border: '1px solid var(--ax-border)', whiteSpace: 'pre-wrap' }}>
+                  <div style={{ alignSelf: 'flex-start', maxWidth: '100%', overflowWrap: 'anywhere', padding: 'var(--ax-space-2) var(--ax-space-3)', borderRadius: '14px 14px 14px 4px', background: 'var(--ax-surface)', border: '1px solid var(--ax-border)', whiteSpace: 'pre-wrap' }}>
                     {m.content}
                   </div>
 
@@ -317,9 +317,9 @@ export function AsistenteVirtual() {
             placeholder="Ej.: ¿Cuántas cotizaciones llegaron esta semana y cuáles siguen pendientes?"
             style={{ flex: 1, resize: 'vertical' }}
           />
-          <button type="submit" className="ax-btn ax-btn--primary" disabled={!borrador.trim() || pensando} aria-label="Enviar pregunta">
+          <button type="submit" className="ax-btn ax-btn--primary asistente-enviar" disabled={!borrador.trim() || pensando} aria-label="Enviar pregunta">
             <Icon name="send" />
-            <span className="ax-btn__label">Preguntar</span>
+            <span className="ax-btn__label asistente-enviar__txt">Preguntar</span>
           </button>
         </form>
       </section>
