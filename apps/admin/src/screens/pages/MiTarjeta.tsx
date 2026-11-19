@@ -29,6 +29,16 @@ interface Respuesta { tarjetas: Guardada[]; sugerido: { nombre: string; email: s
 
 export const VACIA: Tarjeta = { etiqueta: 'Principal', slug: '', estilo: 'clasico', vista: 'perfil', nombre: '', cargo: '', area: '', bio: '', fotoUrl: '', portadaUrl: '', mostrar: {}, qrColor: '', qrFondo: '', telefono: '', whatsapp: '', email: '', linkedin: '', web: '', agendaUrl: '', enlaces: [], activo: true, vistas: 0 };
 
+const CAMPOS_GUARDABLES = ['nombre', 'slug', 'etiqueta', 'cargo', 'area', 'bio', 'fotoUrl', 'portadaUrl', 'mostrar', 'qrColor', 'qrFondo', 'telefono', 'whatsapp', 'email', 'linkedin', 'web', 'agendaUrl', 'cotizarUrl', 'enlaces', 'estilo', 'vista', 'activo'] as const;
+
+/** Solo los campos que acepta el API: la tarjeta guardada trae además marcaId, usuarioId, url, qr, faltantes, fechas… y el API los rechaza. */
+export function cuerpoTarjeta(t: Tarjeta): Record<string, unknown> {
+  const src = t as unknown as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+  for (const k of CAMPOS_GUARDABLES) if (src[k] !== undefined) out[k] = src[k];
+  return out;
+}
+
 /** Qué le falta a la tarjeta y qué hacer. */
 function pendientes(f: Tarjeta) {
   const p: { campo: string; aviso: string }[] = [];
@@ -106,8 +116,7 @@ export function MiTarjeta() {
     setError('');
     setOk('');
     try {
-      const { vistas: _vistas, id: _id, ...datos } = datosForm;
-      void _vistas; void _id;
+      const datos = cuerpoTarjeta(datosForm);
       const r = selId ? await api.put<Respuesta>(`/tarjetas/mias/${selId}`, datos) : await api.post<Respuesta>('/tarjetas/mias', datos);
       setResp(r);
       const g = r.tarjetas.find((t) => t.id === r.guardadaId) ?? r.tarjetas[0];

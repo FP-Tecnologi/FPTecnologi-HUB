@@ -14,7 +14,7 @@ import { VistaPreviaReal, type MarcaTarjeta } from '../../components/tarjeta/Vis
 import { MenuPuntos } from '../../components/ui/MenuPuntos';
 import { EditorTarjeta } from '../../components/tarjeta/EditorTarjeta';
 import { descargarQrPng } from '../../lib/descargarQr';
-import { VACIA, type Tarjeta } from './MiTarjeta';
+import { VACIA, cuerpoTarjeta, type Tarjeta } from './MiTarjeta';
 import { Select } from '../../components/ui/Select';
 
 type Fila = Tarjeta & { id: string; usuarioId: string; propietario: string | null; url: string; faltantes: { campo: string; aviso: string }[] };
@@ -102,8 +102,7 @@ export function WebTarjetasEquipo({ filtroMarca }: { filtroMarca?: ReactNode }) 
     setGuardando(true);
     setError('');
     try {
-      const { vistas: _vistas, id: _id, ...cuerpo } = edit.form;
-      void _vistas; void _id;
+      const cuerpo = cuerpoTarjeta(edit.form);
       const r = edit.id ? await api.put<Datos>(`/tarjetas/${edit.id}`, cuerpo) : edit.externa ? await api.post<Datos>('/tarjetas/externa', cuerpo) : await api.post<Datos>(`/tarjetas/para/${edit.usuarioId}`, cuerpo);
       setDatos(r);
       setEdit(null);
