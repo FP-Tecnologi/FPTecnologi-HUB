@@ -59,8 +59,8 @@ export const PERU_COMPRAS = [
 ] as const;
 
 export const PASOS = [
-  { t: "Analizamos", d: "Entendemos tus requerimientos, presupuesto y objetivos." },
-  { t: "Proponemos", d: "Te presentamos una solución a medida con las marcas adecuadas." },
-  { t: "Implementamos", d: "Instalamos y ponemos en marcha cada equipo o sistema." },
-  { t: "Acompañamos", d: "Soporte técnico continuo para que todo funcione óptimo." },
+  { n: "grafico", t: "Analizamos", d: "Entendemos tus requerimientos, presupuesto y objetivos." },
+  { n: "idea", t: "Proponemos", d: "Te presentamos una solución a medida con las marcas adecuadas." },
+  { n: "cable", t: "Implementamos", d: "Instalamos y ponemos en marcha cada equipo o sistema." },
+  { n: "equipo", t: "Acompañamos", d: "Soporte técnico continuo para que todo funcione óptimo." },
 ] as const;

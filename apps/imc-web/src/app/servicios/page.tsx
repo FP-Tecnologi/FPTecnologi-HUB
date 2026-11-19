@@ -60,21 +60,36 @@ export default function Servicios() {
         </div>
       </Seccion>
 
-      <Seccion className="bg-white">
-        <Reveal><Titulo a="Cómo" b="trabajamos" /></Reveal>
-        <ol className="relative mt-14 grid gap-8 md:grid-cols-4">
-          <div className="absolute left-0 right-0 top-9 hidden h-0.5 bg-gradient-to-r from-azul-2 to-naranja md:block" aria-hidden />
-          {PASOS.map((p, i) => (
-            <Reveal key={p.t} delay={i * 130}>
-              <li className="grupo relative">
-                <span className="insignia hex relative h-[4.5rem] w-[4.5rem] text-2xl font-extrabold">{i + 1}</span>
-                <h3 className="mt-5 text-xl font-extrabold text-azul-osc">{p.t}</h3>
-                <p className="mt-2 text-grafito/75">{p.d}</p>
-              </li>
-            </Reveal>
-          ))}
-        </ol>
-      </Seccion>
+      <section className="oscuro relative overflow-hidden bg-grafito px-5 py-20 text-white sm:py-28">
+        <div className="cuadricula-claro absolute inset-0" aria-hidden />
+        <div className="relative mx-auto max-w-6xl">
+          <Reveal><Titulo a="Cómo" b="trabajamos" claro /></Reveal>
+          <div className="mt-16 grid gap-10 md:grid-cols-4 md:gap-8">
+            {PASOS.map((p, i) => (
+              <Reveal key={p.t} delay={i * 160} className="h-full">
+                <article className="grupo relative flex gap-5 md:block">
+                  <span className="pointer-events-none absolute -bottom-6 right-0 select-none text-8xl font-extrabold leading-none text-white/[.06]" aria-hidden>0{i + 1}</span>
+                  <div className="relative z-10 h-20 w-20 shrink-0">
+                    <span className="insignia hex h-20 w-20 !bg-azul-2 ring-0"><Icono n={p.n} className="h-8 w-8" /></span>
+                    <span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center bg-naranja text-xs font-extrabold text-tinta">{i + 1}</span>
+                  </div>
+                  {i < PASOS.length - 1 && (
+                    <>
+                      <span className="conector-h cx absolute left-[6rem] top-[2.4rem] hidden md:block" aria-hidden><svg viewBox="0 0 12 20" className="absolute -right-1 -top-[8px] h-5 w-3 text-naranja"><path d="M1 1l10 9-10 9" fill="none" stroke="currentColor" strokeWidth="3" /></svg></span>
+                      <span className="conector-v cx absolute left-[2.35rem] top-[5.75rem] bottom-[-2.5rem] md:hidden" aria-hidden />
+                    </>
+                  )}
+                  <div className="md:mt-7">
+                    <p className="text-xs font-bold uppercase tracking-widest text-naranja">Paso 0{i + 1}</p>
+                    <h3 className="mt-1 text-2xl font-extrabold">{p.t}</h3>
+                    <p className="mt-2 leading-relaxed text-white/70">{p.d}</p>
+                  </div>
+                </article>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <Cta />
     </>
