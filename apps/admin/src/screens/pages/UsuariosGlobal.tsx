@@ -11,6 +11,7 @@ import { VerificacionModal } from '../../components/ui/VerificacionModal';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { Select } from '../../components/ui/Select';
+import { confirmar } from '../../components/ui/Dialogos';
 
 interface Asig { marcaId: string; rolId: string; marca: { nombre: string }; rol: { nombre: string } }
 interface Usuario { id: string; email: string; nombre: string | null; cargo: string | null; telefono?: string | null; dni?: string | null; activo: boolean; totpEnabled: boolean; superAdmin: boolean; createdAt: string; marcas: Asig[] }
@@ -206,7 +207,7 @@ export function UsuariosGlobal() {
                         <span key={`${a.marcaId}${a.rolId}`} className="ax-badge ax-badge--soft ax-badge--neutral ax-badge--pill">
                           {a.marca.nombre} · {a.rol.nombre}
                           <button type="button" aria-label={`Quitar ${a.rol.nombre} en ${a.marca.nombre}`} style={{ marginInlineStart: 6, background: 'none', border: 'none', cursor: 'pointer', color: 'inherit' }}
-                            onClick={() => window.confirm(`¿Quitar el rol ${a.rol.nombre} de ${u.email} en ${a.marca.nombre}?`) && accion(() => api.delete(`/usuarios/global/${u.id}/asignaciones/${a.marcaId}/${a.rolId}`), 'No se pudo quitar el rol.')}>×</button>
+                            onClick={async () => await confirmar(`¿Quitar el rol ${a.rol.nombre} de ${u.email} en ${a.marca.nombre}?`) && accion(() => api.delete(`/usuarios/global/${u.id}/asignaciones/${a.marcaId}/${a.rolId}`), 'No se pudo quitar el rol.')}>×</button>
                         </span>
                       ))}
                       {agregando === u.id ? (
@@ -239,9 +240,9 @@ export function UsuariosGlobal() {
                         <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm ax-btn--block" style={{ justifyContent: 'flex-start' }}
                           onClick={(e) => { cerrarMenu(e.currentTarget); setPwU(u); setPw(''); setPwErr(''); }}>Cambiar contraseña…</button>
                         <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm ax-btn--block" style={{ justifyContent: 'flex-start' }} disabled={!u.totpEnabled}
-                          onClick={(e) => { cerrarMenu(e.currentTarget); if (u.superAdmin) conVerificacion('Restablecer el 2FA de un super administrador', `Vas a quitar el 2FA por app de ${u.email}.`, `2FA restablecido para ${u.email}.`, (codigo) => api.post(`/usuarios/global/${u.id}/2fa/reset`, { codigo })); else if (window.confirm(`¿Restablecer el 2FA de ${u.email}? Podrá volver a activarlo desde su Configuración.`)) void seguridad(() => api.post(`/usuarios/global/${u.id}/2fa/reset`, {}), `2FA restablecido para ${u.email}.`, 'No se pudo restablecer el 2FA.'); }}>Restablecer 2FA{u.totpEnabled ? '' : ' (no activo)'}</button>
+                          onClick={async (e) => { cerrarMenu(e.currentTarget); if (u.superAdmin) conVerificacion('Restablecer el 2FA de un super administrador', `Vas a quitar el 2FA por app de ${u.email}.`, `2FA restablecido para ${u.email}.`, (codigo) => api.post(`/usuarios/global/${u.id}/2fa/reset`, { codigo })); else if (await confirmar(`¿Restablecer el 2FA de ${u.email}? Podrá volver a activarlo desde su Configuración.`)) void seguridad(() => api.post(`/usuarios/global/${u.id}/2fa/reset`, {}), `2FA restablecido para ${u.email}.`, 'No se pudo restablecer el 2FA.'); }}>Restablecer 2FA{u.totpEnabled ? '' : ' (no activo)'}</button>
                         <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm ax-btn--block" style={{ justifyContent: 'flex-start' }}
-                          onClick={(e) => { cerrarMenu(e.currentTarget); window.confirm(`¿Cerrar todas las sesiones de ${u.email}?`) && void seguridad(() => api.post(`/usuarios/global/${u.id}/sesiones/cerrar`), 'Sesiones cerradas.', 'No se pudieron cerrar las sesiones.'); }}>Cerrar todas sus sesiones</button>
+                          onClick={async (e) => { cerrarMenu(e.currentTarget); await confirmar(`¿Cerrar todas las sesiones de ${u.email}?`) && void seguridad(() => api.post(`/usuarios/global/${u.id}/sesiones/cerrar`), 'Sesiones cerradas.', 'No se pudieron cerrar las sesiones.'); }}>Cerrar todas sus sesiones</button>
                         <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm ax-btn--block" style={{ justifyContent: 'flex-start', color: 'var(--ax-danger-500)' }} disabled={u.id === user?.id || u.superAdmin} title={u.superAdmin ? 'Quítale primero el rol de super administrador' : undefined}
                           onClick={(e) => { cerrarMenu(e.currentTarget); conVerificacion('Eliminar usuario', `Vas a eliminar a ${u.email} con sus accesos y tarjetas. No se puede deshacer. Si tiene pedidos o chats, mejor desactívalo.`, `${u.email} eliminado.`, (codigo) => api.post(`/usuarios/global/${u.id}/eliminar`, { codigo })); }}>Eliminar usuario</button>
                       </div>

@@ -13,6 +13,7 @@ import { VerEnCrm } from './crm/VerEnCrm';
 import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
 import { Select } from '../../components/ui/Select';
+import { confirmar } from '../../components/ui/Dialogos';
 
 type Estado = 'NUEVO' | 'CONTACTADO' | 'COTIZADO' | 'GANADO' | 'PERDIDO';
 
@@ -132,7 +133,7 @@ export function CotizadorLeads() {
   }
 
   async function eliminar(l: Lead) {
-    if (!window.confirm(`¿Eliminar el lead de ${nombre(l)}? Esta acción no se puede deshacer.`)) return;
+    if (!await confirmar(`¿Eliminar el lead de ${nombre(l)}? Esta acción no se puede deshacer.`)) return;
     try {
       await api.delete(`/cotizador/leads/${l.id}`);
       setSelId(null);

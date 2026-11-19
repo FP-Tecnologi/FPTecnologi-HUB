@@ -13,6 +13,7 @@ import { api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
 import { Select } from '../../components/ui/Select';
 import { CampoImagen } from '../../components/ui/CampoImagen';
+import { confirmar } from '../../components/ui/Dialogos';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
@@ -158,7 +159,7 @@ export function WebServicios() {
 
   async function borrar(id = edit?.id) {
     if (!id) return;
-    if (!window.confirm('¿Eliminar este servicio? Si ya tiene cotizaciones no se podrá; en ese caso desactívalo.')) return;
+    if (!await confirmar('¿Eliminar este servicio? Si ya tiene cotizaciones no se podrá; en ese caso desactívalo.')) return;
     try {
       await api.delete(`/servicios/${id}`);
       setOk('Servicio eliminado.');

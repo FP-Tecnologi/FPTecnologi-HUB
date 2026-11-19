@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { confirmar } from '../../components/ui/Dialogos';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
@@ -58,7 +59,7 @@ export function BlogLista() {
   );
 
   async function eliminar(a: Articulo) {
-    if (!window.confirm(`¿Eliminar "${a.titulo}"? Esta acción no se puede deshacer.`)) return;
+    if (!await confirmar(`¿Eliminar "${a.titulo}"? Esta acción no se puede deshacer.`)) return;
     try {
       await api.delete(`/blog/${a.id}`);
       await cargar();

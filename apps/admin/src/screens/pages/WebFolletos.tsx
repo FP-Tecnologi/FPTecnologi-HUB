@@ -11,6 +11,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } fro
 import { PageHead } from '../../components/shell/PageHead';
 import { ApiError, useAuth } from '../../context/AuthContext';
 import { abrirArchivoPrivado, api, obtenerArchivoPrivado } from '../../lib/api';
+import { confirmar } from '../../components/ui/Dialogos';
 
 interface Folleto { id: string; titulo: string; slug: string; bytes: number; activo: boolean; vistas: number; creadoPor: string | null; createdAt: string; url: string; pdf: string }
 type Filtro = 'todos' | 'activos' | 'inactivos';
@@ -163,7 +164,7 @@ function ModalEditar({ f, onClose, onGuardado, onCopiar }: { f: Folleto; onClose
     if (!e) setArchivo(file);
   }
   async function regenerar() {
-    if (!window.confirm('El enlace actual dejará de funcionar y se creará uno nuevo. ¿Continuar?')) return;
+    if (!await confirmar('El enlace actual dejará de funcionar y se creará uno nuevo. ¿Continuar?')) return;
     try {
       setActual(await api.post<Folleto>(`/folletos/${f.id}/enlace`));
       setNuevoEnlace(true);

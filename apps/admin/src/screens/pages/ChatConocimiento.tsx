@@ -9,6 +9,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { confirmar } from '../../components/ui/Dialogos';
 
 interface Documento { id: string; nombre: string; tipo: string; tamano: number; fragmentos: number; activo: boolean; createdAt: string }
 interface Respuesta { id: string; titulo: string; texto: string; activo: boolean }
@@ -155,7 +156,7 @@ export function ChatConocimiento() {
                   <FilaDoc key={d.id} d={d} abierto={verDoc?.id === d.id} frags={verDoc?.id === d.id ? verDoc.frags : []}
                     onVer={() => abrirDoc(d)}
                     onActivo={() => accion(() => api.patch(`/conocimiento/documentos/${d.id}`, { activo: !d.activo }), 'No se pudo actualizar.')}
-                    onBorrar={() => window.confirm(`¿Borrar «${d.nombre}»? El asistente dejará de usarlo.`) && accion(() => api.delete(`/conocimiento/documentos/${d.id}`), 'No se pudo borrar.')} />
+                    onBorrar={async () => await confirmar(`¿Borrar «${d.nombre}»? El asistente dejará de usarlo.`) && accion(() => api.delete(`/conocimiento/documentos/${d.id}`), 'No se pudo borrar.')} />
                 ))}
               </tbody>
             </table>
@@ -177,7 +178,7 @@ export function ChatConocimiento() {
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-1)' }}>
                 <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setForm({ id: r.id, pregunta: r.titulo, respuesta: r.texto })}>Editar</button>
                 <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => accion(() => api.patch(`/conocimiento/respuestas/${r.id}`, { activo: !r.activo }), 'No se pudo actualizar.')}>{r.activo ? 'Desactivar' : 'Activar'}</button>
-                <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => window.confirm('¿Borrar esta respuesta?') && accion(() => api.delete(`/conocimiento/respuestas/${r.id}`), 'No se pudo borrar.')}>Borrar</button>
+                <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={async () => await confirmar('¿Borrar esta respuesta?') && accion(() => api.delete(`/conocimiento/respuestas/${r.id}`), 'No se pudo borrar.')}>Borrar</button>
               </div>
             </div>
           ))}

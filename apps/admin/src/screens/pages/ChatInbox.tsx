@@ -13,6 +13,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
+import { confirmar } from '../../components/ui/Dialogos';
 
 type Estado = 'BOT' | 'ASESOR' | 'CERRADA';
 type Autor = 'CLIENTE' | 'BOT' | 'ASESOR' | 'SISTEMA';
@@ -179,7 +180,7 @@ export function ChatInbox() {
   }
 
   async function eliminar(c: { id: string; titulo: string | null }) {
-    if (!window.confirm(`¿Eliminar la conversación «${c.titulo ?? 'sin título'}» con todos sus mensajes? No se puede deshacer.`)) return;
+    if (!await confirmar(`¿Eliminar la conversación «${c.titulo ?? 'sin título'}» con todos sus mensajes? No se puede deshacer.`)) return;
     try {
       await api.delete(`/chat/conversaciones/${c.id}`);
       if (selId === c.id) { setSelId(null); setConv(null); }

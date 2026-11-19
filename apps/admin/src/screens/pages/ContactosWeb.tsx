@@ -13,6 +13,7 @@ import { VerEnCrm } from './crm/VerEnCrm';
 import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
 import { Select } from '../../components/ui/Select';
+import { confirmar } from '../../components/ui/Dialogos';
 
 type Estado = 'NUEVO' | 'CONTACTADO' | 'RESUELTO' | 'DESCARTADO';
 type Tipo = 'CONTACTO' | 'RECLAMO' | 'TARJETA_BBVA'; // TARJETA_BBVA tiene su propia pantalla (web/bbva)
@@ -137,7 +138,7 @@ export function ContactosWeb() {
   }
 
   async function eliminar(c: Contacto) {
-    if (!window.confirm(`¿Eliminar el contacto de ${c.nombre}? Esta acción no se puede deshacer.`)) return;
+    if (!await confirmar(`¿Eliminar el contacto de ${c.nombre}? Esta acción no se puede deshacer.`)) return;
     try {
       await api.delete(`/contacto-web/${c.id}`);
       setSelId(null);

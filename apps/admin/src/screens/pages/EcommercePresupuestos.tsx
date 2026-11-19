@@ -13,6 +13,7 @@ import { VerEnCrm } from './crm/VerEnCrm';
 import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
 import { Select } from '../../components/ui/Select';
+import { confirmar } from '../../components/ui/Dialogos';
 
 type Estado = 'PENDIENTE' | 'EN_REVISION' | 'ENVIADA' | 'ACEPTADA' | 'RECHAZADA';
 interface Item { id: string; sku: string; nombre: string; cantidad: number; precioLista: string; precioUnitario: string; mayorista: boolean; subtotal: string }
@@ -91,7 +92,7 @@ export function EcommercePresupuestos() {
   }
 
   async function eliminar(p: { id: string; numero: string } | null = sel) {
-    if (!p || !window.confirm(`¿Eliminar el presupuesto ${p.numero}? No se puede deshacer.`)) return;
+    if (!p || !await confirmar(`¿Eliminar el presupuesto ${p.numero}? No se puede deshacer.`)) return;
     try { await api.delete(`/presupuestos/${p.id}`); if (selId === p.id) setSelId(null); await cargar(); setAviso({ ok: true, texto: 'Presupuesto eliminado.' }); }
     catch (e) { setAviso({ ok: false, texto: errMsg(e, 'No se pudo eliminar.') }); }
   }

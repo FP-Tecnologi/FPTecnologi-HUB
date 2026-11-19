@@ -14,6 +14,7 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
 import { Select } from '../../components/ui/Select';
+import { confirmar } from '../../components/ui/Dialogos';
 
 type Estado = 'BORRADOR' | 'ACTIVO' | 'PAUSADO';
 type Situacion = 'borrador' | 'pausado' | 'programado' | 'en_curso' | 'finalizado';
@@ -103,7 +104,7 @@ export function WebPopups() {
     catch (e) { setAviso({ ok: false, texto: errMsg(e, 'No se pudo duplicar.') }); }
   }
   async function eliminar(p: Popup) {
-    if (!window.confirm(`¿Eliminar el popup “${p.nombre}”?`)) return;
+    if (!await confirmar(`¿Eliminar el popup “${p.nombre}”?`)) return;
     try { await api.delete(`/popups/${p.id}`); setAviso({ ok: true, texto: 'Popup eliminado.' }); if (selId === p.id) setSelId(null); await cargar(); }
     catch (e) { setAviso({ ok: false, texto: errMsg(e, 'No se pudo eliminar.') }); }
   }

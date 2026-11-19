@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { confirmar } from '../../components/ui/Dialogos';
 
 interface Suscriptor {
   id: string;
@@ -55,7 +56,7 @@ export function BoletinSuscriptores() {
   const visibles = useMemo(() => lista.filter((s) => !q || s.email.toLowerCase().includes(q.trim().toLowerCase())), [lista, q]);
 
   async function eliminar(s: Suscriptor) {
-    if (!window.confirm(`¿Eliminar a ${s.email} del boletín?`)) return;
+    if (!await confirmar(`¿Eliminar a ${s.email} del boletín?`)) return;
     try {
       await api.delete(`/boletin/suscriptores/${s.id}`);
       await cargar();

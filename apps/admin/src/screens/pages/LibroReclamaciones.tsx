@@ -13,6 +13,7 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
 import { numeroMoneda } from '@/lib/moneda';
+import { confirmar } from '../../components/ui/Dialogos';
 
 type Estado = 'RECIBIDO' | 'EN_PROCESO' | 'RESPONDIDO';
 
@@ -171,9 +172,9 @@ export function LibroReclamaciones() {
     setModalErr('');
   }
   const sucio = !!sel && sel.estado !== 'RESPONDIDO' && (notas !== (sel.notasInternas ?? '') || respuesta.trim() !== '');
-  function cerrar() {
+  async function cerrar() {
     if (guardando) return; // hay una petición en curso: no se cierra hasta que termine
-    if (sucio && !window.confirm('Hay notas o una respuesta sin guardar. ¿Cerrar y descartarlas?')) return;
+    if (sucio && !await confirmar('Hay notas o una respuesta sin guardar. ¿Cerrar y descartarlas?')) return;
     selId.current = null;
     setSel(null);
   }
@@ -226,9 +227,9 @@ export function LibroReclamaciones() {
 
   const marcarEnProceso = (h: Hoja) => guardar(h, () => api.patch<Hoja>(`/libro-reclamaciones/${h.id}`, { estado: 'EN_PROCESO' }), 'Marcada en proceso.', 'No se pudo cambiar el estado.');
   const guardarNotas = (h: Hoja) => guardar(h, () => api.patch<Hoja>(`/libro-reclamaciones/${h.id}`, { notasInternas: notas }), 'Notas guardadas.', 'No se pudieron guardar las notas.');
-  function responder(h: Hoja) {
+  async function responder(h: Hoja) {
     const carta = h.medioRespuesta === 'CARTA';
-    const ok = window.confirm(
+    const ok = await confirmar(
       `La respuesta se enviará por correo a ${h.email} y la hoja quedará como respondida (ya no se podrá editar).` +
       (carta ? '\n\nEl consumidor eligió recibir la respuesta por CARTA: además del correo, debes enviársela por carta a su domicilio.' : '') +
       '\n\n¿Enviar la respuesta?',

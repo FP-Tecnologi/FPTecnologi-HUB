@@ -10,6 +10,7 @@ import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { ApiError, useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { CampoImagen } from '../../components/ui/CampoImagen';
+import { confirmar } from '../../components/ui/Dialogos';
 
 interface Marca {
   id: string; nombre: string; logo: string | null; colorPrimario: string | null; colorSecundario: string | null;
@@ -123,7 +124,7 @@ export function MarcasAdmin() {
                     <span key={s.id} className="ax-badge ax-badge--soft ax-badge--neutral ax-badge--pill">
                       {s.dominio}
                       <button type="button" aria-label={`Quitar ${s.dominio}`} style={{ marginInlineStart: 6, background: 'none', border: 'none', cursor: 'pointer', color: 'inherit' }}
-                        onClick={() => window.confirm(`¿Quitar el dominio ${s.dominio}?`) && void accion(() => api.delete(`/sitios/${s.id}`, { marcaId: m.id }), 'Dominio quitado.', 'No se pudo quitar el dominio.')}>×</button>
+                        onClick={async () => await confirmar(`¿Quitar el dominio ${s.dominio}?`) && void accion(() => api.delete(`/sitios/${s.id}`, { marcaId: m.id }), 'Dominio quitado.', 'No se pudo quitar el dominio.')}>×</button>
                     </span>
                   ))}
                   {m.sitios.length === 0 && <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>Ninguno</span>}

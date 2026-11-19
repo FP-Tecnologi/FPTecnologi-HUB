@@ -126,7 +126,7 @@ export function CrmEmbudo({ propio = false }: { propio?: boolean }) {
   async function mover(id: string, destino: Etapa) {
     const o = lista.find((x) => x.id === id);
     if (!o || o.etapa === destino) return;
-    const motivoPerdida = destino === 'PERDIDO' ? pedirMotivo() : undefined;
+    const motivoPerdida = destino === 'PERDIDO' ? (await pedirMotivo()) ?? undefined : undefined;
     if (destino === 'PERDIDO' && !motivoPerdida) return;
     setLista((l) => l.map((x) => (x.id === id ? { ...x, etapa: destino } : x)));
     try { await api.patch(`/crm/oportunidades/${id}/etapa`, { etapa: destino, motivoPerdida }); } catch (e) { setError(msg(e, 'No se pudo mover.')); }

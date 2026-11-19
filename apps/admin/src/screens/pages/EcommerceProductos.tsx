@@ -13,6 +13,7 @@ import { CampoImagenes } from '../../components/ui/CampoImagen';
 import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
 import { Select } from '../../components/ui/Select';
+import { confirmar } from '../../components/ui/Dialogos';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
@@ -158,7 +159,7 @@ export function EcommerceProductos() {
   }
 
   async function borrar(id: string) {
-    if (!window.confirm('¿Eliminar este producto? No se puede deshacer.')) return;
+    if (!await confirmar('¿Eliminar este producto? No se puede deshacer.')) return;
     try {
       await api.delete(`/productos/${id}`);
       setOk('Producto eliminado.');
@@ -190,7 +191,7 @@ export function EcommerceProductos() {
   async function enBloque(accion: 'activar' | 'desactivar' | 'eliminar') {
     const ids = [...marcados];
     if (ids.length === 0) return;
-    if (accion === 'eliminar' && !window.confirm(`¿Eliminar ${ids.length} producto(s)? No se puede deshacer.`)) return;
+    if (accion === 'eliminar' && !await confirmar(`¿Eliminar ${ids.length} producto(s)? No se puede deshacer.`)) return;
     setError('');
     const resultados = await Promise.allSettled(ids.map((id) => (accion === 'eliminar' ? api.delete(`/productos/${id}`) : api.patch(`/productos/${id}`, { activo: accion === 'activar' }))));
     const fallos = resultados.filter((r) => r.status === 'rejected').length;

@@ -12,6 +12,7 @@ import { CampoImagen } from '../../components/ui/CampoImagen';
 import { api } from '../../lib/api';
 import { Select } from '../../components/ui/Select';
 import { urlImagen } from '../../components/ui/SubirImagen';
+import { confirmar } from '../../components/ui/Dialogos';
 
 type Bloque =
   | { id: string; tipo: 'hero'; titulo: string; texto: string; imagen: string }
@@ -249,7 +250,7 @@ export function MailingEditor() {
     setActualId(n.id);
   }
   const duplicar = () => { if (!m) return; const n = { ...m, id: uid(), nombre: `${m.nombre} (copia)`, bloques: m.bloques.map((b) => ({ ...b, id: uid() })) as Bloque[] }; guardarLista([n, ...lista]); setActualId(n.id); };
-  const eliminar = () => { if (!m || !window.confirm(`¿Eliminar «${m.nombre}»?`)) return; const l = lista.filter((x) => x.id !== m.id); guardarLista(l); setActualId(l[0]?.id ?? null); };
+  const eliminar = async () => { if (!m || !await confirmar(`¿Eliminar «${m.nombre}»?`)) return; const l = lista.filter((x) => x.id !== m.id); guardarLista(l); setActualId(l[0]?.id ?? null); };
   const mover = (i: number, d: number) => { if (!m) return; const b = [...m.bloques]; const j = i + d; if (j < 0 || j >= b.length) return; [b[i], b[j]] = [b[j], b[i]]; cambiar({ bloques: b }); };
   const copiarHtml = async () => { try { await navigator.clipboard.writeText(html); nota('HTML copiado'); } catch { nota('No se pudo copiar'); } };
   /** Copia el correo como contenido con formato (no como código): al pegarlo en Outlook (o Gmail) conserva el diseño. */

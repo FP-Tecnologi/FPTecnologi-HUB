@@ -13,6 +13,7 @@ import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
 import { Select } from '../../components/ui/Select';
 import { CampoImagen } from '../../components/ui/CampoImagen';
+import { confirmar } from '../../components/ui/Dialogos';
 
 const SECTORES = [['gobierno', 'Sector gobierno'], ['educacion', 'Educación'], ['privado', 'Sector privado']] as const;
 const etiquetaSector = (k: string) => SECTORES.find(([v]) => v === k)?.[1] ?? k;
@@ -103,7 +104,7 @@ export function WebClientes() {
   }
 
   async function borrar(id = edit?.id) {
-    if (!id || !window.confirm('¿Eliminar este cliente?')) return;
+    if (!id || !await confirmar('¿Eliminar este cliente?')) return;
     try {
       await api.delete(`/clientes/${id}`);
       setOk('Cliente eliminado.');

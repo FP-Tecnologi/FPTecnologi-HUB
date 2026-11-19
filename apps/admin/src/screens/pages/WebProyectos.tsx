@@ -14,6 +14,7 @@ import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
 import { Select } from '../../components/ui/Select';
 import { CampoImagen } from '../../components/ui/CampoImagen';
+import { confirmar } from '../../components/ui/Dialogos';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
@@ -118,7 +119,7 @@ export function WebProyectos() {
   }
 
   async function borrar(id = edit?.id) {
-    if (!id || !window.confirm('¿Eliminar este proyecto?')) return;
+    if (!id || !await confirmar('¿Eliminar este proyecto?')) return;
     try {
       await api.delete(`/proyectos/${id}`);
       setOk('Proyecto eliminado.');

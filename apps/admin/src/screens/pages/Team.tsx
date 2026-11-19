@@ -11,6 +11,7 @@ import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { Select } from '../../components/ui/Select';
+import { confirmar } from '../../components/ui/Dialogos';
 
 interface Rol { id: string; nombre: string }
 interface Usuario { id: string; email: string; nombre: string | null; activo: boolean; telefono: string | null; cargo: string | null; totpEnabled: boolean; createdAt: string }
@@ -202,7 +203,7 @@ export function Team() {
                       <div className="ax-cluster" style={{ gap: 'var(--ax-space-1)', justifyContent: 'flex-end' }}>
                         {esEquipo && u.totpEnabled && (
                           <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm"
-                            onClick={() => window.confirm(`¿Restablecer el 2FA de ${u.email}?`) && accion(() => api.post('/usuarios/2fa/reset', { email: u.email }), `2FA restablecido para ${u.email}.`)}>
+                            onClick={async () => await confirmar(`¿Restablecer el 2FA de ${u.email}?`) && accion(() => api.post('/usuarios/2fa/reset', { email: u.email }), `2FA restablecido para ${u.email}.`)}>
                             Restablecer 2FA
                           </button>
                         )}
@@ -211,7 +212,7 @@ export function Team() {
                           {u.activo ? 'Desactivar' : 'Activar'}
                         </button>
                         <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }}
-                          onClick={() => window.confirm(`¿Quitar a ${u.email} de ${marcaNombre}?`) && accion(() => api.delete(`/roles/equipo/${u.id}`), 'Quitado de la marca.')}>
+                          onClick={async () => await confirmar(`¿Quitar a ${u.email} de ${marcaNombre}?`) && accion(() => api.delete(`/roles/equipo/${u.id}`), 'Quitado de la marca.')}>
                           Quitar
                         </button>
                       </div>

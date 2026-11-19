@@ -13,6 +13,7 @@ import { VerEnCrm } from './crm/VerEnCrm';
 import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
 import { Select } from '../../components/ui/Select';
+import { confirmar } from '../../components/ui/Dialogos';
 
 type Estado = 'PENDIENTE' | 'EN_REVISION' | 'ENVIADA' | 'ACEPTADA' | 'RECHAZADA';
 interface Envio { id: string; canal: 'EMAIL' | 'WHATSAPP'; destinatario: string; mensaje: string; enviadoPor: string; createdAt: string }
@@ -118,7 +119,7 @@ export function SolucionesCotizaciones() {
   }
 
   async function eliminar(c: { id: string; numero?: string | null } | null = sel) {
-    if (!c || !window.confirm(`¿Eliminar la cotización ${c.numero ?? ''}? No se puede deshacer.`)) return;
+    if (!c || !await confirmar(`¿Eliminar la cotización ${c.numero ?? ''}? No se puede deshacer.`)) return;
     try { await api.delete(`/cotizaciones/${c.id}`); if (selId === c.id) setSelId(null); await cargar(); setAviso({ ok: true, texto: 'Cotización eliminada.' }); }
     catch (e) { setAviso({ ok: false, texto: errMsg(e, 'No se pudo eliminar.') }); }
   }

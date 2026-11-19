@@ -12,6 +12,7 @@ import { api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
 import { Select } from '../../components/ui/Select';
+import { confirmar } from '../../components/ui/Dialogos';
 
 type Estado = 'PENDIENTE' | 'PAGADO' | 'ENVIADO' | 'ENTREGADO' | 'CANCELADO';
 type Pago = 'PENDIENTE' | 'POR_CONFIRMAR' | 'PAGADO';
@@ -119,7 +120,7 @@ export function EcommercePedidos() {
   const cuenta = (e: '' | Estado) => lista.filter((p) => !e || p.estado === e).length;
 
   async function actualizar(p: Pedido, cambios: { estado?: Estado; estadoPago?: Pago; trackingCodigo?: string }) {
-    if (cambios.estado === 'CANCELADO' && !window.confirm(`¿Cancelar el pedido ${numero(p)}? El stock de sus productos volverá al inventario y no se podrá reactivar.`)) return;
+    if (cambios.estado === 'CANCELADO' && !await confirmar(`¿Cancelar el pedido ${numero(p)}? El stock de sus productos volverá al inventario y no se podrá reactivar.`)) return;
     setGuardando(true);
     try {
       await api.patch(`/pedidos/${p.id}/estado`, cambios);

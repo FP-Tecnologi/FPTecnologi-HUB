@@ -16,6 +16,7 @@ import { aplicarMostrar } from '../../lib/tarjetaOpciones';
 import type { EstiloTarjeta } from '../../lib/tarjetaGrafica';
 import { descargarFisicaPng, descargarFisicaSvg, svgADataUrl, tarjetaFisicaSvg, type DatosFisica, type Lado } from '../../lib/tarjetaFisica';
 import { descargarQrPng, descargarQrSvg } from '../../lib/descargarQr';
+import { confirmar } from '../../components/ui/Dialogos';
 
 export interface Tarjeta {
   id?: string; etiqueta: string; slug: string; estilo: EstiloTarjeta; vista: 'perfil' | 'linktree'; nombre: string; cargo: string | null; area: string | null; bio: string | null; fotoUrl: string | null; portadaUrl?: string | null; telefono: string | null;
@@ -87,7 +88,7 @@ export function MiTarjeta() {
     setModo('editar');
   }
   async function eliminar() {
-    if (!actual || !window.confirm(`¿Eliminar la versión «${actual.etiqueta}»? Su enlace y su QR dejarán de funcionar.`)) return;
+    if (!actual || !await confirmar(`¿Eliminar la versión «${actual.etiqueta}»? Su enlace y su QR dejarán de funcionar.`)) return;
     try {
       const r = await api.delete<Respuesta>(`/tarjetas/mias/${actual.id}`);
       setResp(r);
@@ -165,7 +166,7 @@ export function MiTarjeta() {
   const nombreArchivo = (l: Lado) => `tarjeta-${actual?.slug || 'fptecnologi'}-${estiloSel}-${l}`;
   async function bajar(formato: 'png' | 'svg', lados: Lado[]) {
     if (!actual) return;
-    if (!actual.fotoUrl && lados.includes('frente') && !window.confirm('Tu tarjeta no tiene foto. ¿Descargarla igual?')) return;
+    if (!actual.fotoUrl && lados.includes('frente') && !await confirmar('Tu tarjeta no tiene foto. ¿Descargarla igual?')) return;
     try {
       for (const l of lados) {
         const svg = l === lado && svgTarjeta ? svgTarjeta : await generar(l);

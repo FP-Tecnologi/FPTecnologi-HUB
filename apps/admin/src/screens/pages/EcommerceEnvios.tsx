@@ -11,6 +11,7 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { Select } from '../../components/ui/Select';
 import { numeroMoneda } from '@/lib/moneda';
+import { confirmar } from '../../components/ui/Dialogos';
 
 interface Tarifa { id: string; proveedor: string; departamento: string; costo: string; moneda: string; plazoDias: string | null; activo: boolean }
 
@@ -92,7 +93,7 @@ export function EcommerceEnvios() {
                         <div className="ax-cluster" style={{ gap: 'var(--ax-space-1)', justifyContent: 'flex-end' }}>
                           <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => abrir(t)}>Editar</button>
                           <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => accion(() => api.patch(`/envios/tarifas/${t.id}`, { activo: !t.activo }), t.activo ? 'Tarifa desactivada.' : 'Tarifa activada.')}>{t.activo ? 'Desactivar' : 'Activar'}</button>
-                          <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={() => window.confirm(`¿Borrar la tarifa de ${t.departamento}?`) && accion(() => api.delete(`/envios/tarifas/${t.id}`), 'Tarifa eliminada.')}>Borrar</button>
+                          <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={async () => await confirmar(`¿Borrar la tarifa de ${t.departamento}?`) && accion(() => api.delete(`/envios/tarifas/${t.id}`), 'Tarifa eliminada.')}>Borrar</button>
                         </div>
                       </td>
                     </tr>

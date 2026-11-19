@@ -13,6 +13,7 @@ import { api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
 import { Select } from '../../components/ui/Select';
+import { confirmar } from '../../components/ui/Dialogos';
 
 type Estado = 'NUEVO' | 'CONTACTADO' | 'RESUELTO' | 'DESCARTADO';
 type Vista = '' | 'solicito' | 'ofertas' | 'sin-ofertas';
@@ -157,7 +158,7 @@ export function TarjetasBbva() {
   }
 
   async function eliminar(c: Consulta) {
-    if (!window.confirm(`¿Eliminar la consulta de ${c.nombre}? Esta acción no se puede deshacer.`)) return;
+    if (!await confirmar(`¿Eliminar la consulta de ${c.nombre}? Esta acción no se puede deshacer.`)) return;
     try {
       await api.delete(`/contacto-web/${c.id}`);
       setSelId(null);

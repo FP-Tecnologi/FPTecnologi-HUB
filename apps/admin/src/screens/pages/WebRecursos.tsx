@@ -9,6 +9,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { abrirArchivoPrivado, api } from '../../lib/api';
+import { confirmar } from '../../components/ui/Dialogos';
 
 type Tipo = 'IMAGEN' | 'PDF' | 'VIDEO' | 'DOCUMENTO' | 'OTRO';
 type EstadoSocio = 'PENDIENTE' | 'ACTIVO' | 'SUSPENDIDO' | 'RECHAZADO';
@@ -165,7 +166,7 @@ export function WebRecursos() {
   }
 
   async function borrar(r: Recurso) {
-    if (!window.confirm(`¿Eliminar "${r.titulo}"? Se borra también el archivo.`)) return;
+    if (!await confirmar(`¿Eliminar "${r.titulo}"? Se borra también el archivo.`)) return;
     try {
       await api.delete(`/recursos/${r.id}`);
       await cargar();
@@ -207,7 +208,7 @@ export function WebRecursos() {
   }
 
   async function quitarSocio(s: Socio) {
-    if (!window.confirm(`¿Eliminar a ${s.email}? Pierde el acceso y se borra su registro.`)) return;
+    if (!await confirmar(`¿Eliminar a ${s.email}? Pierde el acceso y se borra su registro.`)) return;
     try {
       await api.delete(`/recursos/socios/${s.id}`);
       await cargar();

@@ -11,6 +11,7 @@ import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { CampoImagen } from '../../components/ui/CampoImagen';
+import { confirmar } from '../../components/ui/Dialogos';
 
 interface Asesor {
   id: string;
@@ -98,7 +99,7 @@ export function ChatAsesores() {
   }
 
   async function borrar(a: Asesor) {
-    if (!window.confirm(`¿Borrar a ${a.nombre} (${a.area})? Dejará de aparecer en la web.`)) return;
+    if (!await confirmar(`¿Borrar a ${a.nombre} (${a.area})? Dejará de aparecer en la web.`)) return;
     try {
       await api.delete(`/chat/asesores/${a.id}`);
       await cargar();

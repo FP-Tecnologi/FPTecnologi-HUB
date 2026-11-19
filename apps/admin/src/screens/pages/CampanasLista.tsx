@@ -10,6 +10,7 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { Select } from '../../components/ui/Select';
 import { numeroMoneda } from '@/lib/moneda';
+import { confirmar } from '../../components/ui/Dialogos';
 
 type Estado = 'BORRADOR' | 'ACTIVA' | 'FINALIZADA';
 interface Campana {
@@ -101,7 +102,7 @@ export function CampanasLista() {
                 </div>
                 <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
                   <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => abrir(c)}>Editar</button>
-                  <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={async () => { if (!window.confirm(`¿Eliminar la campaña “${c.nombre}”? Sus landings no se borran.`)) return; try { await api.delete(`/campanas/${c.id}`); await cargar(); } catch (e) { setAviso({ ok: false, texto: errMsg(e, 'No se pudo eliminar.') }); } }}>Eliminar</button>
+                  <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={async () => { if (!await confirmar(`¿Eliminar la campaña “${c.nombre}”? Sus landings no se borran.`)) return; try { await api.delete(`/campanas/${c.id}`); await cargar(); } catch (e) { setAviso({ ok: false, texto: errMsg(e, 'No se pudo eliminar.') }); } }}>Eliminar</button>
                 </div>
               </div>
             </section>

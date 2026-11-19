@@ -12,6 +12,7 @@ import { useFocusTrap } from '../../../hooks/useFocusTrap';
 import { manifest, hrefForSlug } from '../../../lib/manifest';
 import { Icon } from '../../../components/ui/Icon';
 import { Select } from '../../../components/ui/Select';
+import { pedirTexto } from '../../../components/ui/Dialogos';
 import { numeroMoneda } from '@/lib/moneda';
 
 export type Etapa = 'NUEVO' | 'CONTACTADO' | 'PROPUESTA' | 'NEGOCIACION' | 'GANADO' | 'PERDIDO';
@@ -156,9 +157,8 @@ export function useConfirmar() {
 const fila = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 'var(--ax-space-3)' } as const;
 
 /** Pide el motivo al pasar a Perdido (la API lo exige). null = cancelado. */
-export function pedirMotivo(): string | null {
-  const m = window.prompt('¿Por qué se perdió esta oportunidad? (precio, competencia, sin presupuesto, sin respuesta…)');
-  return m && m.trim().length >= 2 ? m.trim() : null;
+export async function pedirMotivo(): Promise<string | null> {
+  return pedirTexto({ titulo: 'Marcar como perdida', etiqueta: '¿Por qué se perdió esta oportunidad?', placeholder: 'Precio, competencia, sin presupuesto, sin respuesta…', boton: 'Marcar perdida', minimo: 2 });
 }
 
 /** Ficha de una oportunidad en un panel lateral. `onCambio` refresca la lista de quien la abrió. */
@@ -190,9 +190,9 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
     try { cargarForm(await fn()); setOk(okTxt); onCambio(); } catch (e) { setError(msg(e, 'No se pudo guardar.')); } finally { setBusy(false); }
   }
 
-  const cambiarEtapa = (nueva: Etapa) => {
+  const cambiarEtapa = async (nueva: Etapa) => {
     if (!o || nueva === o.etapa) return;
-    const motivoPerdida = nueva === 'PERDIDO' ? pedirMotivo() : undefined;
+    const motivoPerdida = nueva === 'PERDIDO' ? await pedirMotivo() : undefined;
     if (nueva === 'PERDIDO' && !motivoPerdida) return;
     correr(() => api.patch<Detalle>(`/crm/oportunidades/${id}/etapa`, { etapa: nueva, motivoPerdida }), `Etapa: ${etapa(nueva).label}.`);
   };

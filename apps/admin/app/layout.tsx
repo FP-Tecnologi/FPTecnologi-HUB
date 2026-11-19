@@ -21,6 +21,7 @@ import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
 import { CustomizerProvider } from '../src/context/CustomizerContext';
 import { AuthProvider } from '../src/context/AuthContext';
+import { DialogosHost } from '../src/components/ui/Dialogos';
 import { PwaShell } from '../src/components/pwa/PwaShell';
 import '../src/styles/app.css';
 
@@ -153,6 +154,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <CustomizerProvider>{children}</CustomizerProvider>
         </AuthProvider>
         <PwaShell />
+        <DialogosHost />
       </body>
     </html>
   );

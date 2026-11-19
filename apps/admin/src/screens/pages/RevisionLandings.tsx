@@ -8,6 +8,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { confirmar } from '../../components/ui/Dialogos';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
@@ -39,7 +40,7 @@ export function RevisionLandings() {
   }
 
   async function aprobar(p: Pendiente) {
-    if (!window.confirm(`¿Aprobar y publicar “${p.nombre}”? Quedará visible en ${WEB.replace(/^https?:\/\//, '')}/l/${p.slug}`)) return;
+    if (!await confirmar(`¿Aprobar y publicar “${p.nombre}”? Quedará visible en ${WEB.replace(/^https?:\/\//, '')}/l/${p.slug}`)) return;
     setBusy(p.id); setAviso(null);
     try { await api.post(`/landings/${p.id}/aprobar`); setAviso({ ok: true, texto: `“${p.nombre}” fue aprobada y publicada.` }); await cargar(); }
     catch (e) { setAviso({ ok: false, texto: errMsg(e, 'No se pudo aprobar.') }); }

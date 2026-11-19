@@ -12,6 +12,7 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
 import { Select } from '../../components/ui/Select';
+import { confirmar } from '../../components/ui/Dialogos';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
@@ -115,7 +116,7 @@ export function CampanasLandings() {
                         <div className="ax-cluster" style={{ gap: 'var(--ax-space-1)', justifyContent: 'flex-end' }}>
                           {l.estado === 'PUBLICADA' && <a className="ax-btn ax-btn--ghost ax-btn--sm" href={`${WEB}/l/${l.slug}`} target="_blank" rel="noreferrer">Ver</a>}
                           <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={async () => { try { await api.post(`/landings/${l.id}/duplicar`); setAviso({ ok: true, texto: 'Landing duplicada.' }); await cargar(); } catch (e) { setAviso({ ok: false, texto: errMsg(e, 'No se pudo duplicar.') }); } }}>Duplicar</button>
-                          <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={async () => { if (!window.confirm(`¿Eliminar “${l.nombre}” y sus ${l._count.registros} registros? No se puede deshacer.`)) return; try { await api.delete(`/landings/${l.id}`); setAviso({ ok: true, texto: 'Landing eliminada.' }); await cargar(); } catch (e) { setAviso({ ok: false, texto: errMsg(e, 'No se pudo eliminar.') }); } }}>Eliminar</button>
+                          <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={async () => { if (!await confirmar(`¿Eliminar “${l.nombre}” y sus ${l._count.registros} registros? No se puede deshacer.`)) return; try { await api.delete(`/landings/${l.id}`); setAviso({ ok: true, texto: 'Landing eliminada.' }); await cargar(); } catch (e) { setAviso({ ok: false, texto: errMsg(e, 'No se pudo eliminar.') }); } }}>Eliminar</button>
                         </div>
                       </td>
                     </tr>
@@ -231,12 +232,12 @@ function Editor({ id, plantillas, campanas, alSalir }: { id: string; plantillas:
         subtitle={`${plantilla?.nombre ?? l.plantilla} · ${ESTADO_LABEL[l.estado]} · ${WEB.replace(/^https?:\/\//, '')}/l/${l.slug}`}
         actions={
           <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
-            <button type="button" className="ax-btn ax-btn--ghost" onClick={() => (!sucio || window.confirm('Hay cambios sin guardar. ¿Salir igual?')) && alSalir()}>← Volver</button>
+            <button type="button" className="ax-btn ax-btn--ghost" onClick={async () => (!sucio || await confirmar('Hay cambios sin guardar. ¿Salir igual?')) && alSalir()}>← Volver</button>
             <button type="button" className="ax-btn ax-btn--secondary" onClick={vistaPrevia}>Vista previa</button>
             <button type="button" className="ax-btn ax-btn--secondary" disabled={busy || !sucio || bloqueada} onClick={() => guardar()}>{busy ? 'Guardando…' : sucio ? 'Guardar cambios' : 'Guardado'}</button>
             {esComercial ? (
               l.estado === 'BORRADOR' && <button type="button" className="ax-btn ax-btn--primary" disabled={busy} onClick={async () => {
-                if (!window.confirm('¿Enviar esta landing a revisión? Tu jefe comercial la revisará y, si la aprueba, se publica.')) return;
+                if (!await confirmar('¿Enviar esta landing a revisión? Tu jefe comercial la revisará y, si la aprueba, se publica.')) return;
                 if (sucio && !(await guardar())) return;
                 setBusy(true);
                 try { await api.post(`/landings/${l.id}/enviar-revision`); await cargar(); setAviso({ ok: true, texto: 'Enviada a revisión. Te avisaremos cuando el jefe comercial responda.' }); }
@@ -425,7 +426,7 @@ function PestanaFormulario({ l, plantillas, cambiar }: { l: Landing; plantillas:
         <div className="ax-card__body" style={{ paddingTop: 0, display: 'grid', gap: 'var(--ax-space-3)', gridTemplateColumns: 'repeat(auto-fit,minmax(220px,1fr))' }}>
           {plantillas.formularios.map((p) => (
             <button key={p.id} type="button" className="ax-card" style={{ textAlign: 'left', padding: 'var(--ax-space-4)', border: '1px solid var(--ax-border)', cursor: 'pointer' }}
-              onClick={() => window.confirm(`¿Reemplazar el formulario actual por “${p.nombre}”?`) && cambiar(JSON.parse(JSON.stringify(p.formulario)))}>
+              onClick={async () => await confirmar(`¿Reemplazar el formulario actual por “${p.nombre}”?`) && cambiar(JSON.parse(JSON.stringify(p.formulario)))}>
               <strong style={{ display: 'block', color: 'var(--ax-text-strong)' }}>{p.nombre}</strong>
               <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-muted)' }}>{p.descripcion}</span>
             </button>
@@ -511,7 +512,7 @@ function PestanaRegistros({ l }: { l: Landing }) {
               <tr key={r.id} className="ax-table__row">
                 <td className="ax-table__td" style={{ whiteSpace: 'nowrap', color: 'var(--ax-text-muted)' }}>{fecha(r.createdAt)}</td>
                 {columnas.map((c) => <td key={c.id} className="ax-table__td">{typeof r.datos[c.id] === 'boolean' ? (r.datos[c.id] ? '✓' : '—') : String(r.datos[c.id] ?? '—')}</td>)}
-                <td className="ax-table__td" style={{ textAlign: 'right' }}><button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={async () => { if (window.confirm('¿Eliminar este registro?')) { await api.delete(`/landings/${l.id}/registros/${r.id}`).catch(() => undefined); await cargar(); } }}>Eliminar</button></td>
+                <td className="ax-table__td" style={{ textAlign: 'right' }}><button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={async () => { if (await confirmar('¿Eliminar este registro?')) { await api.delete(`/landings/${l.id}/registros/${r.id}`).catch(() => undefined); await cargar(); } }}>Eliminar</button></td>
               </tr>
             ))}
           </tbody>

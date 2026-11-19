@@ -10,6 +10,7 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { CampoImagen, CampoImagenes } from '../../components/ui/CampoImagen';
+import { confirmar } from '../../components/ui/Dialogos';
 
 interface Categoria {
   id: string; nombre: string; slug: string | null; orden: number; activo: boolean; portadaUrl: string | null; _count: { productos: number };
@@ -118,7 +119,7 @@ export function EcommerceCatalogo() {
                           <div className="ax-cluster" style={{ gap: 'var(--ax-space-1)', justifyContent: 'flex-end' }}>
                             <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => abrir(c)}>Editar</button>
                             <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => accion(() => api.patch(`/catalogo/categorias/${c.id}`, { activo: !c.activo }), c.activo ? 'Categoría oculta.' : 'Categoría visible.')}>{c.activo ? 'Ocultar' : 'Mostrar'}</button>
-                            <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={() => window.confirm(`¿Borrar la categoría "${c.nombre}"?`) && accion(() => api.delete(`/catalogo/categorias/${c.id}`), 'Categoría eliminada.')}>Borrar</button>
+                            <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={async () => await confirmar(`¿Borrar la categoría "${c.nombre}"?`) && accion(() => api.delete(`/catalogo/categorias/${c.id}`), 'Categoría eliminada.')}>Borrar</button>
                           </div>
                         </td>
                       </tr>
@@ -149,7 +150,7 @@ export function EcommerceCatalogo() {
                         <td className="ax-table__td" style={{ textAlign: 'right' }}>
                           <div className="ax-cluster" style={{ gap: 'var(--ax-space-1)', justifyContent: 'flex-end' }}>
                             <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setRenombrar({ desde: m.nombre, hasta: m.nombre })}>Renombrar / fusionar</button>
-                            <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={() => window.confirm(`¿Quitar la marca "${m.nombre}" de ${m.productos} producto(s)?`) && accion(() => api.patch('/catalogo/marcas-comerciales', { desde: m.nombre, hasta: '' }), 'Marca quitada de los productos.')}>Quitar</button>
+                            <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={async () => await confirmar(`¿Quitar la marca "${m.nombre}" de ${m.productos} producto(s)?`) && accion(() => api.patch('/catalogo/marcas-comerciales', { desde: m.nombre, hasta: '' }), 'Marca quitada de los productos.')}>Quitar</button>
                           </div>
                         </td>
                       </tr>

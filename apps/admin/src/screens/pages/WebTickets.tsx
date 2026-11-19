@@ -11,6 +11,7 @@ import { abrirArchivoPrivado, api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
 import { Select } from '../../components/ui/Select';
+import { confirmar } from '../../components/ui/Dialogos';
 
 type Estado = 'NUEVO' | 'EN_REVISION' | 'ESPERANDO_CLIENTE' | 'RESUELTO' | 'CERRADO';
 type Tipo = 'RECLAMO' | 'VERIFICACION' | 'SOPORTE';
@@ -176,7 +177,7 @@ export function WebTickets() {
   }
 
   async function eliminar(t: { id: string; numero: string } | null = sel) {
-    if (!t || !window.confirm(`¿Eliminar el ticket ${t.numero} y su conversación? Esta acción no se puede deshacer.`)) return;
+    if (!t || !await confirmar(`¿Eliminar el ticket ${t.numero} y su conversación? Esta acción no se puede deshacer.`)) return;
     try {
       await api.delete(`/tickets/${t.id}`);
       if (selId === t.id) setSelId(null);
