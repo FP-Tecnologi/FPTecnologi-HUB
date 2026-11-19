@@ -53,7 +53,27 @@ const SECCIONES: Seccion[] = [
   { key: 'nosotros', nombre: 'Nosotros', ancla: 'nosotros', campos: [BADGE, TITULO, DESTACADO, DESCRIPCION, { key: 'puntos', label: 'Puntos destacados', tipo: 'lista-texto' }, BOTON, URL] },
   { key: 'servicios', nombre: 'Servicios', ancla: 'servicios', campos: [BADGE, TITULO, DESTACADO, BOTON, URL] },
   { key: 'porque', nombre: 'Por qué elegirnos', ancla: 'porque', campos: [BADGE, TITULO, DESTACADO, { key: 'items', label: 'Diferenciadores', tipo: 'lista-items', itemLabel: 'Diferenciador' }] },
-  { key: 'categorias', nombre: 'Categorías', ancla: 'categorias', campos: [BADGE, TITULO, DESTACADO, DESCRIPCION, BOTON, URL] },
+  {
+    key: 'categorias',
+    nombre: 'Categorías',
+    ancla: 'categorias',
+    campos: [
+      BADGE, TITULO, DESTACADO, DESCRIPCION, BOTON, URL,
+      {
+        key: 'items',
+        label: 'Lista de categorías',
+        tipo: 'lista-objetos',
+        itemLabel: 'Categoría',
+        tituloDe: 'title',
+        ayuda: 'Agrega, quita u ordena las categorías que se ven en la home. El enlace es el de la tienda: /tienda/<enlace>. Foto vacía = la de la categoría.',
+        campos: [
+          { key: 'title', label: 'Nombre', tipo: 'text' },
+          { key: 'slug', label: 'Enlace (slug de la categoría)', tipo: 'text', ayuda: 'Ej. monitores, laptops, servidores' },
+          { key: 'image', label: 'Foto (opcional)', tipo: 'imagen' },
+        ],
+      },
+    ],
+  },
   { key: 'productos', nombre: 'Los más vendidos', ancla: 'catalogo', campos: [BADGE, TITULO, DESTACADO, BOTON, URL] },
   { key: 'proyectos', nombre: 'Proyectos', ancla: 'proyectos', campos: [BADGE, TITULO, DESTACADO, DESCRIPCION] },
   { key: 'clientes', nombre: 'Clientes', ancla: 'clientes', campos: [BADGE, TITULO, DESTACADO, DESCRIPCION] },

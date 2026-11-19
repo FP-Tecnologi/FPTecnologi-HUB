@@ -8,7 +8,7 @@
  * badge + título en dos tonos (titulo sólido + destacado con brillo) +
  * descripción y botón opcionales.
  */
-import { COMPANY_VALUES, HERO_SLIDES, PARTNER_STEPS, WHY_CHOOSE_US } from './content';
+import { COMPANY_VALUES, HERO_SLIDES, PARTNER_STEPS, TIENDA_CATEGORIES, WHY_CHOOSE_US } from './content';
 
 export type Encabezado = {
   visible: boolean;
@@ -21,6 +21,8 @@ export type Encabezado = {
 };
 export type HeroSlide = { eyebrow: string; titleLead: string; titleAccent: string; text: string };
 export type ItemTexto = { title: string; text: string };
+/** Tarjeta de categoría de la home. `image` vacío = foto por defecto de la categoría. */
+export type CategoriaHome = { title: string; slug: string; image: string };
 
 export type HomeContenido = {
   hero: { visible: boolean; slides: HeroSlide[] };
@@ -28,7 +30,7 @@ export type HomeContenido = {
   nosotros: Encabezado & { puntos: string[] };
   servicios: Encabezado;
   porque: Encabezado & { items: ItemTexto[] };
-  categorias: Encabezado;
+  categorias: Encabezado & { items: CategoriaHome[] };
   productos: Encabezado;
   proyectos: Encabezado;
   clientes: Encabezado;
@@ -81,14 +83,17 @@ export const HOME_DEFAULTS: HomeContenido = {
     ...enc({ badge: 'Por qué elegirnos', titulo: 'Lo que nos hace', destacado: 'distintos' }),
     items: WHY_CHOOSE_US.map((i) => ({ title: i.title, text: i.text })),
   },
-  categorias: enc({
-    badge: 'Nuestra tienda',
-    titulo: 'Categorías del',
-    destacado: 'catálogo',
-    descripcion: 'Monitores, laptops, pantallas y servidores de las principales marcas, con stock local listo para despachar.',
-    botonTexto: 'Ver tienda',
-    botonUrl: '/tienda',
-  }),
+  categorias: {
+    ...enc({
+      badge: 'Nuestra tienda',
+      titulo: 'Categorías del',
+      destacado: 'catálogo',
+      descripcion: 'Monitores, laptops, pantallas y servidores de las principales marcas, con stock local listo para despachar.',
+      botonTexto: 'Ver tienda',
+      botonUrl: '/tienda',
+    }),
+    items: TIENDA_CATEGORIES.map((c) => ({ title: c.title, slug: c.slug, image: '' })),
+  },
   productos: enc({ badge: 'Tienda B2B', titulo: 'Los más', destacado: 'vendidos', botonTexto: 'Ver tienda', botonUrl: '/tienda' }),
   proyectos: enc({
     badge: 'Nuestro trabajo',

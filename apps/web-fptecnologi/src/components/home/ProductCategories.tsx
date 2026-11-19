@@ -1,4 +1,4 @@
-import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
+import { HOME_DEFAULTS, type HomeContenido } from '@/lib/homeContenido';
 import Image from 'next/image';
 import { ArrowUpRight, Laptop, Monitor, Presentation, Printer, Server, type LucideIcon } from 'lucide-react';
 import { TIENDA_CATEGORIES } from '@/lib/content';
@@ -39,7 +39,7 @@ const ICONS: Record<string, LucideIcon> = {
  * de marca, contorno que gira (.spin-border), zoom de la foto y la flecha
  * pasa a azul principal girando.
  */
-export function ProductCategories({ c = HOME_DEFAULTS.categorias }: { c?: Encabezado }) {
+export function ProductCategories({ c = HOME_DEFAULTS.categorias }: { c?: HomeContenido['categorias'] }) {
   return (
     <section id="categorias" className="mx-auto max-w-7xl px-6 py-20">
       <div className="mb-12 flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-end">
@@ -59,7 +59,9 @@ export function ProductCategories({ c = HOME_DEFAULTS.categorias }: { c?: Encabe
       </div>
 
       <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 xl:grid-cols-5">
-        {TIENDA_CATEGORIES.map((c, i) => {
+        {(c.items ?? []).filter((x) => x.title && x.slug).map((x, i) => {
+          const base = TIENDA_CATEGORIES.find((t) => t.slug === x.slug);
+          const c = { title: x.title, slug: x.slug, image: x.image || IMAGES[x.slug] || base?.image || '/images/modelo9/hero-office.jpg' };
           const Icon = ICONS[c.slug] ?? Monitor;
           return (
             <ScrollReveal key={c.slug} direction="up" delayMs={i * 100}>
@@ -71,7 +73,7 @@ export function ProductCategories({ c = HOME_DEFAULTS.categorias }: { c?: Encabe
 
                 <div className="relative aspect-4/3 overflow-hidden bg-gradient-to-b from-paper to-white">
                   <Image
-                    src={IMAGES[c.slug] ?? c.image}
+                    src={c.image}
                     alt={c.title}
                     fill
                     sizes="(min-width: 1280px) 25vw, (min-width: 640px) 50vw, 100vw"
