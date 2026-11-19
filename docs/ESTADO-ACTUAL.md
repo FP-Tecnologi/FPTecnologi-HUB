@@ -1320,4 +1320,5 @@ Plan: [`docs/superpowers/plans/2026-10-23-cms-fimav.md`](superpowers/plans/2026-
 - API: `GET /crm/global/oportunidades|agenda|reportes` (CRM de todas las marcas del usuario; aislamiento verificado con tests). Embudo, Oportunidades y Reportes con «Todas mis marcas», etiqueta y filtro por marca; Nueva oportunidad elige marca.
 - Embudo: Llamar/WhatsApp/Correo en la tarjeta y aviso de 7+ días sin movimiento.
 - Jefe comercial: acceso a leads, contactos, libro, folletos, recursos, mailing y campañas (API + menú; tickets sigue como estaba). Ficha de la oportunidad: «Enviar un folleto» por WhatsApp/correo con registro en el historial.
-- Pendiente: probar con login real (no se verificó en navegador), enviar cotización desde la ficha, metas por vendedor (requiere modelo nuevo).
+- Pendiente: probar con login real (no se verificó en navegador), enviar cotización desde la ficha, enviar cotización desde la ficha.
+- Metas de ventas: modelo `CrmMeta` (migración `20261119180000_crm_meta`, ya aplicada en Supabase), `GET/PUT/DELETE /crm/metas` (admin y jefe las fijan; cada comercial ve la suya y la de la marca) y tarjeta «Metas del mes» en Reportes del CRM.

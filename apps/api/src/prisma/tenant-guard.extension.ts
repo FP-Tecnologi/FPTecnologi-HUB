@@ -68,6 +68,7 @@ const TENANT_MODELS = new Set([
   'CrmContacto',
   'CrmOportunidad',
   'CrmActividad',
+  'CrmMeta',
 ]);
 
 /** Models whose where may be pinned by this key instead of marcaId (see above). */

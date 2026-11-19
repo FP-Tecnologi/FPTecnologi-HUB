@@ -10,7 +10,7 @@ import { ApexChart } from '../../../components/charts/ApexChart';
 import { Card, Kpi, Vacio, viz } from '../../../components/dashboard/piezas';
 import { api } from '../../../lib/api';
 import { useAuth } from '../../../context/AuthContext';
-import { Alerta, EtiquetaMarca, ORIGENES, SelectorAlcance, etapa, montos, msg, useAlcanceMarcas, type Etapa, type MarcaRef, type Origen } from './comun';
+import { Alerta, EtiquetaMarca, ORIGENES, SelectorAlcance, dinero, etapa, montos, msg, nombreDe, useAlcanceMarcas, useAsignables, useConfirmar, useVeTodoCrm, type Usuario, type Etapa, type MarcaRef, type Origen } from './comun';
 
 interface Reporte {
   meses: number;
@@ -65,6 +65,8 @@ export function CrmReportes({ propio = false }: { propio?: boolean }) {
             <Kpi icon="bell" tono="c2" label="Ciclo de venta promedio" valor={t?.cicloDias == null ? '—' : `${t.cicloDias} días`} />
           </div></div>
         </section>
+
+        <MetasMes propio={propio} />
 
         <Card titulo="Ventas ganadas por mes" sub="Monto de las oportunidades ganadas, por mes de cierre" cols={8}>
           {r && r.porMes.some((m) => m.ganadas) ? (
@@ -177,5 +179,81 @@ function ReporteMarcas({ alcance, meses, setMeses, propio }: { alcance: ReturnTy
         </Card>
       </div>
     </>
+  );
+}
+
+interface MetaFila { id: string; usuarioId: string | null; usuario: Usuario | null; periodo: string; moneda: string; monto: number; ganado: number; avance: number | null }
+const mesActual = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; };
+
+/** Metas de ventas del mes con su avance. Admin y jefe comercial las fijan (por comercial o para toda la marca); cada comercial ve la suya. */
+function MetasMes({ propio }: { propio: boolean }) {
+  const { activeMarcaId } = useAuth();
+  const { puedeAsignar } = useVeTodoCrm();
+  const asignables = useAsignables();
+  const { confirmar, dialogo } = useConfirmar();
+  const editable = puedeAsignar && !propio;
+  const [periodo, setPeriodo] = useState(mesActual);
+  const [metas, setMetas] = useState<MetaFila[] | null>(null);
+  const [error, setError] = useState('');
+  const [f, setF] = useState({ usuarioId: '', monto: '', moneda: 'PEN' });
+  const [busy, setBusy] = useState(false);
+
+  const cargar = useCallback(async () => {
+    if (!activeMarcaId) return;
+    try { setMetas((await api.get<{ metas: MetaFila[] }>(`/crm/metas?periodo=${periodo}`)).metas); setError(''); } catch (e) { setError(msg(e, 'No se pudieron cargar las metas.')); }
+  }, [activeMarcaId, periodo]);
+  useEffect(() => { cargar(); }, [cargar]);
+
+  async function guardar(e: React.FormEvent) {
+    e.preventDefault();
+    const monto = Number(f.monto);
+    if (!(monto >= 0) || f.monto === '') return setError('Escribe el monto de la meta.');
+    setBusy(true);
+    try { await api.put('/crm/metas', { periodo, usuarioId: f.usuarioId || undefined, monto, moneda: f.moneda }); setF({ ...f, monto: '' }); setError(''); await cargar(); }
+    catch (err) { setError(msg(err, 'No se pudo guardar la meta.')); } finally { setBusy(false); }
+  }
+  async function quitar(m: MetaFila) {
+    if (!(await confirmar('Quitar meta', `¿Quitar la meta de ${m.usuario ? nombreDe(m.usuario) : 'la marca'}?`))) return;
+    try { await api.delete(`/crm/metas/${m.id}`); await cargar(); } catch (err) { setError(msg(err, 'No se pudo quitar la meta.')); }
+  }
+
+  return (
+    <Card titulo="Metas del mes" sub="Lo ganado en el mes frente a la meta de cada comercial y de la marca" cols={12} accion={
+      <input type="month" className="ax-input" aria-label="Mes de las metas" value={periodo} onChange={(e) => e.target.value && setPeriodo(e.target.value)} style={{ width: 'auto' }} />
+    }>
+      {error && <div style={{ marginBlockEnd: 'var(--ax-space-3)' }}><Alerta>{error}</Alerta></div>}
+      {metas && metas.length ? (
+        <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
+          {metas.map((m) => (
+            <li key={m.id}>
+              <div className="ax-cluster" style={{ justifyContent: 'space-between', gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
+                <b>{m.usuario ? nombreDe(m.usuario) : 'Toda la marca'}</b>
+                <span className="ax-num" style={{ color: 'var(--ax-text-muted)' }}>{dinero(m.ganado, m.moneda)} de {dinero(m.monto, m.moneda)} · {m.avance == null ? '—' : `${m.avance}%`}
+                  {editable && <button type="button" className="ax-btn ax-btn--link ax-btn--sm" onClick={() => quitar(m)} style={{ marginInlineStart: 8 }}>Quitar</button>}
+                </span>
+              </div>
+              <div role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.min(m.avance ?? 0, 100)} aria-label={`Avance de la meta de ${m.usuario ? nombreDe(m.usuario) : 'la marca'}`}
+                style={{ height: 8, borderRadius: 999, background: 'var(--ax-surface-subtle)', overflow: 'hidden', marginBlockStart: 6 }}>
+                <div style={{ width: `${Math.min(m.avance ?? 0, 100)}%`, height: '100%', background: (m.avance ?? 0) >= 100 ? 'var(--ax-success-500)' : 'var(--ax-accent)', transition: 'width .4s' }} />
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : <Vacio texto={metas ? (editable ? 'Aún no hay metas para este mes. Agrega la primera abajo.' : 'No tienes una meta fijada para este mes.') : 'Cargando…'} />}
+      {editable && (
+        <form onSubmit={guardar} className="ax-cluster" style={{ gap: 'var(--ax-space-3)', alignItems: 'flex-end', flexWrap: 'wrap', marginBlockStart: 'var(--ax-space-4)' }}>
+          <div className="ax-field"><label className="ax-label" htmlFor="mt-u">Para</label>
+            <select id="mt-u" className="ax-select" value={f.usuarioId} onChange={(e) => setF({ ...f, usuarioId: e.target.value })}>
+              <option value="">Toda la marca</option>
+              {asignables.map((u) => <option key={u.id} value={u.id}>{nombreDe(u)}</option>)}
+            </select></div>
+          <div className="ax-field"><label className="ax-label" htmlFor="mt-m">Meta</label><input id="mt-m" className="ax-input" type="number" inputMode="decimal" min={0} step="0.01" value={f.monto} onChange={(e) => setF({ ...f, monto: e.target.value })} placeholder="0.00" /></div>
+          <div className="ax-field"><label className="ax-label" htmlFor="mt-c">Moneda</label>
+            <select id="mt-c" className="ax-select" value={f.moneda} onChange={(e) => setF({ ...f, moneda: e.target.value })}><option value="PEN">S/</option><option value="USD">US$</option></select></div>
+          <button type="submit" className="ax-btn ax-btn--primary ax-btn--sm" disabled={busy}>Guardar meta</button>
+        </form>
+      )}
+      {dialogo}
+    </Card>
   );
 }

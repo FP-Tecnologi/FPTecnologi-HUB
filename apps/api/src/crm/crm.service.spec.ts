@@ -236,3 +236,49 @@ describe('CrmService.reportesPorMarca', () => {
     expect(r.totales.abiertas).toBe(1);
   });
 });
+
+describe('CrmService: metas de ventas', () => {
+  const servicio = (metas: Record<string, unknown>[], ganadas: Record<string, unknown>[]) => {
+    const prisma = prismaFalso();
+    const crmMeta = {
+      findMany: vi.fn(async () => metas),
+      findFirst: vi.fn(async ({ where }: { where: Record<string, unknown> }) => metas.find((m) => m.usuarioId === where.usuarioId && m.periodo === where.periodo && m.moneda === where.moneda) ?? null),
+      create: vi.fn(async ({ data }: { data: Record<string, unknown> }) => ({ id: 'nueva', ...data })),
+      update: vi.fn(async ({ data }: { data: Record<string, unknown> }) => data),
+      deleteMany: vi.fn(async () => ({ count: 0 })),
+    };
+    (prisma as unknown as { crmMeta: unknown }).crmMeta = crmMeta;
+    prisma.crmOportunidad.findMany = vi.fn(async () => ganadas) as never;
+    (prisma.usuarioMarcaRol as unknown as { count: unknown }).count = vi.fn(async () => 1);
+    return { svc: new CrmService(prisma as never), crmMeta, prisma };
+  };
+
+  it('el avance de un comercial cuenta solo lo que ganó él, y el de la marca todo', async () => {
+    const metas = [
+      { id: 'a', usuarioId: 'u1', periodo: '2026-11', monto: 1000, moneda: 'PEN', usuario: { id: 'u1', nombre: 'Ana', email: 'a@x.pe' } },
+      { id: 'b', usuarioId: null, periodo: '2026-11', monto: 4000, moneda: 'PEN', usuario: null },
+    ];
+    const ganadas = [{ asignadoId: 'u1', monto: 500, moneda: 'PEN' }, { asignadoId: 'u2', monto: 1500, moneda: 'PEN' }, { asignadoId: 'u1', monto: 99, moneda: 'USD' }];
+    const r = await servicio(metas, ganadas).svc.listarMetas('m1', '2026-11');
+    expect(r.metas.find((m) => m.id === 'a')).toMatchObject({ ganado: 500, avance: 50 });
+    expect(r.metas.find((m) => m.id === 'b')).toMatchObject({ ganado: 2000, avance: 50 });
+  });
+
+  it('un comercial consulta solo su meta y la de la marca', async () => {
+    const { svc, crmMeta } = servicio([], []);
+    await svc.listarMetas('m1', '2026-11', { usuarioId: 'u1', veTodo: false });
+    expect(crmMeta.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ OR: [{ usuarioId: 'u1' }, { usuarioId: null }] }) }));
+  });
+
+  it('guardar una meta existente la reemplaza en vez de duplicarla', async () => {
+    const { svc, crmMeta } = servicio([{ id: 'a', usuarioId: 'u1', periodo: '2026-11', monto: 1000, moneda: 'PEN' }], []);
+    await svc.guardarMeta('m1', { periodo: '2026-11', usuarioId: 'u1', monto: 2000 });
+    expect(crmMeta.update).toHaveBeenCalledWith({ where: { id: 'a' }, data: { monto: 2000 } });
+    expect(crmMeta.create).not.toHaveBeenCalled();
+  });
+
+  it('eliminar una meta de otra marca responde "no encontrada"', async () => {
+    const { svc } = servicio([], []);
+    await expect(svc.eliminarMeta('m1', 'x')).rejects.toBeInstanceOf(NotFoundException);
+  });
+});

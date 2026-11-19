@@ -2,7 +2,7 @@ import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundEx
 import { PrismaService } from '../prisma/prisma.service.js';
 import type { EtapaOportunidad, OrigenOportunidad, Prisma, TipoActividadCrm } from '../generated/prisma/client.js';
 import type {
-  ActividadDto, ActualizarActividadDto, ActualizarOportunidadDto, CambiarEtapaDto, ContactoDto, CrearOportunidadDto, EmpresaDto, FiltrosOportunidades,
+  ActividadDto, ActualizarActividadDto, ActualizarOportunidadDto, CambiarEtapaDto, ContactoDto, CrearOportunidadDto, EmpresaDto, FiltrosOportunidades, MetaDto,
 } from './crm.dto.js';
 
 /** Roles que trabajan el CRM de una marca (y a quienes se puede asignar una oportunidad). */
@@ -42,6 +42,7 @@ const esP2002 = (e: unknown) => !!e && typeof e === 'object' && (e as { code?: s
 const numeroOpp = () => `OPP-${new Date().getFullYear()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 const limpio = (v: string | null | undefined) => v?.trim() || null;
 const rucValido = (v: string | null | undefined) => (v && /^(10|15|16|17|20)\d{9}$/.test(v.trim()) ? v.trim() : null);
+const mesActual = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`; };
 const resumenVacio = () => ({ abiertas: 0, pipeline: {}, ponderado: {}, ganadas: 0, perdidas: 0, montoGanado: {}, conversion: null as number | null });
 const n = (v: unknown) => (v === null || v === undefined ? 0 : Number(v));
 
@@ -605,6 +606,51 @@ export class CrmService {
       .map((m) => ({ marca: m, rol: permitidas.find((x) => x.marcaId === m.id)?.rol ?? '', ...resumir(m.id) }))
       .sort((a, b) => b.abiertas - a.abiertas || a.marca.nombre.localeCompare(b.marca.nombre));
     return { meses, desde: desde.toISOString(), totales: resumir(null), porMarca };
+  }
+
+  // ------------------------------------------------------------------- metas
+
+  /**
+   * Metas de un mes con su avance (lo ganado en ese mes por el comercial, o por toda la marca en la meta de marca). Quien no ve todo
+   * el CRM recibe solo su meta y la de la marca.
+   */
+  async listarMetas(marcaId: string, periodo: string, ambito: AmbitoCrm = TODO) {
+    const per = /^d{4}-(0[1-9]|1[0-2])$/.test(periodo) ? periodo : mesActual();
+    const [anio, mes] = per.split('-').map(Number) as [number, number];
+    const desde = new Date(anio, mes - 1, 1);
+    const hasta = new Date(anio, mes, 1);
+    const [metas, ganadas] = await Promise.all([
+      this.prisma.crmMeta.findMany({
+        where: { marcaId, periodo: per, ...(ambito.veTodo ? {} : { OR: [{ usuarioId: ambito.usuarioId }, { usuarioId: null }] }) },
+        include: { usuario: { select: { id: true, nombre: true, email: true } } },
+        orderBy: { createdAt: 'asc' },
+      }),
+      this.prisma.crmOportunidad.findMany({ where: { marcaId, etapa: 'GANADO', ganadoAt: { gte: desde, lt: hasta } }, select: { asignadoId: true, monto: true, moneda: true } }),
+    ]);
+    return {
+      periodo: per,
+      metas: metas.map((m) => {
+        const ganado = ganadas.filter((g) => g.moneda === m.moneda && (m.usuarioId === null || g.asignadoId === m.usuarioId)).reduce((a, g) => a + n(g.monto), 0);
+        const meta = n(m.monto);
+        return { id: m.id, usuarioId: m.usuarioId, usuario: m.usuario, periodo: m.periodo, moneda: m.moneda, monto: meta, ganado, avance: meta > 0 ? Math.round((ganado / meta) * 100) : null };
+      }),
+    };
+  }
+
+  /** Crea o reemplaza la meta de ese comercial (o de la marca) en ese mes y moneda. Solo admin y jefe comercial (lo exige el controlador). */
+  async guardarMeta(marcaId: string, dto: MetaDto) {
+    await this.validarAsignado(marcaId, dto.usuarioId);
+    const moneda = dto.moneda ?? 'PEN';
+    const usuarioId = dto.usuarioId ?? null;
+    const existente = await this.prisma.crmMeta.findFirst({ where: { marcaId, usuarioId, periodo: dto.periodo, moneda } });
+    if (existente) return this.prisma.crmMeta.update({ where: { id: existente.id }, data: { monto: dto.monto } });
+    return this.prisma.crmMeta.create({ data: { marcaId, usuarioId, periodo: dto.periodo, moneda, monto: dto.monto } });
+  }
+
+  async eliminarMeta(marcaId: string, id: string) {
+    const { count } = await this.prisma.crmMeta.deleteMany({ where: { id, marcaId } });
+    if (!count) throw new NotFoundException('Meta no encontrada');
+    return { ok: true };
   }
 
   async reportes(marcaId: string, meses: number, soloUsuarioId?: string) {

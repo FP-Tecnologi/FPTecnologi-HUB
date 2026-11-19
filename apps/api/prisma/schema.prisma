@@ -78,6 +78,7 @@ model Marca {
   crmContactos       CrmContacto[]
   crmOportunidades   CrmOportunidad[]
   crmActividades     CrmActividad[]
+  crmMetas           CrmMeta[]
   soporteTickets     SoporteTicket[]
 }
 
@@ -131,6 +132,7 @@ model Usuario {
   chatsAtendidos         ChatConversacion[]
   soporteTickets         SoporteTicket[]
   oportunidadesCrm       CrmOportunidad[]       @relation("CrmAsignado")
+  crmMetas               CrmMeta[]
 }
 
 // "Confiar en este dispositivo por 30 días": al confirmar el 2FA se guarda un
@@ -1527,4 +1529,21 @@ model CrmActividad {
   @@index([oportunidadId, fecha])
   @@index([marcaId, origen, origenId])
   @@index([marcaId, tipo, hecha, fecha])
+}
+
+// Meta de ventas del CRM por mes: de una marca (usuarioId vacío) o de un comercial. El avance se calcula con lo ganado en ese mes.
+model CrmMeta {
+  id        String   @id @default(uuid())
+  marcaId   String
+  marca     Marca    @relation(fields: [marcaId], references: [id], onDelete: Cascade)
+  usuarioId String? // null = meta de toda la marca
+  usuario   Usuario? @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  periodo   String // AAAA-MM
+  monto     Decimal
+  moneda    String   @default("PEN")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([marcaId, periodo])
+  @@index([usuarioId, periodo])
 }

@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, NotFoundException, Param, Patch, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { IsIn, IsString, MaxLength } from 'class-validator';
 import { MarcaRolGuard } from '../common/guards/marca-rol.guard.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
@@ -7,7 +7,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user.js';
 import { CrmService, ROLES_VE_TODO_CRM, type AmbitoCrm } from './crm.service.js';
 import {
-  ActividadDto, ActualizarActividadDto, ActualizarOportunidadDto, CambiarEtapaDto, ContactoDto, CrearOportunidadDto, EmpresaDto, FiltrosOportunidades,
+  ActividadDto, ActualizarActividadDto, ActualizarOportunidadDto, CambiarEtapaDto, ContactoDto, CrearOportunidadDto, EmpresaDto, FiltrosOportunidades, MetaDto,
 } from './crm.dto.js';
 
 class PorOrigenDto {
@@ -106,6 +106,25 @@ export class CrmController {
     const m = Number(meses);
     const soloMio = mias === '1' || !this.ambito(u, marcaId).veTodo;
     return this.crm.reportes(marcaId, [3, 6, 12].includes(m) ? m : 12, soloMio ? u.sub : undefined);
+  }
+
+  /** Metas del mes con su avance. Cada comercial ve la suya y la de la marca; admin, jefe y dirección ven todas. */
+  @Roles('admin', 'jefe_comercial', 'comercial', 'direccion')
+  @Get('metas')
+  metas(@MarcaActual() marcaId: string, @CurrentUser() u: AuthenticatedUser, @Query('periodo') periodo?: string) {
+    return this.crm.listarMetas(marcaId, periodo ?? '', this.ambito(u, marcaId));
+  }
+
+  @Roles('admin', 'jefe_comercial')
+  @Put('metas')
+  guardarMeta(@MarcaActual() marcaId: string, @Body() dto: MetaDto) {
+    return this.crm.guardarMeta(marcaId, dto);
+  }
+
+  @Roles('admin', 'jefe_comercial')
+  @Delete('metas/:id')
+  eliminarMeta(@MarcaActual() marcaId: string, @Param('id') id: string) {
+    return this.crm.eliminarMeta(marcaId, id);
   }
 
   @Get('empresas')

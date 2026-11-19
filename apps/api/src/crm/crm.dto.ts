@@ -102,3 +102,11 @@ export class FiltrosOportunidades {
   @IsOptional() @IsIn(TIPOS_PROCESO) tipoProceso?: (typeof TIPOS_PROCESO)[number];
   @IsOptional() @IsString() @MaxLength(100) q?: string;
 }
+
+/** Meta de ventas de un mes: de un comercial (`usuarioId`) o de toda la marca (sin `usuarioId`). Guardar la misma combinación la reemplaza. */
+export class MetaDto {
+  @Matches(/^d{4}-(0[1-9]|1[0-2])$/, { message: 'periodo debe ser AAAA-MM' }) periodo!: string;
+  @IsOptional() @IsUUID() usuarioId?: string;
+  @IsNumber({ maxDecimalPlaces: 2 }) @Min(0) @Max(1_000_000_000) monto!: number;
+  @IsOptional() @IsIn(MONEDAS) moneda?: (typeof MONEDAS)[number];
+}
