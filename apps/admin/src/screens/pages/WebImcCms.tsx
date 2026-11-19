@@ -17,7 +17,7 @@ const sec = (key: string, nombre: string, campos: CampoDe[], ancla = ''): Seccio
 const base = (pagina: string, titulo: string, previewPath: string, secciones: Seccion[]): CmsConfig => ({
   pagina,
   titulo: `Company IMC · ${titulo}`,
-  subtitulo: 'Edita los textos de companyimc.com. Los cambios se publican al guardar. Las fotos y logos se cambian en el código; el teléfono, WhatsApp, correo, dirección y horario, en «Ajustes del sitio».',
+  subtitulo: 'Edita los textos de companyimc.com. Los cambios se publican al guardar. Las fotos y logos de marcas se cambian en el código; el teléfono, WhatsApp, correo, dirección y horario, en «Ajustes del sitio».',
   previewPath,
   conVisible: false,
   secciones,
@@ -45,6 +45,39 @@ const AJUSTES = base('ajustes', 'Ajustes del sitio', '/contacto/', [
   ]),
 ]);
 
+const BANNER = (extra = '') => sec('banner', 'Banner de la página', [T('etiqueta', 'Etiqueta (pequeña, arriba)'), T('titulo', 'Título — parte blanca'), T('acento', 'Título — parte con brillo'), TA('texto', 'Texto')], extra);
+const TD = (label: string, itemLabel: string): CampoDe => ({
+  key: 'items', label, tipo: 'lista-objetos', itemLabel, tituloDe: 't',
+  campos: [{ key: 't', label: 'Título', tipo: 'text' }, { key: 'd', label: 'Descripción', tipo: 'textarea' }],
+});
+
+const NOSOTROS = base('nosotros', 'Nosotros', '/nosotros/', [
+  BANNER(),
+  sec('historia', 'Quiénes somos', [T('citaInicio', 'Frase — inicio'), T('citaAcento', 'Frase — parte resaltada'), T('citaFin', 'Frase — final'), TA('parrafo1', 'Primer párrafo'), TA('parrafo2', 'Segundo párrafo')]),
+  sec('mision', 'Misión', [T('lema', 'Lema'), TA('texto', 'Texto')]),
+  sec('vision', 'Visión', [T('lema', 'Lema'), TA('texto', 'Texto')]),
+  sec('valores', 'Valores', [TD('Valores', 'Valor')]),
+  sec('kelqa', 'Aviso de Kelqa', [T('titulo', 'Título'), TA('texto', 'Texto')]),
+]);
+
+const SERVICIOS = base('servicios', 'Servicios', '/servicios/', [
+  BANNER(),
+  sec('proyectos', 'Proyectos destacados', [TD('Proyectos', 'Proyecto')]),
+  sec('oficina', 'Tecnología para tu oficina', [TD('Servicios', 'Servicio'), T('ctaTexto', 'Texto de la tarjeta final')]),
+  sec('pasos', 'Cómo trabajamos', [TD('Pasos', 'Paso')]),
+]);
+
+const PRODUCTOS = base('productos', 'Productos', '/productos/', [
+  BANNER(),
+  sec('catalogo', 'Catálogo', [{ key: 'items', label: 'Productos', tipo: 'lista-objetos', itemLabel: 'Producto', tituloDe: 't', campos: [{ key: 't', label: 'Nombre', tipo: 'text' }] }]),
+  sec('marcas', 'Marcas líderes', [TA('texto', 'Texto')]),
+]);
+
+const PERUCOMPRAS = base('perucompras', 'Perú Compras', '/peru-compras/', [
+  BANNER(),
+  sec('fichas', 'Ventajas', [TD('Ventajas', 'Ventaja')]),
+]);
+
 /** El editor solo con la marca IMC activa: así nada se guarda por error en otra marca. */
 function SoloImc({ config }: { config: CmsConfig }) {
   const { marcas, activeMarcaId, adminMode } = useAuth();
@@ -63,3 +96,7 @@ function SoloImc({ config }: { config: CmsConfig }) {
 export const ImcInicioCms = () => <SoloImc config={INICIO} />;
 export const ImcContactoCms = () => <SoloImc config={CONTACTO} />;
 export const ImcAjustesCms = () => <SoloImc config={AJUSTES} />;
+export const ImcNosotrosCms = () => <SoloImc config={NOSOTROS} />;
+export const ImcServiciosCms = () => <SoloImc config={SERVICIOS} />;
+export const ImcProductosCms = () => <SoloImc config={PRODUCTOS} />;
+export const ImcPeruComprasCms = () => <SoloImc config={PERUCOMPRAS} />;

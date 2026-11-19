@@ -4,22 +4,24 @@ import { meta, migas } from "@/lib/seo";
 import Reveal from "@/components/Reveal";
 import { Cta, Hex, Icono, Portada, Seccion } from "@/components/ui";
 import { PERU_COMPRAS } from "@/lib/datos";
+import { getPagina } from "@/lib/cms";
 
 export const metadata: Metadata = meta("Perú Compras", "Company IMC tiene fichas publicadas en Perú Compras para facilitar tus adquisiciones estatales.", "/peru-compras/");
 
-export default function PeruCompras() {
+export default async function PeruCompras() {
+  const { banner, fichas } = await getPagina("perucompras");
   return (
     <>
       <JsonLd datos={migas("Perú Compras", "/peru-compras/")} />
-      <Portada etiqueta="Compras estatales" a="Estamos en" b="Perú Compras" texto="Fichas publicadas y una logística que atiende de manera directa a los clientes de Perú Compras." />
+      <Portada etiqueta={banner.etiqueta} a={banner.titulo} b={banner.acento} texto={banner.texto} />
 
       <Seccion className="bg-white">
         <div className="grid items-center gap-14 lg:grid-cols-2">
           <div className="space-y-6">
-            {PERU_COMPRAS.map((p, i) => (
-              <Reveal key={p.t} delay={i * 120} dir="izq">
+            {fichas.items.map((p, i) => (
+              <Reveal key={`${p.t}-${i}`} delay={i * 120} dir="izq">
                 <article className="tarjeta grupo flex items-center gap-6 p-7">
-                  <Hex n={p.n} size="h-20 w-20" />
+                  <Hex n={PERU_COMPRAS[i % PERU_COMPRAS.length].n} size="h-20 w-20" />
                   <div><h2 className="text-xl font-extrabold text-azul-osc">{p.t}</h2><p className="mt-1 text-grafito/80">{p.d}</p></div>
                 </article>
               </Reveal>

@@ -7,7 +7,9 @@
  * horario sí: página «ajustes».
  */
 import { cache } from "react";
-import { EMPRESA, MOTIVOS } from "./datos";
+import { EMPRESA, MOTIVOS, VALORES, PROYECTOS, SERVICIOS, PASOS, PRODUCTOS, PERU_COMPRAS } from "./datos";
+
+const td = <T extends { t: string; d: string }>(l: readonly T[]) => l.map(({ t, d }) => ({ t, d }));
 
 export const CMS_DEFAULTS = {
   inicio: {
@@ -28,6 +30,35 @@ export const CMS_DEFAULTS = {
       acento: "hoy",
       texto: "Pide asesoría personalizada para tus proyectos de tecnología. Te respondemos a la brevedad.",
     },
+  },
+  nosotros: {
+    banner: { etiqueta: "Sobre nosotros", titulo: "Tecnología que", acento: "transforma negocios", texto: "Más de 4 años siendo el socio estratégico de empresas e instituciones que buscan eficiencia y crecimiento." },
+    historia: {
+      citaInicio: "Nos mantenemos a la vanguardia de la tecnología para ofrecer soluciones de",
+      citaAcento: "última generación",
+      citaFin: ".",
+      parrafo1: "En Company IMC creemos en el poder de la tecnología para transformar negocios y mejorar vidas. Con más de 4 años de experiencia, nos hemos consolidado como un buen socio estratégico para empresas de diversos sectores, brindando soluciones integrales que impulsan el valor del crecimiento y la eficiencia.",
+      parrafo2: "Somos especialistas en soluciones tecnológicas para el sector público: equipos de cómputo, servidores, monitores y todo el ecosistema TI que impulsa la transformación digital de las instituciones del Estado.",
+    },
+    mision: { lema: "Hacia dónde trabajamos", texto: "Ser una organización en constante transformación, que crece de forma sostenible y mejora la calidad de las soluciones que ofrece a sus clientes, dentro de un ecosistema empresarial sostenible." },
+    vision: { lema: "Dónde queremos llegar", texto: "Ser un referente nacional en equipos informáticos y proyectos tecnológicos, con innovación, calidad y responsabilidad social, cuidando el medio ambiente en cada solución." },
+    valores: { items: td(VALORES) },
+    kelqa: { titulo: "Kelqa, nuestra nueva marca", texto: "Nace de nuestra experiencia para elevar los estándares del mercado peruano con productos de valor real y duradero." },
+  },
+  servicios: {
+    banner: { etiqueta: "Qué hacemos", titulo: "Nuestros", acento: "servicios", texto: "Desde equipos de cómputo hasta cableado estructurado y telefonía: un portafolio completo para cubrir todas tus necesidades tecnológicas." },
+    proyectos: { items: td(PROYECTOS) },
+    oficina: { items: td(SERVICIOS), ctaTexto: "¿No ves lo que buscas? Lo conseguimos." },
+    pasos: { items: td(PASOS) },
+  },
+  productos: {
+    banner: { etiqueta: "Catálogo", titulo: "Nuestros", acento: "productos", texto: "Trabajamos con las marcas más reconocidas del mercado para garantizar la calidad y confiabilidad de cada equipo." },
+    catalogo: { items: PRODUCTOS.map(({ t }) => ({ t })) },
+    marcas: { texto: "Alianzas con fabricantes reconocidos que nos permiten ofrecer productos originales, garantía y valor agregado." },
+  },
+  perucompras: {
+    banner: { etiqueta: "Compras estatales", titulo: "Estamos en", acento: "Perú Compras", texto: "Fichas publicadas y una logística que atiende de manera directa a los clientes de Perú Compras." },
+    fichas: { items: td(PERU_COMPRAS) },
   },
   ajustes: {
     contacto: {

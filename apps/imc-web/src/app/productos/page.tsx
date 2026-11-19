@@ -5,19 +5,23 @@ import Enlace from "@/components/Enlace";
 import Reveal from "@/components/Reveal";
 import { Cta, Hex, Icono, Portada, Seccion, Titulo } from "@/components/ui";
 import { MARCAS, PRODUCTOS } from "@/lib/datos";
+import { getPagina } from "@/lib/cms";
 
 export const metadata: Metadata = meta("Productos", "Computadoras, monitores, impresoras, proyectores, servidores y equipos de red de las marcas más reconocidas.", "/productos/");
 
-export default function Productos() {
+export default async function Productos() {
+  const { banner, catalogo, marcas } = await getPagina("productos");
   return (
     <>
       <JsonLd datos={migas("Productos", "/productos/")} />
-      <Portada etiqueta="Catálogo" a="Nuestros" b="productos" texto="Trabajamos con las marcas más reconocidas del mercado para garantizar la calidad y confiabilidad de cada equipo." />
+      <Portada etiqueta={banner.etiqueta} a={banner.titulo} b={banner.acento} texto={banner.texto} />
 
       <Seccion className="bg-white">
         <div className="grid gap-6 sm:grid-cols-2">
-          {PRODUCTOS.map((p, i) => (
-            <Reveal key={p.t} delay={(i % 2) * 120}>
+          {catalogo.items.map((it, i) => {
+            const p = { img: PRODUCTOS[i % PRODUCTOS.length].img, ...it };
+            return (
+            <Reveal key={`${p.t}-${i}`} delay={(i % 2) * 120}>
               <article className="tarjeta group relative flex h-full items-center gap-6 overflow-hidden p-8">
                 <div className="hex absolute -right-10 -top-10 h-44 w-44 bg-azul-claro transition-transform duration-700 group-hover:rotate-45 group-hover:scale-125" aria-hidden />
                 <div className="relative flex h-44 w-1/2 items-center justify-center"><img src={p.img} alt={p.t} className="max-h-full w-auto max-w-full object-contain transition-transform duration-700 ease-[var(--ease-salida)] group-hover:scale-110 group-hover:-rotate-3" /></div>
@@ -27,7 +31,8 @@ export default function Productos() {
                 </div>
               </article>
             </Reveal>
-          ))}
+            );
+          })}
         </div>
 
         <div className="mt-6 grid gap-6 sm:grid-cols-2">
@@ -52,7 +57,7 @@ export default function Productos() {
           </Reveal>
           <div>
             <Reveal><Titulo a="Marcas" b="líderes" /></Reveal>
-            <Reveal delay={100}><p className="mt-6 max-w-lg text-lg text-grafito/85">Alianzas con fabricantes reconocidos que nos permiten ofrecer productos originales, garantía y valor agregado.</p></Reveal>
+            <Reveal delay={100}><p className="mt-6 max-w-lg text-lg text-grafito/85">{marcas.texto}</p></Reveal>
             <div className="mt-8 grid grid-cols-3 gap-4 sm:grid-cols-5">
               {MARCAS.map((m, i) => (
                 <Reveal key={m.f} delay={i * 50}><div className="tarjeta flex h-20 items-center justify-center p-3"><img src={`/marcas/${m.f}.svg`} alt={m.n} className="max-h-9 w-auto max-w-full opacity-70 brightness-0 transition hover:opacity-100" /></div></Reveal>
