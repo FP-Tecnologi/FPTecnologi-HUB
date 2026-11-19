@@ -37,19 +37,25 @@ export default function Productos() {
       </Seccion>
 
       {/* Marcas + presentación */}
-      <section className="degradado-azul relative overflow-hidden px-5 py-20 text-white sm:py-28">
-        <div className="cuadricula-claro absolute inset-0" aria-hidden />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-2">
+      <section className="relative overflow-hidden bg-azul-claro px-5 py-20 sm:py-28">
+        <div className="cuadricula absolute inset-0" aria-hidden />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-12 lg:grid-cols-[.9fr_1.1fr]">
+          <Reveal dir="izq">
+            <div className="relative mx-auto max-w-md">
+              <div className="hex absolute inset-0 scale-110 bg-naranja-claro" />
+              <div className="hex absolute inset-[6%] scale-110 bg-white/70" />
+              <img src="/img/laptop.webp" alt="Laptop con marcas aliadas" className="relative mx-auto max-h-[28rem] w-auto object-contain drop-shadow-2xl" />
+            </div>
+          </Reveal>
           <div>
-            <Reveal><Titulo a="Marcas" b="líderes" claro /></Reveal>
-            <Reveal delay={100}><p className="mt-6 max-w-lg text-lg text-white/85">Alianzas con fabricantes reconocidos que nos permiten ofrecer productos originales, garantía y valor agregado.</p></Reveal>
-            <div className="mt-8 grid grid-cols-3 gap-3 sm:grid-cols-5">
+            <Reveal><Titulo a="Marcas" b="líderes" /></Reveal>
+            <Reveal delay={100}><p className="mt-6 max-w-lg text-lg text-grafito/85">Alianzas con fabricantes reconocidos que nos permiten ofrecer productos originales, garantía y valor agregado.</p></Reveal>
+            <div className="mt-8 grid grid-cols-3 gap-4 sm:grid-cols-5">
               {MARCAS.map((m, i) => (
-                <Reveal key={m.f} delay={i * 50}><div className="flex h-16 items-center justify-center border border-white/25 bg-white/10 p-3 backdrop-blur transition hover:-translate-y-1 hover:bg-white/20"><img src={`/marcas/${m.f}.svg`} alt={m.n} className="max-h-8 w-auto max-w-full brightness-0 invert" /></div></Reveal>
+                <Reveal key={m.f} delay={i * 50}><div className="tarjeta flex h-20 items-center justify-center p-3"><img src={`/marcas/${m.f}.svg`} alt={m.n} className="max-h-9 w-auto max-w-full opacity-70 brightness-0 transition hover:opacity-100" /></div></Reveal>
               ))}
             </div>
           </div>
-          <Reveal dir="der"><img src="/img/laptop.webp" alt="Laptop con marcas aliadas" className="mx-auto max-h-[30rem] w-auto object-contain drop-shadow-2xl" /></Reveal>
         </div>
       </section>
 
