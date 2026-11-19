@@ -93,7 +93,7 @@ export function Seccion({ id, className = "", children }: { id?: string; classNa
 /** Cabecera de páginas interiores. */
 export function Portada({ etiqueta, a, b, texto, children }: { etiqueta: string; a: string; b: string; texto: string; children?: ReactNode }) {
   return (
-    <section className="degradado-azul relative overflow-hidden px-5 pb-20 pt-16 text-white sm:pb-28 sm:pt-24">
+    <section className="degradado-azul relative overflow-hidden px-5 pb-24 pt-40 text-white sm:pb-28 sm:pt-48">
       <div className="cuadricula-claro absolute inset-0 opacity-70" aria-hidden />
       <Fondo claro />
       <div className="relative mx-auto max-w-6xl">
