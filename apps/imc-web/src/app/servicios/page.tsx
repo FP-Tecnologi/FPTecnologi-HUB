@@ -60,15 +60,15 @@ export default function Servicios() {
         </div>
       </Seccion>
 
-      <section className="oscuro relative overflow-hidden bg-grafito px-5 py-20 text-white sm:py-28">
-        <div className="cuadricula-claro absolute inset-0" aria-hidden />
+      <section className="relative overflow-hidden bg-white px-5 py-20 sm:py-28">
+        <div className="cuadricula absolute inset-0" aria-hidden />
         <div className="relative mx-auto max-w-6xl">
-          <Reveal><Titulo a="Cómo" b="trabajamos" claro /></Reveal>
+          <Reveal><Titulo a="Cómo" b="trabajamos" /></Reveal>
           <div className="mt-16 grid gap-10 md:grid-cols-4 md:gap-8">
             {PASOS.map((p, i) => (
               <Reveal key={p.t} delay={i * 160} className="h-full">
                 <article className="grupo relative flex gap-5 md:block">
-                  <span className="pointer-events-none absolute -bottom-6 right-0 select-none text-8xl font-extrabold leading-none text-white/[.06]" aria-hidden>0{i + 1}</span>
+                  <span className="pointer-events-none absolute -bottom-6 right-0 select-none text-8xl font-extrabold leading-none text-azul-2/[.07]" aria-hidden>0{i + 1}</span>
                   <div className="relative z-10 h-20 w-20 shrink-0">
                     <span className="insignia hex h-20 w-20 !bg-azul-2 ring-0"><Icono n={p.n} className="h-8 w-8" /></span>
                     <span className="absolute -bottom-1 -right-1 flex h-7 w-7 items-center justify-center bg-naranja text-xs font-extrabold text-tinta">{i + 1}</span>
@@ -81,8 +81,8 @@ export default function Servicios() {
                   )}
                   <div className="md:mt-7">
                     <p className="text-xs font-bold uppercase tracking-widest text-naranja">Paso 0{i + 1}</p>
-                    <h3 className="mt-1 text-2xl font-extrabold">{p.t}</h3>
-                    <p className="mt-2 leading-relaxed text-white/70">{p.d}</p>
+                    <h3 className="mt-1 text-2xl font-extrabold text-tinta">{p.t}</h3>
+                    <p className="mt-2 leading-relaxed text-grafito/75">{p.d}</p>
                   </div>
                 </article>
               </Reveal>
