@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+@theme {
+  --color-azul: #0056aa;
+  --color-azul-2: #2b54ac;
+  --color-azul-osc: #1f3f7a;
+  --color-naranja: #ffaa07;
+  --color-naranja-claro: #fde3b4;
+  --color-grafito: #38383c;
+  --color-gris: #d1d3d4;
+  --font-sans: var(--font-poppins), system-ui, sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+body { background: #fff; color: var(--color-grafito); font-family: var(--font-sans); }
+
+.hex { clip-path: polygon(50% 0, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%); }
+.chev-svg { color: var(--color-azul-2); }
+.titulo { font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; }
+.titulo b { color: var(--color-azul-2); font-weight: 800; }
+.regla { height: 5px; width: 9rem; border-radius: 9px; background: var(--color-azul-2); }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

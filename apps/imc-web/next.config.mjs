@@ -1,0 +1,4 @@
+/** @type {import('next').NextConfig} */
+// Web estática: `npm run build` deja todo en out/ para subirlo tal cual al hosting.
+const nextConfig = { output: 'export', trailingSlash: true, images: { unoptimized: true }, poweredByHeader: false };
+export default nextConfig;
