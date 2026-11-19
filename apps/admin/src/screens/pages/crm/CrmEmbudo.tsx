@@ -10,7 +10,7 @@ import { PageHead } from '../../../components/shell/PageHead';
 import { api } from '../../../lib/api';
 import { useAuth } from '../../../context/AuthContext';
 import {
-  Alerta, ETAPAS, NuevaOportunidad, OportunidadPanel, dinero, etapa, msg, montos, nombreDe, pedirMotivo, vencida, fechaCorta, type Etapa, type Oportunidad, EtiquetaResponsable, useVeTodoCrm,
+  Alerta, ETAPAS, NuevaOportunidad, OportunidadPanel, dinero, etapa, msg, montos, nombreDe, pedirMotivo, vencida, fechaCorta, type Etapa, type Oportunidad, EtiquetaResponsable, useVeTodoCrm, useAlcanceMarcas, SelectorAlcance, EtiquetaMarca, useFichaOportunidad,
 } from './comun';
 import { teclaFila } from '../../../lib/teclado';
 import { Select } from '../../../components/ui/Select';
@@ -72,7 +72,8 @@ export function CrmEmbudo({ propio = false }: { propio?: boolean }) {
   const mias = propio || miasSel;
   const [cerradas, setCerradas] = useState(false);
   const [q, setQ] = useState('');
-  const [abierta, setAbierta] = useState<string | null>(null);
+  const alcance = useAlcanceMarcas();
+  const [abierta, setAbierta] = useFichaOportunidad(lista, alcance.todas);
   // ?id=<oportunidad> abre su ficha (enlaces «Ver en CRM» y de la Agenda).
   useEffect(() => { const id = new URLSearchParams(window.location.search).get('id'); if (id) setAbierta(id); }, []);
   const [nueva, setNueva] = useState(false);
@@ -87,10 +88,10 @@ export function CrmEmbudo({ propio = false }: { propio?: boolean }) {
     if (!activeMarcaId) return;
     try {
       const qs = new URLSearchParams({ estado: cerradas ? 'todas' : 'abiertas', ...(mias ? { asignado: 'yo' } : {}) });
-      setLista(await api.get<Oportunidad[]>(`/crm/oportunidades?${qs}`));
+      setLista(await api.get<Oportunidad[]>(`${alcance.ruta}?${qs}`));
       setError('');
     } catch (e) { setError(msg(e, 'No se pudo cargar el embudo.')); } finally { setCargando(false); }
-  }, [activeMarcaId, mias, cerradas]);
+  }, [activeMarcaId, mias, cerradas, alcance.ruta]);
   useEffect(() => { cargar(); }, [cargar]);
 
   const visibles = useMemo(() => {
@@ -129,7 +130,7 @@ export function CrmEmbudo({ propio = false }: { propio?: boolean }) {
     const motivoPerdida = destino === 'PERDIDO' ? (await pedirMotivo()) ?? undefined : undefined;
     if (destino === 'PERDIDO' && !motivoPerdida) return;
     setLista((l) => l.map((x) => (x.id === id ? { ...x, etapa: destino } : x)));
-    try { await api.patch(`/crm/oportunidades/${id}/etapa`, { etapa: destino, motivoPerdida }); } catch (e) { setError(msg(e, 'No se pudo mover.')); }
+    try { await api.patch(`/crm/oportunidades/${id}/etapa`, { etapa: destino, motivoPerdida }, { marcaId: alcance.todas ? o.marcaId : undefined }); } catch (e) { setError(msg(e, 'No se pudo mover.')); }
     cargar();
   }
 
@@ -144,6 +145,7 @@ export function CrmEmbudo({ propio = false }: { propio?: boolean }) {
           <button type="button" role="radio" aria-checked={vista === 'tablero'} className={`ax-btn ax-btn--sm${vista === 'tablero' ? ' is-selected' : ''}`} onClick={() => setVista('tablero')}>Tablero</button>
           <button type="button" role="radio" aria-checked={vista === 'lista'} className={`ax-btn ax-btn--sm${vista === 'lista' ? ' is-selected' : ''}`} onClick={() => setVista('lista')}>Lista</button>
         </div>
+        <SelectorAlcance alcance={alcance} />
         {veTodo && (
           <div className="ax-btn-group ax-btn-group--segmented" role="radiogroup" aria-label="De quién">
             <button type="button" role="radio" aria-checked={!mias} className={`ax-btn ax-btn--sm${!mias ? ' is-selected' : ''}`} onClick={() => setMias(false)}>Todas</button>
@@ -194,7 +196,7 @@ export function CrmEmbudo({ propio = false }: { propio?: boolean }) {
                       <tbody>
                         {items.map((o) => (
                           <tr key={o.id} className="ax-table__row" onClick={() => setAbierta(o.id)} tabIndex={0} onKeyDown={teclaFila(() => setAbierta(o.id))} style={{ cursor: 'pointer' }}>
-                            <td className="ax-table__td"><div style={{ fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-strong)' }}>{o.titulo}</div><div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{o.numero}</div></td>
+                            <td className="ax-table__td"><div style={{ fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-strong)' }}>{o.titulo}</div><div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{o.numero}</div>{o.marca && <div style={{ marginBlockStart: 4 }}><EtiquetaMarca m={o.marca} /></div>}</td>
                             <td className="ax-table__td">{o.empresa?.razonSocial ?? o.contacto?.nombre ?? '—'}</td>
                             <td className="ax-table__td ax-num">{dinero(o.monto, o.moneda)}</td>
                             <td className="ax-table__td"><EtiquetaResponsable u={o.asignado} /></td>
@@ -252,6 +254,7 @@ export function CrmEmbudo({ propio = false }: { propio?: boolean }) {
                       <span className="emb-card__cli">{o.empresa?.razonSocial ?? o.contacto?.nombre ?? '—'}</span>
                     </button>
                     <div className="emb-card__pie">
+                      <EtiquetaMarca m={o.marca} />
                       <EtiquetaResponsable u={o.asignado} />
                       {o.proximaAccion && (
                         <span className={`emb-chip${vencida(o.proximaAccionAt) ? ' is-late' : ''}`}>

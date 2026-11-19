@@ -8,7 +8,7 @@ import { PageHead } from '../../../components/shell/PageHead';
 import { api } from '../../../lib/api';
 import { useAuth } from '../../../context/AuthContext';
 import {
-  Alerta, BotonIcono, ETAPAS, NuevaOportunidad, ORIGENES, TIPOS_PROCESO, OportunidadPanel, dinero, etapa, fechaCorta, msg, nombreDe, useAsignables, useConfirmar, vencida, type Etapa, type Oportunidad, type Origen, EtiquetaResponsable, useVeTodoCrm,
+  Alerta, BotonIcono, ETAPAS, NuevaOportunidad, ORIGENES, TIPOS_PROCESO, OportunidadPanel, dinero, etapa, fechaCorta, msg, nombreDe, useAsignables, useConfirmar, vencida, type Etapa, type Oportunidad, type Origen, EtiquetaResponsable, useVeTodoCrm, useAlcanceMarcas, SelectorAlcance, EtiquetaMarca, useFichaOportunidad,
 } from './comun';
 import { teclaFila } from '../../../lib/teclado';
 import { Select } from '../../../components/ui/Select';
@@ -28,7 +28,8 @@ export function CrmOportunidades({ propio = false }: { propio?: boolean }) {
   const [origen, setOrigen] = useState<'' | Origen>('');
   const [tipo, setTipo] = useState('');
   const [q, setQ] = useState('');
-  const [abierta, setAbierta] = useState<string | null>(null);
+  const alcance = useAlcanceMarcas();
+  const [abierta, setAbierta] = useFichaOportunidad(lista, alcance.todas);
   // ?id=<oportunidad> abre su ficha (enlaces «Ver en CRM» y de la Agenda).
   useEffect(() => { const id = new URLSearchParams(window.location.search).get('id'); if (id) setAbierta(id); }, []);
   const [nueva, setNueva] = useState(false);
@@ -38,14 +39,14 @@ export function CrmOportunidades({ propio = false }: { propio?: boolean }) {
   // Solo admin (la API también lo exige): para oportunidades mal registradas o duplicadas.
   async function eliminar(o: Oportunidad) {
     if (!(await confirmar('Eliminar oportunidad', `¿Eliminar ${o.numero} «${o.titulo}»? Se borra también su historial. La empresa y el contacto se conservan.`))) return;
-    try { await api.delete(`/crm/oportunidades/${o.id}`); setOk(`${o.numero} eliminada.`); setError(''); cargar(); } catch (e) { setOk(''); setError(msg(e, 'No se pudo eliminar.')); }
+    try { await api.delete(`/crm/oportunidades/${o.id}`, { marcaId: alcance.todas ? o.marcaId : undefined }); setOk(`${o.numero} eliminada.`); setError(''); cargar(); } catch (e) { setOk(''); setError(msg(e, 'No se pudo eliminar.')); }
   }
 
   const cargar = useCallback(async () => {
     if (!activeMarcaId) return;
     const qs = new URLSearchParams({ estado, ...(et ? { etapa: et } : {}), ...(propio ? { asignado: 'yo' } : asignado ? { asignado } : {}), ...(tipo ? { tipoProceso: tipo } : {}), ...(origen ? { origen } : {}), ...(q.trim() ? { q: q.trim() } : {}) });
-    try { setLista(await api.get<Oportunidad[]>(`/crm/oportunidades?${qs}`)); setError(''); } catch (e) { setError(msg(e, 'No se pudieron cargar las oportunidades.')); } finally { setCargando(false); }
-  }, [activeMarcaId, estado, et, asignado, origen, tipo, propio, q]);
+    try { setLista(await api.get<Oportunidad[]>(`${alcance.ruta}?${qs}`)); setError(''); } catch (e) { setError(msg(e, 'No se pudieron cargar las oportunidades.')); } finally { setCargando(false); }
+  }, [activeMarcaId, estado, et, asignado, origen, tipo, propio, q, alcance.ruta]);
   useEffect(() => { const t = setTimeout(cargar, 250); return () => clearTimeout(t); }, [cargar]);
 
   return (
@@ -58,6 +59,7 @@ export function CrmOportunidades({ propio = false }: { propio?: boolean }) {
         <section className="ax-card" aria-label="Oportunidades">
           <div className="ax-card__body">
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'wrap' }}>
+              <SelectorAlcance alcance={alcance} />
               <div className="ax-btn-group ax-btn-group--segmented" role="radiogroup" aria-label="Estado">
                 {(['abiertas', 'cerradas', 'todas'] as const).map((v) => (
                   <button key={v} type="button" role="radio" aria-checked={estado === v} className={`ax-btn ax-btn--sm${estado === v ? ' is-selected' : ''}`} onClick={() => { setEstado(v); setEt(''); }}>{v[0]!.toUpperCase() + v.slice(1)}</button>
@@ -104,6 +106,7 @@ export function CrmOportunidades({ propio = false }: { propio?: boolean }) {
                     <td className="ax-table__td">
                       <div style={{ fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-strong)' }}>{o.titulo}</div>
                       <div style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{o.numero} · {fechaCorta(o.createdAt)}</div>
+                      {o.marca && <div style={{ marginBlockStart: 4 }}><EtiquetaMarca m={o.marca} /></div>}
                     </td>
                     <td className="ax-table__td">
                       <div>{o.empresa?.razonSocial ?? o.contacto?.nombre ?? '—'}</div>

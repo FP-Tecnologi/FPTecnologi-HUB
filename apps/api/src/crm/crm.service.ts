@@ -9,6 +9,10 @@ import type {
 export const ROLES_CRM = ['admin', 'jefe_comercial', 'comercial'];
 /** Roles que ven TODAS las oportunidades de la marca y pueden asignarlas (dirección: solo lectura). Los demás ven solo las suyas. */
 export const ROLES_VE_TODO_CRM = ['admin', 'jefe_comercial', 'direccion'];
+/** Roles con acceso de lectura al CRM de una marca (vista Comercial multimarca). */
+export const ROLES_LEE_CRM = ['admin', 'jefe_comercial', 'comercial', 'direccion'];
+/** Marca a la que el usuario accede en la vista Comercial: su id y su rol en ella (sale del token, nunca del cliente). */
+export interface MarcaCrm { marcaId: string; rol: string }
 /** Quién consulta: su id y si ve todo el CRM o solo lo que tiene asignado. */
 export interface AmbitoCrm { usuarioId: string; veTodo: boolean }
 const TODO: AmbitoCrm = { usuarioId: '', veTodo: true };
@@ -175,9 +179,14 @@ export class CrmService {
   }
 
   listar(marcaId: string, f: FiltrosOportunidades, usuarioId: string, veTodo = true) {
+    return this.prisma.crmOportunidad.findMany({ where: this.filtroOportunidades({ marcaId }, f, usuarioId, veTodo), include: INCLUDE_LISTA, orderBy: { updatedAt: 'desc' }, take: 500 });
+  }
+
+  /** Filtros de lista compartidos por la vista de una marca y la consolidada. `base` fija la marca (o las marcas). */
+  private filtroOportunidades(base: Prisma.CrmOportunidadWhereInput, f: FiltrosOportunidades, usuarioId: string, veTodo: boolean): Prisma.CrmOportunidadWhereInput {
     const q = f.q?.trim();
-    const where: Prisma.CrmOportunidadWhereInput = {
-      marcaId,
+    return {
+      ...base,
       ...(f.etapa ? { etapa: f.etapa } : f.estado === 'abiertas' ? { etapa: { in: ETAPAS_ABIERTAS } } : f.estado === 'cerradas' ? { etapa: { in: ['GANADO', 'PERDIDO'] } } : {}),
       // Quien no ve todo queda fijado a sus propias oportunidades, sin importar el filtro que mande.
       ...(!veTodo ? { asignadoId: usuarioId } : f.asignado === 'yo' ? { asignadoId: usuarioId } : f.asignado === 'sin' ? { asignadoId: null } : f.asignado ? { asignadoId: f.asignado } : {}),
@@ -193,7 +202,61 @@ export class CrmService {
           ] }
         : {}),
     };
-    return this.prisma.crmOportunidad.findMany({ where, include: INCLUDE_LISTA, orderBy: { updatedAt: 'desc' }, take: 500 });
+  }
+
+  /**
+   * Vista Comercial: oportunidades de TODAS las marcas del usuario en una sola lista, cada una con su marca. `marcas` viene
+   * del token (rol por marca); `soloMarcas` es un filtro opcional que solo puede restringir, nunca ampliar. En las marcas
+   * donde no ve todo el CRM (comercial) solo salen las que tiene asignadas.
+   */
+  async listarConsolidado(marcas: MarcaCrm[], f: FiltrosOportunidades, usuarioId: string, soloMarcas?: string[]) {
+    const permitidas = this.marcasConsolidadas(marcas, soloMarcas);
+    if (permitidas.length === 0) return [];
+    const ids = permitidas.map((m) => m.marcaId);
+    const veTodoIds = permitidas.filter((m) => ROLES_VE_TODO_CRM.includes(m.rol)).map((m) => m.marcaId);
+    const restringidas = veTodoIds.length < ids.length;
+    // `marcaId` va en la raíz del where (el candado multi-tenant lo exige); la restricción por responsable solo aplica a las marcas donde no ve todo.
+    const base: Prisma.CrmOportunidadWhereInput = { marcaId: { in: ids }, ...(restringidas ? { AND: [{ OR: [{ marcaId: { in: veTodoIds } }, { asignadoId: usuarioId }] }] } : {}) };
+    // Los filtros 'yo' / 'sin' / id sí se respetan; el filtro por responsable de quien no ve todo ya lo cubre la restricción de arriba.
+    return this.prisma.crmOportunidad.findMany({
+      where: this.filtroOportunidades(base, f, usuarioId, true),
+      include: { ...INCLUDE_LISTA, marca: { select: { id: true, nombre: true, colorPrimario: true } } },
+      orderBy: { updatedAt: 'desc' },
+      take: 800,
+    });
+  }
+
+  /** Marcas con acceso al CRM, opcionalmente acotadas por el filtro del cliente (solo recorta, nunca agrega). */
+  marcasConsolidadas(marcas: MarcaCrm[], soloMarcas?: string[]): MarcaCrm[] {
+    const conAcceso = marcas.filter((m) => ROLES_LEE_CRM.includes(m.rol));
+    return soloMarcas?.length ? conAcceso.filter((m) => soloMarcas.includes(m.marcaId)) : conAcceso;
+  }
+
+  /** Agenda de todas las marcas del usuario: tareas pendientes y próximas acciones, con la marca de cada una. */
+  async agendaConsolidada(marcas: MarcaCrm[], usuarioId: string, soloMias: boolean, soloMarcas?: string[]) {
+    const permitidas = this.marcasConsolidadas(marcas, soloMarcas);
+    if (permitidas.length === 0) return { tareas: [], acciones: [] };
+    const ids = permitidas.map((m) => m.marcaId);
+    const veTodoIds = permitidas.filter((m) => ROLES_VE_TODO_CRM.includes(m.rol)).map((m) => m.marcaId);
+    const deQuien: Prisma.CrmOportunidadWhereInput = soloMias || veTodoIds.length < ids.length
+      ? { AND: [{ OR: [...(soloMias ? [] : [{ marcaId: { in: veTodoIds } }]), { asignadoId: usuarioId }] }] }
+      : {};
+    const conMarca = { marca: { select: { id: true, nombre: true, colorPrimario: true } } };
+    const [tareas, acciones] = await Promise.all([
+      this.prisma.crmActividad.findMany({
+        where: { marcaId: { in: ids }, tipo: 'TAREA', hecha: false, oportunidad: { marcaId: { in: ids }, etapa: { in: ETAPAS_ABIERTAS }, ...deQuien } },
+        orderBy: { fecha: 'asc' },
+        take: 300,
+        include: { ...conMarca, oportunidad: { select: { id: true, numero: true, titulo: true, etapa: true, asignado: { select: { nombre: true, email: true } }, contacto: { select: { nombre: true } } } } },
+      }),
+      this.prisma.crmOportunidad.findMany({
+        where: { marcaId: { in: ids }, etapa: { in: ETAPAS_ABIERTAS }, proximaAccionAt: { not: null }, ...deQuien },
+        orderBy: { proximaAccionAt: 'asc' },
+        take: 300,
+        include: { ...INCLUDE_LISTA, ...conMarca },
+      }),
+    ]);
+    return { tareas, acciones };
   }
 
   async obtener(marcaId: string, id: string, ambito: AmbitoCrm = TODO) {

@@ -6,7 +6,7 @@
  */
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
-import { api } from '../../../lib/api';
+import { api, setMarcaForzada } from '../../../lib/api';
 import { ApiError, useAuth } from '../../../context/AuthContext';
 import { useFocusTrap } from '../../../hooks/useFocusTrap';
 import { manifest, hrefForSlug } from '../../../lib/manifest';
@@ -21,7 +21,10 @@ export type TipoProceso = 'VENTA_DIRECTA' | 'PRIVADO' | 'LICITACION' | 'CONVENIO
 export type TipoActividad = 'LLAMADA' | 'REUNION' | 'NOTA' | 'CORREO' | 'WHATSAPP' | 'TAREA' | 'ETAPA' | 'SOLICITUD';
 
 export interface Usuario { id: string; nombre: string | null; email: string; rol?: string }
+/** Marca de una oportunidad: solo viene en las listas consolidadas de la vista Comercial (`/crm/global/*`). */
+export interface MarcaRef { id: string; nombre: string; colorPrimario?: string | null }
 export interface Oportunidad {
+  marcaId?: string; marca?: MarcaRef;
   id: string; numero: string; titulo: string; etapa: Etapa; monto: string | number | null; moneda: string; tipoProceso: TipoProceso | null; probabilidad: number | null;
   cierreEstimado: string | null; origen: Origen; origenId: string | null; proximaAccion: string | null; proximaAccionAt: string | null;
   motivoPerdida: string | null; ganadoAt: string | null; createdAt: string; updatedAt: string; asignadoId: string | null;
@@ -71,6 +74,62 @@ export function useVeTodoCrm() {
   const { marcas, activeMarcaId } = useAuth();
   const rol = (marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre ?? '').toLowerCase();
   return { veTodo: ['admin', 'jefe_comercial', 'direccion'].includes(rol), puedeAsignar: ['admin', 'jefe_comercial'].includes(rol) };
+}
+
+const ROLES_LEE_CRM = ['admin', 'jefe_comercial', 'comercial', 'direccion'];
+const CLAVE_TODAS = 'crm:todas-las-marcas';
+
+/**
+ * Vista Comercial: ¿se trabaja con el CRM de todas las marcas a la vez? Solo está disponible en esa vista y con más de una
+ * marca con acceso al CRM; la elección se recuerda en este navegador. `ruta` apunta al listado de una marca o al consolidado.
+ */
+export function useAlcanceMarcas() {
+  const { comercialMode, marcas } = useAuth();
+  const disponible = comercialMode && marcas.filter((m) => ROLES_LEE_CRM.includes(m.rol.nombre.toLowerCase())).length > 1;
+  const [pref, setPref] = useState(false);
+  useEffect(() => { try { setPref(localStorage.getItem(CLAVE_TODAS) === '1'); } catch { /* sin almacenamiento */ } }, []);
+  const setTodas = (v: boolean) => { setPref(v); try { localStorage.setItem(CLAVE_TODAS, v ? '1' : '0'); } catch { /* sin almacenamiento */ } };
+  const todas = disponible && pref;
+  return { disponible, todas, setTodas, ruta: todas ? '/crm/global/oportunidades' : '/crm/oportunidades' };
+}
+
+/** Selector «Esta marca / Todas mis marcas» (solo se dibuja si el alcance multimarca está disponible). */
+export function SelectorAlcance({ alcance }: { alcance: ReturnType<typeof useAlcanceMarcas> }) {
+  if (!alcance.disponible) return null;
+  return (
+    <div className="ax-btn-group ax-btn-group--segmented" role="radiogroup" aria-label="Marcas">
+      <button type="button" role="radio" aria-checked={!alcance.todas} className={`ax-btn ax-btn--sm${!alcance.todas ? ' is-selected' : ''}`} onClick={() => alcance.setTodas(false)}>Esta marca</button>
+      <button type="button" role="radio" aria-checked={alcance.todas} className={`ax-btn ax-btn--sm${alcance.todas ? ' is-selected' : ''}`} onClick={() => alcance.setTodas(true)}>Todas mis marcas</button>
+    </div>
+  );
+}
+
+/** Etiqueta de la marca de una oportunidad (con el color de la marca). No dibuja nada si la lista no es consolidada. */
+export function EtiquetaMarca({ m }: { m: MarcaRef | null | undefined }) {
+  if (!m) return null;
+  return (
+    <span className="ax-badge ax-badge--soft ax-badge--sm" title={`Marca: ${m.nombre}`} style={{ gap: 5, whiteSpace: 'nowrap' }}>
+      <span aria-hidden="true" style={{ width: 7, height: 7, borderRadius: '50%', flexShrink: 0, background: m.colorPrimario || 'var(--ax-accent)' }} />
+      {m.nombre}
+    </span>
+  );
+}
+
+/**
+ * Ficha de una oportunidad que puede ser de otra marca (lista consolidada): al abrirla se fija su marca para las peticiones
+ * del panel, y se suelta al cerrarla o salir de la pantalla. Con una sola marca no cambia nada.
+ */
+export function useFichaOportunidad(lista: Oportunidad[], todas: boolean) {
+  const [abierta, setAbiertaEstado] = useState<string | null>(null);
+  const fijada = useRef(false);
+  const abrir = useCallback((id: string | null) => {
+    const marcaId = id && todas ? lista.find((x) => x.id === id)?.marcaId : undefined;
+    setMarcaForzada(marcaId ?? null);
+    fijada.current = !!marcaId;
+    setAbiertaEstado(id);
+  }, [lista, todas]);
+  useEffect(() => () => { if (fijada.current) setMarcaForzada(null); }, []);
+  return [abierta, abrir] as const;
 }
 
 /** Etiqueta del comercial que lleva la oportunidad (o "Sin asignar"). */

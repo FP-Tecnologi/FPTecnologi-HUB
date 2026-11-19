@@ -179,3 +179,32 @@ describe('CrmService: sedes y subempresas', () => {
     await expect(svc.actualizarEmpresa('m1', 'a', { empresaPadreId: 'b' } as never)).rejects.toBeInstanceOf(BadRequestException);
   });
 });
+
+describe('CrmService: vista Comercial multimarca', () => {
+  const marcas = [{ marcaId: 'm1', rol: 'comercial' }, { marcaId: 'm2', rol: 'jefe_comercial' }, { marcaId: 'm3', rol: 'soporte' }];
+  const donde = (prisma: ReturnType<typeof prismaFalso>) => ((prisma.crmOportunidad.findMany.mock.calls as unknown as [{ where: Record<string, unknown> }][])[0]![0]).where;
+
+  it('solo consulta las marcas con acceso al CRM (ignora las de otros roles)', async () => {
+    const prisma = prismaFalso();
+    await new CrmService(prisma as never).listarConsolidado(marcas, {} as never, 'u1');
+    expect(donde(prisma).marcaId).toEqual({ in: ['m1', 'm2'] });
+  });
+
+  it('un filtro de marcas solo recorta: no puede agregar una marca ajena', async () => {
+    const prisma = prismaFalso();
+    await new CrmService(prisma as never).listarConsolidado(marcas, {} as never, 'u1', ['m2', 'm9', 'm3']);
+    expect(donde(prisma).marcaId).toEqual({ in: ['m2'] });
+  });
+
+  it('en las marcas donde es comercial solo ve lo asignado; donde es jefe ve todo', async () => {
+    const prisma = prismaFalso();
+    await new CrmService(prisma as never).listarConsolidado(marcas, {} as never, 'u1');
+    expect(donde(prisma).AND).toEqual([{ OR: [{ marcaId: { in: ['m2'] } }, { asignadoId: 'u1' }] }]);
+  });
+
+  it('sin acceso a ninguna marca no consulta nada', async () => {
+    const prisma = prismaFalso();
+    expect(await new CrmService(prisma as never).listarConsolidado([{ marcaId: 'm3', rol: 'soporte' }], {} as never, 'u1')).toEqual([]);
+    expect(prisma.crmOportunidad.findMany).not.toHaveBeenCalled();
+  });
+});
