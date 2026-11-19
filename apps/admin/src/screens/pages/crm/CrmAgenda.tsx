@@ -30,13 +30,13 @@ const hora = (iso: string) => new Date(iso).toLocaleTimeString('es-PE', { hour: 
 const diaCorto = (iso: string) => new Date(iso).toLocaleDateString('es-PE', { day: 'numeric', month: 'short' });
 
 const ESTILOS = `
-.ag-grid{display:grid;grid-template-columns:minmax(300px,380px) minmax(0,1fr);gap:var(--ax-space-4);align-items:start}
+.ag-grid{display:grid;grid-template-columns:minmax(340px,400px) minmax(0,1fr);gap:var(--ax-space-4);align-items:start}
 .ag-cal{position:sticky;top:var(--ax-space-4)}
 @media (max-width:960px){.ag-grid{grid-template-columns:minmax(0,1fr)}.ag-cal{position:static}}
-.ag-calcab{display:flex;align-items:center;justify-content:space-between;gap:var(--ax-space-3);padding:var(--ax-space-4) var(--ax-space-4) var(--ax-space-2)}
-.ag-calcab__tit{margin:0;font-size:var(--ax-text-lg);font-weight:var(--ax-weight-semibold);color:var(--ax-text-strong);white-space:nowrap}
-.ag-nav{display:inline-flex;align-items:center;gap:2px;padding:3px;border-radius:999px;background:var(--ax-surface-subtle)}
-.ag-nav button{all:unset;box-sizing:border-box;cursor:pointer;min-width:32px;height:32px;padding:0 10px;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;font-size:var(--ax-text-sm);line-height:1;color:var(--ax-text)}
+.ag-calcab{display:flex;flex-wrap:nowrap;align-items:center;justify-content:space-between;gap:var(--ax-space-2);padding:var(--ax-space-4) var(--ax-space-4) var(--ax-space-2)}
+.ag-calcab__tit{margin:0;min-width:0;font-size:var(--ax-text-md,1rem);font-weight:var(--ax-weight-semibold);color:var(--ax-text-strong);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ag-nav{flex-shrink:0;display:inline-flex;align-items:center;gap:2px;padding:3px;border-radius:999px;background:var(--ax-surface-subtle)}
+.ag-nav button{all:unset;box-sizing:border-box;cursor:pointer;min-width:30px;height:30px;padding:0 8px;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;font-size:var(--ax-text-sm);line-height:1;color:var(--ax-text)}
 .ag-nav button:hover{background:color-mix(in srgb,var(--ax-text) 10%,transparent)}
 .ag-nav button:focus-visible,.ag-dia:focus-visible{outline:2px solid var(--ax-focus-ring,var(--ax-accent));outline-offset:2px}
 .ag-sem,.ag-dias{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));text-align:center}
@@ -165,7 +165,7 @@ export function CrmAgenda({ propio = false }: { propio?: boolean }) {
       <div className="ag-grid">
         <section className="ax-card ag-cal" aria-label="Calendario">
           <div className="ag-calcab">
-            <h2 className="ag-calcab__tit">{mesTitulo}</h2>
+            <h2 className="ag-calcab__tit" title={mesTitulo}>{mesTitulo}</h2>
             <div className="ag-nav" role="group" aria-label="Cambiar de mes">
               <button type="button" aria-label="Mes anterior" onClick={() => setMes(new Date(mes.getFullYear(), mes.getMonth() - 1, 1))}>‹</button>
               <button type="button" onClick={() => { const d = new Date(); setMes(new Date(d.getFullYear(), d.getMonth(), 1)); setDia(clave(d)); }}>Hoy</button>
