@@ -22,7 +22,7 @@ const WEB_FPT = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:300
 
 type Datos = Record<string, unknown>;
 /** Subcampo de una `lista-objetos` (cada elemento es un objeto con estas claves). */
-type SubCampo = { key: string; label: string; tipo: 'text' | 'textarea' | 'imagen'; ayuda?: string };
+type SubCampo = { key: string; label: string; tipo: 'text' | 'textarea' | 'imagen' | 'check'; ayuda?: string };
 type Campo =
   | { key: string; label: string; tipo: 'text' | 'textarea'; ayuda?: string }
   | { key: string; label: string; tipo: 'bool'; ayuda?: string }
@@ -45,13 +45,26 @@ const DESCRIPCION: Campo = { key: 'descripcion', label: 'Descripción', tipo: 't
 const BOTON: Campo = { key: 'botonTexto', label: 'Texto del botón', tipo: 'text', ayuda: 'Vacío = sin botón' };
 const URL: Campo = { key: 'botonUrl', label: 'Enlace del botón', tipo: 'text', ayuda: 'Ej. /servicios o https://…' };
 
-export type Seccion = { key: string; nombre: string; ancla: string; campos: Campo[] };
+export type Seccion = { key: string; nombre: string; ancla: string; campos: Campo[]; /** Aviso con enlace al módulo que administra esta sección (cuando su contenido no vive aquí). */ enlace?: { texto: string; href: string; linkTexto: string } };
 
+const FORM_CONTACTO: Campo[] = [
+  { key: 'formTitulo', label: 'Formulario — título', tipo: 'text' },
+  { key: 'formSubtitulo', label: 'Formulario — subtítulo', tipo: 'text' },
+  { key: 'etiquetaNombre', label: 'Etiqueta del campo nombre', tipo: 'text' },
+  { key: 'etiquetaCorreo', label: 'Etiqueta del campo correo', tipo: 'text' },
+  { key: 'mostrarTelefono', label: 'Pedir teléfono / WhatsApp', tipo: 'bool' },
+  { key: 'etiquetaTelefono', label: 'Etiqueta del campo teléfono', tipo: 'text' },
+  { key: 'etiquetaMensaje', label: 'Etiqueta del campo mensaje', tipo: 'text' },
+  { key: 'placeholderMensaje', label: 'Texto de ayuda del mensaje', tipo: 'text' },
+  { key: 'botonEnviar', label: 'Texto del botón de enviar', tipo: 'text' },
+  { key: 'mensajeExito', label: 'Mensaje al enviar', tipo: 'textarea' },
+];
+
+// Mismo orden en que aparecen en la página de inicio.
 const SECCIONES: Seccion[] = [
   { key: 'hero', nombre: 'Banner principal', ancla: '', campos: [{ key: 'slides', label: 'Diapositivas', tipo: 'slides' }] },
-  { key: 'marcas', nombre: 'Marcas', ancla: 'marcas', campos: [] },
   { key: 'nosotros', nombre: 'Nosotros', ancla: 'nosotros', campos: [BADGE, TITULO, DESTACADO, DESCRIPCION, { key: 'puntos', label: 'Puntos destacados', tipo: 'lista-texto' }, BOTON, URL] },
-  { key: 'servicios', nombre: 'Servicios', ancla: 'servicios', campos: [BADGE, TITULO, DESTACADO, BOTON, URL] },
+  { key: 'servicios', nombre: 'Servicios', ancla: 'servicios', campos: [BADGE, TITULO, DESTACADO, BOTON, URL], enlace: { texto: 'Las tarjetas de servicios se administran en', href: '/web/servicios', linkTexto: 'Servicios' } },
   { key: 'porque', nombre: 'Por qué elegirnos', ancla: 'porque', campos: [BADGE, TITULO, DESTACADO, { key: 'items', label: 'Diferenciadores', tipo: 'lista-items', itemLabel: 'Diferenciador' }] },
   {
     key: 'categorias',
@@ -75,10 +88,30 @@ const SECCIONES: Seccion[] = [
     ],
   },
   { key: 'productos', nombre: 'Los más vendidos', ancla: 'catalogo', campos: [BADGE, TITULO, DESTACADO, BOTON, URL] },
-  { key: 'proyectos', nombre: 'Proyectos', ancla: 'proyectos', campos: [BADGE, TITULO, DESTACADO, DESCRIPCION] },
-  { key: 'clientes', nombre: 'Clientes', ancla: 'clientes', campos: [BADGE, TITULO, DESTACADO, DESCRIPCION] },
+  { key: 'proyectos', nombre: 'Proyectos', ancla: 'proyectos', campos: [BADGE, TITULO, DESTACADO, DESCRIPCION], enlace: { texto: 'Los proyectos se administran en', href: '/web/proyectos', linkTexto: 'Proyectos' } },
   { key: 'partners', nombre: 'Partners', ancla: 'partners', campos: [BADGE, TITULO, DESTACADO, DESCRIPCION, BOTON, { key: 'pasos', label: 'Pasos', tipo: 'lista-items', itemLabel: 'Paso' }] },
-  { key: 'contacto', nombre: 'Contacto', ancla: 'contacto', campos: [BADGE, TITULO, DESTACADO, DESCRIPCION] },
+  { key: 'contacto', nombre: 'Contacto', ancla: 'contacto', campos: [BADGE, TITULO, DESTACADO, DESCRIPCION, ...FORM_CONTACTO] },
+  {
+    key: 'marcas',
+    nombre: 'Marcas (carrusel de logos)',
+    ancla: 'marcas',
+    campos: [
+      {
+        key: 'items',
+        label: 'Lista de marcas',
+        tipo: 'lista-objetos',
+        itemLabel: 'Marca',
+        tituloDe: 'name',
+        ayuda: 'Agrega, quita u ordena las marcas del carrusel. Sube el logo con fondo transparente (SVG o PNG) para que se vea en la silueta azul y a color al pasar el cursor. Marca «Logo con fondo propio» solo si el logo viene dentro de una caja de color.',
+        campos: [
+          { key: 'name', label: 'Nombre de la marca', tipo: 'text' },
+          { key: 'logo', label: 'Logo', tipo: 'imagen' },
+          { key: 'solido', label: 'Logo con fondo propio (se muestra siempre a color)', tipo: 'check' },
+        ],
+      },
+    ],
+  },
+  { key: 'clientes', nombre: 'Clientes (se muestra en Nosotros y Proyectos)', ancla: '', campos: [BADGE, TITULO, DESTACADO, DESCRIPCION], enlace: { texto: 'Agrega, ordena, edita o elimina los logos de clientes en', href: '/web/clientes', linkTexto: 'Clientes' } },
 ];
 
 const SLIDE_CAMPOS = [
@@ -243,12 +276,19 @@ export function CmsEditor({ config }: { config: CmsConfig }) {
           <div className="ax-card__body" style={{ flex: '1 1 auto', minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
             {!guardado ? (
               <p style={{ color: 'var(--ax-text-muted)' }}>Cargando contenido…</p>
-            ) : seccion.campos.length === 0 ? (
+            ) : seccion.campos.length === 0 && !seccion.enlace ? (
               <p style={{ color: 'var(--ax-text-muted)', fontSize: 'var(--ax-text-sm)' }}>
                 Esta sección no tiene textos editables todavía. Puedes mostrarla u ocultarla con «Visible».
               </p>
             ) : (
-              seccion.campos.map((c) => <CampoEditor key={c.key} campo={c} valor={datos[c.key]} onChange={(v) => set(c.key, v)} web={WEB} />)
+              <>
+                {seccion.enlace && (
+                  <p style={{ fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)', margin: 0 }}>
+                    {seccion.enlace.texto} <a href={seccion.enlace.href}>{seccion.enlace.linkTexto}</a>.
+                  </p>
+                )}
+                {seccion.campos.map((c) => <CampoEditor key={c.key} campo={c} valor={datos[c.key]} onChange={(v) => set(c.key, v)} web={WEB} />)}
+              </>
             )}
           </div>
 
@@ -365,6 +405,12 @@ export function CampoEditor({ campo, valor, onChange, web = WEB_FPT }: { campo: 
               )}
               {campo.campos.map((sc) => {
                 const sid = `${id}-${i}-${sc.key}`;
+                if (sc.tipo === 'check') return (
+                  <label key={sc.key} className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap', fontSize: 'var(--ax-text-sm)' }}>
+                    <input type="checkbox" className="ax-switch" checked={it[sc.key] === 'si'} onChange={(e) => upd(i, sc.key, e.target.checked ? 'si' : '')} />
+                    {sc.label}
+                  </label>
+                );
                 if (sc.tipo === 'imagen') return <CampoImagen key={sc.key} id={sid} label={sc.label} ayuda={sc.ayuda} valor={it[sc.key] ?? ''} onChange={(v) => upd(i, sc.key, v)} web={web} />;
                 return (
                   <div key={sc.key} className="ax-field">

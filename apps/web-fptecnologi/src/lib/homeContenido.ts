@@ -8,7 +8,7 @@
  * badge + título en dos tonos (titulo sólido + destacado con brillo) +
  * descripción y botón opcionales.
  */
-import { COMPANY_VALUES, HERO_SLIDES, PARTNER_STEPS, TIENDA_CATEGORIES, WHY_CHOOSE_US } from './content';
+import { COMPANY_VALUES, HERO_SLIDES, PARTNER_BRANDS, PARTNER_STEPS, TIENDA_CATEGORIES, WHY_CHOOSE_US } from './content';
 
 export type Encabezado = {
   visible: boolean;
@@ -19,14 +19,29 @@ export type Encabezado = {
   botonTexto: string;
   botonUrl: string;
 };
+/** Textos del formulario de contacto de la home (editables desde el dashboard). */
+export type FormularioContacto = {
+  formTitulo: string;
+  formSubtitulo: string;
+  etiquetaNombre: string;
+  etiquetaCorreo: string;
+  etiquetaTelefono: string;
+  etiquetaMensaje: string;
+  placeholderMensaje: string;
+  botonEnviar: string;
+  mensajeExito: string;
+  mostrarTelefono: boolean;
+};
 export type HeroSlide = { eyebrow: string; titleLead: string; titleAccent: string; text: string };
 export type ItemTexto = { title: string; text: string };
 /** Tarjeta de categoría de la home. `image` vacío = foto por defecto de la categoría. */
+/** Logo del carrusel de marcas. `solido` = 'si' si el logo trae caja o fondo de color (se muestra a color siempre). */
+export type MarcaHome = { name: string; logo: string; solido: string };
 export type CategoriaHome = { title: string; slug: string; image: string };
 
 export type HomeContenido = {
   hero: { visible: boolean; slides: HeroSlide[] };
-  marcas: { visible: boolean };
+  marcas: { visible: boolean; items: MarcaHome[] };
   nosotros: Encabezado & { puntos: string[] };
   servicios: Encabezado;
   porque: Encabezado & { items: ItemTexto[] };
@@ -35,7 +50,7 @@ export type HomeContenido = {
   proyectos: Encabezado;
   clientes: Encabezado;
   partners: Encabezado & { pasos: ItemTexto[] };
-  contacto: Encabezado;
+  contacto: Encabezado & FormularioContacto;
 };
 
 const enc = (e: Partial<Encabezado>): Encabezado => ({
@@ -59,7 +74,7 @@ export const HOME_DEFAULTS: HomeContenido = {
       text: s.text,
     })),
   },
-  marcas: { visible: true },
+  marcas: { visible: true, items: PARTNER_BRANDS.map((b) => ({ name: b.name, logo: b.logo, solido: b.solido ? 'si' : '' })) },
   nosotros: {
     ...enc({
       badge: 'FPTecnologi & System',
@@ -117,13 +132,25 @@ export const HOME_DEFAULTS: HomeContenido = {
     }),
     pasos: PARTNER_STEPS.map((p) => ({ title: p.title, text: p.text })),
   },
-  contacto: enc({
+  contacto: {
+    ...enc({
     badge: 'Hablemos',
     titulo: '¿Listo para modernizar',
     destacado: 'la tecnología de tu empresa?',
     descripcion:
       'Escríbenos y un asesor especializado te ayuda a armar la mejor solución para tu negocio, con stock local y tiempos de entrega reales.',
-  }),
+    }),
+    formTitulo: 'Déjanos tu mensaje',
+    formSubtitulo: 'Un asesor te responderá pronto.',
+    etiquetaNombre: 'Nombres o empresa',
+    etiquetaCorreo: 'Correo electrónico',
+    etiquetaTelefono: 'Teléfono / WhatsApp',
+    etiquetaMensaje: 'Mensaje',
+    placeholderMensaje: 'Cuéntanos qué solución o equipamiento necesita tu empresa',
+    botonEnviar: 'Enviar mensaje',
+    mensajeExito: '¡Gracias! Tu mensaje ha sido enviado exitosamente. Un asesor te responderá pronto.',
+    mostrarTelefono: true,
+  },
 };
 
 const API_URL = process.env.HUB_API_URL ?? 'http://localhost:3001';

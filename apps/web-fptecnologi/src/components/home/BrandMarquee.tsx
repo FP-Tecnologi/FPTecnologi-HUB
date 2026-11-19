@@ -6,14 +6,15 @@ import { PARTNER_BRANDS, brandSlug } from '@/lib/content';
 import { ScrollReveal } from './ScrollReveal';
 import { SectionBadge } from './SectionBadge';
 
-export function BrandMarquee({ showLabel = true }: { showLabel?: boolean }) {
+export function BrandMarquee({ showLabel = true, marcas }: { showLabel?: boolean; marcas?: { name: string; logo: string; solido?: boolean }[] }) {
+  const BRANDS = marcas && marcas.length > 0 ? marcas : PARTNER_BRANDS;
   // 3 copias (antes 2) -- con solo 13 marcas, duplicar una vez hace que la
   // tanda completa se repita cada 28s (la duración de la animación), muy
   // notorio ("se corta/termina"). Con 3 copias el bucle sigue siendo
   // perfecto (translateX -33.33%, un tercio del ancho total) pero hay más
   // contenido de sobra en pantallas anchas antes de que se note la
   // repetición.
-  const track = [...PARTNER_BRANDS, ...PARTNER_BRANDS, ...PARTNER_BRANDS];
+  const track = [...BRANDS, ...BRANDS, ...BRANDS];
   const [paused, setPaused] = useState(false);
 
   return (
@@ -45,7 +46,7 @@ export function BrandMarquee({ showLabel = true }: { showLabel?: boolean }) {
         <div
           className="animate-marquee flex w-max items-center gap-2"
           // ~2,5 s por marca: la velocidad no cambia al agregar o quitar marcas.
-          style={{ animationPlayState: paused ? 'paused' : 'running', animationDuration: `${PARTNER_BRANDS.length * 2.5}s` }}
+          style={{ animationPlayState: paused ? 'paused' : 'running', animationDuration: `${BRANDS.length * 2.5}s` }}
           onMouseEnter={() => setPaused(true)}
           onMouseLeave={() => setPaused(false)}
         >
@@ -55,7 +56,7 @@ export function BrandMarquee({ showLabel = true }: { showLabel?: boolean }) {
               href={`/marcas/${brandSlug(brand.name)}`}
               aria-label={`Ver productos ${brand.name}`}
               // Solo la primera tanda es navegable: las copias existen para el bucle visual.
-              {...(i >= PARTNER_BRANDS.length ? { 'aria-hidden': true, tabIndex: -1 } : {})}
+              {...(i >= BRANDS.length ? { 'aria-hidden': true, tabIndex: -1 } : {})}
               // La caja (h-32 w-32) ya NO se agranda -- solo el logo de
               // adentro (ver <Image>). `overflow-hidden` acá para que el
               // zoom del logo quede contenido dentro del cuadrado, no

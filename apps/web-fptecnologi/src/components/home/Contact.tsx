@@ -1,5 +1,5 @@
 'use client';
-import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
+import { HOME_DEFAULTS, type HomeContenido } from '@/lib/homeContenido';
 
 import { useState } from 'react';
 import { Building2, FileText, Handshake, Headset, Mail, MapPin, MessageCircle, MessageSquareText, Phone, Server, User, type LucideIcon } from 'lucide-react';
@@ -43,7 +43,7 @@ const MOTIVOS = [
    - `completo` (solo /contacto): título, texto y selector de motivo (tarjetas) a la izquierda y los datos
      del formulario a la derecha; el motivo se antepone al mensaje como «[Motivo: …]». Sus datos de
      contacto ya están en «Contacto por área». */
-export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: Encabezado; completo?: boolean }) {
+export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: HomeContenido['contacto']; completo?: boolean }) {
   const conDatos = !completo;
   // En /contacto el encabezado es propio y sin descripción (los datos de contacto ya están arriba).
   const t = completo ? { badge: 'Escríbenos', titulo: 'Puedes contactarnos y', destacado: 'te respondemos a la brevedad', descripcion: '' } : c;
@@ -217,13 +217,13 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
             {/* La línea azul superior solo aparece (crece desde la izquierda) cuando se empieza a escribir. */}
             <span aria-hidden className="absolute inset-x-0 top-0 h-1 origin-left scale-x-0 bg-gradient-to-r from-brand-primary via-brand-500 to-brand-700 transition-transform duration-500 ease-out group-focus-within/form:scale-x-100" />
             <div className="mb-5">
-              <p className="font-display text-xl font-bold text-ink">Déjanos tu mensaje</p>
-              <p className="mt-1 text-sm text-ink/65">{completo && motivo ? `Motivo: ${motivo}. Un asesor te responderá pronto.` : 'Un asesor te responderá pronto.'}</p>
+              <p className="font-display text-xl font-bold text-ink">{c.formTitulo || 'Déjanos tu mensaje'}</p>
+              <p className="mt-1 text-sm text-ink/65">{completo && motivo ? `Motivo: ${motivo}. Un asesor te responderá pronto.` : c.formSubtitulo || 'Un asesor te responderá pronto.'}</p>
             </div>
             <div className="space-y-4">
               {success && (
                 <div role="status" className="rounded-xl border border-whatsapp-dark/30 bg-whatsapp/10 p-4 text-center text-sm font-medium text-whatsapp-dark">
-                  ¡Gracias! Tu mensaje ha sido enviado exitosamente. Un asesor te responderá pronto.
+                  {c.mensajeExito || '¡Gracias! Tu mensaje ha sido enviado exitosamente. Un asesor te responderá pronto.'}
                 </div>
               )}
               {errorMsg && (
@@ -298,7 +298,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
               ) : (
                 <>
               <div className="group/field">
-                <label className="text-sm font-medium text-ink/80" htmlFor="c-name">Nombres o empresa<span className="text-red-500"> *</span></label>
+                <label className="text-sm font-medium text-ink/80" htmlFor="c-name">{c.etiquetaNombre || 'Nombres o empresa'}<span className="text-red-500"> *</span></label>
                 <div className="relative flex items-center">
                   <User className={iconCls} strokeWidth={1.8} />
                   <input id="c-name" required autoComplete="name" value={name} onChange={(e) => setName(e.target.value)} className={input} placeholder="Tu nombre o el de tu empresa" />
@@ -306,22 +306,22 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="group/field">
-                  <label className="text-sm font-medium text-ink/80" htmlFor="c-email">Correo electrónico<span className="text-red-500"> *</span></label>
+                  <label className="text-sm font-medium text-ink/80" htmlFor="c-email">{c.etiquetaCorreo || 'Correo electrónico'}<span className="text-red-500"> *</span></label>
                   <div className="relative flex items-center">
                     <Mail className={iconCls} strokeWidth={1.8} />
                     <input id="c-email" type="email" required autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} className={input} placeholder="correo@empresa.com" />
                   </div>
                 </div>
-                <div className="group/field">
-                  <label className="text-sm font-medium text-ink/80" htmlFor="c-phone">Teléfono / WhatsApp</label>
+                {c.mostrarTelefono !== false && <div className="group/field">
+                  <label className="text-sm font-medium text-ink/80" htmlFor="c-phone">{c.etiquetaTelefono || 'Teléfono / WhatsApp'}</label>
                   <div className="relative flex items-center">
                     <Phone className={iconCls} strokeWidth={1.8} />
                     <input id="c-phone" type="tel" autoComplete="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className={input} placeholder="+51 987 654 321" />
                   </div>
-                </div>
+                </div>}
               </div>
               <div className="group/field">
-                <label className="text-sm font-medium text-ink/80" htmlFor="c-message">Mensaje<span className="text-red-500"> *</span></label>
+                <label className="text-sm font-medium text-ink/80" htmlFor="c-message">{c.etiquetaMensaje || 'Mensaje'}<span className="text-red-500"> *</span></label>
                 <div className="relative flex items-start">
                   <MessageSquareText className={`${iconCls} top-[1.15rem]`} strokeWidth={1.8} />
                   <textarea
@@ -331,7 +331,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     className={`${input} resize-none`}
-                    placeholder="Cuéntanos qué solución o equipamiento necesita tu empresa"
+                    placeholder={c.placeholderMensaje || 'Cuéntanos qué solución o equipamiento necesita tu empresa'}
                   />
                 </div>
               </div>
@@ -354,7 +354,7 @@ export function Contact({ c = HOME_DEFAULTS.contacto, completo = false }: { c?: 
                 <span className="flex items-center justify-center rounded-lg bg-white/20 p-1">
                   <ArrowUpRightIcon className="h-4 w-4 transition-transform duration-300 group-hover/btn:rotate-45" />
                 </span>
-                {submitting ? 'Enviando...' : 'Enviar mensaje'}
+                {submitting ? 'Enviando...' : c.botonEnviar || 'Enviar mensaje'}
               </button>
               <p className="text-center text-xs text-ink/65">
                 Tu solicitud será enviada a nuestro equipo de ventas y registrada en el sistema de leads.
