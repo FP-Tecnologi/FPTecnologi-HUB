@@ -4,6 +4,7 @@ import "./globals.css";
 import Cabecera from "@/components/Cabecera";
 import Pie from "@/components/Pie";
 import Cortina from "@/components/Cortina";
+import Whatsapp from "@/components/Whatsapp";
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], variable: "--font-poppins" });
 
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Cabecera />
         <main>{children}</main>
         <Pie />
+        <Whatsapp />
       </body>
     </html>
   );

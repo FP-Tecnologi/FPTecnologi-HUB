@@ -132,7 +132,7 @@ export default function Hero() {
       <div className="relative mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 px-5 pb-8 pt-32 lg:grid-cols-[1.25fr_.9fr] lg:pt-28">
         <div key={`t${i}`} aria-live="polite">
           <span className="etiqueta entra" style={d(0)}><Icono n="estrella" className="h-4 w-4" /> {s.etiqueta}</span>
-          <h1 className="titulo claro entra mt-6 text-3xl sm:text-4xl xl:text-[2.6rem] lg:min-h-[2.2em]" style={d(120)}>
+          <h1 className="titulo claro entra mt-6 text-4xl sm:text-5xl xl:text-[3.4rem] lg:min-h-[3.2em]" style={d(120)}>
             {s.a} <b>{s.b}</b>
           </h1>
           <p className="entra mt-6 max-w-2xl text-lg leading-relaxed text-white/80" style={d(240)}>{s.texto}</p>
