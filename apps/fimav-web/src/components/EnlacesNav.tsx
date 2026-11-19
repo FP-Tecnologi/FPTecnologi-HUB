@@ -9,6 +9,7 @@ export const enlaces = [
   { href: '/tienda', texto: 'Tienda', hijos: [{ href: '/tienda', texto: 'Todos los productos' }, { href: '/catalogo', texto: 'Catálogo' }] },
   { href: '/nosotros', texto: 'Nosotros' },
   { href: '/peru-compras', texto: 'Perú Compras' },
+  { href: '/blog', texto: 'Blog' },
   { href: '/contacto', texto: 'Contacto' },
 ];
 

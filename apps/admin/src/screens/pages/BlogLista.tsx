@@ -8,9 +8,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { webDeMarca } from '../../lib/webMarca';
 import { confirmar } from '../../components/ui/Dialogos';
 
-const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
 interface Articulo {
   id: string;
@@ -25,12 +25,14 @@ interface Articulo {
 }
 
 const fecha = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString('es-PE', { day: '2-digit', month: 'short', year: 'numeric' }) : '—');
-const src = (u: string | null) => (u ? (u.startsWith('/') ? `${WEB}${u}` : u) : null);
 
 const ICON = { className: 'ax-btn__icon', viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.75, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, 'aria-hidden': true };
 
 export function BlogLista() {
-  const { activeMarcaId } = useAuth();
+  const { activeMarcaId, marcas } = useAuth();
+  const m = marcas.find((x) => x.marcaId === activeMarcaId)?.marca;
+  const WEB = webDeMarca(m?.nombre, m?.dominioPrincipal);
+  const src = (u: string | null) => (u ? (u.startsWith('/') ? `${WEB}${u}` : u) : null);
   const [lista, setLista] = useState<Articulo[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');

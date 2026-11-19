@@ -9,11 +9,11 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { webDeMarca } from '../../lib/webMarca';
 import { markdownToHtml } from '../../lib/markdown';
 import { urlImagen } from '../../components/ui/SubirImagen';
 import { CampoImagen } from '../../components/ui/CampoImagen';
 
-const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 const CATEGORIAS = ['Tienda', 'Videoconferencia', 'Seguridad', 'Data centers', 'Datos empresariales', 'Cloud', 'Educación', 'Novedades'];
 
 type Estado = 'BORRADOR' | 'PUBLICADO';
@@ -28,7 +28,7 @@ interface Form {
   autorNombre: string;
   destacado: boolean;
 }
-const VACIO: Form = { titulo: '', slug: '', resumen: '', contenido: '', portadaUrl: '', categoria: 'Novedades', etiquetas: '', autorNombre: 'Equipo FPTecnologi', destacado: false };
+const VACIO: Form = { titulo: '', slug: '', resumen: '', contenido: '', portadaUrl: '', categoria: 'Novedades', etiquetas: '', autorNombre: '', destacado: false };
 
 const slugify = (t: string) =>
   t.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 100);
@@ -62,7 +62,9 @@ const PREVIEW_CSS = `
 .bp code{background:var(--ax-surface-subtle);padding:.1em .35em;border-radius:6px}`;
 
 export function BlogEditor() {
-  const { activeMarcaId, user } = useAuth();
+  const { activeMarcaId, user, marcas } = useAuth();
+  const marca = marcas.find((x) => x.marcaId === activeMarcaId)?.marca;
+  const WEB = webDeMarca(marca?.nombre, marca?.dominioPrincipal);
   const [id, setId] = useState<string | null>(null);
   const [form, setForm] = useState<Form>(VACIO);
   const [estado, setEstado] = useState<Estado>('BORRADOR');
@@ -145,6 +147,7 @@ export function BlogEditor() {
     const body = {
       ...form,
       slug: form.slug || undefined,
+      autorNombre: form.autorNombre.trim() || `Equipo ${marca?.nombre ?? ''}`.trim(),
       portadaUrl: form.portadaUrl.trim() || undefined,
       etiquetas: form.etiquetas.split(',').map((t) => t.trim()).filter(Boolean),
       estado: nuevoEstado,
