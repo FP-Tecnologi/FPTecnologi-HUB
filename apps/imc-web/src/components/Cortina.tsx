@@ -57,17 +57,8 @@ export default function Cortina() {
         <span className="hex flota absolute bottom-[14%] left-[22%] h-14 w-14 bg-naranja/25" style={{ ["--t" as string]: "7s", ["--dl" as string]: "-4s" } as CSSProperties} />
         <span className="hex flota absolute -bottom-20 -right-16 h-80 w-80 bg-white/[.06]" style={{ ["--t" as string]: "11s", ["--dl" as string]: "-1s" } as CSSProperties} />
         <div key={n} className="relative flex flex-col items-center">
-          <div className="relative grid h-64 w-64 place-items-center sm:h-80 sm:w-80">
-            <svg viewBox="0 0 100 100" className="gira absolute inset-0 text-naranja" style={{ ["--t" as string]: "9s" } as CSSProperties} aria-hidden>
-              <polygon points="50,3 91,26.5 91,73.5 50,97 9,73.5 9,26.5" fill="none" stroke="currentColor" strokeWidth="1.4" strokeDasharray="22 14" strokeLinecap="round" />
-            </svg>
-            <svg viewBox="0 0 100 100" className="gira absolute inset-3 text-white/40" style={{ ["--t" as string]: "14s", animationDirection: "reverse" } as CSSProperties} aria-hidden>
-              <polygon points="50,3 91,26.5 91,73.5 50,97 9,73.5 9,26.5" fill="none" stroke="currentColor" strokeWidth=".6" />
-            </svg>
-            <img src="/logo-blanco.svg" alt="" className="logo-carga w-40 sm:w-52" />
-          </div>
-          <div className="mt-8 h-1 w-56 overflow-hidden bg-white/20 sm:w-72"><span className="carga-barra block h-full bg-naranja" /></div>
-          <p className="carga-texto mt-4 text-xs font-bold uppercase tracking-[.35em] text-white/70">Cargando</p>
+          <img src="/logo-blanco.svg" alt="" className="logo-carga w-48 sm:w-64" />
+          <p className="carga-texto mt-8 text-xs font-bold uppercase tracking-[.35em] text-white/70">Cargando</p>
         </div>
       </div>
     </div>

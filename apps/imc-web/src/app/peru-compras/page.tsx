@@ -33,11 +33,11 @@ export default function PeruCompras() {
         </div>
       </Seccion>
 
-      <section className="oscuro degradado-azul relative overflow-hidden px-5 py-20 text-white sm:py-28">
-        <div className="cuadricula-claro absolute inset-0" aria-hidden />
+      <section className="relative overflow-hidden bg-azul-claro px-5 py-20 sm:py-28">
+        <div className="cuadricula absolute inset-0" aria-hidden />
         <Reveal dir="zoom" className="relative mx-auto max-w-4xl text-center">
-          <Icono n="estrella" className="mx-auto h-10 w-10 text-naranja" />
-          <p className="mt-6 text-3xl font-medium italic leading-snug sm:text-5xl">Soluciones tecnológicas para el <span className="font-extrabold text-naranja">crecimiento empresarial</span>.</p>
+          <Icono n="estrella" className="mx-auto h-10 w-10 text-azul-2" />
+          <p className="mt-6 text-3xl font-medium italic leading-snug sm:text-5xl">Soluciones tecnológicas para el <span className="font-extrabold text-azul-2">crecimiento empresarial</span>.</p>
         </Reveal>
       </section>
 
