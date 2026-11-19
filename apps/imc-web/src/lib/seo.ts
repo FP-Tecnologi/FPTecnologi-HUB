@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { EMPRESA, SERVICIOS, MARCAS } from "./datos";
 
 export const SITIO = "https://companyimc.com";
-export const IMAGEN_SOCIAL = { url: "/img/perucompras.webp", alt: "Company IMC: soluciones tecnológicas para empresas e instituciones en Perú" };
 
 /** Metadatos de una página: canonical, Open Graph y Twitter con el mismo título y descripción. */
 export function meta(titulo: string, descripcion: string, ruta: string): Metadata {
@@ -10,8 +9,8 @@ export function meta(titulo: string, descripcion: string, ruta: string): Metadat
     title: titulo,
     description: descripcion,
     alternates: { canonical: ruta, languages: { "es-PE": ruta } },
-    openGraph: { title: `${titulo} | Company IMC`, description: descripcion, url: ruta, siteName: "Company IMC", locale: "es_PE", type: "website", images: [IMAGEN_SOCIAL] },
-    twitter: { card: "summary_large_image", title: `${titulo} | Company IMC`, description: descripcion, images: [IMAGEN_SOCIAL.url] },
+    openGraph: { title: `${titulo} | Company IMC`, description: descripcion, url: ruta, siteName: "Company IMC", locale: "es_PE", type: "website" },
+    twitter: { card: "summary_large_image", title: `${titulo} | Company IMC`, description: descripcion },
   };
 }
 
@@ -26,7 +25,7 @@ export const organizacion = {
   alternateName: "Company IMC",
   url: SITIO,
   logo: abs("/logo.svg"),
-  image: abs(IMAGEN_SOCIAL.url),
+  image: abs("/logo.svg"),
   description:
     "Equipos de cómputo, impresión, networking, servidores, software, cableado estructurado y centrales telefónicas para empresas e instituciones. Proveedor en Perú Compras.",
   email: EMPRESA.correo,

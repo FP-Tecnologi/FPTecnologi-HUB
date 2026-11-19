@@ -5,7 +5,7 @@ import Cabecera from "@/components/Cabecera";
 import Pie from "@/components/Pie";
 import Cortina from "@/components/Cortina";
 import JsonLd from "@/components/JsonLd";
-import { IMAGEN_SOCIAL, SITIO, organizacion, sitioWeb } from "@/lib/seo";
+import { SITIO, organizacion, sitioWeb } from "@/lib/seo";
 import Whatsapp from "@/components/Whatsapp";
 import { getEmpresa } from "@/lib/cms";
 
@@ -17,12 +17,11 @@ const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700
 export const metadata: Metadata = {
   metadataBase: new URL(SITIO),
   alternates: { canonical: "/", languages: { "es-PE": "/" } },
-  openGraph: { siteName: "Company IMC", locale: "es_PE", type: "website", url: "/", images: [IMAGEN_SOCIAL] },
-  twitter: { card: "summary_large_image", images: [IMAGEN_SOCIAL.url] },
+  openGraph: { siteName: "Company IMC", locale: "es_PE", type: "website", url: "/" },
+  twitter: { card: "summary_large_image" },
   title: { default: "Company IMC E.I.R.L. | Soluciones tecnológicas para el crecimiento empresarial", template: "%s | Company IMC" },
   description:
     "Equipos de cómputo, impresión, networking, servidores, software, cableado estructurado y centrales telefónicas. Proveedor en Perú Compras con más de 4 años de experiencia.",
-  icons: { icon: "/logo.svg" },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
