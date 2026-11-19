@@ -128,7 +128,7 @@ export const MODULOS_POR_MARCA: Record<string, string[]> = {
   quamtu: ['marca.crm', 'marca.webquamtu', 'marca.cotizador', 'marca.herramientas', 'web.tickets', 'marca.libro', 'marca.equipo'],
   kelqa: ['marca.crm', 'marca.webkelqa', 'marca.herramientas', 'web.tickets', 'web.contactos', 'marca.libro', 'marca.equipo'],
   imaninki: ['marca.crm', 'marca.webimaninki', 'marca.herramientas', 'web.tickets', 'web.contactos', 'marca.libro', 'marca.equipo'],
-  imc: ['marca.crm', 'marca.webimc', 'marca.herramientas', 'web.contactos', 'marca.libro', 'marca.equipo'],
+  imc: ['marca.webimc'],
   fimav: ['marca.crm', 'marca.webfimav', 'marca.cotizador', 'cotizador.leads', 'marca.herramientas', 'web.contactos', 'marca.libro', 'marca.equipo'],
 };
 
