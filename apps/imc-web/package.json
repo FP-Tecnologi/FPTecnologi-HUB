@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "build:estatico": "node scripts/build-estatico.mjs",
     "lint": "tsc --noEmit"
   },
   "dependencies": {
