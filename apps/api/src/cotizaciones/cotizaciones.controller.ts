@@ -1,7 +1,8 @@
 import { Body, Controller, Delete, Get, Headers, Ip, Param, Patch, Post, Query, BadRequestException, UseGuards } from '@nestjs/common';
 import { CotizacionesService } from './cotizaciones.service.js';
 import { CreateCotizacionDto } from './dto/create-cotizacion.dto.js';
-import { ActualizarCotizacionDto, EnviarCotizacionDto } from './dto/gestion-cotizacion.dto.js';
+import { ActualizarCotizacionDto, CotizacionDesdeCrmDto, EnviarCotizacionDto } from './dto/gestion-cotizacion.dto.js';
+import { ROLES_VE_TODO_CRM } from '../crm/crm.service.js';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
 import { MarcaRolGuard } from '../common/guards/marca-rol.guard.js';
 import { Roles } from '../common/decorators/roles.decorator.js';
@@ -20,6 +21,14 @@ export class CotizacionesController {
   @Get()
   findAll(@MarcaActual() marcaId: string) {
     return this.cotizaciones.findAll(marcaId);
+  }
+
+  /** Ficha del CRM → «Cotizar»: crea (y si se pide, envía) la cotización de una oportunidad. Un comercial solo la hace de las suyas. */
+  @Roles('admin', 'comercial', 'jefe_comercial')
+  @Post('desde-crm')
+  desdeCrm(@MarcaActual() marcaId: string, @CurrentUser() user: AuthenticatedUser, @Body() dto: CotizacionDesdeCrmDto) {
+    const rol = user.marcas.find((m) => m.marcaId === marcaId)?.rol ?? '';
+    return this.cotizaciones.crearDesdeCrm(marcaId, dto, user.email, { usuarioId: user.sub, veTodo: ROLES_VE_TODO_CRM.includes(rol) });
   }
 
   @Get(':id')

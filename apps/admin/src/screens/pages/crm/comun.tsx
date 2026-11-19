@@ -245,6 +245,79 @@ export async function pedirMotivo(): Promise<string | null> {
   return pedirTexto({ titulo: 'Marcar como perdida', etiqueta: '¿Por qué se perdió esta oportunidad?', placeholder: 'Precio, competencia, sin presupuesto, sin respuesta…', boton: 'Marcar perdida', minimo: 2 });
 }
 
+interface ServicioLista { id: string; nombre: string; activo: boolean }
+
+/**
+ * «Cotizar» desde la ficha: arma una cotización de un servicio de la marca para el contacto de la oportunidad (propuesta, monto
+ * y vigencia), la deja anotada en el historial y, si se elige, la envía por correo (con PDF) o abre WhatsApp con el mensaje.
+ */
+function CotizarDesdeFicha({ o, onCreada }: { o: Detalle; onCreada: () => void }) {
+  const [abierto, setAbierto] = useState(false);
+  const [servicios, setServicios] = useState<ServicioLista[]>([]);
+  const [f, setF] = useState({ servicioId: '', propuesta: '', monto: '', moneda: 'PEN', validezDias: '15' });
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+  const [ok, setOk] = useState('');
+  useEffect(() => {
+    if (!abierto || servicios.length) return;
+    api.get<ServicioLista[]>('/servicios').then((l) => { const act = l.filter((x) => x.activo); setServicios(act); setF((v) => ({ ...v, servicioId: act[0]?.id ?? '' })); }).catch(() => setError('No se pudieron cargar los servicios.'));
+  }, [abierto, servicios.length]);
+  const cerrada = o.etapa === 'GANADO' || o.etapa === 'PERDIDO';
+  const tieneCorreo = !!o.contacto?.email;
+  const tieneCelular = !!o.contacto?.celular;
+
+  async function crear(canal?: 'EMAIL' | 'WHATSAPP') {
+    if (!f.servicioId) return setError('Elige el servicio a cotizar.');
+    if (!f.propuesta.trim() && !f.monto) return setError('Escribe la propuesta o el monto.');
+    setBusy(true); setError(''); setOk('');
+    try {
+      const r = await api.post<{ cotizacion: { numero: string | null }; envio: { url: string | null } | null }>('/cotizaciones/desde-crm', {
+        oportunidadId: o.id, servicioId: f.servicioId, propuesta: f.propuesta.trim() || undefined, monto: f.monto ? Number(f.monto) : undefined,
+        moneda: f.moneda, validezDias: Number(f.validezDias) || 0, canal,
+      });
+      if (r.envio?.url) window.open(r.envio.url, '_blank', 'noopener');
+      setOk(`Cotización ${r.cotizacion.numero ?? ''} ${canal === 'EMAIL' ? 'enviada por correo' : canal === 'WHATSAPP' ? 'lista en WhatsApp' : 'creada'}.`);
+      setF((v) => ({ ...v, propuesta: '', monto: '' }));
+      onCreada();
+    } catch (e) { setError(msg(e, 'No se pudo crear la cotización.')); } finally { setBusy(false); }
+  }
+
+  if (cerrada) return null;
+  return (
+    <div className="ax-card ax-card--flat" style={{ padding: 'var(--ax-space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
+      <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
+        <div className="ax-label">Cotizar</div>
+        <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" aria-expanded={abierto} onClick={() => setAbierto(!abierto)}>{abierto ? 'Cerrar' : 'Preparar cotización'}</button>
+      </div>
+      {ok && <Alerta tono="success">{ok}</Alerta>}
+      {abierto && (
+        <>
+          {error && <Alerta>{error}</Alerta>}
+          {!tieneCorreo && <Alerta>Esta oportunidad no tiene un contacto con correo: agrégalo en la ficha para poder cotizarle.</Alerta>}
+          <div className="ax-field"><label className="ax-label" htmlFor="cz-s">Servicio *</label>
+            <select id="cz-s" className="ax-select" value={f.servicioId} onChange={(e) => setF({ ...f, servicioId: e.target.value })}>
+              {servicios.length === 0 && <option value="">Cargando servicios…</option>}
+              {servicios.map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
+            </select></div>
+          <div className="ax-field"><label className="ax-label" htmlFor="cz-p">Propuesta</label>
+            <textarea id="cz-p" className="ax-textarea" rows={4} maxLength={4000} value={f.propuesta} onChange={(e) => setF({ ...f, propuesta: e.target.value })} placeholder="Qué incluye, plazos y condiciones" /></div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(110px,1fr))', gap: 'var(--ax-space-3)' }}>
+            <div className="ax-field"><label className="ax-label" htmlFor="cz-m">Monto</label><input id="cz-m" className="ax-input" type="number" inputMode="decimal" min={0} step="0.01" value={f.monto} onChange={(e) => setF({ ...f, monto: e.target.value })} /></div>
+            <div className="ax-field"><label className="ax-label" htmlFor="cz-c">Moneda</label>
+              <select id="cz-c" className="ax-select" value={f.moneda} onChange={(e) => setF({ ...f, moneda: e.target.value })}><option value="PEN">S/</option><option value="USD">US$</option></select></div>
+            <div className="ax-field"><label className="ax-label" htmlFor="cz-v">Vigencia (días)</label><input id="cz-v" className="ax-input" type="number" min={0} max={365} value={f.validezDias} onChange={(e) => setF({ ...f, validezDias: e.target.value })} /></div>
+          </div>
+          <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
+            <button type="button" className="ax-btn ax-btn--primary ax-btn--sm" disabled={busy || !tieneCorreo} onClick={() => crear('EMAIL')}>Crear y enviar por correo</button>
+            <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" disabled={busy || !tieneCorreo || !tieneCelular} onClick={() => crear('WHATSAPP')} title={tieneCelular ? undefined : 'El contacto no tiene celular'}>Crear y abrir WhatsApp</button>
+            <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" disabled={busy || !tieneCorreo} onClick={() => crear()}>Solo crear</button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 interface FolletoLista { id: string; titulo: string; url: string; activo: boolean }
 
 /**
@@ -428,6 +501,8 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
                 <button type="submit" className="ax-btn ax-btn--secondary ax-btn--sm" disabled={busy}><span className="ax-btn__label">{act.tipo === 'TAREA' ? 'Agendar tarea' : 'Registrar'}</span></button>
               </div>
             </form>
+
+            {o && <CotizarDesdeFicha o={o} onCreada={() => { cargar(); onCambio(); }} />}
 
             {o && <EnviarFolleto o={o} busy={busy} onEnviado={registrarEnvio} />}
 

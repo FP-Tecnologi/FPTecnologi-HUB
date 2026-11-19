@@ -4,7 +4,8 @@ import { MailService } from '../mail/mail.service.js';
 import { CrmService } from '../crm/crm.service.js';
 import { normalizarCelular } from '../cotizador/cotizador.service.js';
 import { CreateCotizacionDto } from './dto/create-cotizacion.dto.js';
-import { ActualizarCotizacionDto, EnviarCotizacionDto } from './dto/gestion-cotizacion.dto.js';
+import { ActualizarCotizacionDto, CotizacionDesdeCrmDto, EnviarCotizacionDto } from './dto/gestion-cotizacion.dto.js';
+import type { AmbitoCrm } from '../crm/crm.service.js';
 import { EstadoCotizacion } from '../generated/prisma/enums.js';
 import { empresaPdf, pdfCotizacion } from '../common/documento-pdf.js';
 
@@ -83,6 +84,50 @@ export class CotizacionesService {
       }
     }
     throw new BadRequestException('No se pudo registrar la solicitud');
+  }
+
+  // -------------------------------------------------------------------- CRM
+
+  /**
+   * Cotización armada desde la ficha de una oportunidad: el cliente sale de su contacto (necesita correo), queda anotada en el
+   * historial de la oportunidad y, si se pide, se envía de una vez. No pasa por registrarSolicitud: la oportunidad ya existe.
+   */
+  async crearDesdeCrm(marcaId: string, dto: CotizacionDesdeCrmDto, email: string, ambito: AmbitoCrm) {
+    const op = await this.prisma.crmOportunidad.findFirst({
+      where: { id: dto.oportunidadId, marcaId, ...(ambito.veTodo ? {} : { asignadoId: ambito.usuarioId }) },
+      include: { contacto: true, empresa: true },
+    });
+    if (!op) throw new NotFoundException('Oportunidad no encontrada');
+    if (!op.contacto?.email) throw new BadRequestException('Agrega a la oportunidad un contacto con correo para poder cotizarle');
+    const servicio = await this.prisma.servicio.findFirst({ where: { id: dto.servicioId, marcaId, activo: true } });
+    if (!servicio) throw new BadRequestException('El servicio no existe o no pertenece a esta marca');
+    if (!dto.propuesta?.trim() && dto.monto == null) throw new BadRequestException('Escribe la propuesta o el monto de la cotización');
+
+    const celular = op.contacto.celular ? normalizarCelular(op.contacto.celular) : null;
+    let creada: { id: string; numero: string | null } | null = null;
+    for (let intento = 0; intento < 3 && !creada; intento++) {
+      const numero = `COT-${new Date().getFullYear()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
+      try {
+        creada = await this.prisma.cotizacion.create({
+          data: {
+            marcaId, numero, servicioId: servicio.id, clienteNombre: op.contacto.nombre, clienteEmail: op.contacto.email.toLowerCase(), clienteTelefono: celular,
+            clienteEmpresa: op.empresa?.razonSocial ?? null, mensaje: op.titulo, origen: `CRM ${op.numero}`, estado: 'EN_REVISION', atendidoPor: email,
+            propuesta: dto.propuesta?.trim() || null, monto: dto.monto ?? null, moneda: dto.moneda ?? 'PEN',
+            validezHasta: dto.validezDias ? new Date(Date.now() + dto.validezDias * MS_DIA) : null,
+          },
+          select: { id: true, numero: true },
+        });
+      } catch (e) {
+        if (e && typeof e === 'object' && (e as { code?: string }).code === 'P2002' && intento < 2) continue;
+        throw e;
+      }
+    }
+    if (!creada) throw new BadRequestException('No se pudo crear la cotización');
+
+    const monto = dto.monto != null ? ` por ${dinero(dto.monto, dto.moneda ?? 'PEN')}` : '';
+    await this.crm.agregarActividad(marcaId, op.id, { tipo: 'NOTA', texto: `Cotización ${creada.numero} de «${servicio.nombre}»${monto} creada desde el CRM.` }, email, ambito);
+    const envio = dto.canal ? await this.enviar(marcaId, creada.id, { canal: dto.canal }, email) : null;
+    return { cotizacion: await this.findOne(marcaId, creada.id), envio };
   }
 
   // ---------------------------------------------------------------- dashboard

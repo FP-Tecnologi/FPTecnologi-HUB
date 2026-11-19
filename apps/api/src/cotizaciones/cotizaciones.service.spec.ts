@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { CotizacionesService } from './cotizaciones.service.js';
 
 const base = {
@@ -51,5 +52,43 @@ describe('CotizacionesService.enviar', () => {
   it('por WhatsApp exige celular', async () => {
     const { service } = setup({ ...base, clienteTelefono: null });
     await expect(service.enviar('m1', 'c1', { canal: 'WHATSAPP' }, 'a@fp.com')).rejects.toThrow('celular');
+  });
+});
+
+describe('CotizacionesService.crearDesdeCrm', () => {
+  const op = { id: 'o1', numero: 'OPP-1', titulo: 'Laptops', contacto: { nombre: 'Ana', email: 'ANA@acme.pe', celular: '987654321' }, empresa: { razonSocial: 'Acme' } };
+  const armar = (opp: unknown, servicio: unknown = { id: 's1', nombre: 'Soporte' }) => {
+    const prisma = {
+      crmOportunidad: { findFirst: vi.fn(async () => opp) },
+      servicio: { findFirst: vi.fn(async () => servicio) },
+      cotizacion: { create: vi.fn(async ({ data }: { data: Record<string, unknown> }) => ({ id: 'c1', numero: data.numero })), findFirst: vi.fn(async () => ({ id: 'c1', numero: 'COT', servicio: {}, envios: [] })) },
+    };
+    const crm = { agregarActividad: vi.fn(async () => ({})) };
+    return { prisma, crm, svc: new CotizacionesService(prisma as never, {} as never, crm as never) };
+  };
+  const dto = { oportunidadId: 'o1', servicioId: 's1', monto: 1500, moneda: 'PEN' as const };
+
+  it('toma el cliente del contacto de la oportunidad, la anota en el historial y no la envía si no se pide', async () => {
+    const { svc, prisma, crm } = armar(op);
+    const r = await svc.crearDesdeCrm('m1', dto, 'v@x.pe', { usuarioId: 'u1', veTodo: true });
+    expect(prisma.cotizacion.create).toHaveBeenCalledWith(expect.objectContaining({ data: expect.objectContaining({ clienteEmail: 'ana@acme.pe', clienteNombre: 'Ana', marcaId: 'm1', estado: 'EN_REVISION' }) }));
+    expect(crm.agregarActividad).toHaveBeenCalledWith('m1', 'o1', expect.objectContaining({ tipo: 'NOTA' }), 'v@x.pe', expect.anything());
+    expect(r.envio).toBeNull();
+  });
+
+  it('un comercial solo cotiza oportunidades que tiene asignadas', async () => {
+    const { svc, prisma } = armar(op);
+    await svc.crearDesdeCrm('m1', dto, 'v@x.pe', { usuarioId: 'u1', veTodo: false });
+    expect(prisma.crmOportunidad.findFirst).toHaveBeenCalledWith(expect.objectContaining({ where: expect.objectContaining({ asignadoId: 'u1' }) }));
+  });
+
+  it('sin contacto con correo no cotiza', async () => {
+    const { svc } = armar({ ...op, contacto: { nombre: 'Ana', email: null } });
+    await expect(svc.crearDesdeCrm('m1', dto, 'v@x.pe', { usuarioId: 'u1', veTodo: true })).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('una oportunidad ajena responde "no encontrada"', async () => {
+    const { svc } = armar(null);
+    await expect(svc.crearDesdeCrm('m1', dto, 'v@x.pe', { usuarioId: 'u1', veTodo: true })).rejects.toBeInstanceOf(NotFoundException);
   });
 });
