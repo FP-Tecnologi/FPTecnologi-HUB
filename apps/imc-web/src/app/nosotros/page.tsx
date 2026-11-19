@@ -36,7 +36,7 @@ export default function Nosotros() {
           </div>
           <div className="mt-14 grid gap-8 md:grid-cols-2 md:items-stretch">
             {[
-              ["meta", "Misión", "Hacia dónde trabajamos", "Ser una organización en constante transformación, que crece de forma sostenible y mejora la calidad de las soluciones que ofrece a sus clientes.", false],
+              ["meta", "Misión", "Hacia dónde trabajamos", "Ser una organización en constante transformación, que crece de forma sostenible y mejora la calidad de las soluciones que ofrece a sus clientes, dentro de un ecosistema empresarial sostenible.", false],
               ["estrella", "Visión", "Dónde queremos llegar", "Ser un referente nacional en equipos informáticos y proyectos tecnológicos, con innovación, calidad y responsabilidad social, cuidando el medio ambiente en cada solución.", true],
             ].map(([n, t, lema, p, azul], i) => (
               <Reveal key={t as string} delay={i * 140} dir={i ? "der" : "izq"} className="h-full">
