@@ -235,16 +235,20 @@ export const borrarDatosOffline = borrarTodoOffline;
  * Descarga un archivo privado de la API (recursos, evidencias de tickets) con la sesión del dashboard y lo abre en
  * una pestaña nueva. Estos archivos no tienen URL pública: un enlace directo no llevaría el token.
  */
-export async function abrirArchivoPrivado(path: string, _retried = false): Promise<void> {
+export async function obtenerArchivoPrivado(path: string, _retried = false): Promise<Blob> {
   const headers: Record<string, string> = {};
   const accessToken = tokenStore.getAccessToken();
   if (accessToken) headers.Authorization = `Bearer ${accessToken}`;
   const marcaId = tokenStore.getActiveMarcaId();
   if (marcaId) headers['x-marca-id'] = marcaId;
   const res = await fetch(`${API_URL}${path}`, { headers, credentials: 'include' });
-  if (res.status === 401 && !_retried && tokenStore.getRefreshToken() && (await refreshAccessToken())) return abrirArchivoPrivado(path, true);
+  if (res.status === 401 && !_retried && tokenStore.getRefreshToken() && (await refreshAccessToken())) return obtenerArchivoPrivado(path, true);
   if (!res.ok) throw new ApiError('No se pudo abrir el archivo.', res.status);
-  const url = URL.createObjectURL(await res.blob());
+  return res.blob();
+}
+
+export async function abrirArchivoPrivado(path: string): Promise<void> {
+  const url = URL.createObjectURL(await obtenerArchivoPrivado(path));
   window.open(url, '_blank', 'noopener');
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }

@@ -10,7 +10,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { ApiError, useAuth } from '../../context/AuthContext';
-import { api } from '../../lib/api';
+import { abrirArchivoPrivado, api, obtenerArchivoPrivado } from '../../lib/api';
 
 interface Folleto { id: string; titulo: string; slug: string; bytes: number; activo: boolean; vistas: number; creadoPor: string | null; createdAt: string; url: string; pdf: string }
 type Filtro = 'todos' | 'activos' | 'inactivos';
@@ -28,10 +28,24 @@ function validarPdf(file: File): string {
   return '';
 }
 
+/** Dirección del PDF para el dashboard: la pública si el folleto está activo; si está inactivo esa da 404, así que se baja con la sesión. */
+function usePdfSrc(f: Folleto, activar = true): string {
+  const [blob, setBlob] = useState('');
+  useEffect(() => {
+    if (f.activo || !activar) return;
+    let url = '';
+    let vivo = true;
+    obtenerArchivoPrivado(`/folletos/${f.id}/pdf`).then((b) => { if (vivo) { url = URL.createObjectURL(b); setBlob(url); } }).catch(() => undefined);
+    return () => { vivo = false; if (url) URL.revokeObjectURL(url); setBlob(''); };
+  }, [f.id, f.activo, f.bytes, activar]);
+  return f.activo ? f.pdf : blob;
+}
+
 /** Miniatura de la portada: el iframe solo se monta al entrar en pantalla (no carga decenas de PDF de golpe). */
 function Miniatura({ f }: { f: Folleto }) {
   const ref = useRef<HTMLSpanElement>(null);
   const [ver, setVer] = useState(false);
+  const pdf = usePdfSrc(f, ver);
   useEffect(() => {
     const el = ref.current;
     if (!el || typeof IntersectionObserver === 'undefined') return setVer(true);
@@ -41,7 +55,7 @@ function Miniatura({ f }: { f: Folleto }) {
   }, []);
   return (
     <span ref={ref} style={{ position: 'relative', display: 'block', width: 56, aspectRatio: '3 / 4', background: 'var(--ax-surface-sunken, #eef1f6)', overflow: 'hidden', borderRadius: 6, border: '1px solid var(--ax-border, #e5e7eb)' }}>
-      {ver && <iframe title={`Portada de ${f.titulo}`} src={portada(f.pdf)} loading="lazy" tabIndex={-1} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 0, pointerEvents: 'none', background: '#fff' }} />}
+      {ver && pdf && <iframe title={`Portada de ${f.titulo}`} src={portada(pdf)} loading="lazy" tabIndex={-1} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', border: 0, pointerEvents: 'none', background: '#fff' }} />}
     </span>
   );
 }
@@ -220,6 +234,8 @@ function VistaPrevia({ f, onClose, onCopiar }: { f: Folleto; onClose: () => void
     return () => { window.removeEventListener('keydown', k); document.body.style.overflow = prev; };
   }, [onClose]);
   const movil = modo === 'visor' && disp === 'movil';
+  const pdfSrc = usePdfSrc(f, modo === 'pdf');
+  const src = modo === 'visor' ? f.url : pdfSrc;
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 'var(--ax-z-modal)' as unknown as number, display: 'flex', flexDirection: 'column', background: 'rgba(8,10,16,.72)', padding: 'var(--ax-space-3)' }}>
       <div role="dialog" aria-modal="true" aria-label={`Vista previa de ${f.titulo}`} className="ax-card" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', padding: 0, overflow: 'hidden' }}>
@@ -241,12 +257,12 @@ function VistaPrevia({ f, onClose, onCopiar }: { f: Folleto; onClose: () => void
           <button type="button" className="ax-btn ax-btn--primary ax-btn--sm" onClick={onClose}>Cerrar</button>
         </div>
         <div style={{ flex: 1, minHeight: 0, display: 'flex', justifyContent: 'center', background: 'var(--ax-surface-sunken, #eef1f6)', padding: movil ? 'var(--ax-space-3)' : 0 }}>
-          <iframe
+          {src && <iframe
             key={`${modo}-${disp}`}
             title={`${modo === 'visor' ? 'Visor' : 'PDF'} de ${f.titulo}`}
-            src={modo === 'visor' ? f.url : f.pdf}
+            src={src}
             style={{ border: 0, background: '#fff', height: '100%', width: movil ? 390 : '100%', maxWidth: '100%', borderRadius: movil ? 24 : 0, boxShadow: movil ? '0 8px 30px rgba(0,0,0,.25)' : 'none' }}
-          />
+          />}
         </div>
       </div>
     </div>
@@ -363,12 +379,14 @@ export function WebFolletos() {
                     <td className="ax-table__td">
                       <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => copiar(f.url)} title={f.url}>Copiar enlace</button>
                     </td>
-                    <td className="ax-table__td">
+                    <td className="ax-table__td" style={{ minWidth: '17rem' }}>
                       <div className="ax-cluster" style={{ gap: 'var(--ax-space-1, 4px)', flexWrap: 'wrap' }}>
                         <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setPrevia(f)}>Previsualizar</button>
                         <a className="ax-btn ax-btn--ghost ax-btn--sm" href={`https://wa.me/?text=${encodeURIComponent(`${f.titulo}: ${f.url}`)}`} target="_blank" rel="noreferrer">WhatsApp</a>
                         <a className="ax-btn ax-btn--ghost ax-btn--sm" href={`mailto:?subject=${encodeURIComponent(f.titulo)}&body=${encodeURIComponent(`Te comparto el folleto «${f.titulo}»:\n${f.url}`)}`}>Correo</a>
-                        <a className="ax-btn ax-btn--ghost ax-btn--sm" href={f.pdf} target="_blank" rel="noreferrer" download>PDF</a>
+                        {f.activo
+                          ? <a className="ax-btn ax-btn--ghost ax-btn--sm" href={f.pdf} target="_blank" rel="noreferrer" download>PDF</a>
+                          : <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => abrirArchivoPrivado(`/folletos/${f.id}/pdf`).catch(() => setError('No se pudo abrir el PDF.'))}>PDF</button>}
                         <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setEditando(f)}>Editar</button>
                         <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" style={{ color: 'var(--ax-danger-500)' }} onClick={() => setBorrando(f)}>Eliminar</button>
                       </div>

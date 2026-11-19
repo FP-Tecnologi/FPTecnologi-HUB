@@ -48,6 +48,15 @@ export class FolletosController {
     return this.folletos.actualizar(marcaId, id, dto);
   }
 
+  /** El PDF para el dashboard (vista previa, miniatura, descarga) aunque el folleto esté inactivo. */
+  @Get(':id/pdf')
+  async pdf(@MarcaActual() marcaId: string, @Param('id') id: string, @Res() res: Response) {
+    const { titulo, datos } = await this.folletos.pdfInterno(marcaId, id);
+    const nombre = titulo.replace(/[^\w. -]/g, '_').slice(0, 80) || 'folleto';
+    res.set({ 'Content-Type': 'application/pdf', 'Content-Disposition': `inline; filename="${nombre}.pdf"`, 'Cache-Control': 'private, no-store', 'X-Content-Type-Options': 'nosniff' });
+    res.send(datos);
+  }
+
   @Post(':id/archivo')
   @UseInterceptors(FileInterceptor('archivo', { limits: { fileSize: MAX_BYTES_CATALOGO, files: 1 } }))
   reemplazarPdf(@MarcaActual() marcaId: string, @Param('id') id: string, @UploadedFile() archivo?: { buffer: Buffer; size: number }) {

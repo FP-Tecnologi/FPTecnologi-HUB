@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { randomBytes } from 'node:crypto';
-import { unlink } from 'node:fs/promises';
+import { readFile, unlink } from 'node:fs/promises';
 import { join } from 'node:path';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { UploadsService, uploadsDir } from '../uploads/uploads.service.js';
@@ -74,6 +74,18 @@ export class FolletosService {
     await this.prisma.folleto.deleteMany({ where: { id, marcaId } });
     await this.borrarArchivo(marcaId, f.archivoUrl);
     return { ok: true as const };
+  }
+
+  /** Dashboard: el PDF aunque el folleto esté inactivo (el endpoint público solo sirve los activos). */
+  async pdfInterno(marcaId: string, id: string) {
+    const f = await this.prisma.folleto.findFirst({ where: { id, marcaId }, select: { datos: true, titulo: true, archivoUrl: true } });
+    if (!f) throw new NotFoundException('Folleto no encontrado');
+    if (f.datos) return { titulo: f.titulo, datos: Buffer.from(f.datos) };
+    if (new RegExp(`^/uploads/${marcaId}/catalogos/[0-9a-f-]{36}\\.pdf$`).test(f.archivoUrl)) {
+      const datos = await readFile(join(uploadsDir(), f.archivoUrl.slice('/uploads/'.length))).catch(() => null);
+      if (datos) return { titulo: f.titulo, datos };
+    }
+    throw new NotFoundException('El PDF de este folleto no está disponible');
   }
 
   /** Web pública: datos mínimos para el visor. Cuenta la visita sin frenar la respuesta. */
