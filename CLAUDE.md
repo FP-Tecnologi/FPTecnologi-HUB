@@ -27,9 +27,10 @@ scripts **dentro de la app** (`cd apps/<app>`), siempre con npm (no pnpm/yarn).
 | `apps/fimav-web` (web pública Fimav Perú, Next 16) | 3005 | `npm run dev -- --port 3005` | `npm run build` | `npm run lint` |
 | `apps/kelqa-web` (web pública Kelqa, Next 16) | 3007 | `npm run dev -- --port 3007` | `npm run build` | `npm run lint` |
 | `apps/imaninki-web` (web pública Imaninki, Next 16; negro/rojo/plata) | 3008 | `npm run dev -- --port 3008` | `npm run build` | `npm run lint` |
+| `apps/imc-web` (web pública Company IMC E.I.R.L., Next 16, exportación estática; azul/naranja, hexágonos) | 3009 | `npm run dev -- --port 3009` | `npm run build` (deja `out/`) | `npm run lint` |
 | `apps/quamtu-web` (web pública Quamtu, Next 16, exportación estática) | 3004 | `npm run dev -- --port 3004` | `npm run build` (deja `out/`) | `npm run lint` |
 
-`.claude/launch.json` define estos servidores (`api`, `admin`, `web-fptecnologi`, `fimav-web`, `kelqa-web`, `imaninki-web`, `leads` → repo aparte) para
+`.claude/launch.json` define estos servidores (`api`, `admin`, `web-fptecnologi`, `fimav-web`, `kelqa-web`, `imaninki-web`, `imc-web`, `leads` → repo aparte) para
 `preview_start`.
 
 Tests (solo `apps/api`, Vitest, `*.spec.ts` junto al archivo probado):
@@ -61,9 +62,9 @@ Prisma (en `apps/api`, requiere `.env` con `DATABASE_URL`; ver `.env.example`):
   push main; volver a develop). No preguntar antes. Si algo no está bien, no pasa a `main`.
 - **Repos espejo**: el HUB (este, `FP-Tecnologi/FPTecnologi-HUB`) tiene TODO (API, dashboard, webs). Cada web pública tiene además un
   repo espejo con **solo esa web en su raíz**: `apps/web-fptecnologi` → `fptecnologi-web`, `apps/fimav-web` → `fimav-peru` (privado),
-  `apps/quamtu-web` → `quamtu-web` (privado), `apps/kelqa-web` → `kelqa-web`, `apps/imaninki-web` → `imaninki-web`. Cada vez que un cambio toque una de esas apps, tras subir a `develop` y `main` del
+  `apps/quamtu-web` → `quamtu-web` (privado), `apps/kelqa-web` → `kelqa-web`, `apps/imaninki-web` → `imaninki-web`, `apps/imc-web` → `imc-web` (privado). Cada vez que un cambio toque una de esas apps, tras subir a `develop` y `main` del
   HUB, publicar su espejo (main y develop del repo quedan iguales): `TMPDIR=/tmp bash scripts/publicar-snapshot.sh` (fptecnologi),
-  `... publicar-snapshot.sh fimav-web fimav-peru Fimav`, `... publicar-snapshot.sh quamtu-web quamtu-web Quamtu`, `... publicar-snapshot.sh kelqa-web kelqa-web Kelqa`, `... publicar-snapshot.sh imaninki-web imaninki-web Imaninki`. Nunca editar a mano
+  `... publicar-snapshot.sh fimav-web fimav-peru Fimav`, `... publicar-snapshot.sh quamtu-web quamtu-web Quamtu`, `... publicar-snapshot.sh kelqa-web kelqa-web Kelqa`, `... publicar-snapshot.sh imaninki-web imaninki-web Imaninki`, `... publicar-snapshot.sh imc-web imc-web "Company IMC"`. Nunca editar a mano
   esos repos. El script no crea repos: deben existir y la cuenta de git debe poder escribir en ellos.
 - Multimedia sin uso (imágenes, video, audio) no se deja en `main`: se mueve a la rama de archivo `archivo-multimedia` (misma ruta) y se borra de `main`. Recuperar con `git checkout archivo-multimedia -- <ruta>`. Esa rama no se elimina ni se mezcla.
 - Las ramas que ya no sirven (mergeadas o abandonadas) se eliminan; no dejar ramas viejas.

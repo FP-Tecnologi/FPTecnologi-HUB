@@ -66,6 +66,7 @@ apps/
   kelqa-web/        Next.js 16 — kelqa.com (3007). Líneas/productos desde la API; CMS: Inicio, Nosotros,
                     Contacto, Catálogos PDF y Textos legales (borrador hasta «publicado»)
   imaninki-web/     Next.js 16 — imaninki.com (3008), igual que Kelqa
+  imc-web/          Next.js 16 — companyimc.com (3009). Exportación estática, sin API (contenido en el código, `src/lib/datos.ts`); formulario por mailto. Fotos del brochure en `public/img`, logos de marcas en `public/marcas`
   quamtu-web/       Next.js 16 — quamtu.com (3004). Exportación estática: su CMS (solo Inicio) se aplica al recompilar;
                     tienda/armador/productos aún en el código
 docs/               Documentación de negocio, planificación, despliegue y diagramas
