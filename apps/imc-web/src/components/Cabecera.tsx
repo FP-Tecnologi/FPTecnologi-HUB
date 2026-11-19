@@ -51,11 +51,7 @@ export default function Cabecera() {
           </nav>
 
           <div className="flex items-center gap-4">
-            <a href={`tel:${EMPRESA.telefono.replace(/\s/g, "")}`} className={`hidden items-center gap-2 text-sm font-bold transition-colors xl:flex ${claro ? "text-white hover:text-naranja" : "text-azul-osc hover:text-azul-2"}`}>
-              <span className={`hex flex h-8 w-8 items-center justify-center transition-colors ${claro ? "bg-white/15" : "bg-azul-claro"}`}><Icono n="telefono" className="h-4 w-4" /></span>
-              {EMPRESA.telefono}
-            </a>
-            <Enlace href="/contacto/" className="btn btn-naranja hidden !px-6 !py-2.5 sm:inline-flex">Cotizar</Enlace>
+            <a href={`tel:${EMPRESA.telefono.replace(/\s/g, "")}`} className="btn btn-naranja hidden !px-5 !py-2.5 sm:inline-flex"><Icono n="telefono" className="h-4 w-4" /> {EMPRESA.telefono}</a>
             <button onClick={() => setAbierto((v) => !v)} aria-expanded={abierto} aria-label="Menú" className={`relative flex h-11 w-11 flex-col items-center justify-center gap-1.5 border transition-colors duration-300 lg:hidden ${claro || abierto ? "border-white/40 bg-white/10" : "border-azul-2 bg-azul-2"}`}>
               <span className={`h-0.5 w-5 bg-white transition-transform duration-300 ${abierto ? "translate-y-2 rotate-45" : ""}`} />
               <span className={`h-0.5 w-5 bg-white transition-opacity duration-300 ${abierto ? "opacity-0" : ""}`} />
