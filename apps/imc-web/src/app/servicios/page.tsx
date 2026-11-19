@@ -14,18 +14,23 @@ export default function Servicios() {
       <Seccion className="bg-white">
         <div className="space-y-20">
           {PROYECTOS.map((p, i) => (
-            <div key={p.t} className="grid items-center gap-10 lg:grid-cols-2">
+            <div key={p.t} className="grupo group grid items-center gap-10 lg:grid-cols-2">
               <Reveal dir={i % 2 ? "der" : "izq"} className={i % 2 ? "lg:order-2" : ""}>
-                <div className="relative">
-                  <div className={`absolute -inset-3 bg-naranja/80 ${i % 2 ? "-rotate-2" : "rotate-2"}`} aria-hidden />
-                  <img src={p.img} alt={p.t} className="relative aspect-[4/3] w-full object-cover shadow-xl" />
+                <div className="relative cursor-pointer">
+                  <div className={`absolute -inset-3 bg-naranja/80 transition-transform duration-700 ease-[var(--ease-salida)] ${i % 2 ? "-rotate-2 group-hover:translate-x-3 group-hover:translate-y-3 group-hover:rotate-0" : "rotate-2 group-hover:-translate-x-3 group-hover:translate-y-3 group-hover:rotate-0"}`} aria-hidden />
+                  <div className="relative aspect-[4/3] overflow-hidden shadow-xl transition-shadow duration-700 group-hover:shadow-2xl">
+                    <img src={p.img} alt={p.t} className="h-full w-full object-cover transition-transform duration-[1400ms] ease-[var(--ease-salida)] group-hover:scale-110 group-hover:-rotate-1" />
+                    <div className="absolute inset-0 bg-azul-osc/0 transition-colors duration-700 group-hover:bg-azul-osc/25" />
+                    <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-1000 ease-[var(--ease-salida)] group-hover:translate-x-full" />
+                    <span className="insignia hex absolute bottom-4 right-4 h-14 w-14 translate-y-4 !bg-naranja !text-tinta opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100"><Icono n="flecha" className="h-6 w-6" /></span>
+                  </div>
                 </div>
               </Reveal>
               <Reveal dir={i % 2 ? "izq" : "der"} delay={100}>
-                <div className="grupo">
+                <div>
                   <Hex n={p.n} size="h-20 w-20" />
-                  <h2 className="titulo mt-6 text-3xl uppercase sm:text-4xl">{p.t}</h2>
-                  <div className="regla mt-4" />
+                  <h2 className="titulo mt-6 text-3xl uppercase transition-colors duration-500 group-hover:text-azul-2 sm:text-4xl">{p.t}</h2>
+                  <div className="regla mt-4 transition-[width] duration-700 ease-[var(--ease-salida)] group-hover:!w-48" />
                   <p className="mt-5 text-lg leading-relaxed text-grafito/80">{p.d}</p>
                 </div>
               </Reveal>
