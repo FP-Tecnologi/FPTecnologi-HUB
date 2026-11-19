@@ -1,22 +1,23 @@
 import type { Metadata } from "next";
 import Reveal from "@/components/Reveal";
 import { Hex, Icono, Portada, Seccion } from "@/components/ui";
-import { EMPRESA } from "@/lib/datos";
+import { getEmpresa, getPagina } from "@/lib/cms";
 
 export const metadata: Metadata = { title: "Contacto", description: "Contáctanos para una asesoría personalizada en tecnología: Pueblo Libre, Lima." };
 
 const campo = "mt-1.5 w-full border-2 border-gris/80 bg-white px-5 py-3.5 font-normal outline-none transition focus:border-azul-2 focus:shadow-[0_0_0_4px_rgba(43,84,172,.15)]";
 
-export default function Contacto() {
+export default async function Contacto() {
+  const [EMPRESA, { banner }] = await Promise.all([getEmpresa(), getPagina("contacto")]);
   const datos = [
-    ["ubicacion", "Dirección", EMPRESA.direccion.join(", "), undefined],
+    ["ubicacion", "Dirección", EMPRESA.direccion, undefined],
     ["telefono", "Teléfono / WhatsApp", EMPRESA.telefono, EMPRESA.whatsapp],
     ["correo", "Correo electrónico", EMPRESA.correo, `mailto:${EMPRESA.correo}`],
     ["reloj", "Horario", EMPRESA.horario, undefined],
   ] as const;
   return (
     <>
-      <Portada etiqueta="Hablemos" a="Contáctenos" b="hoy" texto="Pide asesoría personalizada para tus proyectos de tecnología. Te respondemos a la brevedad." />
+      <Portada etiqueta={banner.etiqueta} a={banner.titulo} b={banner.acento} texto={banner.texto} />
 
       <Seccion className="bg-white">
         <div className="grid gap-10 lg:grid-cols-[.9fr_1.1fr]">

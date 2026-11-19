@@ -10,6 +10,7 @@ const WEBS: { clave: string; env: string | undefined; local: string; publica: st
   { clave: 'fimav', env: process.env.NEXT_PUBLIC_WEB_FIMAV_URL, local: 'http://localhost:3005', publica: 'https://fimavperu.com' },
   { clave: 'kelqa', env: process.env.NEXT_PUBLIC_WEB_KELQA_URL, local: 'http://localhost:3007', publica: 'https://kelqa.com' },
   { clave: 'imaninki', env: process.env.NEXT_PUBLIC_WEB_IMANINKI_URL, local: 'http://localhost:3008', publica: 'https://imaninki.com' },
+  { clave: 'imc', env: process.env.NEXT_PUBLIC_WEB_IMC_URL, local: 'http://localhost:3009', publica: 'https://companyimc.com' },
   { clave: 'quamtu', env: process.env.NEXT_PUBLIC_WEB_QUAMTU_URL, local: 'http://localhost:3004', publica: 'https://quamtu.com' },
 ];
 const FPT = { env: process.env.NEXT_PUBLIC_WEB_PUBLICA_URL, local: 'http://localhost:3002', publica: 'https://fptecnologi.com' };

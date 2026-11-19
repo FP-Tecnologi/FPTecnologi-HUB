@@ -4,9 +4,10 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Enlace from "./Enlace";
 import { Icono } from "./ui";
-import { EMPRESA, NAV } from "@/lib/datos";
+import { NAV } from "@/lib/datos";
+import type { Empresa } from "@/lib/cms";
 
-export default function Cabecera() {
+export default function Cabecera({ empresa }: { empresa: Empresa }) {
   const ruta = usePathname();
   const [scroll, setScroll] = useState(false);
   const [avance, setAvance] = useState(0);
@@ -51,7 +52,7 @@ export default function Cabecera() {
           </nav>
 
           <div className="flex items-center gap-4">
-            <a href={`tel:${EMPRESA.telefono.replace(/\s/g, "")}`} className="btn btn-naranja hidden !px-5 !py-2.5 sm:inline-flex"><Icono n="telefono" className="h-4 w-4" /> {EMPRESA.telefono}</a>
+            <a href={empresa.telefonoHref} className="btn btn-naranja hidden !px-5 !py-2.5 sm:inline-flex"><Icono n="telefono" className="h-4 w-4" /> {empresa.telefono}</a>
             <button onClick={() => setAbierto((v) => !v)} aria-expanded={abierto} aria-label="Menú" className={`relative flex h-11 w-11 flex-col items-center justify-center gap-1.5 border transition-colors duration-300 lg:hidden ${claro || abierto ? "border-white/40 bg-white/10" : "border-azul-2 bg-azul-2"}`}>
               <span className={`h-0.5 w-5 bg-white transition-transform duration-300 ${abierto ? "translate-y-2 rotate-45" : ""}`} />
               <span className={`h-0.5 w-5 bg-white transition-opacity duration-300 ${abierto ? "opacity-0" : ""}`} />

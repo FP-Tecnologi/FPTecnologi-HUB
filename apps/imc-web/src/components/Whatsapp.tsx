@@ -3,18 +3,20 @@
 import { useEffect, useRef, useState } from "react";
 import Enlace from "./Enlace";
 import { Icono } from "./ui";
-import { EMPRESA } from "@/lib/datos";
+import type { Empresa } from "@/lib/cms";
 
 const MENSAJE = encodeURIComponent("Hola Company IMC, quisiera una cotización.");
 
-const OPCIONES = [
-  { n: "whatsapp", t: "Escríbenos por WhatsApp", s: "Respuesta rápida", href: `${EMPRESA.whatsapp}?text=${MENSAJE}`, externo: true },
-  { n: "telefono", t: "Llámanos", s: EMPRESA.telefono, href: `tel:${EMPRESA.telefono.replace(/\s/g, "")}` },
-  { n: "correo", t: "Envíanos un correo", s: EMPRESA.correo, href: `mailto:${EMPRESA.correo}` },
-  { n: "cartera", t: "Solicitar cotización", s: "Formulario de contacto", href: "/contacto/", interno: true },
-] as const;
 
-export default function Whatsapp() {
+
+export default function Whatsapp({ empresa }: { empresa: Empresa }) {
+  const OPCIONES = [
+    { n: "whatsapp", t: "Escríbenos por WhatsApp", s: "Respuesta rápida", href: `${empresa.whatsapp}?text=${MENSAJE}`, externo: true },
+    { n: "telefono", t: "Llámanos", s: empresa.telefono, href: `tel:${empresa.telefonoHref.slice(4)}` },
+    { n: "correo", t: "Envíanos un correo", s: empresa.correo, href: `mailto:${empresa.correo}` },
+    { n: "cartera", t: "Solicitar cotización", s: "Formulario de contacto", href: "/contacto/", interno: true },
+  ] as const;
+
   const [abierto, setAbierto] = useState(false);
   const [globo, setGlobo] = useState(false);
   const caja = useRef<HTMLDivElement>(null);
@@ -48,7 +50,7 @@ export default function Whatsapp() {
           <div className="absolute inset-x-0 top-0 h-1 bg-naranja" />
           <p className="text-lg font-extrabold leading-tight">¿Hablamos?</p>
           <p className="mt-0.5 text-xs text-white/75">Elige cómo prefieres contactarnos</p>
-          <p className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-semibold text-naranja"><Icono n="reloj" className="h-3.5 w-3.5" /> {EMPRESA.horario}</p>
+          <p className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-semibold text-naranja"><Icono n="reloj" className="h-3.5 w-3.5" /> {empresa.horario}</p>
         </div>
         <ul className="divide-y divide-gris/50">
           {OPCIONES.map((o, i) => {

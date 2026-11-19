@@ -1,4 +1,4 @@
 /** @type {import('next').NextConfig} */
-// Web estática: `npm run build` deja todo en out/ para subirlo tal cual al hosting.
-const nextConfig = { output: 'export', trailingSlash: true, images: { unoptimized: true }, poweredByHeader: false };
+// Web con servidor (Node): lee el contenido del dashboard (API central) con caché de 30 s.
+const nextConfig = { trailingSlash: true, images: { unoptimized: true }, poweredByHeader: false };
 export default nextConfig;

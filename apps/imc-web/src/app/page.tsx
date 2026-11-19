@@ -4,11 +4,13 @@ import Reveal from "@/components/Reveal";
 import Contador from "@/components/Contador";
 import Hero from "@/components/Hero";
 import { Cta, Hex, Icono, Seccion, Titulo } from "@/components/ui";
-import { MOTIVOS, PERU_COMPRAS, PRODUCTOS, PROYECTOS, SERVICIOS } from "@/lib/datos";
+import { getPagina } from "@/lib/cms";
+import { PERU_COMPRAS, PRODUCTOS, PROYECTOS, SERVICIOS } from "@/lib/datos";
 
 const d = (ms: number) => ({ ["--d" as string]: `${ms}ms` }) as CSSProperties;
 
-export default function Inicio() {
+export default async function Inicio() {
+  const { sobre, porque } = await getPagina("inicio");
   return (
     <>
       <Hero />
@@ -25,8 +27,8 @@ export default function Inicio() {
           </Reveal>
           <div>
             <Reveal><Titulo a="Sobre" b="nosotros" /></Reveal>
-            <Reveal delay={100}><p className="mt-8 text-2xl font-semibold italic leading-snug text-tinta">“Nos mantenemos a la vanguardia de la tecnología para ofrecer soluciones de última generación.”</p></Reveal>
-            <Reveal delay={180}><p className="mt-5 leading-relaxed text-grafito/85">En Company IMC creemos en el poder de la tecnología para transformar negocios y mejorar vidas. Nos hemos consolidado como un socio estratégico para empresas de diversos sectores, con soluciones integrales que impulsan el crecimiento y la eficiencia.</p></Reveal>
+            <Reveal delay={100}><p className="mt-8 text-2xl font-semibold italic leading-snug text-tinta">“{sobre.cita}”</p></Reveal>
+            <Reveal delay={180}><p className="mt-5 leading-relaxed text-grafito/85">{sobre.texto}</p></Reveal>
             <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
               {[
                 [4, "+", "años de experiencia"],
@@ -142,11 +144,11 @@ export default function Inicio() {
           </Reveal>
           <div>
             <Reveal><Titulo a="¿Por qué" b="escogernos?" /></Reveal>
-            <Reveal delay={100}><p className="mt-8 text-2xl font-medium italic leading-snug text-tinta">Entendemos que cada empresa es única y enfrenta desafíos específicos. Por eso, nos convertimos en tu socio estratégico.</p></Reveal>
+            <Reveal delay={100}><p className="mt-8 text-2xl font-medium italic leading-snug text-tinta">{porque.cita}</p></Reveal>
             <ul className="mt-8 space-y-4">
-              {MOTIVOS.map((m, i) => (
-                <Reveal key={m} delay={i * 90}>
-                  <li className="grupo flex gap-4"><span className="insignia h-8 w-8 shrink-0"><Icono n="check" className="h-5 w-5" /></span><p className="leading-relaxed">{m}</p></li>
+              {porque.items.map((it, i) => (
+                <Reveal key={i} delay={i * 90}>
+                  <li className="grupo flex gap-4"><span className="insignia h-8 w-8 shrink-0"><Icono n="check" className="h-5 w-5" /></span><p className="leading-relaxed">{it.texto}</p></li>
                 </Reveal>
               ))}
             </ul>

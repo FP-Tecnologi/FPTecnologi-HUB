@@ -27,7 +27,7 @@ scripts **dentro de la app** (`cd apps/<app>`), siempre con npm (no pnpm/yarn).
 | `apps/fimav-web` (web pública Fimav Perú, Next 16) | 3005 | `npm run dev -- --port 3005` | `npm run build` | `npm run lint` |
 | `apps/kelqa-web` (web pública Kelqa, Next 16) | 3007 | `npm run dev -- --port 3007` | `npm run build` | `npm run lint` |
 | `apps/imaninki-web` (web pública Imaninki, Next 16; negro/rojo/plata) | 3008 | `npm run dev -- --port 3008` | `npm run build` | `npm run lint` |
-| `apps/imc-web` (web pública Company IMC E.I.R.L., Next 16, exportación estática; azul/naranja, hexágonos) | 3009 | `npm run dev -- --port 3009` | `npm run build` (deja `out/`) | `npm run lint` |
+| `apps/imc-web` (web pública Company IMC E.I.R.L., Next 16, servidor Node + CMS del dashboard; azul/naranja, hexágonos) | 3009 | `npm run dev -- --port 3009` | `npm run build` (deja `out/`) | `npm run lint` |
 | `apps/quamtu-web` (web pública Quamtu, Next 16, exportación estática) | 3004 | `npm run dev -- --port 3004` | `npm run build` (deja `out/`) | `npm run lint` |
 
 `.claude/launch.json` define estos servidores (`api`, `admin`, `web-fptecnologi`, `fimav-web`, `kelqa-web`, `imaninki-web`, `imc-web`, `leads` → repo aparte) para

@@ -5,6 +5,10 @@ import Cabecera from "@/components/Cabecera";
 import Pie from "@/components/Pie";
 import Cortina from "@/components/Cortina";
 import Whatsapp from "@/components/Whatsapp";
+import { getEmpresa } from "@/lib/cms";
+
+// En cada visita (no prerenderizado): lo guardado en el dashboard se ve sin recompilar y sin depender de HUB_MARCA_ID al compilar.
+export const dynamic = "force-dynamic";
 
 const poppins = Poppins({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], variable: "--font-poppins" });
 
@@ -15,16 +19,17 @@ export const metadata: Metadata = {
   icons: { icon: "/logo.svg" },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const empresa = await getEmpresa();
   return (
     <html lang="es" className={poppins.variable}>
       <body>
         <noscript><style>{`.cortina{display:none!important}.rev{opacity:1!important;transform:none!important}`}</style></noscript>
         <Cortina />
-        <Cabecera />
+        <Cabecera empresa={empresa} />
         <main>{children}</main>
-        <Pie />
-        <Whatsapp />
+        <Pie empresa={empresa} />
+        <Whatsapp empresa={empresa} />
       </body>
     </html>
   );
