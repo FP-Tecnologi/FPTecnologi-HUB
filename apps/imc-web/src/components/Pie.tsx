@@ -4,7 +4,7 @@ import { EMPRESA, NAV } from "@/lib/datos";
 
 export default function Pie() {
   return (
-    <footer className="relative overflow-hidden bg-grafito text-white">
+    <footer className="relative overflow-hidden bg-[#232327] text-white">
       <div className="cuadricula-claro absolute inset-0 opacity-60" aria-hidden />
       <div className="relative mx-auto grid max-w-6xl gap-12 px-5 py-16 md:grid-cols-[1.3fr_1fr_1.2fr]">
         <div>
