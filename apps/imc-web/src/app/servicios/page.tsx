@@ -17,8 +17,8 @@ export default function Servicios() {
             <div key={p.t} className="grid items-center gap-10 lg:grid-cols-2">
               <Reveal dir={i % 2 ? "der" : "izq"} className={i % 2 ? "lg:order-2" : ""}>
                 <div className="relative">
-                  <div className={`absolute -inset-3 rounded-[2.2rem] bg-naranja/80 ${i % 2 ? "-rotate-2" : "rotate-2"}`} aria-hidden />
-                  <img src={p.img} alt={p.t} className="relative aspect-[4/3] w-full rounded-[2rem] object-cover shadow-xl" />
+                  <div className={`absolute -inset-3 bg-naranja/80 ${i % 2 ? "-rotate-2" : "rotate-2"}`} aria-hidden />
+                  <img src={p.img} alt={p.t} className="relative aspect-[4/3] w-full object-cover shadow-xl" />
                 </div>
               </Reveal>
               <Reveal dir={i % 2 ? "izq" : "der"} delay={100}>
@@ -47,7 +47,7 @@ export default function Servicios() {
             </Reveal>
           ))}
           <Reveal delay={450}>
-            <article className="degradado-azul flex h-full flex-col justify-between rounded-[1.75rem] p-8 text-white">
+            <article className="degradado-azul flex h-full flex-col justify-between p-8 text-white">
               <h3 className="text-2xl font-extrabold leading-tight">¿No ves lo que buscas? Lo conseguimos.</h3>
               <Enlace href="/contacto/" className="btn btn-naranja mt-6 self-start">Escríbenos <Icono n="flecha" className="h-5 w-5" /></Enlace>
             </article>

@@ -26,22 +26,22 @@ export default function Cabecera() {
     <>
       <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${scroll ? "bg-white/85 py-2 shadow-[0_10px_30px_-18px_rgba(23,46,94,.5)] backdrop-blur-xl" : "bg-transparent py-4"}`}>
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5">
-          <Enlace href="/" aria-label="Company IMC, inicio" className="rounded-2xl bg-white/90 px-3 py-1.5 transition hover:scale-105">
+          <Enlace href="/" aria-label="Company IMC, inicio" className=" bg-white/90 px-3 py-1.5 transition hover:scale-105">
             <img src="/logo.svg" alt="Company IMC E.I.R.L." className={`w-auto transition-all duration-500 ${scroll ? "h-9" : "h-11"}`} />
           </Enlace>
-          <nav className="hidden items-center gap-1 rounded-full bg-white/90 p-1.5 shadow-sm backdrop-blur lg:flex" aria-label="Principal">
+          <nav className="hidden items-center gap-1 bg-white/90 p-1.5 shadow-sm backdrop-blur lg:flex" aria-label="Principal">
             {NAV.map(([t, h]) => (
-              <Enlace key={h} href={h} aria-current={activo(h) ? "page" : undefined} className={`relative rounded-full px-4 py-2 text-sm font-semibold transition-colors duration-300 ${activo(h) ? "bg-azul-2 text-white" : "text-grafito hover:bg-azul-claro hover:text-azul-2"}`}>
+              <Enlace key={h} href={h} aria-current={activo(h) ? "page" : undefined} className={`relative px-4 py-2 text-sm font-semibold transition-colors duration-300 ${activo(h) ? "bg-azul-2 text-white" : "text-grafito hover:bg-azul-claro hover:text-azul-2"}`}>
                 {t}
               </Enlace>
             ))}
           </nav>
           <div className="flex items-center gap-3">
             <Enlace href="/contacto/" className="btn btn-naranja hidden !px-6 !py-2.5 sm:inline-flex">Cotizar</Enlace>
-            <button onClick={() => setAbierto((v) => !v)} aria-expanded={abierto} aria-label="Menú" className="relative z-[60] flex h-11 w-11 flex-col items-center justify-center gap-1.5 rounded-full bg-azul-2 lg:hidden">
-              <span className={`h-0.5 w-5 rounded bg-white transition-transform duration-300 ${abierto ? "translate-y-2 rotate-45" : ""}`} />
-              <span className={`h-0.5 w-5 rounded bg-white transition-opacity duration-300 ${abierto ? "opacity-0" : ""}`} />
-              <span className={`h-0.5 w-5 rounded bg-white transition-transform duration-300 ${abierto ? "-translate-y-2 -rotate-45" : ""}`} />
+            <button onClick={() => setAbierto((v) => !v)} aria-expanded={abierto} aria-label="Menú" className="relative z-[60] flex h-11 w-11 flex-col items-center justify-center gap-1.5 bg-azul-2 lg:hidden">
+              <span className={`h-0.5 w-5 bg-white transition-transform duration-300 ${abierto ? "translate-y-2 rotate-45" : ""}`} />
+              <span className={`h-0.5 w-5 bg-white transition-opacity duration-300 ${abierto ? "opacity-0" : ""}`} />
+              <span className={`h-0.5 w-5 bg-white transition-transform duration-300 ${abierto ? "-translate-y-2 -rotate-45" : ""}`} />
             </button>
           </div>
         </div>

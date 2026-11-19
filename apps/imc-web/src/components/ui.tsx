@@ -113,7 +113,7 @@ export function Cta() {
   return (
     <section className="px-5 pb-20 sm:pb-28">
       <Reveal dir="zoom" className="mx-auto max-w-6xl">
-        <div className="degradado-azul relative overflow-hidden rounded-[2.5rem] px-8 py-14 text-white sm:px-16 sm:py-20">
+        <div className="degradado-azul relative overflow-hidden px-8 py-14 text-white sm:px-16 sm:py-20">
           <div className="cuadricula-claro absolute inset-0" aria-hidden />
           <Fondo claro />
           <div className="relative flex flex-wrap items-center justify-between gap-8">

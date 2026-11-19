@@ -24,8 +24,8 @@ export default function PeruCompras() {
           </div>
           <Reveal dir="der">
             <div className="relative">
-              <div className="absolute -inset-4 -rotate-3 rounded-[2.5rem] bg-naranja/85" aria-hidden />
-              <img src="/img/perucompras.webp" alt="Sede de Perú Compras" className="relative aspect-[4/3] w-full rounded-[2rem] object-cover shadow-2xl" />
+              <div className="absolute -inset-4 -rotate-3 bg-naranja/85" aria-hidden />
+              <img src="/img/perucompras.webp" alt="Sede de Perú Compras" className="relative aspect-[4/3] w-full object-cover shadow-2xl" />
             </div>
           </Reveal>
         </div>

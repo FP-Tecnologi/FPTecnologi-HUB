@@ -8,7 +8,7 @@ export default function Pie() {
       <div className="cuadricula-claro absolute inset-0 opacity-60" aria-hidden />
       <div className="relative mx-auto grid max-w-6xl gap-12 px-5 py-16 md:grid-cols-[1.3fr_1fr_1.2fr]">
         <div>
-          <span className="inline-block rounded-2xl bg-white px-4 py-2"><img src="/logo.svg" alt="Company IMC E.I.R.L." className="h-12 w-auto" /></span>
+          <span className="inline-block bg-white px-4 py-2"><img src="/logo.svg" alt="Company IMC E.I.R.L." className="h-12 w-auto" /></span>
           <p className="mt-5 max-w-sm leading-relaxed text-white/70">Soluciones tecnológicas para el crecimiento empresarial. Tu socio estratégico en equipos, redes y soporte técnico.</p>
           <Chevrones claro className="mt-6 opacity-60" />
         </div>

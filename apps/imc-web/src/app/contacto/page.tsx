@@ -5,7 +5,7 @@ import { EMPRESA } from "@/lib/datos";
 
 export const metadata: Metadata = { title: "Contacto", description: "Contáctanos para una asesoría personalizada en tecnología: Pueblo Libre, Lima." };
 
-const campo = "mt-1.5 w-full rounded-2xl border-2 border-gris/80 bg-white px-5 py-3.5 font-normal outline-none transition focus:border-azul-2 focus:shadow-[0_0_0_4px_rgba(43,84,172,.15)]";
+const campo = "mt-1.5 w-full border-2 border-gris/80 bg-white px-5 py-3.5 font-normal outline-none transition focus:border-azul-2 focus:shadow-[0_0_0_4px_rgba(43,84,172,.15)]";
 
 export default function Contacto() {
   const datos = [

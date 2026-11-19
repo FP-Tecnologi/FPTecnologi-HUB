@@ -31,7 +31,7 @@ export default function Inicio() {
           </div>
 
           <div className="entra relative mx-auto aspect-square w-full max-w-[34rem]" style={d(2000)}>
-            <div className="gira absolute inset-0 rounded-full border-2 border-dashed border-azul-2/30" style={{ ["--t" as string]: "60s" } as CSSProperties} />
+            <div className="gira absolute inset-0 border-2 border-dashed border-azul-2/30" style={{ ["--t" as string]: "60s" } as CSSProperties} />
             <div className="hex absolute inset-[6%] bg-azul-2" />
             <div className="hex absolute inset-[10%] bg-white" />
             <div className="absolute inset-[6%] bg-naranja" style={{ clipPath: "polygon(7% 75%, 50% 100%, 93% 75%, 93% 68%, 50% 90%, 7% 68%)" }} />
@@ -85,7 +85,7 @@ export default function Inicio() {
         <div className="mt-14 grid gap-6 md:grid-cols-2">
           {PROYECTOS.map((p, i) => (
             <Reveal key={p.t} delay={i * 120}>
-              <Enlace href="/servicios/" className="tarjeta group relative block h-80 overflow-hidden !rounded-[2rem]">
+              <Enlace href="/servicios/" className="tarjeta group relative block h-80 overflow-hidden">
                 <img src={p.img} alt={p.t} className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] ease-[var(--ease-salida)] group-hover:scale-110" />
                 <div className="absolute inset-0 bg-gradient-to-t from-azul-osc via-azul-osc/50 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-4 p-7 text-white">
@@ -149,8 +149,8 @@ export default function Inicio() {
           </div>
           <Reveal dir="der">
             <div className="relative">
-              <div className="absolute -inset-4 rotate-3 rounded-[2.5rem] bg-naranja/90" aria-hidden />
-              <img src="/img/perucompras.webp" alt="Sede de Perú Compras" className="relative aspect-[4/3] w-full rounded-[2rem] object-cover shadow-2xl" />
+              <div className="absolute -inset-4 rotate-3 bg-naranja/90" aria-hidden />
+              <img src="/img/perucompras.webp" alt="Sede de Perú Compras" className="relative aspect-[4/3] w-full object-cover shadow-2xl" />
             </div>
           </Reveal>
         </div>
@@ -173,7 +173,7 @@ export default function Inicio() {
             <ul className="mt-8 space-y-4">
               {MOTIVOS.map((m, i) => (
                 <Reveal key={m} delay={i * 90}>
-                  <li className="grupo flex gap-4"><span className="insignia h-8 w-8 shrink-0 rounded-lg"><Icono n="check" className="h-5 w-5" /></span><p className="leading-relaxed">{m}</p></li>
+                  <li className="grupo flex gap-4"><span className="insignia h-8 w-8 shrink-0"><Icono n="check" className="h-5 w-5" /></span><p className="leading-relaxed">{m}</p></li>
                 </Reveal>
               ))}
             </ul>

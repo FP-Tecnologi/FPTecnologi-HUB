@@ -35,7 +35,7 @@ export default function Nosotros() {
             ["estrella", "Visión", "Ser un referente en el mercado nacional de comercialización de equipos informáticos y ejecución de proyectos tecnológicos con un elevado valor añadido en innovación y calidad, desarrollando talentos y habilidades en un excelente ambiente laboral, motivados por buscar y satisfacer continuamente las necesidades de nuestros clientes, contribuyendo con responsabilidad social y cuidado del medio ambiente."],
           ].map(([n, t, p], i) => (
             <Reveal key={t} delay={i * 140} dir={i ? "der" : "izq"}>
-              <article className="grupo h-full rounded-[2rem] border border-white/15 bg-white/5 p-9 backdrop-blur transition hover:border-naranja/60 hover:bg-white/10">
+              <article className="grupo h-full border border-white/15 bg-white/5 p-9 backdrop-blur transition hover:border-naranja/60 hover:bg-white/10">
                 <Hex n={n} size="h-20 w-20" />
                 <h2 className="titulo claro mt-6 text-4xl"><b>{t}</b></h2>
                 <p className="mt-4 leading-relaxed text-white/80">{p}</p>
@@ -70,12 +70,12 @@ export default function Nosotros() {
         <ul className="mt-12 grid gap-5 md:grid-cols-2">
           {MOTIVOS.map((m, i) => (
             <Reveal key={m} delay={i * 90}>
-              <li className="tarjeta grupo flex h-full gap-5 p-7"><span className="insignia h-10 w-10 shrink-0 rounded-xl"><Icono n="check" className="h-5 w-5" /></span><p className="leading-relaxed">{m}</p></li>
+              <li className="tarjeta grupo flex h-full gap-5 p-7"><span className="insignia h-10 w-10 shrink-0"><Icono n="check" className="h-5 w-5" /></span><p className="leading-relaxed">{m}</p></li>
             </Reveal>
           ))}
         </ul>
         <Reveal delay={150}>
-          <div className="mt-12 flex flex-wrap items-center justify-between gap-5 rounded-[2rem] bg-white p-8 shadow-[0_18px_40px_-22px_rgba(23,46,94,.45)]">
+          <div className="mt-12 flex flex-wrap items-center justify-between gap-5 bg-white p-8 shadow-[0_18px_40px_-22px_rgba(23,46,94,.45)]">
             <div><h3 className="text-2xl font-extrabold text-azul-osc">Kelqa, nuestra nueva marca</h3><p className="mt-1 text-grafito/75">Nace de nuestra experiencia para elevar los estándares del mercado peruano con productos de valor real y duradero.</p></div>
             <a href="https://kelqa.com" className="btn btn-azul">Visitar Kelqa <Icono n="flecha" className="h-5 w-5" /></a>
           </div>
