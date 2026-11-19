@@ -17,7 +17,7 @@ const textoCorto = (v: unknown, campo: string): string => {
 
 /** Dashboard: gestión de las hojas de reclamación (admin y comercial de la marca). */
 @UseGuards(MarcaRolGuard)
-@Roles('admin', 'comercial', 'soporte')
+@Roles('admin', 'comercial', 'jefe_comercial', 'soporte')
 @Controller('libro-reclamaciones')
 export class LibroReclamacionesController {
   constructor(private readonly libro: LibroReclamacionesService) {}

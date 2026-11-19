@@ -54,7 +54,7 @@ export class PublicSociosController {
 
 /** Dashboard → Web → Recursos: sube y gestiona el material y los socios (acceso, aprobación). */
 @UseGuards(MarcaRolGuard)
-@Roles('admin', 'marketing', 'comercial')
+@Roles('admin', 'marketing', 'comercial', 'jefe_comercial')
 @Controller('recursos')
 export class RecursosController {
   constructor(
@@ -93,7 +93,7 @@ export class RecursosController {
     return this.recursos.actualizarSocio(marcaId, id, dto, user.email);
   }
 
-  @Roles('admin', 'comercial')
+  @Roles('admin', 'comercial', 'jefe_comercial')
   @Delete('socios/:id')
   eliminarSocio(@MarcaActual() marcaId: string, @Param('id') id: string) {
     return this.recursos.eliminarSocio(marcaId, id);

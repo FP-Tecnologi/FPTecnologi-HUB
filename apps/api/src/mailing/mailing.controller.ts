@@ -8,7 +8,7 @@ import type { AuthenticatedUser } from '../auth/types/authenticated-user.js';
 
 /** Mailing: el equipo manda un correo a aprobación; el admin lo aprueba o lo rechaza. */
 @UseGuards(MarcaRolGuard)
-@Roles('admin', 'marketing', 'ventas', 'comercial')
+@Roles('admin', 'marketing', 'ventas', 'comercial', 'jefe_comercial')
 @Controller('mailing/aprobaciones')
 export class MailingController {
   constructor(private readonly mailing: MailingService) {}

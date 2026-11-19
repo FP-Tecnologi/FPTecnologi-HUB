@@ -25,7 +25,7 @@ export class ReportesController {
     return this.areas.marketing(marcaId, desde, hasta);
   }
 
-  @Roles('admin', 'comercial', 'direccion')
+  @Roles('admin', 'comercial', 'jefe_comercial', 'direccion')
   @Get('comercial')
   comercial(@MarcaActual() marcaId: string, @Query('desde') desde?: string, @Query('hasta') hasta?: string) {
     return this.areas.comercial(marcaId, desde, hasta);

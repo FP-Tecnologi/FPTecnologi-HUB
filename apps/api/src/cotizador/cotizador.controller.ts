@@ -11,7 +11,7 @@ import type { AuthenticatedUser } from '../auth/types/authenticated-user.js';
 
 /** Dashboard: gestión de los leads del cotizador (admin y comercial de la marca). */
 @UseGuards(MarcaRolGuard)
-@Roles('admin', 'comercial')
+@Roles('admin', 'comercial', 'jefe_comercial')
 @Controller('cotizador/leads')
 export class CotizadorController {
   constructor(private readonly cotizador: CotizadorService) {}

@@ -9,7 +9,7 @@ import { MarcaActual } from '../common/decorators/marca-actual.decorator.js';
 
 /** Subida de imágenes desde el dashboard (productos, categorías, blog, landings…). Solo equipo autorizado. */
 @UseGuards(MarcaRolGuard)
-@Roles('admin', 'ventas', 'marketing', 'comercial')
+@Roles('admin', 'ventas', 'marketing', 'comercial', 'jefe_comercial')
 @Controller('uploads')
 export class UploadsController {
   constructor(private readonly uploads: UploadsService) {}

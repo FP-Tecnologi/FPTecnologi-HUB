@@ -7,7 +7,7 @@ import { MarcaActual } from '../common/decorators/marca-actual.decorator.js';
 
 /** Dashboard → Campañas → Campañas. */
 @UseGuards(MarcaRolGuard)
-@Roles('admin', 'marketing', 'comercial')
+@Roles('admin', 'marketing', 'comercial', 'jefe_comercial')
 @Controller('campanas')
 export class CampanasController {
   constructor(private readonly campanas: CampanasService) {}

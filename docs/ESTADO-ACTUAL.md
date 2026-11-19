@@ -1319,4 +1319,5 @@ Plan: [`docs/superpowers/plans/2026-10-23-cms-fimav.md`](superpowers/plans/2026-
 - Tercer modo «Comercial» en el selector (menú propio: Inicio comercial, CRM, Captación, Campañas y mailing, Material de venta; alias en el manifiesto; etiqueta «Marca: X» en cada pantalla; selector de marca de trabajo; barra móvil y ⌘K adaptados).
 - API: `GET /crm/global/oportunidades|agenda|reportes` (CRM de todas las marcas del usuario; aislamiento verificado con tests). Embudo, Oportunidades y Reportes con «Todas mis marcas», etiqueta y filtro por marca; Nueva oportunidad elige marca.
 - Embudo: Llamar/WhatsApp/Correo en la tarjeta y aviso de 7+ días sin movimiento.
-- Pendiente: probar con login real (no se verificó en navegador), enviar cotización/folleto desde la ficha, metas por vendedor, jefe comercial sin Captación/Material (roles originales).
+- Jefe comercial: acceso a leads, contactos, libro, folletos, recursos, mailing y campañas (API + menú; tickets sigue como estaba). Ficha de la oportunidad: «Enviar un folleto» por WhatsApp/correo con registro en el historial.
+- Pendiente: probar con login real (no se verificó en navegador), enviar cotización desde la ficha, metas por vendedor (requiere modelo nuevo).

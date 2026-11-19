@@ -27,7 +27,7 @@ class ActualizarFolletoDto {
 
 /** Dashboard → Web → Folletos: el equipo (comercial incluido) sube PDF y comparte su enlace. */
 @UseGuards(MarcaRolGuard)
-@Roles('admin', 'marketing', 'comercial')
+@Roles('admin', 'marketing', 'comercial', 'jefe_comercial')
 @Controller('folletos')
 export class FolletosController {
   constructor(private readonly folletos: FolletosService) {}

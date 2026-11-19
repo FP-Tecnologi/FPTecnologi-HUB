@@ -245,6 +245,43 @@ export async function pedirMotivo(): Promise<string | null> {
   return pedirTexto({ titulo: 'Marcar como perdida', etiqueta: '¿Por qué se perdió esta oportunidad?', placeholder: 'Precio, competencia, sin presupuesto, sin respuesta…', boton: 'Marcar perdida', minimo: 2 });
 }
 
+interface FolletoLista { id: string; titulo: string; url: string; activo: boolean }
+
+/**
+ * Compartir un folleto de la marca con el contacto desde la ficha: arma el mensaje con el enlace público, abre WhatsApp o el
+ * correo ya redactado y deja el envío anotado en el historial. Si el rol no puede ver folletos, no se dibuja.
+ */
+function EnviarFolleto({ o, busy, onEnviado }: { o: Detalle; busy: boolean; onEnviado: (tipo: 'WHATSAPP' | 'CORREO', texto: string) => void }) {
+  const [lista, setLista] = useState<FolletoLista[]>([]);
+  const [sel, setSel] = useState('');
+  const [copiado, setCopiado] = useState(false);
+  useEffect(() => { api.get<FolletoLista[]>('/folletos').then((l) => { const act = l.filter((f) => f.activo); setLista(act); setSel(act[0]?.id ?? ''); }).catch(() => setLista([])); }, []);
+  const f = lista.find((x) => x.id === sel);
+  if (!f) return null;
+  const nombre = (o.contacto?.nombre ?? '').split(' ')[0];
+  const mensaje = `Hola${nombre ? ` ${nombre}` : ''}, te comparto el folleto «${f.titulo}»: ${f.url}`;
+  const cel = o.contacto?.celular?.replace(/D/g, '') || '';
+  const wa = cel.length === 9 ? `51${cel}` : cel;
+  const correo = o.contacto?.email;
+  const abrir = (url: string, tipo: 'WHATSAPP' | 'CORREO') => { window.open(url, '_blank', 'noopener'); onEnviado(tipo, `Folleto «${f.titulo}» enviado por ${tipo === 'WHATSAPP' ? 'WhatsApp' : 'correo'}.`); };
+  return (
+    <div className="ax-card ax-card--flat" style={{ padding: 'var(--ax-space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
+      <div className="ax-label">Enviar un folleto</div>
+      {lista.length > 1 && (
+        <select className="ax-select" aria-label="Folleto a enviar" value={sel} onChange={(e) => setSel(e.target.value)}>
+          {lista.map((x) => <option key={x.id} value={x.id}>{x.titulo}</option>)}
+        </select>
+      )}
+      <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
+        {wa && <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" disabled={busy} onClick={() => abrir(`https://wa.me/${wa}?text=${encodeURIComponent(mensaje)}`, 'WHATSAPP')}>WhatsApp</button>}
+        {correo && <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" disabled={busy} onClick={() => abrir(`mailto:${correo}?subject=${encodeURIComponent(f.titulo)}&body=${encodeURIComponent(mensaje)}`, 'CORREO')}>Correo</button>}
+        <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={async () => { try { await navigator.clipboard.writeText(mensaje); setCopiado(true); setTimeout(() => setCopiado(false), 2000); } catch { /* sin portapapeles */ } }}>{copiado ? 'Copiado' : 'Copiar mensaje'}</button>
+      </div>
+      {!wa && !correo && <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>El contacto no tiene celular ni correo: copia el mensaje y envíalo por donde hables con el cliente.</span>}
+    </div>
+  );
+}
+
 /** Ficha de una oportunidad en un panel lateral. `onCambio` refresca la lista de quien la abrió. */
 export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClose: () => void; onCambio: () => void }) {
   const asignables = useAsignables();
@@ -296,6 +333,9 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
     correr(() => api.post<Detalle>(`/crm/oportunidades/${id}/actividades`, { tipo: act.tipo, texto: act.texto.trim(), fecha: act.fecha ? deLocal(act.fecha) : undefined, hecha: tarea ? false : undefined }), tarea ? 'Tarea agendada.' : 'Actividad registrada.')
       .then(() => setAct({ tipo: act.tipo, texto: '', fecha: '' }));
   };
+  /** Registra en el historial que se envió un folleto (WhatsApp o correo), para no perder qué se le mandó al cliente. */
+  const registrarEnvio = (tipo: 'WHATSAPP' | 'CORREO', texto: string) =>
+    correr(() => api.post<Detalle>(`/crm/oportunidades/${id}/actividades`, { tipo, texto }), 'Envío registrado en el historial.');
   const marcar = (a: Actividad) => correr(() => api.patch<Detalle>(`/crm/actividades/${a.id}`, { hecha: !a.hecha }), a.hecha ? 'Tarea reabierta.' : 'Tarea hecha.');
   const borrar = async (a: Actividad) => {
     if (await confirmar('Eliminar actividad', `¿Eliminar esta ${TIPOS[a.tipo].toLowerCase()} del historial? No se puede deshacer.`)) correr(() => api.delete<Detalle>(`/crm/actividades/${a.id}`), 'Actividad eliminada.');
@@ -388,6 +428,8 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
                 <button type="submit" className="ax-btn ax-btn--secondary ax-btn--sm" disabled={busy}><span className="ax-btn__label">{act.tipo === 'TAREA' ? 'Agendar tarea' : 'Registrar'}</span></button>
               </div>
             </form>
+
+            {o && <EnviarFolleto o={o} busy={busy} onEnviado={registrarEnvio} />}
 
             {/* Historial */}
             <div>

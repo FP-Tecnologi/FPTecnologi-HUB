@@ -11,7 +11,7 @@ import type { AuthenticatedUser } from '../auth/types/authenticated-user.js';
 
 /** Dashboard: bandeja de contactos y reclamos de la web (admin y comercial de la marca). */
 @UseGuards(MarcaRolGuard)
-@Roles('admin', 'comercial')
+@Roles('admin', 'comercial', 'jefe_comercial')
 @Controller('contacto-web')
 export class ContactoWebController {
   constructor(private readonly contactos: ContactoWebService) {}
