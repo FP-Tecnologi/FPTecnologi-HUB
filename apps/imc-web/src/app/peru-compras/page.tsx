@@ -31,7 +31,7 @@ export default function PeruCompras() {
         </div>
       </Seccion>
 
-      <section className="oscuro relative overflow-hidden bg-grafito px-5 py-20 text-white sm:py-28">
+      <section className="oscuro degradado-azul relative overflow-hidden px-5 py-20 text-white sm:py-28">
         <div className="cuadricula-claro absolute inset-0" aria-hidden />
         <Reveal dir="zoom" className="relative mx-auto max-w-4xl text-center">
           <Icono n="estrella" className="mx-auto h-10 w-10 text-naranja" />

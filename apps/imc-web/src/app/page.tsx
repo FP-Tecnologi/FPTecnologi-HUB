@@ -127,12 +127,12 @@ export default function Inicio() {
       </Seccion>
 
       {/* ---------- Perú Compras ---------- */}
-      <section className="oscuro relative overflow-hidden bg-grafito px-5 py-20 text-white sm:py-28">
+      <section className="oscuro degradado-azul relative overflow-hidden px-5 py-20 text-white sm:py-28">
         <div className="cuadricula-claro absolute inset-0" aria-hidden />
         <div className="relative mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-2">
           <div>
             <Reveal>
-              <h2 className="titulo text-4xl sm:text-5xl">Estamos en <span className="text-[#ff3b47]">Perú Compras</span></h2>
+              <h2 className="titulo text-4xl sm:text-5xl">Estamos en <span className="text-naranja">Perú Compras</span></h2>
               <div className="regla mt-5" />
             </Reveal>
             <ul className="mt-10 space-y-7">
