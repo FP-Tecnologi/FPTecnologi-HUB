@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState, type CSSProperties } from "react";
 import Enlace from "./Enlace";
 import { Chevrones, Icono } from "./ui";
+import { MARCAS } from "@/lib/datos";
 
 const DURACION = 7000;
 
@@ -128,7 +129,7 @@ export default function Hero() {
         <div className="hex flota absolute bottom-24 left-[44%] h-14 w-14 bg-naranja/20" style={{ ["--t" as string]: "9s", ["--dl" as string]: "-5s" } as CSSProperties} />
       </div>
 
-      <div className="relative mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 px-5 pb-32 pt-32 lg:grid-cols-[1.05fr_1fr] lg:pt-28">
+      <div className="relative mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 px-5 pb-8 pt-32 lg:grid-cols-[1.05fr_1fr] lg:pt-28">
         <div key={`t${i}`} aria-live="polite">
           <span className="etiqueta entra" style={d(0)}><Icono n="estrella" className="h-4 w-4" /> {s.etiqueta}</span>
           <h1 className="titulo claro entra mt-6 text-4xl sm:text-6xl xl:text-7xl" style={d(120)}>
@@ -143,24 +144,21 @@ export default function Hero() {
         <div key={`v${i}`} className="entra hidden lg:block" style={d(200)}><Visual i={i} /></div>
       </div>
 
-      {/* Controles */}
-      <div className="absolute inset-x-0 bottom-0 z-30">
-        <div className="mx-auto flex max-w-6xl items-center gap-6 px-5 pb-8">
-          <span className="hidden text-sm font-bold tabular-nums text-white/70 sm:block">0{i + 1} <span className="text-white/35">/ 0{SLIDES.length}</span></span>
-          <div className="flex flex-1 gap-3" role="tablist" aria-label="Diapositivas">
-            {SLIDES.map((_, k) => (
-              <button key={k} role="tab" aria-selected={k === i} aria-label={`Diapositiva ${k + 1}`} onClick={() => { inicial.current = false; setI(k); }} className="group h-6 flex-1 max-w-[7rem]">
-                <span className="relative block h-1 overflow-hidden bg-white/25 transition-all group-hover:h-1.5">
-                  {k === i && <span key={i} onAnimationEnd={() => mover(1)} className="absolute inset-y-0 left-0 bg-naranja" style={{ animation: `progreso ${DURACION}ms linear forwards`, animationPlayState: pausa ? "paused" : "running" }} />}
-                  {k < i && <span className="absolute inset-0 bg-white/60" />}
-                </span>
-              </button>
-            ))}
-          </div>
-          <Chevrones claro className="hidden opacity-60 md:block" />
+      {/* Parte baja: flechas y marcas dentro del hero */}
+      <div className="relative z-30">
+        <span key={i} aria-hidden onAnimationEnd={() => mover(1)} className="pointer-events-none absolute h-px w-px opacity-0" style={{ animation: `progreso ${DURACION}ms linear forwards`, animationPlayState: pausa ? "paused" : "running" }} />
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-5 pb-5">
+          <Chevrones claro className="opacity-60" />
           <div className="flex gap-2">
             <button onClick={() => mover(-1)} aria-label="Anterior" className="flex h-11 w-11 items-center justify-center border border-white/30 text-white transition hover:bg-naranja hover:text-tinta"><Icono n="flecha" className="h-5 w-5 rotate-180" /></button>
             <button onClick={() => mover(1)} aria-label="Siguiente" className="flex h-11 w-11 items-center justify-center border border-white/30 text-white transition hover:bg-naranja hover:text-tinta"><Icono n="flecha" className="h-5 w-5" /></button>
+          </div>
+        </div>
+        <div className="marquesina-caja overflow-hidden border-t border-white/10 bg-[#07132e]/70 py-5 backdrop-blur" aria-label="Marcas con las que trabajamos">
+          <div className="marquesina flex items-center gap-20 whitespace-nowrap">
+            {[...MARCAS, ...MARCAS].map((m, k) => (
+              <img key={k} src={`/marcas/${m.f}.svg`} alt={m.n} className="h-9 w-auto max-w-[9rem] opacity-60 brightness-0 invert transition hover:opacity-100" />
+            ))}
           </div>
         </div>
       </div>

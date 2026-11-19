@@ -4,7 +4,7 @@ import Reveal from "@/components/Reveal";
 import Contador from "@/components/Contador";
 import Hero from "@/components/Hero";
 import { Cta, Hex, Icono, Seccion, Titulo } from "@/components/ui";
-import { MARCAS, MOTIVOS, PERU_COMPRAS, PRODUCTOS, PROYECTOS, SERVICIOS } from "@/lib/datos";
+import { MOTIVOS, PERU_COMPRAS, PRODUCTOS, PROYECTOS, SERVICIOS } from "@/lib/datos";
 
 const d = (ms: number) => ({ ["--d" as string]: `${ms}ms` }) as CSSProperties;
 
@@ -13,30 +13,37 @@ export default function Inicio() {
     <>
       <Hero />
 
-      {/* ---------- Marcas ---------- */}
-      <section className="marquesina-caja overflow-hidden bg-[#0a1a3d] py-8 text-white" aria-label="Marcas con las que trabajamos">
-        <p className="mb-5 text-center text-xs font-bold uppercase tracking-[.25em] text-white/50">Trabajamos con las marcas líderes</p>
-        <div className="marquesina flex items-center gap-20 whitespace-nowrap">
-          {[...MARCAS, ...MARCAS].map((m, i) => (
-            <img key={i} src={`/marcas/${m.f}.svg`} alt={m.n} className="h-10 w-auto max-w-[10rem] opacity-60 brightness-0 invert transition hover:opacity-100" />
-          ))}
-        </div>
-      </section>
-
-      {/* ---------- Cifras ---------- */}
-      <Seccion className="bg-white !py-16 sm:!py-20">
-        <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
-          {[
-            [4, "+", "años de experiencia"],
-            [5, "", "líneas de tecnología"],
-            [2, "", "servicios de proyectos"],
-            [6, "", "categorías de productos"],
-          ].map(([n, p, t], i) => (
-            <Reveal key={t as string} delay={i * 110} className="text-center">
-              <div className="titulo text-5xl text-azul-2 sm:text-6xl"><span className="text-naranja">{p === "+" ? "+" : ""}</span><Contador hasta={n as number} />{p === "%" ? "%" : ""}</div>
-              <p className="mt-2 text-sm font-semibold uppercase tracking-widest text-grafito/60">{t}</p>
-            </Reveal>
-          ))}
+      {/* ---------- Sobre nosotros ---------- */}
+      <Seccion className="bg-white">
+        <div className="grid items-center gap-14 lg:grid-cols-[.85fr_1.15fr]">
+          <Reveal dir="izq">
+            <div className="relative mx-auto max-w-sm">
+              <div className="hex absolute inset-0 scale-110 bg-naranja-claro" />
+              <div className="hex flota absolute -bottom-4 -left-6 h-20 w-20 bg-azul-2" style={{ ["--t" as string]: "8s", ["--rot" as string]: "0deg" } as CSSProperties} />
+              <img src="/img/hombre.webp" alt="Profesional de Company IMC" className="relative mx-auto h-[26rem] w-auto object-contain drop-shadow-xl" />
+            </div>
+          </Reveal>
+          <div>
+            <Reveal><Titulo a="Sobre" b="nosotros" /></Reveal>
+            <Reveal delay={100}><p className="mt-8 text-2xl font-semibold italic leading-snug text-tinta">“Nos mantenemos a la vanguardia de la tecnología para ofrecer soluciones de última generación.”</p></Reveal>
+            <Reveal delay={180}><p className="mt-5 leading-relaxed text-grafito/85">En Company IMC creemos en el poder de la tecnología para transformar negocios y mejorar vidas. Nos hemos consolidado como un socio estratégico para empresas de diversos sectores, con soluciones integrales que impulsan el crecimiento y la eficiencia.</p></Reveal>
+            <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {[
+                [4, "+", "años de experiencia"],
+                [5, "", "líneas de tecnología"],
+                [2, "", "servicios de proyectos"],
+                [6, "", "categorías de productos"],
+              ].map(([n, p, t], i) => (
+                <Reveal key={t as string} delay={i * 100}>
+                  <div className="tarjeta h-full p-4 text-center">
+                    <div className="titulo text-4xl text-azul-2"><span className="text-naranja">{p}</span><Contador hasta={n as number} /></div>
+                    <p className="mt-1 text-[11px] font-semibold uppercase leading-tight tracking-wider text-grafito/60">{t}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
+            <Reveal delay={300}><Enlace href="/nosotros/" className="btn btn-azul mt-8">Conócenos <Icono n="flecha" className="h-5 w-5" /></Enlace></Reveal>
+          </div>
         </div>
       </Seccion>
 
