@@ -3203,6 +3203,35 @@
     .ax-table:has(thead th:nth-child(7)) {
       min-width: 760px;
     }
+    /* Mobile reading: denser cells, first column pinned while swiping, and a
+       right-edge fade so it is obvious the table continues. */
+    .ax-table-wrap {
+      scroll-snap-type: x proximity;
+      border-radius: var(--ax-radius-md, 10px);
+      background:
+        linear-gradient(to right, var(--ax-surface-solid, #fff) 30%, transparent) left center / 24px 100% no-repeat local,
+        linear-gradient(to left, var(--ax-surface-solid, #fff) 30%, transparent) right center / 24px 100% no-repeat local,
+        radial-gradient(farthest-side at 0 50%, rgba(0, 0, 0, 0.16), transparent) left center / 10px 100% no-repeat scroll,
+        radial-gradient(farthest-side at 100% 50%, rgba(0, 0, 0, 0.16), transparent) right center / 10px 100% no-repeat scroll;
+    }
+    .ax-table__th,
+    .ax-table__td {
+      padding: var(--ax-space-2) var(--ax-space-3);
+    }
+    .ax-table {
+      font-size: var(--ax-text-xs, 0.8125rem);
+    }
+    .ax-table:has(thead th:nth-child(4)) .ax-table__td:first-child,
+    .ax-table:has(thead th:nth-child(4)) .ax-table__th:first-child {
+      position: sticky;
+      inset-inline-start: 0;
+      z-index: 1;
+      background: var(--ax-surface-solid, #fff);
+      box-shadow: 1px 0 0 var(--ax-border);
+    }
+    .ax-table:has(thead th:nth-child(4)) .ax-table__th:first-child {
+      background: var(--ax-surface-subtle);
+    }
   }
   .ax-table {
     width: 100%;
