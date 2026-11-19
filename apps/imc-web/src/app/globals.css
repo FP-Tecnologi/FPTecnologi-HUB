@@ -103,8 +103,15 @@ body { background: #fff; color: var(--color-grafito); font-family: var(--font-sa
 .cortina[data-e="reposo"] { visibility: hidden; pointer-events: none; }
 .capa { position: absolute; inset: 0; will-change: transform; }
 .capa-1 { background: var(--color-naranja); }
-.capa-2 { background: var(--color-azul-2); display: grid; place-items: center; }
-.cortina .sello { background: #fff; padding: 1.5rem 2rem; box-shadow: 0 30px 60px -20px rgba(0,0,0,.4); animation: latido 1.6s ease-in-out infinite; }
+.capa-2 { background: radial-gradient(70% 90% at 85% 0%, #3b6fd4 0%, transparent 55%), linear-gradient(135deg, #0a1a3d, #2b54ac); display: grid; place-items: center; overflow: hidden; }
+@keyframes malla-mueve { to { background-position: 26px 26px; } }
+@keyframes logo-entra { 0% { opacity: 0; transform: scale(.7); filter: blur(8px); } 60% { opacity: 1; filter: blur(0); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes logo-brilla { 0%,100% { filter: drop-shadow(0 0 0 rgba(255,170,7,0)); } 50% { filter: drop-shadow(0 0 22px rgba(255,170,7,.55)); } }
+@keyframes parpadeo { 0%,100% { opacity: .35; } 50% { opacity: 1; } }
+.carga-malla { animation: malla-mueve 2.5s linear infinite; }
+.logo-carga { animation: logo-entra .9s var(--ease-salida) both, logo-brilla 2.2s 1s ease-in-out infinite; }
+.carga-barra { transform-origin: left; animation: trazo 1.5s .2s var(--ease-salida) both; }
+.carga-texto { animation: parpadeo 1.2s ease-in-out infinite; }
 @keyframes cubrir { from { transform: translateY(100%); } to { transform: translateY(0); } }
 @keyframes revelar { from { transform: translateY(0); } to { transform: translateY(-100%); } }
 .cortina[data-e="inicio"] .capa { transform: translateY(0); }
@@ -124,6 +131,5 @@ body { background: #fff; color: var(--color-grafito); font-family: var(--font-sa
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .rev { opacity: 1; transform: none; transition: none; }
-  .flota, .gira, .latido, .marquesina, .entra, .chev path, .cortina .sello { animation: none; }
-  .cortina { display: none; }
+  .flota, .gira, .latido, .marquesina, .entra, .chev path,   .cortina { display: none; }
 }

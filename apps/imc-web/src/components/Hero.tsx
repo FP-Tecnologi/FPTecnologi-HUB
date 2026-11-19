@@ -2,7 +2,7 @@
 
 import { useCallback, useRef, useState, type CSSProperties } from "react";
 import Enlace from "./Enlace";
-import { Chevrones, Icono } from "./ui";
+import { Icono } from "./ui";
 import { MARCAS } from "@/lib/datos";
 
 const DURACION = 7000;
@@ -38,7 +38,7 @@ const SLIDES: Slide[] = [
   {
     etiqueta: "Equipos de las mejores marcas",
     a: "Tecnología original,",
-    b: "con garantía y soporte",
+    b: "con garantía y soporte técnico",
     texto: "Computadoras, monitores, impresoras, proyectores, servidores y equipos de red de HP, Dell, Lenovo, Epson, Cisco y más, listos para tu operación.",
     fondo: "/img/telefonia.webp",
     btn1: ["Ver productos", "/productos/"],
@@ -129,13 +129,13 @@ export default function Hero() {
         <div className="hex flota absolute bottom-24 left-[44%] h-14 w-14 bg-naranja/20" style={{ ["--t" as string]: "9s", ["--dl" as string]: "-5s" } as CSSProperties} />
       </div>
 
-      <div className="relative mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 px-5 pb-8 pt-32 lg:grid-cols-[1.05fr_1fr] lg:pt-28">
+      <div className="relative mx-auto grid w-full max-w-6xl flex-1 items-center gap-10 px-5 pb-8 pt-32 lg:grid-cols-[1.25fr_.9fr] lg:pt-28">
         <div key={`t${i}`} aria-live="polite">
           <span className="etiqueta entra" style={d(0)}><Icono n="estrella" className="h-4 w-4" /> {s.etiqueta}</span>
-          <h1 className="titulo claro entra mt-6 text-4xl sm:text-6xl xl:text-7xl" style={d(120)}>
+          <h1 className="titulo claro entra mt-6 text-3xl sm:text-4xl xl:text-[2.6rem] lg:min-h-[2.2em]" style={d(120)}>
             {s.a} <b>{s.b}</b>
           </h1>
-          <p className="entra mt-6 max-w-xl text-lg leading-relaxed text-white/80" style={d(240)}>{s.texto}</p>
+          <p className="entra mt-6 max-w-2xl text-lg leading-relaxed text-white/80" style={d(240)}>{s.texto}</p>
           <div className="entra mt-9 flex flex-wrap gap-4" style={d(360)}>
             <Enlace href={s.btn1[1]} className="btn btn-naranja">{s.btn1[0]} <Icono n="flecha" className="h-5 w-5" /></Enlace>
             <Enlace href={s.btn2[1]} className="btn btn-linea-claro">{s.btn2[0]}</Enlace>
@@ -147,17 +147,10 @@ export default function Hero() {
       {/* Parte baja: flechas y marcas dentro del hero */}
       <div className="relative z-30">
         <span key={i} aria-hidden onAnimationEnd={() => mover(1)} className="pointer-events-none absolute h-px w-px opacity-0" style={{ animation: `progreso ${DURACION}ms linear forwards`, animationPlayState: pausa ? "paused" : "running" }} />
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-5 pb-5">
-          <Chevrones claro className="opacity-60" />
-          <div className="flex gap-2">
-            <button onClick={() => mover(-1)} aria-label="Anterior" className="flex h-11 w-11 items-center justify-center border border-white/30 text-white transition hover:bg-naranja hover:text-tinta"><Icono n="flecha" className="h-5 w-5 rotate-180" /></button>
-            <button onClick={() => mover(1)} aria-label="Siguiente" className="flex h-11 w-11 items-center justify-center border border-white/30 text-white transition hover:bg-naranja hover:text-tinta"><Icono n="flecha" className="h-5 w-5" /></button>
-          </div>
-        </div>
-        <div className="marquesina-caja overflow-hidden border-t border-white/10 bg-[#07132e]/70 py-5 backdrop-blur" aria-label="Marcas con las que trabajamos">
-          <div className="marquesina flex items-center gap-20 whitespace-nowrap">
+        <div className="marquesina-caja overflow-hidden border-t border-white/10 bg-[#07132e]/70 py-7 backdrop-blur" aria-label="Marcas con las que trabajamos">
+          <div className="marquesina flex items-center gap-24 whitespace-nowrap">
             {[...MARCAS, ...MARCAS].map((m, k) => (
-              <img key={k} src={`/marcas/${m.f}.svg`} alt={m.n} className="h-9 w-auto max-w-[9rem] opacity-60 brightness-0 invert transition hover:opacity-100" />
+              <img key={k} src={`/marcas/${m.f}.svg`} alt={m.n} className="h-14 w-auto max-w-[13rem] opacity-70 brightness-0 invert transition hover:opacity-100" />
             ))}
           </div>
         </div>
