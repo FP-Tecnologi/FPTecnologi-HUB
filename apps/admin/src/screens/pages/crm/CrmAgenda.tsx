@@ -26,7 +26,7 @@ type Filtro = 'todo' | 'tarea' | 'accion';
 const hoyFin = () => { const d = new Date(); d.setHours(23, 59, 59, 999); return d.getTime(); };
 const clave = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const DIAS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-const hora = (iso: string) => new Date(iso).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+const hora = (iso: string) => new Date(iso).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: false });
 const diaCorto = (iso: string) => new Date(iso).toLocaleDateString('es-PE', { day: 'numeric', month: 'short' });
 
 const ESTILOS = `
@@ -42,10 +42,10 @@ const ESTILOS = `
 .ag-grupo__tit{display:flex;align-items:center;gap:8px;margin:0 0 var(--ax-space-2);font-size:var(--ax-text-sm);font-weight:var(--ax-weight-semibold);color:var(--c,var(--ax-text-muted));text-transform:capitalize}
 .ag-grupo__n{min-width:22px;padding:0 7px;border-radius:999px;text-align:center;font-size:var(--ax-text-xs);background:color-mix(in srgb,var(--c,var(--ax-text-muted)) 16%,transparent)}
 .ag-lista{display:flex;flex-direction:column;gap:var(--ax-space-2);margin:0;padding:0;list-style:none}
-.ag-fila{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:var(--ax-space-3);align-items:center;padding:var(--ax-space-3);border-radius:var(--ax-radius-md);border:1px solid var(--ax-border);border-inline-start:3px solid var(--c,var(--ax-border));background:var(--ax-surface-raised,var(--ax-surface));transition:box-shadow .2s}
+.ag-fila{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:var(--ax-space-3);align-items:center;padding:var(--ax-space-3);border-radius:var(--ax-radius-md);border:1px solid var(--ax-border);background:var(--ax-surface-raised,var(--ax-surface));transition:box-shadow .2s}
 .ag-fila:hover{box-shadow:var(--ax-shadow-sm,0 1px 6px rgba(0,0,0,.08))}
 .ag-hora{display:flex;flex-direction:column;align-items:flex-start;line-height:1.25}
-.ag-hora b{font-size:var(--ax-text-sm);color:var(--ax-text-strong);font-variant-numeric:tabular-nums}
+.ag-hora b{white-space:nowrap;font-size:var(--ax-text-sm);color:var(--ax-text-strong);font-variant-numeric:tabular-nums}
 .ag-hora span{font-size:var(--ax-text-xs);color:var(--ax-text-subtle)}
 .ag-cuerpo{display:flex;flex-direction:column;gap:4px;min-width:0}
 .ag-tit{font-weight:var(--ax-weight-semibold);color:var(--ax-text-strong);line-height:1.3;overflow-wrap:anywhere}

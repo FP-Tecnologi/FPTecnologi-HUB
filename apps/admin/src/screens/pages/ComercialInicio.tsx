@@ -28,11 +28,11 @@ const ATAJOS: { href: string; icon: string; titulo: string; detalle: string }[] 
 
 const ESTILOS = `
 .ci-lista{display:flex;flex-direction:column;gap:var(--ax-space-2);margin:0;padding:0;list-style:none}
-.ci-fila{all:unset;box-sizing:border-box;width:100%;display:grid;grid-template-columns:56px minmax(0,1fr);gap:var(--ax-space-3);align-items:center;padding:var(--ax-space-3);border-radius:var(--ax-radius-md);border:1px solid var(--ax-border);border-inline-start:3px solid var(--c,var(--ax-border));background:var(--ax-surface-raised,var(--ax-surface));cursor:pointer;transition:box-shadow .2s}
+.ci-fila{all:unset;box-sizing:border-box;width:100%;display:grid;grid-template-columns:56px minmax(0,1fr);gap:var(--ax-space-3);align-items:center;padding:var(--ax-space-3);border-radius:var(--ax-radius-md);border:1px solid var(--ax-border);background:var(--ax-surface-raised,var(--ax-surface));cursor:pointer;transition:box-shadow .2s}
 .ci-fila:hover{box-shadow:var(--ax-shadow-sm,0 1px 6px rgba(0,0,0,.08))}
 .ci-fila:focus-visible{outline:2px solid var(--ax-focus-ring,var(--ax-accent));outline-offset:2px}
 .ci-hora{display:flex;flex-direction:column;line-height:1.25}
-.ci-hora b{font-size:var(--ax-text-sm);color:var(--ax-text-strong);font-variant-numeric:tabular-nums}
+.ci-hora b{white-space:nowrap;font-size:var(--ax-text-sm);color:var(--ax-text-strong);font-variant-numeric:tabular-nums}
 .ci-hora span{font-size:var(--ax-text-xs);color:var(--ax-text-subtle)}
 .ci-cuerpo{display:flex;flex-direction:column;gap:4px;min-width:0}
 .ci-tit{font-weight:var(--ax-weight-semibold);color:var(--ax-text-strong);line-height:1.3;overflow-wrap:anywhere}
@@ -94,7 +94,7 @@ export function ComercialInicio() {
               {pendientes.map((i) => (
                 <li key={i.clave}>
                   <button type="button" className="ci-fila" style={{ ['--c' as string]: i.vencida ? 'var(--ax-danger-500)' : i.tarea ? 'var(--ax-viz-amber)' : 'var(--ax-viz-emerald)' }} onClick={() => abrir(i.marcaId, i.opId)}>
-                    <span className="ci-hora"><b>{new Date(i.fecha).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' })}</b><span>{new Date(i.fecha).toLocaleDateString('es-PE', { day: 'numeric', month: 'short' })}</span></span>
+                    <span className="ci-hora"><b>{new Date(i.fecha).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: false })}</b><span>{new Date(i.fecha).toLocaleDateString('es-PE', { day: 'numeric', month: 'short' })}</span></span>
                     <span className="ci-cuerpo">
                       <span className="ci-tit">{i.titulo}</span>
                       <span className="ci-meta">
