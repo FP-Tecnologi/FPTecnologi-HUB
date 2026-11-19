@@ -43,9 +43,9 @@ export default function Productos() {
           <div>
             <Reveal><Titulo a="Marcas" b="líderes" claro /></Reveal>
             <Reveal delay={100}><p className="mt-6 max-w-lg text-lg text-white/85">Alianzas con fabricantes reconocidos que nos permiten ofrecer productos originales, garantía y valor agregado.</p></Reveal>
-            <div className="mt-8 flex flex-wrap gap-3">
+            <div className="mt-8 grid grid-cols-3 gap-3 sm:grid-cols-5">
               {MARCAS.map((m, i) => (
-                <Reveal key={m} delay={i * 50}><span className="inline-block border border-white/30 bg-white/10 px-5 py-2 font-bold backdrop-blur transition hover:-translate-y-1 hover:bg-naranja hover:text-tinta">{m}</span></Reveal>
+                <Reveal key={m.f} delay={i * 50}><div className="flex h-16 items-center justify-center border border-white/25 bg-white/10 p-3 backdrop-blur transition hover:-translate-y-1 hover:bg-white/20"><img src={`/marcas/${m.f}.svg`} alt={m.n} className="max-h-8 w-auto max-w-full brightness-0 invert" /></div></Reveal>
               ))}
             </div>
           </div>

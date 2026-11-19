@@ -61,6 +61,9 @@ body { background: #fff; color: var(--color-grafito); font-family: var(--font-sa
 .rev[data-dir="zoom"] { transform: scale(.88); }
 .rev.visto { opacity: 1; transform: none; }
 
+@keyframes progreso { from { width: 0; } to { width: 100%; } }
+@keyframes zoom-lento { from { transform: scale(1); } to { transform: scale(1.12); } }
+
 /* ---------- Conectores de pasos ---------- */
 @keyframes marcha-h { to { background-position-x: 22px; } }
 @keyframes marcha-v { to { background-position-y: 22px; } }

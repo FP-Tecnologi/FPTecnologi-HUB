@@ -26,8 +26,8 @@ export default function Cabecera() {
     <>
       <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${scroll ? "bg-white/85 py-2 shadow-[0_10px_30px_-18px_rgba(23,46,94,.5)] backdrop-blur-xl" : "bg-transparent py-4"}`}>
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5">
-          <Enlace href="/" aria-label="Company IMC, inicio" className=" bg-white/90 px-3 py-1.5 transition hover:scale-105">
-            <img src="/logo.svg" alt="Company IMC E.I.R.L." className={`w-auto transition-all duration-500 ${scroll ? "h-9" : "h-11"}`} />
+          <Enlace href="/" aria-label="Company IMC, inicio" className="transition hover:scale-105">
+            <img src={scroll ? "/logo.svg" : "/logo-blanco.svg"} alt="Company IMC E.I.R.L." className={`w-auto transition-all duration-500 ${scroll ? "h-9" : "h-12"}`} />
           </Enlace>
           <nav className="hidden items-center gap-1 bg-white/90 p-1.5 shadow-sm backdrop-blur lg:flex" aria-label="Principal">
             {NAV.map(([t, h]) => (

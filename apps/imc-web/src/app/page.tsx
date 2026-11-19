@@ -2,7 +2,8 @@ import type { CSSProperties } from "react";
 import Enlace from "@/components/Enlace";
 import Reveal from "@/components/Reveal";
 import Contador from "@/components/Contador";
-import { Chevrones, Cta, Fondo, Hex, Icono, Seccion, Titulo } from "@/components/ui";
+import Hero from "@/components/Hero";
+import { Cta, Hex, Icono, Seccion, Titulo } from "@/components/ui";
 import { MARCAS, MOTIVOS, PERU_COMPRAS, PRODUCTOS, PROYECTOS, SERVICIOS } from "@/lib/datos";
 
 const d = (ms: number) => ({ ["--d" as string]: `${ms}ms` }) as CSSProperties;
@@ -10,51 +11,14 @@ const d = (ms: number) => ({ ["--d" as string]: `${ms}ms` }) as CSSProperties;
 export default function Inicio() {
   return (
     <>
-      {/* ---------- Portada ---------- */}
-      <section className="malla relative overflow-hidden px-5 pb-24 pt-36 sm:pt-44">
-        <div className="cuadricula absolute inset-0" aria-hidden />
-        <Fondo />
-        <div className="relative mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-[1.05fr_1fr]">
-          <div>
-            <span className="etiqueta entra" style={d(1800)}><Icono n="estrella" className="h-4 w-4" /> Proveedor en Perú Compras</span>
-            <h1 className="titulo entra mt-6 text-5xl sm:text-6xl xl:text-7xl" style={d(1900)}>
-              Soluciones tecnológicas para el <b>crecimiento empresarial</b>
-            </h1>
-            <p className="entra mt-7 max-w-xl text-lg leading-relaxed text-grafito/80" style={d(2000)}>
-              No nos limitamos a vender productos: nos convertimos en tu socio estratégico. Equipos de cómputo, redes, servidores, cableado y soporte, de principio a fin.
-            </p>
-            <div className="entra mt-9 flex flex-wrap gap-4" style={d(2100)}>
-              <Enlace href="/contacto/" className="btn btn-naranja">Solicitar cotización <Icono n="flecha" className="h-5 w-5" /></Enlace>
-              <Enlace href="/servicios/" className="btn btn-linea">Ver servicios</Enlace>
-            </div>
-            <Chevrones className="entra mt-12" />
-          </div>
-
-          <div className="entra relative mx-auto aspect-square w-full max-w-[34rem]" style={d(2000)}>
-            <div className="gira absolute inset-0 border-2 border-dashed border-azul-2/30" style={{ ["--t" as string]: "60s" } as CSSProperties} />
-            <div className="hex absolute inset-[6%] bg-azul-2" />
-            <div className="hex absolute inset-[10%] bg-white" />
-            <div className="absolute inset-[6%] bg-naranja" style={{ clipPath: "polygon(7% 75%, 50% 100%, 93% 75%, 93% 68%, 50% 90%, 7% 68%)" }} />
-            <img src="/img/laptop.webp" alt="Asesora de Company IMC presentando una laptop" className="absolute inset-x-[6%] bottom-[7%] top-[2%] h-[91%] w-[88%] object-contain object-bottom drop-shadow-2xl" />
-            <div className="flota tarjeta absolute -left-2 top-[18%] flex items-center gap-3 px-4 py-3" style={{ ["--t" as string]: "6s" } as CSSProperties}>
-              <span className="hex flex h-11 w-11 items-center justify-center bg-naranja"><Icono n="check" className="h-5 w-5 text-tinta" /></span>
-              <span className="text-sm font-bold leading-tight text-tinta">+4 años<br /><span className="font-medium text-grafito/70">de experiencia</span></span>
-            </div>
-            <div className="flota tarjeta absolute -right-2 bottom-[22%] flex items-center gap-3 px-4 py-3" style={{ ["--t" as string]: "7s", ["--dl" as string]: "-3s" } as CSSProperties}>
-              <span className="hex flex h-11 w-11 items-center justify-center bg-azul-2"><Icono n="equipo" className="h-5 w-5 text-white" /></span>
-              <span className="text-sm font-bold leading-tight text-tinta">Soporte técnico<br /><span className="font-medium text-grafito/70">continuo</span></span>
-            </div>
-          </div>
-        </div>
-      </section>
+      <Hero />
 
       {/* ---------- Marcas ---------- */}
-      <section className="marquesina-caja overflow-hidden bg-azul-osc py-6 text-white" aria-label="Marcas con las que trabajamos">
-        <div className="marquesina flex gap-14 whitespace-nowrap">
+      <section className="marquesina-caja overflow-hidden bg-[#0a1a3d] py-8 text-white" aria-label="Marcas con las que trabajamos">
+        <p className="mb-5 text-center text-xs font-bold uppercase tracking-[.25em] text-white/50">Trabajamos con las marcas líderes</p>
+        <div className="marquesina flex items-center gap-20 whitespace-nowrap">
           {[...MARCAS, ...MARCAS].map((m, i) => (
-            <span key={i} className="flex items-center gap-14 text-2xl font-extrabold tracking-tight text-white/85">
-              {m}<span className="hex h-3 w-3 bg-naranja" />
-            </span>
+            <img key={i} src={`/marcas/${m.f}.svg`} alt={m.n} className="h-10 w-auto max-w-[10rem] opacity-60 brightness-0 invert transition hover:opacity-100" />
           ))}
         </div>
       </section>
@@ -150,7 +114,9 @@ export default function Inicio() {
           <Reveal dir="der">
             <div className="relative">
               <div className="absolute -inset-4 rotate-3 bg-naranja/90" aria-hidden />
-              <img src="/img/perucompras.webp" alt="Sede de Perú Compras" className="relative aspect-[4/3] w-full object-cover shadow-2xl" />
+              <img src="/img/perucompras.webp" alt="Palacio de Gobierno, Lima" className="relative aspect-[4/3] w-full object-cover shadow-2xl" />
+              <div className="absolute bottom-5 left-5 w-44 bg-white p-3 shadow-xl"><img src="/img/perucompras-logo.webp" alt="Perú Compras" className="h-auto w-full" /></div>
+              <p className="relative mt-7 text-right text-[11px] text-white/50">Foto: Wasiwatana, CC BY-SA 4.0 (Wikimedia Commons)</p>
             </div>
           </Reveal>
         </div>

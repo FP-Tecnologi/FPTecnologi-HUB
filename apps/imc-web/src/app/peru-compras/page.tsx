@@ -25,7 +25,9 @@ export default function PeruCompras() {
           <Reveal dir="der">
             <div className="relative">
               <div className="absolute -inset-4 -rotate-3 bg-naranja/85" aria-hidden />
-              <img src="/img/perucompras.webp" alt="Sede de Perú Compras" className="relative aspect-[4/3] w-full object-cover shadow-2xl" />
+              <img src="/img/perucompras.webp" alt="Palacio de Gobierno, Lima" className="relative aspect-[4/3] w-full object-cover shadow-2xl" />
+              <div className="absolute bottom-5 left-5 w-44 bg-white p-3 shadow-xl"><img src="/img/perucompras-logo.webp" alt="Perú Compras" className="h-auto w-full" /></div>
+              <p className="relative mt-7 text-right text-[11px] text-grafito/50">Foto: Wasiwatana, CC BY-SA 4.0 (Wikimedia Commons)</p>
             </div>
           </Reveal>
         </div>

@@ -37,7 +37,18 @@ export const PRODUCTOS = [
   { t: "Proyectores", img: "/img/proyector.webp" },
 ] as const;
 
-export const MARCAS = ["HP", "Dell", "Lenovo", "Microsoft", "Epson", "Hewlett Packard Enterprise", "Intel", "Cisco", "Fortinet", "Axis"];
+export const MARCAS = [
+  { n: "HP", f: "hp" },
+  { n: "Dell", f: "dell" },
+  { n: "Lenovo", f: "lenovo" },
+  { n: "Microsoft", f: "microsoft" },
+  { n: "Epson", f: "epson" },
+  { n: "Hewlett Packard Enterprise", f: "hpe" },
+  { n: "Intel", f: "intel" },
+  { n: "Cisco", f: "cisco" },
+  { n: "Fortinet", f: "fortinet" },
+  { n: "Axis", f: "axis" },
+];
 
 export const VALORES = [
   { n: "megafono", t: "Equipo experto", d: "Contamos con un equipo de profesionales altamente capacitados y con amplia experiencia en el sector." },
