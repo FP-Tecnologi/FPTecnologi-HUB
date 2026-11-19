@@ -52,7 +52,7 @@ export default function Servicios() {
             </Reveal>
           ))}
           <Reveal delay={450}>
-            <article className="degradado-azul flex h-full flex-col justify-between p-8 text-white">
+            <article className="degradado-azul puntos-claro flex h-full flex-col justify-between p-8 text-white">
               <h3 className="text-2xl font-extrabold leading-tight">¿No ves lo que buscas? Lo conseguimos.</h3>
               <Enlace href="/contacto/" className="btn btn-naranja mt-6 self-start">Escríbenos <Icono n="flecha" className="h-5 w-5" /></Enlace>
             </article>

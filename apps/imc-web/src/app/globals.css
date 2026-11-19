@@ -90,6 +90,8 @@ body { background: #fff; color: var(--color-grafito); font-family: var(--font-sa
 .cuadricula { background-image: radial-gradient(rgba(43,84,172,.16) 1.5px, transparent 1.5px); background-size: 26px 26px; }
 .cuadricula-claro { background-image: radial-gradient(rgba(255,255,255,.14) 1.5px, transparent 1.5px); background-size: 26px 26px; }
 .malla { background: radial-gradient(60% 50% at 85% 10%, rgba(255,170,7,.22), transparent 60%), radial-gradient(55% 55% at 5% 95%, rgba(43,84,172,.22), transparent 60%), #fff; }
+.puntos-claro { background-image: radial-gradient(rgba(255,255,255,.14) 1.5px, transparent 1.5px); background-size: 22px 22px; }
+.degradado-azul.puntos-claro { background: radial-gradient(rgba(255,255,255,.16) 1.5px, transparent 1.5px) 0 0 / 22px 22px, radial-gradient(70% 90% at 90% 0%, #3b6fd4 0%, transparent 55%), linear-gradient(135deg, #172e5e, #2b54ac); }
 .degradado-azul { background: radial-gradient(70% 90% at 90% 0%, #3b6fd4 0%, transparent 55%), linear-gradient(135deg, #172e5e, #2b54ac); }
 
 /* ---------- Cortina de página (entrada y salida) ---------- */
