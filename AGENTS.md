@@ -17,7 +17,7 @@ desde **un único dashboard**. Rubro: soluciones/dispositivos TI (ecommerce con 
 3. **Pide y lee por archivo/carpeta concretos** (`apps/kelqa-web/src/lib/lineas.ts`), no «todo el proyecto». No abras PDF, HTML generados, `public/`, `node_modules` ni `graphify-out/graph.json`.
 4. **Sesiones cortas y enfocadas**: una tarea por sesión; lo importante queda en git, en `docs/` y en la memoria del proyecto.
 5. Detalle por tema (léelo solo si la tarea lo pide): API y stack → [`docs/API-MODULOS.md`](docs/API-MODULOS.md); despliegue → [`docs/DESPLIEGUE-CPANEL.md`](docs/DESPLIEGUE-CPANEL.md);
-   CDN → [`docs/CDN-CLOUDFLARE.md`](docs/CDN-CLOUDFLARE.md); pendientes → [`docs/PENDIENTES.md`](docs/PENDIENTES.md); negocio/plan (congelados) →
+   CDN → [`docs/CDN-CLOUDFLARE.md`](docs/CDN-CLOUDFLARE.md); diseño por marca (colores, fuentes, botones) → [`docs/DISENO-MARCAS.md`](docs/DISENO-MARCAS.md) y `apps/<web>/DESIGN.md`; pendientes → [`docs/PENDIENTES.md`](docs/PENDIENTES.md); negocio/plan (congelados) →
    [`docs/documentacion-tecnica.md`](docs/documentacion-tecnica.md), [`docs/plan-trabajo.md`](docs/plan-trabajo.md).
 
 ## Mapas del proyecto

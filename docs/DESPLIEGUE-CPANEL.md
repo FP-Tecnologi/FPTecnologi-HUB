@@ -240,6 +240,24 @@ Mismo esquema que Fimav (repos espejo `kelqa-web`, `imaninki-web` y `quamtu-web`
   en Admin → Marcas antes).
 - **Quamtu** es una exportación estática (`out/`, sin Node): sus cambios del CMS solo se ven al recompilar y volver a subir.
 
+## Web de Company IMC (`apps/imc-web`)
+
+Exportación **estática** (sin Node ni API): se compila a `out/` y se sube tal cual. Repo espejo privado: `FP-Tecnologi/imc-web` (se actualiza con
+`TMPDIR=/tmp bash scripts/publicar-snapshot.sh imc-web imc-web "Company IMC"`). Diseño: `apps/imc-web/DESIGN.md`.
+
+1. En el espejo (o en el HUB, dentro de `apps/imc-web`): `npm ci && npm run build` → se genera `out/` (con `.htaccess` y `404.html`).
+2. Subir **el contenido** de `out/` a la raíz pública del dominio (`public_html` de companyimc.com) por Git Version Control de cPanel, Administrador de archivos o FTP.
+   No hace falta *Setup Node.js App*.
+3. El `.htaccess` ya fuerza HTTPS, pone cabeceras de seguridad, comprime texto y cachea assets (1 año los de `_next`, 30 días imágenes y logos). Si el dominio final lleva `www`, ajustar la regla de redirección.
+4. Sin variables de entorno. El formulario de contacto abre el correo del visitante (`mailto:ventas@companyimc.com`).
+
+Checklist antes de publicar:
+- [ ] Confirmar el **teléfono** (brochure +51 984 262 805 vs companyimc.com +51 984 268 0547) en `src/lib/datos.ts` (`EMPRESA`).
+- [ ] Reemplazar la foto de Perú Compras por una propia de la sede, o mantener el **crédito CC BY-SA** visible (Wasiwatana).
+- [ ] Confirmar que Company IMC puede mostrar los logos de marcas aliadas (HP, Dell, Lenovo, Microsoft, Epson, HPE, Intel, Cisco, Fortinet, Axis).
+- [ ] Revisar en celular real (menú, hero, botón flotante) y con `prefers-reduced-motion`.
+- [ ] Si el dominio ya tiene WordPress, respaldar antes de reemplazarlo (el sitio actual vive en `companyimc.com/index.html`).
+
 ## Checklist al desplegar los cambios del 2026-11-06
 
 1. **API (Hostinger)**: actualizar el código y reiniciar. La migración `20261106120000_catalogo_lineas` ya está aplicada en Supabase (si usas otra base, aplícala con
