@@ -27,9 +27,10 @@ const ATAJOS: { href: string; icon: string; titulo: string; detalle: string }[] 
 ];
 
 const ESTILOS = `
-.ci-lista{display:flex;flex-direction:column;gap:var(--ax-space-2);margin:0;padding:0;list-style:none}
-.ci-fila{all:unset;box-sizing:border-box;width:100%;display:grid;grid-template-columns:56px minmax(0,1fr);gap:var(--ax-space-3);align-items:center;padding:var(--ax-space-3);border-radius:var(--ax-radius-md);border:1px solid var(--ax-border);background:var(--ax-surface-raised,var(--ax-surface));cursor:pointer;transition:box-shadow .2s}
-.ci-fila:hover{box-shadow:var(--ax-shadow-sm,0 1px 6px rgba(0,0,0,.08))}
+.ci-lista{display:flex;flex-direction:column;margin:0;padding:0;list-style:none}
+.ci-fila{all:unset;box-sizing:border-box;width:100%;display:grid;grid-template-columns:56px minmax(0,1fr);gap:var(--ax-space-3);align-items:center;padding:var(--ax-space-3) var(--ax-space-2);border-block-end:1px solid var(--ax-border);border-radius:var(--ax-radius-md);cursor:pointer;transition:background-color .2s}
+li:last-child>.ci-fila{border-block-end-color:transparent}
+.ci-fila:hover{background:var(--ax-surface-subtle)}
 .ci-fila:focus-visible{outline:2px solid var(--ax-focus-ring,var(--ax-accent));outline-offset:2px}
 .ci-hora{display:flex;flex-direction:column;line-height:1.25}
 .ci-hora b{white-space:nowrap;font-size:var(--ax-text-sm);color:var(--ax-text-strong);font-variant-numeric:tabular-nums}

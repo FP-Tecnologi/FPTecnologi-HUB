@@ -41,9 +41,10 @@ const ESTILOS = `
 .ag-grupo{margin-block-end:var(--ax-space-4)}
 .ag-grupo__tit{display:flex;align-items:center;gap:8px;margin:0 0 var(--ax-space-2);font-size:var(--ax-text-sm);font-weight:var(--ax-weight-semibold);color:var(--c,var(--ax-text-muted));text-transform:capitalize}
 .ag-grupo__n{min-width:22px;padding:0 7px;border-radius:999px;text-align:center;font-size:var(--ax-text-xs);background:color-mix(in srgb,var(--c,var(--ax-text-muted)) 16%,transparent)}
-.ag-lista{display:flex;flex-direction:column;gap:var(--ax-space-2);margin:0;padding:0;list-style:none}
-.ag-fila{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:var(--ax-space-3);align-items:center;padding:var(--ax-space-3);border-radius:var(--ax-radius-md);border:1px solid var(--ax-border);background:var(--ax-surface-raised,var(--ax-surface));transition:box-shadow .2s}
-.ag-fila:hover{box-shadow:var(--ax-shadow-sm,0 1px 6px rgba(0,0,0,.08))}
+.ag-lista{display:flex;flex-direction:column;margin:0;padding:0;list-style:none}
+.ag-fila{display:grid;grid-template-columns:64px minmax(0,1fr) auto;gap:var(--ax-space-3);align-items:center;padding:var(--ax-space-3) var(--ax-space-2);border-block-end:1px solid var(--ax-border);border-radius:var(--ax-radius-md);transition:background-color .2s}
+.ag-fila:last-child{border-block-end-color:transparent}
+.ag-fila:hover{background:var(--ax-surface-subtle)}
 .ag-hora{display:flex;flex-direction:column;align-items:flex-start;line-height:1.25}
 .ag-hora b{white-space:nowrap;font-size:var(--ax-text-sm);color:var(--ax-text-strong);font-variant-numeric:tabular-nums}
 .ag-hora span{font-size:var(--ax-text-xs);color:var(--ax-text-subtle)}
@@ -123,6 +124,7 @@ export function CrmAgenda({ propio = false }: { propio?: boolean }) {
     ];
   const cuenta = { vencidas: items.filter((x) => vencida(x.fecha)).length, hoy: items.filter((x) => !vencida(x.fecha) && new Date(x.fecha).getTime() <= fin).length, proximas: items.filter((x) => new Date(x.fecha).getTime() > fin).length };
   const hoy = clave(new Date());
+  const mesTitulo = (() => { const t = mes.toLocaleDateString('es-PE', { month: 'long', year: 'numeric' }); return t.charAt(0).toUpperCase() + t.slice(1); })();
 
   return (
     <>
@@ -144,7 +146,7 @@ export function CrmAgenda({ propio = false }: { propio?: boolean }) {
       <div className="ag-grid">
         <section className="ax-card ag-cal" aria-label="Calendario">
           <div className="ax-card__header">
-            <div className="ax-card__titles"><h2 className="ax-card__title" style={{ textTransform: 'capitalize' }}>{mes.toLocaleDateString('es-PE', { month: 'long', year: 'numeric' })}</h2></div>
+            <div className="ax-card__titles"><h2 className="ax-card__title" style={{ whiteSpace: 'nowrap', fontSize: 'var(--ax-text-lg)' }}>{mesTitulo}</h2></div>
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-1)' }}>
               <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" aria-label="Mes anterior" onClick={() => setMes(new Date(mes.getFullYear(), mes.getMonth() - 1, 1))}>‹</button>
               <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => { const d = new Date(); setMes(new Date(d.getFullYear(), d.getMonth(), 1)); setDia(clave(d)); }}>Hoy</button>
