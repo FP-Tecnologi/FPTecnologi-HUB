@@ -47,7 +47,7 @@ body { background: #fff; color: var(--color-grafito); font-family: var(--font-sa
 .btn-linea-claro:hover { background: #fff; color: var(--color-azul-osc); }
 
 /* ---------- Tarjetas ---------- */
-.tarjeta { position: relative; background: #fff; box-shadow: 0 1px 0 rgba(23,46,94,.06), 0 18px 40px -22px rgba(23,46,94,.45); transition: transform .5s var(--ease-salida), box-shadow .5s var(--ease-salida); }
+.tarjeta { position: relative; background: linear-gradient(150deg, rgba(255,255,255,0) 0%, #fff 78%), radial-gradient(rgba(43,84,172,.2) 1.5px, transparent 1.5px) 0 0 / 22px 22px #fff; box-shadow: 0 1px 0 rgba(23,46,94,.06), 0 18px 40px -22px rgba(23,46,94,.45); transition: transform .5s var(--ease-salida), box-shadow .5s var(--ease-salida); }
 .tarjeta:hover { transform: translateY(-8px); box-shadow: 0 1px 0 rgba(23,46,94,.06), 0 30px 50px -24px rgba(23,46,94,.55); }
 .insignia { display: inline-flex; align-items: center; justify-content: center; background: var(--color-azul-2); color: #fff; transition: transform .6s var(--ease-salida), background-color .3s, color .3s; }
 .tarjeta:hover .insignia, .grupo:hover .insignia { background: var(--color-naranja); color: var(--color-tinta); transform: rotate(60deg) scale(1.08); }
