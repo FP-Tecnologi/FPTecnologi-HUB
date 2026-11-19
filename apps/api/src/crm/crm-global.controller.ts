@@ -26,6 +26,13 @@ export class CrmGlobalController {
     return this.crm.listarConsolidado(u.marcas, f, u.sub, ids(f.marcas));
   }
 
+  /** Resumen de ventas por marca y total (meses: 3, 6 o 12). `mias=1` cuenta solo lo propio en todas las marcas. */
+  @Get('reportes')
+  reportes(@CurrentUser() u: AuthenticatedUser, @Query('meses') meses?: string, @Query('mias') mias?: string, @Query('marcas') marcas?: string) {
+    const m = Number(meses);
+    return this.crm.reportesPorMarca(u.marcas, [3, 6, 12].includes(m) ? m : 12, u.sub, mias === '1', ids(marcas?.slice(0, 500)));
+  }
+
   @Get('agenda')
   agenda(@CurrentUser() u: AuthenticatedUser, @Query('mias') mias?: string, @Query('marcas') marcas?: string) {
     return this.crm.agendaConsolidada(u.marcas, u.sub, mias === '1', ids(marcas?.slice(0, 500)));

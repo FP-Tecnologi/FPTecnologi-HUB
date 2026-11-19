@@ -10,7 +10,7 @@ import { ApexChart } from '../../../components/charts/ApexChart';
 import { Card, Kpi, Vacio, viz } from '../../../components/dashboard/piezas';
 import { api } from '../../../lib/api';
 import { useAuth } from '../../../context/AuthContext';
-import { Alerta, ORIGENES, etapa, montos, msg, type Etapa, type Origen } from './comun';
+import { Alerta, EtiquetaMarca, ORIGENES, SelectorAlcance, etapa, montos, msg, useAlcanceMarcas, type Etapa, type MarcaRef, type Origen } from './comun';
 
 interface Reporte {
   meses: number;
@@ -28,22 +28,28 @@ export function CrmReportes({ propio = false }: { propio?: boolean }) {
   const [meses, setMeses] = useState<(typeof RANGOS)[number]>(12);
   const [r, setR] = useState<Reporte | null>(null);
   const [error, setError] = useState('');
+  const alcance = useAlcanceMarcas();
 
   const cargar = useCallback(async () => {
-    if (!activeMarcaId) return;
+    if (!activeMarcaId || alcance.todas) return;
     try { setR(await api.get<Reporte>(`/crm/reportes?meses=${meses}${propio ? '&mias=1' : ''}`)); setError(''); } catch (e) { setError(msg(e, 'No se pudieron cargar los reportes.')); }
-  }, [activeMarcaId, meses, propio]);
+  }, [activeMarcaId, meses, propio, alcance.todas]);
   useEffect(() => { cargar(); }, [cargar]);
 
   const monedas = r ? [...new Set(r.porMes.flatMap((m) => Object.keys(m.montos)))].sort() : [];
   const etiquetas = r?.porMes.map((m) => MES[Number(m.mes.slice(5)) - 1]!) ?? [];
   const t = r?.totales;
 
+  if (alcance.todas) return <ReporteMarcas alcance={alcance} meses={meses} setMeses={setMeses} propio={propio} />;
+
   return (
     <>
       <PageHead title={propio ? 'Mi reporte de ventas' : 'Reportes comerciales'} subtitle={propio ? 'Tus ventas ganadas, tu embudo y tu conversión.' : 'Ventas ganadas, embudo y desempeño del equipo comercial de la marca.'} actions={
-        <div className="ax-segment" role="group" aria-label="Periodo">
-          {RANGOS.map((n) => <button key={n} type="button" className="ax-segment__option" aria-pressed={meses === n} onClick={() => setMeses(n)}>{n} meses</button>)}
+        <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
+          <SelectorAlcance alcance={alcance} />
+          <div className="ax-segment" role="group" aria-label="Periodo">
+            {RANGOS.map((n) => <button key={n} type="button" className="ax-segment__option" aria-pressed={meses === n} onClick={() => setMeses(n)}>{n} meses</button>)}
+          </div>
         </div>
       } />
       {error && <div style={{ marginBlockEnd: 'var(--ax-space-4)' }}><Alerta>{error}</Alerta></div>}
@@ -117,3 +123,59 @@ export function CrmReportes({ propio = false }: { propio?: boolean }) {
 }
 
 export default CrmReportes;
+
+interface Resumen { abiertas: number; pipeline: Record<string, number>; ponderado: Record<string, number>; ganadas: number; perdidas: number; montoGanado: Record<string, number>; conversion: number | null }
+interface ReporteGlobal { meses: number; totales: Resumen; porMarca: (Resumen & { marca: MarcaRef; rol: string })[] }
+
+/** Reporte de la vista Comercial con «Todas mis marcas»: el resumen de ventas de cada marca y el total, sin mezclar monedas. */
+function ReporteMarcas({ alcance, meses, setMeses, propio }: { alcance: ReturnType<typeof useAlcanceMarcas>; meses: number; setMeses: (n: (typeof RANGOS)[number]) => void; propio: boolean }) {
+  const [r, setR] = useState<ReporteGlobal | null>(null);
+  const [error, setError] = useState('');
+  useEffect(() => {
+    setR(null);
+    api.get<ReporteGlobal>(`/crm/global/reportes?meses=${meses}${propio ? '&mias=1' : ''}`).then((d) => { setR(d); setError(''); }).catch((e) => setError(msg(e, 'No se pudieron cargar los reportes.')));
+  }, [meses, propio]);
+  const t = r?.totales;
+  return (
+    <>
+      <PageHead title={propio ? 'Mi reporte de ventas' : 'Reportes comerciales'} subtitle="Ventas y embudo de todas tus marcas, marca por marca. Cambia a «Esta marca» para ver el detalle completo de una." actions={
+        <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)' }}>
+          <SelectorAlcance alcance={alcance} />
+          <div className="ax-segment" role="group" aria-label="Periodo">
+            {RANGOS.map((n) => <button key={n} type="button" className="ax-segment__option" aria-pressed={meses === n} onClick={() => setMeses(n)}>{n} meses</button>)}
+          </div>
+        </div>
+      } />
+      {error && <div style={{ marginBlockEnd: 'var(--ax-space-4)' }}><Alerta>{error}</Alerta></div>}
+      <div className="ax-dash-grid">
+        <section className="ax-card ax-card--flat ax-col--12" aria-label="Resumen de todas las marcas" aria-busy={!r}>
+          <div className="ax-card__body"><div className="ax-statgroup">
+            <Kpi icon="shopping-bag" tono="c2" label={`Ganado (${meses} meses)`} valor={t ? montos(t.montoGanado) : '—'} />
+            <Kpi icon="briefcase-2" tono="c4" label="Pipeline abierto" valor={t ? montos(t.pipeline) : '—'} />
+            <Kpi icon="sparkles" tono="c5" label="Pipeline ponderado" valor={t ? montos(t.ponderado) : '—'} />
+            <Kpi icon="article" tono="c3" label="Oportunidades abiertas" valor={t ? String(t.abiertas) : '—'} />
+            <Kpi icon="shield-check" tono="c6" label="Conversión" valor={t?.conversion == null ? '—' : `${t.conversion}%`} />
+          </div></div>
+        </section>
+        <Card titulo="Por marca" sub="Abiertas hoy; ganadas y perdidas en el periodo" cols={12}>
+          {r && r.porMarca.length ? (
+            <div className="ax-table-wrap"><table className="ax-table">
+              <thead className="ax-table__head"><tr>
+                <th className="ax-table__th" scope="col">Marca</th><th className="ax-table__th" scope="col">Abiertas</th><th className="ax-table__th" scope="col">Pipeline</th>
+                <th className="ax-table__th" scope="col">Ganadas</th><th className="ax-table__th" scope="col">Perdidas</th><th className="ax-table__th" scope="col">Conversión</th><th className="ax-table__th" scope="col">Monto ganado</th>
+              </tr></thead>
+              <tbody>{r.porMarca.map((m) => (
+                <tr key={m.marca.id} className="ax-table__row">
+                  <td className="ax-table__td"><EtiquetaMarca m={m.marca} /></td>
+                  <td className="ax-table__td ax-num">{m.abiertas}</td><td className="ax-table__td ax-num">{montos(m.pipeline)}</td>
+                  <td className="ax-table__td ax-num">{m.ganadas}</td><td className="ax-table__td ax-num">{m.perdidas}</td>
+                  <td className="ax-table__td ax-num">{m.conversion == null ? '—' : `${m.conversion}%`}</td><td className="ax-table__td ax-num">{montos(m.montoGanado)}</td>
+                </tr>
+              ))}</tbody>
+            </table></div>
+          ) : <Vacio texto={r ? 'Aún no hay oportunidades en tus marcas.' : 'Cargando…'} />}
+        </Card>
+      </div>
+    </>
+  );
+}

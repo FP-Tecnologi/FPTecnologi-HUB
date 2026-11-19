@@ -208,3 +208,31 @@ describe('CrmService: vista Comercial multimarca', () => {
     expect(prisma.crmOportunidad.findMany).not.toHaveBeenCalled();
   });
 });
+
+describe('CrmService.reportesPorMarca', () => {
+  const marcas = [{ marcaId: 'm1', rol: 'comercial' }, { marcaId: 'm2', rol: 'jefe_comercial' }];
+  const filas = [
+    { marcaId: 'm1', etapa: 'NUEVO', monto: 100, moneda: 'PEN', probabilidad: null, asignadoId: 'u1' },
+    { marcaId: 'm1', etapa: 'NUEVO', monto: 900, moneda: 'PEN', probabilidad: null, asignadoId: 'u9' }, // ajena: un comercial no la cuenta
+    { marcaId: 'm2', etapa: 'PROPUESTA', monto: 50, moneda: 'USD', probabilidad: null, asignadoId: 'u9' }, // jefe: la cuenta aunque no sea suya
+  ];
+  const servicio = () => {
+    const prisma = prismaFalso();
+    prisma.crmOportunidad.findMany = vi.fn(async ({ where }: { where: { etapa?: unknown } }) => (where.etapa ? filas : [])) as never;
+    (prisma as unknown as { marca: unknown }).marca = { findMany: vi.fn(async () => [{ id: 'm1', nombre: 'Uno', colorPrimario: null }, { id: 'm2', nombre: 'Dos', colorPrimario: null }]) };
+    return new CrmService(prisma as never);
+  };
+
+  it('cuenta lo propio donde es comercial y todo donde es jefe, sin mezclar monedas', async () => {
+    const r = await servicio().reportesPorMarca(marcas, 3, 'u1', false);
+    expect(r.porMarca.find((m) => m.marca.id === 'm1')!.pipeline).toEqual({ PEN: 100 });
+    expect(r.porMarca.find((m) => m.marca.id === 'm2')!.pipeline).toEqual({ USD: 50 });
+    expect(r.totales.abiertas).toBe(2);
+    expect(r.totales.pipeline).toEqual({ PEN: 100, USD: 50 });
+  });
+
+  it('con «solo mías» el jefe también cuenta solo lo suyo', async () => {
+    const r = await servicio().reportesPorMarca(marcas, 3, 'u1', true);
+    expect(r.totales.abiertas).toBe(1);
+  });
+});

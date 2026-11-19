@@ -104,6 +104,31 @@ export function SelectorAlcance({ alcance }: { alcance: ReturnType<typeof useAlc
   );
 }
 
+/** Días sin movimiento a partir de los cuales una oportunidad abierta se marca como «sin seguimiento». */
+export const DIAS_SIN_MOVIMIENTO = 7;
+/** Días desde la última actividad de una oportunidad abierta, o null si está cerrada o se movió hace poco. */
+export function diasSinMovimiento(o: Pick<Oportunidad, 'etapa' | 'updatedAt'>): number | null {
+  if (o.etapa === 'GANADO' || o.etapa === 'PERDIDO') return null;
+  const d = Math.floor((Date.now() - new Date(o.updatedAt).getTime()) / 86_400_000);
+  return d >= DIAS_SIN_MOVIMIENTO ? d : null;
+}
+
+/** Llamar, WhatsApp y correo al contacto de la oportunidad, sin abrir la ficha. Solo muestra lo que el contacto tiene. */
+export function AccionesRapidas({ o }: { o: Pick<Oportunidad, 'contacto' | 'empresa' | 'numero'> }) {
+  const cel = o.contacto?.celular?.replace(/D/g, '') || o.empresa?.telefono?.replace(/D/g, '') || '';
+  const correo = o.contacto?.email;
+  if (!cel && !correo) return null;
+  const wa = cel.length === 9 ? `51${cel}` : cel; // celular peruano sin prefijo → +51
+  const estilo = { fontSize: 'var(--ax-text-xs)', padding: '2px 8px' } as const;
+  return (
+    <span className="ax-cluster" style={{ gap: 4 }} onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+      {cel && <a className="ax-btn ax-btn--ghost ax-btn--sm" style={estilo} href={`tel:+${wa}`} aria-label={`Llamar al contacto de ${o.numero}`}>Llamar</a>}
+      {cel && <a className="ax-btn ax-btn--ghost ax-btn--sm" style={estilo} href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer" aria-label={`WhatsApp al contacto de ${o.numero}`}>WhatsApp</a>}
+      {correo && <a className="ax-btn ax-btn--ghost ax-btn--sm" style={estilo} href={`mailto:${correo}`} aria-label={`Correo al contacto de ${o.numero}`}>Correo</a>}
+    </span>
+  );
+}
+
 /** Etiqueta de la marca de una oportunidad (con el color de la marca). No dibuja nada si la lista no es consolidada. */
 export function EtiquetaMarca({ m }: { m: MarcaRef | null | undefined }) {
   if (!m) return null;
@@ -404,6 +429,9 @@ type ContactoSel = { id: string; nombre: string; email: string | null; celular: 
 
 /** Alta manual: título, empresa y contacto (existentes o nuevos), etapa, monto, responsable y próxima acción. */
 export function NuevaOportunidad({ onClose, onCreada }: { onClose: () => void; onCreada: (id: string) => void }) {
+  const { comercialMode, marcas, activeMarcaId, setActiveMarcaId } = useAuth();
+  // Vista Comercial con varias marcas: la oportunidad se crea en la marca elegida aquí (el modal se reinicia al cambiarla).
+  const marcasDeTrabajo = comercialMode ? marcas.filter((m) => ROLES_LEE_CRM.includes(m.rol.nombre.toLowerCase())) : [];
   const asignables = useAsignables();
   const { puedeAsignar } = useVeTodoCrm();
   // Cliente existente: se busca por RUC, empresa, nombre, correo o celular y se elige en vez de volver a escribirlo.
@@ -458,6 +486,13 @@ export function NuevaOportunidad({ onClose, onCreada }: { onClose: () => void; o
     <Modal titulo="Nueva oportunidad" onClose={onClose} ancho={620}>
       <form className="ax-card__body" style={{ paddingTop: 0, display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }} onSubmit={crear}>
         {error && <Alerta>{error}</Alerta>}
+        {marcasDeTrabajo.length > 1 && (
+          <div className="ax-field"><label className="ax-label" htmlFor="no-marca">Marca *</label>
+            <select id="no-marca" className="ax-select" value={activeMarcaId ?? ''} onChange={(e) => setActiveMarcaId(e.target.value, { mantenerVista: true })}>
+              {marcasDeTrabajo.map((m) => <option key={m.marcaId} value={m.marcaId}>{m.marca.nombre}</option>)}
+            </select>
+          </div>
+        )}
         <div className="ax-field"><label className="ax-label" htmlFor="no-tit">Título *</label><input id="no-tit" className="ax-input" maxLength={160} value={f.titulo} onChange={set('titulo')} placeholder="Ej. 20 laptops para el área de ventas" /></div>
         {!empresaSel && !contactoSel && (
           <div className="ax-field" style={{ position: 'relative' }}>

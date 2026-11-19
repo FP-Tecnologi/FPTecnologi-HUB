@@ -136,7 +136,7 @@ export function CrmOportunidades({ propio = false }: { propio?: boolean }) {
 
       {abierta && <OportunidadPanel id={abierta} onClose={() => setAbierta(null)} onCambio={cargar} />}
       {dialogo}
-      {nueva && <NuevaOportunidad onClose={() => setNueva(false)} onCreada={(id) => { setNueva(false); cargar(); setAbierta(id); }} />}
+      {nueva && <NuevaOportunidad key={activeMarcaId} onClose={() => setNueva(false)} onCreada={(id) => { setNueva(false); cargar(); setAbierta(id); }} />}
     </>
   );
 }

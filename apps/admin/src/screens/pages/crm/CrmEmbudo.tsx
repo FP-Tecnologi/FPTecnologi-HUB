@@ -10,7 +10,7 @@ import { PageHead } from '../../../components/shell/PageHead';
 import { api } from '../../../lib/api';
 import { useAuth } from '../../../context/AuthContext';
 import {
-  Alerta, ETAPAS, NuevaOportunidad, OportunidadPanel, dinero, etapa, msg, montos, nombreDe, pedirMotivo, vencida, fechaCorta, type Etapa, type Oportunidad, EtiquetaResponsable, useVeTodoCrm, useAlcanceMarcas, SelectorAlcance, EtiquetaMarca, useFichaOportunidad,
+  Alerta, ETAPAS, NuevaOportunidad, OportunidadPanel, dinero, etapa, msg, montos, nombreDe, pedirMotivo, vencida, fechaCorta, type Etapa, type Oportunidad, EtiquetaResponsable, useVeTodoCrm, useAlcanceMarcas, SelectorAlcance, EtiquetaMarca, useFichaOportunidad, AccionesRapidas, diasSinMovimiento,
 } from './comun';
 import { teclaFila } from '../../../lib/teclado';
 import { Select } from '../../../components/ui/Select';
@@ -94,10 +94,13 @@ export function CrmEmbudo({ propio = false }: { propio?: boolean }) {
   }, [activeMarcaId, mias, cerradas, alcance.ruta]);
   useEffect(() => { cargar(); }, [cargar]);
 
+  const [marcaFiltro, setMarcaFiltro] = useState('');
+  const marcasEnLista = useMemo(() => [...new Map(lista.filter((o) => o.marca).map((o) => [o.marca!.id, o.marca!.nombre])).entries()], [lista]);
   const visibles = useMemo(() => {
     const t = q.trim().toLowerCase();
-    return t ? lista.filter((o) => [o.numero, o.titulo, o.empresa?.razonSocial, o.contacto?.nombre, o.contacto?.email].some((v) => v?.toLowerCase().includes(t))) : lista;
-  }, [lista, q]);
+    const deMarca = alcance.todas && marcaFiltro ? lista.filter((o) => o.marcaId === marcaFiltro) : lista;
+    return t ? deMarca.filter((o) => [o.numero, o.titulo, o.empresa?.razonSocial, o.contacto?.nombre, o.contacto?.email].some((v) => v?.toLowerCase().includes(t))) : deMarca;
+  }, [lista, q, alcance.todas, marcaFiltro]);
   const columnas = ETAPAS.filter((e) => cerradas || !['GANADO', 'PERDIDO'].includes(e.v));
 
   // Animación suave al mover: mide cada tarjeta tras pintar y la desliza desde su sitio anterior; las nuevas aparecen con fundido.
@@ -146,6 +149,12 @@ export function CrmEmbudo({ propio = false }: { propio?: boolean }) {
           <button type="button" role="radio" aria-checked={vista === 'lista'} className={`ax-btn ax-btn--sm${vista === 'lista' ? ' is-selected' : ''}`} onClick={() => setVista('lista')}>Lista</button>
         </div>
         <SelectorAlcance alcance={alcance} />
+        {alcance.todas && marcasEnLista.length > 1 && (
+          <select className="ax-select" aria-label="Filtrar por marca" value={marcaFiltro} onChange={(e) => setMarcaFiltro(e.target.value)} style={{ width: 'auto' }}>
+            <option value="">Todas las marcas</option>
+            {marcasEnLista.map(([id, nombre]) => <option key={id} value={id}>{nombre}</option>)}
+          </select>
+        )}
         {veTodo && (
           <div className="ax-btn-group ax-btn-group--segmented" role="radiogroup" aria-label="De quién">
             <button type="button" role="radio" aria-checked={!mias} className={`ax-btn ax-btn--sm${!mias ? ' is-selected' : ''}`} onClick={() => setMias(false)}>Todas</button>
@@ -204,7 +213,8 @@ export function CrmEmbudo({ propio = false }: { propio?: boolean }) {
                               {o.proximaAccion ? `${o.proximaAccion}${o.proximaAccionAt ? ` · ${fechaCorta(o.proximaAccionAt)}` : ''}` : '—'}
                             </td>
                             <td className="ax-table__td" onClick={(e) => e.stopPropagation()}>
-                              <Select aria-label={`Mover ${o.numero} a otra etapa`} className="ax-select" value={o.etapa} onChange={(e) => mover(o.id, e.target.value as Etapa)} style={{ minWidth: 170 }}>
+                              <AccionesRapidas o={o} />
+                    <Select aria-label={`Mover ${o.numero} a otra etapa`} className="ax-select" value={o.etapa} onChange={(e) => mover(o.id, e.target.value as Etapa)} style={{ minWidth: 170 }}>
                                 {ETAPAS.map((e) => <option key={e.v} value={e.v}>{e.label}</option>)}
                               </Select>
                             </td>
@@ -256,6 +266,7 @@ export function CrmEmbudo({ propio = false }: { propio?: boolean }) {
                     <div className="emb-card__pie">
                       <EtiquetaMarca m={o.marca} />
                       <EtiquetaResponsable u={o.asignado} />
+                      {diasSinMovimiento(o) !== null && <span className="emb-chip is-late" title="Lleva días sin actividad: da seguimiento">⚠ Sin movimiento · {diasSinMovimiento(o)} d</span>}
                       {o.proximaAccion && (
                         <span className={`emb-chip${vencida(o.proximaAccionAt) ? ' is-late' : ''}`}>
                           {vencida(o.proximaAccionAt) ? '⚠' : '→'} {o.proximaAccion}{o.proximaAccionAt ? ` · ${fechaCorta(o.proximaAccionAt)}` : ''}
@@ -277,7 +288,7 @@ export function CrmEmbudo({ propio = false }: { propio?: boolean }) {
       )}
 
       {abierta && <OportunidadPanel id={abierta} onClose={() => setAbierta(null)} onCambio={cargar} />}
-      {nueva && <NuevaOportunidad onClose={() => setNueva(false)} onCreada={(id) => { setNueva(false); cargar(); setAbierta(id); }} />}
+      {nueva && <NuevaOportunidad key={activeMarcaId} onClose={() => setNueva(false)} onCreada={(id) => { setNueva(false); cargar(); setAbierta(id); }} />}
     </>
   );
 }

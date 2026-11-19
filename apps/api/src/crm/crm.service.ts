@@ -42,6 +42,7 @@ const esP2002 = (e: unknown) => !!e && typeof e === 'object' && (e as { code?: s
 const numeroOpp = () => `OPP-${new Date().getFullYear()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`;
 const limpio = (v: string | null | undefined) => v?.trim() || null;
 const rucValido = (v: string | null | undefined) => (v && /^(10|15|16|17|20)\d{9}$/.test(v.trim()) ? v.trim() : null);
+const resumenVacio = () => ({ abiertas: 0, pipeline: {}, ponderado: {}, ganadas: 0, perdidas: 0, montoGanado: {}, conversion: null as number | null });
 const n = (v: unknown) => (v === null || v === undefined ? 0 : Number(v));
 
 const INCLUDE_LISTA = {
@@ -570,6 +571,42 @@ export class CrmService {
    * Reportes de ventas del CRM en los últimos `meses` (por fecha de cierre o de creación): embudo actual, ganado por
    * mes, por comercial, por origen, conversión y ciclo de venta. Los montos se agrupan por moneda (PEN/USD).
    */
+  /**
+   * Vista Comercial: resumen de ventas por marca (y total) de todas las marcas del usuario. Donde no ve todo el CRM (comercial)
+   * cuenta solo lo suyo; con `soloMias` cuenta solo lo suyo en todas. Las monedas no se mezclan: cada monto va por moneda.
+   */
+  async reportesPorMarca(marcas: MarcaCrm[], meses: number, usuarioId: string, soloMias: boolean, soloMarcas?: string[]) {
+    const permitidas = this.marcasConsolidadas(marcas, soloMarcas);
+    const desde = new Date();
+    desde.setMonth(desde.getMonth() - meses + 1, 1);
+    desde.setHours(0, 0, 0, 0);
+    if (permitidas.length === 0) return { meses, desde: desde.toISOString(), totales: resumenVacio(), porMarca: [] };
+    const ids = permitidas.map((m) => m.marcaId);
+    const [abiertas, cerradas, nombres] = await Promise.all([
+      this.prisma.crmOportunidad.findMany({ where: { marcaId: { in: ids }, etapa: { in: ETAPAS_ABIERTAS } }, select: { marcaId: true, etapa: true, monto: true, moneda: true, probabilidad: true, asignadoId: true } }),
+      this.prisma.crmOportunidad.findMany({ where: { marcaId: { in: ids }, cerradoAt: { gte: desde } }, select: { marcaId: true, etapa: true, monto: true, moneda: true, asignadoId: true } }),
+      this.prisma.marca.findMany({ where: { id: { in: ids } }, select: { id: true, nombre: true, colorPrimario: true } }),
+    ]);
+    const veTodo = new Set(permitidas.filter((m) => ROLES_VE_TODO_CRM.includes(m.rol)).map((m) => m.marcaId));
+    const mio = (o: { marcaId: string; asignadoId: string | null }) => (veTodo.has(o.marcaId) && !soloMias) || o.asignadoId === usuarioId;
+    const resumir = (marcaId: string | null) => {
+      const ab = abiertas.filter((o) => mio(o) && (!marcaId || o.marcaId === marcaId));
+      const ce = cerradas.filter((o) => mio(o) && (!marcaId || o.marcaId === marcaId));
+      const g = ce.filter((o) => o.etapa === 'GANADO');
+      const p = ce.filter((o) => o.etapa === 'PERDIDO');
+      const sumar = (filas: { monto: unknown; moneda: string }[]) => filas.reduce<Record<string, number>>((acc, f) => ((acc[f.moneda] = (acc[f.moneda] ?? 0) + n(f.monto)), acc), {});
+      const ponderado = ab.reduce<Record<string, number>>((acc, o) => ((acc[o.moneda] = (acc[o.moneda] ?? 0) + (n(o.monto) * (o.probabilidad ?? PROBABILIDAD[o.etapa])) / 100), acc), {});
+      return {
+        abiertas: ab.length, pipeline: sumar(ab), ponderado, ganadas: g.length, perdidas: p.length, montoGanado: sumar(g),
+        conversion: g.length + p.length ? Math.round((g.length / (g.length + p.length)) * 100) : null,
+      };
+    };
+    const porMarca = nombres
+      .map((m) => ({ marca: m, rol: permitidas.find((x) => x.marcaId === m.id)?.rol ?? '', ...resumir(m.id) }))
+      .sort((a, b) => b.abiertas - a.abiertas || a.marca.nombre.localeCompare(b.marca.nombre));
+    return { meses, desde: desde.toISOString(), totales: resumir(null), porMarca };
+  }
+
   async reportes(marcaId: string, meses: number, soloUsuarioId?: string) {
     const propias = soloUsuarioId ? { asignadoId: soloUsuarioId } : {};
     const desde = new Date();
