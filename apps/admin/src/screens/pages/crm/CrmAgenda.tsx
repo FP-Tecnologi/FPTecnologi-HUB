@@ -33,6 +33,25 @@ const ESTILOS = `
 .ag-grid{display:grid;grid-template-columns:minmax(300px,380px) minmax(0,1fr);gap:var(--ax-space-4);align-items:start}
 .ag-cal{position:sticky;top:var(--ax-space-4)}
 @media (max-width:960px){.ag-grid{grid-template-columns:minmax(0,1fr)}.ag-cal{position:static}}
+.ag-calcab{display:flex;align-items:center;justify-content:space-between;gap:var(--ax-space-3);padding:var(--ax-space-4) var(--ax-space-4) var(--ax-space-2)}
+.ag-calcab__tit{margin:0;font-size:var(--ax-text-lg);font-weight:var(--ax-weight-semibold);color:var(--ax-text-strong);white-space:nowrap}
+.ag-nav{display:inline-flex;align-items:center;gap:2px;padding:3px;border-radius:999px;background:var(--ax-surface-subtle)}
+.ag-nav button{all:unset;box-sizing:border-box;cursor:pointer;min-width:32px;height:32px;padding:0 10px;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;font-size:var(--ax-text-sm);line-height:1;color:var(--ax-text)}
+.ag-nav button:hover{background:color-mix(in srgb,var(--ax-text) 10%,transparent)}
+.ag-nav button:focus-visible,.ag-dia:focus-visible{outline:2px solid var(--ax-focus-ring,var(--ax-accent));outline-offset:2px}
+.ag-sem,.ag-dias{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));text-align:center}
+.ag-sem{padding-block-end:var(--ax-space-2)}
+.ag-sem span{font-size:var(--ax-text-xs);color:var(--ax-text-subtle);text-transform:uppercase;letter-spacing:.04em}
+.ag-dias{gap:4px 2px}
+.ag-dia{all:unset;box-sizing:border-box;cursor:pointer;height:44px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;border-radius:12px;font-size:var(--ax-text-sm);font-variant-numeric:tabular-nums;color:var(--ax-text);transition:background-color .15s}
+.ag-dia:hover{background:var(--ax-surface-subtle)}
+.ag-dia.is-hoy{font-weight:var(--ax-weight-semibold);color:var(--ax-accent);box-shadow:inset 0 0 0 1px var(--ax-accent)}
+.ag-dia.is-sel{background:var(--ax-primary-500,#2563eb);color:#fff;box-shadow:none}
+.ag-puntos{display:flex;gap:3px;height:6px}
+.ag-puntos i,.ag-leyenda i{display:inline-block;width:6px;height:6px;border-radius:50%}
+.ag-leyenda{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin:var(--ax-space-3) 0 0;font-size:var(--ax-text-xs);color:var(--ax-text-subtle)}
+.ag-leyenda i{width:8px;height:8px;margin-inline-start:6px}
+.ag-leyenda i:first-child{margin-inline-start:0}
 .ag-resumen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--ax-space-2);margin-block-end:var(--ax-space-3)}
 .ag-kpi{padding:var(--ax-space-3);border-radius:var(--ax-radius-md);background:var(--ax-surface-subtle)}
 .ag-kpi b{display:block;font-size:var(--ax-text-lg);line-height:1.2;color:var(--c,var(--ax-text-strong))}
@@ -145,44 +164,37 @@ export function CrmAgenda({ propio = false }: { propio?: boolean }) {
 
       <div className="ag-grid">
         <section className="ax-card ag-cal" aria-label="Calendario">
-          <div className="ax-card__header">
-            <div className="ax-card__titles"><h2 className="ax-card__title" style={{ whiteSpace: 'nowrap', fontSize: 'var(--ax-text-lg)' }}>{mesTitulo}</h2></div>
-            <div className="ax-cluster" style={{ gap: 'var(--ax-space-1)' }}>
-              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" aria-label="Mes anterior" onClick={() => setMes(new Date(mes.getFullYear(), mes.getMonth() - 1, 1))}>‹</button>
-              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => { const d = new Date(); setMes(new Date(d.getFullYear(), d.getMonth(), 1)); setDia(clave(d)); }}>Hoy</button>
-              <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" aria-label="Mes siguiente" onClick={() => setMes(new Date(mes.getFullYear(), mes.getMonth() + 1, 1))}>›</button>
+          <div className="ag-calcab">
+            <h2 className="ag-calcab__tit">{mesTitulo}</h2>
+            <div className="ag-nav" role="group" aria-label="Cambiar de mes">
+              <button type="button" aria-label="Mes anterior" onClick={() => setMes(new Date(mes.getFullYear(), mes.getMonth() - 1, 1))}>‹</button>
+              <button type="button" onClick={() => { const d = new Date(); setMes(new Date(d.getFullYear(), d.getMonth(), 1)); setDia(clave(d)); }}>Hoy</button>
+              <button type="button" aria-label="Mes siguiente" onClick={() => setMes(new Date(mes.getFullYear(), mes.getMonth() + 1, 1))}>›</button>
             </div>
           </div>
           <div className="ax-card__body" style={{ paddingTop: 0 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: 4, textAlign: 'center' }}>
-              {DIAS.map((d) => <span key={d} style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)', paddingBlock: 4 }}>{d}</span>)}
+            <div className="ag-sem" aria-hidden="true">{DIAS.map((d) => <span key={d}>{d}</span>)}</div>
+            <div className="ag-dias">
               {celdas.map((d, i) => {
                 if (!d) return <span key={`v${i}`} />;
                 const c = clave(d);
                 const ev = porDia.get(c);
                 const sel = dia === c;
                 return (
-                  <button key={c} type="button" onClick={() => setDia(sel ? null : c)} aria-pressed={sel}
-                    aria-label={`${d.toLocaleDateString('es-PE', { day: 'numeric', month: 'long' })}${ev ? `, ${ev.tareas + ev.acciones} pendientes` : ''}`}
-                    style={{
-                      aspectRatio: '1', minHeight: 40, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 3, cursor: 'pointer',
-                      borderRadius: 'var(--ax-radius-md, 8px)', font: 'inherit', fontSize: 'var(--ax-text-sm)', color: 'inherit',
-                      background: sel ? 'var(--ax-primary-500, #2563eb)' : 'transparent',
-                      border: c === hoy && !sel ? '1px solid var(--ax-primary-500, #2563eb)' : '1px solid transparent',
-                      ...(sel ? { color: '#fff' } : {}),
-                    }}>
+                  <button key={c} type="button" onClick={() => setDia(sel ? null : c)} aria-pressed={sel} className={`ag-dia${sel ? ' is-sel' : ''}${c === hoy ? ' is-hoy' : ''}`}
+                    aria-label={`${d.toLocaleDateString('es-PE', { day: 'numeric', month: 'long' })}${c === hoy ? ' (hoy)' : ''}${ev ? `, ${ev.tareas + ev.acciones} pendientes` : ''}`}>
                     <span>{d.getDate()}</span>
-                    <span style={{ display: 'flex', gap: 3, height: 6 }}>
-                      {ev?.tareas ? <i style={{ width: 6, height: 6, borderRadius: 3, background: sel ? '#fff' : 'var(--ax-viz-amber)' }} /> : null}
-                      {ev?.acciones ? <i style={{ width: 6, height: 6, borderRadius: 3, background: sel ? '#fff' : 'var(--ax-viz-emerald)' }} /> : null}
+                    <span className="ag-puntos">
+                      {ev?.tareas ? <i style={{ background: sel ? '#fff' : 'var(--ax-viz-amber)' }} /> : null}
+                      {ev?.acciones ? <i style={{ background: sel ? '#fff' : 'var(--ax-viz-emerald)' }} /> : null}
                     </span>
                   </button>
                 );
               })}
             </div>
-            <p style={{ margin: 'var(--ax-space-3) 0 0', fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>
-              <i style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 4, background: 'var(--ax-viz-amber)' }} /> Tarea · <i style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 4, background: 'var(--ax-viz-emerald)' }} /> Próxima acción
-              {dia && <> · <button type="button" className="ax-btn ax-btn--link" style={{ padding: 0, fontSize: 'inherit' }} onClick={() => setDia(null)}>Ver todo</button></>}
+            <p className="ag-leyenda">
+              <i style={{ background: 'var(--ax-viz-amber)' }} /> Tarea <i style={{ background: 'var(--ax-viz-emerald)' }} /> Próxima acción
+              {dia && <button type="button" className="ag-abrir" onClick={() => setDia(null)}>Ver todo</button>}
             </p>
           </div>
         </section>
