@@ -64,6 +64,7 @@ model Marca {
   popups             Popup[]
   landingRegistros   LandingRegistro[]
   codigosCuenta      CodigoCuenta[]
+  cuentasCliente     CuentaCliente[]
   conocimientoDocs   ConocimientoDocumento[]
   conocimientoFrags  ConocimientoFragmento[]
   conocimientoPend   ConocimientoPendiente[]
@@ -927,6 +928,20 @@ model LandingRegistro {
 // de un solo uso enviado al correo (solo si ese correo tiene pedidos o
 // cotizaciones). No crea usuarios: la sesión es un token firmado por correo.
 // ---------------------------------------------------------------------------
+
+/// Cuenta de cliente creada desde el registro de la web (sin contraseña: entra con código por correo).
+model CuentaCliente {
+  id        String   @id @default(uuid())
+  marcaId   String
+  marca     Marca    @relation(fields: [marcaId], references: [id])
+  email     String
+  nombre    String
+  telefono  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([marcaId, email])
+}
 
 model CodigoCuenta {
   id         String    @id @default(uuid())

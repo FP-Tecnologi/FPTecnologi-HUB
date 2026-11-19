@@ -20,7 +20,7 @@ const OPCIONES: Opcion[] = [
     texto: 'Revisa tus pedidos y cotizaciones, y compra más rápido con tus datos guardados.',
     acciones: [
       { texto: 'Iniciar sesión', href: '/cuenta', principal: true },
-      { texto: 'Crear cuenta', href: '/cuenta' },
+      { texto: 'Crear cuenta', href: '/cuenta/registro' },
     ],
   },
   {

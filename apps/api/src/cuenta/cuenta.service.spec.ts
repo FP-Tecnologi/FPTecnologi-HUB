@@ -8,6 +8,7 @@ function setup(over: Record<string, unknown> = {}) {
     presupuesto: { findMany: vi.fn(async () => []) },
     cotizacion: { count: vi.fn(async () => 0), findMany: vi.fn(async () => []), findFirst: vi.fn(async () => null) },
     socio: { count: vi.fn(async () => 0) },
+    cuentaCliente: { count: vi.fn(async () => 0), upsert: vi.fn(async (_a: unknown) => ({})) },
     codigoCuenta: { create: vi.fn(async (_a: unknown) => ({})), findFirst: vi.fn(async () => null), updateMany: vi.fn(async (_a: unknown) => ({ count: 1 })) },
     ...over,
   };
@@ -51,6 +52,27 @@ describe('pedirCodigo', () => {
     const { service } = setup();
     for (let i = 0; i < 4; i++) await service.pedirCodigo('m1', 'spam@x.com', `9.9.9.${i}`);
     await expect(service.pedirCodigo('m1', 'spam@x.com', '9.9.9.9')).rejects.toThrow('Demasiados');
+  });
+});
+
+describe('registrar', () => {
+  it('crea la cuenta con el correo normalizado y envía el código', async () => {
+    const { service, prisma, mail } = setup({ pedido: { count: vi.fn(async () => 0), findMany: vi.fn() } });
+    const r = await service.registrar('m1', { email: ' NUEVA@x.com ', nombre: ' Ana Pérez ', telefono: ' 999 ' }, '3.3.3.3');
+    expect(r).toEqual({ enviado: true });
+    expect(prisma.cuentaCliente.upsert).toHaveBeenCalledWith(
+      expect.objectContaining({ create: { marcaId: 'm1', email: 'nueva@x.com', nombre: 'Ana Pérez', telefono: '999' } }),
+    );
+    expect(mail.sendCodigoCuenta).toHaveBeenCalledWith('nueva@x.com', expect.stringMatching(/^\d{6}$/), 10, 'm1');
+  });
+
+  it('una cuenta registrada recibe código al pedirlo, aunque no tenga compras', async () => {
+    const { service, mail } = setup({
+      pedido: { count: vi.fn(async () => 0), findMany: vi.fn() },
+      cuentaCliente: { count: vi.fn(async () => 1), upsert: vi.fn() },
+    });
+    await service.pedirCodigo('m1', 'ya@x.com', '4.4.4.4');
+    expect(mail.sendCodigoCuenta).toHaveBeenCalled();
   });
 });
 

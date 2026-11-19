@@ -17,7 +17,7 @@ const b64 = (s: string) => Buffer.from(s).toString('base64url');
 
 /**
  * "Mi cuenta" del cliente: acceso sin contraseña. Se pide un código al correo (solo sale si ese correo tiene
- * pedidos o cotizaciones en la marca) y, al verificarlo, se emite un token firmado de la forma
+ * pedidos, cotizaciones o una cuenta registrada en la marca) y, al verificarlo, se emite un token firmado de la forma
  * `<payload>.<firma>` con { correo, marca, vencimiento }. No crea usuarios ni da acceso al dashboard: el token
  * solo sirve para leer los pedidos y cotizaciones de ESE correo.
  */
@@ -68,19 +68,41 @@ export class CuentaService {
     this.limitar(`${marcaId}:${email}`);
     this.limitar(`${marcaId}:ip:${ip}`);
 
-    const [pedidos, cotizaciones, socios] = await Promise.all([
+    const [pedidos, cotizaciones, socios, cuentas] = await Promise.all([
       this.prisma.pedido.count({ where: { marcaId, email: { equals: email, mode: 'insensitive' } } }),
       this.prisma.cotizacion.count({ where: { marcaId, clienteEmail: { equals: email, mode: 'insensitive' } } }),
       this.prisma.socio.count({ where: { marcaId, email, estado: 'ACTIVO' } }), // los socios entran aunque aún no hayan comprado
+      this.prisma.cuentaCliente.count({ where: { marcaId, email } }), // clientes que se registraron en la web
     ]);
-    if (pedidos + cotizaciones + socios > 0) {
-      const codigo = String(randomInt(0, 1_000_000)).padStart(6, '0');
-      await this.prisma.codigoCuenta.create({
-        data: { marcaId, email, codigoHash: await bcrypt.hash(codigo, 10), expiresAt: new Date(Date.now() + CODIGO_MIN * 60_000) },
-      });
-      this.mail.sendCodigoCuenta(email, codigo, CODIGO_MIN, marcaId).catch((e) => this.logger.error('No se pudo enviar el código de cuenta', e as Error));
-    }
+    if (pedidos + cotizaciones + socios + cuentas > 0) await this.enviarCodigo(marcaId, email);
     return { enviado: true as const };
+  }
+
+  /**
+   * Registro de cliente desde la web: crea (o actualiza el nombre de) la cuenta y manda el código. La respuesta es
+   * siempre la misma, exista o no la cuenta, para no revelar qué correos están registrados.
+   */
+  async registrar(marcaId: string, datos: { email: string; nombre: string; telefono?: string }, ip: string) {
+    const email = normalizeEmail(datos.email);
+    this.limitar(`${marcaId}:${email}`);
+    this.limitar(`${marcaId}:ip:${ip}`);
+    const nombre = datos.nombre.trim();
+    const telefono = datos.telefono?.trim() || null;
+    await this.prisma.cuentaCliente.upsert({
+      where: { marcaId_email: { marcaId, email } },
+      create: { marcaId, email, nombre, telefono },
+      update: {},
+    });
+    await this.enviarCodigo(marcaId, email);
+    return { enviado: true as const };
+  }
+
+  private async enviarCodigo(marcaId: string, email: string) {
+    const codigo = String(randomInt(0, 1_000_000)).padStart(6, '0');
+    await this.prisma.codigoCuenta.create({
+      data: { marcaId, email, codigoHash: await bcrypt.hash(codigo, 10), expiresAt: new Date(Date.now() + CODIGO_MIN * 60_000) },
+    });
+    this.mail.sendCodigoCuenta(email, codigo, CODIGO_MIN, marcaId).catch((e) => this.logger.error('No se pudo enviar el código de cuenta', e as Error));
   }
 
   async verificar(marcaId: string, emailRaw: string, codigo: string) {

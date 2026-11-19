@@ -35,7 +35,7 @@ export async function getResumenCuenta(token: string | undefined): Promise<Resum
   }
 }
 
-export const apiCuenta = (ruta: 'codigo' | 'verificar') => `${API_URL}/public/cuenta/${ruta}?marcaId=${encodeURIComponent(MARCA_ID)}`;
+export const apiCuenta = (ruta: 'codigo' | 'registro' | 'verificar') => `${API_URL}/public/cuenta/${ruta}?marcaId=${encodeURIComponent(MARCA_ID)}`;
 export const marcaConfigurada = () => !!MARCA_ID;
 
 export interface RecursoSocio {

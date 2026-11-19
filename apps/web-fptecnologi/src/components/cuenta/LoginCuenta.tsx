@@ -49,7 +49,7 @@ export function LoginCuenta({ socio = false }: { socio?: boolean }) {
         <ShieldCheck className="h-7 w-7" strokeWidth={1.8} />
       </span>
       <h2 className="mt-5 font-display text-2xl font-bold text-ink">{socio ? 'Acceso para socios' : 'Ingresa a tu cuenta'}</h2>
-      <p className="mt-1.5 text-sm text-ink/60">{socio ? 'Sin contraseña: te enviamos un código al correo autorizado como socio de FP Tecnologi.' : 'Sin contraseña: te enviamos un código al correo con el que compraste o pediste una cotización.'}</p>
+      <p className="mt-1.5 text-sm text-ink/60">{socio ? 'Sin contraseña: te enviamos un código al correo autorizado como socio de FP Tecnologi.' : 'Sin contraseña: te enviamos un código al correo de tu cuenta, o con el que compraste o pediste una cotización.'}</p>
 
       {paso === 'correo' ? (
         <form onSubmit={pedir} noValidate className="mt-6 space-y-4">
@@ -79,6 +79,15 @@ export function LoginCuenta({ socio = false }: { socio?: boolean }) {
             <button type="button" disabled={busy} onClick={() => pedir()} className="font-semibold text-brand-700 hover:underline">Reenviar código</button>
           </div>
         </form>
+      )}
+      {paso === 'correo' && (
+        <p className="mt-5 text-center text-sm text-ink/60">
+          {socio ? (
+            <>¿Aún no eres socio? <a href="/socios/registro" className="font-semibold text-brand-700 hover:underline">Solicita acceso</a></>
+          ) : (
+            <>¿Primera vez aquí? <a href="/cuenta/registro" className="font-semibold text-brand-700 hover:underline">Crea tu cuenta</a></>
+          )}
+        </p>
       )}
     </div>
   );

@@ -15,6 +15,25 @@ class PedirCodigoDto {
   website?: string; // honeypot
 }
 
+class RegistroDto {
+  @IsEmail()
+  @MaxLength(120)
+  email!: string;
+
+  @IsString()
+  @Length(2, 120)
+  nombre!: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(30)
+  telefono?: string;
+
+  @IsOptional()
+  @IsString()
+  website?: string; // honeypot
+}
+
 class VerificarDto {
   @IsEmail()
   @MaxLength(120)
@@ -38,6 +57,14 @@ export class CuentaController {
     // Honeypot: se responde igual sin hacer nada.
     if (dto.website) return { enviado: true };
     return this.cuenta.pedirCodigo(marcaId, dto.email, forwarded?.split(',')[0]?.trim() || ip);
+  }
+
+  @Limite(5)
+  @Post('registro')
+  registro(@Query('marcaId') marcaId: string, @Body() dto: RegistroDto, @Ip() ip: string, @Headers('x-forwarded-for') forwarded?: string) {
+    if (!marcaId) throw new BadRequestException('Falta marcaId');
+    if (dto.website) return { enviado: true };
+    return this.cuenta.registrar(marcaId, dto, forwarded?.split(',')[0]?.trim() || ip);
   }
 
   @Limite(8)
