@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Reveal from "@/components/Reveal";
-import { Chevrones, Cta, Fondo, Hex, Icono, Portada, Seccion, Titulo } from "@/components/ui";
+import { Chevrones, Cta, Hex, Icono, Portada, Seccion, Titulo } from "@/components/ui";
 import { MOTIVOS, VALORES } from "@/lib/datos";
 
 export const metadata: Metadata = { title: "Nosotros", description: "Conoce a Company IMC: misión, visión y valores de tu socio estratégico en soluciones tecnológicas." };
@@ -29,21 +29,19 @@ export default function Nosotros() {
       {/* Misión y visión */}
       <section className="relative overflow-hidden bg-azul-claro px-5 py-20 sm:py-28">
         <div className="cuadricula absolute inset-0" aria-hidden />
-        <Fondo />
         <div className="relative mx-auto max-w-6xl">
           <div className="flex flex-wrap items-end justify-between gap-6">
             <Reveal><Titulo a="Misión" b="y visión" /></Reveal>
             <Chevrones />
           </div>
-          <div className="mt-14 grid gap-8 md:grid-cols-2">
+          <div className="mt-14 grid gap-8 md:grid-cols-2 md:items-stretch">
             {[
-              ["meta", "Misión", "Hacia dónde trabajamos", "Ser una organización en constante transformación, enfocada en la sostenibilidad de nuestro crecimiento y participación en el mercado, mejorando la calidad de las soluciones proporcionadas a nuestros clientes, dentro de un ecosistema empresarial sostenible.", false],
-              ["estrella", "Visión", "Dónde queremos llegar", "Ser un referente en el mercado nacional de comercialización de equipos informáticos y ejecución de proyectos tecnológicos con un elevado valor añadido en innovación y calidad, desarrollando talentos y habilidades en un excelente ambiente laboral, motivados por buscar y satisfacer continuamente las necesidades de nuestros clientes, contribuyendo con responsabilidad social y cuidado del medio ambiente.", true],
+              ["meta", "Misión", "Hacia dónde trabajamos", "Ser una organización en constante transformación, que crece de forma sostenible y mejora la calidad de las soluciones que ofrece a sus clientes.", false],
+              ["estrella", "Visión", "Dónde queremos llegar", "Ser un referente nacional en equipos informáticos y proyectos tecnológicos, con innovación, calidad y responsabilidad social, cuidando el medio ambiente en cada solución.", true],
             ].map(([n, t, lema, p, azul], i) => (
-              <Reveal key={t as string} delay={i * 140} dir={i ? "der" : "izq"} className={i ? "md:mt-14" : ""}>
-                <article className={`tarjeta group relative h-full overflow-hidden p-9 sm:p-11 ${azul ? "degradado-azul puntos-claro text-white" : ""}`}>
+              <Reveal key={t as string} delay={i * 140} dir={i ? "der" : "izq"} className="h-full">
+                <article className={`tarjeta group relative h-full overflow-hidden p-8 sm:p-10 ${azul ? "degradado-azul puntos-claro text-white" : ""}`}>
                   <div className={`absolute inset-x-0 top-0 h-1.5 ${azul ? "bg-naranja" : "bg-gradient-to-r from-azul-2 to-naranja"}`} aria-hidden />
-                  <span className={`hex absolute -right-12 -top-12 h-52 w-52 transition-transform duration-700 group-hover:rotate-45 group-hover:scale-110 ${azul ? "bg-white/10" : "bg-azul-claro"}`} aria-hidden />
                   <div className="relative">
                     <Hex n={n as string} size="h-20 w-20" />
                     <p className={`mt-7 text-xs font-bold uppercase tracking-[.2em] ${azul ? "text-naranja" : "text-azul-2"}`}>{lema}</p>
