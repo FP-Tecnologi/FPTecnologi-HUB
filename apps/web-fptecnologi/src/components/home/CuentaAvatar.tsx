@@ -15,7 +15,7 @@ const iniciales = (s: { nombre: string | null; email: string }) =>
     .toUpperCase();
 
 /* Avatar de «Mi cuenta» en el encabezado: con sesión muestra las iniciales del cliente en un círculo blanco;
-   sin sesión, el ícono de usuario con el texto «Iniciar sesión». Ambos llevan a /cuenta. */
+   sin sesión, el ícono de usuario. Con sesión lleva a /cuenta; sin sesión, a /acceso (elegir cliente, socio o partner). */
 export function CuentaAvatar({ className = '' }: { className?: string }) {
   const [sesion, setSesion] = useState<Sesion | undefined>(undefined);
 
@@ -33,7 +33,7 @@ export function CuentaAvatar({ className = '' }: { className?: string }) {
   const conSesion = !!sesion;
   return (
     <a
-      href="/cuenta"
+      href={conSesion ? '/cuenta' : '/acceso'}
       aria-label={conSesion ? `Mi cuenta: ${sesion!.nombre ?? sesion!.email}` : 'Iniciar sesión'}
       title={conSesion ? 'Mi cuenta' : 'Iniciar sesión'}
       className={`flex items-center justify-center rounded-xl border border-white/40 text-white transition-colors hover:border-white hover:bg-white/20 ${conSesion ? 'bg-white text-brand-700 hover:bg-white' : 'bg-white/10'} ${className}`}
