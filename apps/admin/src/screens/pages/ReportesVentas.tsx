@@ -114,10 +114,14 @@ export function ReportesVentas() {
               {PRESETS.map((p) => <button key={p.id} type="button" role="radio" aria-checked={preset === p.id} className={`ax-btn ax-btn--sm${preset === p.id ? ' is-selected' : ''}`} onClick={() => elegir(p)}>{p.label}</button>)}
             </div>
             <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', alignItems: 'center' }}>
-              <label className="ax-label" htmlFor="rep-desde" style={{ margin: 0 }}>Desde</label>
-              <input id="rep-desde" type="date" className="ax-input" value={desde} max={hasta} onChange={(e) => { setPreset(''); setDesde(e.target.value); }} />
-              <label className="ax-label" htmlFor="rep-hasta" style={{ margin: 0 }}>Hasta</label>
-              <input id="rep-hasta" type="date" className="ax-input" value={hasta} min={desde} max={hoyLima()} onChange={(e) => { setPreset(''); setHasta(e.target.value); }} />
+              <span className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
+                <label className="ax-label" htmlFor="rep-desde" style={{ margin: 0 }}>Desde</label>
+                <input id="rep-desde" type="date" className="ax-input" value={desde} max={hasta} onChange={(e) => { setPreset(''); setDesde(e.target.value); }} style={{ width: '10.5rem' }} />
+              </span>
+              <span className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'nowrap' }}>
+                <label className="ax-label" htmlFor="rep-hasta" style={{ margin: 0 }}>Hasta</label>
+                <input id="rep-hasta" type="date" className="ax-input" value={hasta} min={desde} max={hoyLima()} onChange={(e) => { setPreset(''); setHasta(e.target.value); }} style={{ width: '10.5rem' }} />
+              </span>
             </div>
           </div>
         </section>
