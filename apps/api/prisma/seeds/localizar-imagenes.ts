@@ -24,10 +24,12 @@ for (const line of readFileSync('./.env', 'utf8').split('\n')) {
 }
 
 const { esImagenExterna, localizarImagen } = await import('../../src/uploads/imagenes-externas.js');
+const { usarBase } = await import('../../src/uploads/almacen.js');
 
 const aplicar = process.argv.includes('--aplicar');
 const URL_EN_TEXTO = /https?:\/\/[^\s"'<>\\),]+/g;
 const prisma = new PrismaClient();
+usarBase(prisma);
 
 type Col = { table_name: string; column_name: string; data_type: string };
 type Fila = { k: string } & Record<string, unknown>;

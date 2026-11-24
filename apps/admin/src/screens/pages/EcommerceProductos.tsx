@@ -9,7 +9,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../components/shell/PageHead';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
-import { CampoImagenes } from '../../components/ui/CampoImagen';
+import { CampoImagenes, srcImagen } from '../../components/ui/CampoImagen';
 import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
 import { Select } from '../../components/ui/Select';
@@ -64,7 +64,7 @@ const desde = (p: Producto): Form => ({
   stock: String(p.stock), marcaComercial: p.marcaComercial ?? '', categoriaId: p.categoriaId ?? '', imagenes: p.imagenes.join('\n'),
   descripcion: p.descripcion ?? '', detalle: p.detalle ?? '', destacado: p.destacado, activo: p.activo,
 });
-const src = (u: string | undefined) => (u ? (u.startsWith('/') ? `${WEB}${u}` : u) : null);
+const src = srcImagen;
 
 export function EcommerceProductos() {
   const { activeMarcaId, marcas } = useAuth();

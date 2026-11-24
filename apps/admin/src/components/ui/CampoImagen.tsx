@@ -13,11 +13,11 @@ import { SubirImagen, urlImagen } from './SubirImagen';
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
 
 /** URL mostrable: /uploads/… vive en la API; otras rutas con / son de la web pública. */
-export function srcImagen(u: string | null | undefined): string | null {
+export function srcImagen(u: string | null | undefined, web = WEB): string | null {
   const v = (u ?? '').trim();
   if (!v) return null;
   if (v.startsWith('/uploads/')) return urlImagen(v);
-  if (v.startsWith('/')) return `${WEB}${v}`;
+  if (v.startsWith('/')) return `${web}${v}`;
   return v;
 }
 

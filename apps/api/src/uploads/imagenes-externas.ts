@@ -11,8 +11,8 @@
  */
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
-import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { guardarPublico } from './almacen.js';
 import { tipoImagen, uploadsDir } from './uploads.service.js';
 
 export const CARPETA_EXTERNAS = 'externas';
@@ -82,8 +82,7 @@ async function descargar(url: string, fetcher: typeof fetch): Promise<string> {
   if (buffer.length > MAX_BYTES) throw new Error('pesa más de 10 MB');
   const tipo = tipoImagen(buffer);
   if (!tipo) throw new Error('no es una imagen PNG/JPG/GIF/WEBP');
-  await mkdir(dir, { recursive: true });
-  await writeFile(join(dir, `${base}.${tipo.ext}`), buffer);
+  await guardarPublico(`${CARPETA_EXTERNAS}/${base}.${tipo.ext}`, buffer);
   return urlPropia(`${base}.${tipo.ext}`);
 }
 

@@ -12,7 +12,7 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { teclaFila } from '../../lib/teclado';
 import { Select } from '../../components/ui/Select';
-import { CampoImagen } from '../../components/ui/CampoImagen';
+import { CampoImagen, srcImagen } from '../../components/ui/CampoImagen';
 import { confirmar } from '../../components/ui/Dialogos';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
@@ -68,7 +68,7 @@ const desde = (s: Servicio): Form => ({
   faqs: s.faqs.map((f) => `${f.p} | ${f.r}`).join('\n'), precioDesde: s.precioDesde ? String(Number(s.precioDesde)) : '',
   orden: String(s.orden), activo: s.activo,
 });
-const src = (u: string | null) => (u ? (u.startsWith('/') ? `${WEB}${u}` : u) : null);
+const src = srcImagen;
 
 export function WebServicios() {
   const { activeMarcaId, marcas } = useAuth();

@@ -11,8 +11,7 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { webDeMarca } from '../../lib/webMarca';
 import { markdownToHtml } from '../../lib/markdown';
-import { urlImagen } from '../../components/ui/SubirImagen';
-import { CampoImagen } from '../../components/ui/CampoImagen';
+import { CampoImagen, srcImagen } from '../../components/ui/CampoImagen';
 
 const CATEGORIAS = ['Tienda', 'Videoconferencia', 'Seguridad', 'Data centers', 'Datos empresariales', 'Cloud', 'Educación', 'Novedades'];
 
@@ -167,7 +166,7 @@ export function BlogEditor() {
     }
   }
 
-  const portada = form.portadaUrl ? (form.portadaUrl.startsWith('/uploads/') ? urlImagen(form.portadaUrl) : form.portadaUrl.startsWith('/') ? `${WEB}${form.portadaUrl}` : form.portadaUrl) : '';
+  const portada = srcImagen(form.portadaUrl, WEB);
 
   return (
     <>

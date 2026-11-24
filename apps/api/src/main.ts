@@ -8,6 +8,9 @@ import { AppModule } from './app.module.js';
 import { assertRequiredEnv } from './config/assert-required-env.js';
 import { swaggerBasicAuth } from './config/swagger-basic-auth.js';
 import { uploadsDir } from './uploads/uploads.service.js';
+import { servirDesdeBase, usarBase } from './uploads/almacen.js';
+import { PrismaService } from './prisma/prisma.service.js';
+import type { Response } from 'express';
 
 async function bootstrap() {
   assertRequiredEnv();
@@ -26,19 +29,18 @@ async function bootstrap() {
   app.use(swaggerBasicAuth);
   // Imágenes subidas desde el dashboard. helmet pone CORP same-origin; las fotos las pintan la web pública y el
   // dashboard (otro origen), así que aquí se permite explícitamente. nosniff evita que se interpreten como otra cosa.
-  app.useStaticAssets(uploadsDir(), {
-    prefix: '/uploads',
-    maxAge: '7d',
-    index: false,
-    setHeaders: (res) => {
-      res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
-      res.setHeader('Access-Control-Allow-Origin', '*'); // contenido público: el dashboard lo dibuja en un canvas (tarjeta digital descargable)
-      res.setHeader('X-Content-Type-Options', 'nosniff');
-      // helmet manda X-Frame-Options: SAMEORIGIN; los PDF se previsualizan en un iframe del dashboard (otro origen).
-      res.removeHeader('X-Frame-Options');
-      res.setHeader('Content-Security-Policy', 'frame-ancestors *');
-    },
-  });
+  const cabeceras = (res: Response) => {
+    res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.setHeader('Access-Control-Allow-Origin', '*'); // contenido público: el dashboard lo dibuja en un canvas (tarjeta digital descargable)
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    // helmet manda X-Frame-Options: SAMEORIGIN; los PDF se previsualizan en un iframe del dashboard (otro origen).
+    res.removeHeader('X-Frame-Options');
+    res.setHeader('Content-Security-Policy', 'frame-ancestors *');
+  };
+  app.useStaticAssets(uploadsDir(), { prefix: '/uploads', maxAge: '7d', index: false, setHeaders: cabeceras });
+  // El disco del hosting se borra al desplegar: lo que ya no esté ahí sale de la copia en la base.
+  usarBase(app.get(PrismaService));
+  app.use('/uploads', servirDesdeBase(cabeceras));
   // Origen explícito (no '*') + credentials:true — necesario para la cookie
   // httpOnly de "dispositivo confiable" (fetch cross-origin del dashboard).
   // WEB_ORIGIN = dashboard. PUBLIC_WEB_ORIGINS (coma) = webs públicas estáticas que envían formularios directo a /public/*.

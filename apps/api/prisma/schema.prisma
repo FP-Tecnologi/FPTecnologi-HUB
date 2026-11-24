@@ -1547,3 +1547,10 @@ model CrmMeta {
   @@index([marcaId, periodo])
   @@index([usuarioId, periodo])
 }
+
+/// Copia permanente de los archivos públicos de /uploads (ver src/uploads/almacen.ts).
+model ArchivoSubido {
+  ruta      String   @id // relativa a la carpeta de subidas: `<marcaId>/<uuid>.<ext>` o `externas/<hash>.<ext>`
+  datos     Bytes
+  createdAt DateTime @default(now())
+}

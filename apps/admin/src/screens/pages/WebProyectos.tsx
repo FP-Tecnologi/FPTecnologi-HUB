@@ -13,7 +13,7 @@ import { DEPARTAMENTOS } from '../../lib/departamentos';
 import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
 import { Select } from '../../components/ui/Select';
-import { CampoImagen } from '../../components/ui/CampoImagen';
+import { CampoImagen, srcImagen } from '../../components/ui/CampoImagen';
 import { confirmar } from '../../components/ui/Dialogos';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
@@ -43,7 +43,7 @@ const desde = (p: Proyecto): Form => ({
   titulo: p.titulo, departamento: p.departamento, cliente: p.cliente, anio: p.anio == null ? '' : String(p.anio), monto: p.monto == null ? '' : String(p.monto), imagenUrl: p.imagenUrl ?? '',
   descripcion: p.descripcion, alcance: p.alcance.join('\n'), orden: String(p.orden), activo: p.activo, esEjemplo: p.esEjemplo,
 });
-const src = (u: string | null) => (u ? (u.startsWith('/') ? `${WEB}${u}` : u) : null);
+const src = srcImagen;
 
 export function WebProyectos() {
   const { activeMarcaId } = useAuth();

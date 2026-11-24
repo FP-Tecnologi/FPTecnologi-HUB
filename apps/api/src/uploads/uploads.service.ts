@@ -4,6 +4,8 @@ import { randomUUID } from 'node:crypto';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve, sep } from 'node:path';
 import { escanear } from './antivirus.js';
+import { guardarPublico } from './almacen.js';
+import { uploadsDir } from './rutas.js';
 
 export const MAX_BYTES = 5 * 1024 * 1024;
 /** Evidencias de tickets (web pública): imágenes o PDF, hasta 10 MB. */
@@ -15,8 +17,7 @@ export const MAX_BYTES_CATALOGO = 50 * 1024 * 1024;
 /** Material para socios (dashboard → Recursos): imágenes, PDF, video, Office y ZIP, hasta 100 MB. */
 export const MAX_BYTES_RECURSO = 100 * 1024 * 1024;
 
-/** Carpeta donde se guardan las imágenes subidas. En cPanel debe estar FUERA de la carpeta que se reemplaza al desplegar. */
-export const uploadsDir = () => resolve(process.cwd(), process.env.UPLOADS_DIR ?? 'uploads'); // acepta ruta relativa o absoluta
+export { uploadsDir };
 
 /**
  * Carpeta PRIVADA (no se sirve por HTTP): recursos para socios y evidencias de tickets. Se descargan solo a través de
@@ -137,8 +138,7 @@ export class UploadsService {
     if (!archivo) throw new BadRequestException('Elige un PDF');
     const carpeta = `${marcaId.replace(/[^a-zA-Z0-9-]/g, '')}/catalogos`;
     const nombre = `${randomUUID()}.pdf`;
-    await mkdir(join(uploadsDir(), carpeta), { recursive: true });
-    await writeFile(join(uploadsDir(), carpeta, nombre), archivo.buffer);
+    await guardarPublico(`${carpeta}/${nombre}`, archivo.buffer);
     return { ruta: `/uploads/${carpeta}/${nombre}` };
   }
 
@@ -151,8 +151,7 @@ export class UploadsService {
     // marcaId viene del guard (uuid verificado), pero se sanea igual: nunca debe poder salir de la carpeta.
     const carpeta = [marcaId.replace(/[^a-zA-Z0-9-]/g, ''), subcarpeta?.replace(/[^a-z]/g, '')].filter(Boolean).join('/');
     const nombre = `${randomUUID()}.${tipo.ext}`;
-    await mkdir(join(uploadsDir(), carpeta), { recursive: true });
-    await writeFile(join(uploadsDir(), carpeta, nombre), archivo.buffer);
+    await guardarPublico(`${carpeta}/${nombre}`, archivo.buffer);
     // Ruta absoluta: la web pública y el dashboard viven en otro origen que la API.
     const base = (process.env.PUBLIC_API_URL ?? `http://localhost:${process.env.PORT ?? 3001}`).replace(/\/$/, '');
     return { url: `${base}/uploads/${carpeta}/${nombre}`, ruta: `/uploads/${carpeta}/${nombre}` };

@@ -10,6 +10,7 @@ import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import { webDeMarca } from '../../lib/webMarca';
 import { confirmar } from '../../components/ui/Dialogos';
+import { srcImagen } from '../../components/ui/CampoImagen';
 
 
 interface Articulo {
@@ -32,7 +33,7 @@ export function BlogLista() {
   const { activeMarcaId, marcas } = useAuth();
   const m = marcas.find((x) => x.marcaId === activeMarcaId)?.marca;
   const WEB = webDeMarca(m?.nombre, m?.dominioPrincipal);
-  const src = (u: string | null) => (u ? (u.startsWith('/') ? `${WEB}${u}` : u) : null);
+  const src = (u: string | null) => srcImagen(u, WEB);
   const [lista, setLista] = useState<Articulo[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
