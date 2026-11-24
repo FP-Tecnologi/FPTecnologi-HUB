@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { hasMarcaId, hasKey } from './tenant-guard.extension.js';
+import { hasMarcaId, hasKey, tenantGuardExtension } from './tenant-guard.extension.js';
+import { PrismaClient } from '../generated/prisma/client.js';
 
 describe('hasMarcaId', () => {
   it('finds a top-level marcaId', () => {
@@ -38,5 +39,26 @@ describe('hasKey', () => {
 
   it('returns false when the target key is absent', () => {
     expect(hasKey({ marcaId: 'm1' }, 'usuarioId')).toBe(false);
+  });
+});
+
+describe('marcaId vacío', () => {
+  // El candado corta antes de abrir la conexión: la dirección no existe a propósito.
+  const db = new PrismaClient({ datasourceUrl: 'postgresql://nadie@127.0.0.1:1/nada' }).$extends(tenantGuardExtension);
+  const marcaId = undefined as unknown as string;
+
+  it('no cuenta como filtro', () => {
+    expect(hasMarcaId({ marcaId: undefined })).toBe(false);
+    expect(hasMarcaId({ marcaId_slug: { marcaId: undefined, slug: 'x' } })).toBe(false);
+    expect(hasMarcaId({ marcaId: null })).toBe(true);
+  });
+
+  it('una consulta o un alta sin marca responde 400 en vez de salir para todas', async () => {
+    await expect(db.chatAsesor.findMany({ where: { marcaId, activo: true } })).rejects.toMatchObject({ status: 400 });
+    await expect(db.chatAsesor.create({ data: { marcaId, nombre: 'a', area: 'b', telefono: '1', whatsapp: '2' } })).rejects.toMatchObject({ status: 400 });
+  });
+
+  it('olvidar el filtro en el código sigue fallando como error interno', async () => {
+    await expect(db.chatAsesor.findMany({ where: { activo: true } })).rejects.toThrow('tenant-guard');
   });
 });

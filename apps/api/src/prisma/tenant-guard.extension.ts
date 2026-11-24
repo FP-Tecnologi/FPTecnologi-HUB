@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import { Prisma } from '../generated/prisma/client.js';
 
 /**
@@ -102,7 +103,8 @@ export function hasMarcaId(value: unknown, depth = 0): boolean {
 export function hasKey(value: unknown, targetKey: string, depth = 0): boolean {
   if (!value || typeof value !== 'object' || depth > 1) return false;
   for (const [key, nested] of Object.entries(value as Record<string, unknown>)) {
-    if (key === targetKey) return true;
+    // `undefined` no cuenta: Prisma ignora ese filtro y la consulta saldría para todas las marcas.
+    if (key === targetKey && nested !== undefined) return true;
     if ((key === 'AND' || key === 'OR') && Array.isArray(nested)) {
       if (nested.some((item) => hasKey(item, targetKey, depth + 1))) return true;
     } else if (hasKey(nested, targetKey, depth + 1)) {
@@ -110,6 +112,12 @@ export function hasKey(value: unknown, targetKey: string, depth = 0): boolean {
     }
   }
   return false;
+}
+
+/** La clave vino pero vacía: es un visitante que no mandó marcaId (400), no un descuido del código (500). */
+function sinMarca(args: unknown, mensaje: string): Error {
+  const vacia = !!args && typeof args === 'object' && 'marcaId' in args && (args as { marcaId?: unknown }).marcaId === undefined;
+  return vacia ? new BadRequestException('Falta marcaId') : new Error(mensaje);
 }
 
 export const tenantGuardExtension = Prisma.defineExtension({
@@ -123,7 +131,8 @@ export const tenantGuardExtension = Prisma.defineExtension({
           const lookupKey = UNSCOPED_LOOKUP_KEY[model];
           const pinnedLookup = !!lookupKey && hasKey(typedArgs.where, lookupKey);
           if (WHERE_OPS.has(operation) && !hasMarcaId(typedArgs.where) && !pinnedLookup) {
-            throw new Error(
+            throw sinMarca(
+              typedArgs.where,
               `[tenant-guard] ${model}.${operation} sin marcaId en el where — ` +
                 'rompe el aislamiento multi-tenant. Agrega marcaId al filtro.',
             );
@@ -131,8 +140,10 @@ export const tenantGuardExtension = Prisma.defineExtension({
 
           if (DATA_OPS.has(operation)) {
             const items = Array.isArray(typedArgs.data) ? typedArgs.data : [typedArgs.data];
-            if (items.some((item) => !hasMarcaId(item))) {
-              throw new Error(
+            const sinDueno = items.findIndex((item) => !hasMarcaId(item));
+            if (sinDueno >= 0) {
+              throw sinMarca(
+                items[sinDueno],
                 `[tenant-guard] ${model}.${operation} sin marcaId en data — ` +
                   'el registro quedaría sin dueño de marca.',
               );
