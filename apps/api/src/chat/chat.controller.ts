@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ChatService } from './chat.service.js';
 import { CreateChatAsesorDto, UpdateChatAsesorDto } from './dto/asesor.dto.js';
 import { CrearConversacionDto, EstadoConversacionDto, MensajeAsesorDto, MensajePublicoDto } from './dto/mensaje.dto.js';
@@ -96,6 +96,8 @@ export class PublicChatController {
 
   @Get('asesores')
   async asesores(@Query('marcaId') marcaId: string) {
+    // Sin marcaId, Prisma ignora el filtro y saldrían los asesores de todas las marcas.
+    if (!marcaId) throw new BadRequestException('Falta marcaId');
     const rows = await this.chat.listAsesores(marcaId, true);
     return rows.map(({ id, nombre, area, telefono, whatsapp, fotoUrl }) => ({ id, nombre, area, telefono, whatsapp, fotoUrl }));
   }

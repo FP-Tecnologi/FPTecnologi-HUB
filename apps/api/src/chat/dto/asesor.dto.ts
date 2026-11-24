@@ -1,16 +1,19 @@
 import { PartialType } from '@nestjs/mapped-types';
-import { IsBoolean, IsInt, IsOptional, IsString, Matches, MaxLength, Min } from 'class-validator';
+import { IsBoolean, IsInt, IsNotEmpty, IsOptional, IsString, Matches, MaxLength, Min } from 'class-validator';
 
 export class CreateChatAsesorDto {
   @IsString()
+  @IsNotEmpty()
   @MaxLength(60)
   nombre!: string;
 
   @IsString()
+  @IsNotEmpty()
   @MaxLength(40)
   area!: string;
 
   @IsString()
+  @IsNotEmpty()
   @MaxLength(30)
   telefono!: string;
 

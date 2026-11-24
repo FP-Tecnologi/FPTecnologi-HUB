@@ -14,6 +14,8 @@ import { MarcaActual } from '../common/decorators/marca-actual.decorator.js';
 export class UploadsController {
   constructor(private readonly uploads: UploadsService) {}
 
+  // 'asesores' también: suben las fotos del módulo Asesores de WhatsApp.
+  @Roles('admin', 'ventas', 'marketing', 'comercial', 'asesores')
   @Post()
   @UseInterceptors(FileInterceptor('archivo', { limits: { fileSize: MAX_BYTES, files: 1 } }))
   subir(@MarcaActual() marcaId: string, @UploadedFile() archivo?: { buffer: Buffer; size: number }) {

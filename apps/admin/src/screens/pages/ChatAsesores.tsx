@@ -10,7 +10,8 @@ import { PageHead } from '../../components/shell/PageHead';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useAuth, ApiError } from '../../context/AuthContext';
 import { api } from '../../lib/api';
-import { CampoImagen } from '../../components/ui/CampoImagen';
+import { CampoImagen, srcImagen } from '../../components/ui/CampoImagen';
+import { webDeMarca } from '../../lib/webMarca';
 import { confirmar } from '../../components/ui/Dialogos';
 
 interface Asesor {
@@ -29,7 +30,9 @@ const VACIO: Form = { nombre: '', area: '', telefono: '', whatsapp: '51', fotoUr
 const AREAS = ['Ventas', 'Servicios', 'Tienda', 'Partners', 'Soporte'];
 
 export function ChatAsesores() {
-  const { activeMarcaId } = useAuth();
+  const { activeMarcaId, marcas } = useAuth();
+  const marca = marcas.find((x) => x.marcaId === activeMarcaId)?.marca;
+  const web = webDeMarca(marca?.nombre, marca?.dominioPrincipal);
   const [lista, setLista] = useState<Asesor[]>([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
@@ -76,7 +79,16 @@ export function ChatAsesores() {
     if (guardando || editando === null) return;
     setGuardando(true);
     setFormError('');
-    const body = { ...form, whatsapp: form.whatsapp.replace(/\D/g, ''), fotoUrl: form.fotoUrl?.trim() || undefined, orden: Number(form.orden) || 0 };
+    // Solo los campos editables: al editar, el formulario trae id, marcaId y fechas, y la API rechaza campos extra.
+    const body = {
+      nombre: form.nombre.trim(),
+      area: form.area.trim(),
+      telefono: form.telefono.trim(),
+      whatsapp: form.whatsapp.replace(/\D/g, ''),
+      fotoUrl: form.fotoUrl?.trim() || null, // null = quitar la foto
+      activo: form.activo,
+      orden: Number(form.orden) || 0,
+    };
     try {
       if (editando === 'nuevo') await api.post('/chat/asesores', body);
       else await api.patch(`/chat/asesores/${editando.id}`, body);
@@ -152,8 +164,7 @@ export function ChatAsesores() {
                       <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', flexWrap: 'nowrap' }}>
                         <span className="ax-avatar ax-avatar--sm" style={{ overflow: 'hidden', background: 'var(--ax-surface-subtle)' }}>
                           {a.fotoUrl ? (
-                            // Rutas relativas (/images/...) son de la web pública; se muestran igual si es URL absoluta.
-                            <img src={a.fotoUrl.startsWith('/') ? `${process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002'}${a.fotoUrl}` : a.fotoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            <img src={srcImagen(a.fotoUrl, web) ?? ''} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                           ) : (
                             <span className="ax-avatar__initials">{a.nombre[0]}</span>
                           )}
@@ -188,7 +199,7 @@ export function ChatAsesores() {
       {editando !== null && (
         <div className="ax-grid" style={{ position: 'fixed', inset: 0, zIndex: 'var(--ax-z-modal)' as unknown as number, placeItems: 'center', padding: 'var(--ax-space-4)' }}>
           <div onClick={() => setEditando(null)} style={{ position: 'absolute', inset: 0, background: 'rgba(8,10,16,.55)', backdropFilter: 'blur(2px)' }} />
-          <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="as-title" className="ax-card" style={{ position: 'relative', maxWidth: 480, width: '100%' }}>
+          <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="as-title" className="ax-card" style={{ position: 'relative', maxWidth: 480, width: '100%', maxHeight: 'calc(100dvh - 2 * var(--ax-space-4))', overflowY: 'auto' }}>
             <div className="ax-card__header">
               <div className="ax-card__titles">
                 <h2 className="ax-card__title" id="as-title">{editando === 'nuevo' ? 'Agregar asesor' : `Editar a ${editando.nombre}`}</h2>

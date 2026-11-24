@@ -926,7 +926,7 @@ function ChatWidgetInner() {
                 const AreaIcon = AREA_ICON[area.label] ?? MessageCircleMore;
                 return (
                   <a
-                    key={area.label}
+                    key={`${area.label}-${area.contact}-${area.number}`} // puede haber varios asesores por área
                     href={`https://wa.me/${area.number}?text=${encodeURIComponent(`Hola ${area.contact}, quiero contactar al área de ${area.label} de FPTecnologi`)}`}
                     target="_blank"
                     rel="noreferrer"

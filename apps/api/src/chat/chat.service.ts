@@ -33,18 +33,13 @@ export class ChatService {
   }
 
   async createAsesor(marcaId: string, dto: CreateChatAsesorDto) {
-    if (dto.usuarioId) {
-      // Solo miembros del equipo de esta marca, y un único perfil por persona.
-      const miembro = await this.prisma.usuarioMarcaRol.findFirst({ where: { marcaId, usuarioId: dto.usuarioId } });
-      if (!miembro) throw new BadRequestException('Ese usuario no pertenece a esta marca');
-      const ya = await this.prisma.chatAsesor.findFirst({ where: { marcaId, usuarioId: dto.usuarioId } });
-      if (ya) throw new ConflictException('Esa persona ya es asesora del chat');
-    }
+    if (dto.usuarioId) await this.validarUsuario(marcaId, dto.usuarioId);
     return this.prisma.chatAsesor.create({ data: { ...dto, marcaId } });
   }
 
   async updateAsesor(marcaId: string, id: string, dto: UpdateChatAsesorDto) {
     await this.findAsesor(marcaId, id);
+    if (dto.usuarioId) await this.validarUsuario(marcaId, dto.usuarioId, id);
     return this.prisma.chatAsesor.update({ where: { id, marcaId }, data: dto });
   }
 
@@ -52,6 +47,14 @@ export class ChatService {
     await this.findAsesor(marcaId, id);
     await this.prisma.chatAsesor.delete({ where: { id, marcaId } });
     return { success: true };
+  }
+
+  /** Solo miembros del equipo de esta marca, y un único perfil por persona. */
+  private async validarUsuario(marcaId: string, usuarioId: string, asesorId?: string) {
+    const miembro = await this.prisma.usuarioMarcaRol.findFirst({ where: { marcaId, usuarioId } });
+    if (!miembro) throw new BadRequestException('Ese usuario no pertenece a esta marca');
+    const ya = await this.prisma.chatAsesor.findFirst({ where: { marcaId, usuarioId } });
+    if (ya && ya.id !== asesorId) throw new ConflictException('Esa persona ya es asesora del chat');
   }
 
   private async findAsesor(marcaId: string, id: string) {
