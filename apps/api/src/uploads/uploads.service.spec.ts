@@ -1,4 +1,9 @@
-import { describe, expect, it } from 'vitest';
+import { mkdir, mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import type { AddressInfo } from 'node:net';
+import express from 'express';
+import { describe, expect, it, vi } from 'vitest';
 import { BadRequestException } from '@nestjs/common';
 import { tipoImagen, UploadsService } from './uploads.service.js';
 
@@ -19,6 +24,31 @@ describe('uploads', () => {
     await expect(s.guardarImagen('m1', { buffer: svg, size: svg.length })).rejects.toBeInstanceOf(BadRequestException);
     await expect(s.guardarImagen('m1', undefined)).rejects.toThrow('Elige');
     await expect(s.guardarImagen('m1', { buffer: png, size: 6 * 1024 * 1024 })).rejects.toThrow('5 MB');
+  });
+
+  it('un archivo privado sigue descargándose aunque el despliegue borre la carpeta de la app', async () => {
+    const raiz = await mkdtemp(join(tmpdir(), 'privados-'));
+    const appDir = join(raiz, 'app');
+    await mkdir(appDir);
+    const cwd = vi.spyOn(process, 'cwd').mockReturnValue(appDir);
+    vi.stubEnv('UPLOADS_PRIVADO_DIR', join(raiz, 'datos-privados'));
+    const web = express();
+    web.get('/descarga', (req, res) => new UploadsService().enviar(res, String(req.query.clave)));
+    const server = web.listen(0);
+    try {
+      const pdf = Buffer.from('%PDF-1.7 material para socios');
+      const { clave } = await new UploadsService().guardarRecurso('11111111-1111-1111-1111-111111111111', { buffer: pdf, size: pdf.length });
+      await rm(appDir, { recursive: true });
+      const res = await fetch(`http://127.0.0.1:${(server.address() as AddressInfo).port}/descarga?clave=${clave}`);
+      expect(res.status).toBe(200);
+      expect(res.headers.get('content-disposition')).toMatch('attachment');
+      expect(await res.text()).toBe(pdf.toString());
+    } finally {
+      server.close();
+      cwd.mockRestore();
+      vi.unstubAllEnvs();
+      await rm(raiz, { recursive: true, force: true });
+    }
   });
 
   it('catálogo: solo PDF real (por su firma) y hasta 50 MB', async () => {
