@@ -62,7 +62,7 @@ Se cargan en cPanel (cada app tiene su sección *Environment variables*) o en un
 | `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` | Dos secretos distintos y largos |
 | `WEB_ORIGIN` | URL **del dashboard** (`https://panel.tudominio.com`): CORS y enlaces de invitaciones/avisos |
 | `PUBLIC_API_URL` | URL de esta API (`https://api.tudominio.com`): enlaces de las imágenes subidas |
-| `UPLOADS_DIR` | Ruta **absoluta fuera de la app** donde guardar imágenes, p. ej. `/home/USUARIO/uploads-fptecnologi` (así no se pierden al desplegar). |
+| `UPLOADS_DIR` | Ruta **absoluta fuera de la app** donde guardar imágenes, p. ej. `/home/USUARIO/uploads-fptecnologi` (así no se pierden al desplegar). Las públicas además se copian en la base (tabla `ArchivoSubido`); las privadas no |
 | `UPLOADS_PRIVADO_DIR` | Ruta **absoluta fuera de la app y de `UPLOADS_DIR`** para recursos de socios y evidencias de tickets, p. ej. `/home/USUARIO/uploads-privado-fptecnologi`. Sin ella se borran al desplegar (la API lo avisa al arrancar). Comprueba una vez: sube un archivo, vuelve a desplegar y descárgalo; haz copias de seguridad de esa carpeta (no está en git ni en la base) |
 | `MAIL_DRIVER`, `MAIL_FROM_EMAIL`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS` | Correo saliente (invitaciones, códigos 2FA, cotizaciones, avisos). O `RESEND_API_KEY` + `MAIL_DRIVER=resend` |
 | `SWAGGER_USER`, `SWAGGER_PASSWORD` | Obligatorias en producción (protegen `/docs`) |
