@@ -12,6 +12,7 @@ import { useFocusTrap } from '../../../hooks/useFocusTrap';
 import { manifest, hrefForSlug } from '../../../lib/manifest';
 import { Icon } from '../../../components/ui/Icon';
 import { Select } from '../../../components/ui/Select';
+import { CampoFecha } from '../../../components/ui/CampoFecha';
 import { pedirTexto } from '../../../components/ui/Dialogos';
 import { numeroMoneda } from '@/lib/moneda';
 
@@ -64,7 +65,7 @@ export const fechaCorta = (iso: string | null) => (iso ? new Date(iso).toLocaleD
 /** Vencida = su día ya pasó (el CRM maneja solo fechas, sin hora: lo de hoy no está vencido). */
 export const vencida = (iso: string | null) => { if (!iso) return false; const hoy = new Date(); hoy.setHours(0, 0, 0, 0); return new Date(iso).getTime() < hoy.getTime(); };
 export const nombreDe = (u: Usuario | null | undefined) => (u ? u.nombre || u.email : 'Sin asignar');
-/** <input type="date"> ⇄ ISO. Solo fecha: se guarda a mediodía local para que ninguna zona horaria la corra de día. */
+/** Fecha 'YYYY-MM-DD' (CampoFecha) ⇄ ISO. Solo fecha: se guarda a mediodía local para que ninguna zona horaria la corra de día. */
 export const aFecha = (iso: string | null) => { if (!iso) return ''; const d = new Date(iso); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 export const deFecha = (v: string) => (v ? new Date(`${v}T12:00:00`).toISOString() : null);
 export const msg = (e: unknown, d: string) => (e instanceof ApiError ? e.message : d);
@@ -477,11 +478,11 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
                     <Select aria-label="Moneda" className="ax-select" style={{ width: 84 }} value={form.moneda} onChange={set('moneda')}><option value="PEN">S/</option><option value="USD">US$</option></Select>
                     <input id="op-monto" className="ax-input" inputMode="decimal" value={form.monto} onChange={set('monto')} placeholder="0" />
                   </div></div>
-                <div className="ax-field"><label className="ax-label" htmlFor="op-cierre">Cierre estimado</label><input id="op-cierre" type="date" className="ax-input" value={form.cierreEstimado} onChange={set('cierreEstimado')} /></div>
+                <div className="ax-field"><label className="ax-label" htmlFor="op-cierre">Cierre estimado</label><CampoFecha id="op-cierre" value={form.cierreEstimado} onChange={(v) => setForm((x) => ({ ...x, cierreEstimado: v }))} placeholder="Sin fecha" /></div>
               </div>
               <div style={fila}>
                 <div className="ax-field"><label className="ax-label" htmlFor="op-acc">Próxima acción</label><input id="op-acc" className="ax-input" maxLength={200} value={form.proximaAccion} onChange={set('proximaAccion')} placeholder="Ej. Llamar para agendar visita" /></div>
-                <div className="ax-field"><label className="ax-label" htmlFor="op-accf">¿Cuándo?</label><input id="op-accf" type="date" className="ax-input" value={form.proximaAccionAt} onChange={set('proximaAccionAt')} /></div>
+                <div className="ax-field"><label className="ax-label" htmlFor="op-accf">¿Cuándo?</label><CampoFecha id="op-accf" value={form.proximaAccionAt} onChange={(v) => setForm((x) => ({ ...x, proximaAccionAt: v }))} placeholder="Sin fecha" /></div>
               </div>
               <div><button type="submit" className="ax-btn ax-btn--primary ax-btn--sm" disabled={busy}><span className="ax-btn__label">Guardar cambios</span></button></div>
             </form>
@@ -497,7 +498,7 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
               <textarea aria-label="Detalle de la actividad" className="ax-textarea" rows={3} maxLength={4000} value={act.texto} onChange={(e) => setAct({ ...act, texto: e.target.value })}
                 placeholder={act.tipo === 'TAREA' ? 'Ej. Enviar la propuesta firmada' : 'Ej. Llamé a Ana: pide propuesta para 10 equipos'} />
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', alignItems: 'flex-end' }}>
-                <div className="ax-field"><label className="ax-label" htmlFor="ac-f">{act.tipo === 'TAREA' ? 'Vence' : 'Fecha (vacío = hoy)'}</label><input id="ac-f" type="date" className="ax-input" value={act.fecha} onChange={(e) => setAct({ ...act, fecha: e.target.value })} /></div>
+                <div className="ax-field"><label className="ax-label" htmlFor="ac-f">{act.tipo === 'TAREA' ? 'Vence' : 'Fecha (vacío = hoy)'}</label><CampoFecha id="ac-f" value={act.fecha} onChange={(v) => setAct((x) => ({ ...x, fecha: v }))} placeholder={act.tipo === 'TAREA' ? 'Elegir fecha' : 'Hoy'} /></div>
                 <button type="submit" className="ax-btn ax-btn--secondary ax-btn--sm" disabled={busy}><span className="ax-btn__label">{act.tipo === 'TAREA' ? 'Agendar tarea' : 'Registrar'}</span></button>
               </div>
             </form>
@@ -683,7 +684,7 @@ export function NuevaOportunidad({ onClose, onCreada }: { onClose: () => void; o
         </div>
         <div style={fila}>
           <div className="ax-field"><label className="ax-label" htmlFor="no-acc">Próxima acción</label><input id="no-acc" className="ax-input" maxLength={200} value={f.proximaAccion} onChange={set('proximaAccion')} /></div>
-          <div className="ax-field"><label className="ax-label" htmlFor="no-accf">¿Cuándo?</label><input id="no-accf" type="date" className="ax-input" value={f.proximaAccionAt} onChange={(e) => setF({ ...f, proximaAccionAt: e.target.value })} /></div>
+          <div className="ax-field"><label className="ax-label" htmlFor="no-accf">¿Cuándo?</label><CampoFecha id="no-accf" value={f.proximaAccionAt} onChange={(v) => setF((x) => ({ ...x, proximaAccionAt: v }))} placeholder="Sin fecha" /></div>
         </div>
         <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'flex-end' }}>
           <button type="button" className="ax-btn ax-btn--ghost" onClick={onClose}>Cancelar</button>

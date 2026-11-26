@@ -8,6 +8,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHead } from '../../../components/shell/PageHead';
 import { Select } from '../../../components/ui/Select';
+import { CampoFecha } from '../../../components/ui/CampoFecha';
 import { api } from '../../../lib/api';
 import { useAuth } from '../../../context/AuthContext';
 import {
@@ -288,7 +289,7 @@ function NuevaTarea({ fechaInicial, onClose, onCreada }: { fechaInicial: string 
             {ops.map((o) => <option key={o.id} value={o.id}>{o.numero} · {o.titulo}</option>)}
           </Select></div>
         <div className="ax-field"><label className="ax-label" htmlFor="ag-tx">¿Qué hay que hacer? *</label><input id="ag-tx" className="ax-input" maxLength={200} value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Ej. Llamar para confirmar la propuesta" /></div>
-        <div className="ax-field"><label className="ax-label" htmlFor="ag-f">Fecha *</label><input id="ag-f" type="date" className="ax-input" value={fecha} onChange={(e) => setFecha(e.target.value)} /></div>
+        <div className="ax-field"><label className="ax-label" htmlFor="ag-f">Fecha *</label><CampoFecha id="ag-f" value={fecha} onChange={setFecha} limpiable={false} /></div>
         <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'flex-end' }}>
           <button type="button" className="ax-btn ax-btn--ghost" onClick={onClose}>Cancelar</button>
           <button type="submit" className="ax-btn ax-btn--primary" disabled={busy}><span className="ax-btn__label">{busy ? 'Guardando…' : 'Agregar'}</span></button>
