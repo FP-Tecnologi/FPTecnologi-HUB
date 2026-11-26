@@ -36,7 +36,7 @@ const NOSOTROS = base('nosotros', 'Nosotros', '/nosotros', [
   },
   {
     key: 'videos',
-    nombre: 'Videos: nuestra historia',
+    nombre: 'Videos (Conócenos)',
     ancla: 'videos',
     campos: [
       ...ENCABEZADO,
@@ -46,7 +46,7 @@ const NOSOTROS = base('nosotros', 'Nosotros', '/nosotros', [
         tipo: 'lista-objetos',
         itemLabel: 'Video',
         tituloDe: 'titulo',
-        ayuda: 'Sin videos, la sección no se muestra.',
+        ayuda: 'Vacío = se muestran solos los últimos videos del canal de YouTube.',
         campos: [
           { key: 'url', label: 'Enlace de YouTube', tipo: 'text', ayuda: 'https://www.youtube.com/watch?v=… o https://youtu.be/…' },
           { key: 'titulo', label: 'Título (opcional)', tipo: 'text' },

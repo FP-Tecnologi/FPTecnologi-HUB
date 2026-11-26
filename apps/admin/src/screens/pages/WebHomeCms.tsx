@@ -90,26 +90,6 @@ const SECCIONES: Seccion[] = [
   { key: 'productos', nombre: 'Los más vendidos', ancla: 'catalogo', campos: [BADGE, TITULO, DESTACADO, BOTON, URL] },
   { key: 'proyectos', nombre: 'Proyectos', ancla: 'proyectos', campos: [BADGE, TITULO, DESTACADO, DESCRIPCION], enlace: { texto: 'Los proyectos se administran en', href: '/web/proyectos', linkTexto: 'Proyectos' } },
   { key: 'partners', nombre: 'Partners', ancla: 'partners', campos: [BADGE, TITULO, DESTACADO, DESCRIPCION, BOTON, { key: 'pasos', label: 'Pasos', tipo: 'lista-items', itemLabel: 'Paso' }] },
-  {
-    key: 'videos',
-    nombre: 'Videos (canal de YouTube)',
-    ancla: 'videos',
-    campos: [
-      BADGE, TITULO, DESTACADO, DESCRIPCION, BOTON, URL,
-      {
-        key: 'items',
-        label: 'Videos',
-        tipo: 'lista-objetos',
-        itemLabel: 'Video',
-        tituloDe: 'titulo',
-        ayuda: 'Vacío = se muestran solos los últimos videos del canal de YouTube.',
-        campos: [
-          { key: 'url', label: 'Enlace de YouTube', tipo: 'text', ayuda: 'https://www.youtube.com/watch?v=… o https://youtu.be/…' },
-          { key: 'titulo', label: 'Título (opcional)', tipo: 'text' },
-        ],
-      },
-    ],
-  },
   { key: 'contacto', nombre: 'Contacto', ancla: 'contacto', campos: [BADGE, TITULO, DESTACADO, DESCRIPCION, ...FORM_CONTACTO] },
   {
     key: 'marcas',
