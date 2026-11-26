@@ -1,0 +1,103 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Arma la cara de Fepi</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:14px system-ui;background:#f3f6f9;color:#0a2038}
+main{display:grid;grid-template-columns:minmax(240px,2fr) 3fr;gap:20px;padding:20px;align-items:start}
+aside{position:sticky;top:20px;background:#fff;border-radius:16px;padding:16px;text-align:center}
+#vista svg{width:100%;height:auto;max-height:55vh}#codigo{font-size:22px;font-weight:700;margin:10px 0;user-select:all;white-space:pre-wrap}
+h2{font-size:16px;margin:14px 0 8px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(115px,1fr));gap:10px}
+.op{background:#fff;border:2px solid transparent;border-radius:12px;padding:8px;color:inherit;text-align:center}
+button{cursor:pointer;font:inherit}.op svg{width:100%;display:block}.op[aria-pressed=true]{border-color:#2380af;background:#e8f5fb}
+button:focus-visible{outline:3px solid #19477f;outline-offset:2px}
+.v{padding:8px 14px;border:1px solid #2380af;border-radius:8px;background:#fff;color:#19477f;margin:3px}.v[aria-pressed=true],#bajar{background:#19477f;color:#fff}
+body.cat{padding:0 20px 16px}.cat .grid{grid-template-columns:repeat(5,1fr)}
+@media(max-width:640px){main{grid-template-columns:1fr}aside{position:static}}
+</style><body>
+<main><aside><div><button class="v" data-v="sin">Sin brazos</button><button class="v" data-v="con">Con brazos y pies</button></div>
+<div id="vista"></div><div id="codigo" aria-live="polite"></div><p>Envíame este código por el chat.</p><button class="v" id="bajar">Descargar SVG</button></aside>
+<div id="opciones"></div></main>
+<script>const BASES={"sin": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"-25 -25 475 410\" role=\"img\" aria-labelledby=\"titulo\">\n  <title id=\"titulo\">Fepi, mascota de FPTecnologi</title>\n  <defs>\n    <linearGradient id=\"fepi-a\" x1=\"43\" y1=\"179\" x2=\"381\" y2=\"179\" gradientUnits=\"userSpaceOnUse\">\n      <stop offset=\"0\" stop-color=\"#22818b\"/><stop offset=\"1\" stop-color=\"#19477f\"/>\n    </linearGradient>\n    <linearGradient id=\"fepi-b\" x1=\"43\" y1=\"102\" x2=\"381\" y2=\"102\" gradientUnits=\"userSpaceOnUse\">\n      <stop offset=\"0\" stop-color=\"#19477f\"/><stop offset=\"1\" stop-color=\"#22818b\"/>\n    </linearGradient>\n    <linearGradient id=\"fepi-pantalla\" x1=\"212\" y1=\"60\" x2=\"212\" y2=\"300\" gradientUnits=\"userSpaceOnUse\">\n      <stop offset=\"0\" stop-color=\"#ffffff\"/><stop offset=\"1\" stop-color=\"#e3f3f9\"/>\n    </linearGradient>\n  </defs>\n  <g id=\"cuerpo\">\n    <path fill=\"#2380af\" d=\"M170.96,358.39c-5.51,0-10.69-2.25-14.58-6.34h0L6.05,194.38c-3.89-4.08-6.05-9.52-6.05-15.29s2.15-11.21,6.05-15.29L156.38,6.13c7.79-8.17,21.38-8.17,29.16,0l150.34,157.67c3.89,4.08,6.05,9.52,6.05,15.29s-2.15,11.21-6.05,15.29l-150.34,157.67c-3.89,4.08-9.07,6.34-14.58,6.34ZM170.96,5.56c-4.04,0-7.83,1.65-10.69,4.65L9.94,167.88c-2.86,3-4.43,6.97-4.43,11.21s1.58,8.21,4.43,11.21l150.34,157.67c5.71,5.99,15.66,5.99,21.38,0l150.34-157.67c2.86-3,4.43-6.97,4.43-11.21s-1.58-8.21-4.43-11.21L181.65,10.21c-2.86-3-6.65-4.65-10.69-4.65Z\"/>\n    <path fill=\"#298396\" d=\"M252.65,359.65c-5.28,0-10.56-2.1-14.58-6.32L87.74,195.66c-3.89-4.08-6.04-9.52-6.04-15.29s2.15-11.21,6.04-15.29L238.07,7.4c8.06-8.44,21.13-8.43,29.17,0l150.34,157.67c3.89,4.08,6.04,9.52,6.04,15.29s-2.15,11.21-6.04,15.29l-150.34,157.67c-4.02,4.22-9.31,6.32-14.59,6.32ZM252.66,6.84c-4.04,0-7.84,1.65-10.69,4.65L91.63,169.16c-2.86,3-4.43,6.97-4.43,11.21s1.57,8.21,4.43,11.21l150.34,157.67c5.71,5.98,15.66,5.99,21.38,0l150.34-157.67c5.9-6.18,5.9-16.24,0-22.42L263.35,11.49c-2.86-3-6.65-4.65-10.69-4.65Z\"/>\n    <path fill=\"#fff\" d=\"M92.74,167.61l108.25-113.53c6.2-6.5,16.25-6.5,22.45,0l108.25,113.53c6.2,6.5,6.2,17.05,0,23.55l-111.45,116.89c-4.43,4.65-11.61,4.65-16.04,0l-111.45-116.89c-6.2-6.5-6.2-17.05,0-23.55Z\"/>\n    <path fill=\"url(#fepi-a)\" d=\"M200.99,6.99L47.84,167.61c-6.2,6.5-6.2,17.05,0,23.55l153.15,160.62c6.2,6.5,16.25,6.5,22.45,0l153.15-160.62c6.2-6.5,6.2-17.05,0-23.55L223.44,6.99c-6.2-6.5-16.25-6.5-22.45,0ZM92.74,167.61l108.25-113.53c6.2-6.5,16.25-6.5,22.45,0l108.25,113.53c6.2,6.5,6.2,17.05,0,23.55l-111.45,116.89c-4.43,4.65-11.61,4.65-16.04,0l-111.45-116.89c-6.2-6.5-6.2-17.05,0-23.55Z\"/>\n    <path fill=\"url(#fepi-b)\" d=\"M376.59,167.61L223.44,6.99c-6.2-6.5-16.25-6.5-22.45,0L47.84,167.61c-6.2,6.5-6.2,17.05,0,23.55l11.23,11.77L204.19,50.72c4.43-4.65,11.61-4.65,16.04,0l145.13,152.21,11.23-11.77c6.2-6.5,6.2-17.05,0-23.55Z\"/>\n    <path fill=\"url(#fepi-pantalla)\" transform=\"translate(212.2 179.4) scale(.91) translate(-212.2 -179.4)\" d=\"M92.74,167.61l108.25-113.53c6.2-6.5,16.25-6.5,22.45,0l108.25,113.53c6.2,6.5,6.2,17.05,0,23.55l-111.45,116.89c-4.43,4.65-11.61,4.65-16.04,0l-111.45-116.89c-6.2-6.5-6.2-17.05,0-23.55Z\"/>\n  </g>\n  <g id=\"cara\">%CARA%</g>\n</svg>\n", "con": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"-110 -25 650 510\" role=\"img\" aria-labelledby=\"titulo\">\n  <title id=\"titulo\">Fepi saludando, mascota de FPTecnologi</title>\n  <defs>\n    <linearGradient id=\"fepi-a\" x1=\"43\" y1=\"179\" x2=\"381\" y2=\"179\" gradientUnits=\"userSpaceOnUse\">\n      <stop offset=\"0\" stop-color=\"#22818b\"/><stop offset=\"1\" stop-color=\"#19477f\"/>\n    </linearGradient>\n    <linearGradient id=\"fepi-b\" x1=\"43\" y1=\"102\" x2=\"381\" y2=\"102\" gradientUnits=\"userSpaceOnUse\">\n      <stop offset=\"0\" stop-color=\"#19477f\"/><stop offset=\"1\" stop-color=\"#22818b\"/>\n    </linearGradient>\n    <linearGradient id=\"fepi-pantalla\" x1=\"212\" y1=\"60\" x2=\"212\" y2=\"300\" gradientUnits=\"userSpaceOnUse\">\n      <stop offset=\"0\" stop-color=\"#ffffff\"/><stop offset=\"1\" stop-color=\"#e3f3f9\"/>\n    </linearGradient>\n  </defs>\n  <ellipse id=\"sombra\" cx=\"212\" cy=\"464\" rx=\"135\" ry=\"9\" fill=\"#0a2038\" opacity=\".12\"/>\n  <g id=\"piernas\">\n    <path d=\"M171 354 Q160 388 163 425\" fill=\"none\" stroke=\"#2380af\" stroke-width=\"21\" stroke-linecap=\"round\"/>\n    <path d=\"M253 354 Q264 388 261 425\" fill=\"none\" stroke=\"#298396\" stroke-width=\"21\" stroke-linecap=\"round\"/>\n    <g>\n      <path d=\"M174 418 C158 412 112 426 112 447 C112 455 119 458 128 458 L177 458 C188 458 190 449 189 440 C188 430 183 421 174 418 Z\" fill=\"#19477f\"/>\n      <path d=\"M113 448 L189 448 C189 455 185 458 177 458 L128 458 C119 458 114 455 113 448 Z\" fill=\"#7ee7f7\"/>\n      <path d=\"M143 428 L156 438 M155 423 L168 433\" stroke=\"#fff\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n    </g>\n    <g transform=\"translate(424 0) scale(-1 1)\">\n      <path d=\"M174 418 C158 412 112 426 112 447 C112 455 119 458 128 458 L177 458 C188 458 190 449 189 440 C188 430 183 421 174 418 Z\" fill=\"#19477f\"/>\n      <path d=\"M113 448 L189 448 C189 455 185 458 177 458 L128 458 C119 458 114 455 113 448 Z\" fill=\"#7ee7f7\"/>\n      <path d=\"M143 428 L156 438 M155 423 L168 433\" stroke=\"#fff\" stroke-width=\"4\" stroke-linecap=\"round\"/>\n    </g>\n  </g>\n  <g id=\"cuerpo\">\n    <path fill=\"#2380af\" d=\"M170.96,358.39c-5.51,0-10.69-2.25-14.58-6.34h0L6.05,194.38c-3.89-4.08-6.05-9.52-6.05-15.29s2.15-11.21,6.05-15.29L156.38,6.13c7.79-8.17,21.38-8.17,29.16,0l150.34,157.67c3.89,4.08,6.05,9.52,6.05,15.29s-2.15,11.21-6.05,15.29l-150.34,157.67c-3.89,4.08-9.07,6.34-14.58,6.34ZM170.96,5.56c-4.04,0-7.83,1.65-10.69,4.65L9.94,167.88c-2.86,3-4.43,6.97-4.43,11.21s1.58,8.21,4.43,11.21l150.34,157.67c5.71,5.99,15.66,5.99,21.38,0l150.34-157.67c2.86-3,4.43-6.97,4.43-11.21s-1.58-8.21-4.43-11.21L181.65,10.21c-2.86-3-6.65-4.65-10.69-4.65Z\"/>\n    <path fill=\"#298396\" d=\"M252.65,359.65c-5.28,0-10.56-2.1-14.58-6.32L87.74,195.66c-3.89-4.08-6.04-9.52-6.04-15.29s2.15-11.21,6.04-15.29L238.07,7.4c8.06-8.44,21.13-8.43,29.17,0l150.34,157.67c3.89,4.08,6.04,9.52,6.04,15.29s-2.15,11.21-6.04,15.29l-150.34,157.67c-4.02,4.22-9.31,6.32-14.59,6.32ZM252.66,6.84c-4.04,0-7.84,1.65-10.69,4.65L91.63,169.16c-2.86,3-4.43,6.97-4.43,11.21s1.57,8.21,4.43,11.21l150.34,157.67c5.71,5.98,15.66,5.99,21.38,0l150.34-157.67c5.9-6.18,5.9-16.24,0-22.42L263.35,11.49c-2.86-3-6.65-4.65-10.69-4.65Z\"/>\n    <path fill=\"#fff\" d=\"M92.74,167.61l108.25-113.53c6.2-6.5,16.25-6.5,22.45,0l108.25,113.53c6.2,6.5,6.2,17.05,0,23.55l-111.45,116.89c-4.43,4.65-11.61,4.65-16.04,0l-111.45-116.89c-6.2-6.5-6.2-17.05,0-23.55Z\"/>\n    <path fill=\"url(#fepi-a)\" d=\"M200.99,6.99L47.84,167.61c-6.2,6.5-6.2,17.05,0,23.55l153.15,160.62c6.2,6.5,16.25,6.5,22.45,0l153.15-160.62c6.2-6.5,6.2-17.05,0-23.55L223.44,6.99c-6.2-6.5-16.25-6.5-22.45,0ZM92.74,167.61l108.25-113.53c6.2-6.5,16.25-6.5,22.45,0l108.25,113.53c6.2,6.5,6.2,17.05,0,23.55l-111.45,116.89c-4.43,4.65-11.61,4.65-16.04,0l-111.45-116.89c-6.2-6.5-6.2-17.05,0-23.55Z\"/>\n    <path fill=\"url(#fepi-b)\" d=\"M376.59,167.61L223.44,6.99c-6.2-6.5-16.25-6.5-22.45,0L47.84,167.61c-6.2,6.5-6.2,17.05,0,23.55l11.23,11.77L204.19,50.72c4.43-4.65,11.61-4.65,16.04,0l145.13,152.21,11.23-11.77c6.2-6.5,6.2-17.05,0-23.55Z\"/>\n    <path fill=\"url(#fepi-pantalla)\" transform=\"translate(212.2 179.4) scale(.91) translate(-212.2 -179.4)\" d=\"M92.74,167.61l108.25-113.53c6.2-6.5,16.25-6.5,22.45,0l108.25,113.53c6.2,6.5,6.2,17.05,0,23.55l-111.45,116.89c-4.43,4.65-11.61,4.65-16.04,0l-111.45-116.89c-6.2-6.5-6.2-17.05,0-23.55Z\"/>\n  </g>\n  <g id=\"cara\">%CARA%</g>\n  <g id=\"brazos\">\n    <path d=\"M8 181 C-40 186 -60 218 -53 258\" fill=\"none\" stroke=\"#2380af\" stroke-width=\"20\" stroke-linecap=\"round\"/>\n    <path d=\"M416 180 C468 182 494 150 491 108\" fill=\"none\" stroke=\"#298396\" stroke-width=\"20\" stroke-linecap=\"round\"/>\n    <g transform=\"translate(-52 270) rotate(10)\">\n      <circle cx=\"0\" cy=\"8\" r=\"30.0\" fill=\"#19477f\"/><path d=\"M17 0 L28 -16\" stroke=\"#19477f\" stroke-width=\"26\" stroke-linecap=\"round\" fill=\"none\"/>\n      <circle cx=\"0\" cy=\"8\" r=\"25.0\" fill=\"#fff\"/><path d=\"M17 0 L28 -16\" stroke=\"#fff\" stroke-width=\"16\" stroke-linecap=\"round\" fill=\"none\"/>\n    </g>\n    <g transform=\"translate(490 92) rotate(12)\">\n      <circle cx=\"0\" cy=\"0\" r=\"29.0\" fill=\"#19477f\"/><path d=\"M-15 -10 L-24 -35\" stroke=\"#19477f\" stroke-width=\"25\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M1 -15 L1 -44\" stroke=\"#19477f\" stroke-width=\"25\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M16 -9 L25 -33\" stroke=\"#19477f\" stroke-width=\"25\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M-17 8 L-34 0\" stroke=\"#19477f\" stroke-width=\"25\" stroke-linecap=\"round\" fill=\"none\"/>\n      <circle cx=\"0\" cy=\"0\" r=\"24.0\" fill=\"#fff\"/><path d=\"M-15 -10 L-24 -35\" stroke=\"#fff\" stroke-width=\"15\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M1 -15 L1 -44\" stroke=\"#fff\" stroke-width=\"15\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M16 -9 L25 -33\" stroke=\"#fff\" stroke-width=\"15\" stroke-linecap=\"round\" fill=\"none\"/><path d=\"M-17 8 L-34 0\" stroke=\"#fff\" stroke-width=\"15\" stroke-linecap=\"round\" fill=\"none\"/>\n    </g>\n  </g>\n</svg>\n"};
+const N='#0a2038', R='#ff7d8f', D='#5a1630';
+const line=(d,w=8,c=N)=>`<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round"/>`;
+const shape=(d,f,w=5)=>`<path d="${d}" fill="${f}" stroke="${N}" stroke-width="${w}" stroke-linejoin="round"/>`;
+const fill=(d,f)=>`<path d="${d}" fill="${f}"/>`;
+const dot=(x,y,r,f='#fff')=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${f}"/>`;
+const oval=(x,y,a,b,f=N,o=1)=>`<ellipse cx="${x}" cy="${y}" rx="${a}" ry="${b}" fill="${f}" opacity="${o}"/>`;
+const par=f=>f(178,0)+f(246,1);
+const brillante=x=>oval(x,164,21,28)+fill(`M${x-15} 172 Q${x} 196 ${x+15} 172 Q${x} 182 ${x-15} 172Z`,'#2fa9c4')+dot(x+7,151,8.5)+dot(x-7,170,4);
+const spark=(x,y,r)=>fill(`M${x} ${y-r} Q${x+r*.2} ${y-r*.2} ${x+r} ${y} Q${x+r*.2} ${y+r*.2} ${x} ${y+r} Q${x-r*.2} ${y+r*.2} ${x-r} ${y} Q${x-r*.2} ${y-r*.2} ${x} ${y-r}Z`,'#fff');
+const espejo=s=>s+`<g transform="translate(424 0) scale(-1 1)">${s}</g>`;
+
+const PARTES={
+ O:{titulo:'Ojos',items:[
+  ['Brillantes',par(brillante)],
+  ['Redondos',par(x=>dot(x,164,16,N)+dot(x+5,158,5.5))],
+  ['Ovalados',par(x=>oval(x,164,13,26)+oval(x+3,153,5,8,'#fff'))],
+  ['Iris celeste',par((x,i)=>shape(`M${x-23} 163 C${x-23} 124 ${x+23} 124 ${x+23} 163 C${x+23} 202 ${x-23} 202 ${x-23} 163Z`,'#fff')+dot(x+(i?-3:3),168,15,'#1fa6c9')+dot(x+(i?-3:3),169,9,'#06192e')+dot(x+(i?2:8),161,5.5))],
+  ['Felices',par(x=>line(`M${x-19} 172 Q${x} 142 ${x+19} 172`,10))],
+  ['Guiño',brillante(178)+line('M226 168 Q246 142 266 168',10)],
+  ['Destellos',par(x=>oval(x,164,21,28)+spark(x+6,153,15)+dot(x-8,176,4))],
+  ['Media luna',par(x=>shape(`M${x-20} 154 H${x+20} Q${x+20} 188 ${x} 188 Q${x-20} 188 ${x-20} 154Z`,N)+dot(x+8,163,5.5))],
+  ['Rombo',par(x=>shape(`M${x} 138 L${x+19} 164 L${x} 190 L${x-19} 164Z`,N,9)+dot(x+4,155,6))],
+ ]},
+ B:{titulo:'Bocas',items:[
+  ['Abierta con lengua',shape('M182 206 Q212 216 242 206 Q239 245 212 245 Q185 245 182 206Z',D)+fill('M194 237 Q212 220 230 237 Q223 243 212 243 Q201 243 194 237Z',R)],
+  ['Sonrisa simple',line('M187 213 Q212 240 237 213')],
+  ['Con dientes',shape('M180 208 Q212 216 244 208 Q238 243 212 243 Q186 243 180 208Z','#fff',6)+line('M186 224 Q212 233 238 224',2.5,'#a9bfd0')],
+  ['En D',shape('M184 207 H240 Q240 243 212 243 Q184 243 184 207Z',D)+fill('M187 210 H237 V215 Q212 221 187 215Z','#fff')+fill('M195 235 Q212 221 229 235 Q222 241 212 241 Q202 241 195 235Z',R)],
+  ['Lengua afuera',shape('M199 220 V234 Q199 249 212 249 Q225 249 225 234 V220Z',R)+line('M212 228 V240',2.5,'#d9506a')+line('M187 213 Q212 232 237 213')],
+  ['Sorpresa',shape('M198 226 C198 202 226 202 226 226 C226 250 198 250 198 226Z',D)+oval(212,237,8,5,R)],
+  ['Pícara de lado',line('M190 226 Q218 238 238 212')+line('M232 207 Q242 208 245 218',5)],
+  ['Gatito',line('M190 214 Q191 231 202 230 Q212 229 212 217 Q212 229 222 230 Q233 231 234 214',7)],
+  ['Abierta pequeña',shape('M197 211 Q212 216 227 211 Q226 233 212 233 Q198 233 197 211Z',D)+oval(212,228,8,3.5,R)],
+ ]},
+ P:{titulo:'Pómulos',items:[
+  ['Sin pómulos',''],
+  ['Ovalados rosa',espejo(oval(148,199,13,7,'#ff8fa0',.6))],
+  ['Difuminados',espejo(oval(148,198,18,12,'#ff8fa0',.18)+oval(148,198,12,8,'#ff8fa0',.28)+oval(148,198,6,4,'#ff8fa0',.35))],
+  ['Rayitas',espejo(line('M138 204 L144 193 M148 204 L154 193 M158 204 L164 193',3.5,R))],
+  ['Rombitos',espejo(fill('M149 191 L160 199 L149 207 L138 199Z','#ff9aaa'))],
+  ['Celestes',espejo(oval(148,199,13,7,'#2fa9c4',.45))],
+  ['Corazones',espejo(fill('M149 208 C132 197 140 185 149 193 C158 185 166 197 149 208Z','#ff8fa0'))],
+ ]},
+ C:{titulo:'Cejas',items:[
+  ['Sin cejas',''],
+  ['Arqueadas',espejo(line('M160 126 Q174 114 190 122',7))],
+  ['Cortas gruesas',espejo(line('M167 121 Q177 115 188 119',11))],
+  ['Rectas',espejo(line('M163 121 H190',7))],
+  ['Curiosa',line('M160 126 Q174 116 190 123',7)+line('M234 116 Q247 103 259 114',7)],
+  ['Decididas',espejo(line('M163 115 L190 126',8))],
+  ['Tiernas',espejo(line('M162 127 Q172 117 190 113',7))],
+  ['Finas largas',espejo(line('M155 128 Q172 108 195 120',3.5))],
+  ['En punta',espejo(line('M162 125 L176 114 L190 119',6.5))],
+  ['Estilizadas',espejo(fill('M156 129 Q168 108 192 116 Q196 123 189 123 Q171 119 156 129Z',N))],
+ ]},
+};
+const ORDEN=['O','B','P','C'];
+// Las listas que empiezan con "sin" numeran desde 0
+const num=(k,i)=>k+(PARTES[k].items[0][1]===''?i:i+1);
+const cara=s=>['P','C','O','B'].map(k=>PARTES[k].items[s[k]][1]).join('');
+const mini=s=>`<svg viewBox="118 92 188 172" xmlns="http://www.w3.org/2000/svg">${cara(s)}</svg>`;
+const entero=(s,v)=>BASES[v].replace('%CARA%',()=>cara(s)).replace(/<\?xml[^>]*>\s*/,'');
+const grupos=(f)=>ORDEN.map(k=>`<h2>${PARTES[k].titulo}</h2><div class="grid">`+PARTES[k].items.map((it,i)=>f(k,i,it[0])).join('')+'</div>').join('');
+
+const sel={O:0,B:0,P:1,C:1}; let ver='sin';
+if(location.hash==='#catalogo'){
+  document.body.className='cat';
+  document.body.innerHTML=grupos((k,i,n)=>`<div class="op">${mini({...sel,[k]:i})}<b>${num(k,i)}</b> ${n}</div>`);
+}else{
+  const q=s=>document.querySelector(s);
+  function pintar(){
+    q('#vista').innerHTML=entero(sel,ver);
+    q('#codigo').textContent=ORDEN.map(k=>num(k,sel[k])).join('  ');
+    q('#opciones').innerHTML=grupos((k,i,n)=>`<button class="op" data-k="${k}" data-i="${i}" aria-pressed="${sel[k]===i}">${mini({...sel,[k]:i})}<b>${num(k,i)}</b> ${n}</button>`);
+    document.querySelectorAll('[data-v]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===ver));
+  }
+  document.addEventListener('click',e=>{
+    const o=e.target.closest('button'); if(!o)return;
+    if(o.dataset.k){const {k,i}=o.dataset; sel[k]=+i; pintar(); q(`[data-k="${k}"][data-i="${i}"]`).focus({preventScroll:true});}
+    else if(o.dataset.v){ver=o.dataset.v; pintar();}
+    else if(o.id==='bajar'){const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([entero(sel,ver)],{type:'image/svg+xml'})); a.download=`fepi-${ORDEN.map(k=>num(k,sel[k])).join('-')}-${ver}-brazos.svg`; a.click();}
+  });
+  pintar();
+}
+</script></body></html>

@@ -1,0 +1,127 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Arma el cuerpo de Fepi</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font:14px system-ui;background:#f3f6f9;color:#0a2038}
+main{display:grid;grid-template-columns:minmax(240px,1fr) 1fr;gap:20px;padding:20px;align-items:start}
+aside{position:sticky;top:20px;background:#fff;border-radius:16px;padding:16px;text-align:center}
+#vista svg{width:100%;height:auto;max-height:60vh}#codigo{font-size:22px;font-weight:700;margin:10px 0;user-select:all;white-space:pre-wrap}
+h2{font-size:16px;margin:14px 0 8px}.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.op{background:#fff;border:2px solid transparent;border-radius:12px;padding:8px;color:inherit;text-align:center}
+button{cursor:pointer;font:inherit}.op svg{width:100%;height:120px;display:block}.op[aria-pressed=true]{border-color:#2380af;background:#e8f5fb}
+button:focus-visible{outline:3px solid #19477f;outline-offset:2px}
+.v{padding:8px 14px;border:1px solid #2380af;border-radius:8px;background:#fff;color:#19477f;margin:3px}.v[aria-pressed=true],#bajar{background:#19477f;color:#fff}
+body.cat{padding:0 20px 16px}.cat .grid{grid-template-columns:repeat(4,1fr)}.cat .op svg{height:170px}
+@media(max-width:640px){main{grid-template-columns:1fr}aside{position:static}}
+</style><body>
+<main><aside><div><button class="v" data-v="sin">Sin brazos</button><button class="v" data-v="con">Con brazos y pies</button></div>
+<div id="vista"></div><div id="codigo" aria-live="polite"></div><p>Envíame este código por el chat.</p><button class="v" id="bajar">Descargar SVG</button></aside>
+<div id="opciones"></div></main>
+<script>const PATHS={"izq": "M170.96,358.39c-5.51,0-10.69-2.25-14.58-6.34h0L6.05,194.38c-3.89-4.08-6.05-9.52-6.05-15.29s2.15-11.21,6.05-15.29L156.38,6.13c7.79-8.17,21.38-8.17,29.16,0l150.34,157.67c3.89,4.08,6.05,9.52,6.05,15.29s-2.15,11.21-6.05,15.29l-150.34,157.67c-3.89,4.08-9.07,6.34-14.58,6.34ZM170.96,5.56c-4.04,0-7.83,1.65-10.69,4.65L9.94,167.88c-2.86,3-4.43,6.97-4.43,11.21s1.58,8.21,4.43,11.21l150.34,157.67c5.71,5.99,15.66,5.99,21.38,0l150.34-157.67c2.86-3,4.43-6.97,4.43-11.21s-1.58-8.21-4.43-11.21L181.65,10.21c-2.86-3-6.65-4.65-10.69-4.65Z", "der": "M252.65,359.65c-5.28,0-10.56-2.1-14.58-6.32L87.74,195.66c-3.89-4.08-6.04-9.52-6.04-15.29s2.15-11.21,6.04-15.29L238.07,7.4c8.06-8.44,21.13-8.43,29.17,0l150.34,157.67c3.89,4.08,6.04,9.52,6.04,15.29s-2.15,11.21-6.04,15.29l-150.34,157.67c-4.02,4.22-9.31,6.32-14.59,6.32ZM252.66,6.84c-4.04,0-7.84,1.65-10.69,4.65L91.63,169.16c-2.86,3-4.43,6.97-4.43,11.21s1.57,8.21,4.43,11.21l150.34,157.67c5.71,5.98,15.66,5.99,21.38,0l150.34-157.67c5.9-6.18,5.9-16.24,0-22.42L263.35,11.49c-2.86-3-6.65-4.65-10.69-4.65Z", "abajo": "M200.99,6.99L47.84,167.61c-6.2,6.5-6.2,17.05,0,23.55l153.15,160.62c6.2,6.5,16.25,6.5,22.45,0l153.15-160.62c6.2-6.5,6.2-17.05,0-23.55L223.44,6.99c-6.2-6.5-16.25-6.5-22.45,0ZM92.74,167.61l108.25-113.53c6.2-6.5,16.25-6.5,22.45,0l108.25,113.53c6.2,6.5,6.2,17.05,0,23.55l-111.45,116.89c-4.43,4.65-11.61,4.65-16.04,0l-111.45-116.89c-6.2-6.5-6.2-17.05,0-23.55Z", "arriba": "M376.59,167.61L223.44,6.99c-6.2-6.5-16.25-6.5-22.45,0L47.84,167.61c-6.2,6.5-6.2,17.05,0,23.55l11.23,11.77L204.19,50.72c4.43-4.65,11.61-4.65,16.04,0l145.13,152.21,11.23-11.77c6.2-6.5,6.2-17.05,0-23.55Z", "hueco": "M92.74,167.61l108.25-113.53c6.2-6.5,16.25-6.5,22.45,0l108.25,113.53c6.2,6.5,6.2,17.05,0,23.55l-111.45,116.89c-4.43,4.65-11.61,4.65-16.04,0l-111.45-116.89c-6.2-6.5-6.2-17.05,0-23.55Z", "izqF": "M170.96,358.39c-5.51,0-10.69-2.25-14.58-6.34h0L6.05,194.38c-3.89-4.08-6.05-9.52-6.05-15.29s2.15-11.21,6.05-15.29L156.38,6.13c7.79-8.17,21.38-8.17,29.16,0l150.34,157.67c3.89,4.08,6.05,9.52,6.05,15.29s-2.15,11.21-6.05,15.29l-150.34,157.67c-3.89,4.08-9.07,6.34-14.58,6.34Z", "derF": "M252.65,359.65c-5.28,0-10.56-2.1-14.58-6.32L87.74,195.66c-3.89-4.08-6.04-9.52-6.04-15.29s2.15-11.21,6.04-15.29L238.07,7.4c8.06-8.44,21.13-8.43,29.17,0l150.34,157.67c3.89,4.08,6.04,9.52,6.04,15.29s-2.15,11.21-6.04,15.29l-150.34,157.67c-4.02,4.22-9.31,6.32-14.59,6.32Z"};
+const N='#0a2038', A='#19477f', C='#7ee7f7', W='#fff', M='#d5e6f0';
+const P=(d,f,s,w=5,x='')=>`<path d="${d}" fill="${f}"${s?` stroke="${s}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"`:''} ${x}/>`;
+const L=(d,c,w,x='')=>`<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" ${x}/>`;
+const O=(x,y,r,f,s,w=4,e='')=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${f}"${s?` stroke="${s}" stroke-width="${w}"`:''} ${e}/>`;
+const E=(x,y,a,b,f,o=1)=>`<ellipse cx="${x}" cy="${y}" rx="${a}" ry="${b}" fill="${f}" opacity="${o}"/>`;
+const espejo=s=>s+`<g transform="translate(424 0) scale(-1 1)">${s}</g>`;
+
+const DEFS=`<defs><linearGradient id="fa" x1="43" y1="179" x2="381" y2="179" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#22818b"/><stop offset="1" stop-color="#19477f"/></linearGradient><linearGradient id="fb" x1="43" y1="102" x2="381" y2="102" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#19477f"/><stop offset="1" stop-color="#22818b"/></linearGradient><linearGradient id="fc" x1="212" y1="60" x2="212" y2="300" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#e3f3f9"/></linearGradient></defs>`;
+const CUERPO=`<g id="cuerpo">${P(PATHS.hueco,W)}${P(PATHS.abajo,'url(#fa)')}${P(PATHS.arriba,'url(#fb)')}${P(PATHS.hueco,'url(#fc)','',0,'transform="translate(212.2 179.4) scale(.91) translate(-212.2 -179.4)"')}</g>`;
+// Cara elegida: O1 B1 P2 C1
+const ojo=x=>E(x,164,21,28,N)+P(`M${x-15} 172 Q${x} 196 ${x+15} 172 Q${x} 182 ${x-15} 172Z`,'#2fa9c4')+O(x+7,151,8.5,W)+O(x-7,170,4,W);
+const CARA=`<g id="cara"><g id="pomulos">${espejo(E(148,198,18,12,'#ff8fa0',.18)+E(148,198,12,8,'#ff8fa0',.28)+E(148,198,6,4,'#ff8fa0',.35))}</g><g id="cejas">${espejo(L('M160 126 Q174 114 190 122',N,7))}</g><g id="ojos">${ojo(178)+ojo(246)}</g><g id="boca">${P('M182 206 Q212 216 242 206 Q239 245 212 245 Q185 245 182 206Z','#5a1630',N,5)+P('M194 237 Q212 220 230 237 Q223 243 212 243 Q201 243 194 237Z','#ff7d8f')}</g></g>`;
+
+const lineasLogo=P(PATHS.izq,'#2380af')+P(PATHS.der,'#298396');
+const relleno=(c,o)=>`<g opacity="${o}">${P(PATHS.izqF,c)+P(PATHS.derF,c)}</g>`;
+const ROPA=[
+ ['Sin ropa',''],
+ ['Líneas del logo',lineasLogo],
+ ['Poncho translúcido',relleno('#2fa9c4',.28)+lineasLogo],
+ ['Traje sólido',relleno('#0a2038',1)+L('M26 179 L171 27 M398 180 L253 28 M26 179 L171 331 M398 180 L253 332',C,3)],
+ ['Traje circuito',relleno('#0f3355',1)+lineasLogo+espejo(L('M24 180 H38 L52 160 M30 197 H42 L58 214 M44 156 V142 L60 128 M70 245 L82 258 H98 M100 275 V290 L120 302',C,3)+O(24,180,4,C)+O(30,197,4,C)+O(60,128,4,C)+O(120,302,4,C))],
+ ['Poncho andino tech',P('M70 140 L-14 214 L212 402 L438 214 L354 140 Z',A,N,5)+L('M6 214 L212 385 L418 214',C,7)+L('M-2 232 L212 409 L426 232','#2fa9c4',12,'stroke-dasharray="3 13"')+L('M30 212 L212 363 L394 212','#fff',3,'stroke-dasharray="12 8"')],
+];
+
+const EXT=[
+ {d:'M70 190 C10 192 -38 212 -50 252',p:'M70 190 L-22 200 L-50 252',codo:[-22,200],pts:[[24,198],[-16,214],[-40,234]],brazo:1},
+ {d:'M354 190 C432 196 484 168 482 112',p:'M354 190 L456 188 L482 112',codo:[456,188],pts:[[404,192],[448,176],[476,144]],brazo:1},
+ {d:'M180 305 Q158 365 163 428',p:'M180 305 L152 372 L163 428',codo:[152,372],pts:[[169,340],[163,372],[162,404]]},
+ {d:'M244 305 Q266 365 261 428',p:'M244 305 L272 372 L261 428',codo:[272,372],pts:[[255,340],[261,372],[262,404]]},
+];
+const hombro=(x,y,r)=>O(x,y,r,N,W,3.5)+O(x,y,r*.38,C);
+const juntas=hombro(62,190,15)+hombro(362,190,15)+hombro(177,312,12)+hombro(247,312,12);
+const BRAZOS=[
+ ['Liso',e=>L(e.d,A,20)],
+ ['Segmentado',e=>L(e.d,C,9)+L(e.d,A,21,'stroke-dasharray="13 5" style="stroke-linecap:butt"')],
+ ['Circuito',e=>L(e.d,N,20)+L(e.d,C,3.5)+O(...e.pts[1],5.5,C,W,2)],
+ ['Articulado',e=>L(e.p,A,19)],
+ ['Energía flotante',e=>e.pts.map(([x,y],i)=>O(x,y,13-i*1.5,C,'',0,'opacity=".25"')+O(x,y,8-i,'#2fa9c4')).join('')],
+];
+
+// Guante: primero el contorno (mas grueso) y encima el relleno
+const guante=(f,s)=>{const capa=(c,x)=>`${O(0,0,24+x/2,c)}${L('M-15 -10 L-24 -35 M1 -15 V-44 M16 -9 L25 -33 M-17 8 L-34 0',c,15+x)}`;return capa(s,10)+capa(f,0);};
+const dedos=(x,y,r)=>`<g transform="translate(${x} ${y}) rotate(${r})">${P('M-6 -2 H6 V-14 H-6Z',M,A,3.5)}${P('M-5 -17 H5 V-25 Q0 -31 -5 -25Z',M,A,3.5)}</g>`;
+// [nombre, dibujo (muñeca hacia abajo), giro mano derecha, giro mano izquierda]
+const MANOS=[
+ ['Guante abierto',guante(W,N),12,196],
+ ['Pulgar arriba',L('M-9 -6 L-7 -34',N,27)+O(0,6,29,N)+L('M-9 -6 L-7 -34',W,17)+O(0,6,24,W)+L('M2 2 H18 M2 14 H16',N,3.5),8,0],
+ ['Mitón',O(0,2,31,N)+L('M-18 2 L-32 -14',N,26)+O(0,2,26,W)+L('M-18 2 L-32 -14',W,16),10,190],
+ ['Robot',P('M-12 16 H12 V30 H-12Z',A,N,3)+dedos(-17,-14,-26)+dedos(0,-20,0)+dedos(17,-14,26)+P('M-22 -14 H22 L27 4 L14 20 H-14 L-27 4Z',M,A,5)+O(0,2,9,C,A,3),10,196],
+ ['Pinza tech',L('M-8 4 C-36 -4 -32 -34 -9 -40 M8 4 C36 -4 32 -34 9 -40',N,18)+L('M-8 4 C-36 -4 -32 -34 -9 -40 M8 4 C36 -4 32 -34 9 -40',M,10)+O(0,10,17,A,N,4)+O(0,10,6,C),10,190],
+ ['Orbe',O(0,0,37,C,'',0,'opacity=".22"')+O(0,0,27,N)+O(0,0,17,'none',C,4)+O(0,0,7,C)+O(3,-3,2.5,W),0,0],
+ ['Rombo',P('M0 -36 L32 0 L0 32 L-32 0Z',W,A,8)+P('M0 -17 L15 0 L0 15 L-15 0Z','#2fa9c4'),0,0],
+ ['Holograma',`<g opacity=".72">${guante(C,'#2380af')}</g>`+L('M-14 -2 H14 M-12 9 H12',W,3),12,196],
+];
+
+// Pie izquierdo (punta hacia afuera); el derecho es su espejo
+const PIES=[
+ ['Sin zapatos',E(150,442,30,16,A)+E(142,437,12,5,C,.5)],
+ ['Zapatillas',P('M174 418 C158 412 112 426 112 447 C112 455 119 458 128 458 H177 C188 458 190 449 189 440 C188 430 183 421 174 418Z',A)+P('M113 448 H189 C189 455 185 458 177 458 H128 C119 458 114 455 113 448Z',C)+L('M143 428 L156 438 M155 423 L168 433',W,4)],
+ ['Botín neón',E(150,462,52,8,C,.35)+P('M149 404 H182 Q189 404 189 414 V450 H112 C112 432 130 427 147 423Z',N,A,3)+P('M112 446 H190 V452 Q190 458 182 458 H122 Q112 458 112 450Z',C)+P('M168 420 L178 431 L168 442 L158 431Z','none',C,3.5)+L('M150 413 H172',C,3.5)],
+ ['Bota robot',P('M148 408 H180 L188 434 L190 458 H112 L117 441 L147 430Z',M,A,5)+L('M118 448 H186',C,5)+O(166,426,8,C,A,3.5)],
+ ['Propulsor',P('M145 436 Q164 492 183 436Z',C,'',0,'opacity=".6"')+P('M154 436 Q164 470 174 436Z',W)+P('M150 405 H178 L188 436 H140Z',M,A,5)+L('M147 424 H181',C,5)],
+ ['Rombo',P('M162 420 L197 443 L158 462 L112 445Z',A,N,5)+L('M128 445 L160 433 L183 443 L158 453Z',C,3.5)],
+ ['Disco flotante',E(158,466,50,9,C,.3)+E(158,452,44,11,N)+E(158,448,38,8,A)+L('M128 455 Q158 467 188 455',C,4)+P('M150 420 H176 L180 446 Q163 452 146 446Z',M,A,4)],
+ ['Bota espacial',P('M146 405 H182 L188 438 Q190 452 180 452 H122 Q112 452 113 442 C116 428 134 426 145 424Z',W,N,5)+P('M112 447 H189 V452 Q189 460 180 460 H122 Q112 460 112 452Z',N)+L('M148 413 H182',C,8)+L('M128 438 H150','#2fa9c4',5)],
+];
+
+const PARTES={
+ R:{titulo:'Ropa (rombos laterales)',items:ROPA,desde:0,vista:'-110 -25 650 510'},
+ A:{titulo:'Brazos y piernas',items:BRAZOS,desde:1,vista:'-110 -25 650 510'},
+ M:{titulo:'Manos',items:MANOS,desde:1,vista:'430 38 106 106'},
+ Z:{titulo:'Pies y zapatos',items:PIES,desde:0,vista:'96 390 124 100'},
+};
+const ORDEN=['R','A','M','Z'];
+const num=(k,i)=>k+(PARTES[k].desde+i);
+const mano=(m,x,y,r)=>`<g transform="translate(${x} ${y}) rotate(${r})">${m[1]}</g>`;
+function armar(s,ver,vista){
+  const con=ver==='con', m=MANOS[s.M];
+  const dentro=(con?E(212,468,135,9,N,.12):'')+`<g id="ropa">${ROPA[s.R][1]}</g>`+
+    (con?`<g id="piernas">${EXT.slice(2).map(BRAZOS[s.A][1]).join('')}</g><g id="pies">${espejo(PIES[s.Z][1])}</g><g id="brazos">${EXT.slice(0,2).map(BRAZOS[s.A][1]).join('')}</g>`:'')+
+    CUERPO+CARA+
+    (con?`<g id="mano-derecha">${mano(m,482,90,m[2])}</g><g id="mano-izquierda">${mano(m,-52,272,m[3])}</g>`:'');
+  const vb=vista||(con?'-110 -25 650 510':'-30 -25 484 440');
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${vb}">${DEFS}${dentro}</svg>`;
+}
+const grupos=f=>ORDEN.map(k=>`<h2>${PARTES[k].titulo}</h2><div class="grid">`+PARTES[k].items.map((it,i)=>f(k,i,it[0])).join('')+'</div>').join('');
+const mini=(s,k,i)=>armar({...s,[k]:i},'con',PARTES[k].vista);
+
+const sel={R:1,A:0,M:0,Z:1}; let ver='con';
+if(location.hash==='#catalogo'){
+  document.body.className='cat';
+  document.body.innerHTML=grupos((k,i,n)=>`<div class="op">${mini(sel,k,i)}<b>${num(k,i)}</b> ${n}</div>`);
+}else{
+  const q=s=>document.querySelector(s);
+  function pintar(){
+    q('#vista').innerHTML=armar(sel,ver);
+    q('#codigo').textContent=ORDEN.map(k=>num(k,sel[k])).join('  ');
+    q('#opciones').innerHTML=grupos((k,i,n)=>`<button class="op" data-k="${k}" data-i="${i}" aria-pressed="${sel[k]===i}">${mini(sel,k,i)}<b>${num(k,i)}</b> ${n}</button>`);
+    document.querySelectorAll('[data-v]').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===ver));
+  }
+  document.addEventListener('click',e=>{
+    const o=e.target.closest('button'); if(!o)return;
+    if(o.dataset.k){const {k,i}=o.dataset; sel[k]=+i; pintar(); q(`[data-k="${k}"][data-i="${i}"]`).focus({preventScroll:true});}
+    else if(o.dataset.v){ver=o.dataset.v; pintar();}
+    else if(o.id==='bajar'){const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([armar(sel,ver)],{type:'image/svg+xml'})); a.download=`fepi-${ORDEN.map(k=>num(k,sel[k])).join('-')}-${ver}-brazos.svg`; a.click();}
+  });
+  pintar();
+}
+</script></body></html>
