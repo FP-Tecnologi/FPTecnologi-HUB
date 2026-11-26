@@ -35,7 +35,7 @@ export default async function NosotrosPage() {
   const clientes = await getClientes();
   // Videos elegidos en el dashboard; si no hay, los últimos del canal de YouTube.
   const elegidos = aVideos(c.videos.items ?? []);
-  const videos = elegidos.length ? elegidos : await getVideosCanal(4);
+  const videos = elegidos.length ? elegidos : await getVideosCanal(12);
   return (
     <>
       <PageHero
@@ -105,14 +105,13 @@ export default async function NosotrosPage() {
           </div>
         </section>
 
-        <VideosSeccion c={c.videos} videos={videos} fondo="blanco" />
-
         <CertificacionesISO />
         <PartnerLevels conTitulo />
         <Reconocimientos />
         <BrandMarquee />
         <NuestrosClientes sectors={clientes} />
         <Contact />
+        <VideosSeccion c={c.videos} videos={videos} />
       </main>
       <Footer />
     </>

@@ -44,10 +44,10 @@ export const PAGINAS_DEFAULTS = {
     // Videos sobre FPTecnologi (historia, quiénes somos). Sin videos elegidos se muestran los últimos del canal.
     videos: {
       ...enc({
-        badge: 'Conócenos',
-        titulo: 'FPTecnologi',
-        destacado: 'en video',
-        descripcion: 'Quiénes somos, cómo trabajamos y nuestros proyectos en todo el Perú. Mira nuestro canal o visítanos y te mostramos las soluciones en persona.',
+        badge: 'Nuestros videos',
+        titulo: 'Mira lo que',
+        destacado: 'hacemos',
+        descripcion: 'Demostraciones de equipos, soluciones y proyectos que implementamos. Mira más en nuestro canal o visítanos y te los mostramos en persona.',
       }),
       items: [] as { url: string; titulo: string }[],
     },
