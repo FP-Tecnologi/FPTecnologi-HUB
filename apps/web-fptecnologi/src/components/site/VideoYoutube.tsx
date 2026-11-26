@@ -9,8 +9,8 @@ import { miniatura } from '@/lib/youtube';
  * solo carga el reproductor (youtube-nocookie) al hacer click. Así la página
  * no descarga ~1 MB de YouTube por cada video que nadie reproduce.
  */
-export function VideoYoutube({ id, titulo, className = '', grande = false }: { id: string; titulo: string; className?: string; grande?: boolean }) {
-  const [activo, setActivo] = useState(false);
+export function VideoYoutube({ id, titulo, className = '', grande = false, autoplay = false }: { id: string; titulo: string; className?: string; grande?: boolean; autoplay?: boolean }) {
+  const [activo, setActivo] = useState(autoplay);
   return (
     <div className={`relative aspect-video overflow-hidden rounded-2xl bg-brand-950 shadow-xl shadow-brand-dark/20 ${className}`}>
       {activo ? (
