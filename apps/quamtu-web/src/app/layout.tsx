@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next';
 import { Carlito, Play } from 'next/font/google';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
-import PieCondicional from '@/components/PieCondicional';
 import WhatsAppFlotante from '@/components/WhatsAppFlotante';
 import ContadorVisitas from '@/components/ContadorVisitas';
 import JsonLd from '@/components/JsonLd';
@@ -16,16 +15,16 @@ const carlito = Carlito({ subsets: ['latin'], variable: '--font-carlito', weight
 export const metadata: Metadata = {
   metadataBase: new URL('https://quamtu.com'),
   title: { default: 'Quamtu — Equipos de cómputo a medida', template: '%s' },
-  description: 'Configuración de precisión: arma tu PC o workstation en 3D, compra componentes o cotiza equipos para tu empresa.',
+  description: 'Equipos de cómputo y workstations a medida: conoce nuestros equipos y cotiza para tu empresa.',
   openGraph: {
     type: 'website',
     siteName: 'Quamtu',
     locale: 'es_PE',
     title: 'Quamtu — Equipos de cómputo a medida',
-    description: 'Arma tu PC o workstation pieza por pieza en 3D y cotiza para tu empresa.',
+    description: 'Conoce nuestros equipos y workstations y cotiza para tu empresa.',
     images: [{ url: '/og.jpg', width: 1200, height: 630, alt: 'Quamtu' }],
   },
-  twitter: { card: 'summary_large_image', title: 'Quamtu — Equipos de cómputo a medida', description: 'Arma tu PC o workstation pieza por pieza en 3D y cotiza para tu empresa.', images: ['/og.jpg'] },
+  twitter: { card: 'summary_large_image', title: 'Quamtu — Equipos de cómputo a medida', description: 'Conoce nuestros equipos y workstations y cotiza para tu empresa.', images: ['/og.jpg'] },
   applicationName: 'Quamtu',
   alternates: { canonical: '/', languages: { 'es-PE': '/' } },
   robots: { index: true, follow: true, googleBot: { index: true, follow: true, 'max-image-preview': 'large', 'max-snippet': -1 } },
@@ -47,9 +46,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <JsonLd datos={[organizacion, sitioWeb]} />
         <Header />
         {children}
-        <PieCondicional>
-          <Footer />
-        </PieCondicional>
+        <Footer />
         <WhatsAppFlotante />
         <ContadorVisitas />
       </body>

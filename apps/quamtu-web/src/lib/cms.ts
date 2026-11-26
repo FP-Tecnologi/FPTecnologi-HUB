@@ -15,7 +15,7 @@ export const CMS_DEFAULTS = {
       titulo: 'Equipos',
       acento: 'a la medida',
       cierre: 'de tu trabajo.',
-      texto: 'No construimos hardware convencional: diseñamos herramientas de ingeniería a la medida. Arma tu equipo en 3D o cotiza para tu organización.',
+      texto: 'No construimos hardware convencional: diseñamos herramientas de ingeniería a la medida. Conoce nuestros equipos y cotiza para tu organización.',
     },
     organizaciones: {
       titulo: 'Para empresas e',

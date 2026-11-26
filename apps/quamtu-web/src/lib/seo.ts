@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { CATS, type Opcion } from './piezas';
 import { WHATSAPP } from './contacto';
 
 export const SITIO = 'https://quamtu.com';
@@ -18,7 +17,7 @@ export function meta(titulo: string, descripcion: string, ruta: string, extra: M
   };
 }
 
-/** Páginas sin valor para buscadores (carrito, seguimiento, propuestas internas). */
+/** Páginas sin valor para buscadores (seguimiento de tickets). */
 export const sinIndexar: Metadata = { robots: { index: false, follow: false } };
 
 /** Organización (GEO): qué es Quamtu, qué vende y dónde atiende. */
@@ -30,7 +29,7 @@ export const organizacion = {
   url: SITIO,
   logo: abs('/og.jpg'),
   image: abs(IMAGEN_SOCIAL.url),
-  description: 'Quamtu ofrece equipos de cómputo a medida: arma tu PC o workstation pieza por pieza en 3D, compra componentes o cotiza equipos para tu empresa.',
+  description: 'Quamtu ofrece equipos de cómputo y estaciones de trabajo a medida; cotiza para tu empresa o institución.',
   telephone: `+${WHATSAPP}`,
   areaServed: { '@type': 'Country', name: 'Perú' },
   knowsLanguage: 'es-PE',
@@ -44,15 +43,4 @@ export const migas = (items: { nombre: string; ruta: string }[]) => ({
   '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: [{ nombre: 'Inicio', ruta: '/' }, ...items].map((m, i) => ({ '@type': 'ListItem', position: i + 1, name: m.nombre, item: abs(m.ruta) })),
-});
-
-/** Ficha de producto. Sin `offers`: los precios del catálogo son referenciales y no se publican como oferta. */
-export const jsonProducto = (o: Opcion) => ({
-  '@context': 'https://schema.org',
-  '@type': 'Product',
-  name: o.nombre,
-  description: o.spec,
-  category: CATS.find((c) => c.id === o.cat)?.titulo,
-  url: abs(`/producto/${o.id}`),
-  brand: { '@type': 'Brand', name: 'Quamtu' },
 });

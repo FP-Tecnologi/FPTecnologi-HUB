@@ -3,10 +3,9 @@ import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { ClipboardList, Headset, HelpCircle, PackageSearch, ShoppingBag, TriangleAlert, X, type LucideIcon } from 'lucide-react';
 import { waUrl } from '@/lib/contacto';
-import { porId } from '@/lib/piezas';
 
-// Botón fijo de WhatsApp. En armador, cotizador y carrito se oculta: ahí hay barras fijas propias.
-const VISIBLE = ['/', '/tienda', '/producto'];
+// Botón fijo de WhatsApp. En el cotizador se oculta: ahí hay barras fijas propias.
+const VISIBLE = ['/', '/equipos'];
 
 type Motivo = { id: string; titulo: string; detalle: string; Icono: LucideIcon; mensaje: (producto?: string) => string };
 
@@ -28,10 +27,10 @@ const MOTIVOS: Motivo[] = [
   },
   {
     id: 'asesoria',
-    titulo: 'Asesoría para armar mi PC',
-    detalle: 'Ayuda para elegir las piezas',
+    titulo: 'Asesoría para elegir mi equipo',
+    detalle: 'Ayuda para escoger el equipo ideal',
     Icono: ClipboardList,
-    mensaje: () => 'Hola Quamtu, necesito asesoría para elegir y armar mi equipo.',
+    mensaje: () => 'Hola Quamtu, necesito asesoría para elegir mi equipo.',
   },
   {
     id: 'soporte',
@@ -71,8 +70,7 @@ export default function WhatsAppFlotante() {
   const [sobreCierre, setSobreCierre] = useState(false);
   const caja = useRef<HTMLDivElement>(null);
 
-  // Si el visitante está en la ficha de un producto, el mensaje ya lo nombra.
-  const producto = ruta.startsWith('/producto/') ? porId(decodeURIComponent(ruta.split('/')[2] ?? ''))?.nombre : undefined;
+  const producto: string | undefined = undefined;
 
   useEffect(() => {
     const zonas = ['contacto', 'pie'].map((id) => document.getElementById(id)).filter(Boolean) as HTMLElement[];

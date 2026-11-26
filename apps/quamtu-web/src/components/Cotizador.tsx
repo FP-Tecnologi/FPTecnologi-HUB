@@ -1,34 +1,25 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { ArrowLeft, ArrowRight, Check, ClipboardList, Download, Loader2, MessageCircle, Minus, Plus, Search, Trash2 } from 'lucide-react';
-import ImgPieza from './ImgPieza';
-import { leerCarrito } from '@/lib/carrito';
+import { ArrowLeft, ArrowRight, Check, ClipboardList, Loader2, MessageCircle, Minus, Plus, Search, Trash2 } from 'lucide-react';
 import { waUrl } from '@/lib/contacto';
-import { BUILDS, CATS, OPCIONES, porId, seleccionDe, total, type Cat } from '@/lib/piezas';
+import { CDN_PC, EQUIPOS, type Equipo } from '@/lib/equipos';
 import { hubJson } from '@/lib/hub';
 
-const soles = (n: number) => `S/ ${n.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
-type Linea = { clave: string; nombre: string; detalle?: string; unit: number; cantidad: number };
+type Linea = { clave: string; nombre: string; detalle?: string; cantidad: number };
 type Tipo = 'JURIDICA' | 'NATURAL';
 
-const buildLinea = (i: number): Linea => {
-  const b = BUILDS[i];
-  const s = seleccionDe(b.ids);
-  return { clave: `build-${i}`, nombre: `${b.nombre} (PC armada)`, detalle: b.ids.map((id) => porId(id)?.nombre).join(' · '), unit: total(s), cantidad: 1 };
-};
-const piezaLinea = (id: string): Linea => {
-  const o = porId(id)!;
-  return { clave: id, nombre: o.nombre, detalle: o.spec, unit: o.precio, cantidad: 1 };
-};
+const TIPOS = ['Todos', ...Array.from(new Set(EQUIPOS.map((e) => e.tipo)))];
+const lineaDe = (e: Equipo): Linea => ({ clave: e.codigo, nombre: `${e.modelo} (${e.codigo})`, detalle: [e.cpu, e.ram, e.almacenamiento].join(' · '), cantidad: 1 });
 
-const PLAZOS = ['Lo antes posible', 'En 1 a 2 semanas', 'En 1 mes', 'Solo estoy comparando precios'];
+const PLAZOS = ['Lo antes posible', 'En 1 a 2 semanas', 'En 1 mes', 'Solo estoy comparando opciones'];
 const campo = 'w-full rounded-lg border border-line bg-bg/60 px-4 py-3 text-base text-white outline-none transition placeholder:text-[color:var(--c-ph)] focus:border-cyan';
 
-export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pieza'; id: string } }) {
-  const [lineas, setLineas] = useState<Linea[]>(() => (inicial ? [inicial.tipo === 'build' ? buildLinea(Number(inicial.id)) : piezaLinea(inicial.id)] : []));
-  const [pestana, setPestana] = useState<'equipos' | 'componentes'>(inicial?.tipo === 'pieza' ? 'componentes' : 'equipos');
-  const [cat, setCat] = useState<Cat | ''>('');
+export default function Cotizador({ inicial }: { inicial?: string }) {
+  const [lineas, setLineas] = useState<Linea[]>(() => {
+    const e = inicial ? EQUIPOS.find((x) => x.codigo === inicial) : undefined;
+    return e ? [lineaDe(e)] : [];
+  });
+  const [tipo, setTipo] = useState('Todos');
   const [q, setQ] = useState('');
   const [f, setF] = useState({ tipo: 'JURIDICA' as Tipo, nombres: '', apellidos: '', doc: '', empresa: '', email: '', celular: '', plazo: PLAZOS[0], factura: true, mensaje: '', website: '' });
   const [errores, setErrores] = useState<Record<string, string>>({});
@@ -38,17 +29,17 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
   const [paso, setPaso] = useState<1 | 2>(1);
 
   const irA = (n: 1 | 2) => {
-    if (n === 2 && !lineas.length) return setErrores({ lineas: 'Agrega al menos un producto para continuar.' });
+    if (n === 2 && !lineas.length) return setErrores({ lineas: 'Agrega al menos un equipo para continuar.' });
     setErrores({});
     setPaso(n);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const totalRef = lineas.reduce((a, l) => a + l.unit * l.cantidad, 0);
+  const unidades = lineas.reduce((a, l) => a + l.cantidad, 0);
   const lista = useMemo(() => {
     const t = q.toLowerCase().trim();
-    return OPCIONES.filter((o) => (!cat || o.cat === cat) && (!t || `${o.nombre} ${o.spec}`.toLowerCase().includes(t)));
-  }, [cat, q]);
+    return EQUIPOS.filter((e) => (tipo === 'Todos' || e.tipo === tipo) && (!t || `${e.codigo} ${e.modelo} ${e.cpu} ${e.ram} ${e.almacenamiento}`.toLowerCase().includes(t)));
+  }, [tipo, q]);
 
   const cantidadDe = (clave: string) => lineas.find((l) => l.clave === clave)?.cantidad ?? 0;
   const poner = (l: Linea) => setLineas((ls) => (ls.some((x) => x.clave === l.clave) ? ls.map((x) => (x.clave === l.clave ? { ...x, cantidad: x.cantidad + 1 } : x)) : [...ls, l]));
@@ -56,24 +47,10 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
     setLineas((ls) => ls.map((l) => (l.clave === clave ? { ...l, cantidad: Math.max(0, l.cantidad + d) } : l)).filter((l) => l.cantidad > 0));
   const quitar = (clave: string) => setLineas((ls) => ls.filter((l) => l.clave !== clave));
 
-  const importarCarrito = () => {
-    leerCarrito().forEach((it, i) => {
-      if (it.tipo === 'pieza') poner({ ...piezaLinea(it.ids[0]), cantidad: it.cantidad ?? 1 });
-      else
-        poner({
-          clave: `carrito-${i}`,
-          nombre: it.modo === 'repuestos' ? 'Componentes seleccionados' : 'PC armada a medida',
-          detalle: it.ids.map((id) => porId(id)?.nombre).join(' · '),
-          unit: it.total,
-          cantidad: 1,
-        });
-    });
-  };
-
   const validar = () => {
     const e: Record<string, string> = {};
     const celular = f.celular.replace(/[\s+-]/g, '').replace(/^51/, '');
-    if (!lineas.length) e.lineas = 'Agrega al menos un producto a tu cotización.';
+    if (!lineas.length) e.lineas = 'Agrega al menos un equipo a tu cotización.';
     if (f.nombres.trim().length < 2) e.nombres = 'Ingresa tus nombres.';
     if (f.apellidos.trim().length < 2) e.apellidos = 'Ingresa tus apellidos.';
     if (!new RegExp(f.tipo === 'JURIDICA' ? '^\\d{11}$' : '^\\d{8}$').test(f.doc)) e.doc = f.tipo === 'JURIDICA' ? 'El RUC tiene 11 dígitos.' : 'El DNI tiene 8 dígitos.';
@@ -84,11 +61,10 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
     return Object.keys(e).length === 0;
   };
 
-  const detalleTexto = () =>
-    lineas.map((l) => `• ${l.cantidad} × ${l.nombre} — ${soles(l.unit * l.cantidad)}${l.detalle ? `\n   ${l.detalle}` : ''}`).join('\n');
+  const detalleTexto = () => lineas.map((l) => `• ${l.cantidad} × ${l.nombre}${l.detalle ? `\n   ${l.detalle}` : ''}`).join('\n');
 
   const mensajeWa = () =>
-    `Hola Quamtu, solicito una cotización:\n\n*Productos*\n${detalleTexto()}\n\n*Total referencial: ${soles(totalRef)}*\n\n*Mis datos*\n${f.nombres} ${f.apellidos}${f.empresa ? ` — ${f.empresa}` : ''}\n${f.tipo === 'JURIDICA' ? 'RUC' : 'DNI'}: ${f.doc}\nCorreo: ${f.email}\nCelular: ${f.celular}\nPlazo: ${f.plazo}\nFactura: ${f.factura ? 'Sí' : 'No'}${f.mensaje ? `\nNotas: ${f.mensaje}` : ''}`;
+    `Hola Quamtu, solicito una cotización:\n\n*Equipos*\n${detalleTexto()}\n\n*Mis datos*\n${f.nombres} ${f.apellidos}${f.empresa ? ` — ${f.empresa}` : ''}\n${f.tipo === 'JURIDICA' ? 'RUC' : 'DNI'}: ${f.doc}\nCorreo: ${f.email}\nCelular: ${f.celular}\nPlazo: ${f.plazo}\nFactura: ${f.factura ? 'Sí' : 'No'}${f.mensaje ? `\nNotas: ${f.mensaje}` : ''}`;
 
   const enviar = async (ev: React.FormEvent) => {
     ev.preventDefault();
@@ -105,7 +81,7 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
       empresa: limpio(f.empresa.trim()) || undefined,
       email: f.email.trim(),
       celular: f.celular.trim(),
-      interes: limpio(`Cotización de ${lineas.length} producto(s) — total ref. ${soles(totalRef)}`).slice(0, 120),
+      interes: limpio(`Cotización de ${lineas.length} equipo(s)`).slice(0, 120),
       mensaje: limpio(`${detalleTexto()}\nPlazo: ${f.plazo}. Factura: ${f.factura ? 'sí' : 'no'}.${f.mensaje ? ` Notas: ${f.mensaje}` : ''}`).slice(0, 1000),
       origen: 'quamtu-web/cotizar',
       website: f.website,
@@ -136,7 +112,7 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
           <span className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-cyan/20 text-claro"><Check size={32} /></span>
           <h1 className="mt-6 font-display text-3xl font-bold">Cotización lista</h1>
           <p className="mt-3 text-lg text-slate-300">{resultado.texto}</p>
-          <p className="mt-2 text-sm text-slate-400">Total referencial: {soles(totalRef)} · {lineas.length} producto(s)</p>
+          <p className="mt-2 text-sm text-slate-400">{unidades} unidad(es) · {lineas.length} equipo(s)</p>
           <a href={waUrl(mensajeWa())} target="_blank" rel="noreferrer" className="btn-neon mt-8 inline-flex items-center gap-2 rounded-full px-8 py-4 font-display text-sm">
             <MessageCircle size={18} /> CONTINUAR POR WHATSAPP
           </a>
@@ -147,11 +123,11 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
 
   return (
     <main className="mx-auto max-w-7xl px-4 pb-32 pt-24 sm:px-5 sm:pt-28 lg:pb-24">
-      <h1 className="font-display text-3xl font-bold sm:text-4xl md:text-5xl">Cotizador <span className="titulo-neon">avanzado</span></h1>
-      <p className="mt-3 max-w-2xl text-slate-400">Elige equipos y componentes, indica las cantidades y déjanos tus datos. Un especialista te enviará la cotización formal con precio final y disponibilidad.</p>
+      <h1 className="font-display text-3xl font-bold sm:text-4xl md:text-5xl">Cotizador <span className="titulo-neon">de equipos</span></h1>
+      <p className="mt-3 max-w-2xl text-slate-400">Elige los equipos, indica las cantidades y déjanos tus datos. Un especialista te enviará la cotización formal con precio final y disponibilidad.</p>
 
       <ol className="mt-8 flex max-w-md items-center">
-        {([[1, 'Productos'], [2, 'Tus datos']] as const).map(([n, t], i) => (
+        {([[1, 'Equipos'], [2, 'Tus datos']] as const).map(([n, t], i) => (
           <li key={n} className="flex flex-1 items-center last:flex-none">
             <button type="button" onClick={() => irA(n)} className="flex items-center gap-2">
               <span className={`grid h-9 w-9 place-items-center rounded-full border text-sm font-bold transition ${paso === n ? 'border-claro bg-boton text-white shadow-[0_0_16px_rgba(35,141,193,.7)]' : paso > n ? 'border-cyan bg-cyan/20 text-claro' : 'border-line text-slate-400'}`}>
@@ -166,74 +142,42 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
 
       <form onSubmit={enviar} noValidate className="mt-6 grid items-start gap-8 lg:grid-cols-[1fr_380px]">
         <div className="min-w-0 space-y-8">
-          {/* 1. PRODUCTOS */}
+          {/* 1. EQUIPOS */}
           {paso === 1 && (
           <section className="glass rounded-2xl p-4 sm:p-6">
-            <h2 className="font-display text-xl font-bold"><span className="text-claro">1.</span> Elige tus productos</h2>
-            <div className="sin-barra mt-4 flex gap-2 overflow-x-auto pb-1">
-              <button type="button" onClick={() => setPestana('equipos')} className={chip(pestana === 'equipos')}>Equipos armados</button>
-              <button type="button" onClick={() => setPestana('componentes')} className={chip(pestana === 'componentes')}>Componentes</button>
-              <button type="button" onClick={importarCarrito} className={`${chip(false)} ml-auto flex items-center gap-1.5`}><Download size={13} /> Importar mi carrito</button>
+            <h2 className="font-display text-xl font-bold"><span className="text-claro">1.</span> Elige tus equipos</h2>
+            <div className="relative mt-4">
+              <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input value={q} onChange={(e) => setQ(e.target.value)} aria-label="Buscar equipo" placeholder="Buscar por código, modelo o procesador…" className={`${campo} pl-11`} />
             </div>
-
-            {pestana === 'equipos' ? (
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                {BUILDS.map((b, i) => {
-                  const l = buildLinea(i);
-                  const n = cantidadDe(l.clave);
-                  return (
-                    <div key={b.nombre} className="rounded-xl border border-line bg-bg/50 p-4">
-                      <span className="font-display text-xs tracking-[0.25em] text-claro">{b.linea}</span>
-                      <h3 className="font-display text-lg font-bold">{b.nombre}</h3>
-                      <p className="text-sm text-slate-400">{b.para}</p>
-                      <p className="mt-2 text-xs leading-relaxed text-slate-400">{l.detalle}</p>
-                      <div className="mt-3 flex items-center justify-between">
-                        <b className="font-display text-lg text-claro">{soles(l.unit)}</b>
-                        {n ? (
-                          <Paso n={n} onMenos={() => cambiar(l.clave, -1)} onMas={() => cambiar(l.clave, 1)} />
-                        ) : (
-                          <button type="button" onClick={() => poner(l)} className="btn-neon min-h-11 rounded-full px-4 py-2 font-display text-xs">AGREGAR</button>
-                        )}
-                      </div>
+            <div className="sin-barra mt-3 flex gap-2 overflow-x-auto pb-1">
+              {TIPOS.map((t) => (
+                <button key={t} type="button" onClick={() => setTipo(t)} className={chip(tipo === t)}>{t}</button>
+              ))}
+            </div>
+            <div className="mt-4 grid max-h-[560px] gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
+              {lista.slice(0, 60).map((e) => {
+                const n = cantidadDe(e.codigo);
+                return (
+                  <div key={e.codigo} className={`flex items-center gap-3 rounded-xl border p-3 ${n ? 'border-cyan bg-cyan/10' : 'border-line bg-bg/50'}`}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={CDN_PC + e.imagen} alt="" loading="lazy" width={56} height={56} className="h-14 w-14 shrink-0 rounded-lg bg-white/5 object-contain" />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-bold">{e.modelo}</p>
+                      <p className="truncate font-mono text-xs text-claro">{e.codigo}</p>
+                      <p className="truncate text-xs text-slate-400">{e.cpu} · {e.ram}</p>
                     </div>
-                  );
-                })}
-              </div>
-            ) : (
-              <>
-                <div className="relative mt-4">
-                  <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
-                  <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar componente…" className={`${campo} pl-11`} />
-                </div>
-                <div className="sin-barra mt-3 flex gap-2 overflow-x-auto pb-1">
-                  <button type="button" onClick={() => setCat('')} className={chip(!cat)}>Todo</button>
-                  {CATS.map((c) => (
-                    <button key={c.id} type="button" onClick={() => setCat(c.id)} className={chip(cat === c.id)}>{c.titulo}</button>
-                  ))}
-                </div>
-                <div className="mt-4 grid max-h-[520px] gap-2 overflow-y-auto pr-1 sm:grid-cols-2">
-                  {lista.map((o) => {
-                    const n = cantidadDe(o.id);
-                    return (
-                      <div key={o.id} className={`flex items-center gap-3 rounded-xl border p-3 ${n ? 'border-cyan bg-cyan/10' : 'border-line bg-bg/50'}`}>
-                        <ImgPieza id={o.id} cat={o.cat} color={o.color} className="h-14 w-14 shrink-0 rounded-lg" />
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-bold">{o.nombre}</p>
-                          <p className="truncate text-xs text-slate-400">{o.spec}</p>
-                          <b className="font-display text-sm text-claro">{soles(o.precio)}</b>
-                        </div>
-                        {n ? (
-                          <Paso n={n} onMenos={() => cambiar(o.id, -1)} onMas={() => cambiar(o.id, 1)} />
-                        ) : (
-                          <button type="button" onClick={() => poner(piezaLinea(o.id))} aria-label={`Agregar ${o.nombre}`} className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-claro/50 text-claro hover:bg-cyan/20"><Plus size={16} /></button>
-                        )}
-                      </div>
-                    );
-                  })}
-                  {!lista.length && <p className="col-span-full py-6 text-center text-sm text-slate-400">Sin resultados.</p>}
-                </div>
-              </>
-            )}
+                    {n ? (
+                      <Paso n={n} onMenos={() => cambiar(e.codigo, -1)} onMas={() => cambiar(e.codigo, 1)} />
+                    ) : (
+                      <button type="button" onClick={() => poner(lineaDe(e))} aria-label={`Agregar ${e.modelo} ${e.codigo}`} className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-claro/50 text-claro hover:bg-cyan/20"><Plus size={16} /></button>
+                    )}
+                  </div>
+                );
+              })}
+              {!lista.length && <p className="col-span-full py-6 text-center text-sm text-slate-400">Sin resultados.</p>}
+              {lista.length > 60 && <p className="col-span-full py-2 text-center text-xs text-slate-400">Mostrando 60 de {lista.length}: afina la búsqueda para ver otros.</p>}
+            </div>
             {errores.lineas && <p className="mt-3 text-sm text-red-400">{errores.lineas}</p>}
             <button type="button" onClick={() => irA(2)} className="btn-neon mt-6 flex items-center gap-2 rounded-full px-8 py-3.5 font-display text-sm">
               CONTINUAR <ArrowRight size={16} />
@@ -272,7 +216,7 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
             {/* honeypot */}
             <input value={f.website} onChange={(e) => set('website', e.target.value)} tabIndex={-1} autoComplete="off" aria-hidden className="absolute -left-[9999px] h-0 w-0 opacity-0" />
             <button type="button" onClick={() => irA(1)} className="mt-6 flex items-center gap-2 text-sm text-slate-400 hover:text-claro">
-              <ArrowLeft size={15} /> Volver a mis productos
+              <ArrowLeft size={15} /> Volver a mis equipos
             </button>
           </section>
           )}
@@ -282,26 +226,25 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
         <aside className="glass rounded-2xl p-5 sm:p-6 lg:sticky lg:top-24">
           <h2 className="font-display text-lg font-bold">Tu cotización</h2>
           {!lineas.length ? (
-            <p className="mt-4 text-sm text-slate-400">Aún no agregaste productos.</p>
+            <p className="mt-4 text-sm text-slate-400">Aún no agregaste equipos.</p>
           ) : (
             <ul className="mt-4 max-h-[340px] divide-y divide-line/60 overflow-y-auto">
               {lineas.map((l) => (
                 <li key={l.clave} className="py-3">
                   <div className="flex items-start justify-between gap-3">
-                    <p className="min-w-0 text-sm font-bold">{l.nombre}</p>
+                    <p className="min-w-0 break-words text-sm font-bold">{l.nombre}</p>
                     <button type="button" onClick={() => quitar(l.clave)} aria-label={`Quitar ${l.nombre}`} className="shrink-0 text-slate-400 hover:text-red-400"><Trash2 size={14} /></button>
                   </div>
-                  <div className="mt-2 flex items-center justify-between">
+                  <div className="mt-2">
                     <Paso n={l.cantidad} onMenos={() => cambiar(l.clave, -1)} onMas={() => cambiar(l.clave, 1)} />
-                    <b className="font-display text-claro">{soles(l.unit * l.cantidad)}</b>
                   </div>
                 </li>
               ))}
             </ul>
           )}
           <div className="mt-4 flex items-end justify-between border-t border-line pt-4">
-            <span className="text-xs tracking-widest text-slate-400">TOTAL REFERENCIAL</span>
-            <span className="titulo-neon font-display text-2xl font-bold">{soles(totalRef)}</span>
+            <span className="text-xs tracking-widest text-slate-400">UNIDADES</span>
+            <span className="titulo-neon font-display text-2xl font-bold">{unidades}</span>
           </div>
           {errorApi && <p className="mt-3 text-sm text-red-400">{errorApi}</p>}
           {paso === 1 ? (
@@ -313,14 +256,14 @@ export default function Cotizador({ inicial }: { inicial?: { tipo: 'build' | 'pi
               {enviando ? <Loader2 size={18} className="animate-spin" /> : <ClipboardList size={18} />} SOLICITAR COTIZACIÓN
             </button>
           )}
-          <p className="mt-3 text-xs text-slate-400">Precios referenciales. La cotización formal incluye precio final, stock y tiempo de entrega.</p>
+          <p className="mt-3 text-xs text-slate-400">Los equipos se trabajan por cotización: la respuesta incluye precio final, stock y tiempo de entrega.</p>
         </aside>
 
-        {/* Barra fija en celular: total y envío siempre a la vista */}
+        {/* Barra fija en celular */}
         <div className="fixed inset-x-0 bottom-0 z-40 flex items-center justify-between gap-3 border-t border-line bg-bg/95 px-4 py-3 backdrop-blur lg:hidden">
           <div>
-            <span className="block text-xs tracking-widest text-slate-400">{lineas.length} PRODUCTO(S)</span>
-            <b className="font-display text-lg text-claro">{soles(totalRef)}</b>
+            <span className="block text-xs tracking-widest text-slate-400">{lineas.length} EQUIPO(S)</span>
+            <b className="font-display text-lg text-claro">{unidades} unid.</b>
           </div>
           {paso === 1 ? (
             <button type="button" onClick={() => irA(2)} className="btn-neon rounded-full px-6 py-3 font-display text-xs">CONTINUAR</button>

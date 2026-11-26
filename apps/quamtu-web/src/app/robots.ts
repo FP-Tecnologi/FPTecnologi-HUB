@@ -5,5 +5,5 @@ import { SITIO } from '@/lib/seo';
 export const dynamic = 'force-static';
 
 export default function robots(): MetadataRoute.Robots {
-  return { rules: [{ userAgent: '*', allow: '/', disallow: ['/api/', '/carrito', '/tickets/seguimiento', '/propuestas/'] }], sitemap: `${SITIO}/sitemap.xml`, host: SITIO };
+  return { rules: [{ userAgent: '*', allow: '/', disallow: ['/api/', '/tickets/seguimiento'] }], sitemap: `${SITIO}/sitemap.xml`, host: SITIO };
 }

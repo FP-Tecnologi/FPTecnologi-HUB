@@ -1,6 +1,7 @@
 'use client';
 import { useMemo, useState } from 'react';
-import { BadgeCheck, Check, Copy, FileText, MessageCircle, Search } from 'lucide-react';
+import Link from 'next/link';
+import { BadgeCheck, Check, ClipboardList, Copy, FileText, MessageCircle, Search } from 'lucide-react';
 import { waUrl } from '@/lib/contacto';
 import { CDN_PC, EQUIPOS, type Equipo } from '@/lib/equipos';
 
@@ -46,8 +47,11 @@ function Tarjeta({ e }: { e: Equipo }) {
 
         <div className="mt-auto flex flex-wrap gap-2 pt-5">
           <a href={waUrl(`Hola Quamtu, quiero cotizar el equipo ${e.modelo}, Nro. de Parte ${e.codigo}.`)} target="_blank" rel="noreferrer" className="btn-neon inline-flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2.5 font-display text-xs">
-            <MessageCircle size={15} /> COTIZAR
+            <MessageCircle size={15} /> WHATSAPP
           </a>
+          <Link href={`/cotizar?equipo=${encodeURIComponent(e.codigo)}`} className="btn-borde inline-flex items-center justify-center gap-2 rounded-full px-4 py-2.5 font-display text-xs">
+            <ClipboardList size={15} /> COTIZAR
+          </Link>
           <a href={CDN_PC + e.ficha} target="_blank" rel="noreferrer" className="btn-borde inline-flex items-center justify-center gap-2 rounded-full px-4 py-2.5 font-display text-xs">
             <FileText size={15} /> FICHA TÉCNICA
           </a>
@@ -70,7 +74,7 @@ export default function Equipos() {
     <main id="contenido" className="mx-auto max-w-7xl px-5 pb-24 pt-28">
       <h1 className="font-display text-4xl font-bold text-white md:text-5xl">Equipos <span className="titulo-neon">Quamtu</span></h1>
       <p className="mt-4 max-w-2xl text-lg text-slate-300">
-        Computadoras y estaciones de trabajo con su Nro. de Parte o Código Único de Identificación, tal como están ofertadas en Perú Compras. Sin precio en línea: cotiza por WhatsApp con el código.
+        Computadoras y estaciones de trabajo con su Nro. de Parte o Código Único de Identificación, tal como están ofertadas en Perú Compras. Sin precio en línea: cotiza con el código por WhatsApp o desde el cotizador.
       </p>
 
       <div className="mt-8 flex flex-wrap items-center gap-3">

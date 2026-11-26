@@ -2,14 +2,12 @@ import Link from 'next/link';
 import { ArrowRight, BadgeCheck, BookOpen, ClipboardList, ShieldCheck, Wrench, MessageCircle, PackageCheck, Gauge, MousePointerClick, Headset, UserCheck } from 'lucide-react';
 import PcEscena from '@/components/PcEscena';
 import Reveal from '@/components/Reveal';
-import ComparaLineas from '@/components/ComparaLineas';
 import Faq from '@/components/Faq';
-import ImgPieza from '@/components/ImgPieza';
-import SelectorUso from '@/components/SelectorUso';
 import { waUrl } from '@/lib/contacto';
 import { CASOS } from '@/lib/contenido';
 import { getPagina } from '@/lib/cms';
-import { BUILDS, porId, seleccionDe } from '@/lib/piezas';
+import { CDN_PC, EQUIPOS } from '@/lib/equipos';
+import { BUILDS, seleccionDe } from '@/lib/piezas';
 
 const SELLOS = [
   { i: Gauge, t: 'Fuentes 80 Plus', d: 'Eficiencia energética certificada' },
@@ -27,12 +25,17 @@ const RESPALDO = [
 ];
 
 const PASOS_COMPRA = [
-  { i: MousePointerClick, t: 'Elige o arma', d: 'Parte de una configuración lista o arma la tuya pieza por pieza en 3D.' },
-  { i: MessageCircle, t: 'Confirma con un especialista', d: 'Te llega tu configuración por WhatsApp y confirmamos precio final, stock y entrega.' },
+  { i: MousePointerClick, t: 'Elige tu equipo', d: 'Revisa nuestros equipos y estaciones de trabajo con su ficha técnica.' },
+  { i: MessageCircle, t: 'Solicita tu cotización', d: 'Nos escribes por WhatsApp o con el cotizador y un especialista te envía precio, stock y entrega.' },
   { i: PackageCheck, t: 'Recibe tu equipo', d: 'Lo armamos bajo estándares rigurosos y te acompañamos con soporte post-venta.' },
 ];
 
-const DESTACADOS = ['c2', 'r2', 'v3', 's2'];
+const DESTACADOS = [
+  EQUIPOS.find((e) => e.modelo.includes('Turing5 2° Gen Ultra')),
+  EQUIPOS.find((e) => e.modelo.includes('Turing7 14° Gen')),
+  EQUIPOS.find((e) => e.modelo.includes('Turing7 WS Ultra')),
+  EQUIPOS.find((e) => e.modelo.includes('Turing W7 WS')),
+].filter((e): e is (typeof EQUIPOS)[number] => !!e);
 
 // Posiciones (en % de la foto) de las llamadas numeradas del gabinete Turing.
 const LLAMADAS = [
@@ -68,8 +71,8 @@ export default async function Home() {
               {textos.texto}
             </p>
             <div style={{ ["--i" as string]: 3 }} className="entra mt-9 flex flex-wrap gap-4">
-              <Link href="/armar" className="btn-neon inline-flex items-center gap-2 rounded-full px-8 py-4 font-display text-sm">
-                ARMA TU PC <ArrowRight size={18} />
+              <Link href="/equipos" className="btn-neon inline-flex items-center gap-2 rounded-full px-8 py-4 font-display text-sm">
+                VER EQUIPOS <ArrowRight size={18} />
               </Link>
               <Link href="/cotizar" className="btn-borde inline-flex items-center gap-2 rounded-full px-8 py-4 font-display text-sm">
                 <ClipboardList size={18} /> COTIZA PARA TU EMPRESA
@@ -96,17 +99,6 @@ export default async function Home() {
             ))}
           </div>
         </div>
-      </section>
-
-      {/* ¿PARA QUÉ USARÁS TU PC? */}
-      <section id="uso" className="mx-auto max-w-7xl px-5 py-20">
-        <Reveal>
-          <h2 data-r className="font-display text-3xl font-bold md:text-5xl">
-            ¿Para qué usarás <span className="titulo-neon">tu PC?</span>
-          </h2>
-          <p data-r className="mt-4 max-w-2xl text-slate-400">Elige tu uso y te recomendamos una configuración. Luego la puedes personalizar pieza por pieza.</p>
-          <div data-r><SelectorUso /></div>
-        </Reveal>
       </section>
 
       {/* PARA ORGANIZACIONES */}
@@ -216,39 +208,33 @@ export default async function Home() {
             </figcaption>
           </figure>
 
-          <div data-r className="lg:col-span-2">
-            <h3 className="font-display text-xl font-bold text-white sm:text-2xl">¿Cuál es la tuya? <span className="text-claro">Compáralas</span></h3>
-            <ComparaLineas />
-          </div>
         </Reveal>
       </section>
 
-      {/* COMPONENTES DESTACADOS */}
+      {/* EQUIPOS DESTACADOS (sin precio: se cotiza) */}
       <section className="bg-panel/50 py-20">
         <Reveal className="mx-auto max-w-7xl px-5">
           <div data-r className="flex flex-wrap items-end justify-between gap-4">
             <h2 className="font-display text-3xl font-bold md:text-5xl">
-              Componentes <span className="titulo-neon">destacados</span>
+              Equipos <span className="titulo-neon">destacados</span>
             </h2>
-            <Link href="/tienda" className="btn-borde inline-flex items-center gap-2 rounded-full px-6 py-3 font-display text-xs">
-              VER TODA LA TIENDA <ArrowRight size={15} />
+            <Link href="/equipos" className="btn-borde inline-flex items-center gap-2 rounded-full px-6 py-3 font-display text-xs">
+              VER TODOS LOS EQUIPOS <ArrowRight size={15} />
             </Link>
           </div>
           <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {DESTACADOS.map((id) => {
-              const o = porId(id);
-              if (!o) return null;
-              return (
-                <Link key={id} data-r href={`/producto/${id}`} className="hud group flex flex-col overflow-hidden transition hover:-translate-y-1">
-                  <ImgPieza id={o.id} cat={o.cat} color={o.color} className="h-44 w-full bg-gradient-to-br from-panel to-bg" />
-                  <div className="flex flex-1 flex-col p-5">
-                    <h3 className="font-display text-base font-bold normal-case text-white">{o.nombre}</h3>
-                    <p className="mt-1 flex-1 text-sm text-slate-400">{o.spec}</p>
-                    <p className="mt-4 font-display text-xl font-bold text-claro">S/ {o.precio.toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
-                  </div>
-                </Link>
-              );
-            })}
+            {DESTACADOS.map((e) => (
+              <Link key={e.codigo} data-r href="/equipos" className="hud group flex flex-col overflow-hidden transition hover:-translate-y-1">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={CDN_PC + e.imagen} alt={`${e.modelo} ${e.codigo}`} loading="lazy" width={480} height={360} className="h-44 w-full bg-white/5 object-contain p-3" />
+                <div className="flex flex-1 flex-col p-5">
+                  <span className="font-display text-xs tracking-[0.2em] text-claro">{e.tipo.toUpperCase()}</span>
+                  <h3 className="mt-1 font-display text-base font-bold normal-case text-white">{e.modelo}</h3>
+                  <p className="mt-1 flex-1 text-sm text-slate-400">{e.cpu} · {e.ram} · {e.almacenamiento}</p>
+                  <p className="mt-4 font-display text-sm font-bold text-claro">COTIZAR →</p>
+                </div>
+              </Link>
+            ))}
           </div>
         </Reveal>
       </section>
@@ -275,8 +261,8 @@ export default async function Home() {
                 </div>
               ))}
             </dl>
-            <Link data-r href="/armar" className="btn-neon mt-8 inline-flex items-center gap-2 rounded-full px-8 py-4 font-display text-sm">
-              CONFIGURA TU EQUIPO <ArrowRight size={18} />
+            <Link data-r href="/equipos" className="btn-neon mt-8 inline-flex items-center gap-2 rounded-full px-8 py-4 font-display text-sm">
+              VER EQUIPOS <ArrowRight size={18} />
             </Link>
           </div>
         </Reveal>
@@ -351,14 +337,14 @@ export default async function Home() {
         <Reveal className="mx-auto grid max-w-7xl items-center gap-10 px-5 lg:grid-cols-[1.1fr_1fr] lg:gap-16">
           <div>
             <h2 data-r className="font-display text-4xl font-bold md:text-6xl">
-              Tu PC, <span className="titulo-neon">pieza por pieza</span>
+              Tu equipo, <span className="titulo-neon">a tu medida</span>
             </h2>
             <p data-r className="mt-5 max-w-lg text-lg text-slate-300">
-              Elige cada componente en 3D y confirma tu pedido con un especialista. Si compras para tu organización, pide una cotización formal.
+              Conoce nuestros equipos y pide tu cotización con un especialista. Si compras para tu organización, solicita una cotización formal con factura.
             </p>
             <div data-r className="mt-8 flex flex-wrap gap-3">
-              <Link href="/armar" className="btn-neon inline-flex items-center gap-2 rounded-full px-8 py-4 font-display text-sm">
-                ARMA TU PC <ArrowRight size={18} />
+              <Link href="/equipos" className="btn-neon inline-flex items-center gap-2 rounded-full px-8 py-4 font-display text-sm">
+                VER EQUIPOS <ArrowRight size={18} />
               </Link>
               <a href={waUrl('Hola Quamtu, necesito asesoría para elegir mi equipo.')} target="_blank" rel="noreferrer" className="btn-borde inline-flex items-center gap-2 rounded-full px-8 py-4 font-display text-sm">
                 <MessageCircle size={18} /> ESCRÍBENOS POR WHATSAPP

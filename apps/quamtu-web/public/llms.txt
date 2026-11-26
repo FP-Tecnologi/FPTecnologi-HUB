@@ -1,17 +1,16 @@
 # Quamtu
 
-> Quamtu ofrece equipos de cómputo a medida en Perú: un armador 3D para configurar tu PC o workstation pieza por pieza, una tienda de componentes (gabinetes, procesadores, placas, memoria RAM, tarjetas de video, SSD, coolers y fuentes) y cotizaciones para empresas.
+> Quamtu ofrece equipos de cómputo y estaciones de trabajo a medida en Perú, con cotización para empresas e instituciones.
 
 Sitio: https://quamtu.com · Idioma: español (Perú) · Cobertura: Perú
 
 ## Páginas principales
 
-- [Arma tu PC](https://quamtu.com/armar): configurador paso a paso con vista 3D y verificación de compatibilidad.
-- [Tienda de componentes](https://quamtu.com/tienda): catálogo por categoría con especificaciones.
-- [Cotizador](https://quamtu.com/cotizar): arma una cotización de equipos y componentes.
+- [Equipos](https://quamtu.com/equipos): computadoras y estaciones de trabajo con su Nro. de Parte y ficha técnica.
+- [Cotizador](https://quamtu.com/cotizar): arma una cotización de equipos.
 - [Tickets de soporte](https://quamtu.com/tickets): soporte técnico, verificación de equipos y reclamos, con seguimiento en línea.
 - [Libro de Reclamaciones](https://quamtu.com/libro-de-reclamaciones): conforme a la Ley 29571.
 
 ## Notas
 
-- Los precios mostrados son referenciales; la compra se concreta por cotización o WhatsApp.
+- No se publican precios: los equipos se trabajan por cotización o WhatsApp.

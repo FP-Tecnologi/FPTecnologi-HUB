@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { ArrowRight, BookOpen, ClipboardList, Globe, MapPin, MessageCircle, ShieldCheck, Truck, Wrench } from 'lucide-react';
-import { CATS } from '@/lib/piezas';
 import { WHATSAPP, waUrl } from '@/lib/contacto';
 import AyudaPie from './AyudaPie';
 import ConmutadorTema from './ConmutadorTema';
@@ -9,17 +8,11 @@ const TELEFONO = `+${WHATSAPP.slice(0, 2)} ${WHATSAPP.slice(2, 5)} ${WHATSAPP.sl
 
 const COLUMNAS = [
   {
-    titulo: 'Comprar',
+    titulo: 'Cotizar',
     enlaces: [
-      { href: '/armar', texto: 'Arma tu PC' },
-      { href: '/tienda', texto: 'Tienda de componentes' },
+      { href: '/equipos', texto: 'Equipos' },
       { href: '/cotizar', texto: 'Cotizador' },
-      { href: '/carrito', texto: 'Mi carrito' },
     ],
-  },
-  {
-    titulo: 'Componentes',
-    enlaces: CATS.map((c) => ({ href: `/tienda?cat=${c.id}`, texto: c.titulo })),
   },
   {
     titulo: 'Quamtu',
@@ -120,7 +113,7 @@ export default function Footer() {
             <BookOpen aria-hidden="true" size={15} /> LIBRO DE RECLAMACIONES
           </Link>
           <ConmutadorTema etiqueta />
-          <p>Precios y disponibilidad referenciales, sujetos a confirmación.</p>
+          <p>Precios y disponibilidad sujetos a cotización.</p>
         </div>
       </div>
     </footer>
