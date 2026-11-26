@@ -11,7 +11,7 @@ import { Select } from '../../../components/ui/Select';
 import { api } from '../../../lib/api';
 import { useAuth } from '../../../context/AuthContext';
 import {
-  Alerta, EtiquetaMarca, Modal, OportunidadPanel, SelectorAlcance, deLocal, etapa, msg, nombreDe, useAlcanceMarcas, useFichaOportunidad, useVeTodoCrm, vencida,
+  Alerta, EtiquetaMarca, Modal, OportunidadPanel, SelectorAlcance, deFecha, etapa, msg, nombreDe, useAlcanceMarcas, useFichaOportunidad, useVeTodoCrm, vencida,
   type Actividad, type Etapa, type MarcaRef, type Oportunidad, type Usuario,
 } from './comun';
 
@@ -26,7 +26,7 @@ type Filtro = 'todo' | 'tarea' | 'accion';
 const hoyFin = () => { const d = new Date(); d.setHours(23, 59, 59, 999); return d.getTime(); };
 const clave = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const DIAS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-const hora = (iso: string) => new Date(iso).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: false });
+const diaSemana = (iso: string) => new Date(iso).toLocaleDateString('es-PE', { weekday: 'long' });
 const diaCorto = (iso: string) => new Date(iso).toLocaleDateString('es-PE', { day: 'numeric', month: 'short' });
 
 const ESTILOS = `
@@ -224,7 +224,7 @@ export function CrmAgenda({ propio = false }: { propio?: boolean }) {
                   const tarde = vencida(i.fecha);
                   return (
                     <li key={i.clave} className="ag-fila" style={{ ['--c' as string]: tarde ? 'var(--ax-danger-500)' : i.tipo === 'tarea' ? 'var(--ax-viz-amber)' : 'var(--ax-viz-emerald)' }}>
-                      <span className="ag-hora"><b>{hora(i.fecha)}</b><span>{diaCorto(i.fecha)}</span></span>
+                      <span className="ag-hora"><b>{diaCorto(i.fecha)}</b><span>{diaSemana(i.fecha)}</span></span>
                       <span className="ag-cuerpo">
                         <span className="ag-tit">{i.titulo}</span>
                         <span className="ag-meta">
@@ -260,7 +260,6 @@ function NuevaTarea({ fechaInicial, onClose, onCreada }: { fechaInicial: string 
   const [opId, setOpId] = useState('');
   const [texto, setTexto] = useState('');
   const [fecha, setFecha] = useState(fechaInicial ?? clave(new Date()));
-  const [hora, setHora] = useState('09:00');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   useEffect(() => {
@@ -274,7 +273,7 @@ function NuevaTarea({ fechaInicial, onClose, onCreada }: { fechaInicial: string 
     if (!fecha) return setError('Elige la fecha.');
     setBusy(true);
     try {
-      await api.post(`/crm/oportunidades/${opId}/actividades`, { tipo: 'TAREA', texto: texto.trim(), fecha: deLocal(`${fecha}T${hora || '09:00'}`) });
+      await api.post(`/crm/oportunidades/${opId}/actividades`, { tipo: 'TAREA', texto: texto.trim(), fecha: deFecha(fecha) });
       onCreada();
     } catch (err) { setError(msg(err, 'No se pudo agregar a la agenda.')); } finally { setBusy(false); }
   }
@@ -289,10 +288,7 @@ function NuevaTarea({ fechaInicial, onClose, onCreada }: { fechaInicial: string 
             {ops.map((o) => <option key={o.id} value={o.id}>{o.numero} · {o.titulo}</option>)}
           </Select></div>
         <div className="ax-field"><label className="ax-label" htmlFor="ag-tx">¿Qué hay que hacer? *</label><input id="ag-tx" className="ax-input" maxLength={200} value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Ej. Llamar para confirmar la propuesta" /></div>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--ax-space-3)' }}>
-          <div className="ax-field"><label className="ax-label" htmlFor="ag-f">Fecha *</label><input id="ag-f" type="date" className="ax-input" value={fecha} onChange={(e) => setFecha(e.target.value)} /></div>
-          <div className="ax-field"><label className="ax-label" htmlFor="ag-h">Hora</label><input id="ag-h" type="time" className="ax-input" value={hora} onChange={(e) => setHora(e.target.value)} /></div>
-        </div>
+        <div className="ax-field"><label className="ax-label" htmlFor="ag-f">Fecha *</label><input id="ag-f" type="date" className="ax-input" value={fecha} onChange={(e) => setFecha(e.target.value)} /></div>
         <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'flex-end' }}>
           <button type="button" className="ax-btn ax-btn--ghost" onClick={onClose}>Cancelar</button>
           <button type="submit" className="ax-btn ax-btn--primary" disabled={busy}><span className="ax-btn__label">{busy ? 'Guardando…' : 'Agregar'}</span></button>

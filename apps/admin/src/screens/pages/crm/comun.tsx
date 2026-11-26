@@ -61,12 +61,12 @@ export const montos = (m: Record<string, number> | undefined) => {
   return partes.length ? partes.join(' + ') : dinero(0);
 };
 export const fechaCorta = (iso: string | null) => (iso ? new Date(iso).toLocaleDateString('es-PE', { day: 'numeric', month: 'short', year: 'numeric' }) : '—');
-export const fechaHora = (iso: string) => new Date(iso).toLocaleString('es-PE', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-export const vencida = (iso: string | null) => !!iso && new Date(iso).getTime() < Date.now();
+/** Vencida = su día ya pasó (el CRM maneja solo fechas, sin hora: lo de hoy no está vencido). */
+export const vencida = (iso: string | null) => { if (!iso) return false; const hoy = new Date(); hoy.setHours(0, 0, 0, 0); return new Date(iso).getTime() < hoy.getTime(); };
 export const nombreDe = (u: Usuario | null | undefined) => (u ? u.nombre || u.email : 'Sin asignar');
-/** <input type="datetime-local"> ⇄ ISO (hora local del navegador). */
-export const aLocal = (iso: string | null) => (iso ? new Date(new Date(iso).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16) : '');
-export const deLocal = (v: string) => (v ? new Date(v).toISOString() : null);
+/** <input type="date"> ⇄ ISO. Solo fecha: se guarda a mediodía local para que ninguna zona horaria la corra de día. */
+export const aFecha = (iso: string | null) => { if (!iso) return ''; const d = new Date(iso); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+export const deFecha = (v: string) => (v ? new Date(`${v}T12:00:00`).toISOString() : null);
 export const msg = (e: unknown, d: string) => (e instanceof ApiError ? e.message : d);
 
 /** Admin, jefe comercial y dirección ven todo el CRM (y admin / jefe lo asignan); un comercial solo ve y trabaja lo que tiene asignado. */
@@ -371,7 +371,7 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
     setO(d);
     setForm({
       titulo: d.titulo, tipoProceso: d.tipoProceso ?? '', monto: d.monto === null ? '' : String(Number(d.monto)), moneda: d.moneda, cierreEstimado: d.cierreEstimado?.slice(0, 10) ?? '',
-      asignadoId: d.asignadoId ?? '', proximaAccion: d.proximaAccion ?? '', proximaAccionAt: aLocal(d.proximaAccionAt),
+      asignadoId: d.asignadoId ?? '', proximaAccion: d.proximaAccion ?? '', proximaAccionAt: aFecha(d.proximaAccionAt),
     });
   };
   const cargar = useCallback(async () => {
@@ -396,14 +396,14 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
     correr(() => api.patch<Detalle>(`/crm/oportunidades/${id}`, {
       titulo: form.titulo.trim(), tipoProceso: form.tipoProceso || null, monto: form.monto === '' ? null : Number(form.monto), moneda: form.moneda,
       cierreEstimado: form.cierreEstimado ? new Date(`${form.cierreEstimado}T12:00:00`).toISOString() : null,
-      ...(puedeAsignar ? { asignadoId: form.asignadoId || null } : {}), proximaAccion: form.proximaAccion.trim() || null, proximaAccionAt: deLocal(form.proximaAccionAt),
+      ...(puedeAsignar ? { asignadoId: form.asignadoId || null } : {}), proximaAccion: form.proximaAccion.trim() || null, proximaAccionAt: deFecha(form.proximaAccionAt),
     }), 'Cambios guardados.');
   };
   const registrar = (e: React.FormEvent) => {
     e.preventDefault();
     if (act.texto.trim().length < 2) return setError('Escribe el detalle de la actividad.');
     const tarea = act.tipo === 'TAREA';
-    correr(() => api.post<Detalle>(`/crm/oportunidades/${id}/actividades`, { tipo: act.tipo, texto: act.texto.trim(), fecha: act.fecha ? deLocal(act.fecha) : undefined, hecha: tarea ? false : undefined }), tarea ? 'Tarea agendada.' : 'Actividad registrada.')
+    correr(() => api.post<Detalle>(`/crm/oportunidades/${id}/actividades`, { tipo: act.tipo, texto: act.texto.trim(), fecha: act.fecha ? deFecha(act.fecha) : undefined, hecha: tarea ? false : undefined }), tarea ? 'Tarea agendada.' : 'Actividad registrada.')
       .then(() => setAct({ tipo: act.tipo, texto: '', fecha: '' }));
   };
   /** Registra en el historial que se envió un folleto (WhatsApp o correo), para no perder qué se le mandó al cliente. */
@@ -481,7 +481,7 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
               </div>
               <div style={fila}>
                 <div className="ax-field"><label className="ax-label" htmlFor="op-acc">Próxima acción</label><input id="op-acc" className="ax-input" maxLength={200} value={form.proximaAccion} onChange={set('proximaAccion')} placeholder="Ej. Llamar para agendar visita" /></div>
-                <div className="ax-field"><label className="ax-label" htmlFor="op-accf">¿Cuándo?</label><input id="op-accf" type="datetime-local" className="ax-input" value={form.proximaAccionAt} onChange={set('proximaAccionAt')} /></div>
+                <div className="ax-field"><label className="ax-label" htmlFor="op-accf">¿Cuándo?</label><input id="op-accf" type="date" className="ax-input" value={form.proximaAccionAt} onChange={set('proximaAccionAt')} /></div>
               </div>
               <div><button type="submit" className="ax-btn ax-btn--primary ax-btn--sm" disabled={busy}><span className="ax-btn__label">Guardar cambios</span></button></div>
             </form>
@@ -497,7 +497,7 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
               <textarea aria-label="Detalle de la actividad" className="ax-textarea" rows={3} maxLength={4000} value={act.texto} onChange={(e) => setAct({ ...act, texto: e.target.value })}
                 placeholder={act.tipo === 'TAREA' ? 'Ej. Enviar la propuesta firmada' : 'Ej. Llamé a Ana: pide propuesta para 10 equipos'} />
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-3)', alignItems: 'flex-end' }}>
-                <div className="ax-field"><label className="ax-label" htmlFor="ac-f">{act.tipo === 'TAREA' ? 'Vence' : 'Fecha (vacío = ahora)'}</label><input id="ac-f" type="datetime-local" className="ax-input" value={act.fecha} onChange={(e) => setAct({ ...act, fecha: e.target.value })} /></div>
+                <div className="ax-field"><label className="ax-label" htmlFor="ac-f">{act.tipo === 'TAREA' ? 'Vence' : 'Fecha (vacío = hoy)'}</label><input id="ac-f" type="date" className="ax-input" value={act.fecha} onChange={(e) => setAct({ ...act, fecha: e.target.value })} /></div>
                 <button type="submit" className="ax-btn ax-btn--secondary ax-btn--sm" disabled={busy}><span className="ax-btn__label">{act.tipo === 'TAREA' ? 'Agendar tarea' : 'Registrar'}</span></button>
               </div>
             </form>
@@ -517,7 +517,7 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
                         <span className={`ax-badge ax-badge--soft ax-badge--sm ${a.tipo === 'TAREA' ? (a.hecha ? 'ax-badge--success' : vencida(a.fecha) ? 'ax-badge--danger' : 'ax-badge--warning') : a.tipo === 'SOLICITUD' ? 'ax-badge--info' : ''}`}>
                           {TIPOS[a.tipo]}{a.tipo === 'TAREA' ? (a.hecha ? ' · hecha' : vencida(a.fecha) ? ' · vencida' : ' · pendiente') : ''}
                         </span>
-                        <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{fechaHora(a.fecha)}{a.autor ? ` · ${a.autor}` : ' · automático'}</span>
+                        <span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' }}>{fechaCorta(a.fecha)}{a.autor ? ` · ${a.autor}` : ' · automático'}</span>
                       </span>
                       <span className="ax-list__title" style={{ whiteSpace: 'pre-wrap', fontWeight: 'var(--ax-weight-regular)', textDecoration: a.tipo === 'TAREA' && a.hecha ? 'line-through' : undefined }}>{a.texto}</span>
                     </span>
@@ -593,7 +593,7 @@ export function NuevaOportunidad({ onClose, onCreada }: { onClose: () => void; o
         contactoId: contactoSel?.id,
         empresaNueva: !empresaSel && (f.empresa.trim() || f.ruc) ? { razonSocial: f.empresa.trim() || undefined, ruc: f.ruc || undefined } : undefined,
         contactoNuevo: !contactoSel && f.contacto.trim() ? { nombre: f.contacto.trim(), email: f.email.trim() || undefined, celular: f.celular.trim() || undefined } : undefined,
-        ...(puedeAsignar ? { asignadoId: f.asignadoId || undefined } : {}), proximaAccion: f.proximaAccion.trim() || undefined, proximaAccionAt: deLocal(f.proximaAccionAt) ?? undefined,
+        ...(puedeAsignar ? { asignadoId: f.asignadoId || undefined } : {}), proximaAccion: f.proximaAccion.trim() || undefined, proximaAccionAt: deFecha(f.proximaAccionAt) ?? undefined,
       });
       onCreada(o.id);
     } catch (err) { setError(msg(err, 'No se pudo crear la oportunidad.')); } finally { setBusy(false); }
@@ -683,7 +683,7 @@ export function NuevaOportunidad({ onClose, onCreada }: { onClose: () => void; o
         </div>
         <div style={fila}>
           <div className="ax-field"><label className="ax-label" htmlFor="no-acc">Próxima acción</label><input id="no-acc" className="ax-input" maxLength={200} value={f.proximaAccion} onChange={set('proximaAccion')} /></div>
-          <div className="ax-field"><label className="ax-label" htmlFor="no-accf">¿Cuándo?</label><input id="no-accf" type="date" className="ax-input" value={f.proximaAccionAt.slice(0, 10)} onChange={(e) => setF({ ...f, proximaAccionAt: e.target.value ? `${e.target.value}T09:00` : '' })} /></div>
+          <div className="ax-field"><label className="ax-label" htmlFor="no-accf">¿Cuándo?</label><input id="no-accf" type="date" className="ax-input" value={f.proximaAccionAt} onChange={(e) => setF({ ...f, proximaAccionAt: e.target.value })} /></div>
         </div>
         <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', justifyContent: 'flex-end' }}>
           <button type="button" className="ax-btn ax-btn--ghost" onClick={onClose}>Cancelar</button>
