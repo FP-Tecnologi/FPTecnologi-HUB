@@ -3,9 +3,10 @@ import { HOME_DEFAULTS, type Encabezado } from '@/lib/homeContenido';
 
 import { useMemo, useState } from 'react';
 import Image from 'next/image';
-import { Building2, MapPin, MousePointerClick, RotateCcw } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight, Building2, MapPin, MousePointerClick, RotateCcw } from 'lucide-react';
 import { PERU_DEPARTMENTS, PERU_VIEWBOX } from '@/lib/peruDepartments';
-import { PROJECTS, datoCorto, type Project } from '@/lib/projects';
+import { PROJECTS, datoCorto, slugProyecto, type Project } from '@/lib/projects';
 import { ScrollReveal } from './ScrollReveal';
 import { SectionBadge } from './SectionBadge';
 
@@ -102,6 +103,15 @@ function ProjectCard({
                 </span>
               ))}
             </div>
+            <Link
+              href={`/proyectos/${slugProyecto(p.title)}`}
+              onClick={(e) => e.stopPropagation()}
+              onKeyDown={(e) => e.stopPropagation()}
+              tabIndex={flipped ? 0 : -1}
+              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-xs font-bold uppercase tracking-wide text-brand-dark transition-colors hover:bg-brand-primary hover:text-white"
+            >
+              Ver proyecto completo <ArrowRight className="h-4 w-4" strokeWidth={2.2} />
+            </Link>
           </div>
         </div>
       </div>

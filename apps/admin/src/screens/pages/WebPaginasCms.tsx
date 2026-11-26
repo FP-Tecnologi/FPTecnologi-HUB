@@ -34,6 +34,26 @@ const NOSOTROS = base('nosotros', 'Nosotros', '/nosotros', [
     ancla: '',
     campos: [BADGE, TITULO, DESTACADO, { key: 'items', label: 'Tarjetas (título + texto)', tipo: 'lista-items', itemLabel: 'Tarjeta' }],
   },
+  {
+    key: 'videos',
+    nombre: 'Videos: nuestra historia',
+    ancla: 'videos',
+    campos: [
+      ...ENCABEZADO,
+      {
+        key: 'items',
+        label: 'Videos sobre FPTecnologi (historia, quiénes somos)',
+        tipo: 'lista-objetos',
+        itemLabel: 'Video',
+        tituloDe: 'titulo',
+        ayuda: 'Sin videos, la sección no se muestra.',
+        campos: [
+          { key: 'url', label: 'Enlace de YouTube', tipo: 'text', ayuda: 'https://www.youtube.com/watch?v=… o https://youtu.be/…' },
+          { key: 'titulo', label: 'Título (opcional)', tipo: 'text' },
+        ],
+      },
+    ],
+  },
 ]);
 
 const ITEMS = (nombre: string): Seccion['campos'][number] => ({ key: 'items', label: nombre, tipo: 'lista-items', itemLabel: 'Tarjeta' });

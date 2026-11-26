@@ -41,6 +41,16 @@ export const PAGINAS_DEFAULTS = {
         { title: 'Valores', text: 'Transparencia en cada cotización, compromiso con los plazos y relaciones de largo plazo con clientes y partners.' },
       ],
     },
+    // Videos sobre FPTecnologi (historia, quiénes somos). Sin videos la sección no se muestra.
+    videos: {
+      ...enc({
+        badge: 'Nuestra historia',
+        titulo: 'FPTecnologi',
+        destacado: 'en primera persona',
+        descripcion: 'Cómo empezamos, quiénes somos y cómo trabajamos con nuestros clientes en todo el Perú.',
+      }),
+      items: [] as { url: string; titulo: string }[],
+    },
   },
   servicios: {
     hero: enc({

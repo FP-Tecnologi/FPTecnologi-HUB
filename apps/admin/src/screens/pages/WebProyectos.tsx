@@ -13,7 +13,7 @@ import { DEPARTAMENTOS } from '../../lib/departamentos';
 import { teclaFila } from '../../lib/teclado';
 import { Modal } from '../../components/ui/Modal';
 import { Select } from '../../components/ui/Select';
-import { CampoImagen, srcImagen } from '../../components/ui/CampoImagen';
+import { CampoImagen, CampoImagenes, srcImagen } from '../../components/ui/CampoImagen';
 import { confirmar } from '../../components/ui/Dialogos';
 
 const WEB = process.env.NEXT_PUBLIC_WEB_PUBLICA_URL ?? 'http://localhost:3002';
@@ -28,20 +28,23 @@ interface Proyecto {
   monto: number | null;
   descripcion: string;
   alcance: string[];
+  detalle: string;
+  galeria: string[];
+  videos: string[];
   orden: number;
   activo: boolean;
   esEjemplo: boolean;
 }
 interface Form {
   titulo: string; departamento: string; cliente: string; anio: string; monto: string; imagenUrl: string;
-  descripcion: string; alcance: string; orden: string; activo: boolean; esEjemplo: boolean;
+  descripcion: string; alcance: string; detalle: string; galeria: string[]; videos: string; orden: string; activo: boolean; esEjemplo: boolean;
 }
 
-const VACIO: Form = { titulo: '', departamento: 'lima', cliente: '', anio: String(new Date().getFullYear()), monto: '', imagenUrl: '', descripcion: '', alcance: '', orden: '0', activo: true, esEjemplo: false };
+const VACIO: Form = { titulo: '', departamento: 'lima', cliente: '', anio: String(new Date().getFullYear()), monto: '', imagenUrl: '', descripcion: '', alcance: '', detalle: '', galeria: [], videos: '', orden: '0', activo: true, esEjemplo: false };
 const nombreDpto = (id: string) => DEPARTAMENTOS.find((d) => d.id === id)?.name ?? id;
 const desde = (p: Proyecto): Form => ({
   titulo: p.titulo, departamento: p.departamento, cliente: p.cliente, anio: p.anio == null ? '' : String(p.anio), monto: p.monto == null ? '' : String(p.monto), imagenUrl: p.imagenUrl ?? '',
-  descripcion: p.descripcion, alcance: p.alcance.join('\n'), orden: String(p.orden), activo: p.activo, esEjemplo: p.esEjemplo,
+  descripcion: p.descripcion, alcance: p.alcance.join('\n'), detalle: p.detalle ?? '', galeria: p.galeria ?? [], videos: (p.videos ?? []).join('\n'), orden: String(p.orden), activo: p.activo, esEjemplo: p.esEjemplo,
 });
 const src = srcImagen;
 
@@ -88,10 +91,14 @@ export function WebProyectos() {
     if (monto !== null && (!Number.isFinite(monto) || monto < 0)) return setError('El monto no es válido.');
     if (!Number.isInteger(orden) || orden < 0) return setError('El orden debe ser un entero mayor o igual a 0.');
     if (f.imagenUrl.trim() && !/^(https?:\/\/|\/)/.test(f.imagenUrl.trim())) return setError('La imagen debe ser una URL (https://…) o una ruta que empiece con /.');
+    const videos = f.videos.split('\n').map((l) => l.trim()).filter(Boolean);
+    if (videos.some((v) => !/^https:\/\/(www\.|m\.)?(youtube\.com|youtu\.be)\//.test(v))) return setError('Cada video debe ser un enlace de YouTube (https://www.youtube.com/… o https://youtu.be/…).');
+    if (f.galeria.length > 20) return setError('La galería admite hasta 20 fotos.');
     const body = {
       titulo: f.titulo.trim(), departamento: f.departamento, cliente: f.cliente.trim(), anio, monto,
       imagenUrl: f.imagenUrl.trim(), descripcion: f.descripcion.trim(),
       alcance: f.alcance.split('\n').map((l) => l.trim()).filter(Boolean),
+      detalle: f.detalle.trim(), galeria: f.galeria, videos,
       orden, activo: f.activo, esEjemplo: f.esEjemplo,
     };
     setGuardando(true);
@@ -261,6 +268,19 @@ export function WebProyectos() {
               <div className="ax-field">
                 <label className="ax-label" htmlFor="pr-alc">Alcance (uno por línea)</label>
                 <textarea id="pr-alc" className="ax-textarea" rows={3} value={edit.form.alcance} onChange={(e) => set('alcance', e.target.value)} placeholder="Videovigilancia&#10;Fibra óptica" />
+              </div>
+              <p style={{ marginBlock: 'var(--ax-space-2) 0', fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-strong)' }}>Página de detalle del proyecto</p>
+              <div className="ax-field">
+                <label className="ax-label" htmlFor="pr-det">Historia del proyecto (párrafos separados por una línea en blanco)</label>
+                <textarea id="pr-det" className="ax-textarea" rows={7} value={edit.form.detalle} onChange={(e) => set('detalle', e.target.value)} placeholder="El reto del cliente, la solución que implementamos y los resultados." />
+              </div>
+              <div className="ax-field">
+                <span className="ax-label">Galería de fotos (hasta 20)</span>
+                <CampoImagenes id="pr-gal" value={edit.form.galeria} onChange={(u) => set('galeria', u)} etiquetaPortada="Foto 1" />
+              </div>
+              <div className="ax-field">
+                <label className="ax-label" htmlFor="pr-vid">Videos de YouTube del caso de éxito (un enlace por línea)</label>
+                <textarea id="pr-vid" className="ax-textarea" rows={3} value={edit.form.videos} onChange={(e) => set('videos', e.target.value)} placeholder="https://www.youtube.com/watch?v=…" />
               </div>
               <div className="ax-cluster" style={{ gap: 'var(--ax-space-5)' }}>
                 <label className="ax-cluster" style={{ gap: 'var(--ax-space-2)', fontSize: 'var(--ax-text-sm)' }}>

@@ -15,9 +15,26 @@ export type Project = {
   monto?: number;
   description: string;
   scope: string[];
+  /** Historia larga para la página de detalle (párrafos separados por línea en blanco). */
+  detalle?: string;
+  /** Fotos extra de la galería del detalle. */
+  galeria?: string[];
+  /** Enlaces de YouTube del caso de éxito. */
+  videos?: string[];
   /** Dato de muestra (no es un caso real). */
   ejemplo?: boolean;
 };
+
+/** Slug estable a partir del título: "Centro de operaciones…" → "centro-de-operaciones…". */
+export const slugProyecto = (title: string) =>
+  title
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 90)
+    .replace(/-+$/, '');
 
 /** "S/ 127,129" (determinista para evitar diferencias SSR/cliente). */
 export const montoSoles = (n: number) => `S/ ${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;

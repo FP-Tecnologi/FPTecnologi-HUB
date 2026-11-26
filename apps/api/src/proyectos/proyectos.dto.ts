@@ -27,6 +27,17 @@ export class CreateProyectoDto {
   @IsOptional() @IsArray() @ArrayMaxSize(12) @IsString({ each: true }) @MaxLength(60, { each: true })
   alcance?: string[];
 
+  @IsOptional() @IsString() @MaxLength(8000)
+  detalle?: string;
+
+  @IsOptional() @IsArray() @ArrayMaxSize(20) @IsString({ each: true }) @MaxLength(500, { each: true })
+  galeria?: string[];
+
+  // Solo URLs de YouTube (watch, youtu.be, shorts o embed).
+  @IsOptional() @IsArray() @ArrayMaxSize(10) @IsString({ each: true }) @MaxLength(300, { each: true })
+  @Matches(/^https:\/\/(www\.|m\.)?(youtube\.com|youtu\.be)\//, { each: true, message: 'Cada video debe ser un enlace de YouTube' })
+  videos?: string[];
+
   @IsOptional() @IsInt() @Min(0)
   orden?: number;
 

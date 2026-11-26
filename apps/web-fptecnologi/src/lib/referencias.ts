@@ -5,7 +5,7 @@
  * exactamente lo que haya activo (aunque esté vacío). Cache 60 s.
  */
 import { api } from './catalogo';
-import { PROJECTS, type Project } from './projects';
+import { PROJECTS, slugProyecto, type Project } from './projects';
 import { CLIENT_SECTORS, type Client, type ClientSector } from './clients';
 
 type ApiProyecto = {
@@ -17,6 +17,9 @@ type ApiProyecto = {
   monto: number | null;
   descripcion: string;
   alcance: string[];
+  detalle?: string;
+  galeria?: string[];
+  videos?: string[];
   esEjemplo: boolean;
 };
 type ApiCliente = { nombre: string; sigla: string; logoUrl: string | null; sector: string; esEjemplo: boolean };
@@ -35,8 +38,19 @@ export async function getProyectos(): Promise<Project[]> {
     monto: p.monto ?? undefined,
     description: p.descripcion,
     scope: p.alcance,
+    detalle: p.detalle ?? '',
+    galeria: p.galeria ?? [],
+    videos: p.videos ?? [],
     ejemplo: p.esEjemplo,
   }));
+}
+
+/** Un proyecto por su slug (derivado del título) + los demás, para "otros proyectos". */
+export async function getProyecto(slug: string): Promise<{ proyecto: Project; otros: Project[] } | null> {
+  const todos = await getProyectos();
+  const proyecto = todos.find((p) => slugProyecto(p.title) === slug);
+  if (!proyecto) return null;
+  return { proyecto, otros: todos.filter((p) => p !== proyecto) };
 }
 
 /** Clientes agrupados por sector (solo los sectores que tienen clientes). */

@@ -16,6 +16,8 @@ import { getSitio } from '@/lib/sitio';
 import { getPagina } from '@/lib/paginasContenido';
 import { getClientes } from '@/lib/referencias';
 import { metaSeo } from '@/lib/seo';
+import { VideosSeccion } from '@/components/site/VideosSeccion';
+import { aVideos } from '@/lib/youtube';
 
 export const generateMetadata = () => metaSeo('nosotros', { title: 'Nosotros', description: 'Conoce a FPTecnologi & System: distribuidor autorizado de equipamiento TI y soluciones tecnológicas para empresas en Perú.' });
 
@@ -99,6 +101,8 @@ export default async function NosotrosPage() {
             })}
           </div>
         </section>
+
+        <VideosSeccion c={c.videos} videos={aVideos(c.videos.items ?? [])} fondo="blanco" conVisita={false} />
 
         <CertificacionesISO />
         <PartnerLevels conTitulo />
