@@ -144,8 +144,18 @@ export const HOME_DEFAULTS: HomeContenido = {
       descripcion: 'Demostraciones de equipos, soluciones y proyectos que implementamos. Mira más en nuestro canal o visítanos y te los mostramos en persona.',
       botonTexto: 'Ver más en nuestro canal',
     }),
-    // Vacío = se muestran solos los últimos videos del canal.
-    items: [],
+    // Demostraciones de equipos y soluciones del canal. Vacío = los últimos videos del canal.
+    items: [
+      { url: 'https://youtu.be/Q_WexlABF2w', titulo: 'Pantallas interactivas Samsung serie WAD' },
+      { url: 'https://youtu.be/ogVhZ2z3JLo', titulo: 'Workstation HP Z2 para profesionales creativos' },
+      { url: 'https://youtu.be/BL1IleFo7pM', titulo: 'Laptops HP con Microsoft Copilot e Intel' },
+      { url: 'https://youtu.be/mds8-5vw7_E', titulo: 'Samsung VXT para empresas' },
+      { url: 'https://youtu.be/3HBt5xx5E4Q', titulo: 'Audífonos Poly Voyager Free 60' },
+      { url: 'https://youtu.be/uIxCKpK6Ims', titulo: 'The Wall: pantallas modulares Samsung' },
+      { url: 'https://youtu.be/HvoTUU_UneI', titulo: 'Pantallas Samsung semi-outdoor y outdoor' },
+      { url: 'https://youtu.be/vn4oJpfoa_E', titulo: 'Creación y control de contenido con Samsung' },
+      { url: 'https://youtu.be/GXQX7hUXMnA', titulo: '¿Necesitas una workstation?' },
+    ],
   },
   contacto: {
     ...enc({

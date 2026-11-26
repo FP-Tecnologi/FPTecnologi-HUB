@@ -238,7 +238,7 @@ export const SOCIAL_LINKS = [
   { red: 'facebook', label: 'Facebook', href: 'https://www.facebook.com/fptecnologisystem/' },
   { red: 'instagram', label: 'Instagram', href: 'https://www.instagram.com/fptecnologi/' },
   { red: 'linkedin', label: 'LinkedIn', href: 'https://www.linkedin.com/company/fp-tecnologi-system/' },
-  { red: 'youtube', label: 'YouTube', href: 'https://www.youtube.com/channel/UCELd7u4oPpWzbGVvIVzfoxg' },
+  { red: 'youtube', label: 'YouTube', href: 'https://www.youtube.com/@fptecnologisystem' },
   { red: 'whatsapp', label: 'WhatsApp', href: 'https://wa.me/51960951976' },
 ] as const;
 

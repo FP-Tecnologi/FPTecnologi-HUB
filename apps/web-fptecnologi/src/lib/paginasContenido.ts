@@ -44,12 +44,17 @@ export const PAGINAS_DEFAULTS = {
     // Videos sobre FPTecnologi (historia, quiénes somos). Sin videos elegidos se muestran los últimos del canal.
     videos: {
       ...enc({
-        badge: 'Nuestros videos',
-        titulo: 'Mira lo que',
-        destacado: 'hacemos',
-        descripcion: 'Demostraciones de equipos, soluciones y proyectos que implementamos. Mira más en nuestro canal o visítanos y te los mostramos en persona.',
+        badge: 'Conócenos',
+        titulo: 'FPTecnologi',
+        destacado: 'en video',
+        descripcion: 'Nuestro compromiso con la educación y algunos de los proyectos que implementamos en el Perú. Mira más en nuestro canal o visítanos.',
       }),
-      items: [] as { url: string; titulo: string }[],
+      items: [
+        { url: 'https://youtu.be/rx1oXj1c5uI', titulo: 'Comprometidos con la educación' },
+        { url: 'https://youtu.be/CegxLxCNJgs', titulo: '367 pantallas interactivas para la Universidad San Luis Gonzaga de Ica' },
+        { url: 'https://youtu.be/j2l4q3KoTJU', titulo: 'Laboratorio de fibra óptica en la UNSA con EXFO' },
+        { url: 'https://youtu.be/Whe4qPDRzXA', titulo: 'Videovigilancia para San Juan de Miraflores' },
+      ] as { url: string; titulo: string }[],
     },
   },
   servicios: {

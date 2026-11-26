@@ -4,8 +4,9 @@
  */
 export type Video = { id: string; titulo: string; fecha?: string };
 
-export const CANAL_ID = 'UCELd7u4oPpWzbGVvIVzfoxg';
-export const CANAL_URL = `https://www.youtube.com/channel/${CANAL_ID}`;
+/** Canal oficial @fptecnologisystem (el id hace falta para el feed RSS). */
+export const CANAL_ID = 'UC-PEmoXTNxxlDySxBbJzjGA';
+export const CANAL_URL = 'https://www.youtube.com/@fptecnologisystem';
 
 /** Id de 11 caracteres de un enlace watch, youtu.be, shorts, embed o live. */
 export function idYoutube(url: string): string | null {
