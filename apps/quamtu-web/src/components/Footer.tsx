@@ -12,6 +12,7 @@ const COLUMNAS = [
     enlaces: [
       { href: '/equipos', texto: 'Equipos' },
       { href: '/cotizar', texto: 'Cotizador' },
+      { href: '/blog', texto: 'Blog' },
     ],
   },
   {

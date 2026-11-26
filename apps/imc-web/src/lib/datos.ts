@@ -13,6 +13,7 @@ export const NAV = [
   ["Nosotros", "/nosotros/"],
   ["Servicios", "/servicios/"],
   ["Productos", "/productos/"],
+  ["Blog", "/blog/"],
   ["Perú Compras", "/peru-compras/"],
   ["Contacto", "/contacto/"],
 ] as const;

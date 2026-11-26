@@ -9,6 +9,7 @@ export const ENLACES = [
   { href: '/#lineas', texto: 'Líneas Turing' },
   { href: '/#organizaciones', texto: 'Empresas' },
   { href: '/#respaldo', texto: 'Respaldo' },
+  { href: '/blog', texto: 'Blog' },
 ];
 
 export default function Header() {

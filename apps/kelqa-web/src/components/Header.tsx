@@ -9,6 +9,7 @@ import { useContacto } from './ContactoContext';
 const enlaces = [
   { href: '/', texto: 'Inicio' },
   { href: '/nosotros', texto: 'Nosotros' },
+  { href: '/blog', texto: 'Blog' },
   { href: '/contacto', texto: 'Contacto' },
 ];
 const activo = (ruta: string, href: string) => (href === '/' ? ruta === '/' : ruta.startsWith(href));

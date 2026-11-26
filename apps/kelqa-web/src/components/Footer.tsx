@@ -23,6 +23,7 @@ export default async function Footer({ lineas }: { lineas: Linea[] }) {
           <ul className="mt-4 space-y-2 text-sm">
             <li><Link href="/" className={enlace}>Inicio</Link></li>
             <li><Link href="/nosotros" className={enlace}>Nosotros</Link></li>
+            <li><Link href="/blog" className={enlace}>Blog</Link></li>
             <li><Link href="/contacto" className={enlace}>Contacto</Link></li>
             {legal.estado.publicado && (['privacidad', 'terminos', 'devoluciones'] as const).map((s) => <li key={s}><Link href={`/legal/${s}`} className={enlace}>{legal[s].titulo}</Link></li>)}
             <li><Link href="/libro-de-reclamaciones" className={enlace}><BookOpen aria-hidden="true" size={16} />Libro de Reclamaciones</Link></li>

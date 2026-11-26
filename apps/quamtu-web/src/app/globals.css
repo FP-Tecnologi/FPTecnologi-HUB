@@ -153,3 +153,20 @@ html, body { overflow-x: clip; }
   .hud, .glass { background: #fff !important; border: 0 !important; box-shadow: none !important; backdrop-filter: none !important; }
   .hud::before, .hud::after { display: none; }
 }
+
+/* Texto de los artículos del blog (Markdown convertido a HTML). Usa las variables del tema para verse bien en oscuro y claro. */
+.blog-prose { color: var(--c-2); font-size: 1.0625rem; line-height: 1.8; }
+.blog-prose > * + * { margin-top: 1.15em; }
+.blog-prose h2, .blog-prose h3 { scroll-margin-top: 6rem; color: var(--c-titulo); font-family: var(--font-display); font-weight: 700; line-height: 1.2; }
+.blog-prose h2 { margin-top: 1.8em; font-size: 1.5rem; }
+.blog-prose h3 { margin-top: 1.5em; font-size: 1.2rem; }
+.blog-prose strong { color: var(--c-titulo); font-weight: 700; }
+.blog-prose a { color: var(--color-claro); font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+.blog-prose ul, .blog-prose ol { padding-left: 1.4em; }
+.blog-prose ul { list-style: disc; }
+.blog-prose ol { list-style: decimal; }
+.blog-prose li + li { margin-top: 0.4em; }
+.blog-prose li::marker { color: var(--color-cyan); }
+.blog-prose blockquote { border-left: 4px solid var(--color-cyan); background: var(--color-panel); padding: 0.9rem 1.2rem; border-radius: 0 0.75rem 0.75rem 0; font-weight: 600; }
+.blog-prose img { width: 100%; height: auto; border-radius: 1rem; }
+.blog-prose code { background: var(--color-panel); padding: 0.1em 0.4em; border-radius: 0.375rem; font-size: 0.92em; }
