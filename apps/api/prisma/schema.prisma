@@ -242,22 +242,22 @@ model UsuarioMarcaRol {
 // ---------------------------------------------------------------------------
 
 model Categoria {
-  id         String     @id @default(uuid())
-  marcaId    String
-  marca      Marca      @relation(fields: [marcaId], references: [id])
-  nombre     String
-  slug       String? // URL amigable por marca (se genera desde el nombre)
-  orden      Int        @default(0)
-  activo     Boolean    @default(true)
-  portadaUrl String?
+  id                String     @id @default(uuid())
+  marcaId           String
+  marca             Marca      @relation(fields: [marcaId], references: [id])
+  nombre            String
+  slug              String? // URL amigable por marca (se genera desde el nombre)
+  orden             Int        @default(0)
+  activo            Boolean    @default(true)
+  portadaUrl        String?
   // Ficha de línea/categoría para webs de catálogo (Fimav, Kelqa, Imaninki): todo opcional.
   icono             String? // nombre de ícono (p. ej. 'laptop')
   resumen           String? // frase corta / lema
   texto             String? // descripción larga de la línea
-  galeria           String[] @default([]) // fotos de la línea (URLs)
-  marcasComerciales String[] @default([]) // fabricantes que se muestran en la línea
-  productos  Producto[]
-  createdAt  DateTime   @default(now())
+  galeria           String[]   @default([]) // fotos de la línea (URLs)
+  marcasComerciales String[]   @default([]) // fabricantes que se muestran en la línea
+  productos         Producto[]
+  createdAt         DateTime   @default(now())
 
   @@unique([marcaId, slug])
 }
@@ -885,25 +885,25 @@ model Campana {
 }
 
 model Landing {
-  id         String            @id @default(uuid())
-  marcaId    String
-  marca      Marca             @relation(fields: [marcaId], references: [id])
-  campanaId  String?
-  campana    Campana?          @relation(fields: [campanaId], references: [id], onDelete: SetNull)
-  slug       String // URL pública: /l/<slug>
-  nombre     String
-  plantilla  String // evento | oferta | captacion
-  estado     EstadoLanding     @default(BORRADOR)
-  contenido  Json
-  formulario Json
-  registros  LandingRegistro[]
-  creadoPorId       String? // quien la creó (un comercial solo edita las suyas)
-  enviadaRevisionAt DateTime?
-  revisadoPorId     String?
-  revisadoAt        DateTime?
+  id                 String            @id @default(uuid())
+  marcaId            String
+  marca              Marca             @relation(fields: [marcaId], references: [id])
+  campanaId          String?
+  campana            Campana?          @relation(fields: [campanaId], references: [id], onDelete: SetNull)
+  slug               String // URL pública: /l/<slug>
+  nombre             String
+  plantilla          String // evento | oferta | captacion
+  estado             EstadoLanding     @default(BORRADOR)
+  contenido          Json
+  formulario         Json
+  registros          LandingRegistro[]
+  creadoPorId        String? // quien la creó (un comercial solo edita las suyas)
+  enviadaRevisionAt  DateTime?
+  revisadoPorId      String?
+  revisadoAt         DateTime?
   comentarioRevision String? // motivo de la devolución
-  createdAt  DateTime          @default(now())
-  updatedAt  DateTime          @updatedAt
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
 
   @@unique([marcaId, slug])
   @@index([marcaId, estado])
@@ -1268,6 +1268,41 @@ model Recurso {
   @@index([marcaId, visible, fabricante])
 }
 
+// Biblioteca interna del equipo (dashboard → Recursos del equipo): logos de todas las marcas, plantillas de correo y de
+// documentos, imágenes, presentaciones… Es de TODO el equipo, no de una marca: por eso no lleva `marcaId` (el tenant-guard
+// no aplica) y `marcaRef` solo indica a qué marca pertenece el material (null = general). Los bytes viven en `RecursoEquipoArchivo`
+// para que los listados no los arrastren.
+model RecursoEquipo {
+  id              String                @id @default(uuid())
+  titulo          String
+  descripcion     String?
+  area            String                @default("GENERAL") // MARKETING, COMERCIAL, VENTAS, SOPORTE, LOGISTICA, FINANZAS, GENERAL
+  categoria       String                @default("OTROS") // LOGOS, IMAGENES, CORREOS, DOCUMENTOS, PLANTILLAS, PRESENTACIONES, VIDEOS, TIPOGRAFIAS, OTROS
+  variante        String? // estilo/versión: «Color», «Blanco», «Horizontal», «Vertical»…
+  marcaRef        String? // id de la Marca a la que pertenece el material; null = general
+  etiquetas       String[]
+  nombreOriginal  String
+  ext             String
+  mime            String
+  bytes           Int
+  descargas       Int                   @default(0)
+  subidoPorId     String
+  subidoPorNombre String
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  archivo         RecursoEquipoArchivo?
+
+  @@index([area, categoria])
+  @@index([marcaRef])
+  @@index([subidoPorId])
+}
+
+model RecursoEquipoArchivo {
+  recursoId String        @id
+  recurso   RecursoEquipo @relation(fields: [recursoId], references: [id], onDelete: Cascade)
+  datos     Bytes
+}
+
 // Folleto PDF para compartir por enlace (/folleto/:slug en la web): solo el visor con pasa-páginas y el logo, sin menú.
 model Folleto {
   id         String   @id @default(uuid())
@@ -1350,12 +1385,12 @@ model SoporteTicket {
 // Registro de actividad (auditoría de seguridad): inicios de sesión y acciones administrativas. Sin relaciones a
 // propósito: el historial se conserva aunque se borre el usuario o la marca. Solo lo lee el super admin.
 model ActividadLog {
-  id        String   @id @default(uuid())
-  usuarioId String?
-  email     String?
-  accion    String
-  detalle   String?
-  marcaId   String?
+  id          String   @id @default(uuid())
+  usuarioId   String?
+  email       String?
+  accion      String
+  detalle     String?
+  marcaId     String?
   // Bitácora automática (interceptor): quién, desde dónde y qué datos envió.
   entidad     String? // primer recurso de la ruta (landings, crm, pedidos…)
   entidadId   String?
@@ -1364,7 +1399,7 @@ model ActividadLog {
   ip          String?
   dispositivo String?
   cambios     Json? // cuerpo enviado, sin secretos
-  createdAt DateTime @default(now())
+  createdAt   DateTime @default(now())
 
   @@index([createdAt])
   @@index([accion, createdAt])
@@ -1430,24 +1465,24 @@ enum TipoActividadCrm {
 }
 
 model CrmEmpresa {
-  id            String           @id @default(uuid())
-  marcaId       String
-  marca         Marca            @relation(fields: [marcaId], references: [id], onDelete: Cascade)
-  razonSocial   String
-  ruc           String? // único por marca cuando existe
-  rubro         String?
-  web           String?
-  telefono      String?
-  direccion     String?
-  notas         String?
+  id             String           @id @default(uuid())
+  marcaId        String
+  marca          Marca            @relation(fields: [marcaId], references: [id], onDelete: Cascade)
+  razonSocial    String
+  ruc            String? // único por marca cuando existe
+  rubro          String?
+  web            String?
+  telefono       String?
+  direccion      String?
+  notas          String?
   // Sede o subempresa: apunta a la empresa principal (universidad con sedes, grupo con filiales). Sin padre = empresa principal.
   empresaPadreId String?
   empresaPadre   CrmEmpresa?      @relation("CrmEmpresaSedes", fields: [empresaPadreId], references: [id], onDelete: SetNull)
   sedes          CrmEmpresa[]     @relation("CrmEmpresaSedes")
-  contactos     CrmContacto[]
-  oportunidades CrmOportunidad[]
-  createdAt     DateTime         @default(now())
-  updatedAt     DateTime         @updatedAt
+  contactos      CrmContacto[]
+  oportunidades  CrmOportunidad[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
   @@unique([marcaId, ruc])
   @@index([marcaId, razonSocial])

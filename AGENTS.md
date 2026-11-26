@@ -112,6 +112,10 @@ ruta, otro grupo); el original lleva `ocultoAComercial` y se oculta en la vista 
 `setActiveMarcaId(id, { mantenerVista })`. Cada página muestra «Marca: X» (PageHead). CRM multimarca: `/crm/global/{oportunidades,agenda,reportes}` (sin `MarcaRolGuard`; marcas y
 roles del token, el filtro solo recorta). El front elige alcance con `useAlcanceMarcas` (Esta marca / Todas mis marcas) y abre fichas de otra marca con `setMarcaForzada` (`useFichaOportunidad`).
 
+## Recursos del equipo (dashboard)
+
+Biblioteca interna de todas las áreas y marcas (`/recursos`, API `/recursos-equipo`, modelos `RecursoEquipo` + `RecursoEquipoArchivo`): logos, plantillas de correo y documentos, etc. No lleva `marcaId` (es global; `marcaRef` solo etiqueta la marca) y no usa `MarcaRolGuard`: cualquier usuario con sesión ve, descarga y sube; edita o borra quien lo subió o un admin. Los bytes van en Postgres (tope 25 MB). No confundir con «Web → Recursos» (intranet de socios externos, `/recursos` de la API).
+
 ## Fuera de alcance (por ahora)
 
 Pasarela de pago, facturación electrónica SUNAT, logística de envíos, CRM

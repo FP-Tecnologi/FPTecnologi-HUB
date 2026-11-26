@@ -50,6 +50,7 @@ import { ActividadModule } from './actividad/actividad.module.js';
 import { ActividadInterceptor } from './actividad/actividad.interceptor.js';
 import { IdempotenciaInterceptor } from './common/interceptors/idempotencia.interceptor.js';
 import { RecursosModule } from './recursos/recursos.module.js';
+import { RecursosEquipoModule } from './recursos-equipo/recursos-equipo.module.js';
 import { AsistenteModule } from './asistente/asistente.module.js';
 
 @Module({
@@ -97,6 +98,7 @@ import { AsistenteModule } from './asistente/asistente.module.js';
     SoporteModule,
     ActividadModule,
     RecursosModule,
+    RecursosEquipoModule,
     AsistenteModule,
   ],
   controllers: [HealthController],
