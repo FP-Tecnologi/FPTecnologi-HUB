@@ -31,7 +31,10 @@ export interface Resumen {
   notificaciones: NotifRow[] | null;
 }
 
-const VACIO: Resumen = { pedidos: null, leads: null, cotizaciones: null, chat: null, blog: null, productos: null, boletin: null, contactos: null, equipo: null, notificaciones: null };
+/** Fila por marca de GET /panel/resumen: `null` = el rol no ve ese módulo o falló. */
+type ResumenMarcaApi = { marcaId: string } & Omit<Resumen, 'notificaciones'>;
+
+const VACIO: Resumen ={ pedidos: null, leads: null, cotizaciones: null, chat: null, blog: null, productos: null, boletin: null, contactos: null, equipo: null, notificaciones: null };
 
 /** Une las listas de varias marcas; si todas fallaron (null) devuelve null. */
 function unir<T>(listas: (T[] | null)[]): T[] | null {
@@ -48,24 +51,11 @@ export function useResumen(marcaIds: string[]) {
     let vivo = true;
     setCargando(true);
     async function cargar() {
-      const get = <T,>(path: string, marcaId: string) => api.get<T[]>(path, { marcaId }).catch(() => null);
-      const porMarca = await Promise.all(
-        marcaIds.map(async (id) => {
-          const [pedidos, leads, cotizaciones, chat, blog, productos, boletin, contactos, equipo] = await Promise.all([
-            get<PedidoRow>('/pedidos', id),
-            get<LeadRow>('/cotizador/leads', id),
-            get<CotizacionRow>('/cotizaciones', id),
-            get<ChatRow>('/chat/conversaciones', id),
-            get<BlogRow>('/blog', id),
-            get<ProductoRow>('/productos', id),
-            get<SuscriptorRow>('/boletin/suscriptores', id),
-            get<ContactoRow>('/contacto-web', id),
-            get<unknown>(`/marcas/${id}/equipo`, id),
-          ]);
-          return { pedidos, leads, cotizaciones, chat, blog, productos, boletin, contactos, equipo };
-        }),
-      );
-      const notificaciones = await api.get<NotifRow[]>('/notificaciones').catch(() => null);
+      // Una sola petición para todas las marcas (GET /panel/resumen); antes eran ~10 por marca.
+      const [porMarca, notificaciones] = await Promise.all([
+        !clave ? Promise.resolve([] as ResumenMarcaApi[]) : api.get<ResumenMarcaApi[]>(`/panel/resumen?marcas=${encodeURIComponent(clave)}`).catch(() => [] as ResumenMarcaApi[]),
+        api.get<NotifRow[]>('/notificaciones').catch(() => null),
+      ]);
       if (!vivo) return;
       setDatos({
         pedidos: unir(porMarca.map((m) => m.pedidos)),

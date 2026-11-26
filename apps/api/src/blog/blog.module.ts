@@ -5,5 +5,6 @@ import { BlogController, PublicBlogController } from './blog.controller.js';
 @Module({
   controllers: [BlogController, PublicBlogController],
   providers: [BlogService],
+  exports: [BlogService],
 })
 export class BlogModule {}

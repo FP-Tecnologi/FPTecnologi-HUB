@@ -8,5 +8,6 @@ import { EnviosModule } from '../envios/envios.module.js';
   imports: [MailModule, EnviosModule],
   controllers: [PedidosController, PublicPedidosController],
   providers: [PedidosService],
+  exports: [PedidosService],
 })
 export class PedidosModule {}

@@ -8,5 +8,6 @@ import { CrmModule } from '../crm/crm.module.js';
   imports: [MailModule, CrmModule],
   controllers: [CotizacionesController, PublicCotizacionesController],
   providers: [CotizacionesService],
+  exports: [CotizacionesService],
 })
 export class CotizacionesModule {}

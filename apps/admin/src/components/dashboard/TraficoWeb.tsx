@@ -66,8 +66,12 @@ export function TraficoWeb({ marcaIds }: { marcaIds: string[] }) {
 
   useEffect(() => {
     let vivo = true;
-    Promise.all(marcaIds.map((id) => api.get<ResumenVisitas>(`/visitas/resumen?dias=${dias}`, { marcaId: id }).then((r) => ({ marcaId: id, r })).catch(() => null)))
-      .then((res) => { if (vivo) setDatos(res.filter((x): x is { marcaId: string; r: ResumenVisitas } => !!x)); });
+    if (!clave) { setDatos([]); return; }
+    // Todas las marcas en una petición; las que el rol no puede ver no vienen.
+    api.get<{ marcaId: string; resumen: ResumenVisitas }[]>(`/panel/visitas?dias=${dias}&marcas=${encodeURIComponent(clave)}`)
+      .then((res) => res.map((x) => ({ marcaId: x.marcaId, r: x.resumen })))
+      .catch(() => [])
+      .then((res) => { if (vivo) setDatos(res); });
     return () => { vivo = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clave, dias]);

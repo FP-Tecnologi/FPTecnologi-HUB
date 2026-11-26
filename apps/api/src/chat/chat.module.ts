@@ -7,5 +7,6 @@ import { MailModule } from '../mail/mail.module.js';
   imports: [MailModule],
   controllers: [ChatController, PublicChatController],
   providers: [ChatService],
+  exports: [ChatService],
 })
 export class ChatModule {}
