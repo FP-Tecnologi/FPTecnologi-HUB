@@ -12,7 +12,7 @@ import { Contact } from '@/components/home/Contact';
 import { Footer } from '@/components/home/Footer';
 import { fechaLarga, getArticulo, getArticulos, PORTADA_DEFECTO } from '@/lib/blog';
 import { indiceArticulo, markdownToHtml, minutosLectura } from '@/lib/markdown';
-import { OG_BASE, OG_LOGO, migasJsonLd } from '@/lib/seo';
+import { OG_BASE, migasJsonLd } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,15 +23,25 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const a = await getArticulo(slug);
   if (!a) return { title: 'Blog' };
   const url = `${SITE}/blog/${a.slug}`;
-  // Sin portada propia se comparte el logo, no la foto genérica de la cabecera.
-  const imagen = a.portadaUrl || OG_LOGO.url;
+  // La imagen al compartir la arma ./opengraph-image.tsx (portada + título + logo); Next la enlaza sola.
   return {
     title: a.titulo,
     description: a.resumen,
     keywords: a.etiquetas,
+    authors: [{ name: a.autorNombre }],
     alternates: { canonical: url },
-    openGraph: { ...OG_BASE, type: 'article', title: a.titulo, description: a.resumen, url, images: [imagen], publishedTime: a.publicadoEn ?? undefined, tags: a.etiquetas },
-    twitter: { card: 'summary_large_image', title: a.titulo, description: a.resumen, images: [imagen] },
+    openGraph: {
+      ...OG_BASE,
+      type: 'article',
+      title: a.titulo,
+      description: a.resumen,
+      url,
+      publishedTime: a.publicadoEn ?? undefined,
+      authors: [a.autorNombre],
+      section: a.categoria,
+      tags: a.etiquetas,
+    },
+    twitter: { card: 'summary_large_image', title: a.titulo, description: a.resumen },
   };
 }
 
@@ -177,7 +187,7 @@ export default async function ArticuloPage({ params }: { params: Promise<{ slug:
 
           <aside className="space-y-6 lg:self-start">
             <IndiceArticulo items={indice} />
-            <CompartirArticulo titulo={a.titulo} />
+            <CompartirArticulo titulo={a.titulo} resumen={a.resumen} url={`${SITE}/blog/${a.slug}`} />
 
             {recientes.length > 0 && (
               <div className="rounded-2xl bg-white p-6 shadow-lg shadow-brand-dark/10">

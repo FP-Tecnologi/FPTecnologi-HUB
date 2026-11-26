@@ -46,8 +46,14 @@ const SEGURIDAD = [
   { key: 'Content-Security-Policy', value: `frame-ancestors 'self' ${DASHBOARD.join(' ')}` },
 ];
 
+// Bots de vista previa que leen solo el <head>: a ellos Next les entrega los metadatos (título, resumen, imagen) sin
+// streaming. Es la lista por defecto de Next + los que le faltan (Telegram, Pinterest, iMessage, Teams, Signal, etc.).
+const BOTS_VISTA_PREVIA =
+  /[\w-]+-Google|Google-[\w-]+|Chrome-Lighthouse|Slurp|DuckDuckBot|baiduspider|yandex|sogou|bitlybot|tumblr|vkShare|quora link preview|redditbot|ia_archiver|Bingbot|BingPreview|applebot|facebookexternalhit|facebookcatalog|meta-externalagent|Twitterbot|LinkedInBot|Slackbot|Discordbot|WhatsApp|SkypeUriPreview|Yeti|googleweblight|TelegramBot|Pinterest|Embedly|iframely|MicrosoftPreview|Teams|Viber|Signal|Mastodon|Snapchat|ZoominfoBot/i;
+
 const nextConfig = {
   poweredByHeader: false,
+  htmlLimitedBots: BOTS_VISTA_PREVIA,
   // CDN solo para archivos: con CDN_URL (p. ej. https://cdn.midominio.com) el JS/CSS de /_next/static se pide a ese subdominio. Sin la variable no cambia nada.
   assetPrefix: process.env.CDN_URL || undefined,
   async headers() {
