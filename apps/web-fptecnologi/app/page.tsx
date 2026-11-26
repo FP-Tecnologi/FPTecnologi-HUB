@@ -71,7 +71,7 @@ export default async function HomePage() {
         <BannerBbva variante="hero" />
         {c.partners.visible && <PartnerCta c={c.partners} />}
         {c.contacto.visible && <Contact c={c.contacto} />}
-        <VideosSeccion c={c.videos} videos={videos} />
+        <VideosSeccion c={c.videos} videos={videos} variante="carrusel" />
         {c.marcas.visible && <BrandMarquee showLabel={false} marcas={c.marcas.items.filter((m) => m.name && m.logo).map((m) => ({ name: m.name, logo: m.logo, solido: m.solido === 'si' }))} />}
       </main>
       <Footer />

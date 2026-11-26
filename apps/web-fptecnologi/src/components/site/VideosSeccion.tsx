@@ -4,6 +4,7 @@ import { ScrollReveal } from '@/components/home/ScrollReveal';
 import { YoutubeIcon } from '@/components/site/icons';
 import { VideoYoutube } from '@/components/site/VideoYoutube';
 import { VideosSlider } from '@/components/site/VideosSlider';
+import { VideosCarrusel } from '@/components/site/VideosCarrusel';
 import { CANAL_URL, type Video } from '@/lib/youtube';
 
 type Encabezado = { badge: string; titulo: string; destacado: string; descripcion: string; botonTexto?: string; botonUrl?: string };
@@ -14,7 +15,7 @@ type Encabezado = { badge: string; titulo: string; destacado: string; descripcio
  * Cierra con dos llamados: ver el canal y visitarnos (contacto / ubicación).
  * Sin videos no se muestra nada.
  */
-export function VideosSeccion({ c, videos, fondo = 'claro', conVisita = true }: { c: Encabezado; videos: Video[]; fondo?: 'claro' | 'blanco'; conVisita?: boolean }) {
+export function VideosSeccion({ c, videos, fondo = 'claro', conVisita = true, variante = 'visor' }: { c: Encabezado; videos: Video[]; fondo?: 'claro' | 'blanco'; conVisita?: boolean; /** visor = grande + miniaturas (Nosotros); carrusel = 3/2/1 por vista (inicio). */ variante?: 'visor' | 'carrusel' }) {
   if (videos.length === 0) return null;
   const canal = c.botonUrl?.trim() || CANAL_URL;
   return (
@@ -29,7 +30,9 @@ export function VideosSeccion({ c, videos, fondo = 'claro', conVisita = true }: 
         </ScrollReveal>
 
         <ScrollReveal direction="up">
-          {videos.length > 1 ? (
+          {variante === 'carrusel' ? (
+            <VideosCarrusel videos={videos} />
+          ) : videos.length > 1 ? (
             <VideosSlider videos={videos} />
           ) : (
             <div className="mx-auto max-w-4xl">
