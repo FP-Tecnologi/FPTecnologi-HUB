@@ -127,11 +127,11 @@ export function groupsInSection(section: string): NavNode[] {
  * FPTecnologi (y cualquier marca que no esté aquí) ve todos los módulos, menos los marcados `marcas` de otra marca.
  */
 export const MODULOS_POR_MARCA: Record<string, string[]> = {
-  quamtu: ['marca.crm', 'marca.webquamtu', 'marca.cotizador', 'marca.herramientas', 'web.tickets', 'marca.libro', 'marca.equipo'],
-  kelqa: ['marca.crm', 'marca.webkelqa', 'marca.herramientas', 'web.tickets', 'web.contactos', 'marca.libro', 'marca.equipo'],
-  imaninki: ['marca.crm', 'marca.webimaninki', 'marca.herramientas', 'web.tickets', 'web.contactos', 'marca.libro', 'marca.equipo'],
-  imc: ['marca.webimc'],
-  fimav: ['marca.crm', 'marca.webfimav', 'marca.cotizador', 'cotizador.leads', 'marca.herramientas', 'web.contactos', 'marca.libro', 'marca.equipo'],
+  quamtu: ['marca.webquamtu', 'marca.blogs', 'marca.cotizador', 'cotizador.leads', 'marca.herramientas', 'web.tickets', 'marca.libro', 'marca.equipo'],
+  kelqa: ['marca.webkelqa', 'marca.blogs', 'marca.ecommerce', 'ecommerce.productos', 'ecommerce.catalogo', 'marca.herramientas', 'web.tickets', 'web.contactos', 'marca.libro', 'marca.equipo'],
+  imaninki: ['marca.webimaninki', 'marca.blogs', 'marca.ecommerce', 'ecommerce.productos', 'ecommerce.catalogo', 'marca.herramientas', 'web.tickets', 'web.contactos', 'marca.libro', 'marca.equipo'],
+  imc: ['marca.webimc', 'marca.blogs'],
+  fimav: ['marca.webfimav', 'marca.blogs', 'marca.ecommerce', 'ecommerce.catalogo', 'marca.cotizador', 'cotizador.leads', 'marca.herramientas', 'web.contactos', 'marca.bbva', 'marca.libro', 'marca.equipo'],
 };
 
 /**
@@ -168,6 +168,34 @@ export function visibleParaMarca(node: NavNode, marcaNombre: string | null | und
   return !hermanos.some((id) => lista.includes(id)) || lista.includes(node.id);
 }
 
+/** Nodos de página (sin alias) que responden a una ruta; una subpágina sin nodo propio usa los de la ruta madre. */
+function nodosDeRuta(slug: string): NavNode[] {
+  const partes = slug.split('/');
+  while (partes.length) {
+    const ruta = partes.join('/');
+    const todos = manifest.nodes.filter((n) => !n.alias && n.slug === ruta);
+    if (todos.length) {
+      // Un grupo comparte la ruta con su primera página: manda la página.
+      const hojas = todos.filter((n) => manifest.childrenOf(n.id).length === 0);
+      return hojas.length ? hojas : todos;
+    }
+    partes.pop();
+  }
+  return [];
+}
+
+/**
+ * ¿Esta marca puede abrir esta ruta (aunque se escriba a mano en la barra de direcciones)? Solo restringe los módulos de
+ * la sección MARCA; las demás páginas son de todos. Los roles los sigue controlando la API.
+ */
+export function rutaPermitidaEnMarca(slug: string, marcaNombre: string): boolean {
+  const nodos = nodosDeRuta(slug);
+  return !nodos.length || nodos.some((n) => {
+    const trail = manifest.trail(n);
+    return trail[0]?.section !== 'MARCA' || trail.every((x) => visibleParaMarca(x, marcaNombre));
+  });
+}
+
 /**
  * ¿Se ofrece este nodo a quien está usando el dashboard? Mismas reglas que el menú lateral: el nodo y todos sus
  * ancestros deben estar en el menú y permitidos para el rol; GENERAL (Administración) e «inicio.dashboards» solo en la
@@ -181,15 +209,36 @@ export function visibleEnDashboard(node: NavNode, ctx: { roleName: string | null
   if (trail.some((n) => !n.inMenu || !visibleForRole(n, ctx.roleName))) return false;
   if (raiz.section === 'GENERAL' && !ctx.adminMode) return false;
   if (raiz.id === 'inicio.dashboards' && !ctx.adminMode) return false;
+  // En Comercial el inicio es «Inicio comercial»: el resumen de la marca no se ofrece.
+  if (raiz.id === 'inicio.panel' && ctx.comercialMode) return false;
   if (raiz.section === 'MARCA' && (ctx.adminMode || ctx.comercialMode)) return false;
   if (raiz.section === 'COMERCIAL' && !ctx.comercialMode) return false;
-  if (ctx.adminMode && trail.some((n) => n.soloMarca)) return false;
-  // La vista Comercial muestra los módulos de venta de todas las marcas: no se filtra por la marca activa.
-  return ctx.adminMode || !!ctx.comercialMode || trail.every((n) => visibleParaMarca(n, ctx.marcaNombre, ctx.roleName));
+  if (ctx.adminMode) return !trail.some((n) => n.soloMarca);
+  // En Comercial cada módulo sigue siendo de su marca: se evalúa la página real (la del alias) contra la marca de trabajo.
+  const reales = ctx.comercialMode ? manifest.trail(manifest.resolve(node)) : trail;
+  return reales.every((n) => visibleParaMarca(n, ctx.marcaNombre, ctx.roleName));
+}
+
+/**
+ * ¿Se dibuja este grupo en el menú? Un grupo sin ningún hijo disponible (por rol o por marca) no se ofrece; una hoja
+ * solo depende de sí misma.
+ */
+export function tieneContenido(node: NavNode, ctx: Parameters<typeof visibleEnDashboard>[1]): boolean {
+  if (!visibleEnDashboard(node, ctx)) return false;
+  const hijos = manifest.childrenOf(node.id);
+  return hijos.length === 0 || node.id === 'inicio.dashboards' || hijos.some((h) => tieneContenido(h, ctx));
+}
+
+/** A dónde lleva un grupo en la barra del celular: su propia página si la tiene; si no, el primer hijo disponible. */
+export function destinoDeGrupo(node: NavNode, ctx: Parameters<typeof visibleEnDashboard>[1]): string {
+  const hijo = node.selfPage ? undefined : manifest.childrenOf(node.id).find((h) => tieneContenido(h, ctx));
+  return hijo ? destinoDeGrupo(hijo, ctx) : (manifest.resolve(node)?.slug ?? node.slug);
 }
 
 /** Roles que trabajan desde la vista Comercial (CRM, captación, campañas y material de venta). */
 export const ROLES_VISTA_COMERCIAL = ['comercial', 'jefe_comercial', 'direccion'];
+/** Quién puede abrir la vista Comercial: los anteriores y el admin de una marca (el CRM vive solo allí). */
+export const ROLES_ENTRAN_COMERCIAL = [...ROLES_VISTA_COMERCIAL, 'admin'];
 
 export function visibleForRole(node: NavNode, roleName: string | null): boolean {
   if (node.ocultoAComercial && ROLES_VISTA_COMERCIAL.includes((roleName ?? '').toLowerCase())) return false;

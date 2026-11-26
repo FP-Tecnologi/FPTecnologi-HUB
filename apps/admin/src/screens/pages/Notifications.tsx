@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { PageHead } from '../../components/shell/PageHead';
 import { destinoNotificacion } from '../../lib/notificacionDestino';
 import { api } from '../../lib/api';
+import { useMarcaDelAviso } from '../../hooks/useVistaMenu';
 
 type Notificacion = {
   id: string;
@@ -37,6 +38,7 @@ const isTipo = (f: Filter): f is TipoId => f !== 'all' && f !== 'unread';
 const tipoDe = (id: string) => TIPOS.find((t) => t.id === id) ?? TIPOS[0];
 
 export function Notifications() {
+  const irAMarca = useMarcaDelAviso();
   const [filter, setFilter] = useState<Filter>('all');
   const [items, setItems] = useState<Notificacion[]>([]);
   const [loading, setLoading] = useState(true);
@@ -198,7 +200,7 @@ export function Notifications() {
                       <Link
                         className="ax-btn ax-btn--ghost ax-btn--sm"
                         href={destinoNotificacion(n)}
-                        onClick={() => { if (!n.leida) void markOne(n.id); }}
+                        onClick={() => { if (!n.leida) void markOne(n.id); irAMarca(n.marcaId); }}
                       >
                         Abrir
                       </Link>

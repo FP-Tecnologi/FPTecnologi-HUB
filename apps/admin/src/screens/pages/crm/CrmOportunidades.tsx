@@ -8,14 +8,16 @@ import { PageHead } from '../../../components/shell/PageHead';
 import { api } from '../../../lib/api';
 import { useAuth } from '../../../context/AuthContext';
 import {
-  Alerta, BotonIcono, ETAPAS, NuevaOportunidad, ORIGENES, TIPOS_PROCESO, OportunidadPanel, dinero, etapa, fechaCorta, msg, nombreDe, useAsignables, useConfirmar, vencida, type Etapa, type Oportunidad, type Origen, EtiquetaResponsable, useVeTodoCrm, useAlcanceMarcas, SelectorAlcance, EtiquetaMarca, useFichaOportunidad,
+  Alerta, BotonIcono, ETAPAS, NuevaOportunidad, ORIGENES, TIPOS_PROCESO, OportunidadPanel, aFecha, dinero, etapa, fechaCorta, msg, nombreDe, useAsignables, useConfirmar, vencida, type Etapa, type Oportunidad, type Origen, EtiquetaResponsable, useVeTodoCrm, useAlcanceMarcas, SelectorAlcance, EtiquetaMarca, useFichaOportunidad,
 } from './comun';
 import { teclaFila } from '../../../lib/teclado';
+import { descargarCsv } from '../../../lib/csv';
 import { Select } from '../../../components/ui/Select';
 
 export function CrmOportunidades({ propio = false }: { propio?: boolean }) {
   const { activeMarcaId, marcas } = useAuth();
-  const esAdmin = marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre === 'admin';
+  // En la lista consolidada el rol depende de la marca de cada fila.
+  const esAdminDe = (marcaId?: string) => marcas.find((m) => m.marcaId === (marcaId ?? activeMarcaId))?.rol.nombre === 'admin';
   const asignables = useAsignables();
   const { veTodo: veTodoRol } = useVeTodoCrm();
   const veTodo = veTodoRol && !propio; // «Mis oportunidades»: siempre solo las mías, sin selector de responsable
@@ -49,9 +51,19 @@ export function CrmOportunidades({ propio = false }: { propio?: boolean }) {
   }, [activeMarcaId, estado, et, asignado, origen, tipo, propio, q, alcance.ruta]);
   useEffect(() => { const t = setTimeout(cargar, 250); return () => clearTimeout(t); }, [cargar]);
 
+  const exportar = () => descargarCsv('oportunidades',
+    ['Número', 'Marca', 'Título', 'Etapa', 'Empresa', 'RUC', 'Contacto', 'Correo', 'Celular', 'Proceso', 'Moneda', 'Monto', 'Responsable', 'Próxima acción', 'Fecha próxima acción', 'Cierre estimado', 'Origen', 'Motivo de pérdida', 'Creada'],
+    lista.map((o) => [o.numero, o.marca?.nombre ?? marcas.find((m) => m.marcaId === activeMarcaId)?.marca.nombre, o.titulo, etapa(o.etapa).label, o.empresa?.razonSocial, o.empresa?.ruc, o.contacto?.nombre, o.contacto?.email, o.contacto?.celular,
+      o.tipoProceso ? TIPOS_PROCESO[o.tipoProceso] : '', o.moneda, o.monto === null ? '' : Number(o.monto), nombreDe(o.asignado), o.proximaAccion, aFecha(o.proximaAccionAt), o.cierreEstimado?.slice(0, 10), ORIGENES[o.origen], o.motivoPerdida, aFecha(o.createdAt)]));
+
   return (
     <>
-      <PageHead title={propio ? 'Mis oportunidades' : 'Oportunidades'} subtitle={propio ? 'Tus prospectos y ventas en curso, con su monto y próxima acción.' : 'Prospectos y ventas en curso de la marca, con su responsable, monto y próxima acción.'} actions={<button type="button" className="ax-btn ax-btn--primary" onClick={() => setNueva(true)}><span className="ax-btn__label">Nueva oportunidad</span></button>} />
+      <PageHead title={propio ? 'Mis oportunidades' : 'Oportunidades'} subtitle={propio ? 'Tus prospectos y ventas en curso, con su monto y próxima acción.' : 'Prospectos y ventas en curso de la marca, con su responsable, monto y próxima acción.'} actions={
+        <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
+          <button type="button" className="ax-btn ax-btn--secondary" disabled={lista.length === 0} onClick={exportar} title="Descarga lo que muestran los filtros"><span className="ax-btn__label">Exportar CSV</span></button>
+          <button type="button" className="ax-btn ax-btn--primary" onClick={() => setNueva(true)}><span className="ax-btn__label">Nueva oportunidad</span></button>
+        </div>
+      } />
       {error && <div style={{ marginBlockEnd: 'var(--ax-space-4)' }}><Alerta>{error}</Alerta></div>}
       {ok && <div style={{ marginBlockEnd: 'var(--ax-space-4)' }}><Alerta tono="success">{ok}</Alerta></div>}
 
@@ -99,8 +111,8 @@ export function CrmOportunidades({ propio = false }: { propio?: boolean }) {
                 </tr>
               </thead>
               <tbody>
-                {cargando ? <tr><td className="ax-table__td" colSpan={8}>Cargando…</td></tr> : lista.length === 0 ? (
-                  <tr><td className="ax-table__td" colSpan={8} style={{ color: 'var(--ax-text-muted)' }}>No hay oportunidades con estos filtros. Las solicitudes de la web (cotizador, cotizaciones, contacto, presupuestos) aparecen aquí solas.</td></tr>
+                {cargando ? <tr><td className="ax-table__td" colSpan={9}>Cargando…</td></tr> : lista.length === 0 ? (
+                  <tr><td className="ax-table__td" colSpan={9}style={{ color: 'var(--ax-text-muted)' }}>No hay oportunidades con estos filtros. Las solicitudes de la web (cotizador, cotizaciones, contacto, presupuestos) aparecen aquí solas.</td></tr>
                 ) : lista.map((o) => (
                   <tr key={o.id} className="ax-table__row" onClick={() => setAbierta(o.id)} tabIndex={0} onKeyDown={teclaFila(() => setAbierta(o.id))} style={{ cursor: 'pointer' }}>
                     <td className="ax-table__td">
@@ -123,7 +135,7 @@ export function CrmOportunidades({ propio = false }: { propio?: boolean }) {
                     <td className="ax-table__td" onClick={(e) => e.stopPropagation()}>
                       <div className="ax-cluster" style={{ gap: 'var(--ax-space-1)', flexWrap: 'nowrap', justifyContent: 'flex-end' }}>
                         <BotonIcono icono="edit" label={`Editar ${o.numero}`} onClick={() => setAbierta(o.id)} />
-                        {esAdmin && <BotonIcono icono="trash" label={`Eliminar ${o.numero}`} peligro onClick={() => eliminar(o)} />}
+                        {esAdminDe(o.marcaId) && <BotonIcono icono="trash" label={`Eliminar ${o.numero}`} peligro onClick={() => eliminar(o)} />}
                       </div>
                     </td>
                   </tr>

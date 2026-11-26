@@ -2,6 +2,7 @@ import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@ne
 import { NotificacionesService } from './notificaciones.service.js';
 import { CreateNotificacionDto } from './dto/create-notificacion.dto.js';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard.js';
+import { SuperAdminGuard } from '../common/guards/super-admin.guard.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user.js';
 
@@ -10,8 +11,9 @@ import type { AuthenticatedUser } from '../auth/types/authenticated-user.js';
 export class NotificacionesController {
   constructor(private readonly notificacionesService: NotificacionesService) {}
 
-  // Uso interno del backend (otros módulos) para crear notificaciones; se
-  // deja también expuesto por HTTP para pruebas/administración manual.
+  // Los módulos crean sus avisos desde el backend. Por HTTP queda solo para el super administrador
+  // (pruebas/administración manual): cualquier sesión podría escribir avisos a otros usuarios y marcas.
+  @UseGuards(SuperAdminGuard)
   @Post()
   create(@Body() dto: CreateNotificacionDto) {
     return this.notificacionesService.create(dto);

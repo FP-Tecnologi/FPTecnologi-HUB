@@ -15,8 +15,9 @@ import { Dropdown } from '../ui/Dropdown';
 import { Icon } from '../ui/Icon';
 import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
+import { useMarcaDelAviso } from '../../hooks/useVistaMenu';
 
-interface Notificacion { id: string; titulo: string; mensaje: string; tipo: string; leida: boolean; createdAt: string }
+interface Notificacion { id: string; marcaId?: string | null; titulo: string; mensaje: string; tipo: string; leida: boolean; createdAt: string }
 
 const CADA_MS = 30_000;
 const TOAST_MS = 7_000;
@@ -49,6 +50,7 @@ const TONO: Record<string, string> = {
 
 export function NotificationBell() {
   const { activeMarcaId } = useAuth();
+  const irAMarca = useMarcaDelAviso();
   const router = useRouter();
   const [items, setItems] = useState<Notificacion[]>([]);
   const [toasts, setToasts] = useState<Notificacion[]>([]);
@@ -130,7 +132,7 @@ export function NotificationBell() {
                     <button
                       type="button"
                       className={`ax-notif__row${n.leida ? '' : ' is-unread'}`}
-                      onClick={() => { marcar(n.id); close(); router.push(destinoNotificacion(n)); }}
+                      onClick={() => { marcar(n.id); close(); irAMarca(n.marcaId); router.push(destinoNotificacion(n)); }}
                       style={{ inlineSize: '100%', textAlign: 'start', border: 0, cursor: 'pointer' }}
                     >
                       <span className={`ax-notif__chip ${TONO[n.tipo] ?? ''}`}>
@@ -163,7 +165,7 @@ export function NotificationBell() {
               <div className="ax-toast__content">
                 <div className="ax-toast__title">{n.titulo}</div>
                 <div className="ax-toast__message">{n.mensaje}</div>
-                <Link href={destinoNotificacion(n)} className="ax-toast__action" onClick={() => { marcar(n.id); setToasts((t) => t.filter((x) => x.id !== n.id)); }}>Ver</Link>
+                <Link href={destinoNotificacion(n)} className="ax-toast__action" onClick={() => { marcar(n.id); irAMarca(n.marcaId); setToasts((t) => t.filter((x) => x.id !== n.id)); }}>Ver</Link>
               </div>
               <button type="button" className="ax-toast__dismiss" aria-label="Cerrar aviso" onClick={() => setToasts((t) => t.filter((x) => x.id !== n.id))}>×</button>
             </div>

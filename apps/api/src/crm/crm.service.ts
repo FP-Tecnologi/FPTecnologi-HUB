@@ -175,6 +175,16 @@ export class CrmService {
     if (!ok) throw new BadRequestException('El responsable debe ser un comercial o administrador de esta marca');
   }
 
+  /** Avisa en la campana a quien recibe una oportunidad (no a quien se la queda para sí). El aviso nunca frena el guardado. */
+  private async avisarAsignacion(marcaId: string, usuarioId: string | null | undefined, actorId: string, o: { numero: string; titulo: string }) {
+    if (!usuarioId || usuarioId === actorId) return;
+    try {
+      await this.prisma.notificacion.create({ data: { marcaId, usuarioId, titulo: 'Oportunidad asignada', mensaje: `${o.numero} · ${o.titulo}`.slice(0, 140) } });
+    } catch (e) {
+      this.logger.warn(`No se pudo avisar la asignación de ${o.numero}: ${(e as Error).message}`);
+    }
+  }
+
   private async validarRelaciones(marcaId: string, empresaId?: string | null, contactoId?: string | null) {
     if (empresaId && !(await this.prisma.crmEmpresa.count({ where: { id: empresaId, marcaId } }))) throw new BadRequestException('La empresa no existe en esta marca');
     if (contactoId && !(await this.prisma.crmContacto.count({ where: { id: contactoId, marcaId } }))) throw new BadRequestException('El contacto no existe en esta marca');
@@ -194,6 +204,8 @@ export class CrmService {
       ...(!veTodo ? { asignadoId: usuarioId } : f.asignado === 'yo' ? { asignadoId: usuarioId } : f.asignado === 'sin' ? { asignadoId: null } : f.asignado ? { asignadoId: f.asignado } : {}),
       ...(f.origen ? { origen: f.origen } : {}),
       ...(f.tipoProceso ? { tipoProceso: f.tipoProceso } : {}),
+      ...(f.empresaId ? { empresaId: f.empresaId } : {}),
+      ...(f.contactoId ? { contactoId: f.contactoId } : {}),
       ...(q
         ? { OR: [
             { titulo: { contains: q, mode: 'insensitive' } },
@@ -338,6 +350,7 @@ export class CrmService {
       ...(etapa === 'GANADO' ? { ganadoAt: new Date(), cerradoAt: new Date() } : {}),
     });
     await this.prisma.crmActividad.create({ data: { marcaId, oportunidadId: o.id, tipo: 'NOTA', texto: `Oportunidad creada por ${email}.`, autor: email } });
+    await this.avisarAsignacion(marcaId, o.asignadoId, ambito.usuarioId, o);
     return this.obtener(marcaId, o.id, ambito);
   }
 
@@ -369,6 +382,7 @@ export class CrmService {
     if (dto.asignadoId !== undefined && dto.asignadoId !== o.asignadoId) {
       const nuevo = dto.asignadoId ? (await this.asignables(marcaId)).find((u) => u.id === dto.asignadoId) : null;
       await this.prisma.crmActividad.create({ data: { marcaId, oportunidadId: id, tipo: 'NOTA', texto: nuevo ? `Asignada a ${nuevo.nombre ?? nuevo.email}.` : 'Quedó sin responsable.', autor: email } });
+      await this.avisarAsignacion(marcaId, dto.asignadoId, ambito.usuarioId, { numero: o.numero, titulo: dto.titulo?.trim() || o.titulo });
     }
     return this.obtener(marcaId, id, ambito);
   }
@@ -615,7 +629,7 @@ export class CrmService {
    * el CRM recibe solo su meta y la de la marca.
    */
   async listarMetas(marcaId: string, periodo: string, ambito: AmbitoCrm = TODO) {
-    const per = /^d{4}-(0[1-9]|1[0-2])$/.test(periodo) ? periodo : mesActual();
+    const per = /^\d{4}-(0[1-9]|1[0-2])$/.test(periodo) ? periodo : mesActual();
     const [anio, mes] = per.split('-').map(Number) as [number, number];
     const desde = new Date(anio, mes - 1, 1);
     const hasta = new Date(anio, mes, 1);
@@ -660,8 +674,8 @@ export class CrmService {
     desde.setHours(0, 0, 0, 0);
     const [abiertas, cerradas, creadas, asignables] = await Promise.all([
       this.prisma.crmOportunidad.findMany({ where: { marcaId, ...propias, etapa: { in: ETAPAS_ABIERTAS } }, select: { etapa: true, monto: true, moneda: true, probabilidad: true, asignadoId: true } }),
-      this.prisma.crmOportunidad.findMany({ where: { marcaId, ...propias, cerradoAt: { gte: desde } }, select: { etapa: true, monto: true, moneda: true, asignadoId: true, origen: true, createdAt: true, ganadoAt: true, cerradoAt: true } }),
-      this.prisma.crmOportunidad.findMany({ where: { marcaId, ...propias, createdAt: { gte: desde } }, select: { origen: true, etapa: true } }),
+      this.prisma.crmOportunidad.findMany({ where: { marcaId, ...propias, cerradoAt: { gte: desde } }, select: { etapa: true, monto: true, moneda: true, asignadoId: true, origen: true, tipoProceso: true, motivoPerdida: true, createdAt: true, ganadoAt: true, cerradoAt: true } }),
+      this.prisma.crmOportunidad.findMany({ where: { marcaId, ...propias, createdAt: { gte: desde } }, select: { origen: true, etapa: true, tipoProceso: true } }),
       this.asignables(marcaId),
     ]);
 
@@ -697,6 +711,26 @@ export class CrmService {
       return { origen, creadas: c.length, ganadas: g.length, montos: sumar(g) };
     }).filter((o) => o.creadas || o.ganadas);
 
+    const porProceso = [...new Set([...creadas, ...ganadas].map((o) => o.tipoProceso ?? null))]
+      .map((tipoProceso) => {
+        const g = ganadas.filter((o) => (o.tipoProceso ?? null) === tipoProceso);
+        return { tipoProceso, creadas: creadas.filter((o) => (o.tipoProceso ?? null) === tipoProceso).length, ganadas: g.length, montos: sumar(g) };
+      })
+      .sort((a, b) => b.creadas - a.creadas || b.ganadas - a.ganadas);
+
+    // Motivos escritos a mano: se juntan los que solo difieren en mayúsculas o espacios.
+    const motivos = new Map<string, { motivo: string; filas: typeof perdidas }>();
+    for (const o of perdidas) {
+      const motivo = o.motivoPerdida?.trim().replace(/\s+/g, ' ') || 'Sin motivo';
+      const clave = motivo.toLowerCase();
+      if (!motivos.has(clave)) motivos.set(clave, { motivo, filas: [] });
+      motivos.get(clave)!.filas.push(o);
+    }
+    const motivosPerdida = [...motivos.values()]
+      .map((m) => ({ motivo: m.motivo, cantidad: m.filas.length, montos: sumar(m.filas) }))
+      .sort((a, b) => b.cantidad - a.cantidad)
+      .slice(0, 8);
+
     const ciclos = ganadas.filter((o) => o.ganadoAt).map((o) => (o.ganadoAt!.getTime() - o.createdAt.getTime()) / 86_400_000);
     return {
       meses,
@@ -715,6 +749,8 @@ export class CrmService {
       porMes,
       porComercial,
       porOrigen,
+      porProceso,
+      motivosPerdida,
     };
   }
 }

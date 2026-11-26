@@ -13,6 +13,7 @@ import { Icon } from '../ui/Icon';
 import { Card, Kpi, Vacio, VIZ, num, viz } from './piezas';
 import { TraficoWeb } from './TraficoWeb';
 import { useAuth } from '../../context/AuthContext';
+import { rutaPermitidaEnMarca } from '../../lib/manifest';
 import { numeroMoneda } from '@/lib/moneda';
 import {
   contarPorEstado, contarPorMes, sumarPorMes, ultimosMeses, useResumen, variacion,
@@ -109,8 +110,17 @@ export function ResumenMarca({
   marcaId, marcaIds, rol, soloResumen = false, sinAccesos = false,
 }: { marcaId: string; marcaIds?: string[]; rol: string; soloResumen?: boolean; sinAccesos?: boolean }) {
   const router = useRouter();
-  const { setActiveMarcaId } = useAuth();
+  const { setActiveMarcaId, marcas } = useAuth();
   const { datos, cargando } = useResumen(marcaIds ?? [marcaId]);
+  // De una sola marca se muestran solo los módulos que usa su web; sumando varias (Administración), todos.
+  const nombreMarca = marcaIds ? undefined : marcas.find((m) => m.marcaId === marcaId)?.marca.nombre;
+  const ve = (ruta: string) => !nombreMarca || rutaPermitidaEnMarca(ruta.slice(1), nombreMarca);
+  const vePedidos = ve('/ecommerce/pedidos');
+  const veLeads = ve('/cotizador/leads');
+  const veCotiz = ve('/soluciones/cotizaciones');
+  const veChat = ve('/chat/conversaciones');
+  const veContactos = ve('/web/contactos');
+  const veBoletin = ve('/boletin/suscriptores');
 
   const meses = ultimosMeses(6);
   const etiquetas = meses.map((m) => m.label);
@@ -131,12 +141,17 @@ export function ResumenMarca({
   const notifs: NotifRow[] = (datos.notificaciones ?? []).slice(0, 6);
 
   const actividad = [
-    { name: 'Leads', data: leadsMes },
-    { name: 'Cotizaciones', data: cotizMes },
-    { name: 'Chats', data: chatMes },
-    { name: 'Contactos', data: contactosMes },
-    { name: 'Suscriptores', data: boletinMes },
+    { name: 'Leads', data: veLeads ? leadsMes : null },
+    { name: 'Cotizaciones', data: veCotiz ? cotizMes : null },
+    { name: 'Chats', data: veChat ? chatMes : null },
+    { name: 'Contactos', data: veContactos ? contactosMes : null },
+    { name: 'Suscriptores', data: veBoletin ? boletinMes : null },
   ].filter((s): s is { name: string; data: number[] } => s.data !== null);
+  const contenido = [
+    { ruta: '/blogs/lista', label: 'Blog publicado', valor: blogPub, total: datos.blog?.length ?? null, color: 'var(--ax-viz-emerald)' },
+    { ruta: '/chat/conversaciones', label: 'Chats cerrados', valor: datos.chat ? contarPorEstado(datos.chat, ESTADOS_CHAT)[2] : null, total: datos.chat?.length ?? null, color: 'var(--ax-viz-cyan)' },
+    { ruta: '/boletin/suscriptores', label: 'Suscriptores (mes)', valor: boletinMes ? boletinMes[boletinMes.length - 1] : null, total: datos.boletin?.length ?? null, color: 'var(--ax-viz-violet)' },
+  ].filter((f) => ve(f.ruta));
 
   return (
     <>
@@ -144,13 +159,13 @@ export function ResumenMarca({
       <section className="ax-card ax-card--flat ax-col--12" role="region" aria-label="Resumen de la marca" aria-busy={cargando}>
         <div className="ax-card__body">
           <div className="ax-statgroup">
-            <Kpi icon="shopping-bag" tono="c2" label="Ventas del mes" valor={ventasMes === null ? '—' : usd(ventasMes)} pct={ingresos ? variacion(ingresos) : undefined} />
-            <Kpi icon="shopping-cart" tono="c4" label="Pedidos" valor={num(datos.pedidos?.length ?? null)} pct={pedidosMes ? variacion(pedidosMes) : undefined} />
-            <Kpi icon="article" tono="c5" label="Cotizaciones" valor={num(datos.cotizaciones?.length ?? null)} pct={cotizMes ? variacion(cotizMes) : undefined} />
-            <Kpi icon="briefcase-2" tono="c3" label="Leads cotizador" valor={num(datos.leads?.length ?? null)} pct={leadsMes ? variacion(leadsMes) : undefined} />
-            <Kpi icon="headset" tono="c6" label="Contactos web" valor={num(datos.contactos?.length ?? null)} pct={contactosMes ? variacion(contactosMes) : undefined} />
-            <Kpi icon="messages" tono="c2" label="Chats abiertos" valor={num(chatAbiertas)} />
-            <Kpi icon="users-group" tono="c2" label="Equipo" valor={num(datos.equipo?.length ?? null)} />
+            {vePedidos && <Kpi icon="shopping-bag" tono="c2" label="Ventas del mes" valor={ventasMes === null ? '—' : usd(ventasMes)} pct={ingresos ? variacion(ingresos) : undefined} />}
+            {vePedidos && <Kpi icon="shopping-cart" tono="c4" label="Pedidos" valor={num(datos.pedidos?.length ?? null)} pct={pedidosMes ? variacion(pedidosMes) : undefined} />}
+            {veCotiz && <Kpi icon="article" tono="c5" label="Cotizaciones" valor={num(datos.cotizaciones?.length ?? null)} pct={cotizMes ? variacion(cotizMes) : undefined} />}
+            {veLeads && <Kpi icon="briefcase-2" tono="c3" label="Leads cotizador" valor={num(datos.leads?.length ?? null)} pct={leadsMes ? variacion(leadsMes) : undefined} />}
+            {veContactos && <Kpi icon="headset" tono="c6" label="Contactos web" valor={num(datos.contactos?.length ?? null)} pct={contactosMes ? variacion(contactosMes) : undefined} />}
+            {veChat && <Kpi icon="messages" tono="c2" label="Chats abiertos" valor={num(chatAbiertas)} />}
+            {ve('/usuarios') && <Kpi icon="users-group" tono="c2" label="Equipo" valor={num(datos.equipo?.length ?? null)} />}
           </div>
         </div>
       </section>
@@ -159,7 +174,7 @@ export function ResumenMarca({
       <TraficoWeb marcaIds={marcaIds ?? [marcaId]} />
 
       {/* Ingresos + pedidos por estado */}
-      <Card titulo="Ingresos" sub="Ventas de los últimos 6 meses (sin pedidos cancelados, USD)" cols={8} enlace={{ href: '/ecommerce/pedidos', label: 'Ver pedidos' }}>
+      {vePedidos && <><Card titulo="Ingresos"sub="Ventas de los últimos 6 meses (sin pedidos cancelados, USD)" cols={8} enlace={{ href: '/ecommerce/pedidos', label: 'Ver pedidos' }}>
         {ingresos && ingresos.some((v) => v > 0) ? (
           <ApexChart
             type="area"
@@ -174,16 +189,16 @@ export function ResumenMarca({
       </Card>
       <Card titulo="Pedidos" cols={4}>
         <Donut estados={ESTADOS_PEDIDO} valores={datos.pedidos ? contarPorEstado(datos.pedidos, ESTADOS_PEDIDO) : null} centro="Pedidos" nombre="pedidos" />
-      </Card>
+      </Card></>}
 
       {/* Embudo comercial */}
-      <Card titulo="Cotizador" sub="Leads del formulario web" cols={4} enlace={{ href: '/cotizador', label: 'Ver leads' }}>
+      {veLeads && <Card titulo="Cotizador" sub="Leads del formulario web" cols={4} enlace={{ href: '/cotizador/leads', label: 'Ver leads' }}>
         <BarrasEstado estados={ESTADOS_LEAD} valores={datos.leads ? contarPorEstado(datos.leads, ESTADOS_LEAD) : null} nombre="Leads" />
-      </Card>
-      <Card titulo="Cotizaciones" sub="Solicitudes sobre servicios" cols={4} enlace={{ href: '/soluciones/cotizaciones', label: 'Ver todas' }}>
+      </Card>}
+      {veCotiz && <Card titulo="Cotizaciones" sub="Solicitudes sobre servicios" cols={4} enlace={{ href: '/soluciones/cotizaciones', label: 'Ver todas' }}>
         <BarrasEstado estados={ESTADOS_COTIZ} valores={datos.cotizaciones ? contarPorEstado(datos.cotizaciones, ESTADOS_COTIZ) : null} nombre="Cotizaciones" />
-      </Card>
-      <Card titulo="Actividad" sub="Leads, cotizaciones, chats, contactos y suscriptores" cols={4}>
+      </Card>}
+      <Card titulo="Actividad" sub="Lo que entra por la web, mes a mes" cols={4}>
         {actividad.some((s) => s.data.some((v) => v > 0)) ? (
           <ApexChart
             type="bar"
@@ -197,7 +212,7 @@ export function ResumenMarca({
       </Card>
 
       {/* Catálogo */}
-      <Card titulo="Más vendidos" sub="Por unidades en pedidos no cancelados" cols={4} enlace={{ href: '/ecommerce/productos', label: 'Catálogo' }}>
+      {vePedidos && <><Card titulo="Más vendidos"sub="Por unidades en pedidos no cancelados" cols={4} enlace={{ href: '/ecommerce/productos', label: 'Catálogo' }}>
         {top.length ? (
           <ol className="ax-ranklist">
             {top.map(([nombre, cant], i) => (
@@ -224,16 +239,12 @@ export function ResumenMarca({
             ))}
           </ul>
         ) : <Vacio texto="Todo el catálogo tiene stock suficiente." />}
-      </Card>
+      </Card></>}
 
       {/* Contenido y atención */}
-      <Card titulo="Contenido" cols={4}>
+      {contenido.length > 0 && <Card titulo="Contenido" cols={4}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
-          {[
-            { label: 'Blog publicado', valor: blogPub, total: datos.blog?.length ?? null, color: 'var(--ax-viz-emerald)' },
-            { label: 'Chats cerrados', valor: datos.chat ? contarPorEstado(datos.chat, ESTADOS_CHAT)[2] : null, total: datos.chat?.length ?? null, color: 'var(--ax-viz-cyan)' },
-            { label: 'Suscriptores (mes)', valor: boletinMes ? boletinMes[boletinMes.length - 1] : null, total: datos.boletin?.length ?? null, color: 'var(--ax-viz-violet)' },
-          ].map((f) => (
+          {contenido.map((f) => (
             <div key={f.label}>
               <div className="ax-cluster" style={{ justifyContent: 'space-between', marginBottom: 6 }}>
                 <span style={{ fontSize: 'var(--ax-text-sm)' }}>{f.label}</span>
@@ -243,17 +254,17 @@ export function ResumenMarca({
             </div>
           ))}
         </div>
-      </Card>
+      </Card>}
 
       {/* Contactos de la web (formulario de contacto + Libro de Reclamaciones) */}
-      <Card titulo="Contactos" sub="Formulario de contacto y reclamos" cols={4} enlace={{ href: '/web/contactos', label: 'Ver bandeja' }}>
+      {veContactos && <Card titulo="Contactos" sub="Formulario de contacto y reclamos" cols={4} enlace={{ href: '/web/contactos', label: 'Ver bandeja' }}>
         <BarrasEstado estados={ESTADOS_CONTACTO} valores={datos.contactos ? contarPorEstado(datos.contactos, ESTADOS_CONTACTO) : null} nombre="Contactos" />
         {datos.contactos && datos.contactos.some((c) => c.tipo === 'RECLAMO') && (
           <p style={{ margin: 'var(--ax-space-2) 0 0', fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-muted)' }}>
             {datos.contactos.filter((c) => c.tipo === 'RECLAMO' && c.estado === 'NUEVO').length} reclamo(s) sin atender.
           </p>
         )}
-      </Card>
+      </Card>}
 
       {/* Notificaciones */}
       <Card titulo="Notificaciones" cols={8} enlace={{ href: '/notificaciones', label: 'Ver todas' }}>
@@ -295,7 +306,7 @@ export function ResumenMarca({
               Tu rol aquí: <b style={{ color: 'var(--ax-text-strong)' }}>{rol}</b>.
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: 'var(--ax-space-3)' }}>
-              {MODULOS.map((m) => (
+              {MODULOS.filter((m) => ve(m.href)).map((m) => (
                 <Link key={m.href} href={m.href} className="ax-card ax-card--flat" style={{ padding: 'var(--ax-space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-2)', textDecoration: 'none' }}>
                   <span className="ax-center" aria-hidden="true" style={{ inlineSize: 36, blockSize: 36, borderRadius: 'var(--ax-radius-md)', background: 'var(--ax-accent-wash)', color: 'var(--ax-accent)' }}>
                     <Icon name={m.icon} />

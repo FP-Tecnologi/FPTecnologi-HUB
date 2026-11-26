@@ -1,6 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { plainToInstance } from 'class-transformer';
+import { validate } from 'class-validator';
 import { CrmService } from './crm.service.js';
+import { MetaDto } from './crm.dto.js';
 
 /** Prisma falso en memoria, lo justo para el CRM. */
 function prismaFalso() {
@@ -280,5 +283,43 @@ describe('CrmService: metas de ventas', () => {
   it('eliminar una meta de otra marca responde "no encontrada"', async () => {
     const { svc } = servicio([], []);
     await expect(svc.eliminarMeta('m1', 'x')).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('respeta el mes pedido (no lo cambia por el mes actual)', async () => {
+    const { svc, crmMeta } = servicio([], []);
+    const r = await svc.listarMetas('m1', '2025-03', { usuarioId: 'u1', veTodo: true });
+    expect(r.periodo).toBe('2025-03');
+    expect(crmMeta.findMany).toHaveBeenCalledWith(expect.objectContaining({ where: { marcaId: 'm1', periodo: '2025-03' } }));
+  });
+
+  it('el DTO acepta AAAA-MM y rechaza otro formato', async () => {
+    const errores = async (periodo: string) => (await validate(plainToInstance(MetaDto, { periodo, monto: 10 }))).map((e) => e.property);
+    expect(await errores('2026-11')).toEqual([]);
+    expect(await errores('2026-13')).toEqual(['periodo']);
+    expect(await errores('noviembre')).toEqual(['periodo']);
+  });
+});
+
+describe('CrmService: aviso de asignación', () => {
+  const servicio = () => {
+    const prisma = prismaFalso();
+    const notificacion = { create: vi.fn(async () => ({})) };
+    Object.assign(prisma, { notificacion, usuarioMarcaRol: { findMany: vi.fn(async () => []), count: vi.fn(async () => 1) } });
+    prisma.db.opps.push({ id: 'o1', marcaId: 'm1', numero: 'OPP-1', titulo: 'Laptops', etapa: 'NUEVO', asignadoId: null });
+    const crm = new CrmService(prisma as never);
+    vi.spyOn(crm, 'obtener').mockResolvedValue({} as never);
+    return { crm, notificacion };
+  };
+
+  it('avisa a quien recibe la oportunidad', async () => {
+    const { crm, notificacion } = servicio();
+    await crm.actualizar('m1', 'o1', { asignadoId: 'u2' }, 'jefe@x.pe', { usuarioId: 'u1', veTodo: true });
+    expect(notificacion.create).toHaveBeenCalledWith({ data: { marcaId: 'm1', usuarioId: 'u2', titulo: 'Oportunidad asignada', mensaje: 'OPP-1 · Laptops' } });
+  });
+
+  it('no avisa si te la asignas a ti mismo', async () => {
+    const { crm, notificacion } = servicio();
+    await crm.actualizar('m1', 'o1', { asignadoId: 'u1' }, 'jefe@x.pe', { usuarioId: 'u1', veTodo: true });
+    expect(notificacion.create).not.toHaveBeenCalled();
   });
 });

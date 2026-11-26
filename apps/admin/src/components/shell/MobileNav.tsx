@@ -9,14 +9,14 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext';
-import { manifest, slugFromPath, hrefForSlug, visibleEnDashboard } from '../../lib/manifest';
+import { manifest, slugFromPath, hrefForSlug, tieneContenido, destinoDeGrupo } from '../../lib/manifest';
+import { useVistaMenu } from '../../hooks/useVistaMenu';
 import { Icon } from '../ui/Icon';
 
 /** Módulos candidatos en orden de importancia, con su rótulo corto. */
 const PRIORIDAD: [id: string, etiqueta: string][] = [
   ['marca.ecommerce', 'Tienda'],
   ['marca.chat', 'Chat'],
-  ['marca.crm', 'CRM'],
   ['marca.cotizador', 'Cotizador'],
   ['marca.soluciones', 'Soluciones'],
   ['marca.campanas', 'Campañas'],
@@ -31,7 +31,8 @@ interface Destino { id: string; etiqueta: string; href: string; icon: string }
 
 export function MobileNav({ onMenu }: { onMenu: () => void }) {
   const pathname = usePathname() || '/';
-  const { marcas, activeMarcaId, adminMode, esSuperAdmin, comercialMode } = useAuth();
+  const { adminMode, esSuperAdmin, comercialMode } = useAuth();
+  const ctx = useVistaMenu();
   const [teclado, setTeclado] = useState(false);
 
   // Con el teclado abierto (escribiendo) la barra estorba: se oculta mientras un campo tiene el foco.
@@ -44,15 +45,11 @@ export function MobileNav({ onMenu }: { onMenu: () => void }) {
     return () => { document.removeEventListener('focusin', dentro); document.removeEventListener('focusout', fuera); };
   }, []);
 
-  const marcaActiva = adminMode ? null : (marcas.find((m) => m.marcaId === activeMarcaId) ?? null);
-  const roleName = adminMode || (comercialMode && esSuperAdmin) ? (esSuperAdmin ? 'admin' : (marcas[0]?.rol.nombre ?? null)) : (marcaActiva?.rol.nombre ?? null);
-  const ctx = { roleName, adminMode, comercialMode, marcaNombre: marcaActiva?.marca.nombre ?? null };
-
   const modulos: Destino[] = (adminMode ? PRIORIDAD_ADMIN : comercialMode ? PRIORIDAD_COMERCIAL : PRIORIDAD)
     .map(([id, etiqueta]) => ({ nodo: manifest.byId.get(id), etiqueta }))
-    .filter((x) => x.nodo && visibleEnDashboard(x.nodo, ctx))
+    .filter((x) => x.nodo && tieneContenido(x.nodo, ctx))
     .slice(0, esSuperAdmin ? 2 : 3)
-    .map(({ nodo, etiqueta }) => ({ id: nodo!.id, etiqueta, href: hrefForSlug(nodo!.slug), icon: nodo!.icon }));
+    .map(({ nodo, etiqueta }) => ({ id: nodo!.id, etiqueta, href: hrefForSlug(destinoDeGrupo(nodo!, ctx)), icon: nodo!.icon }));
 
   const slug = slugFromPath(pathname);
   const raizActiva = manifest.trail(manifest.bySlug.get(slug))[0]?.id;

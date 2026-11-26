@@ -7,6 +7,7 @@
  * (productos, pedidos…) viven bajo "Marca activa" y muestran
  * placeholders hasta que su CRUD real se construye.
  */
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PageHead } from '../components/shell/PageHead';
@@ -17,8 +18,10 @@ import { useAuth } from '../context/AuthContext';
 
 export function Home() {
   const router = useRouter();
-  const { user, marcas, activeMarcaId, adminMode, setAdminMode, esSuperAdmin } = useAuth();
+  const { user, marcas, activeMarcaId, adminMode, setAdminMode, esSuperAdmin, comercialMode } = useAuth();
   const esAdmin = esSuperAdmin;
+  // En Comercial el inicio es «Inicio comercial» (el logo y el inicio de sesión llevan a "/").
+  useEffect(() => { if (comercialMode) router.replace('/comercial/inicio'); }, [comercialMode, router]);
 
   function gestionar(marcaId: string) {
     // "Ver dashboard" desde Administración no debe activar la marca ni sacar

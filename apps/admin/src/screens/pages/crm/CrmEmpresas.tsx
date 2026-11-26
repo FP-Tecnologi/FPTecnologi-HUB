@@ -7,11 +7,13 @@
  * Borrar: solo admin (las oportunidades quedan, sin la empresa o el contacto; las sedes pasan a ser empresas principales).
  */
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { PageHead } from '../../../components/shell/PageHead';
 import { api } from '../../../lib/api';
 import { useAuth } from '../../../context/AuthContext';
-import { Alerta, BotonIcono, Modal, msg, useConfirmar } from './comun';
+import { Alerta, BotonIcono, Modal, dinero, etapa, montos, msg, nombreDe, numeroWa, useConfirmar, useVeTodoCrm, ABIERTAS, type Oportunidad } from './comun';
 import { Select } from '../../../components/ui/Select';
+import { descargarCsv } from '../../../lib/csv';
 
 interface Empresa {
   id: string; razonSocial: string; ruc: string | null; rubro: string | null; web: string | null; telefono: string | null; direccion: string | null; notas: string | null;
@@ -25,9 +27,40 @@ const fila = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(16
 const nulos = (o: Record<string, string>) => Object.fromEntries(Object.entries(o).map(([k, v]) => [k, v.trim() || null]));
 const subtitulo = { fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-subtle)' } as const;
 
+/** Ficha del cliente: sus oportunidades (de la empresa o del contacto), con lo abierto y lo ganado. */
+function OportunidadesDeCliente({ filtro }: { filtro: { empresaId: string } | { contactoId: string } }) {
+  const { veTodo } = useVeTodoCrm();
+  const [lista, setLista] = useState<Oportunidad[] | null>(null);
+  const [error, setError] = useState('');
+  const qs = new URLSearchParams({ estado: 'todas', ...filtro }).toString();
+  useEffect(() => { api.get<Oportunidad[]>(`/crm/oportunidades?${qs}`).then(setLista).catch((e) => setError(msg(e, 'No se pudieron cargar las oportunidades.'))); }, [qs]);
+  const sumar = (f: Oportunidad[]) => f.reduce<Record<string, number>>((a, o) => ((a[o.moneda] = (a[o.moneda] ?? 0) + Number(o.monto ?? 0)), a), {});
+  const abiertas = (lista ?? []).filter((o) => ABIERTAS.includes(o.etapa));
+  const ganadas = (lista ?? []).filter((o) => o.etapa === 'GANADO');
+  return (
+    <section className="ax-card__body" style={{ borderTop: '1px solid var(--ax-border)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }} aria-label="Oportunidades del cliente">
+      <h3 style={{ margin: 0, fontSize: 'var(--ax-text-sm)' }}>{veTodo ? 'Oportunidades' : 'Mis oportunidades con este cliente'} ({lista?.length ?? '…'})</h3>
+      {error && <Alerta>{error}</Alerta>}
+      {lista && lista.length > 0 && <p style={{ margin: 0, ...subtitulo }}>Abierto: {montos(sumar(abiertas))} ({abiertas.length}) · Ganado: {montos(sumar(ganadas))} ({ganadas.length})</p>}
+      {lista && lista.length === 0 ? <p style={{ margin: 0, ...subtitulo }}>Aún no hay oportunidades.</p> : (
+        <ul className="ax-list" style={{ margin: 0, padding: 0 }}>
+          {(lista ?? []).map((o) => (
+            <li key={o.id} className="ax-list__row" style={{ paddingInline: 0 }}>
+              <span className="ax-list__content"><span className="ax-list__title">{o.titulo}</span><span className="ax-list__meta">{[o.numero, etapa(o.etapa).label, dinero(o.monto, o.moneda), nombreDe(o.asignado)].join(' · ')}</span></span>
+              <span className="ax-list__trailing"><Link className="ax-btn ax-btn--ghost ax-btn--sm" href={`${veTodo ? '/crm/oportunidades' : '/crm/mis-oportunidades'}?id=${o.id}`}>Abrir</Link></span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
 export function CrmEmpresas() {
   const { activeMarcaId, marcas } = useAuth();
   const esAdmin = marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre === 'admin';
+  // Descargar la cartera completa: solo quien ve todo el CRM.
+  const { veTodo } = useVeTodoCrm();
   const { confirmar, dialogo } = useConfirmar();
   const [tab, setTab] = useState<'empresas' | 'contactos'>('empresas');
   const [empresas, setEmpresas] = useState<Empresa[]>([]);
@@ -123,10 +156,25 @@ export function CrmEmpresas() {
   const contactosAbiertos = empresaAbierta ? todosContactos.filter((c) => c.empresaId === empresaAbierta.id) : [];
   const padreDeNueva = editE === 'nueva' && fe.empresaPadreId ? todas.find((x) => x.id === fe.empresaPadreId) : null;
 
+  function exportar() {
+    if (tab === 'empresas') {
+      descargarCsv('empresas', ['Razón social', 'Sede de', 'RUC', 'Rubro', 'Teléfono', 'Web', 'Dirección', 'Contactos', 'Oportunidades', 'Notas'],
+        empresas.map((e) => [e.razonSocial, e.empresaPadre?.razonSocial, e.ruc, e.rubro, e.telefono, e.web, e.direccion, e._count.contactos, e._count.oportunidades, e.notas]));
+    } else {
+      descargarCsv('contactos', ['Nombre', 'Cargo', 'Empresa', 'Correo', 'Celular', 'DNI / RUC', 'Oportunidades', 'Notas'],
+        contactos.map((c) => [c.nombre, c.cargo, c.empresa?.razonSocial, c.email, c.celular, c.documento, c._count.oportunidades, c.notas]));
+    }
+  }
+
   return (
     <>
       <PageHead title="Empresas y contactos" subtitle="Cartera de clientes y prospectos de la marca. Cada empresa puede tener sedes o subempresas y varios contactos. Las solicitudes de la web se agregan solas, sin duplicar por RUC ni por correo."
-        actions={<button type="button" className="ax-btn ax-btn--primary" onClick={() => (tab === 'empresas' ? abrirE('nueva') : abrirC('nuevo'))}><span className="ax-btn__label">{tab === 'empresas' ? 'Nueva empresa' : 'Nuevo contacto'}</span></button>} />
+        actions={
+          <div className="ax-cluster" style={{ gap: 'var(--ax-space-2)', flexWrap: 'wrap' }}>
+            {veTodo && <button type="button" className="ax-btn ax-btn--secondary" disabled={(tab === 'empresas' ? empresas : contactos).length === 0} onClick={exportar}><span className="ax-btn__label">Exportar CSV</span></button>}
+            <button type="button" className="ax-btn ax-btn--primary" onClick={() => (tab === 'empresas' ? abrirE('nueva') : abrirC('nuevo'))}><span className="ax-btn__label">{tab === 'empresas' ? 'Nueva empresa' : 'Nuevo contacto'}</span></button>
+          </div>
+        } />
       {error && <div style={{ marginBlockEnd: 'var(--ax-space-4)' }}><Alerta>{error}</Alerta></div>}
       {ok && <div style={{ marginBlockEnd: 'var(--ax-space-4)' }}><Alerta tono="success">{ok}</Alerta></div>}
 
@@ -180,7 +228,7 @@ export function CrmEmpresas() {
                         <td className="ax-table__td"><div style={{ fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-strong)' }}>{c.nombre}</div>{c.cargo && <div style={subtitulo}>{c.cargo}</div>}</td>
                         <td className="ax-table__td">{emp ? nombreCompleto(emp) : (c.empresa?.razonSocial ?? '—')}</td>
                         <td className="ax-table__td">{c.email ? <a href={`mailto:${c.email}`}>{c.email}</a> : '—'}</td>
-                        <td className="ax-table__td">{c.celular ? <a href={`https://wa.me/51${c.celular}`} target="_blank" rel="noreferrer">{c.celular}</a> : '—'}</td>
+                        <td className="ax-table__td">{c.celular ? <a href={`https://wa.me/${numeroWa(c.celular)}`} target="_blank" rel="noreferrer">{c.celular}</a> : '—'}</td>
                         <td className="ax-table__td ax-num">{c._count.oportunidades}</td>
                         <td className="ax-table__td" style={{ whiteSpace: 'nowrap', textAlign: 'right' }}>
                           <BotonIcono icono="edit" label={`Editar ${c.nombre}`} onClick={() => abrirC(c)} />
@@ -254,6 +302,8 @@ export function CrmEmpresas() {
                   </ul>
                 )}
               </section>
+
+              <OportunidadesDeCliente key={empresaAbierta.id} filtro={{ empresaId: empresaAbierta.id }} />
             </>
           )}
         </Modal>
@@ -274,6 +324,7 @@ export function CrmEmpresas() {
               <button type="submit" className="ax-btn ax-btn--primary" disabled={busy}><span className="ax-btn__label">Guardar</span></button>
             </div>
           </form>
+          {editC !== 'nuevo' && <OportunidadesDeCliente key={editC.id} filtro={{ contactoId: editC.id }} />}
         </Modal>
       )}
       {dialogo}

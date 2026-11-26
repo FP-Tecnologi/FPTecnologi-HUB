@@ -71,22 +71,33 @@ function writeStorage(key: string, value: string | null): void {
   }
 }
 
+/**
+ * La marca activa es de cada pestaña: se lee del navegador al abrirla y cambiarla en otra pestaña no afecta a esta
+ * (si no, un editor abierto aquí guardaría en la marca elegida allá).
+ */
+let marcaPestana: string | null | undefined;
+
 export const tokenStore = {
   getAccessToken: () => readStorage(ACCESS_TOKEN_KEY),
   getRefreshToken: () => readStorage(REFRESH_TOKEN_KEY),
-  getActiveMarcaId: () => readStorage(ACTIVE_MARCA_KEY),
+  getActiveMarcaId: () => {
+    if (marcaPestana === undefined && typeof window !== 'undefined') marcaPestana = readStorage(ACTIVE_MARCA_KEY);
+    return marcaPestana ?? null;
+  },
   setTokens(accessToken: string, refreshToken: string) {
     writeStorage(ACCESS_TOKEN_KEY, accessToken);
     writeStorage(REFRESH_TOKEN_KEY, refreshToken);
     setSessionCookie();
   },
   setActiveMarcaId(marcaId: string | null) {
+    marcaPestana = marcaId;
     writeStorage(ACTIVE_MARCA_KEY, marcaId);
   },
   clear() {
     writeStorage(ACCESS_TOKEN_KEY, null);
     writeStorage(REFRESH_TOKEN_KEY, null);
     writeStorage(ACTIVE_MARCA_KEY, null);
+    marcaPestana = undefined;
     clearSessionCookie();
   },
 };

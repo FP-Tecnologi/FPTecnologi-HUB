@@ -250,13 +250,13 @@ export function CrmAgenda({ propio = false }: { propio?: boolean }) {
         </section>
       </div>
       {abierta && <OportunidadPanel id={abierta} onClose={() => setAbierta(null)} onCambio={cargar} />}
-      {nueva && <NuevaTarea key={activeMarcaId} fechaInicial={dia} onClose={() => setNueva(false)} onCreada={() => { setNueva(false); cargar(); }} />}
+      {nueva && <NuevaTarea key={activeMarcaId} todas={alcance.todas} fechaInicial={dia}onClose={() => setNueva(false)} onCreada={() => { setNueva(false); cargar(); }} />}
     </>
   );
 }
 
 /** Tarea manual: se cuelga de una oportunidad abierta (así aparece también en su ficha). */
-function NuevaTarea({ fechaInicial, onClose, onCreada }: { fechaInicial: string | null; onClose: () => void; onCreada: () => void }) {
+function NuevaTarea({ todas, fechaInicial, onClose, onCreada }: { todas: boolean; fechaInicial: string | null; onClose: () => void; onCreada: () => void }) {
   const [ops, setOps] = useState<Oportunidad[]>([]);
   const [opId, setOpId] = useState('');
   const [texto, setTexto] = useState('');
@@ -264,8 +264,8 @@ function NuevaTarea({ fechaInicial, onClose, onCreada }: { fechaInicial: string 
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   useEffect(() => {
-    api.get<Oportunidad[]>('/crm/oportunidades').then((l) => setOps(l.filter((o) => o.etapa !== 'GANADO' && o.etapa !== 'PERDIDO'))).catch((e) => setError(msg(e, 'No se pudieron cargar las oportunidades.')));
-  }, []);
+    api.get<Oportunidad[]>(`${todas ? '/crm/global/oportunidades' : '/crm/oportunidades'}?estado=abiertas`).then(setOps).catch((e) => setError(msg(e, 'No se pudieron cargar las oportunidades.')));
+  }, [todas]);
 
   async function guardar(e: React.FormEvent) {
     e.preventDefault();
@@ -274,7 +274,7 @@ function NuevaTarea({ fechaInicial, onClose, onCreada }: { fechaInicial: string 
     if (!fecha) return setError('Elige la fecha.');
     setBusy(true);
     try {
-      await api.post(`/crm/oportunidades/${opId}/actividades`, { tipo: 'TAREA', texto: texto.trim(), fecha: deFecha(fecha) });
+      await api.post(`/crm/oportunidades/${opId}/actividades`, { tipo: 'TAREA', texto: texto.trim(), fecha: deFecha(fecha) }, { marcaId: todas ? ops.find((o) => o.id === opId)?.marcaId : undefined });
       onCreada();
     } catch (err) { setError(msg(err, 'No se pudo agregar a la agenda.')); } finally { setBusy(false); }
   }
@@ -286,7 +286,7 @@ function NuevaTarea({ fechaInicial, onClose, onCreada }: { fechaInicial: string 
         <div className="ax-field"><label className="ax-label" htmlFor="ag-op">Oportunidad *</label>
           <Select id="ag-op" className="ax-select" value={opId} onChange={(e) => setOpId(e.target.value)}>
             <option value="">Elige una oportunidad…</option>
-            {ops.map((o) => <option key={o.id} value={o.id}>{o.numero} · {o.titulo}</option>)}
+            {ops.map((o) => <option key={o.id} value={o.id}>{o.marca ? `${o.marca.nombre} · ` : ''}{o.numero} · {o.titulo}</option>)}
           </Select></div>
         <div className="ax-field"><label className="ax-label" htmlFor="ag-tx">¿Qué hay que hacer? *</label><input id="ag-tx" className="ax-input" maxLength={200} value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Ej. Llamar para confirmar la propuesta" /></div>
         <div className="ax-field"><label className="ax-label" htmlFor="ag-f">Fecha *</label><CampoFecha id="ag-f" value={fecha} onChange={setFecha} limpiable={false} /></div>

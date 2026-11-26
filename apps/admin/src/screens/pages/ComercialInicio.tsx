@@ -11,6 +11,8 @@ import { PageHead } from '../../components/shell/PageHead';
 import { Icon } from '../../components/ui/Icon';
 import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
+import { useVistaMenu } from '../../hooks/useVistaMenu';
+import { manifest, visibleEnDashboard } from '../../lib/manifest';
 import { ABIERTAS, EtiquetaMarca, dinero, montos, vencida, type MarcaRef, type Oportunidad } from './crm/comun';
 
 interface Agenda { tareas: { id: string; texto: string; fecha: string; marcaId: string; marca: MarcaRef; oportunidad: { id: string; titulo: string } }[]; acciones: Oportunidad[] }
@@ -43,6 +45,7 @@ li:last-child>.ci-fila{border-block-end-color:transparent}
 export function ComercialInicio() {
   const router = useRouter();
   const { user, marcas, activeMarcaId, setActiveMarcaId } = useAuth();
+  const vista = useVistaMenu();
   const [abiertas, setAbiertas] = useState<Oportunidad[] | null>(null);
   const [agenda, setAgenda] = useState<Agenda | null>(null);
   const [error, setError] = useState('');
@@ -64,13 +67,15 @@ export function ComercialInicio() {
 
   const hoy = new Date(); hoy.setHours(23, 59, 59, 999);
   const tareasHoy = (agenda?.tareas ?? []).filter((t) => new Date(t.fecha).getTime() <= hoy.getTime());
-  const accionesVencidas = (agenda?.acciones ?? []).filter((o) => ABIERTAS.includes(o.etapa) && vencida(o.proximaAccionAt));
+  const accionesHoy = (agenda?.acciones ?? []).filter((o) => ABIERTAS.includes(o.etapa) && o.proximaAccionAt && new Date(o.proximaAccionAt).getTime() <= hoy.getTime());
   // Pendientes de hoy y vencidos (tareas y próximas acciones) en una sola lista, del más antiguo al más próximo.
   const pendientes = [
     ...tareasHoy.map((t) => ({ clave: `t${t.id}`, tarea: true, fecha: t.fecha, titulo: t.texto, detalle: t.oportunidad.titulo, marcaId: t.marcaId, marca: t.marca, opId: t.oportunidad.id, vencida: vencida(t.fecha) })),
-    ...accionesVencidas.map((o) => ({ clave: `a${o.id}`, tarea: false, fecha: o.proximaAccionAt!, titulo: o.proximaAccion ?? 'Dar seguimiento', detalle: `${o.titulo} (${dinero(o.monto, o.moneda)})`, marcaId: o.marcaId, marca: o.marca, opId: o.id, vencida: true })),
+    ...accionesHoy.map((o) => ({ clave: `a${o.id}`, tarea: false, fecha: o.proximaAccionAt!, titulo: o.proximaAccion ?? 'Dar seguimiento', detalle: `${o.titulo} (${dinero(o.monto, o.moneda)})`, marcaId: o.marcaId, marca: o.marca, opId: o.id, vencida: vencida(o.proximaAccionAt) })),
   ].sort((x, y) => new Date(x.fecha).getTime() - new Date(y.fecha).getTime());
   const nombre = (user?.nombre ?? '').split(' ')[0];
+  // Solo las herramientas que el menú ofrece con tu rol y la marca de trabajo.
+  const atajos = ATAJOS.filter((a) => manifest.nodes.some((n) => manifest.trail(n)[0]?.section === 'COMERCIAL' && `/${n.slug}` === a.href && visibleEnDashboard(n, vista)));
 
   return (
     <>
@@ -86,7 +91,7 @@ export function ComercialInicio() {
       </div>
 
       <div className="ax-card" style={{ marginBottom: 'var(--ax-space-5)' }}>
-        <div className="ax-card__header"><div className="ax-card__titles"><h2 className="ax-card__title">Pendientes de hoy</h2><p className="ax-card__subtitle">Tareas por hacer y oportunidades con próxima acción vencida.</p></div></div>
+        <div className="ax-card__header"><div className="ax-card__titles"><h2 className="ax-card__title">Pendientes de hoy</h2><p className="ax-card__subtitle">Tareas y próximas acciones para hoy, más las vencidas.</p></div></div>
         <div className="ax-card__body">
           {!agenda ? <p style={{ margin: 0, color: 'var(--ax-text-muted)' }}>Cargando…</p> : pendientes.length === 0 ? (
             <p style={{ margin: 0, color: 'var(--ax-text-muted)' }}>No tienes pendientes para hoy.</p>
@@ -95,7 +100,7 @@ export function ComercialInicio() {
               {pendientes.map((i) => (
                 <li key={i.clave}>
                   <button type="button" className="ci-fila" style={{ ['--c' as string]: i.vencida ? 'var(--ax-danger-500)' : i.tarea ? 'var(--ax-viz-amber)' : 'var(--ax-viz-emerald)' }} onClick={() => abrir(i.marcaId, i.opId)}>
-                    <span className="ci-hora"><b>{new Date(i.fecha).toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit', hour12: false })}</b><span>{new Date(i.fecha).toLocaleDateString('es-PE', { day: 'numeric', month: 'short' })}</span></span>
+                    <span className="ci-hora"><b>{new Date(i.fecha).toLocaleDateString('es-PE', { day: 'numeric', month: 'short' })}</b><span>{new Date(i.fecha).toLocaleDateString('es-PE', { weekday: 'short' })}</span></span>
                     <span className="ci-cuerpo">
                       <span className="ci-tit">{i.titulo}</span>
                       <span className="ci-meta">
@@ -116,7 +121,7 @@ export function ComercialInicio() {
 
       <h2 style={{ fontSize: 'var(--ax-text-md)', margin: '0 0 var(--ax-space-3)' }}>Tus herramientas</h2>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(230px,1fr))', gap: 'var(--ax-space-3)' }}>
-        {ATAJOS.map((a) => (
+        {atajos.map((a) => (
           <Link key={a.href} href={a.href} className="ax-card" style={{ padding: 'var(--ax-space-4)', display: 'flex', gap: 'var(--ax-space-3)', alignItems: 'center', textDecoration: 'none' }}>
             <Icon name={a.icon} className="ax-icon" />
             <span><b style={{ display: 'block', color: 'var(--ax-text-strong)' }}>{a.titulo}</b><span style={{ fontSize: 'var(--ax-text-xs)', color: 'var(--ax-text-muted)' }}>{a.detalle}</span></span>

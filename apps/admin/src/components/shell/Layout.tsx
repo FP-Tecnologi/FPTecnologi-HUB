@@ -32,9 +32,11 @@ import { Footer } from './Footer';
 import { Loader } from './Loader';
 import { CommandPalette } from './CommandPalette';
 import { MobileNav } from './MobileNav';
+import { ModuloDeLaMarca } from './ModuloDeLaMarca';
 import { slugFromPath } from '../../lib/manifest';
 import { useCustomizer } from '../../context/CustomizerContext';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
+import { useSincronizarVista } from '../../hooks/useVistaMenu';
 
 export function Layout({ children }: { children: ReactNode }) {
   const pathname = usePathname() || '/';
@@ -43,6 +45,7 @@ export function Layout({ children }: { children: ReactNode }) {
   const [customizerOpen, setCustomizerOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const isMobile = useMediaQuery('(max-width: 767.98px)');
+  useSincronizarVista();
 
   // Keep <html data-ax-route> aligned with the active route.
   useEffect(() => {
@@ -125,7 +128,7 @@ export function Layout({ children }: { children: ReactNode }) {
             onNavToggle={onNavToggle}
           />
           <main className="ax-main" id="ax-main">
-            {children}
+            <ModuloDeLaMarca>{children}</ModuloDeLaMarca>
           </main>
           <Footer />
         </div>

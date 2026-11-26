@@ -70,12 +70,22 @@ export const aFecha = (iso: string | null) => { if (!iso) return ''; const d = n
 export const deFecha = (v: string) => (v ? new Date(`${v}T12:00:00`).toISOString() : null);
 export const msg = (e: unknown, d: string) => (e instanceof ApiError ? e.message : d);
 
-/** Admin, jefe comercial y dirección ven todo el CRM (y admin / jefe lo asignan); un comercial solo ve y trabaja lo que tiene asignado. */
-export function useVeTodoCrm() {
+/**
+ * Admin, jefe comercial y dirección ven todo el CRM (y admin / jefe lo asignan); un comercial solo ve y trabaja lo que tiene
+ * asignado. `marcaId`: la marca de una oportunidad concreta (lista consolidada); sin él, la marca de trabajo.
+ */
+export function useVeTodoCrm(marcaId?: string) {
   const { marcas, activeMarcaId } = useAuth();
-  const rol = (marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre ?? '').toLowerCase();
-  return { veTodo: ['admin', 'jefe_comercial', 'direccion'].includes(rol), puedeAsignar: ['admin', 'jefe_comercial'].includes(rol) };
+  const id = marcaId ?? activeMarcaId;
+  const rol = (marcas.find((m) => m.marcaId === id)?.rol.nombre ?? '').toLowerCase();
+  return { veTodo: ['admin', 'jefe_comercial', 'direccion'].includes(rol), puedeAsignar: ['admin', 'jefe_comercial'].includes(rol), esAdmin: rol === 'admin' };
 }
+
+/** Número para `tel:` y WhatsApp: solo dígitos; un celular peruano sin prefijo (9 dígitos) lleva 51. */
+export const numeroWa = (v: string | null | undefined) => { const d = (v ?? '').replace(/\D/g, ''); return d.length === 9 ? `51${d}` : d; };
+
+/** Probabilidad que usa el CRM para cada etapa cuando la oportunidad no tiene una propia (igual que en la API). */
+export const PROBABILIDAD: Record<Etapa, number> = { NUEVO: 10, CONTACTADO: 25, PROPUESTA: 50, NEGOCIACION: 75, GANADO: 100, PERDIDO: 0 };
 
 const ROLES_LEE_CRM = ['admin', 'jefe_comercial', 'comercial', 'direccion'];
 const CLAVE_TODAS = 'crm:todas-las-marcas';
@@ -116,15 +126,14 @@ export function diasSinMovimiento(o: Pick<Oportunidad, 'etapa' | 'updatedAt'>): 
 
 /** Llamar, WhatsApp y correo al contacto de la oportunidad, sin abrir la ficha. Solo muestra lo que el contacto tiene. */
 export function AccionesRapidas({ o }: { o: Pick<Oportunidad, 'contacto' | 'empresa' | 'numero'> }) {
-  const cel = o.contacto?.celular?.replace(/D/g, '') || o.empresa?.telefono?.replace(/D/g, '') || '';
+  const wa = numeroWa(o.contacto?.celular) || numeroWa(o.empresa?.telefono);
   const correo = o.contacto?.email;
-  if (!cel && !correo) return null;
-  const wa = cel.length === 9 ? `51${cel}` : cel; // celular peruano sin prefijo → +51
+  if (!wa && !correo) return null;
   const estilo = { fontSize: 'var(--ax-text-xs)', padding: '2px 8px' } as const;
   return (
     <span className="ax-cluster" style={{ gap: 4 }} onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
-      {cel && <a className="ax-btn ax-btn--ghost ax-btn--sm" style={estilo} href={`tel:+${wa}`} aria-label={`Llamar al contacto de ${o.numero}`}>Llamar</a>}
-      {cel && <a className="ax-btn ax-btn--ghost ax-btn--sm" style={estilo} href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer" aria-label={`WhatsApp al contacto de ${o.numero}`}>WhatsApp</a>}
+      {wa && <a className="ax-btn ax-btn--ghost ax-btn--sm" style={estilo} href={`tel:+${wa}`} aria-label={`Llamar al contacto de ${o.numero}`}>Llamar</a>}
+      {wa && <a className="ax-btn ax-btn--ghost ax-btn--sm" style={estilo} href={`https://wa.me/${wa}`} target="_blank" rel="noreferrer" aria-label={`WhatsApp al contacto de ${o.numero}`}>WhatsApp</a>}
       {correo && <a className="ax-btn ax-btn--ghost ax-btn--sm" style={estilo} href={`mailto:${correo}`} aria-label={`Correo al contacto de ${o.numero}`}>Correo</a>}
     </span>
   );
@@ -164,8 +173,9 @@ export function EtiquetaResponsable({ u }: { u: Usuario | null | undefined }) {
 }
 
 export function useAsignables() {
+  const { activeMarcaId } = useAuth();
   const [lista, setLista] = useState<Usuario[]>([]);
-  useEffect(() => { api.get<Usuario[]>('/crm/asignables').then(setLista).catch(() => setLista([])); }, []);
+  useEffect(() => { api.get<Usuario[]>('/crm/asignables').then(setLista).catch(() => setLista([])); }, [activeMarcaId]);
   return lista;
 }
 
@@ -254,15 +264,15 @@ interface ServicioLista { id: string; nombre: string; activo: boolean }
  */
 function CotizarDesdeFicha({ o, onCreada }: { o: Detalle; onCreada: () => void }) {
   const [abierto, setAbierto] = useState(false);
-  const [servicios, setServicios] = useState<ServicioLista[]>([]);
+  const [servicios, setServicios] = useState<ServicioLista[] | null>(null);
   const [f, setF] = useState({ servicioId: '', propuesta: '', monto: '', moneda: 'PEN', validezDias: '15' });
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [ok, setOk] = useState('');
   useEffect(() => {
-    if (!abierto || servicios.length) return;
+    if (!abierto || servicios) return;
     api.get<ServicioLista[]>('/servicios').then((l) => { const act = l.filter((x) => x.activo); setServicios(act); setF((v) => ({ ...v, servicioId: act[0]?.id ?? '' })); }).catch(() => setError('No se pudieron cargar los servicios.'));
-  }, [abierto, servicios.length]);
+  }, [abierto, servicios]);
   const cerrada = o.etapa === 'GANADO' || o.etapa === 'PERDIDO';
   const tieneCorreo = !!o.contacto?.email;
   const tieneCelular = !!o.contacto?.celular;
@@ -291,14 +301,15 @@ function CotizarDesdeFicha({ o, onCreada }: { o: Detalle; onCreada: () => void }
         <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" aria-expanded={abierto} onClick={() => setAbierto(!abierto)}>{abierto ? 'Cerrar' : 'Preparar cotización'}</button>
       </div>
       {ok && <Alerta tono="success">{ok}</Alerta>}
-      {abierto && (
+      {abierto && servicios?.length === 0 && <p style={{ margin: 0, fontSize: 'var(--ax-text-sm)', color: 'var(--ax-text-muted)' }}>Esta marca no tiene servicios activos para cotizar desde el CRM.</p>}
+      {abierto && servicios?.length !== 0 && (
         <>
           {error && <Alerta>{error}</Alerta>}
           {!tieneCorreo && <Alerta>Esta oportunidad no tiene un contacto con correo: agrégalo en la ficha para poder cotizarle.</Alerta>}
           <div className="ax-field"><label className="ax-label" htmlFor="cz-s">Servicio *</label>
             <select id="cz-s" className="ax-select" value={f.servicioId} onChange={(e) => setF({ ...f, servicioId: e.target.value })}>
-              {servicios.length === 0 && <option value="">Cargando servicios…</option>}
-              {servicios.map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
+              {!servicios && <option value="">Cargando servicios…</option>}
+              {servicios?.map((s) => <option key={s.id} value={s.id}>{s.nombre}</option>)}
             </select></div>
           <div className="ax-field"><label className="ax-label" htmlFor="cz-p">Propuesta</label>
             <textarea id="cz-p" className="ax-textarea" rows={4} maxLength={4000} value={f.propuesta} onChange={(e) => setF({ ...f, propuesta: e.target.value })} placeholder="Qué incluye, plazos y condiciones" /></div>
@@ -334,8 +345,7 @@ function EnviarFolleto({ o, busy, onEnviado }: { o: Detalle; busy: boolean; onEn
   if (!f) return null;
   const nombre = (o.contacto?.nombre ?? '').split(' ')[0];
   const mensaje = `Hola${nombre ? ` ${nombre}` : ''}, te comparto el folleto «${f.titulo}»: ${f.url}`;
-  const cel = o.contacto?.celular?.replace(/D/g, '') || '';
-  const wa = cel.length === 9 ? `51${cel}` : cel;
+  const wa = numeroWa(o.contacto?.celular);
   const correo = o.contacto?.email;
   const abrir = (url: string, tipo: 'WHATSAPP' | 'CORREO') => { window.open(url, '_blank', 'noopener'); onEnviado(tipo, `Folleto «${f.titulo}» enviado por ${tipo === 'WHATSAPP' ? 'WhatsApp' : 'correo'}.`); };
   return (
@@ -356,22 +366,91 @@ function EnviarFolleto({ o, busy, onEnviado }: { o: Detalle; busy: boolean; onEn
   );
 }
 
+/** Cambiar la empresa o el contacto de una oportunidad: se busca uno existente o se crea un contacto nuevo. */
+function CambiarCliente({ o, busy, onGuardar }: { o: Detalle; busy: boolean; onGuardar: (cambio: () => Promise<Detalle>) => Promise<boolean> }) {
+  const [abierto, setAbierto] = useState(false);
+  const [buscar, setBuscar] = useState('');
+  const [sug, setSug] = useState<{ empresas: EmpresaSel[]; contactos: ContactoSel[] }>({ empresas: [], contactos: [] });
+  const [n, setN] = useState({ nombre: '', email: '', celular: '' });
+  const [error, setError] = useState('');
+  useEffect(() => {
+    const q = buscar.trim();
+    if (q.length < 2) { setSug({ empresas: [], contactos: [] }); return; }
+    const t = setTimeout(() => {
+      const qs = `?q=${encodeURIComponent(q)}`;
+      Promise.all([api.get<EmpresaSel[]>(`/crm/empresas${qs}`), api.get<ContactoSel[]>(`/crm/contactos${qs}`)])
+        .then(([empresas, contactos]) => setSug({ empresas: empresas.slice(0, 5), contactos: contactos.slice(0, 5) }))
+        .catch(() => setSug({ empresas: [], contactos: [] }));
+    }, 250);
+    return () => clearTimeout(t);
+  }, [buscar]);
+
+  const aplicar = async (cambio: () => Promise<Detalle>) => {
+    if (await onGuardar(cambio)) { setAbierto(false); setBuscar(''); setN({ nombre: '', email: '', celular: '' }); setError(''); }
+  };
+  const patch = (datos: { empresaId?: string | null; contactoId?: string | null }) => api.patch<Detalle>(`/crm/oportunidades/${o.id}`, datos);
+  const crearContacto = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (n.nombre.trim().length < 2) return setError('Escribe el nombre del contacto.');
+    aplicar(async () => {
+      const c = await api.post<{ id: string }>('/crm/contactos', { nombre: n.nombre.trim(), email: n.email.trim() || undefined, celular: n.celular.trim() || undefined, empresaId: o.empresa?.id });
+      return patch({ contactoId: c.id });
+    });
+  };
+
+  if (!abierto) {
+    return <div><button type="button" className="ax-btn ax-btn--link ax-btn--sm" style={{ paddingInline: 0 }} onClick={() => setAbierto(true)}>{o.empresa || o.contacto ? 'Cambiar empresa o contacto' : 'Agregar empresa o contacto'}</button></div>;
+  }
+  return (
+    <div className="ax-card ax-card--flat" style={{ padding: 'var(--ax-space-4)', display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
+      <div className="ax-cluster" style={{ justifyContent: 'space-between' }}>
+        <div className="ax-label">Cliente de la oportunidad</div>
+        <button type="button" className="ax-btn ax-btn--ghost ax-btn--sm" onClick={() => setAbierto(false)}>Cerrar</button>
+      </div>
+      <div className="ax-field"><label className="ax-label" htmlFor="cc-bus">Buscar empresa o contacto</label>
+        <input id="cc-bus" className="ax-input" autoComplete="off" value={buscar} onChange={(e) => setBuscar(e.target.value)} placeholder="RUC, empresa, nombre, correo o celular" /></div>
+      {(sug.empresas.length > 0 || sug.contactos.length > 0) && (
+        <ul aria-label="Clientes encontrados" style={{ margin: 0, padding: 0, listStyle: 'none' }}>
+          {sug.empresas.map((e) => (
+            <li key={`e${e.id}`}><button type="button" disabled={busy} className="ax-btn ax-btn--ghost ax-btn--sm" style={{ width: '100%', justifyContent: 'flex-start' }} onClick={() => aplicar(() => patch({ empresaId: e.id }))}>
+              <span className="ax-badge ax-badge--soft ax-badge--sm">Empresa</span> {nombreEmpresa(e)}{e.ruc ? ` · RUC ${e.ruc}` : ''}</button></li>
+          ))}
+          {sug.contactos.map((c) => (
+            <li key={`c${c.id}`}><button type="button" disabled={busy} className="ax-btn ax-btn--ghost ax-btn--sm" style={{ width: '100%', justifyContent: 'flex-start' }} onClick={() => aplicar(() => patch({ contactoId: c.id, ...(c.empresa ? { empresaId: c.empresa.id } : {}) }))}>
+              <span className="ax-badge ax-badge--soft ax-badge--sm">Contacto</span> {c.nombre}{c.email ? ` · ${c.email}` : ''}{c.empresa ? ` · ${c.empresa.razonSocial}` : ''}</button></li>
+          ))}
+        </ul>
+      )}
+      <form onSubmit={crearContacto} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ax-space-3)' }}>
+        <div className="ax-label">O crea un contacto nuevo{o.empresa ? ` en ${o.empresa.razonSocial}` : ''}</div>
+        {error && <Alerta>{error}</Alerta>}
+        <div style={fila}>
+          <input className="ax-input" aria-label="Nombre del contacto nuevo" placeholder="Nombre" maxLength={160} value={n.nombre} onChange={(e) => setN({ ...n, nombre: e.target.value })} />
+          <input className="ax-input" type="email" aria-label="Correo del contacto nuevo" placeholder="Correo" maxLength={120} value={n.email} onChange={(e) => setN({ ...n, email: e.target.value })} />
+          <input className="ax-input" aria-label="Celular del contacto nuevo" placeholder="Celular" maxLength={30} value={n.celular} onChange={(e) => setN({ ...n, celular: e.target.value })} />
+        </div>
+        <div><button type="submit" className="ax-btn ax-btn--secondary ax-btn--sm" disabled={busy}>Crear y usar este contacto</button></div>
+      </form>
+    </div>
+  );
+}
+
 /** Ficha de una oportunidad en un panel lateral. `onCambio` refresca la lista de quien la abrió. */
 export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClose: () => void; onCambio: () => void }) {
   const asignables = useAsignables();
-  const { puedeAsignar } = useVeTodoCrm();
   const { confirmar, dialogo } = useConfirmar();
   const [o, setO] = useState<Detalle | null>(null);
+  const { puedeAsignar } = useVeTodoCrm(o?.marcaId);
   const [error, setError] = useState('');
   const [ok, setOk] = useState('');
   const [busy, setBusy] = useState(false);
-  const [form, setForm] = useState({ titulo: '', tipoProceso: '', monto: '', moneda: 'PEN', cierreEstimado: '', asignadoId: '', proximaAccion: '', proximaAccionAt: '' });
+  const [form, setForm] = useState({ titulo: '', tipoProceso: '', probabilidad: '', monto: '', moneda: 'PEN', cierreEstimado: '', asignadoId: '', proximaAccion: '', proximaAccionAt: '' });
   const [act, setAct] = useState<{ tipo: TipoActividad; texto: string; fecha: string }>({ tipo: 'LLAMADA', texto: '', fecha: '' });
 
   const cargarForm = (d: Detalle) => {
     setO(d);
     setForm({
-      titulo: d.titulo, tipoProceso: d.tipoProceso ?? '', monto: d.monto === null ? '' : String(Number(d.monto)), moneda: d.moneda, cierreEstimado: d.cierreEstimado?.slice(0, 10) ?? '',
+      titulo: d.titulo, tipoProceso: d.tipoProceso ?? '', probabilidad: d.probabilidad === null ? '' : String(d.probabilidad), monto: d.monto === null ? '' : String(Number(d.monto)), moneda: d.moneda, cierreEstimado: d.cierreEstimado?.slice(0, 10) ?? '',
       asignadoId: d.asignadoId ?? '', proximaAccion: d.proximaAccion ?? '', proximaAccionAt: aFecha(d.proximaAccionAt),
     });
   };
@@ -382,7 +461,7 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
 
   async function correr(fn: () => Promise<Detalle>, okTxt: string) {
     setBusy(true); setError(''); setOk('');
-    try { cargarForm(await fn()); setOk(okTxt); onCambio(); } catch (e) { setError(msg(e, 'No se pudo guardar.')); } finally { setBusy(false); }
+    try { cargarForm(await fn()); setOk(okTxt); onCambio(); return true; } catch (e) { setError(msg(e, 'No se pudo guardar.')); return false; } finally { setBusy(false); }
   }
 
   const cambiarEtapa = async (nueva: Etapa) => {
@@ -394,8 +473,10 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
   const guardar = (e: React.FormEvent) => {
     e.preventDefault();
     if (form.monto && !(Number(form.monto) >= 0)) return setError('Monto no válido.');
+    const prob = form.probabilidad === '' ? null : Number(form.probabilidad);
+    if (prob !== null && !(Number.isInteger(prob) && prob >= 0 && prob <= 100)) return setError('La probabilidad va de 0 a 100.');
     correr(() => api.patch<Detalle>(`/crm/oportunidades/${id}`, {
-      titulo: form.titulo.trim(), tipoProceso: form.tipoProceso || null, monto: form.monto === '' ? null : Number(form.monto), moneda: form.moneda,
+      titulo: form.titulo.trim(), tipoProceso: form.tipoProceso || null, probabilidad: prob, monto: form.monto === '' ? null : Number(form.monto), moneda: form.moneda,
       cierreEstimado: form.cierreEstimado ? new Date(`${form.cierreEstimado}T12:00:00`).toISOString() : null,
       ...(puedeAsignar ? { asignadoId: form.asignadoId || null } : {}), proximaAccion: form.proximaAccion.trim() || null, proximaAccionAt: deFecha(form.proximaAccionAt),
     }), 'Cambios guardados.');
@@ -444,10 +525,11 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
                 <div>{o.contacto?.nombre ?? '—'}{o.contacto?.cargo ? <span style={{ color: 'var(--ax-text-subtle)' }}> · {o.contacto.cargo}</span> : null}</div>
                 <div style={{ fontSize: 'var(--ax-text-sm)', display: 'flex', gap: 'var(--ax-space-3)', flexWrap: 'wrap' }}>
                   {o.contacto?.email && <a href={`mailto:${o.contacto.email}`}>{o.contacto.email}</a>}
-                  {o.contacto?.celular && <a href={`https://wa.me/51${o.contacto.celular}`} target="_blank" rel="noreferrer">WhatsApp {o.contacto.celular}</a>}
+                  {o.contacto?.celular && <a href={`https://wa.me/${numeroWa(o.contacto.celular)}`} target="_blank" rel="noreferrer">WhatsApp {o.contacto.celular}</a>}
                 </div>
               </div>
             </div>
+            <CambiarCliente key={`${o.empresa?.id}-${o.contacto?.id}`} o={o} busy={busy} onGuardar={(cambio) => correr(cambio, 'Cliente actualizado.')} />
 
             {o.solicitud && (
               <div className="ax-card ax-card--flat" style={{ padding: 'var(--ax-space-3) var(--ax-space-4)' }}>
@@ -478,6 +560,8 @@ export function OportunidadPanel({ id, onClose, onCambio }: { id: string; onClos
                     <Select aria-label="Moneda" className="ax-select" style={{ width: 84 }} value={form.moneda} onChange={set('moneda')}><option value="PEN">S/</option><option value="USD">US$</option></Select>
                     <input id="op-monto" className="ax-input" inputMode="decimal" value={form.monto} onChange={set('monto')} placeholder="0" />
                   </div></div>
+                <div className="ax-field"><label className="ax-label" htmlFor="op-prob">Probabilidad de cierre (%)</label>
+                  <input id="op-prob" className="ax-input" type="number" inputMode="numeric" min={0} max={100} value={form.probabilidad} onChange={set('probabilidad')} placeholder={`Según la etapa: ${PROBABILIDAD[o.etapa]}`} /></div>
                 <div className="ax-field"><label className="ax-label" htmlFor="op-cierre">Cierre estimado</label><CampoFecha id="op-cierre" value={form.cierreEstimado} onChange={(v) => setForm((x) => ({ ...x, cierreEstimado: v }))} placeholder="Sin fecha" /></div>
               </div>
               <div style={fila}>

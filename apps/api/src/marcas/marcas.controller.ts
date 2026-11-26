@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Patch,
@@ -17,13 +18,17 @@ import { Roles } from '../common/decorators/roles.decorator.js';
 import { SuperAdminGuard } from '../common/guards/super-admin.guard.js';
 import { ActividadService } from '../actividad/actividad.service.js';
 import { CurrentUser } from '../common/decorators/current-user.decorator.js';
+import { MarcaActual } from '../common/decorators/marca-actual.decorator.js';
 import type { AuthenticatedUser } from '../auth/types/authenticated-user.js';
 
+/** `MarcaRolGuard` verifica la marca declarada; el `:id` de la ruta debe ser esa misma, o se tocaría otra marca. */
+function mismaMarca(marcaActual: string, marcaPedida: string) {
+  if (marcaActual !== marcaPedida) throw new ForbiddenException('La marca no coincide con la marca activa');
+}
+
 /**
- * Marca (brand/tenant) management. Listing/creating brands is an
- * admin-level, cross-tenant operation, so only JwtAuthGuard applies here —
- * MarcaRolGuard (per-brand access) is used on read/update/delete routes
- * that operate on a specific marcaId.
+ * Marca (brand/tenant) management. Listing and creating brands are cross-tenant operations (super administrador);
+ * reading or updating one brand requires access to that same brand.
  */
 @UseGuards(JwtAuthGuard)
 @Controller('marcas')
@@ -47,6 +52,7 @@ export class MarcasController {
     return this.marcasService.resumen();
   }
 
+  @UseGuards(SuperAdminGuard)
   @Get()
   findAll() {
     return this.marcasService.findAll();
@@ -54,14 +60,16 @@ export class MarcasController {
 
   @UseGuards(MarcaRolGuard)
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@MarcaActual() marcaActual: string, @Param('id') id: string) {
+    mismaMarca(marcaActual, id);
     return this.marcasService.findOne(id);
   }
 
   @UseGuards(MarcaRolGuard)
   @Roles('admin')
   @Patch(':id')
-  update(@CurrentUser() user: AuthenticatedUser, @Param('id') id: string, @Body() dto: UpdateMarcaDto) {
+  update(@MarcaActual() marcaActual: string, @CurrentUser() user: AuthenticatedUser, @Param('id') id: string, @Body() dto: UpdateMarcaDto) {
+    mismaMarca(marcaActual, id);
     return this.marcasService.update(id, dto).then((m) => { this.log(user, 'marca_editada', m.nombre, id); return m; });
   }
 

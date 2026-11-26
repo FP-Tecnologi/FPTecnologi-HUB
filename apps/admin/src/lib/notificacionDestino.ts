@@ -5,6 +5,7 @@
  * en cada notificacion.createMany de la API; este mapeo queda como respaldo para las notificaciones antiguas.
  */
 const POR_TITULO: [RegExp, string][] = [
+  [/oportunidad asignada/i, '/crm/mis-oportunidades'],
   [/lead del cotizador/i, '/cotizador/leads'],
   [/presupuesto mayorista/i, '/ecommerce/presupuestos'],
   [/solicitud de cotizaci/i, '/soluciones/cotizaciones'],

@@ -10,7 +10,7 @@ import { ApexChart } from '../../../components/charts/ApexChart';
 import { Card, Kpi, Vacio, viz } from '../../../components/dashboard/piezas';
 import { api } from '../../../lib/api';
 import { useAuth } from '../../../context/AuthContext';
-import { Alerta, EtiquetaMarca, ORIGENES, SelectorAlcance, dinero, etapa, montos, msg, nombreDe, useAlcanceMarcas, useAsignables, useConfirmar, useVeTodoCrm, type Usuario, type Etapa, type MarcaRef, type Origen } from './comun';
+import { Alerta, EtiquetaMarca, ORIGENES, SelectorAlcance, TIPOS_PROCESO, dinero, etapa, montos, msg, nombreDe, useAlcanceMarcas, useAsignables, useConfirmar, useVeTodoCrm, type Usuario, type Etapa, type MarcaRef, type Origen, type TipoProceso } from './comun';
 
 interface Reporte {
   meses: number;
@@ -19,6 +19,8 @@ interface Reporte {
   porMes: { mes: string; ganadas: number; perdidas: number; montos: Record<string, number> }[];
   porComercial: { asignadoId: string | null; nombre: string; abiertas: number; ganadas: number; perdidas: number; montos: Record<string, number>; conversion: number | null }[];
   porOrigen: { origen: Origen; creadas: number; ganadas: number; montos: Record<string, number> }[];
+  porProceso?: { tipoProceso: TipoProceso | null; creadas: number; ganadas: number; montos: Record<string, number> }[];
+  motivosPerdida?: { motivo: string; cantidad: number; montos: Record<string, number> }[];
 }
 const MES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 const RANGOS = [3, 6, 12] as const;
@@ -118,6 +120,36 @@ export function CrmReportes({ propio = false }: { propio?: boolean }) {
               })}
             </ol>
           ) : <Vacio />}
+        </Card>
+
+        <Card titulo="Por tipo de proceso" sub="Creadas y ganadas en el periodo" cols={6}>
+          {r?.porProceso?.length ? (
+            <div className="ax-table-wrap"><table className="ax-table">
+              <thead className="ax-table__head"><tr>
+                <th className="ax-table__th" scope="col">Proceso</th><th className="ax-table__th" scope="col">Creadas</th><th className="ax-table__th" scope="col">Ganadas</th><th className="ax-table__th" scope="col">Monto ganado</th>
+              </tr></thead>
+              <tbody>{r.porProceso.map((p) => (
+                <tr key={p.tipoProceso ?? 'sin'} className="ax-table__row">
+                  <td className="ax-table__td">{p.tipoProceso ? TIPOS_PROCESO[p.tipoProceso] : 'Sin definir'}</td>
+                  <td className="ax-table__td ax-num">{p.creadas}</td><td className="ax-table__td ax-num">{p.ganadas}</td><td className="ax-table__td ax-num">{montos(p.montos)}</td>
+                </tr>
+              ))}</tbody>
+            </table></div>
+          ) : <Vacio />}
+        </Card>
+        <Card titulo="Motivos de pérdida" sub="Por qué se perdieron oportunidades en el periodo" cols={6}>
+          {r?.motivosPerdida?.length ? (
+            <ol className="ax-ranklist">
+              {r.motivosPerdida.map((m, i) => (
+                <li key={m.motivo} className="ax-ranklist__item" title={`Monto perdido: ${montos(m.montos)}`}>
+                  <span className="ax-ranklist__rank">{i + 1}</span>
+                  <span className="ax-ranklist__label">{m.motivo}</span>
+                  <span className="ax-ranklist__value">{m.cantidad} · {montos(m.montos)}</span>
+                  <span className="ax-ranklist__bar"><i style={{ width: `${(m.cantidad / r.motivosPerdida![0]!.cantidad) * 100}%` }} /></span>
+                </li>
+              ))}
+            </ol>
+          ) : <Vacio texto="No hay oportunidades perdidas en este periodo." />}
         </Card>
       </div>
     </>

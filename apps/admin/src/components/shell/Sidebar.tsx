@@ -21,9 +21,10 @@ import {
   slugFromPath,
   hrefForSlug,
   visibleForRole,
-  visibleParaMarca,
+  tieneContenido,
   type NavNode,
 } from '../../lib/manifest';
+import { useVistaMenu } from '../../hooks/useVistaMenu';
 import { Icon } from '../ui/Icon';
 import { API_URL } from '../../lib/api';
 
@@ -54,12 +55,13 @@ const CARET = (
 );
 
 function MarcaSwitcher() {
-  const { marcas, activeMarcaId, setActiveMarcaId, adminMode, setAdminMode, esSuperAdmin } = useAuth();
+  const { marcas, activeMarcaId, setActiveMarcaId, adminMode, setAdminMode, esSuperAdmin, comercialMode, esComercial, setComercialMode, marcasComerciales } = useAuth();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const active = marcas.find((m) => m.marcaId === activeMarcaId) ?? marcas[0] ?? null;
   const isAdmin = esSuperAdmin;
-  const showCombo = marcas.length > 1 || isAdmin;
+  const showCombo = marcas.length > 1 || isAdmin || esComercial;
+  const enMarca = !adminMode && !comercialMode;
 
   return (
     <div className="ax-marcaswitch" style={{ padding: 'var(--ax-space-3) var(--ax-space-4)', borderBottom: '1px solid var(--ax-border)' }}>
@@ -82,12 +84,12 @@ function MarcaSwitcher() {
           >
             <span className="ax-cluster" style={{ gap: 'var(--ax-space-2)' }}>
               <span aria-hidden="true" style={{ width: 10, height: 10, borderRadius: '50%', background: 'var(--ax-accent)' }} />
-              <span className="ax-btn__label" style={{ fontWeight: 600 }}>{adminMode ? 'Administración' : (active?.marca.nombre ?? 'Elegir')}</span>
+              <span className="ax-btn__label" style={{ fontWeight: 600 }}>{adminMode ? 'Administración' : comercialMode ? 'Comercial' : (active?.marca.nombre ?? 'Elegir')}</span>
             </span>
             {CARET}
           </button>
           {open && (
-            <ul role="listbox" aria-label="Elegir vista: administración o marca" style={{ listStyle: 'none', margin: 'var(--ax-space-2) 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <ul role="listbox" aria-label="Elegir vista: administración, comercial o marca" style={{ listStyle: 'none', margin: 'var(--ax-space-2) 0 0', padding: 0, display: 'flex', flexDirection: 'column', gap: 2 }}>
               {isAdmin && (
                 <li key="__admin__">
                   <button
@@ -103,15 +105,30 @@ function MarcaSwitcher() {
                   </button>
                 </li>
               )}
+              {esComercial && (
+                <li key="__comercial__">
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={comercialMode}
+                    onClick={() => { setComercialMode(true); setOpen(false); router.push('/comercial/inicio'); }}
+                    className="ax-btn ax-btn--ghost ax-btn--block"
+                    style={{ justifyContent: 'flex-start', fontWeight: comercialMode ? 600 : 400 }}
+                  >
+                    <span>Comercial</span>
+                    <span style={{ marginLeft: 'auto', fontSize: 'var(--ax-text-2xs)', color: 'var(--ax-text-subtle)' }}>CRM y ventas</span>
+                  </button>
+                </li>
+              )}
               {marcas.map((m) => (
                 <li key={m.marcaId}>
                   <button
                     type="button"
                     role="option"
-                    aria-selected={!adminMode && active !== null && m.marcaId === active.marcaId}
+                    aria-selected={enMarca && active !== null && m.marcaId === active.marcaId}
                     onClick={() => { setActiveMarcaId(m.marcaId); setOpen(false); router.push('/'); }}
                     className="ax-btn ax-btn--ghost ax-btn--block"
-                    style={{ justifyContent: 'flex-start', fontWeight: !adminMode && active !== null && m.marcaId === active.marcaId ? 600 : 400 }}
+                    style={{ justifyContent: 'flex-start', fontWeight: enMarca && active !== null && m.marcaId === active.marcaId ? 600 : 400 }}
                   >
                     <span>{m.marca.nombre}</span>
                     <span style={{ marginLeft: 'auto', fontSize: 'var(--ax-text-2xs)', color: 'var(--ax-text-subtle)' }}>{m.rol.nombre}</span>
@@ -120,6 +137,14 @@ function MarcaSwitcher() {
               ))}
             </ul>
           )}
+        </div>
+      )}
+      {comercialMode && marcasComerciales.length > 1 && (
+        <div style={{ marginBlockStart: 'var(--ax-space-3)' }}>
+          <label htmlFor="marca-trabajo" className="ax-label" style={{ fontSize: 'var(--ax-text-2xs)' }}>Marca de trabajo</label>
+          <select id="marca-trabajo" className="ax-select" value={activeMarcaId ?? ''} onChange={(e) => setActiveMarcaId(e.target.value, { mantenerVista: true })}>
+            {marcasComerciales.map((m) => <option key={m.marcaId} value={m.marcaId}>{m.marca.nombre}</option>)}
+          </select>
         </div>
       )}
       {marcas.length === 0 && (
@@ -170,8 +195,8 @@ interface GroupProps {
 function Group({ node, level, activeSlug, roleName }: GroupProps) {
   const router = useRouter();
   const { marcas, activeMarcaId: activeId, adminMode: am } = useAuth();
-  const nombreMarca = am ? null : (marcas.find((m) => m.marcaId === activeId)?.marca.nombre ?? null);
-  const visible = (c: NavNode) => c.inMenu && visibleForRole(c, roleName) && !(am && c.soloMarca) && (am || visibleParaMarca(c, nombreMarca, roleName));
+  const ctx = useVistaMenu();
+  const visible = (c: NavNode) => tieneContenido(c, ctx);
   const children = manifest.childrenOf(node.id).filter(visible);
   const showBrands = node.id === 'inicio.dashboards' && marcas.length > 0;
   const containsActive = useMemo(
@@ -330,14 +355,10 @@ function ApiStatus() {
 export function Sidebar({ drawerOpen = false, onNavToggle }: { drawerOpen?: boolean; onNavToggle: () => void }) {
   const activeSlug = slugFromPath(usePathname() || '/');
   const rootRef = useRef<HTMLElement>(null);
-  const { marcas, activeMarcaId, adminMode, esSuperAdmin } = useAuth();
-  const isAdmin = esSuperAdmin;
-  const roleName = adminMode
-    ? (isAdmin ? 'admin' : (marcas[0]?.rol.nombre ?? null))
-    : (marcas.find((m) => m.marcaId === activeMarcaId)?.rol.nombre ?? null);
-  const marcaActiva = !adminMode ? (marcas.find((m) => m.marcaId === activeMarcaId) ?? null) : null;
+  const ctx = useVistaMenu();
+  const { roleName } = ctx;
   useFocusTrap(rootRef, drawerOpen, '.ax-marcaswitch__trigger');
-  // Cada marca ve solo sus módulos (Quamtu y Fimav usan una parte del HUB): ver MODULOS_POR_MARCA en lib/manifest.ts.
+  // Cada vista (Administración, Comercial o una marca) ve solo sus módulos: ver visibleEnDashboard en lib/manifest.ts.
 
   return (
     <aside className="ax-sidebar" role="navigation" aria-label="Primary" ref={rootRef}>
@@ -363,12 +384,12 @@ export function Sidebar({ drawerOpen = false, onNavToggle }: { drawerOpen?: bool
       {/* ===== NAV TREE ===== */}
       <nav className="ax-sidebar__nav" role="tree" aria-label="Main menu">
         {sections().map((section) => {
-          const groups = groupsInSection(section).filter((g) => g.inMenu && visibleForRole(g, roleName) && (g.section !== 'MARCA' || !adminMode) && (adminMode || visibleParaMarca(g, marcaActiva?.marca.nombre, roleName)) && (g.section !== 'GENERAL' || adminMode) && (g.id !== 'inicio.dashboards' || adminMode));
+          const groups = groupsInSection(section).filter((g) => tieneContenido(g, ctx));
           if (groups.length === 0) return null;
           return (
             <div key={section}>
               <p className="ax-sidebar__section" role="presentation">
-                {sectionLabel(section, section === 'MARCA' ? (marcaActiva?.marca.nombre ?? undefined) : undefined)}
+                {sectionLabel(section, section === 'MARCA' ? (ctx.marcaNombre ?? undefined) : undefined)}
               </p>
               {groups.map((g) => (
                 <Group
@@ -395,6 +416,7 @@ function sectionLabel(s: string, marcaNombre?: string): string {
   if (s === 'MARCA') return marcaNombre ? `${marcaNombre} Web` : 'Marca activa';
   const map: Record<string, string> = {
     GENERAL: 'General',
+    COMERCIAL: 'Comercial',
     MAIN: 'Cuenta',
     APPLICATIONS: 'Applications',
     MODULES: 'Modules',

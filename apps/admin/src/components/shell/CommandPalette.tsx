@@ -32,7 +32,7 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { manifest, hrefForSlug, visibleEnDashboard } from '../../lib/manifest';
-import { useAuth } from '../../context/AuthContext';
+import { useVistaMenu } from '../../hooks/useVistaMenu';
 import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { useCustomizer } from '../../context/CustomizerContext';
 import * as store from '../../lib/storage';
@@ -73,11 +73,12 @@ interface ResultGroup {
 }
 
 /** `visible`: solo lo que el menú lateral muestra a este usuario (rol, marca activa, Administración). */
-function buildItems(visible: (n: (typeof manifest.nodes)[number]) => boolean): Item[] {
+function buildItems(visible: (n: (typeof manifest.nodes)[number]) => boolean, conAlias: boolean): Item[] {
   const items: Item[] = [];
   // Pages (every in-menu leaf with a real slug)
   for (const node of manifest.nodes) {
-    if (node.alias) continue;
+    // En Comercial las páginas de otras secciones solo están como alias (el original queda oculto allí).
+    if (node.alias && !conAlias) continue;
     if (node.parent === null) continue; // skip bare section groups as page rows
     if (!visible(node)) continue;
     const trail = manifest.trail(node);
@@ -188,11 +189,8 @@ export function CommandPalette({
   const inputRef = useRef<HTMLInputElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
-  const { marcas, activeMarcaId, adminMode, esSuperAdmin, comercialMode } = useAuth();
-  const marcaActiva = marcas.find((m) => m.marcaId === activeMarcaId);
-  const roleName = adminMode || (comercialMode && esSuperAdmin) ? (esSuperAdmin ? 'admin' : (marcas[0]?.rol.nombre ?? null)) : (marcaActiva?.rol.nombre ?? null);
-  const marcaNombre = adminMode ? null : (marcaActiva?.marca.nombre ?? null);
-  const items = useMemo(() => buildItems((n) => visibleEnDashboard(n, { roleName, adminMode, marcaNombre, comercialMode })), [roleName, adminMode, marcaNombre, comercialMode]);
+  const ctx = useVistaMenu();
+  const items = useMemo(() => buildItems((n) => visibleEnDashboard(n, ctx), ctx.comercialMode), [ctx]);
   useFocusTrap(panelRef, open);
 
   const groups = useMemo(

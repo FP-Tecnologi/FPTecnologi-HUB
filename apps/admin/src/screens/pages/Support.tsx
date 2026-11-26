@@ -3,13 +3,12 @@
  * FPTecnologi-HUB — Centro de ayuda / Soporte (ruta "pages/support").
  *
  * Pantalla del dashboard: buscador local de artículos, categorías de ayuda,
- * artículos populares, formulario de solicitud (solo estado local, sin
- * backend todavía) y tarjetas de contacto directo.
+ * artículos populares, acceso a Ayuda para enviar una solicitud y tarjetas
+ * de contacto directo.
  */
 import { useMemo, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { PageHead } from '../../components/shell/PageHead';
-import { Select } from '../../components/ui/Select';
 
 interface Article { id: number; title: string; cat: string; }
 const ARTICLES: Article[] = [
@@ -50,7 +49,6 @@ const CHANNELS: { label: string; sub: string; tint: string; href?: string; icon:
 export function Support() {
   const [q, setQ] = useState('');
   const [open, setOpen] = useState<number | null>(null);
-  const [sent, setSent] = useState(false);
 
   const results = useMemo(() => {
     const t = q.trim().toLowerCase();
@@ -58,22 +56,11 @@ export function Support() {
     return ARTICLES.filter((a) => a.title.toLowerCase().includes(t) || a.cat.toLowerCase().includes(t));
   }, [q]);
 
-  const submit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSent(true);
-  };
-
   return (
     <>
       <PageHead
         title="Centro de ayuda"
         subtitle="Busca respuestas sobre pedidos, cuenta, cotizaciones o garantías, o escríbenos directamente."
-        actions={
-          <Link className="ax-btn ax-btn--secondary" href="/pages/faq">
-            <svg className="ax-btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0" /><path d="M12 16v.01" /><path d="M12 13a2 2 0 0 0 .914 -3.782a1.98 1.98 0 0 0 -2.414 .483" /></svg>
-            <span className="ax-btn__label">Ver preguntas frecuentes</span>
-          </Link>
-        }
       />
 
       {/* BUSCADOR */}
@@ -149,73 +136,15 @@ export function Support() {
               ))}
             </div>
           </div>
-          <div className="ax-card__footer"><Link className="ax-link" href="/pages/faq">Ver todos los artículos →</Link></div>
         </section>
 
-        {/* formulario de solicitud */}
+        {/* solicitud: se envía desde Ayuda, que sí llega al equipo */}
         <section className="ax-card ax-col--5" role="region" aria-label="Enviar una solicitud">
           <div className="ax-card__header">
-            <div className="ax-card__titles"><span className="ax-card__eyebrow">¿Sigues atascado?</span><h2 className="ax-card__title">Envíanos tu solicitud</h2><p className="ax-card__subtitle">Completa el formulario o escríbenos a <a className="ax-link" href="mailto:soporte@fptecnologi.com">soporte@fptecnologi.com</a>.</p></div>
+            <div className="ax-card__titles"><span className="ax-card__eyebrow">¿Sigues atascado?</span><h2 className="ax-card__title">Envíanos tu solicitud</h2><p className="ax-card__subtitle">Desde Ayuda tu mensaje llega al equipo de soporte. También puedes escribir a <a className="ax-link" href="mailto:soporte@fptecnologi.com">soporte@fptecnologi.com</a>.</p></div>
           </div>
           <div className="ax-card__body" style={{ paddingTop: 0 }}>
-            {sent ? (
-              <div className="ax-flex" role="status" style={{ flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 'var(--ax-space-3)', padding: 'var(--ax-space-6) 0' }}>
-                <span className="ax-avatar ax-avatar--lg ax-avatar--squircle" style={{ background: 'var(--ax-success-50)', color: 'var(--ax-success-500)' }}><svg className="ax-avatar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12l5 5l10 -10" /></svg></span>
-                <div>
-                  <p style={{ fontWeight: 'var(--ax-weight-semibold)', color: 'var(--ax-text-strong)', fontSize: 'var(--ax-text-md)' }}>Hemos recibido tu solicitud</p>
-                  <p style={{ color: 'var(--ax-text-muted)', fontSize: 'var(--ax-text-sm)', marginTop: 4 }}>Gracias por escribirnos. Te contactaremos a tu correo a la brevedad. Si es urgente, escríbenos directo a <a className="ax-link" href="mailto:soporte@fptecnologi.com">soporte@fptecnologi.com</a>.</p>
-                </div>
-                <button type="button" className="ax-btn ax-btn--secondary ax-btn--sm" onClick={() => setSent(false)}>Enviar otra solicitud</button>
-              </div>
-            ) : (
-              <form className="ax-flex" onSubmit={submit} style={{ flexDirection: 'column', gap: 'var(--ax-space-4)' }}>
-                <div className="ax-field">
-                  <label className="ax-label" htmlFor="t-subject">Asunto</label>
-                  <input id="t-subject" type="text" className="ax-input" placeholder="Resumen breve de tu consulta" required />
-                </div>
-                <div className="ax-field">
-                  <label className="ax-label" htmlFor="t-email">Correo</label>
-                  <input id="t-email" type="email" className="ax-input" placeholder="tucorreo@empresa.com" required autoComplete="email" />
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--ax-space-3)' }}>
-                  <div className="ax-field">
-                    <label className="ax-label" htmlFor="t-cat">Categoría</label>
-                    <Select id="t-cat" className="ax-select" required defaultValue="">
-                      <option value="">Elige…</option>
-                      <option>Pedidos</option>
-                      <option>Cuenta y acceso</option>
-                      <option>Cotizaciones</option>
-                      <option>Garantías y soporte técnico</option>
-                      <option>Otro</option>
-                    </Select>
-                  </div>
-                  <div className="ax-field">
-                    <label className="ax-label" htmlFor="t-pri">Prioridad</label>
-                    <Select id="t-pri" className="ax-select" defaultValue="Normal">
-                      <option>Baja</option>
-                      <option>Normal</option>
-                      <option>Alta</option>
-                      <option>Urgente</option>
-                    </Select>
-                  </div>
-                </div>
-                <div className="ax-field">
-                  <label className="ax-label" htmlFor="t-desc">Descripción</label>
-                  <textarea id="t-desc" className="ax-textarea" rows={4} placeholder="Cuéntanos qué ocurre e incluye tu número de pedido si aplica…" required />
-                </div>
-                <div className="ax-field">
-                  <span className="ax-label">Adjunto</span>
-                  <label htmlFor="t-file" className="ax-btn ax-btn--secondary ax-btn--block" style={{ cursor: 'pointer' }}>
-                    <svg className="ax-btn__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 7l-6.5 6.5a1.5 1.5 0 0 0 3 3l6.5 -6.5a3 3 0 0 0 -6 -6l-6.5 6.5a4.5 4.5 0 0 0 9 9l6.5 -6.5" /></svg>
-                    <span className="ax-btn__label">Adjuntar captura o foto</span>
-                  </label>
-                  <input id="t-file" type="file" className="ax-visually-hidden" aria-label="Adjuntar un archivo" />
-                </div>
-                <button type="submit" className="ax-btn ax-btn--primary ax-btn--block">
-                  <span className="ax-btn__label">Enviar solicitud</span>
-                </button>
-              </form>
-            )}
+            <Link className="ax-btn ax-btn--primary ax-btn--block" href="/ayuda"><span className="ax-btn__label">Escribir a soporte</span></Link>
           </div>
         </section>
       </div>
