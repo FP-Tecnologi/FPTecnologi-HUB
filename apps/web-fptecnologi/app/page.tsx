@@ -15,6 +15,8 @@ import { getDestacados } from '@/lib/catalogo';
 import { getProyectos } from '@/lib/referencias';
 import { metaSeo } from '@/lib/seo';
 import { BannerBbva } from '@/components/site/BannerBbva';
+import { VideosSeccion } from '@/components/site/VideosSeccion';
+import { aVideos, getVideosCanal } from '@/lib/youtube';
 
 export const generateMetadata = () => metaSeo('home');
 
@@ -52,6 +54,9 @@ export default async function HomePage() {
     getDestacados(4),
     getProyectos(),
   ]);
+  // Videos elegidos en el dashboard; si no hay, los últimos del canal.
+  const elegidos = aVideos(c.videos.items ?? []);
+  const videos = c.videos.visible ? (elegidos.length ? elegidos : await getVideosCanal(12)) : [];
   return (
     <>
       <main id="contenido">
@@ -66,6 +71,7 @@ export default async function HomePage() {
         <BannerBbva variante="hero" />
         {c.partners.visible && <PartnerCta c={c.partners} />}
         {c.contacto.visible && <Contact c={c.contacto} />}
+        <VideosSeccion c={c.videos} videos={videos} />
         {c.marcas.visible && <BrandMarquee showLabel={false} marcas={c.marcas.items.filter((m) => m.name && m.logo).map((m) => ({ name: m.name, logo: m.logo, solido: m.solido === 'si' }))} />}
       </main>
       <Footer />

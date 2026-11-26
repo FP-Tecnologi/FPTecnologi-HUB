@@ -38,6 +38,8 @@ export type ItemTexto = { title: string; text: string };
 /** Logo del carrusel de marcas. `solido` = 'si' si el logo trae caja o fondo de color (se muestra a color siempre). */
 export type MarcaHome = { name: string; logo: string; solido: string };
 export type CategoriaHome = { title: string; slug: string; image: string };
+/** Video de YouTube elegido desde el dashboard (url + título opcional). */
+export type VideoHome = { url: string; titulo: string };
 
 export type HomeContenido = {
   hero: { visible: boolean; slides: HeroSlide[] };
@@ -50,6 +52,7 @@ export type HomeContenido = {
   proyectos: Encabezado;
   clientes: Encabezado;
   partners: Encabezado & { pasos: ItemTexto[] };
+  videos: Encabezado & { items: VideoHome[] };
   contacto: Encabezado & FormularioContacto;
 };
 
@@ -131,6 +134,18 @@ export const HOME_DEFAULTS: HomeContenido = {
       botonTexto: 'Ser partner',
     }),
     pasos: PARTNER_STEPS.map((p) => ({ title: p.title, text: p.text })),
+  },
+  // Videos generales (demostraciones de equipos, soluciones). Al final, tras el contacto.
+  videos: {
+    ...enc({
+      badge: 'Nuestros videos',
+      titulo: 'Mira lo que',
+      destacado: 'hacemos',
+      descripcion: 'Demostraciones de equipos, soluciones y proyectos que implementamos. Mira más en nuestro canal o visítanos y te los mostramos en persona.',
+      botonTexto: 'Ver más en nuestro canal',
+    }),
+    // Vacío = se muestran solos los últimos videos del canal.
+    items: [],
   },
   contacto: {
     ...enc({
