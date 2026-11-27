@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { CreditCard, Facebook, Instagram, Landmark, Linkedin, Mail, MapPin, Phone } from 'lucide-react';
+import { CreditCard, Landmark, Mail, MapPin, Phone } from 'lucide-react';
+import { Facebook, Instagram, Linkedin } from './RedesIconos';
 import Logo from './Logo';
 import LibroBadge from './LibroBadge';
 import CorteHex from './hex/CorteHex';
