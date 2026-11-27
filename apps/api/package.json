@@ -51,7 +51,7 @@
     "reflect-metadata": "^0.2.2",
     "resend": "^6.39.0",
     "rxjs": "^7.8.1",
-    "unpdf": "^1.8.1"
+    "unpdf": "^2.2.2"
   },
   "devDependencies": {
     "@nestjs/cli": "^12.0.13",
