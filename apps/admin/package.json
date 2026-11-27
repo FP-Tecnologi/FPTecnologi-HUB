@@ -14,7 +14,7 @@
     "test:responsive": "node scripts/responsive-check.mjs"
   },
   "dependencies": {
-    "apexcharts": "^7.8.0",
+    "apexcharts": "^8.9.1",
     "leaflet": "^1.9.4",
     "next": "^16.4.6",
     "react": "^19.3.0",
